@@ -54,6 +54,32 @@
     }
   },
   {
+    "id": "format-constructor-66e3ec",
+    "size": 28,
+    "offset": 6743020,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e3ec@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860798": {
+        "va": 286656408,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 24 and mode 1, then installs its method table at RVA 0x860798.",
+    "match": {
+      "bytes_sha256": "4b5313b38fd99a90c8383e3a0a57b2aa2cbd855e75c56fca6c6cc6cba698c3a3",
+      "inputs_sha256": "fbe393d55eef588bc1e38c17d3d1ebde9274aa9806a71e694de35b459f2186b8"
+    }
+  },
+  {
     "id": "delete-members-66e408",
     "size": 28,
     "offset": 6743048,
@@ -78,6 +104,32 @@
     "match": {
       "bytes_sha256": "982113a6250de8dcafdc49f4208aa1c40d146b4e2adb7aa6510eb31285e2072f",
       "inputs_sha256": "8aaa7413c23e1753d8e7952b8c50e997e0c8d966c5cd7cf9b3115e4b1f86d91f"
+    }
+  },
+  {
+    "id": "format-constructor-66e4d8",
+    "size": 28,
+    "offset": 6743256,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e4d8@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8607a8": {
+        "va": 286656424,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x8607a8.",
+    "match": {
+      "bytes_sha256": "3a1a51e41283291a5f5f3bf0bc0a156324b18ecca3db86f7cb38572da2b2d26d",
+      "inputs_sha256": "a9274b5e6b8896039edcf7c71fc5c47df5b08bbd2ca25049d3559f1fd3156334"
     }
   },
   {
@@ -108,6 +160,32 @@
     }
   },
   {
+    "id": "format-constructor-66e5ad",
+    "size": 28,
+    "offset": 6743469,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e5ad@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8607b8": {
+        "va": 286656440,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x8607b8.",
+    "match": {
+      "bytes_sha256": "e33b916ad1994e335c1e0242834a806c9c378b7ec46372b1620c586f2d730ca7",
+      "inputs_sha256": "0b969861f74743537d42bedee4cad97b660c11027e6afbb50464174c7cdb552a"
+    }
+  },
+  {
     "id": "delete-members-66e5c9",
     "size": 28,
     "offset": 6743497,
@@ -132,6 +210,32 @@
     "match": {
       "bytes_sha256": "f619e6d2d41275ebd2a5fcb56c0d1dd210318100716870a811beda6a171c72d1",
       "inputs_sha256": "5193fb41d81c11b48dbf1d6d69bb2bab53ba0aef8b50c4325c05b15aa446471f"
+    }
+  },
+  {
+    "id": "format-constructor-66e5e5",
+    "size": 28,
+    "offset": 6743525,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e5e5@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8607c8": {
+        "va": 286656456,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8607c8.",
+    "match": {
+      "bytes_sha256": "775f7db0c5e8cee20bb17e34cd4e6f1d39b0be4351dc87a42b30276d5d7b2c4c",
+      "inputs_sha256": "fcb3d90e10d35d913281035a8b6e96230a100374d9556e0c463add86aad08214"
     }
   },
   {
@@ -162,6 +266,32 @@
     }
   },
   {
+    "id": "format-constructor-66e699",
+    "size": 28,
+    "offset": 6743705,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e699@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8607d8": {
+        "va": 286656472,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8607d8.",
+    "match": {
+      "bytes_sha256": "e6fc07fb2162bc8aa17bad81c272e6d46c20ada6c8301914d1a5c24b49ce5eab",
+      "inputs_sha256": "790e6f10326f22ba8c62cc474831241a489235b024ed28bbdcd3ecb1ca683f95"
+    }
+  },
+  {
     "id": "delete-members-66e73c",
     "size": 28,
     "offset": 6743868,
@@ -186,6 +316,32 @@
     "match": {
       "bytes_sha256": "3307b10a1ef90a266511c1f76e141915fd7749177f44c72dcdaade7ccb4771f4",
       "inputs_sha256": "cea350911d4b4947f792b08f589bd29a858b96c47d8b77cf215cdaac4c187392"
+    }
+  },
+  {
+    "id": "format-constructor-66e758",
+    "size": 28,
+    "offset": 6743896,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e758@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8607e8": {
+        "va": 286656488,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8607e8.",
+    "match": {
+      "bytes_sha256": "7cd4d1614ce30c7fe0ad71cb0d888ec40300652c1994351d4c8ff179e31fcad7",
+      "inputs_sha256": "c2a3ecb6ac62ea614d3b549c630effecea7f719f107121200739bb88c9b5a6d2"
     }
   },
   {
@@ -216,6 +372,32 @@
     }
   },
   {
+    "id": "format-constructor-66e82e",
+    "size": 28,
+    "offset": 6744110,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e82e@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8607f8": {
+        "va": 286656504,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8607f8.",
+    "match": {
+      "bytes_sha256": "0d0cd449797158275d502bb112cb6ab83541ee57e423b33ddbf2acf72d3dbfa2",
+      "inputs_sha256": "1b789c47f659001f42d3395ac37ecc1c214e9eb33ac915f438c95e57ceda76a1"
+    }
+  },
+  {
     "id": "delete-members-66e8e8",
     "size": 28,
     "offset": 6744296,
@@ -240,6 +422,32 @@
     "match": {
       "bytes_sha256": "08d3f5630f6802d87ac63547b8b043472875fb4dd3783a439fd2ce6c213d4ffb",
       "inputs_sha256": "b39ff0737c7e53ad065a2ad6f62ad7638c069db4db01ae6e3e5d242d02cb3746"
+    }
+  },
+  {
+    "id": "format-constructor-66e904",
+    "size": 28,
+    "offset": 6744324,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e904@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860808": {
+        "va": 286656520,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 8 and mode 1, then installs its method table at RVA 0x860808.",
+    "match": {
+      "bytes_sha256": "2c2ff67aba753ffc5c44a9c921d0fd6cf57d32e6eb10c7408b8dca52851a678e",
+      "inputs_sha256": "b3ffee83158555e328ab02d1a3df9df8f6256ce576bca377f8b3e0798fc99e18"
     }
   },
   {
@@ -270,6 +478,32 @@
     }
   },
   {
+    "id": "format-constructor-66e9c5",
+    "size": 28,
+    "offset": 6744517,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66e9c5@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860818": {
+        "va": 286656536,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 8 and mode 1, then installs its method table at RVA 0x860818.",
+    "match": {
+      "bytes_sha256": "aba1612a5ab50c9925a4a99ddb32be5747cfd92da8b8cd0731e2ea8d5c020140",
+      "inputs_sha256": "b830adea4f91b8e548d5e2b75675f57582c3202ed09ebed4ed53979307d25cbc"
+    }
+  },
+  {
     "id": "delete-members-66e9e1",
     "size": 28,
     "offset": 6744545,
@@ -294,6 +528,32 @@
     "match": {
       "bytes_sha256": "bc3e31b57febdde120ce79edec64c411d9d17490d0ce6cc6ce2391602ccd0a17",
       "inputs_sha256": "41318baa7e3a41191f7c12da05a30f6b7154cf2397efca18c92ac58143346dab"
+    }
+  },
+  {
+    "id": "format-constructor-66eab8",
+    "size": 28,
+    "offset": 6744760,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66eab8@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860828": {
+        "va": 286656552,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x860828.",
+    "match": {
+      "bytes_sha256": "abb0a276fb45f2f110ad80f7583c5cf21d12b336cc81015c1193cc4825e6c758",
+      "inputs_sha256": "44a5d735acf53476b4fdece45393669dc2497e3b9995c912f626539e249fd64f"
     }
   },
   {
@@ -324,6 +584,32 @@
     }
   },
   {
+    "id": "format-constructor-66eaf0",
+    "size": 28,
+    "offset": 6744816,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66eaf0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860838": {
+        "va": 286656568,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x860838.",
+    "match": {
+      "bytes_sha256": "7807d6905365863c7c8b529967c4cba7b24616a4bdcc28b9cde725c78a0f0f7c",
+      "inputs_sha256": "b963fb2d7124a28b7c08be058282fb6f5fb7404b3b66100cbb6e33aa1dcc113d"
+    }
+  },
+  {
     "id": "delete-members-66ebec",
     "size": 28,
     "offset": 6745068,
@@ -348,6 +634,32 @@
     "match": {
       "bytes_sha256": "c96108ad208d0ce7cfc385392ad395c71a5f02488b9d613153b2271d30ef6e05",
       "inputs_sha256": "a1c2b47e93f9eea39d1fc3eb749dbd02193b42cdae8d12ad0d4fd3545f0bcfe9"
+    }
+  },
+  {
+    "id": "format-constructor-66ec08",
+    "size": 28,
+    "offset": 6745096,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66ec08@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860848": {
+        "va": 286656584,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x860848.",
+    "match": {
+      "bytes_sha256": "bd59c4188c9495d02fac216c57ce9ce09f5e9c24f973b8f8bd11baa2b6dec8c2",
+      "inputs_sha256": "ccc629f6b8d7d5d588810c3bfc953d81f0e260e49c036a41b2ebbf072f971156"
     }
   },
   {
@@ -378,6 +690,32 @@
     }
   },
   {
+    "id": "format-constructor-66ed0c",
+    "size": 28,
+    "offset": 6745356,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66ed0c@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860858": {
+        "va": 286656600,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x860858.",
+    "match": {
+      "bytes_sha256": "2552c6140ec90c19aa055603c62ae7b4e1f6a1f05bcca2ec909c3c8b67f1fde8",
+      "inputs_sha256": "71991a0ae5d36158fa3ded63abf54a718ea1346d0d074fdf9257bf1f531b13f9"
+    }
+  },
+  {
     "id": "delete-members-66ed28",
     "size": 28,
     "offset": 6745384,
@@ -402,6 +740,32 @@
     "match": {
       "bytes_sha256": "3cab116f2eb4187537a72efa5b9e5394cf069227972346f6b7eb7e55cc93fe51",
       "inputs_sha256": "d5a224376349820e83c02bfa7cb4b00307e955ac73a4907ab47c6b38e561f185"
+    }
+  },
+  {
+    "id": "format-constructor-66ed44",
+    "size": 28,
+    "offset": 6745412,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66ed44@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860868": {
+        "va": 286656616,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x860868.",
+    "match": {
+      "bytes_sha256": "584b6e6af2fca4517205457f0ce624658cee0bd8590904214d22e92f4c007a50",
+      "inputs_sha256": "cc72a650309a60c7f88653cac28ee5778a493393b2ecd1b92e3d5b86045571d5"
     }
   },
   {
@@ -432,6 +796,32 @@
     }
   },
   {
+    "id": "format-constructor-66ee77",
+    "size": 28,
+    "offset": 6745719,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66ee77@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860878": {
+        "va": 286656632,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x860878.",
+    "match": {
+      "bytes_sha256": "493a33ecaab66eb4f46347f9dd08e860242c4b9fdb0eff0e79b3cba8d4e4b042",
+      "inputs_sha256": "a222700e129494480e7075862663855ace4b66581c3c18c91a5708f06af79fa1"
+    }
+  },
+  {
     "id": "delete-members-66ee93",
     "size": 28,
     "offset": 6745747,
@@ -456,6 +846,32 @@
     "match": {
       "bytes_sha256": "4f306e0de05997714116629afc2471f1d5b535ad386138afae2081ba6675d3a0",
       "inputs_sha256": "a9e8c79cf7262dc15083ca85a0c4b3633a4f2620510d199e94e9300b5856217a"
+    }
+  },
+  {
+    "id": "format-constructor-66ef71",
+    "size": 28,
+    "offset": 6745969,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66ef71@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860888": {
+        "va": 286656648,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x860888.",
+    "match": {
+      "bytes_sha256": "87b80c4c1f431a54370dee429a1a7c66ae3fdcdf2b60da6e1672c96880b3cf04",
+      "inputs_sha256": "8c9988b15279854e0e0127f448aa7c94b9a1f6945e4e3d6392b7027d222491d1"
     }
   },
   {
@@ -486,6 +902,32 @@
     }
   },
   {
+    "id": "format-constructor-66efa9",
+    "size": 28,
+    "offset": 6746025,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66efa9@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_860898": {
+        "va": 286656664,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 64 and mode 1, then installs its method table at RVA 0x860898.",
+    "match": {
+      "bytes_sha256": "235a7251826c12fc55a94ebc6ddda3e7dd0c0f8ff4d789c6ed4f1daaf6da4b44",
+      "inputs_sha256": "985de7e02301becae9f48e726dd9e2a17bbade9bd0dbec419e73736fe29ed853"
+    }
+  },
+  {
     "id": "delete-members-66efc5",
     "size": 28,
     "offset": 6746053,
@@ -510,6 +952,32 @@
     "match": {
       "bytes_sha256": "97f89bedf23bedc1788f9eb74e8f6aa2074139b96e5724357eadb9bb5ecb36e1",
       "inputs_sha256": "3c2e9ad631778e9b053b7eb7b2e3f2da1e1ffc7da48096ba59e7d862c3f6f585"
+    }
+  },
+  {
+    "id": "format-constructor-66f0fa",
+    "size": 28,
+    "offset": 6746362,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f0fa@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8608ac": {
+        "va": 286656684,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8608ac.",
+    "match": {
+      "bytes_sha256": "92ecc188c3c49db84ce626b8d4da01ef4f8cfd79407768953895cf0c4308d548",
+      "inputs_sha256": "b1f3a554f69b473d206f950987733f36a2f13d36c250209ef9e56d9c9e0c30c0"
     }
   },
   {
@@ -540,6 +1008,32 @@
     }
   },
   {
+    "id": "format-constructor-66f132",
+    "size": 28,
+    "offset": 6746418,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f132@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8608bc": {
+        "va": 286656700,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 8 and mode 1, then installs its method table at RVA 0x8608bc.",
+    "match": {
+      "bytes_sha256": "c70491e9a320947d246ea02ec2b107f0c46c69b619cbdf9fc7993c1925b22a95",
+      "inputs_sha256": "478368a301b572cd1200e76b60a70cefaf8ee06c428e9597f1bc2d88560e78a5"
+    }
+  },
+  {
     "id": "delete-members-66f265",
     "size": 28,
     "offset": 6746725,
@@ -564,6 +1058,32 @@
     "match": {
       "bytes_sha256": "bb1acd67d490469a67d03ea1f6a1402f7003c2f9a70444d14aee181ae32fcf39",
       "inputs_sha256": "bf985685269e42333b5b3682d326a74cd05d51c29d880386f3a9b7e6ace8bb29"
+    }
+  },
+  {
+    "id": "format-constructor-66f281",
+    "size": 28,
+    "offset": 6746753,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f281@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8608cc": {
+        "va": 286656716,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 8 and mode 1, then installs its method table at RVA 0x8608cc.",
+    "match": {
+      "bytes_sha256": "d4cb33bd179b08fbe73373c7fe875386771089a047ddef88302306bf39ae0a17",
+      "inputs_sha256": "111bd75c7977dfeb799e6bb3445e927785f09ca056bdbbf1ec9281de736c142c"
     }
   },
   {
@@ -594,6 +1114,32 @@
     }
   },
   {
+    "id": "format-constructor-66f39a",
+    "size": 28,
+    "offset": 6747034,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f39a@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8608dc": {
+        "va": 286656732,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8608dc.",
+    "match": {
+      "bytes_sha256": "4b593e06a96477c5e46024286f26b8bdafee948d0b2238cb825993bfe37a8e2e",
+      "inputs_sha256": "7d548b4c16beb102b6973ec62d69218cc65ed977176fafd76c1ba96a65355f0a"
+    }
+  },
+  {
     "id": "delete-members-66f3b6",
     "size": 28,
     "offset": 6747062,
@@ -618,6 +1164,32 @@
     "match": {
       "bytes_sha256": "31fd864b463f290bfbb3721976313cfa08befbf53e7dbaa7733c638c6bb08ed4",
       "inputs_sha256": "ac7c8068f28473ca79b7eec304a37ca3e5f992517816c965bfd773b1b17243d6"
+    }
+  },
+  {
+    "id": "format-constructor-66f3d2",
+    "size": 28,
+    "offset": 6747090,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f3d2@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8608ec": {
+        "va": 286656748,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 8 and mode 1, then installs its method table at RVA 0x8608ec.",
+    "match": {
+      "bytes_sha256": "54bfed31c3639075eb6a00ea4e079cb4ad810fd20302cb94eb49de6398362394",
+      "inputs_sha256": "416edb446642106219b62b20a261b4b7e8ba27c3dc99f9f2342fd5a604738ce3"
     }
   },
   {
@@ -648,6 +1220,32 @@
     }
   },
   {
+    "id": "format-constructor-66f493",
+    "size": 28,
+    "offset": 6747283,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f493@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8608fc": {
+        "va": 286656764,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x8608fc.",
+    "match": {
+      "bytes_sha256": "cc71fb261d5a9cbb03661cd8ad3ae9be3d1f2ca1bdd94adc4ac9b611e5a544fb",
+      "inputs_sha256": "d96336b0880913a3fd5fa69a3f58fad10606b3993201633de9e9b8c9328bd6bd"
+    }
+  },
+  {
     "id": "delete-members-66f4af",
     "size": 28,
     "offset": 6747311,
@@ -672,6 +1270,32 @@
     "match": {
       "bytes_sha256": "a7ce64314dd9c01839ce6f94cbc27d6cb6807e83e9bc024f589dab269a8c7078",
       "inputs_sha256": "1f2a9cecf115024fd4d2c3cb76a323f1c42100b1ef533e6cb6d73f614f92d13a"
+    }
+  },
+  {
+    "id": "format-constructor-66f54b",
+    "size": 28,
+    "offset": 6747467,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f54b@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86090c": {
+        "va": 286656780,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 2, then installs its method table at RVA 0x86090c.",
+    "match": {
+      "bytes_sha256": "d230a0cb45fd82a52f0adf0f3cb0f57088d8e0ee3874dd1f3f6e3bdefbc9d8e4",
+      "inputs_sha256": "58372a29a9d119a1824b2261217ff0409100e23db6f0970cbc58cda1a152e859"
     }
   },
   {
@@ -702,6 +1326,32 @@
     }
   },
   {
+    "id": "format-constructor-66f614",
+    "size": 28,
+    "offset": 6747668,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f614@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86091c": {
+        "va": 286656796,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 2, then installs its method table at RVA 0x86091c.",
+    "match": {
+      "bytes_sha256": "cb6a826b441271e56d25a0adcd05b42ad7b5eba06f9be4ee96c03bf8fe567a67",
+      "inputs_sha256": "21c3b62783e320d9d6ef81a5cee8a54de9d48552d6f83d214c865a5e7f5e845f"
+    }
+  },
+  {
     "id": "delete-members-66f630",
     "size": 28,
     "offset": 6747696,
@@ -726,6 +1376,32 @@
     "match": {
       "bytes_sha256": "619d7710c28b2c6e0ef93819c8c6458d124b95bdb7f50c4c8fb7d9562c188a7e",
       "inputs_sha256": "d0c7ceaf0b6fc9cf1a63902e1c8e5261f9338151a2a14c0bf8fce553aa92ed61"
+    }
+  },
+  {
+    "id": "format-constructor-66f64c",
+    "size": 28,
+    "offset": 6747724,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f64c@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86092c": {
+        "va": 286656812,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 2, then installs its method table at RVA 0x86092c.",
+    "match": {
+      "bytes_sha256": "e2ae4d39673d424f2557b68c3dca38fc8a641ec8450e2069767aafcef78c8686",
+      "inputs_sha256": "7c187bf065a0160dce132874cc74be6614ddc41f7740e9776990b35882d7011e"
     }
   },
   {
@@ -756,6 +1432,32 @@
     }
   },
   {
+    "id": "format-constructor-66f711",
+    "size": 28,
+    "offset": 6747921,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f711@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86093c": {
+        "va": 286656828,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 3, then installs its method table at RVA 0x86093c.",
+    "match": {
+      "bytes_sha256": "68595190259233a926c0bac47d5cbf8c07079de341797bb7ac0dccba8840e62b",
+      "inputs_sha256": "c6b7db16b0162ff16ed2d89838e3722333e78b73c123bdab30a36f370326a8bb"
+    }
+  },
+  {
     "id": "delete-members-66f784",
     "size": 28,
     "offset": 6748036,
@@ -780,6 +1482,32 @@
     "match": {
       "bytes_sha256": "6f284d13a9c2dd0eb7c0efea6d3c672ca968c645b72f538a10c2bcd309c2370c",
       "inputs_sha256": "9a6bebc030bb485efb50ced6c1f5bdcacd61ddc6bf61658e19289e81bf2b543c"
+    }
+  },
+  {
+    "id": "format-constructor-66f820",
+    "size": 28,
+    "offset": 6748192,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f820@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86094c": {
+        "va": 286656844,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 2, then installs its method table at RVA 0x86094c.",
+    "match": {
+      "bytes_sha256": "bb9a5f311722af76d82fcfb69c7381f85258fafdad32e47715a512a30c6c1753",
+      "inputs_sha256": "ea7c5f506e07c82ee45441bcbb72d60c77ce403958816f98356473566a038bcf"
     }
   },
   {
@@ -810,6 +1538,32 @@
     }
   },
   {
+    "id": "format-constructor-66f9e2",
+    "size": 28,
+    "offset": 6748642,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66f9e2@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86095c": {
+        "va": 286656860,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 2, then installs its method table at RVA 0x86095c.",
+    "match": {
+      "bytes_sha256": "ae2c1d4632cca39929ebe5998702c88fa6a961583a61605ae85f614feed0c2e4",
+      "inputs_sha256": "6833889f5fa1ee9af5406dcbefae3b0d372c95933097dc089d80f8f8bc30866d"
+    }
+  },
+  {
     "id": "delete-members-66f9fe",
     "size": 28,
     "offset": 6748670,
@@ -834,6 +1588,32 @@
     "match": {
       "bytes_sha256": "33c63c70c2a9b640da573039e75942c765b3aec6c2ad9b41415e33cee09ae6be",
       "inputs_sha256": "6fd4a1f2214827fecd09dedac66ecc07b7ccf876b73942df6cf1c3b37bced239"
+    }
+  },
+  {
+    "id": "format-constructor-66fa1a",
+    "size": 28,
+    "offset": 6748698,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66fa1a@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86096c": {
+        "va": 286656876,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 64 and mode 3, then installs its method table at RVA 0x86096c.",
+    "match": {
+      "bytes_sha256": "9ecabac86229a0fdfa75332f0fe5a2d8926e69c4e538b12f2ab3de748f938188",
+      "inputs_sha256": "89dff7cf57c004ec7eff33ec7e23141b3d17a5262bafb8fb4f7eb1ede116f5eb"
     }
   },
   {
@@ -864,6 +1644,32 @@
     }
   },
   {
+    "id": "format-constructor-66faf7",
+    "size": 28,
+    "offset": 6748919,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66faf7@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86097c": {
+        "va": 286656892,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 2, then installs its method table at RVA 0x86097c.",
+    "match": {
+      "bytes_sha256": "897de0e2baf2447a6e5e8c9c8ba9e10cf71360c6d328ba315164f9b9eebb51f8",
+      "inputs_sha256": "ed7c8fd67a7a76568b7ee0859d45d2e3ef7850aedca7a8194a8308ffeca4ee92"
+    }
+  },
+  {
     "id": "delete-members-66fb13",
     "size": 28,
     "offset": 6748947,
@@ -888,6 +1694,32 @@
     "match": {
       "bytes_sha256": "4cbf57d66ee1e7a7fe20797b4d2c9eaacd49993ed08b2bfb3a36e8cde8777008",
       "inputs_sha256": "62216b4dfba723277840cbfa710f614e1474020a644135a88007bdfb25faa437"
+    }
+  },
+  {
+    "id": "format-constructor-66fc21",
+    "size": 28,
+    "offset": 6749217,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66fc21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_86099c": {
+        "va": 286656924,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 1, then installs its method table at RVA 0x86099c.",
+    "match": {
+      "bytes_sha256": "e461f1a85ca20a0fa95c03b49a308588fb1a7b27658a4b609f30bc553362102b",
+      "inputs_sha256": "302ce6bd42d8b21db50f2a9f24c0b48e6f82823124c4b1a3583ba62702f00246"
     }
   },
   {
@@ -918,6 +1750,32 @@
     }
   },
   {
+    "id": "format-constructor-66fc59",
+    "size": 28,
+    "offset": 6749273,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66fc59@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8609ac": {
+        "va": 286656940,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 4, then installs its method table at RVA 0x8609ac.",
+    "match": {
+      "bytes_sha256": "35300b00be210f9bd72c69849b2b81c010587f4cb30861bb7e0ad64a7f0885af",
+      "inputs_sha256": "094ac505ac1c9c4864df269c8f68ff8a38b3a1dbb0eb306b96ae341def42f054"
+    }
+  },
+  {
     "id": "delete-members-66fc75",
     "size": 28,
     "offset": 6749301,
@@ -945,6 +1803,32 @@
     }
   },
   {
+    "id": "format-constructor-66fc91",
+    "size": 28,
+    "offset": 6749329,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66fc91@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8609bc": {
+        "va": 286656956,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 16 and mode 4, then installs its method table at RVA 0x8609bc.",
+    "match": {
+      "bytes_sha256": "df80990ba76b32da81f429b5a4e9d3d4da3353072d99df936ae01d78e188f1c4",
+      "inputs_sha256": "16188014cdca0df398bc61d52e31495c6973a54a6c62ad5b47cb87b25ad5dc6d"
+    }
+  },
+  {
     "id": "delete-members-66fcad",
     "size": 28,
     "offset": 6749357,
@@ -969,6 +1853,32 @@
     "match": {
       "bytes_sha256": "7427f61c81c4b2ce0cafabd944031cfb105c11dfe964cc23712c32f7743e4896",
       "inputs_sha256": "d710333c4c57d7118d0e52f26ed22745b8993312bfc6c89a7e1c70dde6e5857a"
+    }
+  },
+  {
+    "id": "format-constructor-66ffd9",
+    "size": 28,
+    "offset": 6750169,
+    "inputs": [
+      "src/campaign_format_constructors.c"
+    ],
+    "rebuilt_symbol": "@construct_66ffd9@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/campaign_format_constructors.obj src/campaign_format_constructors.c",
+    "link_bindings": {
+      "@initialize_decoder@16": {
+        "va": 284599788,
+        "basis": "Shared initializer reads the description, shifts width by three for bytes per element and saves the mode."
+      },
+      "_methods_8609ec": {
+        "va": 286657004,
+        "basis": "Read-only virtual table installed after base initialization."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 4, then installs its method table at RVA 0x8609ec.",
+    "match": {
+      "bytes_sha256": "55c0e3f9e7d005f43c991ed4d961c4b15318ff569cc1ffc0b21eeb3f5262225c",
+      "inputs_sha256": "66f477d9808a7aeec227d3d639b76012603b93670804933583dba20a2ec95938"
     }
   },
   {
