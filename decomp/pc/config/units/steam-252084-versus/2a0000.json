@@ -624,6 +624,198 @@
     }
   },
   {
+    "id": "widget-event-2a7ad0",
+    "size": 61,
+    "offset": 2783952,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_2@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7ad0. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 2.",
+    "match": {
+      "bytes_sha256": "f5cbfab7ffed570bae5e18884ab78d14309942dbee70cef85ce59964ddd4452d",
+      "inputs_sha256": "14d96a05706f36b73ad40160d33baa8a4b366be3bf92c15cf13cb6a42fda6fe7"
+    }
+  },
+  {
+    "id": "widget-event-2a7b10",
+    "size": 61,
+    "offset": 2784016,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_3@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7b10. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 3.",
+    "match": {
+      "bytes_sha256": "09b1478fa1e2a9e377f63ff38464330bb107d2450f9e3a5f418f48ebeb24e57c",
+      "inputs_sha256": "68d5f1eb1d3f7c3f79cb213c5ef8322c39a7bd01cd4ff07290d53b302a82c286"
+    }
+  },
+  {
+    "id": "widget-event-2a7b50",
+    "size": 61,
+    "offset": 2784080,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_4@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7b50. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 4.",
+    "match": {
+      "bytes_sha256": "e5b66b9a756e6526ebc5259a04729e9cbc9cefd58b2a3a8e03d460f3f5da837a",
+      "inputs_sha256": "8a5f98242f9de76d32e8465d0958a05195dc01f51a7558aafe9dba35ecea2385"
+    }
+  },
+  {
+    "id": "widget-event-2a7b90",
+    "size": 61,
+    "offset": 2784144,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_5@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7b90. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 5.",
+    "match": {
+      "bytes_sha256": "9ec661b90525f5c989e35ae8eabbe4eba78379d9dc0db32e30ddda864d447ed1",
+      "inputs_sha256": "5e5a289f98a1284bd70d967e357e60667722fbd5501ec6473b305ec28f8cd324"
+    }
+  },
+  {
+    "id": "widget-event-2a7bd0",
+    "size": 73,
+    "offset": 2784208,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_6@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7bd0. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 6.",
+    "match": {
+      "bytes_sha256": "a4884eefa8a0193916d465729c7ca4d55d2b21bb492d5013153043139dcd16f3",
+      "inputs_sha256": "595ab6a90368b23ccd0905424cf0f99ae8ac07604d3492228cdc534a3ef737e1"
+    }
+  },
+  {
+    "id": "widget-event-2a7c20",
+    "size": 73,
+    "offset": 2784288,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_7@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7c20. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 7.",
+    "match": {
+      "bytes_sha256": "84ab6316d1a4684087fac5bd47117b19bb49ea353b1e1de60521332f94a28446",
+      "inputs_sha256": "e0a73f560fe028f9101dd904a21fb2b2d609bd0e8402c4bb37e9347d9c35d279"
+    }
+  },
+  {
+    "id": "widget-event-2a7c70",
+    "size": 73,
+    "offset": 2784368,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_8@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7c70. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 8.",
+    "match": {
+      "bytes_sha256": "3c7a545a092c739e8b78ceb2eac92e5de6ed9141e5763599d8978d92ec1c43b0",
+      "inputs_sha256": "c4302d3072712401f665a25e3fee46c2486cd379453ee872e2beaee543604789"
+    }
+  },
+  {
+    "id": "widget-event-2a7cc0",
+    "size": 73,
+    "offset": 2784448,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_9@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7cc0. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 9.",
+    "match": {
+      "bytes_sha256": "e32069c7cac19d0993d93f7857868ea9e62e997f67deabc8da4704eacfa736ae",
+      "inputs_sha256": "69e4c7dd9d3a259695db11d84d1136d0a02ca18aa7c52d9f52f0a14d1cfd2667"
+    }
+  },
+  {
+    "id": "widget-event-2a7d10",
+    "size": 73,
+    "offset": 2784528,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7d10. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 10.",
+    "match": {
+      "bytes_sha256": "9d5ed512544f6c1f09f49617def5391f9df17477248b1774b42f1f7c75046fe2",
+      "inputs_sha256": "731f5929e897c4ab84070522c560edd57418f8fd6a80c1c94ebdbb1af8f4ffaf"
+    }
+  },
+  {
+    "id": "widget-event-2a7d60",
+    "size": 73,
+    "offset": 2784608,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_11@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7d60. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 11.",
+    "match": {
+      "bytes_sha256": "748c220371e214eef70419acb4ab13dd2f6974900c8ebfad3f249e42d893d8e0",
+      "inputs_sha256": "821e6b54b972de8723a4a76601fbba0bc785ff777ac96691aa3109c2f22a77e8"
+    }
+  },
+  {
+    "id": "widget-event-2a7db0",
+    "size": 61,
+    "offset": 2784688,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_12@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7db0. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 12.",
+    "match": {
+      "bytes_sha256": "effb4ae5d734b510e7b793a69392a294c439853fc5aa097550879de5093847ae",
+      "inputs_sha256": "c6caffc558bfd7a8294e6c9c7601570622871f297a772e29cd61c6ac651e1c9a"
+    }
+  },
+  {
+    "id": "widget-event-2a7df0",
+    "size": 61,
+    "offset": 2784752,
+    "inputs": [
+      "src/versus_widget_events.c"
+    ],
+    "rebuilt_symbol": "@dispatch_13@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_events.obj src/versus_widget_events.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2a7df0. Traverses the widget listener list in reverse and returns whether an enabled listener handles slot 13.",
+    "match": {
+      "bytes_sha256": "000fce9c5e19ce34f4af4455e908a7a68eb6eee504b1af6656d29cc7e8ec3d30",
+      "inputs_sha256": "09216f115ffa4a18652b53c7daabfa64919990d974202e2120ff51da635871c8"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,
@@ -703,6 +895,28 @@
     "match": {
       "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
       "inputs_sha256": "a0111b0c1ab70cd2a6a5c247f3cec19aded0b5241914129880c8450813743822"
+    }
+  },
+  {
+    "id": "widget-event-2aca30",
+    "size": 201,
+    "offset": 2804272,
+    "inputs": [
+      "src/versus_widget_keys.c"
+    ],
+    "rebuilt_symbol": "_handle_key@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_keys.obj src/versus_widget_keys.c",
+    "identification": "Indexed complete Versus routine at RVA 0x2aca30. Dispatches a key to listeners, then maps 13/128 and 27/129 to widget actions. Includes the complete compiler switch tables.",
+    "link_bindings": {
+      "@dispatch_key@8": {
+        "va": 280656928,
+        "basis": "Indexed reverse traversal of enabled widget key listeners."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6c5f09be4217dbccd6dfbeb5630ab44354a169d68384573a15b0d76a61e3ae7e",
+      "inputs_sha256": "dfe85799932ddbff76804b067951465907f8cfe30239ea90fbf58a8702013ede"
     }
   },
   {
