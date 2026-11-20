@@ -33,7 +33,7 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.10", Zip("0.1.10"));
+        github.AddVersion("0.1.11", Zip("0.1.11"));
         var (installer, layout) = Create(dir, github);
         var cancel = TestContext.Current.CancellationToken;
         await installer.InstallAsync((await installer.CheckAsync(false, cancel)).Latest!, null, cancel);
@@ -53,29 +53,29 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.10", Zip("0.1.10"));
+        github.AddVersion("0.1.11", Zip("0.1.11"));
         // The root has a space in it: the content argument must be quoted after the '='.
         (UnrealService service, LauncherLayout layout) = Create(dir, github, "Open SCCT");
         var cancel = TestContext.Current.CancellationToken;
 
         UnrealCheck check = await service.CheckAsync(false, cancel);
         Assert.Null(check.Feed.Problem);
-        Assert.Equal("0.1.10", check.Latest!.Version.ToString());
+        Assert.Equal("0.1.11", check.Latest!.Version.ToString());
         Assert.True(check.UpdateAvailable);
         Assert.Null(check.Installed);
 
         var phases = new List<UnrealProgress>();
         UnrealInstallResult result = await service.InstallAsync(check.Latest, new SyncProgress<UnrealProgress>(phases.Add), cancel);
         Assert.Equal(UnrealInstallOutcome.Installed, result.Outcome);
-        Assert.Equal(github.Payloads["OpenSCCT-Unreal-0.1.10-win-x64.zip"].Length, result.DownloadedBytes);
+        Assert.Equal(github.Payloads["OpenSCCT-Unreal-0.1.11-win-x64.zip"].Length, result.DownloadedBytes);
         Assert.Null(result.BuildBytes);
         Assert.Contains(phases, p => p.Phase == "Downloading OpenSCCT Unreal");
         Assert.Equal("OpenSCCT Unreal installed", phases[^1].Phase);
         Assert.False(phases[^1].CanCancel);
 
         UnrealInstallation installed = service.Installed()!;
-        Assert.Equal("0.1.10", installed.Version.ToString());
-        Assert.Equal(Path.Combine(layout.Unreal, "versions", "0.1.10"), installed.Folder);
+        Assert.Equal("0.1.11", installed.Version.ToString());
+        Assert.Equal(Path.Combine(layout.Unreal, "versions", "0.1.11"), installed.Folder);
         Assert.Equal("0.8.161", installed.OpenscctVersion);
         Assert.Equal("abc123", installed.OpenscctCommit);
         Assert.True(File.Exists(Path.Combine(installed.Folder, Shipping)));
@@ -103,7 +103,7 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.10", Zip("0.1.10"));
+        github.AddVersion("0.1.11", Zip("0.1.11"));
         (UnrealService service, LauncherLayout layout) = Create(dir, github);
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
@@ -439,7 +439,7 @@ public sealed class UnrealServiceTests
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
-        github.AddVersion("0.1.10", Zip("0.1.10"));
+        github.AddVersion("0.1.11", Zip("0.1.11"));
         (UnrealService service, LauncherLayout layout) = Create(dir, github);
         Assert.Contains("Install OpenSCCT Unreal first", Assert.Throws<InvalidOperationException>(() => service.StartInfo()).Message, StringComparison.Ordinal);
 
@@ -680,11 +680,31 @@ public sealed class UnrealServiceTests
     private static readonly string Recipe = JsonSerializer.Serialize(new { schema = 1, platform = "win-x64", recipeDigest = new string('a', 64) });
 
     [Fact]
-    public async Task UnrealSetupUsesItsPackagedConverterAndItsOwnGeneration()
+    public async Task LegacyUnrealRequiresTheStandaloneUpdateAndDamagedSetupIdentifiesTheInstalledBuild()
     {
         using var dir = new TempDir();
         var github = new FakeGitHub();
         github.AddVersion("0.1.10", Zip("0.1.10"));
+        var (service, layout) = Create(dir, github);
+        var cancel = TestContext.Current.CancellationToken;
+        await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
+        SteamFiles(layout);
+        Assert.Contains("0.1.11 or later", Assert.Throws<InvalidOperationException>(() => service.SetupInfo(null)).Message);
+        Assert.Contains("0.1.11 or later", Assert.Throws<InvalidOperationException>(service.StartInfo).Message);
+        github.AddVersion("0.1.11", Zip("0.1.11"));
+        await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
+        var installed = Assert.IsType<UnrealInstallation>(service.Installed());
+        File.WriteAllText(Path.Combine(installed.Folder, "contenttools", UnrealSteamInstall.RecipeFile), "{}");
+        Assert.Contains("Repair or reinstall OpenSCCT Unreal 0.1.11", UnrealService.SetupProblem(installed));
+        Assert.Throws<InvalidOperationException>(() => service.SetupInfo(null));
+    }
+
+    [Fact]
+    public async Task UnrealSetupUsesItsPackagedConverterAndItsOwnGeneration()
+    {
+        using var dir = new TempDir();
+        var github = new FakeGitHub();
+        github.AddVersion("0.1.11", Zip("0.1.11"));
         var (service, layout) = Create(dir, github);
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);

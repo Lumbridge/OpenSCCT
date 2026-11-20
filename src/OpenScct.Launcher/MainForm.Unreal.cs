@@ -61,6 +61,7 @@ internal sealed partial class MainForm
     private void RefreshUnrealPanel(bool busy)
     {
         UnrealInstallation? installed = _unreal.Installed();
+        string? setupProblem = installed is null ? null : UnrealService.SetupProblem(installed);
         string? prerequisite = _unreal.PrerequisiteProblem();
         SemVersion? pending = _unreal.Pending;
         VersionedRelease? latest = _unrealCheck?.Latest;
@@ -97,10 +98,10 @@ internal sealed partial class MainForm
             _heading.Text = "Unreal update available";
             _launchDetail.Text = $"OpenSCCT Unreal {latest!.Version} is ready to download.";
         }
-        else if (!UnrealService.SupportsSteamContent(installed.Version))
+        else if (setupProblem is not null)
         {
             _heading.Text = "Unreal update required";
-            _launchDetail.Text = $"Check for version {UnrealService.MinimumSteamVersion} or later to use your Steam game files.";
+            _launchDetail.Text = setupProblem;
         }
         else if (prerequisite is not null)
         {
@@ -120,7 +121,7 @@ internal sealed partial class MainForm
             : installed is null ? "Install Unreal"
             : _unrealSetupFailed ? "Retry update"
             : update ? "Update Unreal"
-            : !UnrealService.SupportsSteamContent(installed.Version) ? "Check for updates"
+            : setupProblem is not null ? "Check for updates"
             : prerequisite is not null ? "Build game files"
             : "Play";
         bool waitingAction = !busy && !update && waiting;
@@ -128,7 +129,7 @@ internal sealed partial class MainForm
         Theme.SetButtonEmphasis(_main, !busy && !waitingAction, Palette);
         _tips.SetToolTip(_main, null);
         _playCurrent.Text = "Use current version";
-        _playCurrent.Visible = !busy && installed is not null && (update || _unrealSetupFailed) && UnrealService.SupportsSteamContent(installed.Version) && prerequisite is null;
+        _playCurrent.Visible = !busy && installed is not null && (update || _unrealSetupFailed) && setupProblem is null && prerequisite is null;
         _playCurrent.Enabled = !busy;
         _check.Visible = true;
     }
@@ -159,7 +160,7 @@ internal sealed partial class MainForm
             await RunAsync(SetupOrUpdateUnrealAsync);
             return;
         }
-        if (!UnrealService.SupportsSteamContent(installed.Version))
+        if (UnrealService.SetupProblem(installed) is not null)
         {
             await RunAsync(CheckSelectedAsync);
             return;
@@ -183,7 +184,7 @@ internal sealed partial class MainForm
         try
         {
             await SetupOrUpdateUnrealCoreAsync(cancel);
-            if (!_closeAfterWork && _unreal.Installed() is { } installed && UnrealService.SupportsSteamContent(installed.Version)
+            if (!_closeAfterWork && _unreal.Installed() is { } installed && UnrealService.SetupProblem(installed) is null
                 && !_unreal.IsRunning && _unreal.Pending is null)
             {
                 if (_unreal.PrerequisiteProblem() is not null) await SetUpUnrealContentAsync(cancel);

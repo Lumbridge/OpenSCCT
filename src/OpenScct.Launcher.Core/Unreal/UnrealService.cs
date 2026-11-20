@@ -54,7 +54,7 @@ public sealed class UnrealService
     private const string VcRuntimeKey = @"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X64";
     private const string VcRuntimeKeyWow = @"SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\X64";
 
-    public static readonly SemVersion MinimumSteamVersion = SemVersion.Parse("0.1.10");
+    public static readonly SemVersion MinimumSteamVersion = SemVersion.Parse("0.1.11");
     public static bool SupportsSteamContent(SemVersion? version) => version >= MinimumSteamVersion;
 
     private string? _validatedFolder;
@@ -174,7 +174,7 @@ public sealed class UnrealService
     /// </summary>
     public bool IsRunning => RunningGames().Count > 0;
 
-    /// <summary>Null when the OpenSCCT content the game needs is there, else a sentence for the player.</summary>
+    /// <summary>The active generation built with the installed Unreal converter, when ready.</summary>
     public string? ActiveContentRoot()
     {
         var installation = Installed();
@@ -194,14 +194,9 @@ public sealed class UnrealService
     public ProcessStartInfo SetupInfo(string? steamFolder, bool rebuild = false)
     {
         var installed = Installed() ?? throw new InvalidOperationException("Install OpenSCCT Unreal first.");
-        if (!SupportsSteamContent(installed.Version))
-            throw new InvalidOperationException($"Update OpenSCCT Unreal to {MinimumSteamVersion} or later.");
-        string host = Path.Combine(installed.Folder, "OpenSCCTUnreal", "Binaries", "DotNet", "dotnet.exe");
-        string setup = Path.Combine(installed.Folder, "contenttools", "setup", "OpenScct.UnrealSetup.dll");
-        if (!File.Exists(host) || !File.Exists(setup))
-            throw new IOException("The Unreal setup tool is missing. Repair or reinstall the Unreal release.");
-        var info = new ProcessStartInfo(host) { UseShellExecute = false, WorkingDirectory = installed.Folder };
-        info.ArgumentList.Add(setup);
+        if (SetupProblem(installed) is { } problem) throw new InvalidOperationException(problem);
+        var info = new ProcessStartInfo(RuntimeHost(installed)) { UseShellExecute = false, WorkingDirectory = installed.Folder };
+        info.ArgumentList.Add(SetupAssembly(installed));
         info.ArgumentList.Add("--content-dir");
         info.ArgumentList.Add(_install.Content);
         if (!string.IsNullOrWhiteSpace(steamFolder))
@@ -212,6 +207,22 @@ public sealed class UnrealService
         if (rebuild) info.ArgumentList.Add("--rebuild");
         return info;
     }
+
+    public static string? SetupProblem(UnrealInstallation installed)
+    {
+        if (!SupportsSteamContent(installed.Version))
+            return $"Update OpenSCCT Unreal to {MinimumSteamVersion} or later to set up your Steam game files directly.";
+        if (!File.Exists(RuntimeHost(installed)) || !File.Exists(SetupAssembly(installed)) ||
+            UnrealSteamInstall.ReadRecipe(Path.Combine(installed.Folder, "contenttools")) is null)
+            return $"The standalone converter is missing or damaged. Repair or reinstall OpenSCCT Unreal {installed.Version}.";
+        return null;
+    }
+
+    private static string RuntimeHost(UnrealInstallation installed) =>
+        Path.Combine(installed.Folder, "OpenSCCTUnreal", "Binaries", "DotNet", "dotnet.exe");
+
+    private static string SetupAssembly(UnrealInstallation installed) =>
+        Path.Combine(installed.Folder, "contenttools", "setup", "OpenScct.UnrealSetup.dll");
 
     public string? PrerequisiteProblem() => ActiveContentRoot() is null
         ? "Build the original maps and assets from your Steam installation."
@@ -430,8 +441,7 @@ public sealed class UnrealService
             }
         }
 
-        if (!SupportsSteamContent(installed.Version))
-            throw new InvalidOperationException($"Update OpenSCCT Unreal to {MinimumSteamVersion} or later to use your Steam game files.");
+        if (SetupProblem(installed) is { } problem) throw new InvalidOperationException(problem);
         string content = ActiveContentRoot() ?? throw new InvalidOperationException("Build the original maps and assets from your Steam installation.");
         string arguments = ContentArgument(content);
         LauncherSettings settings = LauncherSettings.Load(_layout.Settings);
