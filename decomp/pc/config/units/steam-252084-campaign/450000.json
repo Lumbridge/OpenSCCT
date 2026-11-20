@@ -591,6 +591,28 @@
     }
   },
   {
+    "id": "vector-insert-one-45ab20",
+    "size": 70,
+    "offset": 4565792,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_45ab20@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_45a8d0_8@16": {
+        "va": 282437840,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 8-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "0bd6a1960478f7707293de1f5a49a4e03c395012e6e742801fc89ee7e01bd221",
+      "inputs_sha256": "3fe12762fc0314ed1be27a0a4783fc653b761dbc3e20650a1a9047153fdafc16"
+    }
+  },
+  {
     "id": "clear-owned-storage-45ab70",
     "size": 42,
     "offset": 4565872,
@@ -698,6 +720,28 @@
     "match": {
       "bytes_sha256": "52cfe805d301ad48af3f69cc0d0101a182f5ee7a00a2957fc238251c5d07be2b",
       "inputs_sha256": "7c5885b2458be112c93c58809e363a07d25208f2e2005e3bb473f167c2c664ae"
+    }
+  },
+  {
+    "id": "vector-insert-one-45b470",
+    "size": 72,
+    "offset": 4568176,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_45b470@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_45b1f0_32@16": {
+        "va": 282440176,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 32-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "af267e826bf13337059c4cfb654d5a15ac81f167c699088822d4418e624adc91",
+      "inputs_sha256": "67cc15fcde64b81f2881ea7baffe106d4606135ed871fbedf026c478d273a687"
     }
   },
   {

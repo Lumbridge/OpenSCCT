@@ -1290,6 +1290,28 @@
     }
   },
   {
+    "id": "vector-insert-one-38a8f0",
+    "size": 103,
+    "offset": 3713264,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_38a8f0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_38a4f0_12@16": {
+        "va": 281584880,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Indexed whole function. Saves the insertion index for 12-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "5c81335e18ea482d16a57ea6be5f66895bcfc2a013129e32f7bcdc77d5da324c",
+      "inputs_sha256": "35105248c53ef3a3df1640e059b559a036f3f6e32f1b47c01b8f335c81e52c6e"
+    }
+  },
+  {
     "id": "delete-record-38ab10",
     "offset": 3713808,
     "size": 33,

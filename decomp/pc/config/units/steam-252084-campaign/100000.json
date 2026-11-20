@@ -4483,6 +4483,28 @@
     }
   },
   {
+    "id": "vector-insert-one-10fb80",
+    "size": 70,
+    "offset": 1112960,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_10fb80@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_10f930_4@16": {
+        "va": 278985008,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "cd191bad93b2ac3651baf808bfd6916de48d4062f4350466f39da08bd4856383",
+      "inputs_sha256": "40ef471fc3c43c17bc06fa83c46a47f5bae61d99963d7b859c761a24d504f3ab"
+    }
+  },
+  {
     "id": "init-methods-10ff20",
     "size": 18,
     "offset": 1113888,

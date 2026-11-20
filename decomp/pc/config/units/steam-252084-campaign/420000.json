@@ -419,6 +419,28 @@
     }
   },
   {
+    "id": "vector-insert-one-4223d0",
+    "size": 70,
+    "offset": 4334544,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_4223d0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_422170_4@16": {
+        "va": 282206576,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "f06f3f7b547b320a280ee5de8cf2c5c31ee54d6f0d78ef03c5c3b297c4db222b",
+      "inputs_sha256": "65fa28af7adb6ff2a3e20a6e7b860524176ab728a9eadee206b3a5fe88463045"
+    }
+  },
+  {
     "id": "tree-clear-managed-422af0",
     "size": 43,
     "offset": 4336368,
@@ -552,6 +574,28 @@
     "match": {
       "bytes_sha256": "d94af784233822a86c9b487b0ef37dd4fa80aad821c9948b4a669620f84804a2",
       "inputs_sha256": "065b2364627f45313a395d66e4736977ec8cb32388cf563984dcd733863a688d"
+    }
+  },
+  {
+    "id": "vector-insert-one-424160",
+    "size": 70,
+    "offset": 4342112,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_424160@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_423db0_8@16": {
+        "va": 282213808,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 8-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "6897f775f631ad251a3b33a7d22f1ce26155ae1df6438cc2576d4c48b98b03b1",
+      "inputs_sha256": "e182955f7893113b1f4d7822bc1e01a0852b810a08fc3be94515a80d50f01e87"
     }
   },
   {
@@ -1770,6 +1814,50 @@
     }
   },
   {
+    "id": "vector-insert-one-42b2a0",
+    "size": 70,
+    "offset": 4371104,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_42b2a0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_42aa00_4@16": {
+        "va": 282241536,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "134c3f3cf2b317c07e98d66854c4d5fead84f0b3cf920c2d4a9691e42e66092c",
+      "inputs_sha256": "ae580462aa872bb1e56b237c216064dd9e58e5ec9b459a331932cb92d3ab59ff"
+    }
+  },
+  {
+    "id": "vector-insert-one-42b310",
+    "size": 70,
+    "offset": 4371216,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_42b310@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_42abe0_4@16": {
+        "va": 282242016,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "8ea14cbac2ffcb38cac3ddae310ce9a60d0f3fc778d5f3fde1111b00d9652883",
+      "inputs_sha256": "5ff88d682d4870503123e8a38e3584465f604bbe05f7214c5e8c15f4bbefea72"
+    }
+  },
+  {
     "id": "clear-owned-storage-42b360",
     "size": 42,
     "offset": 4371296,
@@ -1904,6 +1992,28 @@
     "match": {
       "bytes_sha256": "6559b82c2f31d6b452a3a6db1a40f48f1a8d2b38bf1682a1d33cc121151ba7c4",
       "inputs_sha256": "64f7161fa01e6305a580e14d56053b758bc1586a4bd92fb614766208f6065fdf"
+    }
+  },
+  {
+    "id": "vector-insert-one-42f210",
+    "size": 106,
+    "offset": 4387344,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_42f210@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_42e150_60@16": {
+        "va": 282255696,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Indexed whole function. Saves the insertion index for 60-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "c54cf330d25a254d393b779dd58dc6b5874be6ff615e6c872922c0c681848019",
+      "inputs_sha256": "0c73b807284d7314a83b67757d465cd1c72a0aba67d5281e947a74c7587a280b"
     }
   },
   {

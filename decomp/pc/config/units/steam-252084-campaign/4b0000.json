@@ -2713,6 +2713,28 @@
     }
   },
   {
+    "id": "vector-insert-one-4bf1f0",
+    "size": 70,
+    "offset": 4977136,
+    "inputs": [
+      "src/campaign_record_insert_one.c"
+    ],
+    "rebuilt_symbol": "@insert_4bf1f0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_insert_one.obj src/campaign_record_insert_one.c",
+    "link_bindings": {
+      "@copies_4bef70_4@16": {
+        "va": 282849136,
+        "basis": "Indexed insertion helper receives the current position, a count of one and the item."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
+    "match": {
+      "bytes_sha256": "2403565613f73e480da9c151cedfb6ea1fee4026819e8dfa37cb87f863eff7ce",
+      "inputs_sha256": "041f740ef4ccd7ccf87e101bda0683963f5e933056ebbda4c84c0c72fc559d6b"
+    }
+  },
+  {
     "id": "delete-record-4bf420",
     "offset": 4977696,
     "size": 30,
