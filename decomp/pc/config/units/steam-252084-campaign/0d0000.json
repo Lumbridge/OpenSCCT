@@ -252,6 +252,66 @@
     }
   },
   {
+    "id": "animation-channel-active",
+    "size": 93,
+    "offset": 854576,
+    "inputs": [
+      "src/campaign_channel_activity.c"
+    ],
+    "rebuilt_symbol": "@channel_active@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_activity.obj src/campaign_channel_activity.c",
+    "link_bindings": {
+      "_zero_rate": {
+        "va": 285966880,
+        "basis": "Stock operand for zero rate."
+      }
+    },
+    "identification": "Campaign animation method pointer at RVA 0x7cfce0. Checks the sequence and selects the rate field based on playback position.",
+    "match": {
+      "bytes_sha256": "a840d9f790149407427657a694b6d5e08d9f63e26e2cf4fababb35c539cd8cf4",
+      "inputs_sha256": "ad2d90e993573c04aa38f135c5626806c0be22bbc178b28780d6763fb409e125"
+    }
+  },
+  {
+    "id": "animation-stop-channels",
+    "size": 86,
+    "offset": 854672,
+    "inputs": [
+      "src/campaign_channel_activity.c"
+    ],
+    "rebuilt_symbol": "@stop_channels@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_activity.obj src/campaign_channel_activity.c",
+    "identification": "Campaign animation method pointer at RVA 0x7cfce4. Clears three playback fields on every channel.",
+    "match": {
+      "bytes_sha256": "aede423b5bf5988d7f414159b96ea88a38f28aa3029ce34af19b6799f420ce8b",
+      "inputs_sha256": "b3923c4fa6d276d175a831a2b07d47eb0e8b5ce561f4b1a0f6196b9548726a13"
+    }
+  },
+  {
+    "id": "animation-channel-blending",
+    "size": 72,
+    "offset": 854768,
+    "inputs": [
+      "src/campaign_channel_activity.c"
+    ],
+    "rebuilt_symbol": "@channel_blending@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_activity.obj src/campaign_channel_activity.c",
+    "link_bindings": {
+      "_zero_position": {
+        "va": 285965208,
+        "basis": "Stock operand for zero position."
+      }
+    },
+    "identification": "Campaign animation method pointer at RVA 0x7cfcf0. Tests for a negative playback position and checks channel activity.",
+    "match": {
+      "bytes_sha256": "53e5bc021ce6f89ce1100cf96016e86ccc6ab5f72354dee361d837a9597d3a40",
+      "inputs_sha256": "e9309a10ad210134e3d63069f9a3faddcab08dd67323506189ae4718fe5836ba"
+    }
+  },
+  {
     "id": "animation-channel-flag-one",
     "size": 42,
     "offset": 854848,
@@ -483,6 +543,160 @@
     "match": {
       "bytes_sha256": "5361fd27d517dda6538744ee1a170c739126362f079cdb59ff8896491cf97784",
       "inputs_sha256": "5285eb983e4bc9923bd25bb60327cd6da3f4b5b375e2f58d615af19c12a2fc4a"
+    }
+  },
+  {
+    "id": "channel-float-query-0d5280",
+    "size": 41,
+    "offset": 873088,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d5280@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Reads float at offset 16 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "479223291b5ff8e3036e443333231585c70b200c973eeca04e1d236f5abba00e",
+      "inputs_sha256": "90232cb9c1ddbf140021cf4088a9caa9c76f223ef59b6a93c699692bc04b7210"
+    }
+  },
+  {
+    "id": "channel-float-query-0d52e0",
+    "size": 41,
+    "offset": 873184,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d52e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Reads float at offset 8 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "dc941536f95aeec13419a4e1bafa1d9872228b0b86a29251e28fa9debce94e1a",
+      "inputs_sha256": "92fef84e90484af6ab893aab1e6d6069cf6e9acc6b832bb9ac4132294ad34849"
+    }
+  },
+  {
+    "id": "channel-float-query-0d5380",
+    "size": 41,
+    "offset": 873344,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d5380@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Indexed whole function. Reads float at offset 48 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "c2b86237c083dee30801ffada43d7d3f6dd91d73a2c994bd047c7c1595f0b615",
+      "inputs_sha256": "de15ec7564b30e59943de5b872b9e1438fd605a5ce2cfcc997f2f38ef2175a8e"
+    }
+  },
+  {
+    "id": "channel-float-query-0d53b0",
+    "size": 41,
+    "offset": 873392,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d53b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Indexed whole function. Reads float at offset 64 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "8ed4d1a7cd732d612cd9ce516822401eb4e8690f68960e6c3286c31890409856",
+      "inputs_sha256": "18c40427dead78bab4b6879ef5194e0f0ff1d77dd217192bb01c7a16e5ae2d87"
+    }
+  },
+  {
+    "id": "channel-float-query-0d5540",
+    "size": 41,
+    "offset": 873792,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d5540@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Reads float at offset 12 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "04c388e5003128a7c2c096c13090d4d0fffd697f6a88a35a0d8ed52e73d0805a",
+      "inputs_sha256": "40ad85d0f047a6ad7fce6e62520c3f8b6e7bc2f927f6eb37ebfdfb082ccc18b4"
+    }
+  },
+  {
+    "id": "channel-float-query-0d5570",
+    "size": 41,
+    "offset": 873840,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d5570@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Indexed whole function. Reads float at offset 16 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "479223291b5ff8e3036e443333231585c70b200c973eeca04e1d236f5abba00e",
+      "inputs_sha256": "a9a076519ef4a851e0d0fb502b8adf7a8973f9f328dc64c68c40fbd70c63601a"
+    }
+  },
+  {
+    "id": "channel-float-query-0d55a0",
+    "size": 41,
+    "offset": 873888,
+    "inputs": [
+      "src/campaign_channel_float_queries.c"
+    ],
+    "rebuilt_symbol": "@query_0d55a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_float_queries.obj src/campaign_channel_float_queries.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float used for an out-of-range channel."
+      }
+    },
+    "identification": "Indexed whole function. Reads float at offset 24 of a 128-byte animation channel after checking its index, otherwise returns zero.",
+    "match": {
+      "bytes_sha256": "8b6284cd3d883a558e562366bd4643291790ac0987e4b56899057ce9e7f4f784",
+      "inputs_sha256": "9ca45bcd2c9fb4f8bd4e47993a1fe3be82ea1fdfe73e09ec52570f70243b4876"
     }
   },
   {
