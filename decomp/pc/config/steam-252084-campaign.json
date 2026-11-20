@@ -32,6 +32,166 @@
   },
   "units": [
     {
+      "id": "sound-event-group-count",
+      "offset": 7627184,
+      "size": 3,
+      "rebuilt_symbol": "_SND_fn_ulGetNumberOfSoundEventGroup@0",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461b0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+        "inputs_sha256": "77c7d8926b5e406001999f4abc80977527e1819fafa1dc54357e59ccb411a616"
+      }
+    },
+    {
+      "id": "sound-event-group-names",
+      "offset": 7627200,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_ulGetListOfSoundEventGroupName@8",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461c0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+        "inputs_sha256": "a07eb8c08e73e30f7c1a8d1df0908b35197a0f27de301ab1cf3943d9ffb244ce"
+      }
+    },
+    {
+      "id": "sound-event-count-in-group",
+      "offset": 7627216,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_ulGetNumberOfSoundEventInGroup@4",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461d0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+        "inputs_sha256": "508735897d6ab7dd156bf40cc082db259f0e5af6def0bc1988d7953b46514d09"
+      }
+    },
+    {
+      "id": "sound-event-names-in-group",
+      "offset": 7627232,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_ulGetListOfSoundEventNameInGroup@12",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461e0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+        "inputs_sha256": "25fd64c8a5508ce428ce2bab063137cf3419344c01dca3e41532cc35794995a3"
+      }
+    },
+    {
+      "id": "sound-event-name-from-editor-id",
+      "offset": 7627248,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_bGetSoundEventNameFromEditorId@12",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461f0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+        "inputs_sha256": "7bb9a14c8b6d3be5f5207c56d74277cb32f0c1dffff6351c460ff9ff261475af"
+      }
+    },
+    {
+      "id": "sound-soft-directory",
+      "offset": 7628256,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_szGetSoftDirectory@0",
+      "inputs": [
+        "src/sound_directory_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+      "identification": "The retail export table names _SND_fn_szGetSoftDirectory@0 at RVA 0x7465e0. Its return immediately precedes alignment.",
+      "match": {
+        "bytes_sha256": "45510155f749040e188c1daa655d9d3eed2a0d738ab63f7c6db7b82b53d18451",
+        "inputs_sha256": "73d9d6bfd9d5d60d99d751c9db7973a51209e1a185d26fde322faae8ec644f0c"
+      }
+    },
+    {
+      "id": "sound-current-language-directory",
+      "offset": 7628928,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_szGetCurrentLangDirectory@0",
+      "inputs": [
+        "src/sound_directory_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+      "identification": "The retail export table names _SND_fn_szGetCurrentLangDirectory@0 at RVA 0x746880. Its return immediately precedes alignment.",
+      "match": {
+        "bytes_sha256": "ed7a356d2182ad5931b8ad0432bfb26c575a238acb22c51e9d6755a9a184d4c5",
+        "inputs_sha256": "4725a6ce79e67de0e84f2b342124ade32979632a3213ace67f25e20dd88c8d6b"
+      }
+    },
+    {
+      "id": "sound-timer-reset",
+      "offset": 7633088,
+      "size": 38,
+      "rebuilt_symbol": "_SND_fn_vResetTimer@4",
+      "inputs": [
+        "src/sound_timers.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_timers.obj src/sound_timers.c",
+      "identification": "Named retail export at RVA 0x7478c0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "6780b1a2acf48da7c66a5e12a1c9c4fc982d634681eb41b98c6b9bb5a255788e",
+        "inputs_sha256": "5900c64583a90de65a21f971d3a43a00428463ed2cf8d5dcc42ccfee004e1bb0"
+      }
+    },
+    {
+      "id": "sound-timer-pause",
+      "offset": 7633152,
+      "size": 43,
+      "rebuilt_symbol": "_SND_fn_vPauseTimer@4",
+      "inputs": [
+        "src/sound_timers.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_timers.obj src/sound_timers.c",
+      "identification": "Named retail export at RVA 0x747900. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "d42c1c68a99f2cae7a92619c20986bec818396a042ffceaa53d2c752bd540a15",
+        "inputs_sha256": "59b3c6bce96f804d4402acb1929718c60f7b33a20f5b3e25c516713c2b8cb3ea"
+      }
+    },
+    {
+      "id": "sound-texture-list",
+      "offset": 7638528,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_pstGetSoundTextureList",
+      "inputs": [
+        "src/sound_storage.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_storage.obj src/sound_storage.c",
+      "identification": "Export SND_fn_pstGetSoundTextureList returns the fixed list address 0x1132c730. The only return precedes alignment; the export has no parameters.",
+      "match": {
+        "bytes_sha256": "4b6a40de49ce98e4af03e095e2ed628f0619ea6bda598a4b9a4273558d1779f6",
+        "inputs_sha256": "119898f030a6d052b00e5e9c7394d485cb4e869c514ef21965b8a0b2827911a5"
+      }
+    },
+    {
       "id": "sound-texture-count",
       "offset": 7638544,
       "size": 3,
@@ -134,6 +294,70 @@
       "match": {
         "bytes_sha256": "a8f91c024f230432349be0c814e62dbb4609aff72bd5a3a9b3e4af14d20a9dd6",
         "inputs_sha256": "704e07c2a1158ab8781e02a3eb43608e1e8f3516c75cc1f5676d359c0c60feac"
+      }
+    },
+    {
+      "id": "sound-debug-module-handle",
+      "offset": 7655200,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_vGetHModuleDbg@0",
+      "inputs": [
+        "src/sound_storage.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_storage.obj src/sound_storage.c",
+      "identification": "The named stdcall export reads the pointer in image slot 0x1132eab0. The single return precedes alignment.",
+      "match": {
+        "bytes_sha256": "9e02040a92b6ada17e9527d411e32495a7bed1a49118d0f00b3689c32de8c9fd",
+        "inputs_sha256": "b0c3f90cab6340514cb5585e747bbce0074f8d8e360da7d7659fc8697d44a186"
+      }
+    },
+    {
+      "id": "sound-close-file",
+      "offset": 7947840,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_vCloseFileSnd@4",
+      "inputs": [
+        "src/sound_file_handles.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_file_handles.obj src/sound_file_handles.c",
+      "identification": "The named export is a single terminal indirect jump through the KERNEL32 CloseHandle import at VA 0x110b738c. The next bytes are alignment. The caller already supplied the handle on the stack.",
+      "match": {
+        "bytes_sha256": "130bca5d2a3c2ca69c636b7ee88752f201f4be9977500395b60faff6d61f8672",
+        "inputs_sha256": "3f7ee11b9dfb397dfa6a490ff06fff4e1c2496c9c8c84f6c13a141b79ded0111"
+      }
+    },
+    {
+      "id": "sound-directory-separator",
+      "offset": 7947856,
+      "size": 3,
+      "rebuilt_symbol": "_SND_fn_cGetDirectorySeparator@0",
+      "inputs": [
+        "src/sound_directory_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+      "identification": "The retail export table names _SND_fn_cGetDirectorySeparator@0 at RVA 0x794650. Its return immediately precedes alignment.",
+      "match": {
+        "bytes_sha256": "843316f2067c905c3f17a526081c3028022d685a1a6652709f90bedbae6c3cd0",
+        "inputs_sha256": "fad4352d60430b56a153d75602fc8a8fea1cfb486cc849e9999ae97e262190d3"
+      }
+    },
+    {
+      "id": "sound-delete-file",
+      "offset": 7948112,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_bDeleteFile@4",
+      "inputs": [
+        "src/sound_file_handles.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_file_handles.obj src/sound_file_handles.c",
+      "identification": "The named export is a single terminal indirect jump through KERNEL32 DeleteFileA at VA 0x110b7378. Alignment follows the jump. The single path argument is forwarded on the stack.",
+      "match": {
+        "bytes_sha256": "4d1ada4aae7132fb1bcec215d2de3d33db9804c95d7531de843c88fc708509c9",
+        "inputs_sha256": "3b24ac9fb15245207910ec10093bbd7357f390b07ba0c66d311f8a69f0f79b01"
       }
     }
   ]

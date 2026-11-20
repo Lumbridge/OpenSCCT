@@ -25,6 +25,23 @@
   },
   "units": [
     {
+      "id": "versus-finish-rotation",
+      "offset": 987376,
+      "size": 20,
+      "rebuilt_symbol": "@versus_finish_rotation@16",
+      "inputs": [
+        "src/versus_latent_movement.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /c /Folocal/versus_latent_movement.obj src/versus_latent_movement.c",
+      "identification": "Retail registration at RVA 0x095952 assigns GNatives[508] to RVA 0x0f10f0. The class and function name Controller.FinishRotation agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "8257101940b034f107dd7a1bf87f8dabd9cca4270ee20375a80222d7e61d3601",
+        "inputs_sha256": "bc8eb52ce59e5e04e037e441438c9fd354d262515feb0de8acc34e383deedcbb"
+      }
+    },
+    {
       "id": "versus-long-data-size",
       "offset": 1124672,
       "size": 6,
@@ -38,6 +55,23 @@
       "match": {
         "bytes_sha256": "e36623525b7c35b277173e56616b2d865cf6515aa2be1d12d6814ef725cecffb",
         "inputs_sha256": "d14bcbe860ff1069d83a0bacbf294c8f28aadd76c6242f6389b21644b11cbacd"
+      }
+    },
+    {
+      "id": "versus-finish-interpolation",
+      "offset": 1193024,
+      "size": 20,
+      "rebuilt_symbol": "@versus_finish_interpolation@16",
+      "inputs": [
+        "src/versus_latent_movement.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /c /Folocal/versus_latent_movement.obj src/versus_latent_movement.c",
+      "identification": "Retail registration at RVA 0x093ee5 assigns GNatives[301] to RVA 0x123440. The class and function name Actor.FinishInterpolation agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "aea0636d7aeab2ab38b2da130679941aba7e1cf8656d4179f3b10d274a0e955b",
+        "inputs_sha256": "81c6e84b6575bbab0083c6d1504e47c1caabe17de2d1e9e974a7238e19867ace"
       }
     },
     {
