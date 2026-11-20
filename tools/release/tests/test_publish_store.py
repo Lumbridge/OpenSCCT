@@ -1,5 +1,6 @@
 import gzip
 import hashlib
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -62,6 +63,12 @@ class ImmutableStoreTests(unittest.TestCase):
              patch.object(publish_store.subprocess, "run") as run:
             publish_store.publish("owner/repo", "store", [self.stage], None, True)
         run.assert_called_once_with(["gh", "release", "upload", "store", "--repo", "owner/repo", str(self.path.resolve())], check=True)
+
+    def test_inherited_blob_size_must_match_the_player_manifest(self):
+        manifest = self.stage / "OpenSCCT-1.0.0-linux-x64-files.json"
+        manifest.write_text(json.dumps({"files": [{"blob": {"tag": "store", "name": "archive.zip", "size": 18}}]}))
+        with self.assertRaisesRegex(ValueError, "expects 18 compressed bytes, found 17"):
+            publish_store.verify_manifest_sizes({manifest.name: [manifest]}, {"archive.zip": {"size": 17}}, "store")
 
 
 if __name__ == "__main__":

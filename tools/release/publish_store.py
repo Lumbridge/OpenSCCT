@@ -111,6 +111,25 @@ def save_receipt(path, repo, tag, assets, records):
                                     "assets": records}, indent=2) + "\n", encoding="utf-8")
 
 
+def verify_manifest_sizes(groups, assets, tag):
+    for name, paths in groups.items():
+        if not (name.startswith("OpenSCCT-") and name.endswith("-files.json")):
+            continue
+        for manifest in paths:
+            for entry in json.loads(manifest.read_text(encoding="utf-8-sig"))["files"]:
+                blob = entry["blob"]
+                if blob["tag"] != tag:
+                    continue
+                blob_name = blob["name"]
+                staged = groups.get(blob_name)
+                existing = assets.get(blob_name)
+                if not staged and not existing:
+                    raise ValueError(f"{name}: {blob_name} is missing from both staging and {tag}")
+                size = staged[0].stat().st_size if staged else existing["size"]
+                if blob["size"] != size:
+                    raise ValueError(f"{name}: {blob_name} expects {blob['size']} compressed bytes, found {size}")
+
+
 def publish(repo, tag, folders, receipt, upload):
     groups = {}
     for folder in folders:
@@ -120,6 +139,7 @@ def publish(repo, tag, folders, receipt, upload):
         for path in files:
             groups.setdefault(path.name, []).append(path)
     assets = store_assets(repo, tag)
+    verify_manifest_sizes(groups, assets, tag)
     with tempfile.TemporaryDirectory(prefix="openscct-store-") as temp:
         def check(name):
             return verify(name, groups[name], assets.get(name), repo, temp)
