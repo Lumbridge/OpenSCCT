@@ -1,5 +1,119 @@
 [
   {
+    "id": "mesh-find-edge",
+    "size": 55,
+    "offset": 2726816,
+    "rebuilt_symbol": "_find_edge",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mesh_cache.obj src/versus_mesh_cache.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_mesh_cache.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x299ba0. Implements find edge using triangle vertex indices, the vertex cache or incident edge records.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "34122db1aaa9d2c2aecbbbdc442d5c28f48eb378b1f3b099073f2bfcf2149f60",
+      "inputs_sha256": "3a9f0bac64909171f0ece3501f6b3dbda7340182ff35ba9e98df37efc0fce4c9"
+    }
+  },
+  {
+    "id": "mesh-other-face",
+    "size": 58,
+    "offset": 2726880,
+    "rebuilt_symbol": "_other_face",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mesh_cache.obj src/versus_mesh_cache.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_mesh_cache.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x299be0. Implements other face using triangle vertex indices, the vertex cache or incident edge records.",
+    "link_bindings": {
+      "_find_edge": {
+        "va": 280599456,
+        "basis": "Retail operand for find_edge."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "287063bbe9eabe9b89256fcc4602e4c1d76c309fec91b909050a52c851b08c11",
+      "inputs_sha256": "f23ac84ae1b2049c39c684aa9a6a562bf02479eafa47c620b06ec44ec763f4b5"
+    }
+  },
+  {
+    "id": "mesh-face-present",
+    "size": 85,
+    "offset": 2726944,
+    "rebuilt_symbol": "_face_present@8",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mesh_cache.obj src/versus_mesh_cache.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_mesh_cache.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x299c20. Implements face present using triangle vertex indices, the vertex cache or incident edge records.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "30ba360326ea277e97bccc79cbdd006f61762b791d82cda4d3b7ccf118c402b5",
+      "inputs_sha256": "76277333c692fff0a3dc4885d60f863e9a8088b5e076940fca0164054f34fab3"
+    }
+  },
+  {
+    "id": "mesh-cache-face",
+    "size": 174,
+    "offset": 2738560,
+    "rebuilt_symbol": "_cache_face@8",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mesh_cache.obj src/versus_mesh_cache.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_mesh_cache.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x29c980. Implements cache face using triangle vertex indices, the vertex cache or incident edge records.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "1d453fc62f65413bc217fd9fbd5d7d4c749936a00d9f1e756eee0f2837d8faec",
+      "inputs_sha256": "4d50edd99e5a3f9ef7c05658e29018bd6ed59c457c175554b8c6462770d69f9e"
+    }
+  },
+  {
+    "id": "mesh-count-cached",
+    "size": 111,
+    "offset": 2738944,
+    "rebuilt_symbol": "_count_cached@8",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mesh_cache.obj src/versus_mesh_cache.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_mesh_cache.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x29cb00. Implements count cached using triangle vertex indices, the vertex cache or incident edge records.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "552472b6897ab47cad4489b779bca56efe6d882c4fd2ea83c08597053885fcf8",
+      "inputs_sha256": "a78fc607b549d7afc492856e3ae4ba3208c1082c068d50205e98ddcebffebe72"
+    }
+  },
+  {
+    "id": "mesh-count-neighbors",
+    "size": 109,
+    "offset": 2739056,
+    "rebuilt_symbol": "_count_neighbors@8",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mesh_cache.obj src/versus_mesh_cache.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_mesh_cache.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x29cb70. Implements count neighbors using triangle vertex indices, the vertex cache or incident edge records.",
+    "link_bindings": {
+      "_other_face": {
+        "va": 280599520,
+        "basis": "Retail operand for other_face."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "bf746041fce098d3c6bb8a867fe813322c164cc280d90b84e38db02c7bc04bc4",
+      "inputs_sha256": "29a890ee20656d821aa06a3cf776b0d8f9c70068ae28faa9a59c35f193dd376b"
+    }
+  },
+  {
     "id": "create-vector-indexed-29d570",
     "size": 24,
     "offset": 2741616,
