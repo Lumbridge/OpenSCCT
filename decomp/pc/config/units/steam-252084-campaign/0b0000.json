@@ -1104,6 +1104,34 @@
     }
   },
   {
+    "id": "trim-array-storage-0b6d10",
+    "size": 45,
+    "offset": 748816,
+    "inputs": [
+      "src/campaign_trim_array_storage.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@trim_0b6d10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_trim_array_storage.obj src/campaign_trim_array_storage.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Trims capacity to the element count and resizes through heap slot one using the runtime element width and tag at RVA 0x7b78d8.",
+    "match": {
+      "bytes_sha256": "20dcf9565658f4700626ee1c0c70ad9fa53100ffe0b196e02e48630a5cd8a904",
+      "inputs_sha256": "35181cf76b04238fd81d1cbcfcb40c7b27adb894cf99df9f7d9ebb4471df49cd"
+    }
+  },
+  {
     "id": "array-release-0b6e40",
     "size": 43,
     "offset": 749120,
@@ -1945,6 +1973,34 @@
     }
   },
   {
+    "id": "trim-array-storage-0be950",
+    "size": 45,
+    "offset": 780624,
+    "inputs": [
+      "src/campaign_trim_array_storage.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@trim_0be950@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_trim_array_storage.obj src/campaign_trim_array_storage.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Trims capacity to the element count and resizes through heap slot one using the runtime element width and tag at RVA 0x7b7b08.",
+    "match": {
+      "bytes_sha256": "0bb288e4dc1703cedac3032ea1aa7a6c4288f9fd72f5104ba7032419141dd896",
+      "inputs_sha256": "80737cd1c399654cc2a19657b0833608b1e11620aea5c41aa9aaae7bcf8a9809"
+    }
+  },
+  {
     "id": "array-remove-0beb60",
     "size": 138,
     "offset": 781152,
@@ -2155,6 +2211,34 @@
     "match": {
       "bytes_sha256": "c48fb5272fc9ce61dfa5edc4c738bc680d0b70275d51fd966573e3f5f2a3f2db",
       "inputs_sha256": "d7e661a2496b79a1f620652af6e0ef7c1173a9272a959e2d3cb9e2d0a8620e09"
+    }
+  },
+  {
+    "id": "trim-array-storage-0bf120",
+    "size": 45,
+    "offset": 782624,
+    "inputs": [
+      "src/campaign_trim_array_storage.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@trim_0bf120@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_trim_array_storage.obj src/campaign_trim_array_storage.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Trims capacity to the element count and resizes through heap slot one using the runtime element width and tag at RVA 0x7b7b08.",
+    "match": {
+      "bytes_sha256": "0bb288e4dc1703cedac3032ea1aa7a6c4288f9fd72f5104ba7032419141dd896",
+      "inputs_sha256": "a5bacad2501f92e020224d36cac2a03eb52dacd7d096fb9a5e1a4712f18c774e"
     }
   },
   {

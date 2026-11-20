@@ -3813,5 +3813,61 @@
       "bytes_sha256": "982719f0b6ace4e157784b2d70e46ec2300ac062f8f84531588838d122b84e54",
       "inputs_sha256": "c832c53a38d56192f4c3295dbbc620f9608272c5db4c9e53b1b45f6455b4ed7e"
     }
+  },
+  {
+    "id": "trim-array-storage-07fda0",
+    "size": 45,
+    "offset": 523680,
+    "inputs": [
+      "src/campaign_trim_array_storage.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@trim_07fda0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_trim_array_storage.obj src/campaign_trim_array_storage.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7bc158": {
+        "va": 285983064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Trims capacity to the element count and resizes through heap slot one using the runtime element width and tag at RVA 0x7bc158.",
+    "match": {
+      "bytes_sha256": "ed979f233c51b834c46c204c40e6c38098c5832af24daa6f4c3b12a57907f087",
+      "inputs_sha256": "5c020849f8bc18f38137ea8a0e22d56abbf4bb321c5c117221085e27096f01ca"
+    }
+  },
+  {
+    "id": "trim-array-storage-07fdd0",
+    "size": 45,
+    "offset": 523728,
+    "inputs": [
+      "src/campaign_trim_array_storage.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@trim_07fdd0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_trim_array_storage.obj src/campaign_trim_array_storage.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7bc180": {
+        "va": 285983104,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Trims capacity to the element count and resizes through heap slot one using the runtime element width and tag at RVA 0x7bc180.",
+    "match": {
+      "bytes_sha256": "5170250a7e10bae79c50fa1d324a2dcf21fbcb780b44eeefa305c1cc0e65135f",
+      "inputs_sha256": "3ca99ead3462d4244daffbb620d57e3aef527f3ea1db2a1b678b6480ec3c3a66"
+    }
   }
 ]
