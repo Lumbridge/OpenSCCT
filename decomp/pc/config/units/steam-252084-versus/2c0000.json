@@ -75,5 +75,93 @@
       "bytes_sha256": "b9a445e29418539961f7df45febe0e8e448904ad8fea8890ec4f347fd7224f8c",
       "inputs_sha256": "82f0cc5dacfe19a5a37b0fd494c564dab0f1857c9fcbd1f8714381b549e02d6d"
     }
+  },
+  {
+    "id": "clear-unwind-flag-2cb380",
+    "size": 14,
+    "offset": 2929536,
+    "inputs": [
+      "src/versus_unwind_flags.c"
+    ],
+    "rebuilt_symbol": "_clear_flag_2cb380",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_unwind_flags.obj src/versus_unwind_flags.c",
+    "link_bindings": {
+      "_flags_3762f4": {
+        "va": 281502452,
+        "basis": "The original unwind action reads and writes the same writable word at this address."
+      }
+    },
+    "identification": "Versus unwind handler RVA 0x2cb39c loads FuncInfo RVA 0x31d148. Entry 0 in unwind map RVA 0x31d138 names this action. It clears bit 0 in the word at RVA 0x3762f4.",
+    "match": {
+      "bytes_sha256": "caaf554830c2677a932b5f88bcc8b09179e5900bae5202c94ddc381cc9404c44",
+      "inputs_sha256": "0b28f4185574d1b34100d655f71b9ff77b984b8444a42187984412e70cf833dc"
+    }
+  },
+  {
+    "id": "clear-unwind-flag-2cb38e",
+    "size": 14,
+    "offset": 2929550,
+    "inputs": [
+      "src/versus_unwind_flags.c"
+    ],
+    "rebuilt_symbol": "_clear_flag_2cb38e",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_unwind_flags.obj src/versus_unwind_flags.c",
+    "link_bindings": {
+      "_flags_3762f4": {
+        "va": 281502452,
+        "basis": "The original unwind action reads and writes the same writable word at this address."
+      }
+    },
+    "identification": "Versus unwind handler RVA 0x2cb39c loads FuncInfo RVA 0x31d148. Entry 1 in unwind map RVA 0x31d138 names this action. It clears bit 1 in the word at RVA 0x3762f4.",
+    "match": {
+      "bytes_sha256": "8919ae8f65377c2b30f1518a4bda460972e52fdc4a44e80fd6e8907fdf027375",
+      "inputs_sha256": "5e3052ede8e8964bc7a180afcb81dd69876f84b7d09226e9b8b4a4a3d6d093df"
+    }
+  },
+  {
+    "id": "clear-unwind-flag-2ccf70",
+    "size": 14,
+    "offset": 2936688,
+    "inputs": [
+      "src/versus_unwind_flags.c"
+    ],
+    "rebuilt_symbol": "_clear_flag_2ccf70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_unwind_flags.obj src/versus_unwind_flags.c",
+    "link_bindings": {
+      "_flags_450e1c": {
+        "va": 282398236,
+        "basis": "The original unwind action reads and writes the same writable word at this address."
+      }
+    },
+    "identification": "Versus unwind handler RVA 0x2ccf7e loads FuncInfo RVA 0x322f30. Entry 0 in unwind map RVA 0x322f28 names this action. It clears bit 1 in the word at RVA 0x450e1c.",
+    "match": {
+      "bytes_sha256": "fb828b63992f1cbf2f8a77a7fa8584c5b243070c3698ed2cbf8bf384f90dad78",
+      "inputs_sha256": "c2dd19e03070d33d30f923320981fe025bfc3506e9992866ac55dc7e2d9a0294"
+    }
+  },
+  {
+    "id": "clear-unwind-flag-2cf8a0",
+    "size": 14,
+    "offset": 2947232,
+    "inputs": [
+      "src/versus_unwind_flags.c"
+    ],
+    "rebuilt_symbol": "_clear_flag_2cf8a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_unwind_flags.obj src/versus_unwind_flags.c",
+    "link_bindings": {
+      "_flags_450f1c": {
+        "va": 282398492,
+        "basis": "The original unwind action reads and writes the same writable word at this address."
+      }
+    },
+    "identification": "Versus unwind handler RVA 0x2cf8be loads FuncInfo RVA 0x3275fc. Entry 0 in unwind map RVA 0x3275e4 names this action. It clears bit 0 in the word at RVA 0x450f1c.",
+    "match": {
+      "bytes_sha256": "585333331aeab14702b009a9fc818bee53eb6c54438b378b2909d73cda8d53bb",
+      "inputs_sha256": "f69bff553ff17c3d3fc4a35493b948b063e19d8a4dcde71c3828e8a5876352b1"
+    }
   }
 ]
