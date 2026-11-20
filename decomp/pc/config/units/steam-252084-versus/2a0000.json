@@ -422,6 +422,44 @@
     }
   },
   {
+    "id": "glyph-lookup-2a31e0",
+    "size": 46,
+    "offset": 2765280,
+    "inputs": [
+      "src/versus_glyph_lookup.c"
+    ],
+    "rebuilt_symbol": "@glyph_width@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_glyph_lookup.obj src/versus_glyph_lookup.c",
+    "identification": "Complete Versus font method at RVA 0x2a31e0. Method-table entry checks the glyph index against the maximum and reads the width from a 24-byte glyph record.",
+    "link_bindings": {
+      "@lookup_glyph@8": {
+        "va": 280641760,
+        "basis": "Indexed glyph lookup with high-byte page and low-byte entry."
+      }
+    },
+    "match": {
+      "bytes_sha256": "04e774645e5018936a623b5f20a71d929fd47101c027dbefe59015368d792094",
+      "inputs_sha256": "ec0b761f7cb64a3a677b715ae2daf778c18c171d20318ab4f20828166c283ebc"
+    }
+  },
+  {
+    "id": "glyph-lookup-2a40e0",
+    "size": 47,
+    "offset": 2769120,
+    "inputs": [
+      "src/versus_glyph_lookup.c"
+    ],
+    "rebuilt_symbol": "@lookup_code@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_glyph_lookup.obj src/versus_glyph_lookup.c",
+    "identification": "Complete Versus font method at RVA 0x2a40e0. Selects a glyph lookup page by the high byte and reads the 16-bit glyph index, returning zero for a missing page.",
+    "match": {
+      "bytes_sha256": "44f34d23ddd755c122aa24290cf8d4d5a396ad1dc0dba10283f798aed748a2c6",
+      "inputs_sha256": "f4388152c5ebcae5a0f0f0d473ceaf650d85e53900dc33875610af68cbbff37c"
+    }
+  },
+  {
     "id": "component-child-update-2a4980",
     "size": 43,
     "offset": 2771328,
