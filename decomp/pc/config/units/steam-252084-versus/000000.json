@@ -1,5 +1,31 @@
 [
   {
+    "id": "allocate-bytes-new",
+    "offset": 17120,
+    "size": 21,
+    "inputs": [
+      "src/versus_stock_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_bytes",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_stock_allocation.obj src/versus_stock_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Writable engine heap pointer shared with Versus array storage."
+      },
+      "_new_tag": {
+        "va": 281086424,
+        "basis": "UTF-16 allocation tag new in retail read-only data."
+      }
+    },
+    "identification": "Direct call at RVA 0x75d9 in the independently delineated function at RVA 0x7400. Dispatches to the first engine heap slot with the byte count and UTF-16 allocation tag new.",
+    "match": {
+      "bytes_sha256": "4003a8b0d262abaa85a93b2ba276da329d8c860049e406c23673c826367b67d1",
+      "inputs_sha256": "56cb263fb2191d6ca0befe17c75286b00f20f9e0f052cfa9dc56c37efe5450d1"
+    }
+  },
+  {
     "id": "versus-array-add",
     "size": 100,
     "offset": 17632,
