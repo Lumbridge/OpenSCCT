@@ -1453,6 +1453,38 @@
     }
   },
   {
+    "id": "virtual-aepawn-200-27ba70",
+    "size": 3,
+    "offset": 2603632,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEPawn_slot_200_r27ba70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x27ba70. The named class factory RVA 0x28c720 and its placement callback at RVA 0x28c6e0 identifies the AEPawn table stored at RVA 0x28c718. Slot 200 in that table (RVA 0x7e8b50) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "48e43de3163d9391b73dc337657a7f152fffe056d2bd6782e52388ccad887d01"
+    }
+  },
+  {
+    "id": "virtual-aepawn-185-27bd20",
+    "size": 3,
+    "offset": 2604320,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEPawn_slot_185_r27bd20@24",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x27bd20. The named class factory RVA 0x28c720 and its placement callback at RVA 0x28c6e0 identifies the AEPawn table stored at RVA 0x28c718. Slot 185 in that table (RVA 0x7e8b50) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "596494f50350462943d59d32bfc675a2c3e2e9a6aa0d0606422e3cbbffd86c6b",
+      "inputs_sha256": "fa7df603cca0f4986438b9cc1f7257c2f299fb52d38550adec77cc7f7a5eb55d"
+    }
+  },
+  {
     "id": "script-parameters-sethandik",
     "offset": 2611456,
     "size": 61,

@@ -519,6 +519,22 @@
     }
   },
   {
+    "id": "virtual-ucanvas-39-148b70",
+    "size": 7,
+    "offset": 1346416,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UCanvas_slot_39_r148b70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x148b70. The named class factory RVA 0x149d30 and its placement callback at RVA 0x149a60 identifies the UCanvas table stored at RVA 0x149a70. Slot 39 in that table (RVA 0x7d6fd8) contains the entry address. Reads the 4-byte field at receiver offset 0x9c.",
+    "match": {
+      "bytes_sha256": "5971358e279d6f61bf08d9c953c05059ffbb0d0ecc822600818bc1136f65e308",
+      "inputs_sha256": "b670b46f3ebf2b1c4620d1e4489a9deb3a4abb8bbdc0d9e0095174337955ff1b"
+    }
+  },
+  {
     "id": "delete-ucanvas",
     "offset": 1346480,
     "size": 46,
@@ -697,6 +713,22 @@
     "match": {
       "bytes_sha256": "df771ab29867845eaeaf394504313d56c74e618d2232232f31a01959cfbc7da3",
       "inputs_sha256": "2856b50ddbd61bdabe7eca30dd24940069ed1ba90dc05d78a9754178675806e7"
+    }
+  },
+  {
+    "id": "virtual-uesbchain-35-14b500",
+    "size": 1,
+    "offset": 1357056,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UESBChain_slot_35_r14b500@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x14b500. The named class factory RVA 0x37f270 and its placement callback at RVA 0x37f250 identifies the UESBChain table stored at RVA 0x37f260. Slot 35 in that table (RVA 0x80ff60) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "a874e0a1158651270f9fee651116ab614ab88fe0283b77c8157b4c7f4bfbef31"
     }
   },
   {

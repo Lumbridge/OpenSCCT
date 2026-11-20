@@ -810,6 +810,22 @@
     }
   },
   {
+    "id": "virtual-aprojector-166-085b20",
+    "size": 1,
+    "offset": 547616,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AProjector_slot_166_r085b20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x85b20. The named class factory RVA 0x88f10 and its placement callback at RVA 0x88ed0 identifies the AProjector table stored at RVA 0x88f08. Slot 166 in that table (RVA 0x7c1a98) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "a12250b90f261a179ad40fa2bd66f1b83f67beab9734f3e5906ca1125eee99d7"
+    }
+  },
+  {
     "id": "delete-uprojectorrenderinfo",
     "offset": 548288,
     "size": 46,
@@ -1697,6 +1713,38 @@
     "match": {
       "bytes_sha256": "a5dc7e85e5b5fa8e01067e4a256c0ab78ba066c16196708fc6670d001ecf9e75",
       "inputs_sha256": "3d2e901286cfe92845e0328023ca5f2e8b97df3d42c2df6539dbf0aa79e2abb3"
+    }
+  },
+  {
+    "id": "virtual-azoneinfo-105-08dc70",
+    "size": 1,
+    "offset": 580720,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AZoneInfo_slot_105_r08dc70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x8dc70. The named class factory RVA 0x96890 and its placement callback at RVA 0x96130 identifies the AZoneInfo table stored at RVA 0x96168. Slot 105 in that table (RVA 0x7c6a00) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "0fb9caefc9ccb01df9f5b8db14bc1a9d1f4666c4d562bcd92446596cca940187"
+    }
+  },
+  {
+    "id": "virtual-aactor-101-08e080",
+    "size": 3,
+    "offset": 581760,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_101_r08e080@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x8e080. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 101 in that table (RVA 0x7bc1b8) contains the entry address. Returns the receiver.",
+    "match": {
+      "bytes_sha256": "58367ffa2a0179375018fa0f5c26da24391e42ebe0ed8fdda35a21fc7bdc396f",
+      "inputs_sha256": "ac6055e226aeb3036c0b70ee222a155423d31fdfd2a99d13940993d3bcf6acea"
     }
   },
   {

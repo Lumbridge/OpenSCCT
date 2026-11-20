@@ -116,6 +116,22 @@
     }
   },
   {
+    "id": "virtual-aechelonlevelinfo-105-1a7c60",
+    "size": 1,
+    "offset": 1735776,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEchelonLevelInfo_slot_105_r1a7c60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x1a7c60. The named class factory RVA 0x316cf0 and its placement callback at RVA 0x316cd0 identifies the AEchelonLevelInfo table stored at RVA 0x316ce0. Slot 105 in that table (RVA 0x7f7e20) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "196b69a23e8e1b794fdd2fa4fbc0dfaef381610bf0ba89dcf022bc01631f3ef6"
+    }
+  },
+  {
     "id": "script-parameters-rumblevibrate",
     "offset": 1736336,
     "size": 70,

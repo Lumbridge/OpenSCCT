@@ -346,6 +346,22 @@
     }
   },
   {
+    "id": "virtual-ae3dmapsystem-105-2d57b0",
+    "size": 1,
+    "offset": 2971568,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AE3DMapSystem_slot_105_r2d57b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2d57b0. The named class factory RVA 0x2d85c0 and its placement callback at RVA 0x2d8580 identifies the AE3DMapSystem table stored at RVA 0x2d85b8. Slot 105 in that table (RVA 0x7ebd68) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "647791c0c9d707246a6ddcd93018be53ffdad4833b6b1e78332cee6082b6152c"
+    }
+  },
+  {
     "id": "class-registration-ae3dmapsystem",
     "offset": 2972512,
     "size": 264,

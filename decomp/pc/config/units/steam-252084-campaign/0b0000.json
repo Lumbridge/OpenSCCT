@@ -97,6 +97,22 @@
     }
   },
   {
+    "id": "virtual-amover-114-0b0330",
+    "size": 7,
+    "offset": 721712,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AMover_slot_114_r0b0330@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xb0330. The named class factory RVA 0xb03b0 and its placement callback at RVA 0xb0370 identifies the AMover table stored at RVA 0xb03a8. Slot 114 in that table (RVA 0x7cda90) contains the entry address. Reads the 4-byte field at receiver offset 0x430.",
+    "match": {
+      "bytes_sha256": "01f3a2bfe2de5e28ac5ebc45e7d892c6de4fa1c6b1d71678de2c89324154cced",
+      "inputs_sha256": "aa781a32d945310d89b047fef538424874b7c5a45bb1637f9da377118a671ea5"
+    }
+  },
+  {
     "id": "delete-amover",
     "offset": 721728,
     "size": 46,
@@ -196,6 +212,22 @@
     "match": {
       "bytes_sha256": "b0371672b5e3873b0a1f80522fb8a8ff6e187b89ae93931731f95e7d63596350",
       "inputs_sha256": "453ca39afde1e24a27c7b673f05e29089d178f4408451e05e86aa73f4565407b"
+    }
+  },
+  {
+    "id": "virtual-ascout-167-0b04c0",
+    "size": 5,
+    "offset": 722112,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AScout_slot_167_r0b04c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xb04c0. The named class factory RVA 0x96a50 and its placement callback at RVA 0x964a0 identifies the AScout table stored at RVA 0x964d8. Slot 167 in that table (RVA 0x7c84a8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "c09b9ce338a802c0cdd8b68d14e75093ad4b63cd51bc363cf53239295e35ac13"
     }
   },
   {

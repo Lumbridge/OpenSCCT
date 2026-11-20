@@ -824,6 +824,22 @@
     }
   },
   {
+    "id": "virtual-usystem-24-134710",
+    "size": 3,
+    "offset": 1263376,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USystem_slot_24_r134710@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x134710. The named class factory RVA 0x3d3780 and its placement callback at RVA 0x3d3750 identifies the USystem table stored at RVA 0x3d3767. Slot 24 in that table (RVA 0x831108) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "f37ace3e23002e62f0806de2684ee22cbe407a55223edfa39ff4c359651e839f"
+    }
+  },
+  {
     "id": "class-singleton-uenum",
     "offset": 1263968,
     "size": 38,

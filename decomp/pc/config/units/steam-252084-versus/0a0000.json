@@ -1316,6 +1316,22 @@
     }
   },
   {
+    "id": "virtual-uproxybitmapmaterial-36-0a6660",
+    "size": 5,
+    "offset": 681568,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProxyBitmapMaterial_slot_36_r0a6660@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xa6660. The registered placement callback RVA 0xaac60 from class registration RVA 0xa059d identifies the UProxyBitmapMaterial table stored at RVA 0xaac7a. Slot 36 in that table (RVA 0x307908) contains the entry address. Returns the receiver.",
+    "match": {
+      "bytes_sha256": "648e5e97d162c7d5b13e75ba5abe1040e8307d103427e7a164511417af8b4fbc",
+      "inputs_sha256": "4a8406c390a9c38f2c94da39b9e27f881b1d35a31051faf94db364ebf07393a5"
+    }
+  },
+  {
     "id": "delete-ushadowbitmapmaterial",
     "offset": 681696,
     "size": 33,

@@ -270,6 +270,54 @@
     }
   },
   {
+    "id": "virtual-aebed-114-0c4050",
+    "size": 7,
+    "offset": 802896,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEBed_slot_114_r0c4050@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xc4050. The named class factory RVA 0x33af40 and its placement callback at RVA 0x33ad70 identifies the AEBed table stored at RVA 0x33ada8. Slot 114 in that table (RVA 0x7fd100) contains the entry address. Reads the 4-byte field at receiver offset 0x31c.",
+    "match": {
+      "bytes_sha256": "cb461c40a0b03f79d076514748b8380a1158f00cb412269b8240461328202a78",
+      "inputs_sha256": "ce810689ce683b91700a0a955187470dcf404e4848791be49f03c4f6fdad10fe"
+    }
+  },
+  {
+    "id": "virtual-aebed-136-0c4060",
+    "size": 9,
+    "offset": 802912,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEBed_slot_136_r0c4060@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xc4060. The named class factory RVA 0x33af40 and its placement callback at RVA 0x33ad70 identifies the AEBed table stored at RVA 0x33ada8. Slot 136 in that table (RVA 0x7fd100) contains the entry address. Reads the 4-byte field at receiver offset 0x318.",
+    "match": {
+      "bytes_sha256": "d9d1a381bf0588b56588042e2041704a127008bf31fbdc084e71bc7aca498a5b",
+      "inputs_sha256": "e1ca71cb81ec65548d1dc6be5fc1b44f709f28c5a6e76efb8f5690b3a0d47ee3"
+    }
+  },
+  {
+    "id": "virtual-aebed-140-0c40e0",
+    "size": 7,
+    "offset": 803040,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEBed_slot_140_r0c40e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xc40e0. The named class factory RVA 0x33af40 and its placement callback at RVA 0x33ad70 identifies the AEBed table stored at RVA 0x33ada8. Slot 140 in that table (RVA 0x7fd100) contains the entry address. Reads the 1-byte field at receiver offset 0x2fc.",
+    "match": {
+      "bytes_sha256": "c0b5f3773379189c58cb2ad822c0d9841b776fcbc7543444f30589a82ef340ac",
+      "inputs_sha256": "ecac68d43749b908994f741a8c31fea34bc3deb84932d004c1dcbd266de89eee"
+    }
+  },
+  {
     "id": "construct-actor-astaticmeshactor",
     "offset": 803200,
     "size": 48,
@@ -720,6 +768,22 @@
     "match": {
       "bytes_sha256": "d8390f9aee562e703d6e808a61494476c052e209f592a37aaacf6228a7a8beb6",
       "inputs_sha256": "552bacb5548e4380b57cbb61d3c547518ac5aafb27513a997f68519c7293b6e0"
+    }
+  },
+  {
+    "id": "virtual-anavmeshactor-105-0c6630",
+    "size": 1,
+    "offset": 812592,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ANavMeshActor_slot_105_r0c6630@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xc6630. The named class factory RVA 0xc7320 and its placement callback at RVA 0xc72b0 identifies the ANavMeshActor table stored at RVA 0xc72e8. Slot 105 in that table (RVA 0x7cedf8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "2ba2ce003796cc57f93cf9071eb4478246e13ba4bba40617ab7aa73021951b3e"
     }
   },
   {
@@ -1262,6 +1326,22 @@
     }
   },
   {
+    "id": "virtual-uanimation-10-0c82a0",
+    "size": 3,
+    "offset": 819872,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UAnimation_slot_10_r0c82a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xc82a0. The named class factory RVA 0xda960 and its placement callback at RVA 0xd8c20 identifies the UAnimation table stored at RVA 0xd8c30. Slot 10 in that table (RVA 0x7cf858) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "7ad05d473fa0dee6627d6ef0750500833e4ec16209bbac9da6cc8a83f20329ba"
+    }
+  },
+  {
     "id": "class-singleton-uproperty",
     "offset": 820080,
     "size": 38,
@@ -1433,6 +1513,22 @@
     }
   },
   {
+    "id": "virtual-uanimnotify-24-0ccc60",
+    "size": 3,
+    "offset": 838752,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UAnimNotify_slot_24_r0ccc60@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xccc60. The named class factory RVA 0xdc410 and its placement callback at RVA 0xd8a70 identifies the UAnimNotify table stored at RVA 0xd8a80. Slot 24 in that table (RVA 0x7cf3a0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "81979045ca61c42bc4fedadfd847bdbc58cd1faa04350ba0b0b6e85a836e5982"
+    }
+  },
+  {
     "id": "delete-uanimnotify",
     "offset": 838864,
     "size": 46,
@@ -1532,6 +1628,678 @@
     "match": {
       "bytes_sha256": "077749aa47085e0f7e377ad99a299ca37cf2571794d3df86dbff4bf8ce8aca7a",
       "inputs_sha256": "438fc9ae49d1fa9afb0ceae5ad3b3ca2a7149e8f0ebae378523fc22105b671ad"
+    }
+  },
+  {
+    "id": "virtual-umesh-32-0cd050",
+    "size": 3,
+    "offset": 839760,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMesh_slot_32_r0cd050@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd050. The named class factory RVA 0x16bd80 and its placement callback at RVA 0x16bcc0 identifies the UMesh table stored at RVA 0x16bcd3. Slot 32 in that table (RVA 0x7cf500) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "25e50b08ef2244b45f69e8deb44a4ef79d80698c3ad916bceb46f820cdb1e9a8"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-32-0cd0d0",
+    "size": 3,
+    "offset": 839888,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_32_r0cd0d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd0d0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 32 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "2220a823aaedd737e4b882b099509be192da0569a108d45813d62c6aa781c9bd"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-33-0cd0e0",
+    "size": 3,
+    "offset": 839904,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_33_r0cd0e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd0e0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 33 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "ccf7ca5d651b170b1b791f493526a315d1a568dd076d50631bccb0a7d5308921"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-34-0cd0f0",
+    "size": 3,
+    "offset": 839920,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_34_r0cd0f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd0f0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 34 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "d3757090a3c052e29e329d4e144cb32c047adda70774c355f0b445634d572c5f"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-35-0cd100",
+    "size": 3,
+    "offset": 839936,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_35_r0cd100@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd100. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 35 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "f768b955dfcf026931d092873a27171b35e7a0450a041acbf456cad4945979b8"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-36-0cd110",
+    "size": 3,
+    "offset": 839952,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_36_r0cd110@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd110. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 36 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "633c2dde25bb738d3e0b142c6cd4548cf484c0f4daa87fc93d49c97d06fc8a1e"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-37-0cd120",
+    "size": 3,
+    "offset": 839968,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_37_r0cd120@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd120. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 37 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "327c1dcad1c6429ae1919a5f4dfd66c259a93cc985ad9f729cfbf8b743999735"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-38-0cd130",
+    "size": 3,
+    "offset": 839984,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_38_r0cd130@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd130. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 38 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "c79369f8d949b44f7556d04f402a192f458b913f3865e76e9e50906d08086cf4"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-39-0cd140",
+    "size": 3,
+    "offset": 840000,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_39_r0cd140@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd140. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 39 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "722c935d572b9f727c3c916121c4bf232a684403bffe78bd05fc5420c81da91e"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-40-0cd150",
+    "size": 5,
+    "offset": 840016,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_40_r0cd150@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd150. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 40 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "d90101107b9fb1bfdac9f973078e6af02512fa1d86bc16f1e209a68e45466e50"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-41-0cd160",
+    "size": 5,
+    "offset": 840032,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_41_r0cd160@40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd160. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 41 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "da7ebd12e9ab7d16927dce56ffa7104307477925d4350ce4d29d5f0b23399cb9",
+      "inputs_sha256": "e3073b79e7b5c4c731795cfb316890e7ae764a81b87df5b708e8139f3bc4145e"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-42-0cd170",
+    "size": 3,
+    "offset": 840048,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_42_r0cd170@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd170. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 42 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "fc0076a319d5b19fa93d46bf295f7046838a8646a68ec36f38c8f6a3dba30e1f"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-43-0cd180",
+    "size": 5,
+    "offset": 840064,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_43_r0cd180@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd180. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 43 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "436005e4504811ef69b4eaf2cd97de4842ccc677ec4ff6c1078133f5ece3134d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-44-0cd190",
+    "size": 5,
+    "offset": 840080,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_44_r0cd190@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd190. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 44 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "d62b4c7dc76c49124ca6d5dab566e75de04ff9396466a17509c7aa8253361c5d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-45-0cd1a0",
+    "size": 5,
+    "offset": 840096,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_45_r0cd1a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd1a0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 45 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "a2d9ab00f55b4207e72afc9a2a2195d775cabc86739ac38737bb42ba49d59c99"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-47-0cd1c0",
+    "size": 5,
+    "offset": 840128,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_47_r0cd1c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd1c0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 47 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "bf7fea018ddd1684951b5b5a91060fdccde20dec66e43b70ba42114224e4909d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-49-0cd1e0",
+    "size": 5,
+    "offset": 840160,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_49_r0cd1e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd1e0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 49 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "077221eb359a2f907cd33b0142f9c1b06677bd16e9e479bf0426842c090d7f10"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-52-0cd210",
+    "size": 5,
+    "offset": 840208,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_52_r0cd210@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd210. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 52 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "019b9f7728a3b677511bc3a6b614ae9a80d26be2e11939f580dbd10e16b7cdb3"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-56-0cd250",
+    "size": 5,
+    "offset": 840272,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_56_r0cd250@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd250. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 56 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "f366038270b506891260ab646f67e5bdcdeafe7214965094a86776ad3a1e0ce6"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-57-0cd260",
+    "size": 3,
+    "offset": 840288,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_57_r0cd260@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd260. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 57 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "45fc701fb778d1ed18811ffb1100dc79b601c06fc64ac20093239e0b15d24e04"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-58-0cd270",
+    "size": 3,
+    "offset": 840304,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_58_r0cd270@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd270. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 58 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "966e6e220c0c5db0099ac2856579f60f046f4b79df2d4a8482ed608962de2c27"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-59-0cd280",
+    "size": 3,
+    "offset": 840320,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_59_r0cd280@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd280. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 59 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "49f5f56b0995e5b840128144ca5977d9519f0e05ac2c6e4feb18e1750f154cc4"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-60-0cd290",
+    "size": 5,
+    "offset": 840336,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_60_r0cd290@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd290. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 60 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "8ab8766e66c944d8b9e4f034bedf4b505080d21fb108fd35bc0c161e78a2acf3"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-61-0cd2a0",
+    "size": 5,
+    "offset": 840352,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_61_r0cd2a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd2a0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 61 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "2f4e39c18dacc05e1c97ecf4cc2013a2b5b7f6dac830c2eb65a0ff44f038d1f4"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-62-0cd2b0",
+    "size": 5,
+    "offset": 840368,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_62_r0cd2b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd2b0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 62 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "c725222332e0f46b24c6ad52f48ab870d156e0e64dd4cae620931613cc51d84d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-63-0cd2c0",
+    "size": 5,
+    "offset": 840384,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_63_r0cd2c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd2c0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 63 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "c15e70c2dca9f1b02b803b83d2234f38b014c83bcc9e6ef334079a044b102a06"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-64-0cd2d0",
+    "size": 5,
+    "offset": 840400,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_64_r0cd2d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd2d0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 64 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "c9d692e79143d935f0ccb317331dd2dadfc0b1e7b749ecec2956c2517babed39"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-65-0cd2e0",
+    "size": 1,
+    "offset": 840416,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_65_r0cd2e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd2e0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 65 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "0f29c42914fc1a0adf5beab79200b68bd212952b0a908f49bcf1cfae7a404e98"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-66-0cd2f0",
+    "size": 1,
+    "offset": 840432,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_66_r0cd2f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd2f0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 66 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "5e5dcdd53eb2e43794ff0800d29dcfa62b003f2e69081316743d63e930b53820"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-71-0cd340",
+    "size": 3,
+    "offset": 840512,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_71_r0cd340@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd340. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 71 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "d0bcdbef84de18f5c7f37fa2e8e6f19b7177df55c496c3d8f773960ffa5a2d62"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-72-0cd350",
+    "size": 5,
+    "offset": 840528,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_72_r0cd350@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd350. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 72 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "743e1bd88d09aaee11fa6bad94803b7e31241e4196b32ff1abc9aba5bdd924c5",
+      "inputs_sha256": "57c48ae809621d58fba3724887353aa52ce8a6a6b908a08f396692d34e58e85d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-73-0cd490",
+    "size": 5,
+    "offset": 840848,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_73_r0cd490@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd490. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 73 in that table (RVA 0x7cf588) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "865c63945ea17ea0f79208f056e710a915c5387da81d8885db337160c8ba1139"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-74-0cd4a0",
+    "size": 3,
+    "offset": 840864,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_74_r0cd4a0@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd4a0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 74 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "b5dd4b847a3a12ae2a47c84da9c67f38af8f9dc65851c43265c69b327a498e8e",
+      "inputs_sha256": "3c8e95af8b008f1000a906e67044a754af8536d53d57bf4a085ca879e24d494d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-76-0cd4d0",
+    "size": 3,
+    "offset": 840912,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_76_r0cd4d0@32",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd4d0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 76 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "b6fc3a9ea0896e5943662c03c0846f778e629404ddd60b3a1fd544e439b4c626",
+      "inputs_sha256": "3f8a0d74f8e445d6b9abe275d6dbae11820da7a8aaa77aef2f1bb5c0eeab339d"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-77-0cd4e0",
+    "size": 3,
+    "offset": 840928,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_77_r0cd4e0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd4e0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 77 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "edbf5a48430fb9b321d845f632145092b6e59bb3a457fddafba49906c3ba0dd7"
+    }
+  },
+  {
+    "id": "virtual-umeshinstance-78-0cd4f0",
+    "size": 1,
+    "offset": 840944,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMeshInstance_slot_78_r0cd4f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd4f0. The named class factory RVA 0x16bd10 and its placement callback at RVA 0x16bcf0 identifies the UMeshInstance table stored at RVA 0x16bd00. Slot 78 in that table (RVA 0x7cf588) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "ca64ec80491cafa4892bd539e9842528680daa438e48aac9bfd6a42c87162c57"
+    }
+  },
+  {
+    "id": "virtual-ulodmeshinstance-37-0cd750",
+    "size": 4,
+    "offset": 841552,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ULodMeshInstance_slot_37_r0cd750@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd750. The named class factory RVA 0x16cb60 and its placement callback at RVA 0x16cb40 identifies the ULodMeshInstance table stored at RVA 0x16cb50. Slot 37 in that table (RVA 0x7cf6c8) contains the entry address. Reads the 4-byte field at receiver offset 0x5c.",
+    "match": {
+      "bytes_sha256": "e8a390f77a2c35edee25e41f4902293a876d5b3af20791cc05da79c2f55d4983",
+      "inputs_sha256": "29f9a9874118bbb95d201128879867773f80fd089d8a6d9f91f61f4632154550"
+    }
+  },
+  {
+    "id": "virtual-ulodmeshinstance-32-0cd760",
+    "size": 4,
+    "offset": 841568,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ULodMeshInstance_slot_32_r0cd760@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd760. The named class factory RVA 0x16cb60 and its placement callback at RVA 0x16cb40 identifies the ULodMeshInstance table stored at RVA 0x16cb50. Slot 32 in that table (RVA 0x7cf6c8) contains the entry address. Reads the 4-byte field at receiver offset 0x58.",
+    "match": {
+      "bytes_sha256": "d4d3079e1e2bc80c23488a3e2c1e4850449f45e35fbe39efe7e920ba8e97f0f8",
+      "inputs_sha256": "2f3c71c8af030f644d83c29312d5157a8d687b5e23cadfb502d75beebcaadd4c"
+    }
+  },
+  {
+    "id": "virtual-ulodmeshinstance-34-0cd790",
+    "size": 4,
+    "offset": 841616,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ULodMeshInstance_slot_34_r0cd790@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd790. The named class factory RVA 0x16cb60 and its placement callback at RVA 0x16cb40 identifies the ULodMeshInstance table stored at RVA 0x16cb50. Slot 34 in that table (RVA 0x7cf6c8) contains the entry address. Reads the 4-byte field at receiver offset 0x54.",
+    "match": {
+      "bytes_sha256": "9c8eb3adab3133652cdccbd58b010e59bcef792f39806367b4a21f5a9815fbf5",
+      "inputs_sha256": "f4e504ef980d7257491d7f70a2d56c0753c9e85ba1d49ab09163db94db2ee284"
+    }
+  },
+  {
+    "id": "virtual-ulodmeshinstance-74-0cd7a0",
+    "size": 3,
+    "offset": 841632,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ULodMeshInstance_slot_74_r0cd7a0@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd7a0. The named class factory RVA 0x16cb60 and its placement callback at RVA 0x16cb40 identifies the ULodMeshInstance table stored at RVA 0x16cb50. Slot 74 in that table (RVA 0x7cf6c8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "b5dd4b847a3a12ae2a47c84da9c67f38af8f9dc65851c43265c69b327a498e8e",
+      "inputs_sha256": "b5cd288bfeacc30405be861c5c38423904d332b14e2d45a2bf1ef1459f2623c1"
+    }
+  },
+  {
+    "id": "virtual-ulodmeshinstance-79-0cd7b0",
+    "size": 3,
+    "offset": 841648,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ULodMeshInstance_slot_79_r0cd7b0@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd7b0. The named class factory RVA 0x16cb60 and its placement callback at RVA 0x16cb40 identifies the ULodMeshInstance table stored at RVA 0x16cb50. Slot 79 in that table (RVA 0x7cf6c8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "8d3996fca8cebd67ea310281545fca17bf18be82ea4d352926b168249c5abe60"
+    }
+  },
+  {
+    "id": "virtual-ulodmeshinstance-73-0cd7c0",
+    "size": 5,
+    "offset": 841664,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ULodMeshInstance_slot_73_r0cd7c0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0xcd7c0. The named class factory RVA 0x16cb60 and its placement callback at RVA 0x16cb40 identifies the ULodMeshInstance table stored at RVA 0x16cb50. Slot 73 in that table (RVA 0x7cf6c8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "83df356a57d91541291d1f30e739b3528fd207b8e306f66ab97bd6f51c8af5fa"
     }
   },
   {

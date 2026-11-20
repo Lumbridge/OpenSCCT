@@ -26,6 +26,38 @@
     }
   },
   {
+    "id": "virtual-aeuavdrone-140-370980",
+    "size": 7,
+    "offset": 3606912,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEUAVDrone_slot_140_r370980@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x370980. The named class factory RVA 0x370a10 and its placement callback at RVA 0x3709d0 identifies the AEUAVDrone table stored at RVA 0x370a08. Slot 140 in that table (RVA 0x80f610) contains the entry address. Reads the 1-byte field at receiver offset 0x1710.",
+    "match": {
+      "bytes_sha256": "114ecc6409dd67b1f8467e3952a4232adfc468fdbb490ca6b63d5698e6cea395",
+      "inputs_sha256": "a5fb569f34231fc612e5ad482aace13ccd6824819d45ad668631d4770ddfc0dd"
+    }
+  },
+  {
+    "id": "virtual-aeuavdrone-28-370990",
+    "size": 3,
+    "offset": 3606928,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEUAVDrone_slot_28_r370990@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x370990. The named class factory RVA 0x370a10 and its placement callback at RVA 0x3709d0 identifies the AEUAVDrone table stored at RVA 0x370a08. Slot 28 in that table (RVA 0x80f610) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "7bba06ea4d5e83066326d4be95ac8824419b9aef7fa1c3b4b2a261c330a706c3"
+    }
+  },
+  {
     "id": "delete-aeuavdrone",
     "offset": 3606944,
     "size": 46,
@@ -630,6 +662,22 @@
     }
   },
   {
+    "id": "virtual-uesbstripdoor-61-3788f0",
+    "size": 3,
+    "offset": 3639536,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UESBStripDoor_slot_61_r3788f0@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3788f0. The named class factory RVA 0x37aed0 and its placement callback at RVA 0x37aeb0 identifies the UESBStripDoor table stored at RVA 0x37aec0. Slot 61 in that table (RVA 0x80fbd8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "f080751692cedee628654a7e41fc6159ceb26627d4d5b60fe1ed6aad3f01a4c1"
+    }
+  },
+  {
     "id": "class-registration-uesbstripdoor",
     "offset": 3639568,
     "size": 264,
@@ -800,6 +848,22 @@
     "match": {
       "bytes_sha256": "b5b7c1e31a1c4407dca3753272ed19f02cca7be717a6e0191bad7c0113c91ab6",
       "inputs_sha256": "509c180bccd469946c791720acabc6124b90a68aec5a7ce3b88bef81b60d4c7f"
+    }
+  },
+  {
+    "id": "virtual-uesbropeclimb-61-37af40",
+    "size": 3,
+    "offset": 3649344,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UESBRopeClimb_slot_61_r37af40@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x37af40. The named class factory RVA 0x37e8e0 and its placement callback at RVA 0x37e8c0 identifies the UESBRopeClimb table stored at RVA 0x37e8d0. Slot 61 in that table (RVA 0x80fe38) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "e6fd5c9eb3fc32801754ae206a36773e6f1cd83a3e4aa1f7b5689bbd0c0b9ba1"
     }
   },
   {
@@ -1111,6 +1175,22 @@
     }
   },
   {
+    "id": "virtual-uesbchain-61-37e950",
+    "size": 3,
+    "offset": 3664208,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UESBChain_slot_61_r37e950@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x37e950. The named class factory RVA 0x37f270 and its placement callback at RVA 0x37f250 identifies the UESBChain table stored at RVA 0x37f260. Slot 61 in that table (RVA 0x80ff60) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "1477f792cf70bc1f04ab395705550d3ca49b211c21d3f03df44058e5bc45d392"
+    }
+  },
+  {
     "id": "class-registration-uesbchain",
     "offset": 3664240,
     "size": 264,
@@ -1179,6 +1259,22 @@
     "match": {
       "bytes_sha256": "28dcd55d27f1f4d224296d0b880f883ec45b3e20033bcd9a0afe5703a8631f33",
       "inputs_sha256": "c44850e1855c0d363a05a32298cf00ce92d9be81fd1d6c148325247f38864147"
+    }
+  },
+  {
+    "id": "virtual-uesbchain-33-37f1f0",
+    "size": 1,
+    "offset": 3666416,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UESBChain_slot_33_r37f1f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x37f1f0. The named class factory RVA 0x37f270 and its placement callback at RVA 0x37f250 identifies the UESBChain table stored at RVA 0x37f260. Slot 33 in that table (RVA 0x80ff60) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "41f960b002ad3d989c232d3405598739aaff1e93fcce8b7eed3714547d567781"
     }
   },
   {

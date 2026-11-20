@@ -393,6 +393,22 @@
     }
   },
   {
+    "id": "virtual-aeaicontroller-29-2b7760",
+    "size": 3,
+    "offset": 2848608,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEAIController_slot_29_r2b7760@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2b7760. The named class factory RVA 0x2b9be0 and its placement callback at RVA 0x2b9b90 identifies the AEAIController table stored at RVA 0x2b9bc8. Slot 29 in that table (RVA 0x7e9e58) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "46812614fe5ad38452f61e40a6ff598afd89776c69fbfd090a7428690d61d396"
+    }
+  },
+  {
     "id": "delete-aeaicontroller",
     "offset": 2848624,
     "size": 33,
@@ -508,6 +524,54 @@
     "match": {
       "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
       "inputs_sha256": "837cae163c9c4efdf81483d25eac11790433cb10af91bfc4d3f85a87d31d61f3"
+    }
+  },
+  {
+    "id": "virtual-aeplayercontroller-178-2bcc00",
+    "size": 3,
+    "offset": 2870272,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEPlayerController_slot_178_r2bcc00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2bcc00. The named class factory RVA 0x2d2ed0 and its placement callback at RVA 0x2d2e90 identifies the AEPlayerController table stored at RVA 0x2d2ec8. Slot 178 in that table (RVA 0x7eb180) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "6fae2fdb3f470015da0e1ab43417911156814ac647639ef7bd93c5a5876d25e8"
+    }
+  },
+  {
+    "id": "virtual-aeplayercontroller-180-2bcc10",
+    "size": 7,
+    "offset": 2870288,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEPlayerController_slot_180_r2bcc10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2bcc10. The named class factory RVA 0x2d2ed0 and its placement callback at RVA 0x2d2e90 identifies the AEPlayerController table stored at RVA 0x2d2ec8. Slot 180 in that table (RVA 0x7eb180) contains the entry address. Reads the 4-byte field at receiver offset 0x478.",
+    "match": {
+      "bytes_sha256": "3af55978a4c81d93e79f1e78ee9064f78da34f396e4820958b489494811f1132",
+      "inputs_sha256": "edca33d69a823ef674c6cff9a41690cda782656d53361650c9a1b6726865d0df"
+    }
+  },
+  {
+    "id": "virtual-aeplayercontroller-174-2bcc30",
+    "size": 5,
+    "offset": 2870320,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEPlayerController_slot_174_r2bcc30@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2bcc30. The named class factory RVA 0x2d2ed0 and its placement callback at RVA 0x2d2e90 identifies the AEPlayerController table stored at RVA 0x2d2ec8. Slot 174 in that table (RVA 0x7eb180) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "57d85d12c2b7f0d0da9fedc591075395de024ca4774b796457a7271f867a960d"
     }
   },
   {

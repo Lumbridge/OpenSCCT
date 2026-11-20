@@ -1,5 +1,21 @@
 [
   {
+    "id": "virtual-aeelectrochromatictrigger-105-350040",
+    "size": 1,
+    "offset": 3473472,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEElectroChromaticTrigger_slot_105_r350040@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x350040. The named class factory RVA 0x350e90 and its placement callback at RVA 0x350e50 identifies the AEElectroChromaticTrigger table stored at RVA 0x350e88. Slot 105 in that table (RVA 0x8039a0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "dec6a6a0d929862aaed20820ebf1d7438e26422fa20566bad83f457853abc37c"
+    }
+  },
+  {
     "id": "class-registration-aeelectrochromaticglass",
     "offset": 3473792,
     "size": 264,
@@ -648,6 +664,22 @@
     "match": {
       "bytes_sha256": "5b356ceb71e686b64915936b2666d878214bf1523bffb811ff7c2a81b423565c",
       "inputs_sha256": "1960d281f179eb3e6f1da3dea38b68c4f2c2fcf78400a2332bbefeafe8651e7f"
+    }
+  },
+  {
+    "id": "virtual-aehandcuffsinteraction-166-350f00",
+    "size": 6,
+    "offset": 3477248,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEHandCuffsInteraction_slot_166_r350f00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x350f00. The named class factory RVA 0x3514c0 and its placement callback at RVA 0x351480 identifies the AEHandCuffsInteraction table stored at RVA 0x3514b8. Slot 166 in that table (RVA 0x803f88) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "8ea0a719756153b012e7b63e08f5c388f3ac481695aad6815ed5fc68d8a4a0ce"
     }
   },
   {
@@ -2675,6 +2707,22 @@
     }
   },
   {
+    "id": "virtual-aeirsensor-105-353d90",
+    "size": 1,
+    "offset": 3489168,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEIRSensor_slot_105_r353d90@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x353d90. The named class factory RVA 0x3547f0 and its placement callback at RVA 0x3547b0 identifies the AEIRSensor table stored at RVA 0x3547e8. Slot 105 in that table (RVA 0x805a30) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "6400539dd403d583360f001470a061a7dffdf62951cabf7703abb8b97b48f8a1"
+    }
+  },
+  {
     "id": "class-registration-aeirsensor",
     "offset": 3489200,
     "size": 264,
@@ -3885,6 +3933,54 @@
     }
   },
   {
+    "id": "virtual-aesensor-187-3566b0",
+    "size": 3,
+    "offset": 3499696,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESensor_slot_187_r3566b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3566b0. The named class factory RVA 0x358540 and its placement callback at RVA 0x358500 identifies the AESensor table stored at RVA 0x358538. Slot 187 in that table (RVA 0x8069b0) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "d2c32ccd12581f7357eccfca25a5120fa73483ffd24ecc20a9dca827f955571f"
+    }
+  },
+  {
+    "id": "virtual-aesensor-192-3566c0",
+    "size": 3,
+    "offset": 3499712,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESensor_slot_192_r3566c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3566c0. The named class factory RVA 0x358540 and its placement callback at RVA 0x358500 identifies the AESensor table stored at RVA 0x358538. Slot 192 in that table (RVA 0x8069b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "d796d1cc4ebc9e704f36705e98f6a89f44bb1f947ea9cec92d83aa28673ede54"
+    }
+  },
+  {
+    "id": "virtual-aesensor-105-3566d0",
+    "size": 1,
+    "offset": 3499728,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESensor_slot_105_r3566d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3566d0. The named class factory RVA 0x358540 and its placement callback at RVA 0x358500 identifies the AESensor table stored at RVA 0x358538. Slot 105 in that table (RVA 0x8069b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "3ffc1e0a42d04c2c1ed71c2ed6716a18354066daa485cb8f2a45ed3d9104fb51"
+    }
+  },
+  {
     "id": "script-parameters-getheightfactor",
     "offset": 3499984,
     "size": 52,
@@ -4586,6 +4682,22 @@
     }
   },
   {
+    "id": "virtual-aeturret-187-358e60",
+    "size": 7,
+    "offset": 3509856,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AETurret_slot_187_r358e60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x358e60. The named class factory RVA 0x35c040 and its placement callback at RVA 0x35bfc0 identifies the AETurret table stored at RVA 0x35bff8. Slot 187 in that table (RVA 0x807cc0) contains the entry address. Reads the 4-byte field at receiver offset 0x4f8.",
+    "match": {
+      "bytes_sha256": "bb6ad718d412e9b36e81b6e23ed793fbb2df84547d7d1a5a1d39d4741ba5b7b2",
+      "inputs_sha256": "4912b5f2c3a8bed472f6700118ce8b85513d50d0d482f5bda1ca055b36997834"
+    }
+  },
+  {
     "id": "script-parameters-flash",
     "offset": 3509872,
     "size": 48,
@@ -4809,6 +4921,22 @@
     "match": {
       "bytes_sha256": "13dfdd2c058d0cede94052667ac8a0e10b22b5fa125396e2da374649bcc92ed8",
       "inputs_sha256": "3692f3f7f39e831029efa9e97b740473516969a059fc01b0469b938a94ae9165"
+    }
+  },
+  {
+    "id": "virtual-aeifvtank-105-3599e0",
+    "size": 1,
+    "offset": 3512800,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEIFVTank_slot_105_r3599e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3599e0. The named class factory RVA 0x35b490 and its placement callback at RVA 0x35b450 identifies the AEIFVTank table stored at RVA 0x35b488. Slot 105 in that table (RVA 0x807678) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "544cb876d41c7d0150a6f41ed380b27ba8f12b277d09b8cdc66c82ebcc6da09a"
     }
   },
   {
@@ -5697,6 +5825,22 @@
     }
   },
   {
+    "id": "virtual-aesprinkler-105-35c280",
+    "size": 1,
+    "offset": 3523200,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESprinkler_slot_105_r35c280@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x35c280. The named class factory RVA 0x35d3a0 and its placement callback at RVA 0x35d360 identifies the AESprinkler table stored at RVA 0x35d398. Slot 105 in that table (RVA 0x808300) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "87321e104988d044c76051349775e27cb0f45242b2504b56a9860033028e3706"
+    }
+  },
+  {
     "id": "class-registration-aesprinkler",
     "offset": 3523280,
     "size": 264,
@@ -5856,6 +6000,22 @@
     }
   },
   {
+    "id": "virtual-aesprinkler-152-35d2a0",
+    "size": 6,
+    "offset": 3527328,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESprinkler_slot_152_r35d2a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x35d2a0. The named class factory RVA 0x35d3a0 and its placement callback at RVA 0x35d360 identifies the AESprinkler table stored at RVA 0x35d398. Slot 152 in that table (RVA 0x808300) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "5e9ba2d34725da11708a5f973b108ff9bef334f25c93d513990242cdabf2d6e0"
+    }
+  },
+  {
     "id": "delete-aesprinkler",
     "offset": 3527344,
     "size": 57,
@@ -5959,6 +6119,22 @@
     "match": {
       "bytes_sha256": "e1dbb7815f9182212e61a44adf38f453a54fae4759aec89bba88a1d935869a12",
       "inputs_sha256": "b0c860b429c3cb354559aaa7f8a2078f6a10cbfc389b5bc10f9eaaddd2ac80cd"
+    }
+  },
+  {
+    "id": "virtual-aeswitchobject-105-35d410",
+    "size": 1,
+    "offset": 3527696,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESwitchObject_slot_105_r35d410@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x35d410. The named class factory RVA 0x35da40 and its placement callback at RVA 0x35da00 identifies the AESwitchObject table stored at RVA 0x35da38. Slot 105 in that table (RVA 0x803698) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "d65d01d0edc55e38d87d1247f054c34f3d04a9f5034f0d43414374568039c550"
     }
   },
   {
@@ -6173,6 +6349,22 @@
     "match": {
       "bytes_sha256": "68b2fe224c6a256f69e2bd2c4774b0f620966a91fedcd613b8afd56fb3370acf",
       "inputs_sha256": "e41c36c8d06ea12c0293b08eabaa600b734d3b2d8480965124855ff8a52d41c7"
+    }
+  },
+  {
+    "id": "virtual-aemotionsensor-105-35daf0",
+    "size": 1,
+    "offset": 3529456,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEMotionSensor_slot_105_r35daf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x35daf0. The named class factory RVA 0x35e060 and its placement callback at RVA 0x35e020 identifies the AEMotionSensor table stored at RVA 0x35e058. Slot 105 in that table (RVA 0x8086b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "84705c4665d4e2f964f744b33885638623b5aef8e8ec03d5a670668df4bbba4a"
     }
   },
   {

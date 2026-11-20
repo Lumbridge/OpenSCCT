@@ -1,0 +1,34 @@
+[
+  {
+    "id": "virtual-uenum-23-071b80",
+    "size": 6,
+    "offset": 465792,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEnum_slot_23_r071b80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x71b80. The registered placement callback RVA 0x3ebf0 from class registration RVA 0x3f731 identifies the UEnum table stored at RVA 0x3ebfa. Slot 23 in that table (RVA 0x30ce60) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "dd4b21e96c4a09dbf9c9daf0f3aaedfbc12857128d9400a585ceedcb660dde83"
+    }
+  },
+  {
+    "id": "virtual-uobject-1-071bb0",
+    "size": 5,
+    "offset": 465840,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UObject_slot_1_r071bb0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x71bb0. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 1 in that table (RVA 0x30d710) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "30c48acebe0fffa9958d6b275deebfc8ad3e4756339c92c8f5cb6c4d3c674e35"
+    }
+  }
+]

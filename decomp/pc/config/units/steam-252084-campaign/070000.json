@@ -275,6 +275,22 @@
     }
   },
   {
+    "id": "virtual-umesh-29-073310",
+    "size": 3,
+    "offset": 471824,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMesh_slot_29_r073310@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x73310. The named class factory RVA 0x16bd80 and its placement callback at RVA 0x16bcc0 identifies the UMesh table stored at RVA 0x16bcd3. Slot 29 in that table (RVA 0x7cf500) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "9bcf43f79c726a1e6ff1ca0f7e6b958b7501ef2fe190e96dafd1e441c2dde7bd"
+    }
+  },
+  {
     "id": "placement-uprimitive",
     "offset": 471888,
     "size": 14,

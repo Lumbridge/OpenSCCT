@@ -1237,6 +1237,22 @@
     }
   },
   {
+    "id": "virtual-aactor-76-178440",
+    "size": 3,
+    "offset": 1541184,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_76_r178440@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x178440. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 76 in that table (RVA 0x7bc1b8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "38ae00e41d6192b3082808a11e0f28f022fae4a16602252dd3510bfc90237d4b"
+    }
+  },
+  {
     "id": "script-frame-timer",
     "offset": 1541696,
     "size": 55,
@@ -1342,6 +1358,22 @@
     "match": {
       "bytes_sha256": "1e02af725abd1c36c4cecb0959e832fe6be697bc8964736d3afb372f59396e1b",
       "inputs_sha256": "ee19ad3f2d27f3481df8abc3145394551a80ea69cffdcdc08e80af5882202a03"
+    }
+  },
+  {
+    "id": "virtual-aactor-6-1799b0",
+    "size": 5,
+    "offset": 1546672,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_6_r1799b0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x1799b0. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 6 in that table (RVA 0x7bc1b8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+      "inputs_sha256": "dfe0b9a05de46d8d84d6c3e8f548fb3e0bb5a74e4585c75e29ac255cf40d1a00"
     }
   },
   {

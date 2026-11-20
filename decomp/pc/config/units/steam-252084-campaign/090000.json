@@ -1598,6 +1598,70 @@
     }
   },
   {
+    "id": "virtual-acontroller-166-094670",
+    "size": 3,
+    "offset": 607856,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_166_r094670@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94670. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 166 in that table (RVA 0x7c51a8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "9172fd4bbd3338f3f985e9e954e68c33832834b205e103adff290d40ad036360"
+    }
+  },
+  {
+    "id": "virtual-acontroller-167-094680",
+    "size": 8,
+    "offset": 607872,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_167_r094680@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94680. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 167 in that table (RVA 0x7c51a8) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "0313bfd0cef5226e9622da4eb89d7f2953dbe8898785549f15943417f539bac8",
+      "inputs_sha256": "001240ec0f417e2c1bba7787a315028de614dbe2ee3e2d0a5295be25fe365e23"
+    }
+  },
+  {
+    "id": "virtual-acontroller-174-0946a0",
+    "size": 5,
+    "offset": 607904,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_174_r0946a0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x946a0. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 174 in that table (RVA 0x7c51a8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "ec0744e9103c7f537cad4ee3ca243f5e1df40a53b429efe9764ae7deae6ec609"
+    }
+  },
+  {
+    "id": "virtual-acontroller-175-0946b0",
+    "size": 5,
+    "offset": 607920,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_175_r0946b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x946b0. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 175 in that table (RVA 0x7c51a8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "9736cfedc92958ad48fd150d97d18804c46431833555df6d00f221f942a9e1eb"
+    }
+  },
+  {
     "id": "delete-acontroller",
     "offset": 607936,
     "size": 46,
@@ -1684,6 +1748,38 @@
     }
   },
   {
+    "id": "virtual-aaicontroller-176-094750",
+    "size": 5,
+    "offset": 608080,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AAIController_slot_176_r094750@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94750. The named class factory RVA 0x96dd0 and its placement callback at RVA 0x95f30 identifies the AAIController table stored at RVA 0x95f68. Slot 176 in that table (RVA 0x7c5468) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "ba266d926bc8057d6fa7f7d2c44fe1d307a369f520c3f82a87eb7c9075229a27"
+    }
+  },
+  {
+    "id": "virtual-aaicontroller-177-094760",
+    "size": 3,
+    "offset": 608096,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AAIController_slot_177_r094760@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94760. The named class factory RVA 0x96dd0 and its placement callback at RVA 0x95f30 identifies the AAIController table stored at RVA 0x95f68. Slot 177 in that table (RVA 0x7c5468) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "276f756f146bae58a555e3e789cff00dd84bb995e426f5a48287496c83715d7e"
+    }
+  },
+  {
     "id": "delete-aaicontroller",
     "offset": 608112,
     "size": 46,
@@ -1715,6 +1811,150 @@
     "match": {
       "bytes_sha256": "04c6d10582934e88e44301edbb0f365b3a00cefc12b471fe08d2aba1ee7e7fcb",
       "inputs_sha256": "612c314c2da4cb629db32462738e5565e77d161b7a98d56f714937fc8e755777"
+    }
+  },
+  {
+    "id": "virtual-acamera-176-0947d0",
+    "size": 3,
+    "offset": 608208,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_176_r0947d0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x947d0. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 176 in that table (RVA 0x7c5a18) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "75552fdcab80061bc16d189e4091d0e3d450e50857bdee8cfe1237f2afc39fbb"
+    }
+  },
+  {
+    "id": "virtual-acamera-177-0947e0",
+    "size": 3,
+    "offset": 608224,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_177_r0947e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x947e0. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 177 in that table (RVA 0x7c5a18) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "fd9faa744c88c40d149b64098a791b1b5e2ab7c5da65ecbe8ccbd5b57c6a936b"
+    }
+  },
+  {
+    "id": "virtual-acamera-178-0947f0",
+    "size": 3,
+    "offset": 608240,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_178_r0947f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x947f0. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 178 in that table (RVA 0x7c5a18) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "5b64873e2a52e0ba5656a459d775c053f624d02383fffd2bf88d008e5479e524"
+    }
+  },
+  {
+    "id": "virtual-acamera-180-094800",
+    "size": 3,
+    "offset": 608256,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_180_r094800@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94800. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 180 in that table (RVA 0x7c5a18) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "3d00b5feda5c57485f95b552739df6316b3eff5d464dbbc59c97617b01b94db1"
+    }
+  },
+  {
+    "id": "virtual-acamera-181-094810",
+    "size": 3,
+    "offset": 608272,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_181_r094810@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94810. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 181 in that table (RVA 0x7c5a18) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "e92270c27e465eee6261714a860b3bcb13b2d58e64fd80ab5f52b6d6cea8e52b"
+    }
+  },
+  {
+    "id": "virtual-acamera-182-094820",
+    "size": 3,
+    "offset": 608288,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_182_r094820@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94820. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 182 in that table (RVA 0x7c5a18) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "42f919873bb5aea1fb7eb7c1123299e0e4ce7a23adb9709bb3fb3b34d979c39d"
+    }
+  },
+  {
+    "id": "virtual-acamera-183-094830",
+    "size": 3,
+    "offset": 608304,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_183_r094830@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94830. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 183 in that table (RVA 0x7c5a18) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "36dc3cf89bc681bb085f859808ae812af8280dab8bbcb51b5e8697510473f391"
+    }
+  },
+  {
+    "id": "virtual-acamera-184-094840",
+    "size": 5,
+    "offset": 608320,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_184_r094840@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94840. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 184 in that table (RVA 0x7c5a18) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "0c2c7a212db68f7b6d7634358b03dd94e2358f33eb8fae1ce475dab43e990c0f",
+      "inputs_sha256": "ab979065870120f5809e6543ebe57bf1459dea87049b3b2d6360ada6b15c9fd8"
+    }
+  },
+  {
+    "id": "virtual-acamera-185-094850",
+    "size": 3,
+    "offset": 608336,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_185_r094850@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94850. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 185 in that table (RVA 0x7c5a18) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "0099c2b4efe1d9cb989a60d9608a8009b37470497ef7a27281681cff1c464f9b"
     }
   },
   {
@@ -2014,6 +2254,22 @@
     }
   },
   {
+    "id": "virtual-agameinfo-166-094ab0",
+    "size": 3,
+    "offset": 608944,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AGameInfo_slot_166_r094ab0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94ab0. The named class factory RVA 0x967b0 and its placement callback at RVA 0x960b0 identifies the AGameInfo table stored at RVA 0x960e8. Slot 166 in that table (RVA 0x7c64c8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "23bb621b5431f6877998f6ec65453c0c35afa40e482d840b7588a3bc97d6ffa3"
+    }
+  },
+  {
     "id": "delete-agameinfo",
     "offset": 608960,
     "size": 33,
@@ -2097,6 +2353,22 @@
     "match": {
       "bytes_sha256": "23f96c7d02fcf6a5f4b75b1b6ddad8dc92065169d88049a9075b18b5dd4b4c33",
       "inputs_sha256": "64f2f391a2a40d2f3d77060cb894069a74f94d5a06a2e46f5b0b9a380d5fb63f"
+    }
+  },
+  {
+    "id": "virtual-azoneinfo-166-094d90",
+    "size": 3,
+    "offset": 609680,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AZoneInfo_slot_166_r094d90@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x94d90. The named class factory RVA 0x96890 and its placement callback at RVA 0x96130 identifies the AZoneInfo table stored at RVA 0x96168. Slot 166 in that table (RVA 0x7c6a00) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "40538fa8673dbcabdcc4584ccde5076a534e94e492247dccb68385513b8ac9c0"
     }
   },
   {
@@ -2296,6 +2568,38 @@
     "match": {
       "bytes_sha256": "2bb33fd8d82abfebf35f123060b7fdc5e219a80528481bd79d8587e88d54b8da",
       "inputs_sha256": "83e1975f47ee7ed780a552d5ea06118f3d31a312ed5f9d69c3e8506a2135c09f"
+    }
+  },
+  {
+    "id": "virtual-apathnode-168-095040",
+    "size": 3,
+    "offset": 610368,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APathNode_slot_168_r095040@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95040. The named class factory RVA 0x96970 and its placement callback at RVA 0x963e0 identifies the APathNode table stored at RVA 0x96418. Slot 168 in that table (RVA 0x7c79b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "a74192ab6c741cb24ac3a6feff5e44581e6524042a657d599463161a61ec479c"
+    }
+  },
+  {
+    "id": "virtual-apathnode-169-095050",
+    "size": 1,
+    "offset": 610384,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APathNode_slot_169_r095050@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95050. The named class factory RVA 0x96970 and its placement callback at RVA 0x963e0 identifies the APathNode table stored at RVA 0x96418. Slot 169 in that table (RVA 0x7c79b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "c4ef9ee835fadace02b9d9ca0c679ff001a274f9fa054e2b3d2d7c5b235c33f2"
     }
   },
   {
@@ -2532,6 +2836,214 @@
     "match": {
       "bytes_sha256": "57663ee26e56ebdabaf554af79786734ba9eeb77422b82411b89148f108b2df5",
       "inputs_sha256": "497c3588ea3bc3904aa9fc7353201e0bcb381432689486a222391e0a3d848216"
+    }
+  },
+  {
+    "id": "virtual-apawn-168-0953d0",
+    "size": 3,
+    "offset": 611280,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_168_r0953d0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x953d0. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 168 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "20a4904c34ee0d1287df34785bc6a74a0afab491020bbabe6b92b393e4817d45"
+    }
+  },
+  {
+    "id": "virtual-apawn-169-0953e0",
+    "size": 3,
+    "offset": 611296,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_169_r0953e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x953e0. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 169 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "4ff35d15b7dc5480852ceb07f09210e47f68c75c206288ee05944a1969bcedda"
+    }
+  },
+  {
+    "id": "virtual-apawn-170-0953f0",
+    "size": 3,
+    "offset": 611312,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_170_r0953f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x953f0. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 170 in that table (RVA 0x7c81b0) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "26f98ae200295bc677e3780e8011188b08d9510c83ab9eca767c7218e6795ebc"
+    }
+  },
+  {
+    "id": "virtual-apawn-171-095400",
+    "size": 3,
+    "offset": 611328,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_171_r095400@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95400. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 171 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "90022afbf485571bb985de26f4f2160d6a5b5e273598c233aa1f756f1443e095"
+    }
+  },
+  {
+    "id": "virtual-apawn-172-095410",
+    "size": 3,
+    "offset": 611344,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_172_r095410@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95410. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 172 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "1ad1b5470de5ebef09a2fdaef097237a66bd8617f7f9c38bbcf89fdd0366bf8e"
+    }
+  },
+  {
+    "id": "virtual-apawn-173-095420",
+    "size": 3,
+    "offset": 611360,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_173_r095420@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95420. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 173 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "2fffcbfac6a2b331f7c3539b66478e295eacd85d24de2d40f160097c91daa300"
+    }
+  },
+  {
+    "id": "virtual-apawn-98-095430",
+    "size": 3,
+    "offset": 611376,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_98_r095430@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95430. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 98 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "2a047bfa5918f177c8af341da14ea14f91226fe0efe0db2e4003124a43330b3a"
+    }
+  },
+  {
+    "id": "virtual-apawn-175-095440",
+    "size": 6,
+    "offset": 611392,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_175_r095440@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95440. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 175 in that table (RVA 0x7c81b0) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "6574827e5961e92f9f2d331ba9215995afebfcb6042582a30cbc10f85ae6c9fc"
+    }
+  },
+  {
+    "id": "virtual-apawn-176-095450",
+    "size": 3,
+    "offset": 611408,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_176_r095450@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95450. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 176 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "1e2f4bcf46ab70f6616004840316ae0c215bc85e1ab28a07cac868ca2758678b"
+    }
+  },
+  {
+    "id": "virtual-apawn-177-095460",
+    "size": 1,
+    "offset": 611424,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_177_r095460@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95460. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 177 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "add51612758e7bbddf88c7688746cd79334eb2557af60016e77c1e22f710db4b"
+    }
+  },
+  {
+    "id": "virtual-apawn-178-095470",
+    "size": 4,
+    "offset": 611440,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_178_r095470@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x95470. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 178 in that table (RVA 0x7c81b0) contains the entry address. Returns a 32-bit word with every bit set.",
+    "match": {
+      "bytes_sha256": "031a1d90a8a2c46993613c8b2828efd0c52f20f2852d5f2ff930bc6acc0090c8",
+      "inputs_sha256": "ba188a7faa4278748d135b469425f38af8ef2520d50a494cd66e1345eb6f0489"
+    }
+  },
+  {
+    "id": "virtual-apawn-184-0954a0",
+    "size": 3,
+    "offset": 611488,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_184_r0954a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x954a0. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 184 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "ac294758b4f85ab9df99cef61917ba7a777521f562399004a90b0428ebcc0bd5"
+    }
+  },
+  {
+    "id": "virtual-apawn-189-0954b0",
+    "size": 1,
+    "offset": 611504,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@APawn_slot_189_r0954b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x954b0. The named class factory RVA 0xb51e0 and its placement callback at RVA 0xb51a0 identifies the APawn table stored at RVA 0xb51d8. Slot 189 in that table (RVA 0x7c81b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "acff6d6c6aceb5bcef0204c9b738eb6cf9790bea39a754812d5b5d9bd0e7d38e"
     }
   },
   {
@@ -3326,6 +3838,22 @@
     "match": {
       "bytes_sha256": "ddb44a20d2ac14d5b26162e22c1b46255e00bddc6d2ecb9bc692495733d43924",
       "inputs_sha256": "62aa6e3c8777f19fe74bbcbc06317c68d5a72ed04a2621a22cd2ea2534b204b3"
+    }
+  },
+  {
+    "id": "virtual-alight-166-0962a0",
+    "size": 3,
+    "offset": 615072,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ALight_slot_166_r0962a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x962a0. The named class factory RVA 0x972e0 and its placement callback at RVA 0x972a0 identifies the ALight table stored at RVA 0x972d8. Slot 166 in that table (RVA 0x7c8d30) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "65e17771d6445cb78339caae8d125194f82790bb487866f985d55dc27b061f0f"
     }
   },
   {
@@ -8080,6 +8608,70 @@
     }
   },
   {
+    "id": "virtual-aecooprevive-169-09f740",
+    "size": 3,
+    "offset": 653120,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECoopRevive_slot_169_r09f740@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9f740. The named class factory RVA 0x300940 and its placement callback at RVA 0x300710 identifies the AECoopRevive table stored at RVA 0x300748. Slot 169 in that table (RVA 0x7f3668) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "8d367cd31e23cfab6a63841f34381ca108f0c18e5951f360db36aea333bb2758"
+    }
+  },
+  {
+    "id": "virtual-aecooprevive-172-09f750",
+    "size": 3,
+    "offset": 653136,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECoopRevive_slot_172_r09f750@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9f750. The named class factory RVA 0x300940 and its placement callback at RVA 0x300710 identifies the AECoopRevive table stored at RVA 0x300748. Slot 172 in that table (RVA 0x7f3668) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "02671d5cbdb8d48e65f9802fbe2a3ec4d7851c5441136a9dd766eeeda3b9cb61"
+    }
+  },
+  {
+    "id": "virtual-aecooprevive-173-09f760",
+    "size": 5,
+    "offset": 653152,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECoopRevive_slot_173_r09f760@24",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9f760. The named class factory RVA 0x300940 and its placement callback at RVA 0x300710 identifies the AECoopRevive table stored at RVA 0x300748. Slot 173 in that table (RVA 0x7f3668) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "e123f60e9fc6e974d1381f2f15fb19e7960628cc8925d65e344c2f2bdc64f424",
+      "inputs_sha256": "b561860bc5a76ba34bf4dd5bc84f22c8cf1560e1e9ce08d48adaa579b8c4cb55"
+    }
+  },
+  {
+    "id": "virtual-aecooprevive-174-09f770",
+    "size": 3,
+    "offset": 653168,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECoopRevive_slot_174_r09f770@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9f770. The named class factory RVA 0x300940 and its placement callback at RVA 0x300710 identifies the AECoopRevive table stored at RVA 0x300748. Slot 174 in that table (RVA 0x7f3668) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "4cefaef88c186c090d3927c5c7b82ac8162e7a67e457111ba3f7226052e60d8b"
+    }
+  },
+  {
     "id": "delete-aeinteractobject",
     "offset": 653184,
     "size": 46,
@@ -8327,6 +8919,38 @@
     "match": {
       "bytes_sha256": "342e9f8ae44e81d4e93280c51eda32f3c85f5baec3e3ced91b6c34e6aa4086b2",
       "inputs_sha256": "f3088ff2b1cbf99fe2a769f7690147be4042fdd24c540ddff07e800ae323f35a"
+    }
+  },
+  {
+    "id": "virtual-aehkconstraint-51-09fae0",
+    "size": 1,
+    "offset": 654048,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEHkConstraint_slot_51_r09fae0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9fae0. The named class factory RVA 0xa1490 and its placement callback at RVA 0xa1410 identifies the AEHkConstraint table stored at RVA 0xa143f. Slot 51 in that table (RVA 0x7c9f38) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "5df64ac18db82949155bdadce923f2e75a08bd0bb05a19064cf08cb67847eeb7"
+    }
+  },
+  {
+    "id": "virtual-aehkconstraint-105-09fb10",
+    "size": 1,
+    "offset": 654096,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEHkConstraint_slot_105_r09fb10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9fb10. The named class factory RVA 0xa1490 and its placement callback at RVA 0xa1410 identifies the AEHkConstraint table stored at RVA 0xa143f. Slot 105 in that table (RVA 0x7c9f38) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "5b19b5484b40da670dd14c39c5c9f5b6506b989ed161a5b344c6dfaac6276d47"
     }
   }
 ]

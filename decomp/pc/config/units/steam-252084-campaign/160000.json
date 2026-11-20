@@ -1131,6 +1131,54 @@
     }
   },
   {
+    "id": "virtual-uterrainprimitive-25-16dd10",
+    "size": 5,
+    "offset": 1498384,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTerrainPrimitive_slot_25_r16dd10@52",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x16dd10. The named class factory RVA 0x16f560 and its placement callback at RVA 0x16f040 identifies the UTerrainPrimitive table stored at RVA 0x16f050. Slot 25 in that table (RVA 0x7d7ac8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "154d4bef1986690d4c9f44c7dc2e80e0f56cae3508977803552505e5be290b81",
+      "inputs_sha256": "78940ad5e13a8941bd84a5ee98b03d1b370af396318c40b67f8ffb20c008aac0"
+    }
+  },
+  {
+    "id": "virtual-uterrainprimitive-29-16dd20",
+    "size": 3,
+    "offset": 1498400,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTerrainPrimitive_slot_29_r16dd20@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x16dd20. The named class factory RVA 0x16f560 and its placement callback at RVA 0x16f040 identifies the UTerrainPrimitive table stored at RVA 0x16f050. Slot 29 in that table (RVA 0x7d7ac8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "9608d998012aba6d31f674d2e9b43bb240828861bcc77e3cbfe63ca606637c0e"
+    }
+  },
+  {
+    "id": "virtual-uterrainprimitive-10-16dd30",
+    "size": 3,
+    "offset": 1498416,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTerrainPrimitive_slot_10_r16dd30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x16dd30. The named class factory RVA 0x16f560 and its placement callback at RVA 0x16f040 identifies the UTerrainPrimitive table stored at RVA 0x16f050. Slot 10 in that table (RVA 0x7d7ac8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "eb7e573123b53625a5211619e56f9d7d0cbfd37c93f3b6fb68fb01a3e798790e"
+    }
+  },
+  {
     "id": "class-registration-uterrainsector",
     "offset": 1500256,
     "size": 264,

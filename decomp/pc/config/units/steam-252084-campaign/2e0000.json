@@ -296,6 +296,22 @@
     }
   },
   {
+    "id": "virtual-aeaimanager-29-2e4b30",
+    "size": 3,
+    "offset": 3033904,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEAIManager_slot_29_r2e4b30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2e4b30. The named class factory RVA 0x2e4f00 and its placement callback at RVA 0x2e4ec0 identifies the AEAIManager table stored at RVA 0x2e4ef8. Slot 29 in that table (RVA 0x7ec038) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "2108e08428a9a90a6cef3cbf3dc436c33698a94add90b41954e17d627c7a88cc"
+    }
+  },
+  {
     "id": "delete-aeaimanager",
     "offset": 3033920,
     "size": 33,
@@ -1923,6 +1939,38 @@
     }
   },
   {
+    "id": "virtual-aecar-105-2e9990",
+    "size": 1,
+    "offset": 3053968,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECar_slot_105_r2e9990@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2e9990. The named class factory RVA 0x33ee40 and its placement callback at RVA 0x33ee00 identifies the AECar table stored at RVA 0x33ee38. Slot 105 in that table (RVA 0x7fe718) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "363656c9b2ce66fa50a7fdc08315943106774484f4278c25249b6f3745672a7f"
+    }
+  },
+  {
+    "id": "virtual-aeknob-168-2e9a20",
+    "size": 1,
+    "offset": 3054112,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEKnob_slot_168_r2e9a20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2e9a20. The named class factory RVA 0x33d9a0 and its placement callback at RVA 0x33d8f0 identifies the AEKnob table stored at RVA 0x33d928. Slot 168 in that table (RVA 0x7fe0e8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "c7754ee7cd4b15c4d2ce51a937f5b99a28a672fcb12842d5b23cbcd37108850c"
+    }
+  },
+  {
     "id": "script-parameters-isocpactive",
     "offset": 3055024,
     "size": 66,
@@ -2778,6 +2826,86 @@
     "match": {
       "bytes_sha256": "2a448afa62ee1f094bd923d1c287394cb515e9cf28cdc4785f97511e287d54f0",
       "inputs_sha256": "6ff0b691ca8c28bb57159b3ae0b768060e4680a0956575252dc4436ae55c692f"
+    }
+  },
+  {
+    "id": "virtual-aecar-166-2ee670",
+    "size": 3,
+    "offset": 3073648,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECar_slot_166_r2ee670@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2ee670. The named class factory RVA 0x33ee40 and its placement callback at RVA 0x33ee00 identifies the AECar table stored at RVA 0x33ee38. Slot 166 in that table (RVA 0x7fe718) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "b8f659f16e78c7660936e8b8c252a5761c170feeb7497eab341a8d40847892ab"
+    }
+  },
+  {
+    "id": "virtual-aecar-114-2ee6a0",
+    "size": 7,
+    "offset": 3073696,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECar_slot_114_r2ee6a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2ee6a0. The named class factory RVA 0x33ee40 and its placement callback at RVA 0x33ee00 identifies the AECar table stored at RVA 0x33ee38. Slot 114 in that table (RVA 0x7fe718) contains the entry address. Reads the 4-byte field at receiver offset 0x3d4.",
+    "match": {
+      "bytes_sha256": "391c16336f83a91609951acb711cf250f66e44768c2d7d5f27d95fa2f528dc38",
+      "inputs_sha256": "1d3ceffe3e3935ce103586ac7a4d58a1c942fa06fc8bee1e2af6dcd888a46d43"
+    }
+  },
+  {
+    "id": "virtual-aecar-172-2ee6f0",
+    "size": 3,
+    "offset": 3073776,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECar_slot_172_r2ee6f0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2ee6f0. The named class factory RVA 0x33ee40 and its placement callback at RVA 0x33ee00 identifies the AECar table stored at RVA 0x33ee38. Slot 172 in that table (RVA 0x7fe718) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "6aca9a856efe0ef9a30d6cf210a164cc45d83e116523a57b9ddb3584a6558d87"
+    }
+  },
+  {
+    "id": "virtual-aecar-140-2ee700",
+    "size": 7,
+    "offset": 3073792,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECar_slot_140_r2ee700@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2ee700. The named class factory RVA 0x33ee40 and its placement callback at RVA 0x33ee00 identifies the AECar table stored at RVA 0x33ee38. Slot 140 in that table (RVA 0x7fe718) contains the entry address. Reads the 1-byte field at receiver offset 0x2d5.",
+    "match": {
+      "bytes_sha256": "50a5546650b11e56cef6c1cbad8750cbe1221e05174fb9aae550d55b9e298812",
+      "inputs_sha256": "96b855f28cc4e4716318950742dbdc8c712d7c08dae2b645da3161ba9ddf2bdf"
+    }
+  },
+  {
+    "id": "virtual-aecar-178-2ee710",
+    "size": 3,
+    "offset": 3073808,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AECar_slot_178_r2ee710@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x2ee710. The named class factory RVA 0x33ee40 and its placement callback at RVA 0x33ee00 identifies the AECar table stored at RVA 0x33ee38. Slot 178 in that table (RVA 0x7fe718) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "18136e1183db0898303e0c76b10853723aa064e91edb33ace84e79e0e5b392cb"
     }
   },
   {

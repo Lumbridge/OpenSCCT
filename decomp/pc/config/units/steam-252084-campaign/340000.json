@@ -3684,6 +3684,22 @@
     }
   },
   {
+    "id": "virtual-aedetonator-105-3481d0",
+    "size": 1,
+    "offset": 3441104,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEDetonator_slot_105_r3481d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3481d0. The named class factory RVA 0x349600 and its placement callback at RVA 0x3495c0 identifies the AEDetonator table stored at RVA 0x3495f8. Slot 105 in that table (RVA 0x800f88) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "44ca8f68a89eb53c64fe2a299b22b7905379f481dc06da993a74e49f3b23f9e9"
+    }
+  },
+  {
     "id": "class-registration-aedetonator",
     "offset": 3441424,
     "size": 264,
@@ -4817,6 +4833,22 @@
     }
   },
   {
+    "id": "virtual-aeduallock-105-34bfd0",
+    "size": 1,
+    "offset": 3456976,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEDualLock_slot_105_r34bfd0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x34bfd0. The named class factory RVA 0x34c3b0 and its placement callback at RVA 0x34c330 identifies the AEDualLock table stored at RVA 0x34c368. Slot 105 in that table (RVA 0x801c00) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "86bcb5695198ad6ec259c19efd711e9af58b7dfa3ef6e480cc9c2c54eccdb323"
+    }
+  },
+  {
     "id": "class-registration-aeduallock",
     "offset": 3457024,
     "size": 264,
@@ -5212,6 +5244,22 @@
     "match": {
       "bytes_sha256": "8227c81fb0f2633cf4e4cc098d20eae58a225cec6e2692db5df26c41696ee269",
       "inputs_sha256": "2900ca97afb8c67956d690a17fca5f7c5855b9b4fc34dfbd00ddef201bd766b4"
+    }
+  },
+  {
+    "id": "virtual-aeelevatorpanel-105-34c490",
+    "size": 1,
+    "offset": 3458192,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEElevatorPanel_slot_105_r34c490@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x34c490. The named class factory RVA 0x34e730 and its placement callback at RVA 0x34e6f0 identifies the AEElevatorPanel table stored at RVA 0x34e728. Slot 105 in that table (RVA 0x802500) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "19ea5b751de872bcb8525aa914e3c087ab2c4b8f11b77fbad7e949acb2108336"
     }
   },
   {

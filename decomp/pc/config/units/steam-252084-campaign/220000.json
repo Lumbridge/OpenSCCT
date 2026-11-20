@@ -140,6 +140,22 @@
     }
   },
   {
+    "id": "virtual-uscmagmainteractionpregame-45-220930",
+    "size": 3,
+    "offset": 2230576,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteractionPREGame_slot_45_r220930@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x220930. The named class factory RVA 0x220e20 and its placement callback at RVA 0x220e00 identifies the USCMagmaInteractionPREGame table stored at RVA 0x220e10. Slot 45 in that table (RVA 0x7ded10) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "ddc449b8c60cdef3c75573713a39b2107f912c955afd9f49cf2fcec00e3c6a96"
+    }
+  },
+  {
     "id": "class-registration-uscmagmainteractionpregame",
     "offset": 2230768,
     "size": 264,
@@ -321,6 +337,54 @@
     "match": {
       "bytes_sha256": "f096117699e6beec2da9e95dfe746004ae86d453abbab5390c904eba397898b2",
       "inputs_sha256": "6bc09c08c681f0d80c60b172e113554d55edcc7c251ae9476b357dfd4e24180a"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteractionpregame-26-220d90",
+    "size": 3,
+    "offset": 2231696,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteractionPREGame_slot_26_r220d90@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x220d90. The named class factory RVA 0x220e20 and its placement callback at RVA 0x220e00 identifies the USCMagmaInteractionPREGame table stored at RVA 0x220e10. Slot 26 in that table (RVA 0x7ded10) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "3d53ce28ef00407ad4195b68c9d68558769948701562a3e74a33c18f56dccb3e"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteractionpregame-27-220da0",
+    "size": 3,
+    "offset": 2231712,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteractionPREGame_slot_27_r220da0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x220da0. The named class factory RVA 0x220e20 and its placement callback at RVA 0x220e00 identifies the USCMagmaInteractionPREGame table stored at RVA 0x220e10. Slot 27 in that table (RVA 0x7ded10) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "3d1b43804abe7f9256360e64fac703c33b2773da5ca54d6aa476007b4edfaeea"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteractionpregame-35-220db0",
+    "size": 6,
+    "offset": 2231728,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteractionPREGame_slot_35_r220db0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x220db0. The named class factory RVA 0x220e20 and its placement callback at RVA 0x220e00 identifies the USCMagmaInteractionPREGame table stored at RVA 0x220e10. Slot 35 in that table (RVA 0x7ded10) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "c39cafc685037272350a81ec7d4a5f991131cda1547860c3c59db37f377adfae"
     }
   },
   {

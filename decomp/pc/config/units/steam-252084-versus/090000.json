@@ -2119,5 +2119,21 @@
       "bytes_sha256": "30abca0e4f2f4c764f0fe4b535dbd8a5a08e7279538cc803526ba141ecec0340",
       "inputs_sha256": "88a2bfde8831fd1bf16aa10f0b02e6a907d93655f3de0a50719375af05c2d8e1"
     }
+  },
+  {
+    "id": "virtual-uprimitive-27-09e980",
+    "size": 8,
+    "offset": 649600,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UPrimitive_slot_27_r09e980@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x9e980. The registered placement callback RVA 0xa7b50 from class registration RVA 0xa1583 identifies the UPrimitive table stored at RVA 0xa7b5a. Slot 27 in that table (RVA 0x30bae8) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "0313bfd0cef5226e9622da4eb89d7f2953dbe8898785549f15943417f539bac8",
+      "inputs_sha256": "af142cec9f123defd35b733cdfea98059490853647ea19cbf0a20e0017b6b93d"
+    }
   }
 ]

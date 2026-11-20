@@ -321,6 +321,86 @@
     }
   },
   {
+    "id": "virtual-acamera-168-1032c0",
+    "size": 7,
+    "offset": 1061568,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@ACamera_slot_168_r1032c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x1032c0. The named class factory RVA 0x96820 and its placement callback at RVA 0x95fb0 identifies the ACamera table stored at RVA 0x95fe8. Slot 168 in that table (RVA 0x7c5a18) contains the entry address. Reads the 4-byte field at receiver offset 0x434.",
+    "match": {
+      "bytes_sha256": "d8f80a1f69798d8d21c97ce2bb2d13a9e60d5005d540724a15d5b86fa5ce0788",
+      "inputs_sha256": "dc0444472b30904e10302e667ee449e96b13d2c6bff36e0b81d0e4d74e087966"
+    }
+  },
+  {
+    "id": "virtual-acontroller-169-103310",
+    "size": 5,
+    "offset": 1061648,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_169_r103310@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x103310. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 169 in that table (RVA 0x7c51a8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "98a61ec4ed5a195e0c7c42c04d7d58ff904207c041f1a24583e5545c7ea02aac"
+    }
+  },
+  {
+    "id": "virtual-acontroller-170-103340",
+    "size": 3,
+    "offset": 1061696,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_170_r103340@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x103340. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 170 in that table (RVA 0x7c51a8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "98b430ea691b4facfa80ad1750cb362b8d520c9294c7914e1c7fb9fddb872a3b"
+    }
+  },
+  {
+    "id": "virtual-aaicontroller-170-103350",
+    "size": 3,
+    "offset": 1061712,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AAIController_slot_170_r103350@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x103350. The named class factory RVA 0x96dd0 and its placement callback at RVA 0x95f30 identifies the AAIController table stored at RVA 0x95f68. Slot 170 in that table (RVA 0x7c5468) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "40b6e12d23602b39dcf9410fbefa846b20b0760c27277f10cddc27be0f6175b2"
+    }
+  },
+  {
+    "id": "virtual-acontroller-171-103360",
+    "size": 3,
+    "offset": 1061728,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AController_slot_171_r103360@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x103360. The named class factory RVA 0x96d60 and its placement callback at RVA 0x95ef0 identifies the AController table stored at RVA 0x95f28. Slot 171 in that table (RVA 0x7c51a8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "89ccdff5d45f5c510b598fc47955ce028cec707fa48ac17c9e88214b8f8cf9bc"
+    }
+  },
+  {
     "id": "script-event-longfall",
     "offset": 1061808,
     "size": 32,
@@ -689,6 +769,22 @@
     }
   },
   {
+    "id": "virtual-uecininfo-24-106750",
+    "size": 5,
+    "offset": 1075024,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UECinInfo_slot_24_r106750@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106750. The named class factory RVA 0x106bf0 and its placement callback at RVA 0x106bc0 identifies the UECinInfo table stored at RVA 0x106bd0. Slot 24 in that table (RVA 0x7d0520) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "43ee48246efd33a7b1d64ddc2d72753a4fc1c0a6e88a4944e969329a9cbaf9fd"
+    }
+  },
+  {
     "id": "class-registration-uecininfo",
     "offset": 1075200,
     "size": 264,
@@ -894,6 +990,102 @@
     "match": {
       "bytes_sha256": "71bc487f2e322786d79e3912fe2efdf00dd73db61ffbdeb102819dbea99b36bb",
       "inputs_sha256": "0e8cd5fdb5a8558f927741fb15507fdb2455c17a4268329f8f53dbfadad1245b"
+    }
+  },
+  {
+    "id": "virtual-aactor-37-106c60",
+    "size": 1,
+    "offset": 1076320,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_37_r106c60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106c60. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 37 in that table (RVA 0x7bc1b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "43a596c75131c746e5e4822f8608b7c6be445898dd742ed540f6ebd86dd93ecf"
+    }
+  },
+  {
+    "id": "virtual-aactor-38-106c70",
+    "size": 1,
+    "offset": 1076336,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_38_r106c70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106c70. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 38 in that table (RVA 0x7bc1b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "2f7b2c66ee270a93f55034c287d9310a8437f31960c4c872d022bff370a92211"
+    }
+  },
+  {
+    "id": "virtual-aactor-39-106c80",
+    "size": 3,
+    "offset": 1076352,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_39_r106c80@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106c80. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 39 in that table (RVA 0x7bc1b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "904870bfb095814932ba1f83d82d34067d896496d12ab8337388536ad68e2db3"
+    }
+  },
+  {
+    "id": "virtual-aactor-40-106c90",
+    "size": 3,
+    "offset": 1076368,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_40_r106c90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106c90. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 40 in that table (RVA 0x7bc1b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "af2ce51b55bf680d7093939da593463bfadb2bde055dc8b91f268439a5b8ff41"
+    }
+  },
+  {
+    "id": "virtual-aactor-41-106ca0",
+    "size": 3,
+    "offset": 1076384,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AActor_slot_41_r106ca0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106ca0. The named class factory RVA 0x96580 and its placement callback at RVA 0x95d10 identifies the AActor table stored at RVA 0x95d20. Slot 41 in that table (RVA 0x7bc1b8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "06b65a298810876046371c0fd5cb4d1c0d81454f4fa721c67e8880e7061d5b9e"
+    }
+  },
+  {
+    "id": "virtual-uehkrigidbody-16-106cb0",
+    "size": 1,
+    "offset": 1076400,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEHkRigidBody_slot_16_r106cb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x106cb0. The named class factory RVA 0x107200 and its placement callback at RVA 0x107170 identifies the UEHkRigidBody table stored at RVA 0x107180. Slot 16 in that table (RVA 0x7d05f8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "07dbfae6a19d63854779b9a557f3c5fd32db10d564a7ad3add971de95939848f"
     }
   },
   {
@@ -1198,6 +1390,22 @@
     "match": {
       "bytes_sha256": "4f6bbc8d1a07db3142805b3bf813c8532f2e02e6493adf6223c87bfd919d884e",
       "inputs_sha256": "655cede7137d7bcb8ad499cc62a38df3eeab8ae4f80c7647417e96ac868422ac"
+    }
+  },
+  {
+    "id": "virtual-uehkskeletalsystem-16-1083e0",
+    "size": 1,
+    "offset": 1082336,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEHkSkeletalSystem_slot_16_r1083e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x1083e0. The named class factory RVA 0x108d40 and its placement callback at RVA 0x108d20 identifies the UEHkSkeletalSystem table stored at RVA 0x108d30. Slot 16 in that table (RVA 0x7d0690) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "812fab4552f190aa8584b31c866013851d4ad28e069cef19b85ec11b41284222"
     }
   },
   {
@@ -2891,6 +3099,70 @@
     }
   },
   {
+    "id": "virtual-uscmagmainteraction-24-10da70",
+    "size": 8,
+    "offset": 1104496,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_24_r10da70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10da70. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 24 in that table (RVA 0x7d1020) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "0313bfd0cef5226e9622da4eb89d7f2953dbe8898785549f15943417f539bac8",
+      "inputs_sha256": "d1e80e6d14b41fa4c0c4d52e503af0cbc645147982937bb009f2789a514dfa17"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-49-10dd50",
+    "size": 3,
+    "offset": 1105232,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_49_r10dd50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10dd50. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 49 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "b28db6eb5d10202bb9ff5256c6e17e2fd9db0b0cd068631639b0d0289ed0d9a1"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-50-10dd60",
+    "size": 3,
+    "offset": 1105248,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_50_r10dd60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10dd60. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 50 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "0eec26d75dfd0ea8253927e8dd776d9b1e6645a5a8303dab51319241bec054e1"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-51-10dd70",
+    "size": 3,
+    "offset": 1105264,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_51_r10dd70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10dd70. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 51 in that table (RVA 0x7d1020) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "b2e11e43148b881cf42048d50d1edeb89b27e0d74e865f284a675c858c91d6a6"
+    }
+  },
+  {
     "id": "class-registration-uscmagmainteraction",
     "offset": 1106192,
     "size": 264,
@@ -2986,6 +3258,214 @@
     "match": {
       "bytes_sha256": "d2fbfa5c728e4f66d840f10383df9231e17832e5e13109deaa675156cf758266",
       "inputs_sha256": "954faf80eac0908f23d4271347875fe436e7593b19c65786b46d2cdce546db32"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-26-10f6a0",
+    "size": 3,
+    "offset": 1111712,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_26_r10f6a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f6a0. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 26 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "b2fd870455a38554c3f8f34ac9b097aadc2f050017cf12c92bac82da9f2ea781"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-27-10f6b0",
+    "size": 3,
+    "offset": 1111728,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_27_r10f6b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f6b0. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 27 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "584c6d675713de3d07682dc07e5bbf7ec75bd14b67e61ca927048cb3600862dc"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-29-10f6c0",
+    "size": 5,
+    "offset": 1111744,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_29_r10f6c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f6c0. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 29 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "e427f943d73df385130cb2610d42d0f3e14c22a229d320144c1343e83a1b3122"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-30-10f6d0",
+    "size": 3,
+    "offset": 1111760,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_30_r10f6d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f6d0. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 30 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "3efb50d4897730970feb5672519074a2ca2cdee4a1d23f57d7796f9aa6120b7e"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-31-10f6e0",
+    "size": 3,
+    "offset": 1111776,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_31_r10f6e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f6e0. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 31 in that table (RVA 0x7d1020) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "7bdd1bca0b7e2dbbe5a5bb361142669543437c5674ffcbfab0137f34c146c50b"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-32-10f6f0",
+    "size": 5,
+    "offset": 1111792,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_32_r10f6f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f6f0. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 32 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "5b35f393f97b0e2d982fc805ecb6e8c716887952e26d9c874b433e1b398d8f18"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-33-10f700",
+    "size": 3,
+    "offset": 1111808,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_33_r10f700@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f700. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 33 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "beaf8c124ed1a2f8e54df4bc1d3a65b20b52d751f4334bea25f9d98f3ef69196"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-34-10f710",
+    "size": 3,
+    "offset": 1111824,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_34_r10f710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f710. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 34 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "52b35bfe1a6a809b9c4785ab18c734d81650a6db13e58981f8414962a860a57a"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-35-10f720",
+    "size": 3,
+    "offset": 1111840,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_35_r10f720@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f720. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 35 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "a17e0a8357d205704340461fc759031c56e0d0aa28d63ba53abe3adca8085c6b"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-37-10f730",
+    "size": 3,
+    "offset": 1111856,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_37_r10f730@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f730. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 37 in that table (RVA 0x7d1020) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "1dc627b3f5724dbf74ef93f692899788a21f2c09cc63c89ce66f033c44b3d554"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-36-10f740",
+    "size": 3,
+    "offset": 1111872,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_36_r10f740@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f740. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 36 in that table (RVA 0x7d1020) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "14ca329894202aac740a9fc25c8aa15c30f6a387d3b44797d89034e76b11f9c2"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-45-10f750",
+    "size": 3,
+    "offset": 1111888,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_45_r10f750@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f750. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 45 in that table (RVA 0x7d1020) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "49cb584808faf62b30636e78d410a294df50a7526b66b8cb8f160953ae64b280"
+    }
+  },
+  {
+    "id": "virtual-uscmagmainteraction-46-10f760",
+    "size": 3,
+    "offset": 1111904,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USCMagmaInteraction_slot_46_r10f760@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x10f760. The named class factory RVA 0x10f8c0 and its placement callback at RVA 0x10f7e0 identifies the USCMagmaInteraction table stored at RVA 0x10f7f0. Slot 46 in that table (RVA 0x7d1020) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "49bf7b72552148204276138a10232be1c34f6e70700b104375194d10ba05c89c"
     }
   },
   {

@@ -24,5 +24,69 @@
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
       "inputs_sha256": "0b39bec9e8bdbb5422836ed5cdcae32a0bbc5f74b9adf901254dcd84adac5e88"
     }
+  },
+  {
+    "id": "virtual-uconstantcolor-30-068db0",
+    "size": 3,
+    "offset": 429488,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UConstantColor_slot_30_r068db0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x68db0. The registered placement callback RVA 0xaa5d0 from class registration RVA 0xa089b identifies the UConstantColor table stored at RVA 0xaa5ea. Slot 30 in that table (RVA 0x307d00) contains the entry address. Returns the constant 1 in AL.",
+    "match": {
+      "bytes_sha256": "e18aacce29affcdddaa5f641ac1ec12552e0fe9d066e6408941b1792818b8619",
+      "inputs_sha256": "032f59b820fbeb4086747e6be41786be27c2ead663f7faeeaefc6c5c999153c3"
+    }
+  },
+  {
+    "id": "virtual-uobject-15-068f20",
+    "size": 1,
+    "offset": 429856,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UObject_slot_15_r068f20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x68f20. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 15 in that table (RVA 0x30d710) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "b580c16b7c7a91d4fdd0b9761b7923732005f7765749bd3d4cd359c4df18f149"
+    }
+  },
+  {
+    "id": "virtual-ustate-27-069ef0",
+    "size": 4,
+    "offset": 433904,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UState_slot_27_r069ef0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x69ef0. The registered placement callback RVA 0x3ebc0 from class registration RVA 0x40025 identifies the UState table stored at RVA 0x3ebd0. Slot 27 in that table (RVA 0x30d8c0) contains the entry address. Reads the 4-byte field at receiver offset 0x28.",
+    "match": {
+      "bytes_sha256": "f9ab56c764100f6de974a6afa5ca5ea00146ab6bd602328393ec5e4228c34b90",
+      "inputs_sha256": "2a561a9a2937ba09c5cba6769fffbba6ff7ee1a220afb5df6a4d03389ddc2229"
+    }
+  },
+  {
+    "id": "virtual-uobject-11-06ac20",
+    "size": 3,
+    "offset": 437280,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UObject_slot_11_r06ac20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6ac20. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 11 in that table (RVA 0x30d710) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "62d703d3054e7a83585d9e02606bcccb02e1a286085dca366be521f15d810fe9"
+    }
   }
 ]

@@ -225,6 +225,22 @@
     }
   },
   {
+    "id": "virtual-aechelongameinfo-166-3110d0",
+    "size": 7,
+    "offset": 3215568,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEchelonGameInfo_slot_166_r3110d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3110d0. The named class factory RVA 0x311180 and its placement callback at RVA 0x311140 identifies the AEchelonGameInfo table stored at RVA 0x311178. Slot 166 in that table (RVA 0x7f7558) contains the entry address. Reads the 4-byte field at receiver offset 0x308.",
+    "match": {
+      "bytes_sha256": "6d726ee9d4a08e3cf41e756921ab9887620c691d0ec95de6a8f3fb045d1a2b0e",
+      "inputs_sha256": "f2af80956163a3af9181a550ed9bac9ad7139f9f7d9073840f64dfacabb3ba1f"
+    }
+  },
+  {
     "id": "delete-aechelongameinfo",
     "offset": 3215584,
     "size": 33,
@@ -1741,6 +1757,22 @@
     }
   },
   {
+    "id": "virtual-aelight-105-316df0",
+    "size": 1,
+    "offset": 3239408,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AELight_slot_105_r316df0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x316df0. The named class factory RVA 0x318260 and its placement callback at RVA 0x3181e0 identifies the AELight table stored at RVA 0x318218. Slot 105 in that table (RVA 0x7f8110) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "5ce32353732daa13dc43fb8dccb0473b573c111adefd3bc786155bca1b513165"
+    }
+  },
+  {
     "id": "class-registration-aelight",
     "offset": 3239648,
     "size": 264,
@@ -2213,6 +2245,38 @@
     "match": {
       "bytes_sha256": "2e71192d2b8b212d875acbe90fd9fe36c337831dae00793fad862d69e37f5633",
       "inputs_sha256": "f67046b4baef773030335a23547d316b42b5b8a22f5765748c9b9d0c0a911277"
+    }
+  },
+  {
+    "id": "virtual-aeaipawn-170-318460",
+    "size": 7,
+    "offset": 3245152,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEAIPawn_slot_170_r318460@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x318460. The named class factory RVA 0x31e080 and its placement callback at RVA 0x31e040 identifies the AEAIPawn table stored at RVA 0x31e078. Slot 170 in that table (RVA 0x7f88d8) contains the entry address. Reads the 4-byte field at receiver offset 0x9a8.",
+    "match": {
+      "bytes_sha256": "0d53cdd35361edcfade9009f6736bb73f1ca920f02d248670dd0a9fa984523fd",
+      "inputs_sha256": "d46460ca5e2aea114e7dd9d139b13305063e6db45ebf4978d08dfadcb2ca7bb3"
+    }
+  },
+  {
+    "id": "virtual-aeaipawn-178-318470",
+    "size": 8,
+    "offset": 3245168,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AEAIPawn_slot_178_r318470@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x318470. The named class factory RVA 0x31e080 and its placement callback at RVA 0x31e040 identifies the AEAIPawn table stored at RVA 0x31e078. Slot 178 in that table (RVA 0x7f88d8) contains the entry address. Reads the 1-byte field at receiver offset 0x99c.",
+    "match": {
+      "bytes_sha256": "ad1aab3c517e0d95218096985293102cb4257ce56d1a5a6d86092f4276729d5c",
+      "inputs_sha256": "c073812306fcbb4f227d4c5835d2e4627f856b6019016ff6945e9617ec7dd58e"
     }
   },
   {

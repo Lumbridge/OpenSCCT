@@ -1422,6 +1422,54 @@
     }
   },
   {
+    "id": "virtual-ainfo-77-04a010",
+    "size": 3,
+    "offset": 303120,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AInfo_slot_77_r04a010@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x4a010. The registered placement callback RVA 0xad350 from class registration RVA 0x9f3ba identifies the AInfo table stored at RVA 0xad35d. Slot 77 in that table (RVA 0x309c30) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "c1a050599aeba913281500fddf5020970709873bf1e34e77ab0359a1482bfb92"
+    }
+  },
+  {
+    "id": "virtual-uobject-6-04a550",
+    "size": 3,
+    "offset": 304464,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UObject_slot_6_r04a550@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x4a550. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 6 in that table (RVA 0x30d710) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "74ad49b6b665719af9fa17a7fa589ef5a6dc26a138f3d3ff75da5cae1045227c"
+    }
+  },
+  {
+    "id": "virtual-uobject-0-04a560",
+    "size": 5,
+    "offset": 304480,
+    "inputs": [
+      "src/versus_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UObject_slot_0_r04a560@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_virtual_methods.obj src/versus_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x4a560. The registered placement callback RVA 0x3e370 from class registration RVA 0x3f687 identifies the UObject table stored at RVA 0x3e378. Slot 0 in that table (RVA 0x30d710) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+      "inputs_sha256": "89b72658203e19b3945e8cd4ae7d1441e6b2c084369bd9f546ead8c9f45d43d4"
+    }
+  },
+  {
     "id": "register-core-natives",
     "offset": 305072,
     "size": 16188,

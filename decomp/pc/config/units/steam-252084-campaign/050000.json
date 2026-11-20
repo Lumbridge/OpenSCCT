@@ -528,6 +528,38 @@
     }
   },
   {
+    "id": "virtual-aesraelectrostatic-169-05a6a0",
+    "size": 5,
+    "offset": 370336,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESRAElectrostatic_slot_169_r05a6a0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x5a6a0. The named class factory RVA 0x5a8f0 and its placement callback at RVA 0x5a8b0 identifies the AESRAElectrostatic table stored at RVA 0x5a8e8. Slot 169 in that table (RVA 0x7bd928) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+      "inputs_sha256": "863c52feab32df8a59eb5e5c5ca3c61d4c50594c1f7060c33b1c580eedbce20b"
+    }
+  },
+  {
+    "id": "virtual-aesra-170-05a7e0",
+    "size": 5,
+    "offset": 370656,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESRA_slot_170_r05a7e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x5a7e0. The named class factory RVA 0x30fc90 and its placement callback at RVA 0x30fc50 identifies the AESRA table stored at RVA 0x30fc88. Slot 170 in that table (RVA 0x7bd678) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "bde6d61402c6fb93728bbf652a8de4fa2eabf3f6f0a9f8b9d90eee240beadd4c"
+    }
+  },
+  {
     "id": "delete-aesra",
     "offset": 370672,
     "size": 46,
@@ -986,6 +1018,22 @@
     }
   },
   {
+    "id": "virtual-aesrapickable-166-05b2d0",
+    "size": 5,
+    "offset": 373456,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@AESRAPickable_slot_166_r05b2d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x5b2d0. The named class factory RVA 0x5b380 and its placement callback at RVA 0x5b340 identifies the AESRAPickable table stored at RVA 0x5b378. Slot 166 in that table (RVA 0x7bded8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+      "inputs_sha256": "802413f6400ada966cb8f14789fb9ae91bbf79659f56bdb5355e822ee2157d4b"
+    }
+  },
+  {
     "id": "construct-actor-aesrapickable",
     "offset": 373472,
     "size": 48,
@@ -1111,6 +1159,38 @@
     "match": {
       "bytes_sha256": "d45ecad23f28c7b16cadc03825fde09c42a23aa3019bfa71edf808e8d4beb936",
       "inputs_sha256": "26a489d4ab0d32e54b048253eb502f34c4d9fceb363ee99f14278c4cf9852f1b"
+    }
+  },
+  {
+    "id": "virtual-ueeev-11-05cb00",
+    "size": 3,
+    "offset": 379648,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEEEV_slot_11_r05cb00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x5cb00. The named class factory RVA 0x3215f0 and its placement callback at RVA 0x3215d0 identifies the UEEEV table stored at RVA 0x3215e0. Slot 11 in that table (RVA 0x7f8ff8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "6d83bfab7e757d32f9daa17d5c34cccdd8fecde361bd6f099e5c627fdc6a704c"
+    }
+  },
+  {
+    "id": "virtual-ueeev-17-05cb10",
+    "size": 3,
+    "offset": 379664,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEEEV_slot_17_r05cb10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x5cb10. The named class factory RVA 0x3215f0 and its placement callback at RVA 0x3215d0 identifies the UEEEV table stored at RVA 0x3215e0. Slot 17 in that table (RVA 0x7f8ff8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "7d9881c6fdb2052b9ff4b21ca5f8ec0fecd4c96af3798fbcf2bc8417f13a0511"
     }
   },
   {

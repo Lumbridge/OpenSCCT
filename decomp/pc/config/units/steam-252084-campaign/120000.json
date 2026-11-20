@@ -842,6 +842,38 @@
     }
   },
   {
+    "id": "virtual-uspriteemitter-33-1251d0",
+    "size": 3,
+    "offset": 1200592,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USpriteEmitter_slot_33_r1251d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x1251d0. The named class factory RVA 0x128210 and its placement callback at RVA 0x1281f0 identifies the USpriteEmitter table stored at RVA 0x128200. Slot 33 in that table (RVA 0x7d3578) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "1bee682592394c58217770287fc475e4a8bd1c6eb1f4bf98879993abae54aecc"
+    }
+  },
+  {
+    "id": "virtual-uspriteemitter-34-1251e0",
+    "size": 3,
+    "offset": 1200608,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@USpriteEmitter_slot_34_r1251e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x1251e0. The named class factory RVA 0x128210 and its placement callback at RVA 0x1281f0 identifies the USpriteEmitter table stored at RVA 0x128200. Slot 34 in that table (RVA 0x7d3578) contains the entry address. Returns the constant 1 in AL.",
+    "match": {
+      "bytes_sha256": "e18aacce29affcdddaa5f641ac1ec12552e0fe9d066e6408941b1792818b8619",
+      "inputs_sha256": "bb7cf76076e656054e17690945c181060ead1117bc40e5aaf5b8ca8b0f4dc205"
+    }
+  },
+  {
     "id": "class-registration-uspriteemitter",
     "offset": 1200928,
     "size": 264,
@@ -1104,6 +1136,86 @@
     "match": {
       "bytes_sha256": "804e0ca6bacf27d0b1c3978488a0b658433b6c208b84d7a517e7fe6631029e2c",
       "inputs_sha256": "3b9f65abf2f5f9cd27523189b3ad6b36e0e7219e2e22000e1fc1f6929b863966"
+    }
+  },
+  {
+    "id": "virtual-ucleanershader-26-128cf0",
+    "size": 8,
+    "offset": 1215728,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UCleanerShader_slot_26_r128cf0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x128cf0. The named class factory RVA 0x12a820 and its placement callback at RVA 0x12a770 identifies the UCleanerShader table stored at RVA 0x12a780. Slot 26 in that table (RVA 0x7d36d0) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "a37f20f22731fa44d5fe0925ce76fbfb5bf2c8a56f260e67aa2f887a08d7f326",
+      "inputs_sha256": "45b44ae93505b30f4f66a5a5e20b279b7f6222578b7ee8b2ca428bf06c27a0a1"
+    }
+  },
+  {
+    "id": "virtual-uproceduralshader-24-128e70",
+    "size": 3,
+    "offset": 1216112,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProceduralShader_slot_24_r128e70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x128e70. The named class factory RVA 0x129290 and its placement callback at RVA 0x1291b0 identifies the UProceduralShader table stored at RVA 0x1291c0. Slot 24 in that table (RVA 0x7d3638) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "090b3d2a7acfa139c56f680dfa5d894fe3e75232ecb95634b9ed8007647efacf"
+    }
+  },
+  {
+    "id": "virtual-uproceduralshader-25-128e80",
+    "size": 3,
+    "offset": 1216128,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProceduralShader_slot_25_r128e80@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x128e80. The named class factory RVA 0x129290 and its placement callback at RVA 0x1291b0 identifies the UProceduralShader table stored at RVA 0x1291c0. Slot 25 in that table (RVA 0x7d3638) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "33f1fb2bff27040a3e2eff5458fe554907941d1f3c88a0f665223c69499da431"
+    }
+  },
+  {
+    "id": "virtual-uproceduralshader-26-128e90",
+    "size": 8,
+    "offset": 1216144,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProceduralShader_slot_26_r128e90@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x128e90. The named class factory RVA 0x129290 and its placement callback at RVA 0x1291b0 identifies the UProceduralShader table stored at RVA 0x1291c0. Slot 26 in that table (RVA 0x7d3638) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "a37f20f22731fa44d5fe0925ce76fbfb5bf2c8a56f260e67aa2f887a08d7f326",
+      "inputs_sha256": "e0d0816cba2bc5a311d1be36d4459833270f7d66f8705c031df480bc24f0c1d8"
+    }
+  },
+  {
+    "id": "virtual-uproceduralshader-27-128ea0",
+    "size": 5,
+    "offset": 1216160,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProceduralShader_slot_27_r128ea0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x128ea0. The named class factory RVA 0x129290 and its placement callback at RVA 0x1291b0 identifies the UProceduralShader table stored at RVA 0x1291c0. Slot 27 in that table (RVA 0x7d3638) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+      "inputs_sha256": "887457a52a86df0f428e36fbb32c55ee0351140c0699d14b0ced881ba4b673f0"
     }
   },
   {
@@ -2073,6 +2185,38 @@
     "match": {
       "bytes_sha256": "ef9318a46511d2c14d94dc643bc238366f471f1c847b346217ffe101f9aadbf4",
       "inputs_sha256": "95ddee4ef8de9d892ab32765a8210c317b90589783e638e6afaf91a2767e624d"
+    }
+  },
+  {
+    "id": "virtual-utextransform-24-12ab10",
+    "size": 3,
+    "offset": 1223440,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTexTransform_slot_24_r12ab10@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x12ab10. The named class factory RVA 0x12afe0 and its placement callback at RVA 0x12af30 identifies the UTexTransform table stored at RVA 0x12af41. Slot 24 in that table (RVA 0x7d3880) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "72bb528b90ed394e20a82335ad559382c11a9e07f110956246dacf56fbb5c08c"
+    }
+  },
+  {
+    "id": "virtual-utextransform-25-12ab20",
+    "size": 3,
+    "offset": 1223456,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTexTransform_slot_25_r12ab20@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x12ab20. The named class factory RVA 0x12afe0 and its placement callback at RVA 0x12af30 identifies the UTexTransform table stored at RVA 0x12af41. Slot 25 in that table (RVA 0x7d3880) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "3adffb631ee41fd98c81ccd9e5ab9d6cbe3ef6c852da72a469aeafb70b544feb"
     }
   },
   {

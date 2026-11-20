@@ -267,6 +267,54 @@
     }
   },
   {
+    "id": "virtual-utexturefactory-24-067cb0",
+    "size": 5,
+    "offset": 425136,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTextureFactory_slot_24_r067cb0@44",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x67cb0. The named class factory RVA 0x67d80 and its placement callback at RVA 0x67d60 identifies the UTextureFactory table stored at RVA 0x67d70. Slot 24 in that table (RVA 0x7bedc8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "9b03fa6397edc3cc9a0798a730d6ee0c5267ecfa512668527e63b608d16ced1d",
+      "inputs_sha256": "8807161ac11302c7cae615d2d64e2d7b1757436c6e0025ddca78e47010a8a9f2"
+    }
+  },
+  {
+    "id": "virtual-utextbufferfactory-25-067cc0",
+    "size": 5,
+    "offset": 425152,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTextBufferFactory_slot_25_r067cc0@40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x67cc0. The named class factory RVA 0x3e08a0 and its placement callback at RVA 0x3dfdc0 identifies the UTextBufferFactory table stored at RVA 0x3dfdd0. Slot 25 in that table (RVA 0x832ea0) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "da7ebd12e9ab7d16927dce56ffa7104307477925d4350ce4d29d5f0b23399cb9",
+      "inputs_sha256": "1e7f3de427877f7d97c14cdd389bc747854af209752822314075c0ad501bae14"
+    }
+  },
+  {
+    "id": "virtual-utexturefactory-26-067cd0",
+    "size": 5,
+    "offset": 425168,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTextureFactory_slot_26_r067cd0@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x67cd0. The named class factory RVA 0x67d80 and its placement callback at RVA 0x67d60 identifies the UTextureFactory table stored at RVA 0x67d70. Slot 26 in that table (RVA 0x7bedc8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "6fe8ecb84220ebaa231802dfcd815b40c70f020bf4a33ae758816b6b6b7156dd",
+      "inputs_sha256": "c1cc9f2b395c29052eaca3e4b02d0d5e6ab2b1f5dc35b2d131a3e91aa51a79db"
+    }
+  },
+  {
     "id": "delete-utexturefactory",
     "offset": 425264,
     "size": 46,
@@ -1151,6 +1199,22 @@
     }
   },
   {
+    "id": "virtual-uvertexstreamvector-24-0690d0",
+    "size": 4,
+    "offset": 430288,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UVertexStreamVECTOR_slot_24_r0690d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x690d0. The named class factory RVA 0x69df0 and its placement callback at RVA 0x69640 identifies the UVertexStreamVECTOR table stored at RVA 0x69664. Slot 24 in that table (RVA 0x7bef68) contains the entry address. Reads the 4-byte field at receiver offset 0x38.",
+    "match": {
+      "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
+      "inputs_sha256": "26f5762fb1b0a305941964208b4e1c5e494cdd9c83d1870795fda5f4cf10f124"
+    }
+  },
+  {
     "id": "delete-uvertexstreamvector",
     "offset": 430544,
     "size": 54,
@@ -1335,6 +1399,22 @@
     }
   },
   {
+    "id": "virtual-uvertexbuffer-24-0693a0",
+    "size": 4,
+    "offset": 431008,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UVertexBuffer_slot_24_r0693a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x693a0. The named class factory RVA 0x6a120 and its placement callback at RVA 0x69ed0 identifies the UVertexBuffer table stored at RVA 0x69ef4. Slot 24 in that table (RVA 0x7bf030) contains the entry address. Reads the 4-byte field at receiver offset 0x38.",
+    "match": {
+      "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
+      "inputs_sha256": "6bc7009f665398f6c8eaba83733c1884d593bcaa1077594b602a2bb82efb8276"
+    }
+  },
+  {
     "id": "delete-uvertexbuffer",
     "offset": 431616,
     "size": 54,
@@ -1399,6 +1479,22 @@
     }
   },
   {
+    "id": "virtual-uvertexstreamcolor-24-0696b0",
+    "size": 4,
+    "offset": 431792,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UVertexStreamCOLOR_slot_24_r0696b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x696b0. The named class factory RVA 0x69fd0 and its placement callback at RVA 0x69f10 identifies the UVertexStreamCOLOR table stored at RVA 0x69f34. Slot 24 in that table (RVA 0x7bf098) contains the entry address. Reads the 4-byte field at receiver offset 0x38.",
+    "match": {
+      "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
+      "inputs_sha256": "4b75e88a6217364174f600a92ae2afb5ea221e20d88d4773ec81f73727de8ad5"
+    }
+  },
+  {
     "id": "delete-uvertexstreamcolor",
     "offset": 432272,
     "size": 54,
@@ -1437,6 +1533,22 @@
     }
   },
   {
+    "id": "virtual-uvertexstreamuv-24-069900",
+    "size": 4,
+    "offset": 432384,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UVertexStreamUV_slot_24_r069900@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x69900. The named class factory RVA 0x6a040 and its placement callback at RVA 0x69f50 identifies the UVertexStreamUV table stored at RVA 0x69f74. Slot 24 in that table (RVA 0x7bf100) contains the entry address. Reads the 4-byte field at receiver offset 0x38.",
+    "match": {
+      "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
+      "inputs_sha256": "fdf42b7921cf4bbe234e5fd4505d03e03087914d0f7ce0155d013411cbe00d4a"
+    }
+  },
+  {
     "id": "delete-uvertexstreamuv",
     "offset": 432832,
     "size": 54,
@@ -1472,6 +1584,22 @@
     "match": {
       "bytes_sha256": "e41515d107664a034396429777ccac65e35005c01fad7e69e1264535fbc6099d",
       "inputs_sha256": "dd09c2234d0b679900134c54eaf3ffaad08791d4367cd9136caf6617f829090c"
+    }
+  },
+  {
+    "id": "virtual-uvertexstreamposnormtex-24-069b30",
+    "size": 4,
+    "offset": 432944,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UVertexStreamPosNormTex_slot_24_r069b30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x69b30. The named class factory RVA 0x6a0b0 and its placement callback at RVA 0x69f90 identifies the UVertexStreamPosNormTex table stored at RVA 0x69fb4. Slot 24 in that table (RVA 0x7bf168) contains the entry address. Reads the 4-byte field at receiver offset 0x38.",
+    "match": {
+      "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
+      "inputs_sha256": "bb6c77627aab0ca386ffb644cf0b618b2335a920f08306970e31eea18229c7ae"
     }
   },
   {
@@ -1869,6 +1997,486 @@
     }
   },
   {
+    "id": "virtual-ucombiner-27-06a1d0",
+    "size": 5,
+    "offset": 434640,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UCombiner_slot_27_r06a1d0@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a1d0. The named class factory RVA 0x6c440 and its placement callback at RVA 0x6be90 identifies the UCombiner table stored at RVA 0x6bea0. Slot 27 in that table (RVA 0x7bf628) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "6fe8ecb84220ebaa231802dfcd815b40c70f020bf4a33ae758816b6b6b7156dd",
+      "inputs_sha256": "c06cb3405100d0ea937e88c104b8e7dde3a857d5e74fee06a8366f3ca744f2d2"
+    }
+  },
+  {
+    "id": "virtual-ufadecolor-24-06a670",
+    "size": 3,
+    "offset": 435824,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UFadeColor_slot_24_r06a670@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a670. The named class factory RVA 0x6c6a0 and its placement callback at RVA 0x6c0f0 identifies the UFadeColor table stored at RVA 0x6c100. Slot 24 in that table (RVA 0x7c0308) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "bb9197b06b57d02665d30bc11c6c0a87be952ab028b9082962248b1aa845f72f"
+    }
+  },
+  {
+    "id": "virtual-ufadecolor-25-06a680",
+    "size": 3,
+    "offset": 435840,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UFadeColor_slot_25_r06a680@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a680. The named class factory RVA 0x6c6a0 and its placement callback at RVA 0x6c0f0 identifies the UFadeColor table stored at RVA 0x6c100. Slot 25 in that table (RVA 0x7c0308) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "15cf564641f3b1ffe7d5c85b106670d55ab8ff2912af3a20dd304f49853e8443"
+    }
+  },
+  {
+    "id": "virtual-ufadecolor-26-06a690",
+    "size": 3,
+    "offset": 435856,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UFadeColor_slot_26_r06a690@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a690. The named class factory RVA 0x6c6a0 and its placement callback at RVA 0x6c0f0 identifies the UFadeColor table stored at RVA 0x6c100. Slot 26 in that table (RVA 0x7c0308) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "1d9749eed896678ea341660a9ef89fb66ecc6b2485017fd4e5221b999e32a9d4"
+    }
+  },
+  {
+    "id": "virtual-ufadecolor-28-06a6a0",
+    "size": 3,
+    "offset": 435872,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UFadeColor_slot_28_r06a6a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a6a0. The named class factory RVA 0x6c6a0 and its placement callback at RVA 0x6c0f0 identifies the UFadeColor table stored at RVA 0x6c100. Slot 28 in that table (RVA 0x7c0308) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "72fc1ad7b3a8db7e9a6457a263834b7f1606d9ba0f899e5b8c1c4769c9ed9155"
+    }
+  },
+  {
+    "id": "virtual-ueglow-30-06a6b0",
+    "size": 1,
+    "offset": 435888,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_30_r06a6b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a6b0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 30 in that table (RVA 0x7bf8b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "851791ce8ec217cb99d38890f2f41b9f3aa34e890e53434bd698dc972cdf8f12"
+    }
+  },
+  {
+    "id": "virtual-ueglow-31-06a6c0",
+    "size": 3,
+    "offset": 435904,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_31_r06a6c0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a6c0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 31 in that table (RVA 0x7bf8b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "417127d3dfeccba4c7b37af08fc07b9fddab23af6c5b95ab89f4331315d98e60"
+    }
+  },
+  {
+    "id": "virtual-ueglow-32-06a6d0",
+    "size": 5,
+    "offset": 435920,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_32_r06a6d0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a6d0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 32 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "8cad4061f7462df3586af0942fd0de860c94376587768a065839209dcaf67fd5",
+      "inputs_sha256": "f72e4165cef1fde8c5aec0a018ec470ff0744808afc1f762efa738160f18a9b0"
+    }
+  },
+  {
+    "id": "virtual-ueglow-33-06a6e0",
+    "size": 3,
+    "offset": 435936,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_33_r06a6e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a6e0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 33 in that table (RVA 0x7bf8b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "1d10894625976bca9d8906f3ecf1e766b94e9219ec3bf1c30e02feea5e18e45a",
+      "inputs_sha256": "4519e0feef921d5440c3a52643771818d42a0abd04422a71a14331ca208deea4"
+    }
+  },
+  {
+    "id": "virtual-ueglow-34-06a6f0",
+    "size": 3,
+    "offset": 435952,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_34_r06a6f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a6f0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 34 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "5162b0ec439f0b85d176e50098f2ef32cdb409b08447d972a464b202cd10a84b"
+    }
+  },
+  {
+    "id": "virtual-ueglow-35-06a700",
+    "size": 3,
+    "offset": 435968,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_35_r06a700@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a700. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 35 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "0f226251a01c5c205bcba97203e44c68f9bfd60eb6d04842b60ea670e9a05c19"
+    }
+  },
+  {
+    "id": "virtual-ueglow-36-06a710",
+    "size": 3,
+    "offset": 435984,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_36_r06a710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a710. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 36 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "180d76ed929d0cd3d276348360843afc836eac0c5aa813ea14d2d2a2b0754499"
+    }
+  },
+  {
+    "id": "virtual-ueglow-37-06a720",
+    "size": 3,
+    "offset": 436000,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_37_r06a720@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a720. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 37 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "9acff97f0d77054a8d96e7b4ed7ec5841610dd0c97c161da4f949c1e6142ddc6"
+    }
+  },
+  {
+    "id": "virtual-ueglow-38-06a730",
+    "size": 3,
+    "offset": 436016,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_38_r06a730@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a730. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 38 in that table (RVA 0x7bf8b0) contains the entry address. Returns the constant 1 in AL.",
+    "match": {
+      "bytes_sha256": "e18aacce29affcdddaa5f641ac1ec12552e0fe9d066e6408941b1792818b8619",
+      "inputs_sha256": "4b95cfd70532c23fbca03e96c2754adbf0510b5ee17e92a0ade1746667732728"
+    }
+  },
+  {
+    "id": "virtual-ueglow-39-06a740",
+    "size": 3,
+    "offset": 436032,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_39_r06a740@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a740. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 39 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "ca861d2f33cd5a09d20bf32b5abcf9ed53b400d7670c21a53ca8a00df8e187bf"
+    }
+  },
+  {
+    "id": "virtual-ueglow-40-06a750",
+    "size": 3,
+    "offset": 436048,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_40_r06a750@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a750. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 40 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "5c09bf0414ce52c2b74ea54eb622fe423159e5bd95d87be00948c36835b92651"
+    }
+  },
+  {
+    "id": "virtual-ueglow-42-06a770",
+    "size": 3,
+    "offset": 436080,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_42_r06a770@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a770. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 42 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "371b55c20158a816b309968b0d47c99b33e6761c6d222e126500aefd18d1ba1f"
+    }
+  },
+  {
+    "id": "virtual-ueglow-43-06a780",
+    "size": 3,
+    "offset": 436096,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_43_r06a780@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a780. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 43 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "01cb47d078b4841b8408ec4fe278efa83115c6f6e101972987507d2b2b57dcf0",
+      "inputs_sha256": "f95a18142634a3881683c791708572563fb46076176d19696e4f6099f9e93f90"
+    }
+  },
+  {
+    "id": "virtual-ueglow-44-06a790",
+    "size": 5,
+    "offset": 436112,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_44_r06a790@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a790. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 44 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "cc0e3cb106eb0fdec984d44a563d98c3da80700bbb8d2be4e66ebd54a9919626",
+      "inputs_sha256": "1b0e1437498a4652f24c2bab3c7735cc3defe8d685428ebef63296ea48aed66c"
+    }
+  },
+  {
+    "id": "virtual-ueglow-45-06a7a0",
+    "size": 3,
+    "offset": 436128,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_45_r06a7a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a7a0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 45 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "4e69873c52c5674416fc4bca81aad26d4b0b15bec57358721fe10e239237ed63"
+    }
+  },
+  {
+    "id": "virtual-ueglow-46-06a7b0",
+    "size": 5,
+    "offset": 436144,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_46_r06a7b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a7b0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 46 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "cc0e3cb106eb0fdec984d44a563d98c3da80700bbb8d2be4e66ebd54a9919626",
+      "inputs_sha256": "4cea43c6837fa98b3b43a70ca100211f1ba17a7424db36d403ee6fb984abbc19"
+    }
+  },
+  {
+    "id": "virtual-ueglow-47-06a7c0",
+    "size": 5,
+    "offset": 436160,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_47_r06a7c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a7c0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 47 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "cc0e3cb106eb0fdec984d44a563d98c3da80700bbb8d2be4e66ebd54a9919626",
+      "inputs_sha256": "434a5c256e6c56ea1408ae230340b6c7a612b0925f87843308842d50c2e0ed13"
+    }
+  },
+  {
+    "id": "virtual-ueglow-48-06a7d0",
+    "size": 5,
+    "offset": 436176,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_48_r06a7d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a7d0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 48 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "cc0e3cb106eb0fdec984d44a563d98c3da80700bbb8d2be4e66ebd54a9919626",
+      "inputs_sha256": "1160bd81a1cd7dc1d14eb24d2d4499c54c65cb5fcf809e5bd9a30e551225bae2"
+    }
+  },
+  {
+    "id": "virtual-ueglow-49-06a7e0",
+    "size": 5,
+    "offset": 436192,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_49_r06a7e0@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a7e0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 49 in that table (RVA 0x7bf8b0) contains the entry address. Returns zero in AL.",
+    "match": {
+      "bytes_sha256": "652003a57a84343c15d69b754f24d4af08b0c5d09f040b603919d8a16e1533f1",
+      "inputs_sha256": "511d29126f45c858d7f1b023621828527351349d3c154de9c68debeff7d2e274"
+    }
+  },
+  {
+    "id": "virtual-ueglow-50-06a7f0",
+    "size": 1,
+    "offset": 436208,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_50_r06a7f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a7f0. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 50 in that table (RVA 0x7bf8b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "c4fc45956146b7b8397ccad4388c12829cd2ab469c2f051a520d82d990ad62e8"
+    }
+  },
+  {
+    "id": "virtual-ueglow-51-06a800",
+    "size": 1,
+    "offset": 436224,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_51_r06a800@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a800. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 51 in that table (RVA 0x7bf8b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "a777c6ea8ba13ae4c4cdbdab436c68576467a5fd9b3d5ed1d098691d8ee963e1"
+    }
+  },
+  {
+    "id": "virtual-ueglow-52-06a810",
+    "size": 3,
+    "offset": 436240,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEGlow_slot_52_r06a810@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a810. The named class factory RVA 0x6cc10 and its placement callback at RVA 0x6bf70 identifies the UEGlow table stored at RVA 0x6bf80. Slot 52 in that table (RVA 0x7bf8b0) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "4b592b7d52580b03fbe258ab5817fccaf3a2cfd0cb58d8fd256dbd95f3ced38b"
+    }
+  },
+  {
+    "id": "virtual-uraindropmaterial-25-06a900",
+    "size": 4,
+    "offset": 436480,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@URainDropMaterial_slot_25_r06a900@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a900. The named class factory RVA 0x110350 and its placement callback at RVA 0x110320 identifies the URainDropMaterial table stored at RVA 0x11033e. Slot 25 in that table (RVA 0x7d1240) contains the entry address. Reads the 4-byte field at receiver offset 0x54.",
+    "match": {
+      "bytes_sha256": "9c8eb3adab3133652cdccbd58b010e59bcef792f39806367b4a21f5a9815fbf5",
+      "inputs_sha256": "132bbaf6d32f1df94831f601068cfa1fb46bd17042ae47b240af33aea9ff00eb"
+    }
+  },
+  {
+    "id": "virtual-uraindropmaterial-26-06a910",
+    "size": 4,
+    "offset": 436496,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@URainDropMaterial_slot_26_r06a910@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a910. The named class factory RVA 0x110350 and its placement callback at RVA 0x110320 identifies the URainDropMaterial table stored at RVA 0x11033e. Slot 26 in that table (RVA 0x7d1240) contains the entry address. Reads the 4-byte field at receiver offset 0x58.",
+    "match": {
+      "bytes_sha256": "d4d3079e1e2bc80c23488a3e2c1e4850449f45e35fbe39efe7e920ba8e97f0f8",
+      "inputs_sha256": "e2d97ce163cb1c4a34ee0d37008a7caf82dc56daafed7c07f4425cadb7f4a2e2"
+    }
+  },
+  {
+    "id": "virtual-uraindropmaterial-55-06a920",
+    "size": 3,
+    "offset": 436512,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@URainDropMaterial_slot_55_r06a920@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6a920. The named class factory RVA 0x110350 and its placement callback at RVA 0x110320 identifies the URainDropMaterial table stored at RVA 0x11033e. Slot 55 in that table (RVA 0x7d1240) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "5bdd9af8d4be7131b95bda4d6029fee51466d83dc2dae37c588d898933297c77"
+    }
+  },
+  {
     "id": "delete-utexcoordmaterial",
     "offset": 436768,
     "size": 46,
@@ -2073,6 +2681,38 @@
     }
   },
   {
+    "id": "virtual-utexmodifier-53-06ae60",
+    "size": 3,
+    "offset": 437856,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTexModifier_slot_53_r06ae60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6ae60. The named class factory RVA 0x6c890 and its placement callback at RVA 0x6bfd0 identifies the UTexModifier table stored at RVA 0x6bfe0. Slot 53 in that table (RVA 0x7bfb38) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "00a81aff823e0a0a6d484dd6265a8a7a9ba5ab12013be6d8dbcd50788ab04b60"
+    }
+  },
+  {
+    "id": "virtual-utexenvmap-54-06ae70",
+    "size": 3,
+    "offset": 437872,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTexEnvMap_slot_54_r06ae70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6ae70. The named class factory RVA 0x6cac0 and its placement callback at RVA 0x6bff0 identifies the UTexEnvMap table stored at RVA 0x6c000. Slot 54 in that table (RVA 0x7bfc18) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "71d06650d6cb593158ff35b7ae9aad27bae0dda6aa8090cf6b8683e598bc3150"
+    }
+  },
+  {
     "id": "delete-utexenvmap",
     "offset": 438048,
     "size": 46,
@@ -2104,6 +2744,22 @@
     "match": {
       "bytes_sha256": "118b3de2ad820a28d9215e126a7a52e2d79cbe28620b35be63132e41e89044d9",
       "inputs_sha256": "1f6ac399da07ba52e737028b463d141ddca8f065f488dcb70bace6d45434a373"
+    }
+  },
+  {
+    "id": "virtual-utexmatrix-53-06af80",
+    "size": 4,
+    "offset": 438144,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UTexMatrix_slot_53_r06af80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6af80. The named class factory RVA 0x6cb30 and its placement callback at RVA 0x6c010 identifies the UTexMatrix table stored at RVA 0x6c020. Slot 53 in that table (RVA 0x7bfcf8) contains the entry address. Returns the address at receiver offset 0x54.",
+    "match": {
+      "bytes_sha256": "eaca16f71d7de67d82e0033e59fb22d163e2d6b7dd0cf0a6bcb8a72b37063339",
+      "inputs_sha256": "5bb462d873e034ec76233c53e25d54e27d771f14ed163e8efa3eb9ec2af92f42"
     }
   },
   {
@@ -2659,6 +3315,38 @@
     "match": {
       "bytes_sha256": "dbd039d4488dab42886178fd264754c4c7685e5c2be7f12cc9175ef4ff556fee",
       "inputs_sha256": "c3b75ba5dd2d7e7a626a730da0957b7f4594e94f753905d5b22dcaffacdf8169"
+    }
+  },
+  {
+    "id": "virtual-uproxybitmapmaterial-53-06be20",
+    "size": 4,
+    "offset": 441888,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProxyBitmapMaterial_slot_53_r06be20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6be20. The named class factory RVA 0x6cef0 and its placement callback at RVA 0x6cdb0 identifies the UProxyBitmapMaterial table stored at RVA 0x6cdce. Slot 53 in that table (RVA 0x7c06c0) contains the entry address. Reads the 4-byte field at receiver offset 0x74.",
+    "match": {
+      "bytes_sha256": "781e9d1b95829bd154ca20411b54da49d658d05434a66cdaa8351146f3d4b3cb",
+      "inputs_sha256": "f5796652954645602a19ab24d278b201b367b87e2897ba8d47431ace0b86579e"
+    }
+  },
+  {
+    "id": "virtual-uproxybitmapmaterial-54-06be30",
+    "size": 5,
+    "offset": 441904,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UProxyBitmapMaterial_slot_54_r06be30@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x6be30. The named class factory RVA 0x6cef0 and its placement callback at RVA 0x6cdb0 identifies the UProxyBitmapMaterial table stored at RVA 0x6cdce. Slot 54 in that table (RVA 0x7c06c0) contains the entry address. Returns the receiver.",
+    "match": {
+      "bytes_sha256": "c1ecf7002ef6fa26a1cf96aa191663566f3b7c3690f800e8d9f8c75d51917c42",
+      "inputs_sha256": "c955c9baf1e7bef6639c0a81adfc18acae36a50e55b07c739b0e3db8bb20a4f7"
     }
   },
   {

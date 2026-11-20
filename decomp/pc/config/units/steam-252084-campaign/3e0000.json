@@ -438,6 +438,70 @@
     }
   },
   {
+    "id": "virtual-uenum-26-3e3af0",
+    "size": 1,
+    "offset": 4078320,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEnum_slot_26_r3e3af0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e3af0. The named class factory RVA 0x3dce20 and its placement callback at RVA 0x3dcd90 identifies the UEnum table stored at RVA 0x3dcd9a. Slot 26 in that table (RVA 0x832a00) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "fd0d50a1e7bc42d1099652da03a8e04cbbd86f4a07c62668d030e4c2e189bd13"
+    }
+  },
+  {
+    "id": "virtual-uenum-22-3e3b10",
+    "size": 3,
+    "offset": 4078352,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEnum_slot_22_r3e3b10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e3b10. The named class factory RVA 0x3dce20 and its placement callback at RVA 0x3dcd90 identifies the UEnum table stored at RVA 0x3dcd9a. Slot 22 in that table (RVA 0x832a00) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "5e23f718b515963fa24fd707c299f0cd8a219c3d8488ba3e967a21353ccad0cd"
+    }
+  },
+  {
+    "id": "virtual-uenum-25-3e3b20",
+    "size": 6,
+    "offset": 4078368,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEnum_slot_25_r3e3b20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e3b20. The named class factory RVA 0x3dce20 and its placement callback at RVA 0x3dcd90 identifies the UEnum table stored at RVA 0x3dcd9a. Slot 25 in that table (RVA 0x832a00) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "bcac72e3cdf575eab527590f7b40bc2d98f9f56a828bb7bd0740e3ca173304c3"
+    }
+  },
+  {
+    "id": "virtual-uenum-24-3e3b30",
+    "size": 3,
+    "offset": 4078384,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEnum_slot_24_r3e3b30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e3b30. The named class factory RVA 0x3dce20 and its placement callback at RVA 0x3dcd90 identifies the UEnum table stored at RVA 0x3dcd9a. Slot 24 in that table (RVA 0x832a00) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "61d8c371ef18a9e868c338b91e2d17713df909c059cbc09a6bff26eb40c9aa71"
+    }
+  },
+  {
     "id": "class-registration-ufield",
     "offset": 4080320,
     "size": 264,
@@ -558,6 +622,38 @@
     }
   },
   {
+    "id": "virtual-ustate-22-3e54d0",
+    "size": 4,
+    "offset": 4084944,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UState_slot_22_r3e54d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e54d0. The named class factory RVA 0x3e6550 and its placement callback at RVA 0x3e6400 identifies the UState table stored at RVA 0x3e6425. Slot 22 in that table (RVA 0x8333d8) contains the entry address. Reads the 4-byte field at receiver offset 0x4c.",
+    "match": {
+      "bytes_sha256": "34560f51dac828d02da9eeb0e1e15a69e55eb1fbb2f1a55b4f5b7c8cee424a81",
+      "inputs_sha256": "1c9817dd3b3dd6956089f2653e9837c3e413bf23d9c240369edf7f038dc0474a"
+    }
+  },
+  {
+    "id": "virtual-ustruct-28-3e54e0",
+    "size": 4,
+    "offset": 4084960,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UStruct_slot_28_r3e54e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e54e0. The named class factory RVA 0x3e64e0 and its placement callback at RVA 0x3e63a0 identifies the UStruct table stored at RVA 0x3e63b0. Slot 28 in that table (RVA 0x833240) contains the entry address. Reads the 4-byte field at receiver offset 0x28.",
+    "match": {
+      "bytes_sha256": "f9ab56c764100f6de974a6afa5ca5ea00146ab6bd602328393ec5e4228c34b90",
+      "inputs_sha256": "f03858590573a4c6b62a80f557619ad6781e5c515160d4639e98440005118c9b"
+    }
+  },
+  {
     "id": "delete-ustruct",
     "offset": 4086816,
     "size": 33,
@@ -581,6 +677,38 @@
     "match": {
       "bytes_sha256": "b1914d8e9cad033391572ec96484f29f5ce9277e570bf84b09068956220cf28b",
       "inputs_sha256": "5394d00f482d57f0950413007d42c397701594df3797378474faf08db60f256e"
+    }
+  },
+  {
+    "id": "virtual-ufunction-25-3e5c70",
+    "size": 3,
+    "offset": 4086896,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UFunction_slot_25_r3e5c70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e5c70. The named class factory RVA 0x3e6630 and its placement callback at RVA 0x3e63d0 identifies the UFunction table stored at RVA 0x3e63f5. Slot 25 in that table (RVA 0x833348) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "109ad6447b8d88d61a466c6b57213cf456ce0138a7233237126cc38ae207d2b9"
+    }
+  },
+  {
+    "id": "virtual-ufunction-28-3e5c80",
+    "size": 3,
+    "offset": 4086912,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UFunction_slot_28_r3e5c80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e5c80. The named class factory RVA 0x3e6630 and its placement callback at RVA 0x3e63d0 identifies the UFunction table stored at RVA 0x3e63f5. Slot 28 in that table (RVA 0x833348) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "d77c0cb0baf292b244226d2bc0ee9fd0cd3a36afe8c3c8454718e28a9e6f7baa"
     }
   },
   {
@@ -615,6 +743,38 @@
     "match": {
       "bytes_sha256": "471c0a842f2e56f913e838bfed467c064e171efd1a1037b43fdb49a5199e75b4",
       "inputs_sha256": "61ab2472bfcffdca2813c06eecb2ad9bf7e435a67db9f846abce219a99722a1d"
+    }
+  },
+  {
+    "id": "virtual-ustate-25-3e5ce0",
+    "size": 6,
+    "offset": 4087008,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UState_slot_25_r3e5ce0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e5ce0. The named class factory RVA 0x3e6550 and its placement callback at RVA 0x3e6400 identifies the UState table stored at RVA 0x3e6425. Slot 25 in that table (RVA 0x8333d8) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "2db31f4e09597946e56e859813bfdad7046d457c32332c3a882654d1e3ffdf67",
+      "inputs_sha256": "b971710290ac84ffe61ba6a908f653dc9d681bfcfbabfbadf3883d3ca5a762c3"
+    }
+  },
+  {
+    "id": "virtual-ustate-28-3e5cf0",
+    "size": 4,
+    "offset": 4087024,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UState_slot_28_r3e5cf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e5cf0. The named class factory RVA 0x3e6550 and its placement callback at RVA 0x3e6400 identifies the UState table stored at RVA 0x3e6425. Slot 28 in that table (RVA 0x8333d8) contains the entry address. Reads the 4-byte field at receiver offset 0x28.",
+    "match": {
+      "bytes_sha256": "f9ab56c764100f6de974a6afa5ca5ea00146ab6bd602328393ec5e4228c34b90",
+      "inputs_sha256": "f31d4db99bcb2ebf07c744d9f4dbd395965bbbbfb102d48c136eb5aa289a6ce4"
     }
   },
   {
@@ -1461,6 +1621,118 @@
     }
   },
   {
+    "id": "virtual-uintproperty-28-3e9020",
+    "size": 3,
+    "offset": 4100128,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UIntProperty_slot_28_r3e9020@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e9020. The named class factory RVA 0x3ec550 and its placement callback at RVA 0x3ec2d0 identifies the UIntProperty table stored at RVA 0x3ec2ef. Slot 28 in that table (RVA 0x7d4768) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "4daec7c1f80de68b6f14efefdec2759ca83051b856caf9af25de3047b91c771d"
+    }
+  },
+  {
+    "id": "virtual-uintproperty-40-3e90a0",
+    "size": 3,
+    "offset": 4100256,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UIntProperty_slot_40_r3e90a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e90a0. The named class factory RVA 0x3ec550 and its placement callback at RVA 0x3ec2d0 identifies the UIntProperty table stored at RVA 0x3ec2ef. Slot 40 in that table (RVA 0x7d4768) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "1970b325cd43315f1e43d5476868ad425b61e77773c0fd6e9c804aa8f95dc41b"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-30-3e9aa0",
+    "size": 8,
+    "offset": 4102816,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_30_r3e9aa0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e9aa0. The named class factory RVA 0x3ecbd0 and its placement callback at RVA 0x3ec480 identifies the UMapProperty table stored at RVA 0x3ec49f. Slot 30 in that table (RVA 0x833c08) contains the entry address. Returns the constant 1 in EAX.",
+    "match": {
+      "bytes_sha256": "a37f20f22731fa44d5fe0925ce76fbfb5bf2c8a56f260e67aa2f887a08d7f326",
+      "inputs_sha256": "3f0bc182e437b7bcac852e6699a9c1f88f2c1bb729c123b2bfa06e7661a26ac9"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-33-3e9ab0",
+    "size": 3,
+    "offset": 4102832,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_33_r3e9ab0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e9ab0. The named class factory RVA 0x3ecbd0 and its placement callback at RVA 0x3ec480 identifies the UMapProperty table stored at RVA 0x3ec49f. Slot 33 in that table (RVA 0x833c08) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "ab1d651b48a3a30a710ec5705c57f5f893845f46637daa9f479e4b5fe2576354"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-34-3e9b10",
+    "size": 3,
+    "offset": 4102928,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_34_r3e9b10@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e9b10. The named class factory RVA 0x3ecbd0 and its placement callback at RVA 0x3ec480 identifies the UMapProperty table stored at RVA 0x3ec49f. Slot 34 in that table (RVA 0x833c08) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "3ad36c6eeda528589a7a06f48684d3318576059d93d51f445ab60d280620edc7",
+      "inputs_sha256": "c12398b9d84975eab0d7030361324c20bc018c43bb346fe74fbe74257527cbee"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-38-3e9b30",
+    "size": 3,
+    "offset": 4102960,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_38_r3e9b30@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e9b30. The named class factory RVA 0x3ecbd0 and its placement callback at RVA 0x3ec480 identifies the UMapProperty table stored at RVA 0x3ec49f. Slot 38 in that table (RVA 0x833c08) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "dbd1a662565b07272069f88faadf4327acaf51b7d14f236c84c0a9679d07cef3",
+      "inputs_sha256": "181c3d67a313319e941346d0fb9789cf2114454fae0b0010c4cb043bb268f790"
+    }
+  },
+  {
+    "id": "virtual-umapproperty-40-3e9b40",
+    "size": 3,
+    "offset": 4102976,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UMapProperty_slot_40_r3e9b40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3e9b40. The named class factory RVA 0x3ecbd0 and its placement callback at RVA 0x3ec480 identifies the UMapProperty table stored at RVA 0x3ec49f. Slot 40 in that table (RVA 0x833c08) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "1f48afa44ab4e9e69cd166c5816ce32f19b1df6b7dffd20081c639844869c510"
+    }
+  },
+  {
     "id": "class-factory-uproperty",
     "offset": 4104512,
     "size": 103,
@@ -1555,6 +1827,22 @@
     "match": {
       "bytes_sha256": "d98b77603356e11e008913d4ffddb7a50bf6ad9f606a795ce56bf72438170643",
       "inputs_sha256": "39fcd74d0cb51e8208f60fdd3639ad1a7c0ce24cf17b9e14f5d0b79724c28531"
+    }
+  },
+  {
+    "id": "virtual-uclassproperty-42-3eaf50",
+    "size": 3,
+    "offset": 4108112,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UClassProperty_slot_42_r3eaf50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3eaf50. The named class factory RVA 0x3ec710 and its placement callback at RVA 0x3ec390 identifies the UClassProperty table stored at RVA 0x3ec3af. Slot 42 in that table (RVA 0x833aa8) contains the entry address. Returns the constant 5 in AL.",
+    "match": {
+      "bytes_sha256": "e30d8aed71180a520ca2ad30a7ecc3f7f91cd43c1eb22d9d905450ae8d88a78f",
+      "inputs_sha256": "d1e1a8f58b4effe712b2a5fff42c75f606c958653c0204425db1c48103ab3aaf"
     }
   },
   {
@@ -3909,6 +4197,38 @@
     "match": {
       "bytes_sha256": "38f28ce0e2c4aeaf9a31c5481377649fc4be75cfc04d6fc9ab0fef6354213dee",
       "inputs_sha256": "f913bf335744647a896621629109ea70f8b38fd5053e5ec55e5a2df9131b2a09"
+    }
+  },
+  {
+    "id": "virtual-ueeev-5-3ee460",
+    "size": 3,
+    "offset": 4121696,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEEEV_slot_5_r3ee460@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3ee460. The named class factory RVA 0x3215f0 and its placement callback at RVA 0x3215d0 identifies the UEEEV table stored at RVA 0x3215e0. Slot 5 in that table (RVA 0x7f8ff8) contains the entry address. Returns directly without changing the receiver or writing a result.",
+    "match": {
+      "bytes_sha256": "e598d0c3ba86d917b177d7adde0556aa99bc355543c57aee0a3e50b684dd7e99",
+      "inputs_sha256": "92f32aa5e72199221b4eeb3505b2b062fa0d919ca38ec0ca4a9ce11d98c0e207"
+    }
+  },
+  {
+    "id": "virtual-ueeev-6-3ee470",
+    "size": 5,
+    "offset": 4121712,
+    "inputs": [
+      "src/campaign_virtual_methods.c"
+    ],
+    "rebuilt_symbol": "@UEEEV_slot_6_r3ee470@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_virtual_methods.obj src/campaign_virtual_methods.c",
+    "identification": "Virtual entry at RVA 0x3ee470. The named class factory RVA 0x3215f0 and its placement callback at RVA 0x3215d0 identifies the UEEEV table stored at RVA 0x3215e0. Slot 6 in that table (RVA 0x7f8ff8) contains the entry address. Returns zero in EAX.",
+    "match": {
+      "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+      "inputs_sha256": "cf69d60143dfeb5ff2c86fe5388a9a7e9c960f372b2bc6bbab0aa54c42ab1bcb"
     }
   },
   {
