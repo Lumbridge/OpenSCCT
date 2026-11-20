@@ -2291,6 +2291,34 @@
     }
   },
   {
+    "id": "grow-runtime-array-069590",
+    "size": 75,
+    "offset": 431504,
+    "inputs": [
+      "src/campaign_variable_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_069590@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_variable_growth.obj src/campaign_variable_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "803ec8f367535ac639a98284a4eb608de3bdcfdb0757e517670809caa346f8df"
+    }
+  },
+  {
     "id": "delete-uvertexbuffer",
     "offset": 431616,
     "size": 54,
@@ -2371,6 +2399,34 @@
     }
   },
   {
+    "id": "grow-runtime-array-069820",
+    "size": 75,
+    "offset": 432160,
+    "inputs": [
+      "src/campaign_variable_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_069820@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_variable_growth.obj src/campaign_variable_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "0b47418becb8dd8bde76b49d6dff1980a8aa72ece140ff4999dd506b3e41064b"
+    }
+  },
+  {
     "id": "delete-uvertexstreamcolor",
     "offset": 432272,
     "size": 54,
@@ -2425,6 +2481,34 @@
     }
   },
   {
+    "id": "grow-runtime-array-069a50",
+    "size": 75,
+    "offset": 432720,
+    "inputs": [
+      "src/campaign_variable_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_069a50@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_variable_growth.obj src/campaign_variable_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "07b5671ad414da9ac22bdc928543e9932ceb1cdaa041116412307025e51c0fb9"
+    }
+  },
+  {
     "id": "delete-uvertexstreamuv",
     "offset": 432832,
     "size": 54,
@@ -2476,6 +2560,34 @@
     "match": {
       "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
       "inputs_sha256": "bb6c77627aab0ca386ffb644cf0b618b2335a920f08306970e31eea18229c7ae"
+    }
+  },
+  {
+    "id": "grow-runtime-array-069d10",
+    "size": 75,
+    "offset": 433424,
+    "inputs": [
+      "src/campaign_variable_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_069d10@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_variable_growth.obj src/campaign_variable_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "b7b3f1ee9e52bfaa3f22620f67a18d37d19e0ba21240b3e57c712d1c8f9a0d54"
     }
   },
   {
@@ -7994,6 +8106,34 @@
     "match": {
       "bytes_sha256": "2eed57af520baff4528a9c9b3ece378dfbe20c702327b08679cbcfe27deae853",
       "inputs_sha256": "bae9e8f8a69dd680ac819c9c2d430f7ab170cddd7df386753464e6e9b26f1ed6"
+    }
+  },
+  {
+    "id": "grow-runtime-array-06f220",
+    "size": 75,
+    "offset": 455200,
+    "inputs": [
+      "src/campaign_variable_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_06f220@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_variable_growth.obj src/campaign_variable_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "6f8aa05572c6e5ef7724ea54d85345f206495554cf15e43f96d330005210d8bc"
     }
   },
   {

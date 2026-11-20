@@ -1,5 +1,33 @@
 [
   {
+    "id": "grow-runtime-array-3d05b0",
+    "size": 75,
+    "offset": 3999152,
+    "inputs": [
+      "src/campaign_variable_growth.c",
+      "src/campaign_array_growth.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@grow_3d05b0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_variable_growth.obj src/campaign_variable_growth.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine heap used by the other reconstructed FArray operations."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Retail UTF-16 FArray allocation tag passed to the allocator."
+      }
+    },
+    "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
+    "match": {
+      "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
+      "inputs_sha256": "e38a6f801c4bd252521840c445867d7dee40f34fa542f71412e9274057a4da3c"
+    }
+  },
+  {
     "id": "init-methods-3d0cd0",
     "size": 18,
     "offset": 4000976,
