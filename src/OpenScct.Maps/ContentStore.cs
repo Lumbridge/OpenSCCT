@@ -53,7 +53,7 @@ public readonly record struct PackProgress(long Received, long Total, bool Extra
 /// </summary>
 public sealed class ContentStore
 {
-    public const string Owner = "Lumbridge";
+    public const string Owner = "OpenSCCT";
     public const string Repo = "OpenSCCT-Content";
     public const string IndexUrl = $"https://raw.githubusercontent.com/{Owner}/{Repo}/main/index.json";
     public const string WebUrl = $"https://github.com/{Owner}/{Repo}";

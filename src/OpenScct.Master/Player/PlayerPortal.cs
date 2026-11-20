@@ -36,7 +36,12 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
 
     public void Map(WebApplication app)
     {
-        Get(app, "/", Home);
+        Get(app, "/", ProjectHome);
+        Get(app, "/community", Community);
+        Get(app, "/projects/{edition}", Edition);
+        Get(app, "/mods", Mods);
+        Get(app, "/tools", Tools);
+        Get(app, "/progress", ProjectProgress);
         Get(app, "/download", Download);
         Get(app, "/help", Help);
         // Installed clients can still open the old form with private session details in its query.
@@ -50,7 +55,6 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         Get(app, "/help/report-screenshots/{id}.png", PublishedScreenshot);
         MapBrowserGame(app);
         Get(app, "/improvements", Improvements);
-        Get(app, "/progress", _ => Results.Redirect("/improvements"));
         app.MapGet("/changelog", (Func<HttpContext, Task<IResult>>)Changelog);
         Get(app, "/servers", Servers);
         Get(app, "/players", Players);

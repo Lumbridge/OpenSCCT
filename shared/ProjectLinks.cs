@@ -33,7 +33,7 @@ internal sealed record ReportContext
 /// <summary>Shared source compiled into each app; no application or simulation dependencies.</summary>
 internal static class ProjectLinks
 {
-    public const string Repository = "https://github.com/Lumbridge/OpenSCCT";
+    public const string Repository = "https://github.com/OpenSCCT/OpenSCCT";
     public const string Website = "https://master.lumbridge.co.uk";
     private const int MaximumValueLength = 128;
     private const int MaximumEnvironmentLength = 2000;

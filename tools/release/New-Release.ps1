@@ -63,7 +63,7 @@ param(
 
     [string]$OutDir,
 
-    [string]$Repo = 'Lumbridge/OpenSCCT',
+    [string]$Repo = 'OpenSCCT/OpenSCCT',
 
     # The release that holds new game files. A custom store also puts discoverable metadata on the version release.
     [string]$StoreTag = 'game-files-4',

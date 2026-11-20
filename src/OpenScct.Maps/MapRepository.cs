@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 namespace OpenScct.Maps;
 
 /// <summary>
-/// The SCCT-Maps repository (github.com/Lumbridge/SCCT-Maps), read without a token: one API call for the file
+/// The SCCT-Maps repository (github.com/OpenSCCT/SCCT-Maps), read without a token: one API call for the file
 /// tree (pinned to its commit), then raw files and release assets, which are not rate limited. Every download is
 /// checked against its size and Git blob id from that tree.
 /// </summary>
 public sealed class MapRepository
 {
-    public const string Owner = "Lumbridge";
+    public const string Owner = "OpenSCCT";
     public const string Repo = "SCCT-Maps";
     public const string Branch = "main";
     public static readonly string WebUrl = $"https://github.com/{Owner}/{Repo}";

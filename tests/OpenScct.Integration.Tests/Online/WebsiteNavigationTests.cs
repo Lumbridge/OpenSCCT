@@ -39,7 +39,8 @@ public sealed class WebsiteNavigationTests
             using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
             var guides = new HashSet<string>(StringComparer.Ordinal);
             var assets = new HashSet<string>(StringComparer.Ordinal);
-            foreach (string route in new[] { "/", "/help", "/download", "/improvements", "/leaderboards", "/wiki", "/wiki/game", "/wiki/editor" })
+            foreach (string route in new[] { "/", "/community", "/projects/ps2", "/projects/pc", "/projects/unreal",
+                "/progress", "/mods", "/tools", "/help", "/download", "/improvements", "/leaderboards", "/wiki", "/wiki/game", "/wiki/editor" })
             {
                 string html = await http.GetStringAsync(route, ct);
                 Assert.Contains("href=\"/wiki\"", html, StringComparison.Ordinal);
@@ -75,6 +76,18 @@ public sealed class WebsiteNavigationTests
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 Assert.True(response.Content.Headers.ContentLength > 0);
             }
+            string home = await http.GetStringAsync("/", ct);
+            string progress = await http.GetStringAsync("/progress", ct);
+            string mods = await http.GetStringAsync("/mods", ct);
+            foreach (string edition in new[] { "ps2", "pc", "unreal" })
+            {
+                Assert.Contains("href=\"/projects/" + edition + "\"", home, StringComparison.Ordinal);
+                Assert.Contains("id=\"" + edition + "\"", progress, StringComparison.Ordinal);
+                Assert.Contains("id=\"" + edition + "\"", mods, StringComparison.Ordinal);
+            }
+            Assert.Contains("Full report and sources", home, StringComparison.Ordinal);
+            Assert.Contains("Report source", progress, StringComparison.Ordinal);
+            Assert.Equal(HttpStatusCode.NotFound, (await http.GetAsync("/projects/unknown", ct)).StatusCode);
             string help = await http.GetStringAsync("/help", ct);
             Assert.Contains("<details>", help, StringComparison.Ordinal);
             Assert.Contains("/wiki/troubleshooting", help, StringComparison.Ordinal);

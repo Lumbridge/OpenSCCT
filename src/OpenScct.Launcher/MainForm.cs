@@ -55,6 +55,7 @@ internal sealed partial class MainForm : Form
     }
 
     private readonly LauncherLayout _layout;
+    private readonly bool _discoverRetail;
     private readonly VersionStore _store;
     private readonly ContentStore _packs;
     private readonly IGameProcessProbe _games = new GameProcessProbe();
@@ -104,13 +105,19 @@ internal sealed partial class MainForm : Form
     private readonly ToolTip _tips = new();
 
     public MainForm(string? joinServerId = null, string? protocolProblem = null)
-        : this(new LauncherLayout(LauncherLayout.DefaultRoot), joinServerId, protocolProblem, Program.ExePath)
+        : this(new LauncherLayout(LauncherLayout.DefaultRoot), joinServerId, protocolProblem, Program.ExePath, true)
     {
     }
 
     // Also used by the offscreen smoke harness, with an isolated installation and launcher path.
     internal MainForm(LauncherLayout layout, string? joinServerId, string? protocolProblem, string? launcherPath)
+        : this(layout, joinServerId, protocolProblem, launcherPath, false)
     {
+    }
+
+    private MainForm(LauncherLayout layout, string? joinServerId, string? protocolProblem, string? launcherPath, bool discoverRetail)
+    {
+        _discoverRetail = discoverRetail;
         _layout = layout;
         _pendingWebJoin = joinServerId;
         _protocolProblem = protocolProblem;
@@ -121,7 +128,8 @@ internal sealed partial class MainForm : Form
         _editor = new OpenScct.Launcher.Editor.EditorService(_layout, Http);
         _unreal = new UnrealService(_layout, Http, _settings.UnrealRepository);
         // A website Join always opens the Game tab.
-        _selected = joinServerId is null ? ParseProduct(_settings.SelectedProduct) : Product.Game;
+        _selected = joinServerId is not null ? Product.Game
+            : File.Exists(_layout.Settings) || File.Exists(_layout.Manifest) ? ParseProduct(_settings.SelectedProduct) : Product.Ps2;
         if (launcherPath is { } exe)
         {
             _swap = new LauncherSwap(exe);
@@ -147,41 +155,14 @@ internal sealed partial class MainForm : Form
         Icon = Theme.LoadIcon(32);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96f, 96f);
-        ClientSize = new Size(674, 520);
+        ClientSize = new Size(1060, 670);
         MinimumSize = new Size(600, 420);
         FormBorderStyle = FormBorderStyle.Sizable;
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Theme.Background;
         ForeColor = Theme.Text;
         Font = Theme.Body;
-        Padding = new Padding(24, 20, 24, 12);
-
-        var logo = _brandLogo = new PictureBox
-        {
-            Image = Theme.LoadIcon(64).ToBitmap(),
-            SizeMode = PictureBoxSizeMode.Zoom,
-            Size = new Size(48, 48),
-            Margin = new Padding(0, 0, 12, 0),
-            BackColor = Color.Transparent,
-            TabStop = false,
-        };
-        var title = new Wordmark { Margin = new Padding(0) };
-        Label subtitle = _brandSubtitle = Theme.Wrapping(Theme.Label("Splinter Cell Chaos Theory Versus, rebuilt", Theme.Small, Theme.Muted));
-        subtitle.Margin = new Padding(0, 4, 0, 0);
-        TableLayoutPanel brand = Theme.Grid(Theme.Fill);
-        Theme.AddRow(brand, title);
-        Theme.AddRow(brand, subtitle);
-        Label version = Theme.Label("Launcher " + (_launcherVersion?.ToString() ?? "dev"), Theme.Small, Theme.Muted);
-        version.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-        version.Margin = new Padding(0, 4, 0, 0);
-        TableLayoutPanel headerActions = Theme.Grid(Theme.Auto);
-        headerActions.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-        headerActions.Margin = new Padding(12, 0, 0, 0);
-        Theme.AddRow(headerActions, BuildProductTabs());
-        Theme.AddRow(headerActions, version);
-        TableLayoutPanel header = Theme.Grid(Theme.Auto, Theme.Fill, Theme.Auto);
-        Theme.AddRow(header, logo, brand, headerActions);
-        header.Margin = new Padding(0, 0, 0, 12);
+        Padding = new Padding(16, 12, 16, 12);
 
         _launcherBanner.Name = "LauncherUpdate";
         _launcherBanner.BackColor = Theme.Panel;
@@ -214,6 +195,7 @@ internal sealed partial class MainForm : Form
         TableLayoutPanel actions = Theme.Grid(Theme.Auto);
         Theme.AddRow(actions, _main);
         Theme.AddRow(actions, _playCurrent);
+        Theme.AddRow(actions, _retailSecondary);
         actions.Anchor = AnchorStyles.Right | AnchorStyles.Top;
 
         Theme.Wrapping(_status);
@@ -290,7 +272,7 @@ internal sealed partial class MainForm : Form
         _releaseNotes = notes;
         RefreshReleasePreview();
 
-        FlowLayoutPanel more = Theme.Flow(false, _mapsButton, _check, _website, _settingsButton, _help);
+        FlowLayoutPanel more = Theme.Flow(false, _check, _mapsButton);
         more.Name = "LauncherTools";
         more.Dock = DockStyle.Bottom;
         more.WrapContents = true;
@@ -299,36 +281,13 @@ internal sealed partial class MainForm : Form
         _tools = more;
         foreach (Control tool in more.Controls) tool.Margin = new Padding(0, 0, 6, 0);
 
-        // The preview takes remaining space and scrolls independently. The action panel keeps its preferred
-        // height; the outer scroll is a fallback for unusually long errors or a very small working area.
-        var root = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill, ColumnCount = 1,
-            BackColor = Color.Transparent, Margin = new Padding(0), TabIndex = 0,
-        };
-        root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-        foreach (Control row in new Control[] { header, _launcherBanner, launch, preview })
-        {
-            int r = root.RowCount++;
-            root.RowStyles.Add(new RowStyle(row == preview ? SizeType.Percent : SizeType.AutoSize, row == preview ? 100f : 0f));
-            root.Controls.Add(row, 0, r);
-        }
-        root.Layout += (_, _) =>
-        {
-            // AutoScroll on a table otherwise expands its percentage row to the notes' preferred height,
-            // scrolling the whole launcher. Use it only when the launch panel itself cannot fit.
-            int launchHeight = launch.GetPreferredSize(new Size(launch.Width, 0)).Height;
-            bool overflow = launch.Top - root.AutoScrollPosition.Y + launchHeight + launch.Margin.Bottom > root.ClientSize.Height;
-            if (root.AutoScroll != overflow) root.AutoScroll = overflow;
-        };
-        Controls.Add(root);
-        Controls.Add(more);
-        _mainLayout = root;
+        BuildLibraryShell(launch, preview, more);
 
         _tips.SetToolTip(_website, "Visit the OpenSCCT website in your browser.");
         _tips.SetToolTip(_help, "Get help, suggest a feature or contribute to OpenSCCT.");
         _tips.SetToolTip(_mapsButton, "Download new maps made by the community.");
 
+        _retailSecondary.Click += (_, _) => RetailSecondaryAction();
         _main.Click += async (_, _) => await DoNextAsync();
         _playCurrent.Click += async (_, _) =>
         {
@@ -348,7 +307,7 @@ internal sealed partial class MainForm : Form
             _ => "https://master.lumbridge.co.uk/",
         });
         _help.Click += (_, _) => OpenHelp();
-        _settingsButton.Click += (_, _) => OpenSettings();
+        _settingsButton.Click += (_, _) => SelectPage(LibraryPage.Settings);
         _mapsButton.Click += (_, _) => OpenMaps();
         _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
     }
@@ -375,7 +334,7 @@ internal sealed partial class MainForm : Form
     private void QueueInitialFit()
     {
         if (_initialSizeSet || _initialFitQueued || !IsHandleCreated || IsDisposed || Disposing
-            || _work is not null || SelectedRelease is null) return;
+            || _work is not null || SelectedRelease is null || _page != LibraryPage.Games || IsOriginalEdition) return;
         _initialFitQueued = true;
         BeginInvoke(() =>
         {
@@ -414,11 +373,11 @@ internal sealed partial class MainForm : Form
         SuspendLayout();
         try
         {
-            int height = Enum.GetValues<Product>().Max(MeasureProductHeight);
+            int height = new[] { Product.Game, Product.Editor, Product.Unreal }.Max(MeasureProductHeight);
             Rectangle work = Screen.FromControl(this).WorkingArea;
             int maximum = Math.Max(1, work.Height - (Height - ClientSize.Height));
             int minimum = Math.Max(1, MinimumSize.Height - (Height - ClientSize.Height));
-            int target = Math.Min(Math.Max(height, minimum), maximum);
+            int target = Math.Min(Math.Max(ClientSize.Height, Math.Max(height, minimum)), maximum);
             // Keep the startup width and use scrolling when the working area cannot fit the content.
             if (target != ClientSize.Height) ClientSize = new Size(ClientSize.Width, target);
             if (Bottom > work.Bottom) Top = Math.Max(work.Top, work.Bottom - Height);
@@ -504,8 +463,11 @@ internal sealed partial class MainForm : Form
         bool busy = _work is not null;
 
         RenderProductStatus();
+        _retailSecondary.Visible = false;
         switch (_selected)
         {
+            case Product.Ps2:
+            case Product.Retail: RefreshOriginalPanel(busy); break;
             case Product.Editor: RefreshEditorPanel(busy); break;
             case Product.Unreal: RefreshUnrealPanel(busy); break;
             default: RefreshLaunchPanel(current, busy); break;
@@ -524,6 +486,7 @@ internal sealed partial class MainForm : Form
         }
 
         if (_selected == Product.Game) RefreshMainButton(current, busy);
+        UpdateLibraryState(busy);
         QueueInitialFit();
     }
 
@@ -636,6 +599,13 @@ internal sealed partial class MainForm : Form
 
     private async Task DoNextAsync()
     {
+        if (IsOriginalEdition)
+        {
+            if (_work is not null) { if (_operationCanCancel) _work.Cancel(); }
+            else if (_selected == Product.Ps2) Ps2Action();
+            else RetailAction();
+            return;
+        }
         if (_selected == Product.Editor) { await DoEditorActionAsync(); return; }
         if (_selected == Product.Unreal) { await DoUnrealActionAsync(); return; }
         switch (_next)
@@ -1406,6 +1376,8 @@ internal sealed partial class MainForm : Form
         var state = new ProductStatus(text, kind, path, canForceClose);
         switch (_work is not null ? _operationProduct : _selected)
         {
+            case Product.Ps2: _ps2ActionStatus = state; break;
+            case Product.Retail: _retailActionStatus = state; break;
             case Product.Editor: _editorStatus = state; break;
             case Product.Unreal: _unrealStatus = state; break;
             default: _gameStatus = state; break;
@@ -1436,7 +1408,13 @@ internal sealed partial class MainForm : Form
         {
             _pendingTimer.Dispose();
             _tips.Dispose();
-            _brandLogo?.Image?.Dispose();
+            if (_brandLogo is { } logo)
+            {
+                Image? image = logo.Image;
+                logo.Image = null;
+                image?.Dispose();
+            }
+            _heroImage?.Dispose();
             _work?.Dispose();
         }
 

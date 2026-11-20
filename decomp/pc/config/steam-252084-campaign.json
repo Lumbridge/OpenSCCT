@@ -1,0 +1,50 @@
+{
+  "id": "steam-252084-campaign",
+  "label": "Steam 252084 · Campaign and co-op",
+  "scope": "Main PC game executable, including campaign and cooperative play",
+  "file": "System/splintercell3.exe",
+  "release": {
+    "app_id": 13570,
+    "steam_build_id": 252084,
+    "depot_id": 13571,
+    "depot_manifest": "2604462187318687519"
+  },
+  "image": {
+    "sha256": "54df25b238356024248085ca7fa6af9005b0be4ec40beef3c32faa8c06b6d4e5",
+    "size": 9875456,
+    "format": "pe32-x86",
+    "executable_sections": [
+      {
+        "name": ".text",
+        "offset": 4096,
+        "size": 8082506,
+        "address": 277876736,
+        "code": true
+      },
+      {
+        "name": ".bind",
+        "offset": 9867264,
+        "size": 8192,
+        "address": 289042432,
+        "code": false
+      }
+    ]
+  },
+  "units": [
+    {
+      "id": "sound-texture-count",
+      "offset": 7638544,
+      "size": 3,
+      "rebuilt_symbol": "_SND_fn_lGetSoundTextureCount@0",
+      "inputs": [
+        "src/sound_texture_count.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /c /Folocal/sound_texture_count.obj src/sound_texture_count.c",
+      "match": {
+        "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+        "inputs_sha256": "2cd3ae16fc04097dbd66a10c1d3ce2ca285ca4aae1e8abe7c3437226a8ae414c"
+      }
+    }
+  ]
+}

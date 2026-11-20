@@ -14,14 +14,15 @@ import subprocess
 from urllib.parse import unquote, urlsplit
 from urllib.request import Request, urlopen
 
-INDEX = "https://raw.githubusercontent.com/Lumbridge/OpenSCCT-Content/main/index.json"
-PREFIX = "/Lumbridge/OpenSCCT-Content/releases/download/"
+INDEX = "https://raw.githubusercontent.com/OpenSCCT/OpenSCCT-Content/main/index.json"
+PREFIX = "/OpenSCCT/OpenSCCT-Content/releases/download/"
+LEGACY_PREFIX = "/Lumbridge/OpenSCCT-Content/releases/download/"
 
 
 def approved(download):
     uri = urlsplit(download["url"])
     path = unquote(uri.path)
-    if (uri.scheme != "https" or uri.netloc != "github.com" or not path.startswith(PREFIX)
+    if (uri.scheme != "https" or uri.netloc != "github.com" or not path.startswith((PREFIX, LEGACY_PREFIX))
             or any(part in (".", "..") for part in path.split("/")) or uri.query or uri.fragment):
         raise ValueError("Not an official OpenSCCT content release: " + download["url"])
     sha = download["sha256"].lower()
@@ -61,9 +62,14 @@ def main():
 
     def mirror(record):
         sha = approved(record)
-        if sha in downloads and downloads[sha] != record:
+        # Older published indexes use the former owner. Fetch their pinned bytes from the current repository.
+        source = dict(record)
+        legacy = "https://github.com" + LEGACY_PREFIX
+        if source["url"].startswith(legacy):
+            source["url"] = "https://github.com" + PREFIX + source["url"][len(legacy):]
+        if sha in downloads and downloads[sha] != source:
             raise ValueError("Conflicting archive records")
-        downloads[sha] = dict(record)
+        downloads[sha] = source
         record["url"] = "/play/content/" + sha + ".zip"
 
     for entry in index["maps"]:

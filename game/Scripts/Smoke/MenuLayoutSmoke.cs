@@ -457,8 +457,8 @@ public sealed class MenuLayoutSmoke : SmokeTest
                     "- See progress toward your next level and cosmetic unlock, with clearer account details.\n" +
                     "- Keep using the main menu when the server is temporarily unavailable.\n\n" +
                     "### Fixes\n\nLong release notes wrap inside the page at every supported window size. " +
-                    "[Project](https://github.com/Lumbridge/OpenSCCT) and `inline code` remain readable.",
-                Url = "https://github.com/Lumbridge/OpenSCCT/releases/tag/v0.9." + (6 - i),
+                    "[Project](https://github.com/OpenSCCT/OpenSCCT) and `inline code` remain readable.",
+                Url = "https://github.com/OpenSCCT/OpenSCCT/releases/tag/v0.9." + (6 - i),
             }).ToArray(),
         }),
         Account = new AccountInfo

@@ -92,6 +92,11 @@ Asset: showcase-bots.webp
 Source: local/fixsim12/shots8/editor-play-team-2/play-team-Spy-046.8-coop--the-bot-below-climbs-the-player-s-legs-onto-the-top-ok.png
 The co-op gameplay smoke captured the bot climbing onto a ledge with the player.
 
+Asset: src/OpenScct.Launcher/branding/operation.jpg
+Source: docs/images/website/showcase-bots.webp (SHA-256 f4736bda7aac2f42f35b9381a62b458fcfa3ac0ed06a2e072f4ceeea827347eb)
+Desktop launcher copy of the same OpenSCCT gameplay capture, resized to 1200 x 675 and encoded as JPEG.
+SHA-256: a4a61c159fb4372f97e73bb84ab243c5f2b84013c9128cf623811c00ba8582c8
+
 Asset: showcase-rendering.webp
 Source: local/renderer-perf/baseline-images/ClubS/far-0.png
 Faithful rendering capture on Club House.

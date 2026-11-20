@@ -1,0 +1,26 @@
+{
+  "id": "sles-53287-offline",
+  "label": "PAL 1.01 · Offline program",
+  "scope": "Offline game executable on the European disc",
+  "file": "SC3_OFF.ELF",
+  "release": {
+    "serial": "SLES-53287",
+    "version": "1.01",
+    "video_mode": "PAL"
+  },
+  "image": {
+    "sha256": "5cc2eb077129c9ee17c534ca9e128fb133ab663334df5cd72b828b67feeeac96",
+    "size": 7730644,
+    "format": "elf32-mipsel",
+    "executable_sections": [
+      {
+        "name": "section-1",
+        "offset": 128,
+        "size": 7730176,
+        "address": 1048576,
+        "code": false
+      }
+    ]
+  },
+  "units": []
+}

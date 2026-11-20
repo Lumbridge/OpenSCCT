@@ -37,7 +37,7 @@ public sealed class GitHubReleaseClientTests
         ReleaseFeed feed = await client.GetReleasesAsync(TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = Assert.Single(handler.Requests);
-        Assert.Equal("https://api.github.com/repos/Lumbridge/OpenSCCT/releases?per_page=30", request.RequestUri!.AbsoluteUri);
+        Assert.Equal("https://api.github.com/repos/OpenSCCT/OpenSCCT/releases?per_page=30", request.RequestUri!.AbsoluteUri);
         Assert.Null(request.Headers.Authorization);
         Assert.Equal(ReleaseFeedSource.Network, feed.Source);
         Assert.Single(feed.Releases);
@@ -49,12 +49,12 @@ public sealed class GitHubReleaseClientTests
         using var dir = new TempDir();
         using var http = new HttpClient(new FakeHandler(_ => Ok("\"official\"")));
         var client = new GitHubReleaseClient(http, ReleaseSource.Official, dir.Path);
-        const string publicUrl = "https://github.com/Lumbridge/OpenSCCT/releases/download/v0.2.0/OpenSCCT-0.2.0-win-x64.zip";
+        const string publicUrl = "https://github.com/OpenSCCT/OpenSCCT/releases/download/v0.2.0/OpenSCCT-0.2.0-win-x64.zip";
 
         using HttpRequestMessage request = client.CreateAssetRequest(new ReleaseAsset
         {
             Name = "OpenSCCT-0.2.0-win-x64.zip",
-            Url = "https://api.github.com/repos/Lumbridge/OpenSCCT/releases/assets/20",
+            Url = "https://api.github.com/repos/OpenSCCT/OpenSCCT/releases/assets/20",
             BrowserDownloadUrl = publicUrl,
         });
 
@@ -95,6 +95,23 @@ public sealed class GitHubReleaseClientTests
         Assert.Equal(ReleaseFeedSource.Cache, offline.Source);
         Assert.NotNull(offline.Problem);
         Assert.Single(offline.Releases);
+    }
+
+    [Theory]
+    [InlineData("OpenSCCT")]
+    [InlineData("OpenSCCT-Editor")]
+    [InlineData("OpenSCCT-Unreal")]
+    public async Task TransferredRepositoryKeepsItsInstalledReleaseCache(string repo)
+    {
+        using var dir = new TempDir();
+        using var online = new HttpClient(new FakeHandler(_ => Ok("\"prior-owner\"")));
+        var old = new GitHubReleaseClient(online, new ReleaseSource("Lumbridge", repo, null), dir.Path);
+        await old.GetReleasesAsync(TestContext.Current.CancellationToken);
+        using var offline = new HttpClient(new FakeHandler(_ => throw new HttpRequestException("offline")));
+        var current = new GitHubReleaseClient(offline, new ReleaseSource("OpenSCCT", repo, null), dir.Path);
+        var result = await current.GetReleasesAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(ReleaseFeedSource.Cache, result.Source);
+        Assert.Equal("v0.2.0", Assert.Single(result.Releases).TagName);
     }
 
     [Fact]

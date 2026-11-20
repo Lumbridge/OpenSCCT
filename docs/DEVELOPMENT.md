@@ -20,7 +20,7 @@ The [Linux guide](LINUX.md) covers its toolchain bootstrap, native export and Fl
 From a terminal:
 
 ```powershell
-git clone https://github.com/Lumbridge/OpenSCCT.git
+git clone https://github.com/OpenSCCT/OpenSCCT.git
 cd OpenSCCT
 dotnet build OpenSCCT.slnx
 dotnet test --solution OpenSCCT.slnx --no-build --ignore-exit-code 8
@@ -79,6 +79,7 @@ Do not add converted content to Git; read the [provenance rules](../re/PROVENANC
 | `content/` | Python content conversion pipeline |
 | `spec/` | Behavior specifications and supporting evidence |
 | `re/` | Tools and metadata for studying the original game |
+| `decomp/` | Original PS2 and PC executable identities, matching workflow and reports |
 | `tools/` | CI, code generation, coverage, release and deployment helpers |
 | `fixtures/` | Synthetic data that can run in CI |
 | `local/`, `.content/` | Ignored local output and game-derived data |

@@ -13,8 +13,8 @@
     not affiliated with or endorsed by Ubisoft.</p>
   </description>
   <launchable type="desktop-id">io.github.Lumbridge.OpenSCCT.desktop</launchable>
-  <url type="homepage">https://github.com/Lumbridge/OpenSCCT</url>
-  <url type="bugtracker">https://github.com/Lumbridge/OpenSCCT/issues</url>
+  <url type="homepage">https://github.com/OpenSCCT/OpenSCCT</url>
+  <url type="bugtracker">https://github.com/OpenSCCT/OpenSCCT/issues</url>
   <content_rating type="oars-1.1">
     <content_attribute id="violence-realistic">intense</content_attribute>
     <content_attribute id="social-chat">intense</content_attribute>

@@ -12,8 +12,8 @@ namespace OpenScct.Master.Web;
 /// <summary>Public release notes shared by all visitors, with bounded requests and a last-good cache.</summary>
 internal sealed class ReleaseChangelog
 {
-    public const string ReleasesUrl = "https://github.com/Lumbridge/OpenSCCT/releases";
-    public const string EditorReleasesUrl = "https://github.com/Lumbridge/OpenSCCT-Editor/releases";
+    public const string ReleasesUrl = "https://github.com/OpenSCCT/OpenSCCT/releases";
+    public const string EditorReleasesUrl = "https://github.com/OpenSCCT/OpenSCCT-Editor/releases";
     private static readonly HttpClient Client = CreateClient();
     private static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
     private readonly HttpClient _client;
@@ -48,7 +48,7 @@ internal sealed class ReleaseChangelog
             {
                 // Do not tie the shared refresh to one visitor disconnecting. The client bounds it to five seconds.
                 string repository = _editor ? "OpenSCCT-Editor" : "OpenSCCT";
-                using HttpResponseMessage response = await _client.GetAsync("https://api.github.com/repos/Lumbridge/" + repository + "/releases?per_page=20", CancellationToken.None).ConfigureAwait(false);
+                using HttpResponseMessage response = await _client.GetAsync("https://api.github.com/repos/OpenSCCT/" + repository + "/releases?per_page=20", CancellationToken.None).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 Release[] releases = await response.Content.ReadFromJsonAsync<Release[]>(Json, CancellationToken.None).ConfigureAwait(false)
                     ?? throw new JsonException("Missing releases.");

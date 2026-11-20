@@ -136,6 +136,7 @@ internal static class Theme
             link.VisitedLinkColor = palette.Accent;
         }
         if (root is GreenProgressBar progress) progress.Palette = palette;
+        if (root is LibraryEntry entry) entry.Palette = palette;
         if (root is Wordmark wordmark) wordmark.Palette = palette;
         if (root is ListView list)
             foreach (ListViewItem item in list.Items) item.ForeColor = Map(item.ForeColor, palette);

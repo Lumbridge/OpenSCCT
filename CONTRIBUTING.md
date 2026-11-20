@@ -2,12 +2,19 @@
 
 You can help by reporting bugs, testing a release, improving a guide or sending a code change.
 
+Use the [repository directory](docs/PROJECTS.md) to find the code that owns your
+change. For original executable research, start with the [builds, tools and
+matching workflow](decomp/README.md). For Unreal client changes, use
+[OpenSCCT-Unreal](https://github.com/OpenSCCT/OpenSCCT-Unreal).
+
 ## Report a problem
 
-Search [existing issues](https://github.com/Lumbridge/OpenSCCT/issues) first, then
-[open a report](https://github.com/Lumbridge/OpenSCCT/issues/new/choose) with:
+Search [existing issues](https://github.com/OpenSCCT/OpenSCCT/issues) first, then
+[open a report](https://github.com/OpenSCCT/OpenSCCT/issues/new/choose) with:
 
-- The game version, operating system, map and game mode.
+- The edition, version, operating system, map and game mode. For a disc include
+  its region and serial. For PC include the distribution, campaign or Versus,
+  and any active mod profile.
 - Steps another person can follow, expected behavior and what happened.
 - Whether it happens offline, online, as host or as a joining player.
 - Relevant logs, screenshots or a short clip, if available.

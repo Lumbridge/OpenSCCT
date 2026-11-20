@@ -23,6 +23,7 @@
     <ProjectReference Include="../OpenScct.Launcher.Core/OpenScct.Launcher.Core.csproj" />
     <Compile Include="../../shared/ProjectLinks.cs" Link="Shared/ProjectLinks.cs" />
     <EmbeddedResource Include="../../game/branding/icon.ico" LogicalName="OpenScct.Launcher.icon.ico" />
+    <EmbeddedResource Include="../OpenScct.Launcher/branding/operation.jpg" LogicalName="OpenScct.Launcher.operation.jpg" />
     <EmbeddedResource Include="licenses/**/*" LogicalName="OpenScct.Launcher.Licenses.%(Filename)%(Extension)" />
     <None Update="licenses/**/*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

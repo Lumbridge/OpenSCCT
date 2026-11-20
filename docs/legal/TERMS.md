@@ -34,6 +34,6 @@ accept the new terms.
 
 ## Contact
 
-Open an issue at [github.com/Lumbridge/OpenSCCT/issues](https://github.com/Lumbridge/OpenSCCT/issues).
+Open an issue at [github.com/OpenSCCT/OpenSCCT/issues](https://github.com/OpenSCCT/OpenSCCT/issues).
 
 See also the [Privacy Policy](PRIVACY.md).

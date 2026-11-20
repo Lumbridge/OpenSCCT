@@ -45,7 +45,7 @@ internal sealed class SettingsForm : Form
         _layout = layout;
         _editorMode = palette == ThemePalette.Editor || (palette is null && settings.SelectedProduct == "Editor");
         _unrealMode = palette == ThemePalette.Unreal || (palette is null && settings.SelectedProduct == "Unreal");
-        Result = settings;
+        Result = settings.Copy();
 
         Text = _editorMode ? "Editor settings" : _unrealMode ? "Unreal settings" : "Game settings";
         Icon = _editorMode ? Theme.LoadEditorIcon(32) : Theme.LoadIcon(32);
@@ -321,19 +321,22 @@ internal sealed class SettingsForm : Form
 
     private void Save()
     {
-        // Every field is copied: one this dialog does not show keeps its saved value.
-        bool game = !_editorMode && !_unrealMode;
-        Result = new LauncherSettings
+        // Preserve preferences for editions and mods managed outside this dialog.
+        if (_editorMode)
         {
-            IncludePrereleases = _prereleases.Checked,
-            EditorIncludePrereleases = _editorPrereleases.Checked,
-            UnrealIncludePrereleases = _unrealPrereleases.Checked,
-            SelectedProduct = Result.SelectedProduct,
-            CheckOnStart = game ? _checkOnStart.Checked : Result.CheckOnStart,
-            EditorCheckOnStart = _editorMode ? _checkOnStart.Checked : Result.EditorCheckOnStart,
-            UnrealCheckOnStart = _unrealMode ? _checkOnStart.Checked : Result.UnrealCheckOnStart,
-            UnrealRepository = Result.UnrealRepository,
-        };
+            Result.EditorIncludePrereleases = _editorPrereleases.Checked;
+            Result.EditorCheckOnStart = _checkOnStart.Checked;
+        }
+        else if (_unrealMode)
+        {
+            Result.UnrealIncludePrereleases = _unrealPrereleases.Checked;
+            Result.UnrealCheckOnStart = _checkOnStart.Checked;
+        }
+        else
+        {
+            Result.IncludePrereleases = _prereleases.Checked;
+            Result.CheckOnStart = _checkOnStart.Checked;
+        }
         Directory.CreateDirectory(_layout.Root);
         DialogResult = DialogResult.OK;
         Close();

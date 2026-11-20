@@ -12,7 +12,7 @@ namespace OpenScctGame.UI;
 /// <summary>Readable in-game release notes and announcements, using the dashboard's cached data.</summary>
 public partial class DashboardDetailsScreen : MenuPage
 {
-    private const string ReleasesUrl = "https://github.com/Lumbridge/OpenSCCT/releases";
+    private const string ReleasesUrl = "https://github.com/OpenSCCT/OpenSCCT/releases";
     private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
     private MenuDashboardService? _data;
     private IDisposable? _watch;

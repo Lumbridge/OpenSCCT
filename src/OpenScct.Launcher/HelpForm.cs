@@ -215,7 +215,7 @@ internal sealed class HelpForm : Form
         ShowMessage(opened, opened ? string.Empty : "Could not open your browser. Copy the link and open it in your browser.");
     }
 
-    private const string EditorRepository = "https://github.com/Lumbridge/OpenSCCT-Editor";
+    private const string EditorRepository = "https://github.com/OpenSCCT/OpenSCCT-Editor";
 
     private static string EditorUrl(ProjectDestination destination)
     {

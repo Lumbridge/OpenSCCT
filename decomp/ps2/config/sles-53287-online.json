@@ -1,0 +1,26 @@
+{
+  "id": "sles-53287-online",
+  "label": "PAL 1.01 · Online program",
+  "scope": "Online game executable on the European disc",
+  "file": "SC3_ON.ELF",
+  "release": {
+    "serial": "SLES-53287",
+    "version": "1.01",
+    "video_mode": "PAL"
+  },
+  "image": {
+    "sha256": "86ca75c3f3f07a345fa97970a5cc3a158ed2cfc8f68ca0e0eaa5e3efb3592113",
+    "size": 4033368,
+    "format": "elf32-mipsel",
+    "executable_sections": [
+      {
+        "name": "section-4",
+        "offset": 256,
+        "size": 4032640,
+        "address": 1048576,
+        "code": false
+      }
+    ]
+  },
+  "units": []
+}

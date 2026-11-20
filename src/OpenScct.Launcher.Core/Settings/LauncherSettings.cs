@@ -12,14 +12,20 @@ public sealed class LauncherSettings
 
     public bool IncludePrereleases { get; set; }
 
+    private Retail.RetailProfiles _retail = new();
+    public Retail.RetailProfiles Retail { get => _retail; set => _retail = value ?? new(); }
+
     /// <summary>The editor has its own release channel, independent of the game.</summary>
     public bool EditorIncludePrereleases { get; set; }
 
-    /// <summary>Last selected launcher product: "Game", "Editor" or "Unreal". Unknown values are treated as Game by the view.</summary>
+    /// <summary>Last selected edition or tool: Ps2, Retail, Unreal, Game (legacy client), or Editor.</summary>
     public string SelectedProduct { get; set; } = "Game";
 
     /// <summary>Check for game updates when its launcher tab opens.</summary>
     public bool CheckOnStart { get; set; } = true;
+
+    /// <summary>Check the launcher release feed when opening an original game. Local media setup works offline by default.</summary>
+    public bool OriginalCheckOnStart { get; set; }
 
     /// <summary>Check for editor updates when its launcher tab opens, independent of the game.</summary>
     public bool EditorCheckOnStart { get; set; } = true;
@@ -35,6 +41,19 @@ public sealed class LauncherSettings
     /// invalid value is ignored (<see cref="Unreal.UnrealService.IsValidRepository"/>).
     /// </summary>
     public string? UnrealRepository { get; set; }
+
+    /// <summary>A player-selected folder containing compiled SVMap map folders.</summary>
+    public string? UnrealMapModRoot { get; set; }
+
+    public bool UnrealMapModsEnabled { get; set; }
+
+    /// <summary>An independent copy for editing preferences before Save is confirmed.</summary>
+    public LauncherSettings Copy()
+    {
+        var copy = (LauncherSettings)MemberwiseClone();
+        copy.Retail = Retail with { };
+        return copy;
+    }
 
     public static LauncherSettings Load(string path)
     {

@@ -46,7 +46,8 @@ from typing import IO, Callable, Iterable, Iterator, Sequence
 MAX_BYTES = 5 * 1024 * 1024
 MAX_ART_BYTES = 64 * 1024 * 1024
 ART_PREFIX = ("content/assets/sidearms/", "content/assets/weapons/", "content/assets/cosmetics/",
-              "content/assets/rifles/", "content/assets/sidearm_audio/", "content/assets/user_gun_audio/", "fixtures/hub/")
+              "content/assets/rifles/", "content/assets/sidearm_audio/", "content/assets/user_gun_audio/", "fixtures/hub/",
+              "src/openscct.launcher/branding/")
 ART_MANIFEST = "tools/ci/asset-provenance.json"
 HEAD_BYTES = 8192
 

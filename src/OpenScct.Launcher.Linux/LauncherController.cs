@@ -286,11 +286,21 @@ internal sealed class LauncherController : IDisposable
 
     public void SaveSettings(bool checkOnStart, bool previews)
     {
-        var settings = new LauncherSettings { CheckOnStart = checkOnStart, IncludePrereleases = previews };
-        settings.Save(Layout.Settings);
-        Settings = settings;
+        SaveSettings(settings =>
+        {
+            settings.CheckOnStart = checkOnStart;
+            settings.IncludePrereleases = previews;
+        });
         Check = null;
         Notify();
+    }
+
+    public void SaveSettings(Action<LauncherSettings> edit)
+    {
+        LauncherSettings changed = Settings.Copy();
+        edit(changed);
+        changed.Save(Layout.Settings);
+        Settings = changed;
     }
 
     public void Reset()

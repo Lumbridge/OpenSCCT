@@ -2,9 +2,9 @@
 
 [Documentation](README.md)
 
-[OpenSCCT-Content](https://github.com/Lumbridge/OpenSCCT-Content) holds game content already converted to
+[OpenSCCT-Content](https://github.com/OpenSCCT/OpenSCCT-Content) holds game content already converted to
 OpenSCCT's own formats, so a player (or a server) can download a map and play it without running the converter.
-It replaces [SCCT-Maps](https://github.com/Lumbridge/SCCT-Maps) for OpenSCCT only. SCCT-Maps stays as it is for the
+It replaces [SCCT-Maps](https://github.com/OpenSCCT/SCCT-Maps) for OpenSCCT only. SCCT-Maps stays as it is for the
 original game and SCCT Map Manager.
 
 Players download packs through the launcher's **Maps** window, first-run Linux setup, or the missing-map
@@ -18,7 +18,7 @@ The content repository stores its index and tools in git. Pack archives are GitH
 ## The index
 
 `index.json` on the `main` branch, fetched raw:
-[OpenSCCT-Content index](https://raw.githubusercontent.com/Lumbridge/OpenSCCT-Content/main/index.json). It is the only file a client reads
+[OpenSCCT-Content index](https://raw.githubusercontent.com/OpenSCCT/OpenSCCT-Content/main/index.json). It is the only file a client reads
 from the tree.
 
 ```json
@@ -34,7 +34,7 @@ from the tree.
       "version": "0.8.25.1",
       "contents": ["classes.json", "render", "fx", "ui", "maps"],
       "hashes": { "classes": "<sha256>" },
-      "download": { "url": "https://github.com/Lumbridge/OpenSCCT-Content/releases/download/<tag>/shared-core-0.8.25.1.zip",
+      "download": { "url": "https://github.com/OpenSCCT/OpenSCCT-Content/releases/download/<tag>/shared-core-0.8.25.1.zip",
                     "size": 31457280, "sha256": "<sha256 of the zip>" }
     }
   ],
@@ -49,7 +49,7 @@ from the tree.
       "contentHash": "66b2f44d79c6cf46",
       "manifestSha256": "<sha256 of the map's manifest.json>",
       "requires": [ { "pack": "audio", "sha256": "<sha256>" }, { "pack": "classes", "sha256": "<sha256>" } ],
-      "source": { "repo": "Lumbridge/SCCT-Maps", "path": "stock/Packages/Maps/AquaE.sdc", "sha256": "<sha256>" },
+      "source": { "repo": "OpenSCCT/SCCT-Maps", "path": "stock/Packages/Maps/AquaE.sdc", "sha256": "<sha256>" },
       "full": { "url": "...", "size": 12345678, "sha256": "<sha256>" },
       "sim":  { "url": "...", "size": 1234567,  "sha256": "<sha256>" }
     }
@@ -145,7 +145,7 @@ same way: `<content>/shared` when the player converted their install, else `<pac
 
 ## Publishing
 
-The [publishing guide](https://github.com/Lumbridge/OpenSCCT-Content/blob/main/docs/PUBLISHING.md)
+The [publishing guide](https://github.com/OpenSCCT/OpenSCCT-Content/blob/main/docs/PUBLISHING.md)
 in OpenSCCT-Content covers the full process:
 1. Build the content with svmbuild from a full install plus the SCCT-Maps downloads.
 2. `pack` writes one archive per map (full and sim) and per shared pack, skipping any whose content is unchanged since the index.

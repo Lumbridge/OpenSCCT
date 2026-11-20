@@ -2,6 +2,17 @@ name: Feature or improvement
 description: Suggest a focused improvement to gameplay, tools or documentation.
 title: "[Suggestion] "
 body:
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Which edition or tool?
+      options:
+        - PlayStation 2
+        - Original PC / Steam
+        - OpenSCCT Unreal
+        - Shared launcher or website
+        - Godot client or shared simulation
+        - Editor, content or other tools
   - type: textarea
     id: environment
     attributes:

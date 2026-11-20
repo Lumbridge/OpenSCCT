@@ -7,6 +7,17 @@ body:
       value: |
         Search existing issues first. Share only relevant logs and remove tokens, passwords and personal information.
         Do not upload original game files, converted asset packs or decompiled output.
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Which edition or tool?
+      options:
+        - PlayStation 2
+        - Original PC / Steam
+        - OpenSCCT Unreal
+        - Shared launcher or website
+        - Godot client or shared simulation
+        - Editor, content or other tools
   - type: input
     id: version
     attributes:

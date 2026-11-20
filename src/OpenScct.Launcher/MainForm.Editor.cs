@@ -15,11 +15,11 @@ namespace OpenScct.Launcher.App;
 
 internal sealed partial class MainForm
 {
-    private const string EditorPage = "https://github.com/Lumbridge/OpenSCCT-Editor";
+    private const string EditorPage = "https://github.com/OpenSCCT/OpenSCCT-Editor";
     private EditorService _editor = null!;
     private EditorCheck? _editorCheck;
     /// <summary>The product tabs; each has its own panel copy, palette, status and release check.</summary>
-    private enum Product { Game, Editor, Unreal }
+    private enum Product { Game, Editor, Unreal, Ps2, Retail }
     private Product _selected;
     private Product _operationProduct;          // which product owns the running _work
     private bool _operationCanCancel = true;
@@ -27,12 +27,13 @@ internal sealed partial class MainForm
     private bool _editorSetupFailed;
     private bool SelectedCheckOnStart => _selected switch
     {
+        Product.Ps2 or Product.Retail => _settings.OriginalCheckOnStart,
         Product.Editor => _settings.EditorCheckOnStart,
         Product.Unreal => _settings.UnrealCheckOnStart,
         _ => _settings.CheckOnStart,
     };
-    private readonly Button _gameTab = Theme.Button("Game");
-    private readonly Button _editorTab = Theme.Button("Editor");
+    private readonly LibraryEntry _gameTab = new LibraryEntry("GD", "Legacy Godot client", "Versus");
+    private readonly LibraryEntry _editorTab = new LibraryEntry("ED", "OpenSCCT Editor", "Map authoring");
     private PictureBox _brandLogo = null!;
     private Label _brandSubtitle = null!;
     private enum StatusKind { Normal, Success, Warning, Error }
@@ -48,6 +49,7 @@ internal sealed partial class MainForm
     };
     private ReleaseInfo? SelectedRelease => _selected switch
     {
+        Product.Ps2 or Product.Retail => null,
         Product.Editor => _editorCheck?.Latest?.Release.Release,
         Product.Unreal => _unrealCheck?.Latest?.Release,
         _ => _lastCheck?.Latest?.Release,
@@ -56,6 +58,7 @@ internal sealed partial class MainForm
     /// <summary>Whether the product's release feed was read in this session, so its notes can be shown.</summary>
     private bool HasChecked(Product product) => product switch
     {
+        Product.Ps2 or Product.Retail => _lastCheck is not null,
         Product.Editor => _editorCheck is not null,
         Product.Unreal => _unrealCheck is not null,
         _ => _lastCheck is not null,
@@ -64,41 +67,24 @@ internal sealed partial class MainForm
     /// <summary>The saved tab; an unknown value opens the Game tab.</summary>
     private static Product ParseProduct(string? name) => name switch
     {
+        "Ps2" => Product.Ps2,
+        "Retail" => Product.Retail,
         "Editor" => Product.Editor,
         "Unreal" => Product.Unreal,
         _ => Product.Game,
     };
 
-    private Control BuildProductTabs()
-    {
-        _gameTab.Name = "GameTab";
-        _editorTab.Name = "EditorTab";
-        _unrealTab.Name = "UnrealTab";
-        _gameTab.AccessibleName = "Game tab";
-        _editorTab.AccessibleName = "Editor tab";
-        _unrealTab.AccessibleName = "Unreal tab";
-        _gameTab.Click += (_, _) => SelectProduct(Product.Game);
-        _editorTab.Click += (_, _) => SelectProduct(Product.Editor);
-        _unrealTab.Click += (_, _) => SelectProduct(Product.Unreal);
-        // Compact tabs leave the brand subtitle room for one line at the launcher's minimum width.
-        foreach (Button tab in new[] { _gameTab, _editorTab, _unrealTab })
-        {
-            tab.Padding = new Padding(6, 5, 6, 5);
-            tab.Margin = new Padding(0, 0, 4, 0);
-        }
-        _unrealTab.Margin = new Padding(0);
-        var tabs = Theme.Flow(false, _gameTab, _editorTab, _unrealTab);
-        tabs.Name = "ProductTabs";
-        tabs.Margin = new Padding(0);
-        return tabs;
-    }
-
     // Kept for Web Join and the smoke harness, which choose between the Game and Editor tabs.
-    private void SelectProduct(bool editor) => SelectProduct(editor ? Product.Editor : Product.Game);
+    private void SelectProduct(bool editor)
+    {
+        _page = LibraryPage.Games;
+        SelectProduct(editor ? Product.Editor : Product.Game);
+    }
 
     private void SelectProduct(Product product)
     {
         _selected = product;
+        _detailsKey = null;
         _settings.SelectedProduct = product.ToString();
         try { _settings.Save(_layout.Settings); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -118,6 +104,8 @@ internal sealed partial class MainForm
         Theme.SetButtonEmphasis(_gameTab, _selected == Product.Game, Palette);
         Theme.SetButtonEmphasis(_editorTab, _selected == Product.Editor, Palette);
         Theme.SetButtonEmphasis(_unrealTab, _selected == Product.Unreal, Palette);
+        Theme.SetButtonEmphasis(_ps2Tab, _selected == Product.Ps2, Palette);
+        Theme.SetButtonEmphasis(_retailTab, _selected == Product.Retail, Palette);
         if (_brandLogo is null) return;
         // The Unreal build has no icon of its own yet: its logo is the game's in the Unreal accent, and the
         // window keeps the game's icon.
@@ -155,9 +143,11 @@ internal sealed partial class MainForm
     {
         (_brandSubtitle.Text, _website.Text) = product switch
         {
-            Product.Editor => ("OpenSCCT Editor · Create and test your maps", "Editor website"),
-            Product.Unreal => ("OpenSCCT Unreal · Unreal Engine build", "Unreal releases"),
-            _ => ("Splinter Cell Chaos Theory Versus, rebuilt", "Website"),
+            Product.Ps2 => ("Chaos Theory · Original disc · 2005", "Website"),
+            Product.Retail => ("Chaos Theory · Original Windows release · 2005", "Website"),
+            Product.Editor => ("Map authoring", "Editor website"),
+            Product.Unreal => ("Unreal Engine · Versus", "Unreal releases"),
+            _ => ("Godot · Versus", "Website"),
         };
     }
 
@@ -190,6 +180,8 @@ internal sealed partial class MainForm
         ? _operationProduct + " · " + _operationTitle : _operationTitle;
     private ProductStatus VisibleStatus => _work is not null ? _operationStatus : _selected switch
     {
+        Product.Ps2 => _ps2ActionStatus,
+        Product.Retail => _retailActionStatus,
         Product.Editor => _editorStatus,
         Product.Unreal => _unrealStatus,
         _ => _gameStatus,
@@ -232,7 +224,7 @@ internal sealed partial class MainForm
         }
         await CheckLauncherAsync(cancel);
         if (_operationProduct == Product.Unreal) await CheckUnrealAsync(cancel);
-        else await CheckEditorAsync(cancel);
+        else if (_operationProduct == Product.Editor) await CheckEditorAsync(cancel);
     }
 
     /// <summary>The launcher's own updates always come from the game repository, even for editor-only or Unreal-only users.</summary>

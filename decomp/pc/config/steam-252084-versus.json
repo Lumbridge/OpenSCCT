@@ -1,0 +1,27 @@
+{
+  "id": "steam-252084-versus",
+  "label": "Steam 252084 · Versus",
+  "scope": "Retail Versus game payload",
+  "file": "Versus/System/SCCT_Versus.ex",
+  "release": {
+    "app_id": 13570,
+    "steam_build_id": 252084,
+    "depot_id": 13571,
+    "depot_manifest": "2604462187318687519"
+  },
+  "image": {
+    "sha256": "e3da0a152a8152af0c912e42dac8ef5378279b2ceb4f335f4efab070d45c80f3",
+    "size": 3637248,
+    "format": "pe32-x86",
+    "executable_sections": [
+      {
+        "name": ".text",
+        "offset": 16384,
+        "size": 2991392,
+        "address": 277889024,
+        "code": true
+      }
+    ]
+  },
+  "units": []
+}

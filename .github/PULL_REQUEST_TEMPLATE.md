@@ -1,6 +1,7 @@
 ## Change
 
 Describe the problem and the behavior after this change. Link related issues if there are any.
+Name the edition or shared tool affected. For original-game work, identify the disc revision or PC executable build.
 
 ## Validation
 

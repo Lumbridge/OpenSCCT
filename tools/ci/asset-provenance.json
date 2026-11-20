@@ -1701,6 +1701,10 @@
     "content/assets/rifles/sources/audio/D_32P.wav": {
       "bytes": 5889684,
       "sha256": "acee9d2106b68fe5956225a19d7aedf943d97793817f9bda9d486a2b74b0a812"
+    },
+    "src/openscct.launcher/branding/operation.jpg": {
+      "bytes": 125055,
+      "sha256": "a4a61c159fb4372f97e73bb84ab243c5f2b84013c9128cf623811c00ba8582c8"
     }
   },
   "additional_credits": [
@@ -1708,7 +1712,8 @@
     "content/assets/cosmetics/CREDITS.txt",
     "content/assets/rifles/export/CREDITS.txt",
     "content/assets/sidearm_audio/CREDITS.txt",
-    "content/assets/user_gun_audio/export/CREDITS.txt"
+    "content/assets/user_gun_audio/export/CREDITS.txt",
+    "docs/images/website/showcase-sources.txt"
   ],
   "additionalCredits": [
     "content/assets/rifles/CREDITS.txt",

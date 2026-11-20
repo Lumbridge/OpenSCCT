@@ -2,11 +2,11 @@
 
 [Documentation](README.md)
 
-The native x86-64 launcher installs and updates OpenSCCT on Linux without Wine, Proton or a system
-.NET installation. It shares the Windows launcher's verified downloads, delta updates, content packs,
-optional maps, cancellation/resume, offline play and launcher self-update. See [Launcher](LAUNCHER.md).
+The native x86-64 launcher manages your Chaos Theory editions and installs OpenSCCT Classic on Linux.
+It includes its own .NET runtime. Classic shares the Windows launcher's verified downloads, delta updates,
+content packs, optional maps, cancellation and resume, offline play and launcher self-update. See [Launcher](LAUNCHER.md).
 
-Use a [release](https://github.com/Lumbridge/OpenSCCT/releases) containing
+Use a [release](https://github.com/OpenSCCT/OpenSCCT/releases) containing
 `OpenSCCT.Launcher-linux-x64` and a matching Linux game file list. Older Windows-only releases do not
 contain these assets. A source build or CI artifact does not mean a Linux release has been published.
 
@@ -41,10 +41,25 @@ The installer copies the launcher to `${XDG_DATA_HOME:-~/.local/share}/OpenSCCTL
 desktop entry and registers `openscct://` links for the current user. It does not need `sudo`.
 The archive contains dependency notices. Checksums accompany both the binary and archive in the release.
 
-Choose **Install** to download the native game and required content, then **PLAY**. **Maps** manages
-additional maps; **Settings** controls preview releases and startup update checks. **Play current version**
-lets you defer an update, and installed play still works when release checks are offline. **Stop** cancels
-an operation while retaining completed downloads. A running game keeps its version until it exits.
+### Editions
+
+Choose an edition in **Games**. At smaller window widths, the edition selector moves above the page.
+**Mods** follows the selected edition.
+
+| Edition | Setup and play | Mods |
+| --- | --- | --- |
+| PlayStation 2 | Choose your original Chaos Theory ISO and an executable PCSX2 binary or AppImage. Set up your BIOS in PCSX2. **Play with PCSX2** starts the selected image. | Select a separately patched ISO for the same disc serial. **Use original disc** switches back. |
+| PC / Steam | The launcher checks Steam libraries for Chaos Theory (app 13570). You can also select a stock game folder. Start campaign and co-op in Steam for a detected Steam installation, or through Wine for a manual copy. **Play Versus with Wine** starts the selected Versus executable. | Under **Mods**, choose a separately modded PC installation. A Versus-only copy such as Enhanced or Reloaded uses the stock campaign and co-op. A campaign-only copy uses stock Versus. Switch back to the stock installation at any time. |
+| OpenSCCT Unreal | The release targets Windows x64. The Linux launcher links to the published builds. | Manage Unreal maps from the Windows launcher. |
+| OpenSCCT Classic | Under **Tools & legacy**, choose **Install** to download the native Godot game and its required content. Choose **PLAY** when ready. Website Join links open this edition. | **Maps** and the Classic **Mods** view open the downloadable map catalogue. |
+
+The PC executable launch actions require a working `wine` command on your path. They inherit your Wine environment,
+including `WINEPREFIX`. The Steam action opens the installed Steam client and uses its compatibility settings.
+PCSX2 manages its own controller, graphics, memory cards and save states.
+
+**Settings** controls Classic preview releases and startup update checks. **Play current version**
+defers a Classic update, and installed play works when release checks are offline. **Stop** cancels
+an operation while retaining completed downloads. A running Classic game keeps its version until it exits.
 
 Launcher updates are verified and staged beside the executable. Choose **Restart to finish** to apply one.
 Keep the executable in a user-writable directory so it can replace itself without root. Package-manager

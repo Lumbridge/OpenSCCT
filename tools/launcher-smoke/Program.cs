@@ -71,11 +71,18 @@ internal static class Program
     {
         // Synthetic captures start at logical 96 DPI regardless of the interactive monitor's scale.
         // The production launcher retains PerMonitorV2; higher scales below change geometry and fonts.
+        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
         Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         string output = Path.GetFullPath(args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? "local/launcher-smoke/artifacts");
         Directory.CreateDirectory(output);
+        if (args.Contains("--library", StringComparer.Ordinal))
+        {
+            LibraryChecks(output);
+            Console.WriteLine($"Library smoke: {_checks} checks passed; {_failures} failed cases.");
+            return _failures == 0 ? 0 : 1;
+        }
         if (args.Contains("--sizing", StringComparer.Ordinal))
         {
             EditorSizingChecks(output);
@@ -129,7 +136,7 @@ internal static class Program
             new("editor-error", true, true, "Open Editor"),
             new("editor-launcher-restart", true, true, "Open Editor"),
             new("unreal-absent", true, true, "Install Unreal"),
-            new("unreal-prerequisite", false, false, "Go to Game"),
+            new("unreal-prerequisite", false, false, "Get shared files"),
             new("unreal-update", true, true, "Update Unreal"),
             new("unreal-ready", true, true, "Play"),
             new("unreal-pending", true, true, "Waiting for game to close"),
@@ -168,6 +175,7 @@ internal static class Program
             CaptureDialogs(fixture, scale, output);
         }
 
+        LibraryChecks(output);
         EditorSizingChecks(output);
         LifecycleChecks();
         SettingsScopeChecks();
@@ -179,6 +187,7 @@ internal static class Program
 
     private static Form Create(Fixture fixture, Scenario scenario)
     {
+        if (!File.Exists(fixture.Layout.Settings)) new LauncherSettings { SelectedProduct = "Game", CheckOnStart = false }.Save(fixture.Layout.Settings);
         var form = (Form)Activator.CreateInstance(MainType, Hidden, null,
             new object?[] { fixture.Layout, scenario.Name == "join" ? "smoke-session" : null, null, fixture.LauncherPath }, null)!;
         if (!_reportedDpi) Console.WriteLine($"Before handle: DeviceDpi={form.DeviceDpi}, AutoScaleDimensions={form.AutoScaleDimensions}, CurrentAutoScaleDimensions={form.CurrentAutoScaleDimensions}, Font={form.Font.SizeInPoints}pt.");
@@ -368,7 +377,7 @@ internal static class Program
                 ? editorSelected ? Color.FromArgb(26, 31, 42) : Color.FromArgb(22, 31, 25)
                 : Color.FromArgb(84, 148, 245)), label + " primary action uses selected product palette");
             Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == (editorSelected ? "Editor" : "Game"), label + " selected tab is persisted");
-            Check(Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect, label + " both product tabs remain keyboard selectable");
+            Check(Field<ComboBox>(form, "_compactPicker").CanSelect || Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect, label + " both product tabs remain keyboard selectable");
         }
         if (scenario.Unreal)
         {
@@ -378,13 +387,13 @@ internal static class Program
             bool plain = fixture.Work is not null || scenario.Name == "unreal-pending";
             Check(main.BackColor == (plain ? Color.FromArgb(36, 27, 21) : Color.FromArgb(255, 150, 70)), label + " primary action uses the Unreal palette");
             Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == "Unreal", label + " Unreal tab is persisted");
-            Check(Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect && Field<Button>(form, "_unrealTab").CanSelect,
+            Check(Field<ComboBox>(form, "_compactPicker").CanSelect || Field<Button>(form, "_gameTab").CanSelect && Field<Button>(form, "_editorTab").CanSelect && Field<Button>(form, "_unrealTab").CanSelect,
                 label + " all three product tabs remain keyboard selectable");
             Check(Field<Button>(form, "_website").Text == "Unreal releases", label + " website action opens Unreal releases");
             string expected = scenario.Name switch
             {
                 "unreal-absent" => "Set up OpenSCCT Unreal",
-                "unreal-prerequisite" => "Set up the game first",
+                "unreal-prerequisite" => "Shared game files needed",
                 "unreal-update" => "Unreal update available",
                 "unreal-ready" => "Ready to play",
                 "unreal-pending" => "Update ready",
@@ -573,7 +582,7 @@ internal static class Program
                     {
                         Button report = Walk(host).OfType<Button>().Single(c => c.Name == "EditorBugReport");
                         typeof(Button).GetMethod("OnClick", Hidden)!.Invoke(report, [EventArgs.Empty]);
-                        Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/Lumbridge/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
+                        Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "SelectedLink").Text.StartsWith("https://github.com/OpenSCCT/OpenSCCT-Editor/issues/new", StringComparison.Ordinal), label + " editor reports route to editor repository");
                         Check(Walk(host).OfType<TextBox>().Single(c => c.Name == "ReportDetails").Text.Contains("Editor version: " + EditorVersion, StringComparison.Ordinal), label + " report details include editor version");
                     }
                     if (dialog.Type == "SettingsForm" && dialog.Unreal) InspectUnrealSettings(host, unrealFixture.Layout, label);
@@ -775,6 +784,50 @@ internal static class Program
             fixture.Fonts.Add(font);
             item.Control.Font = font;
         }
+    }
+
+    private static void LibraryChecks(string output)
+    {
+        Inspect(() =>
+        {
+            using var fixture = new Fixture(new Scenario("fresh", false, false, ""));
+            using Form form = (Form)Activator.CreateInstance(MainType, Hidden, null,
+                new object?[] { fixture.Layout, null, null, fixture.LauncherPath }, null)!;
+            Check(Selected(form) == "Ps2", "Fresh launcher opens the PS2 edition");
+            Field<LauncherSettings>(form, "_settings").CheckOnStart = false;
+            Field<LauncherSettings>(form, "_settings").UnrealCheckOnStart = false;
+            form.StartPosition = FormStartPosition.Manual;
+            form.Location = new Point(-32000, -32000);
+            form.ShowInTaskbar = false;
+            form.Show();
+            Settle(form);
+            Save(form, output, "library-ps2-games");
+            Check(Field<Button>(form, "_main").Text == "Choose disc image", "Owned-disc setup action");
+            foreach (string edition in new[] { "Ps2", "Retail", "Unreal" })
+            {
+                Call(form, "SelectProduct", Product(edition));
+                foreach (string page in new[] { "_modsPage", "_settingsButton", "_gamesPage" })
+                {
+                    Field<Button>(form, page).PerformClick();
+                    Settle(form);
+                    Check(Selected(form) == edition && Field<Button>(form, page).CanSelect, edition + " page navigation " + page);
+                    bool games = page == "_gamesPage";
+                    Check(Field<Control>(form, "_launchCard").Visible == games, edition + " primary action belongs to Games");
+                    if (page == "_modsPage") Check(Field<Control>(form, "_details").Visible, edition + " has mod controls");
+                    Save(form, output, "library-" + edition + "-" + page.TrimStart('_'));
+                }
+            }
+            form.ClientSize = new Size(600, 420);
+            Settle(form);
+            ComboBox picker = Field<ComboBox>(form, "_compactPicker");
+            Check(picker.CanSelect && IsInClient(form, picker), "Compact layout provides an accessible edition chooser");
+            picker.SelectedIndex = 0;
+            Settle(form);
+            Check(Selected(form) == "Ps2" && IsInClient(form, Field<Button>(form, "_main")), "Compact PS2 setup action fits");
+            Save(form, output, "library-ps2-compact");
+            Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == "Ps2", "Edition is persisted");
+            form.Hide();
+        });
     }
 
     private static void LifecycleChecks()

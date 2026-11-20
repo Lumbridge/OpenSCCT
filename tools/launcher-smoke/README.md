@@ -15,3 +15,5 @@ Use `-- --settings` for the product-specific Settings checks and 18 captures (Ga
 the other product's removal action, disabled uninstall for absent or unmanaged editor fixtures, and an available
 uninstall for an interrupted managed install. Saving
 preferences is exercised, but no removal confirmation or uninstall is invoked.
+
+Use `-- --library` to exercise the Games, Mods and Settings views for all three editions, including the compact selector, and capture the Windows library offscreen. The harness uses an isolated launcher root and disables machine-wide retail discovery.

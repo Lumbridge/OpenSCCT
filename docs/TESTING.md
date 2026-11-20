@@ -64,7 +64,7 @@ and [TestRange](TESTMAP.md) for the synthetic map.
 | CI: `godot-smoke` | Same | Generates TestRange; runs `boot`, `testbox`, `range-sim` and the expected failure; uploads `godot-smoke` logs and JUnit report even on failure |
 | [Linux export](../.github/workflows/linux-export.yml): `package` | Relevant source, client, packaging or toolchain changes on a PR or `main`; manual run | Native export and Flatpak installation/runtime smokes; uploads `openscct-linux-flatpak` |
 
-Download artifacts from the run's page in [Actions](https://github.com/Lumbridge/OpenSCCT/actions).
+Download artifacts from the run's page in [Actions](https://github.com/OpenSCCT/OpenSCCT/actions).
 Core CI artifacts are kept for seven days. Linux export does not run for a docs-only change.
 The determinism-hash steps in core CI are placeholders; they do not yet compare Windows
 and Linux replay hashes.

@@ -34,13 +34,13 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Notes,
 
-    [string]$Repo = 'Lumbridge/OpenSCCT',
+    [string]$Repo = 'OpenSCCT/OpenSCCT',
 
     [ValidateSet('win-x64', 'linux-x64')]
     [string]$Platform = 'win-x64',
 
     # The release that holds every version's game files (ReleasePicker.StoreTag in the launcher).
-    [string]$StoreTag = 'game-files'
+    [string]$StoreTag = 'game-files-4'
 )
 
 $ErrorActionPreference = 'Stop'

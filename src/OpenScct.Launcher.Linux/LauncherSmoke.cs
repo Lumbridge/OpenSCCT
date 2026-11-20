@@ -51,9 +51,13 @@ internal static class LauncherSmoke
             if (OperatingSystem.IsLinux())
                 Require((File.GetUnixFileMode(model.Store.ExePath(model.Store.Current()!)) & UnixFileMode.UserExecute) != 0,
                     "Downloaded Linux executables must be executable.");
+            model.Settings.SelectedProduct = "Retail";
+            model.Settings.Retail.ModFolder = Path.Combine(root, "separate-versus");
             model.SaveSettings(false, true);
             LauncherSettings saved = LauncherSettings.Load(model.Layout.Settings);
             Require(!saved.CheckOnStart && saved.IncludePrereleases, "Settings must survive a launcher restart.");
+            Require(saved.SelectedProduct == "Retail" && saved.Retail.ModFolder == model.Settings.Retail.ModFolder,
+                "Changing Classic preferences must preserve edition and mod selections.");
             model.QueueJoin("test_server-42");
             Require(model.PendingJoin == "test_server-42", "Join requests must survive setup operations.");
 

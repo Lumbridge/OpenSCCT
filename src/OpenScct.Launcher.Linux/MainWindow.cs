@@ -20,7 +20,7 @@ using OpenScct.Project;
 
 namespace OpenScct.Launcher.Linux;
 
-internal sealed class MainWindow : Window
+internal sealed partial class MainWindow : Window
 {
     private readonly LauncherController _model;
     private readonly bool _smoke;
@@ -48,8 +48,8 @@ internal sealed class MainWindow : Window
         _model = model;
         _smoke = smoke;
         Title = "OpenSCCT Launcher";
-        Width = 840;
-        Height = 560;
+        Width = 1000;
+        Height = 650;
         MinWidth = 540;
         MinHeight = 420;
         Background = Ui.Background;
@@ -57,13 +57,6 @@ internal sealed class MainWindow : Window
         using (Stream? icon = Assembly.GetExecutingAssembly().GetManifestResourceStream("OpenScct.Launcher.icon.ico"))
             if (icon is not null) Icon = new WindowIcon(icon);
 
-        var title = Ui.Text("OPENSCCT", 31, Ui.Accent);
-        title.FontWeight = FontWeight.Bold;
-        var brand = Ui.Stack(title, Ui.Text("Splinter Cell Chaos Theory Versus, rebuilt", 13, Ui.Muted));
-        var version = Ui.Text("Launcher " + (model.LauncherVersion?.ToString() ?? "dev") + "  ·  Linux", 12, Ui.Muted);
-        version.HorizontalAlignment = HorizontalAlignment.Right;
-        var header = Ui.Columns(brand, version);
-        header.Margin = new Thickness(0, 0, 0, 16);
         _main.MinWidth = 150;
         _main.MinHeight = 46;
         _main.FontSize = 17;
@@ -79,22 +72,14 @@ internal sealed class MainWindow : Window
         var changelog = Ui.Button("Full changelog");
         changelog.Click += async (_, _) => await ShowNotesAsync();
         var release = Ui.Panel(Ui.Stack(Ui.Columns(_notesTitle, changelog), _notes));
-        var website = Ui.Button("Website");
-        website.Click += (_, _) => OpenLink(ProjectLinks.Website);
-        var help = Ui.Button("Help");
-        help.Click += async (_, _) => await ShowHelpAsync();
-        var tools = new WrapPanel { Orientation = Orientation.Horizontal, Children = { _maps, _check, website, _settings, help } };
-        foreach (Control tool in tools.Children) tool.Margin = new Thickness(0, 0, 6, 6);
-        var stack = Ui.Stack(header, _launcherBanner, launch, release, tools);
-        stack.Spacing = 14;
-        stack.Margin = new Thickness(24, 20, 24, 14);
-        Content = new ScrollViewer { Content = stack, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
+        _legacyPage = Ui.Stack(Ui.Text("OpenSCCT Classic", 26), launch, release, ButtonRow(_maps, _check));
+        _legacyPage.Spacing = 14;
+        InitializeLibrary();
 
         _main.Click += async (_, _) => await DoNextAsync();
         _playCurrent.Click += async (_, _) => await PlayAsync(true);
         _check.Click += async (_, _) => await model.RunAsync("Checking for updates", model.CheckAsync);
         _maps.Click += async (_, _) => await ShowMapsAsync();
-        _settings.Click += async (_, _) => await ShowSettingsAsync();
         _launcher.Click += async (_, _) =>
         {
             if (model.LauncherStaged)
@@ -131,6 +116,7 @@ internal sealed class MainWindow : Window
     public void QueueJoin(string id)
     {
         _model.QueueJoin(id);
+        ShowPage("Games", "Game");
         if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
         Activate();
     }
@@ -139,6 +125,12 @@ internal sealed class MainWindow : Window
     {
         if (_closed) return;
         if (!Dispatcher.UIThread.CheckAccess()) { Dispatcher.UIThread.Post(Refresh); return; }
+        if (_model.PendingJoin is not null && _lastJoin != _model.PendingJoin)
+        {
+            _lastJoin = _model.PendingJoin;
+            ShowPage("Games", "Game");
+        }
+        else if (_model.PendingJoin is null) _lastJoin = null;
         LauncherAction next = _model.Next;
         string? current = _model.Store.Current()?.ToString();
         _heading.Text = _model.Busy ? _model.Operation : next switch
@@ -218,7 +210,7 @@ internal sealed class MainWindow : Window
         _model.Check?.Latest?.Release.Body ?? "No cached release notes yet. Check for updates to load them.",
         "Website changelog", () => OpenLink(ProjectLinks.Website + "/changelog#game-latest"));
 
-    private async Task ShowSettingsAsync()
+    private Control SettingsPage()
     {
         var startup = new CheckBox { Content = "Check for updates when the launcher starts", IsChecked = _model.Settings.CheckOnStart };
         var previews = new CheckBox { Content = "Include preview releases", IsChecked = _model.Settings.IncludePrereleases };
@@ -230,34 +222,36 @@ internal sealed class MainWindow : Window
         rollback.IsEnabled = _model.Store.Previous() is not null && !_model.GameRunning;
         var reset = Ui.Button("Reset installation…");
         reset.IsEnabled = !_model.GameRunning;
-        var content = Ui.Stack(Ui.Text("Updates", 20), startup, previews, Ui.Text("Files", 20),
+        var content = Ui.Stack(Ui.Text("Classic updates", 20), startup, previews, Ui.Text("Classic files", 20),
             Ui.Text(_model.Layout.Root, 12, Ui.Muted), data, saves, rollback, reset,
             Ui.Text("Reset removes installed builds and downloaded content. Game settings, bindings and saves are kept.", 13, Ui.Muted));
-        var dialog = Ui.Dialog("Launcher settings", content, 590, 510);
+
         rollback.Click += async (_, _) =>
         {
-            if (await Ui.ChooseAsync(dialog, "Use previous build", "Switch back to the previous installed game version?", "Switch version", "Cancel") != 0) return;
+            if (await Ui.ChooseAsync(this, "Use previous build", "Switch back to the previous installed game version?", "Switch version", "Cancel") != 0) return;
             await _model.RunAsync("Switching version", _ => { _model.Rollback(); return Task.CompletedTask; });
-            dialog.Close();
+            ShowPage("Games", "Game");
         };
         reset.Click += async (_, _) =>
         {
-            if (await Ui.ChooseAsync(dialog, "Reset installation", "Remove downloaded game builds, maps and packs? You will need to download them again.", "Reset installation", "Cancel") != 0) return;
-            try { _model.Reset(); dialog.Close(); }
+            if (await Ui.ChooseAsync(this, "Reset installation", "Remove downloaded game builds, maps and packs? You will need to download them again.", "Reset installation", "Cancel") != 0) return;
+            try { _model.Reset(); ShowPage("Games", "Game"); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
             { _model.Report(ex.Message, true); }
         };
         var save = Ui.Button("Save", true);
-        var cancel = Ui.Button("Cancel");
-        Ui.SetButtons(dialog, save, cancel);
-        save.Click += (_, _) =>
+        save.Click += async (_, _) =>
         {
-            try { _model.SaveSettings(startup.IsChecked == true, previews.IsChecked == true); dialog.Close(true); }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { _model.Report(ex.Message, true); }
+            try
+            {
+                _model.SaveSettings(startup.IsChecked == true, previews.IsChecked == true);
+                SetFeedback("Launcher settings saved.");
+                if (!_smoke) await _model.RunAsync("Checking for updates", _model.CheckAsync);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { SetFeedback(ex.Message, true); }
         };
-        cancel.Click += (_, _) => dialog.Close(false);
-        bool saved = await dialog.ShowDialog<bool>(this);
-        if (saved) await _model.RunAsync("Checking for updates", _model.CheckAsync);
+        return Ui.Stack(Ui.Text("Launcher settings", 26), Ui.Panel(content), ButtonRow(save,
+            Link("Website", ProjectLinks.Website), ActionButton("Help", ShowHelpAsync)));
     }
 
     private async Task ShowHelpAsync()
@@ -413,14 +407,14 @@ internal sealed class MainWindow : Window
     private void OpenFolder(string path)
     {
         try { Directory.CreateDirectory(path); Process.Start(new ProcessStartInfo(path) { UseShellExecute = true })?.Dispose(); }
-        catch (Exception ex) { _model.Report("Could not open the folder: " + ex.Message, true); }
+        catch (Exception ex) { SetFeedback("Could not open the folder: " + ex.Message, true); }
     }
 
     private void OpenLink(string? link)
     {
         if (!Uri.TryCreate(link, UriKind.Absolute, out Uri? uri) || uri.Scheme is not ("https" or "http")) return;
         try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true })?.Dispose(); }
-        catch (Exception ex) { _model.Report("Could not open the browser. Copy this link: " + link + "\n" + ex.Message, true); }
+        catch (Exception ex) { SetFeedback("Could not open the browser. Copy this link: " + link + "\n" + ex.Message, true); }
     }
 
     private async Task RunUiSmokeAsync()
@@ -428,6 +422,22 @@ internal sealed class MainWindow : Window
         try
         {
             await Task.Delay(200);
+            RequirePage("Games", "Ps2");
+            SaveSmokeImage("launcher-ps2");
+            _mods.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Mods", "Ps2");
+            SaveSmokeImage("launcher-ps2-mods");
+            _games.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            _editionButtons["Retail"].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Games", "Retail");
+            _mods.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Mods", "Retail");
+            _editionButtons["Unreal"].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            _games.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Games", "Unreal");
+            _editionButtons["Game"].RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Games", "Game");
+            await Task.Delay(100);
             SaveSmokeImage("launcher-install");
             Width = 560;
             Height = 430;
@@ -436,12 +446,11 @@ internal sealed class MainWindow : Window
             if (_main.Bounds.Width <= 0 || _main.Bounds.Height <= 0 || _main.Content?.ToString() != "Install")
                 throw new InvalidOperationException("The install action was not laid out.");
             SaveSmokeImage("launcher-compact");
-            Task settings = ShowSettingsAsync();
+            _settings.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            RequirePage("Settings", "Game");
             await Task.Delay(150);
-            Window settingsWindow = OwnedWindows.Last();
-            SaveSmokeImage("launcher-settings", settingsWindow);
-            settingsWindow.Close(false);
-            await settings;
+            SaveSmokeImage("launcher-settings");
+            ShowPage("Games", "Game");
             Task maps = ShowMapsAsync();
             await Task.Delay(150);
             Window mapsWindow = OwnedWindows.Last();
@@ -455,7 +464,7 @@ internal sealed class MainWindow : Window
             SaveSmokeImage("launcher-progress");
             _model.Cancel();
             await busy;
-            Console.WriteLine("Linux launcher UI smoke passed: install action, compact layout, settings, maps, progress/cancel controls and native rendering.");
+            Console.WriteLine("Linux launcher UI smoke passed: edition navigation, PS2 and PC mod views, Windows Unreal availability, Classic installation, compact layout, settings, maps and progress controls.");
             (Application.Current?.ApplicationLifetime as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.Shutdown(0);
         }
         catch (Exception ex)

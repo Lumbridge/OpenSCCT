@@ -31,11 +31,11 @@ public sealed class EditorChangelogTests
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            bool editor = request.RequestUri!.AbsolutePath == "/repos/Lumbridge/OpenSCCT-Editor/releases";
+            bool editor = request.RequestUri!.AbsolutePath == "/repos/OpenSCCT/OpenSCCT-Editor/releases";
             if (editor) EditorRequests++;
             else
             {
-                Assert.Equal("/repos/Lumbridge/OpenSCCT/releases", request.RequestUri.AbsolutePath);
+                Assert.Equal("/repos/OpenSCCT/OpenSCCT/releases", request.RequestUri.AbsolutePath);
                 GameRequests++;
             }
             if (editor && EditorUnavailable) return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));

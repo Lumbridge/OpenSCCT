@@ -2,13 +2,16 @@ OpenSCCT native Linux launcher (x86_64)
 
 Run ./OpenSCCT.Launcher-linux-x64 from this folder, or run ./install.sh
 to add it to your application menu and handle openscct:// website Join links.
-The installer uses your own account and needs no sudo. The launcher downloads
-the Linux game and content, installs updates, and updates itself.
+The installer uses your own account and needs no sudo. In Games, choose
+PlayStation 2 for a local ISO and PCSX2, PC / Steam for an installed copy, or
+OpenSCCT Classic for the native Linux game and content. OpenSCCT Unreal builds
+currently target Windows. Mods shows the choices for the selected edition.
 
-The .NET runtime is included. Wine, Proton and a system .NET install are not needed.
+The .NET runtime is included. Classic runs natively. Playing Windows PC
+executables directly uses Wine. Steam manages compatibility for its own launch.
 An X11 desktop or XWayland is required. Native graphics and font libraries come
 from your distribution; see the Linux guide for package names and troubleshooting:
-https://github.com/Lumbridge/OpenSCCT/blob/main/docs/LINUX.md
+https://github.com/OpenSCCT/OpenSCCT/blob/main/docs/LINUX.md
 
 The optional desktop install puts the launcher in:
   ${XDG_DATA_HOME:-~/.local/share}/OpenSCCTLauncher/

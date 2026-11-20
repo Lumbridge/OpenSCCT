@@ -3,6 +3,9 @@
 Start with the guide for your task. The [project README](../README.md) has downloads and a
 short overview; detailed behavior and evidence live in the [specifications](../spec/README.md).
 
+The [project directory](PROJECTS.md) maps the PS2, PC / Steam and modern Unreal
+editions to their source, tools and progress reports.
+
 ## Play and host
 
 | I want to… | Read |

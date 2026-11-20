@@ -78,6 +78,46 @@ public sealed class UnrealServiceTests
     }
 
     [Fact]
+    public async Task EnabledMapCollectionIsPassedAsOneRootAndDisabledCollectionIsIgnored()
+    {
+        using var dir = new TempDir();
+        var github = new FakeGitHub();
+        github.AddVersion("0.1.0", Zip("0.1.0"));
+        (UnrealService service, LauncherLayout layout) = Create(dir, github);
+        var cancel = TestContext.Current.CancellationToken;
+        await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
+        Packs(layout);
+        string root = dir.Combine("User maps; nightly");
+        string map = Path.Combine(root, "Training");
+        Directory.CreateDirectory(Path.Combine(map, "render"));
+        Directory.CreateDirectory(Path.Combine(map, "sim"));
+        string manifest = Path.Combine(map, "manifest.json");
+        File.WriteAllText(manifest, """{"format":"svmap","formatVersion":"1.2","map":"Training","source":{"kind":"authored"}}""");
+        foreach (string name in new[] { "sim/gameplay.json", "sim/traversal.json", "sim/collision.bin", "render/world.glb" })
+            File.WriteAllText(Path.Combine(map, name), "test");
+
+        Assert.True(UnrealMapMods.TryGetMapRoot(root, out string resolved, out string error), error);
+        Assert.Equal(root, resolved);
+        Assert.False(UnrealMapMods.TryGetMapRoot(map, out _, out _));
+        var settings = new LauncherSettings { UnrealMapModRoot = root, UnrealMapModsEnabled = true };
+        settings.Save(layout.Settings);
+        Assert.EndsWith(" --svm-maps=\"" + root.Replace('\\', '/') + "\"", service.StartInfo().Arguments);
+
+        string stock = Path.Combine(layout.Packs, "svmap", "Training");
+        Directory.CreateDirectory(stock);
+        File.WriteAllText(Path.Combine(stock, "manifest.json"), "{}");
+        Assert.Contains("already installed", Assert.Throws<InvalidOperationException>(service.StartInfo).Message);
+        File.Delete(Path.Combine(stock, "manifest.json"));
+        File.Delete(Path.Combine(map, "render/world.glb"));
+        Assert.Contains("world.glb", Assert.Throws<InvalidOperationException>(service.StartInfo).Message);
+        File.WriteAllText(manifest, "{");
+        Assert.False(UnrealMapMods.TryGetMapRoot(root, out _, out _));
+        settings.UnrealMapModsEnabled = false;
+        settings.Save(layout.Settings);
+        Assert.DoesNotContain("--svm-maps", service.StartInfo().Arguments);
+    }
+
+    [Fact]
     public async Task UpdateDownloadsOnlyChangedFilesAndPatchesFromTheStoreFoundByTag()
     {
         using var dir = new TempDir();
@@ -384,8 +424,8 @@ public sealed class UnrealServiceTests
 
         var cancel = TestContext.Current.CancellationToken;
         await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
-        Assert.Contains("Game tab", service.PrerequisiteProblem(), StringComparison.Ordinal);
-        Assert.Contains("Game tab", Assert.Throws<InvalidOperationException>(() => service.StartInfo()).Message, StringComparison.Ordinal);
+        Assert.Contains("Get shared files", service.PrerequisiteProblem(), StringComparison.Ordinal);
+        Assert.Contains("Get shared files", Assert.Throws<InvalidOperationException>(() => service.StartInfo()).Message, StringComparison.Ordinal);
         Packs(layout);
         Assert.Null(service.PrerequisiteProblem());
 

@@ -15,6 +15,7 @@ using Microsoft.Win32;
 using OpenScct.Launcher.GitHub;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Launch;
+using OpenScct.Launcher.Settings;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
 
@@ -31,7 +32,7 @@ namespace OpenScct.Launcher.Unreal;
 /// </summary>
 public sealed class UnrealService
 {
-    public const string DefaultRepository = "Lumbridge/OpenSCCT-Unreal";
+    public const string DefaultRepository = "OpenSCCT/OpenSCCT-Unreal";
 
     /// <summary>Tag of the prerelease that holds every version's blobs, packs and patches (not a version, so never offered).</summary>
     public const string StoreTag = "unreal-files-1";
@@ -169,7 +170,7 @@ public sealed class UnrealService
     /// <summary>Null when the OpenSCCT content the game needs is there, else a sentence for the player.</summary>
     public string? PrerequisiteProblem()
     {
-        const string problem = "OpenSCCT Unreal uses the OpenSCCT game files. Set up the game on the Game tab first, then come back here.";
+        const string problem = "OpenSCCT Unreal needs the shared maps and game files. Choose Get shared files to download them.";
         try
         {
             string maps = Path.Combine(_layout.Packs, "svmap");
@@ -404,12 +405,21 @@ public sealed class UnrealService
         }
 
         string content = Path.TrimEndingDirectorySeparator(_layout.Packs);
+        string arguments = ContentArgument(content);
+        LauncherSettings settings = LauncherSettings.Load(_layout.Settings);
+        if (settings.UnrealMapModsEnabled)
+        {
+            if (!UnrealMapMods.TryGetMapRoot(settings.UnrealMapModRoot, out string maps, out string error, Path.Combine(content, "svmap")))
+                throw new InvalidOperationException(error);
+            // A single quoted root keeps spaces and literal semicolons intact, including through UE's starter exe.
+            arguments += $" --svm-maps=\"{maps.Replace('\\', '/')}\"";
+        }
         string exe = Path.Combine(installed.Folder, StarterExe);
         var info = new ProcessStartInfo(exe)
         {
             WorkingDirectory = installed.Folder,
             UseShellExecute = false,
-            Arguments = ContentArgument(content),
+            Arguments = arguments,
         };
         info.Environment.Remove("SVM_CONTENT");
         info.Environment.Remove("SVM_GAME_ROOT");

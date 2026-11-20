@@ -16,7 +16,7 @@ namespace OpenScct.Launcher.GitHub;
 /// <summary>Where releases come from, with optional authentication for callers using a private repository.</summary>
 public sealed record ReleaseSource(string Owner, string Repo, string? Token)
 {
-    public const string DefaultOwner = "Lumbridge";
+    public const string DefaultOwner = "OpenSCCT";
     public const string DefaultRepo = "OpenSCCT";
 
     /// <summary>The public OpenSCCT releases used by the launcher, without GitHub sign-in.</summary>
@@ -220,9 +220,18 @@ public sealed class GitHubReleaseClient
             ? new ReleaseFeed([], ReleaseFeedSource.None, reset, problem)
             : new ReleaseFeed(Visible(cached.Releases), ReleaseFeedSource.Cache, reset, problem);
 
-    // The ETag depends on who asks, so anonymous and token answers are cached apart.
-    private string CachePath =>
-        Path.Combine(_cacheDir, $"releases-{Safe(_source.Owner)}-{Safe(_source.Repo)}-{(_source.Authenticated ? "auth" : "anon")}.json");
+    // Keep the release caches already installed before the repositories moved to the organization.
+    private string CachePath
+    {
+        get
+        {
+            string owner = _source.Owner;
+            if (owner.Equals(ReleaseSource.DefaultOwner, StringComparison.OrdinalIgnoreCase) &&
+                _source.Repo is "OpenSCCT" or "OpenSCCT-Editor" or "OpenSCCT-Unreal")
+                owner = "Lumbridge";
+            return Path.Combine(_cacheDir, $"releases-{Safe(owner)}-{Safe(_source.Repo)}-{(_source.Authenticated ? "auth" : "anon")}.json");
+        }
+    }
 
     private static string Safe(string s) => string.Concat(s.Select(ch => char.IsAsciiLetterOrDigit(ch) || ch is '-' or '_' or '.' ? ch : '_'));
 

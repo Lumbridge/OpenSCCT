@@ -23,7 +23,7 @@ public sealed partial class EditorService
 {
     public const string ExeName = "OpenSCCT Editor.exe";
     public const string ManagedMarker = ".launcher-managed";
-    public const string ReleasesPage = "https://github.com/Lumbridge/OpenSCCT-Editor/releases";
+    public const string ReleasesPage = "https://github.com/OpenSCCT/OpenSCCT-Editor/releases";
     public static readonly SemVersion MinimumGameVersion = SemVersion.Parse("0.8.93");
     private readonly LauncherLayout _layout;
     private readonly HttpClient _http;
@@ -37,7 +37,7 @@ public sealed partial class EditorService
     {
         _layout = layout;
         _http = http;
-        _github = new GitHubReleaseClient(http, new ReleaseSource("Lumbridge", "OpenSCCT-Editor", null), layout.EditorCache);
+        _github = new GitHubReleaseClient(http, new ReleaseSource(ReleaseSource.DefaultOwner, "OpenSCCT-Editor", null), layout.EditorCache);
         _downloader = new ResumableDownloader(http);
     }
 

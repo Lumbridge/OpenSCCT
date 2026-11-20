@@ -2,32 +2,42 @@
 
 # OpenSCCT<br clear="right">
 
-**Spies vs. mercs, rebuilt for modern PCs.** OpenSCCT is a community rewrite of
-Splinter Cell: Chaos Theory Versus in Godot 4 and C#. Play the asymmetric stealth
-and combat of spies versus mercenaries, with online services, bots, replays and map-making tools.
+OpenSCCT is a community project for **Tom Clancy’s Splinter Cell Chaos Theory**.
+Play the original PS2 or PC release from your own copy, study how each version
+works, or play our modern Unreal Engine edition of Spies vs. Mercenaries.
 
-[![CI](https://github.com/Lumbridge/OpenSCCT/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Lumbridge/OpenSCCT/actions/workflows/ci.yml)
-[![Linux export](https://github.com/Lumbridge/OpenSCCT/actions/workflows/linux-export.yml/badge.svg?branch=main)](https://github.com/Lumbridge/OpenSCCT/actions/workflows/linux-export.yml)
-[![Latest release](https://img.shields.io/github/v/release/Lumbridge/OpenSCCT)](https://github.com/Lumbridge/OpenSCCT/releases/latest)
-[![Last commit](https://img.shields.io/github/last-commit/Lumbridge/OpenSCCT/main)](https://github.com/Lumbridge/OpenSCCT/commits/main/)
+[![CI](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/ci.yml)
+[![Linux export](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/linux-export.yml/badge.svg?branch=main)](https://github.com/OpenSCCT/OpenSCCT/actions/workflows/linux-export.yml)
+[![Latest release](https://img.shields.io/github/v/release/OpenSCCT/OpenSCCT)](https://github.com/OpenSCCT/OpenSCCT/releases/latest)
+[![Last commit](https://img.shields.io/github/last-commit/OpenSCCT/OpenSCCT/main)](https://github.com/OpenSCCT/OpenSCCT/commits/main/)
 
-[Download](https://github.com/Lumbridge/OpenSCCT/releases/latest) ·
+[Download](https://github.com/OpenSCCT/OpenSCCT/releases/latest) ·
 [Player hub](https://master.lumbridge.co.uk) ·
-[Map editor](https://github.com/Lumbridge/OpenSCCT-Editor) ·
+[Map editor](https://github.com/OpenSCCT/OpenSCCT-Editor) ·
 [Documentation](docs/README.md) ·
 [Contribute](CONTRIBUTING.md) ·
-[Report a bug](https://github.com/Lumbridge/OpenSCCT/issues/new/choose)
+[Report a bug](https://github.com/OpenSCCT/OpenSCCT/issues/new/choose)
 
 ## Play
 
-On **Windows**:
+| Edition | What you play | What you bring | Mods |
+|---|---|---|---|
+| **PlayStation 2** | The original game from disc, through PCSX2 | A Chaos Theory ISO, PCSX2 and your own PS2 BIOS | Select a separately patched ISO and keep the original available |
+| **PC / Steam** | The original campaign, co-op and Versus | An installed PC copy or the Steam game | Use a separate Enhanced / Reloaded Versus install alongside stock |
+| **OpenSCCT Unreal** | Our modern Windows version of Spies vs. Mercenaries | The Unreal client and its shared OpenSCCT content | Add maps built with OpenSCCT Editor |
 
-1. Download **OpenSCCT.Launcher.exe** from the [latest release](https://github.com/Lumbridge/OpenSCCT/releases/latest) into a writable folder.
+[Launcher setup](docs/LAUNCHER.md) · [Repositories and tools](docs/PROJECTS.md) ·
+[Original executable progress](decomp/README.md) · [Unreal releases](https://github.com/OpenSCCT/OpenSCCT-Unreal/releases)
+
+### Existing Godot client
+
+The original OpenSCCT rewrite in Godot and C# remains available. To install that client on **Windows**:
+
+1. Download **OpenSCCT.Launcher.exe** from the [latest release](https://github.com/OpenSCCT/OpenSCCT/releases/latest) into a writable folder.
 2. Run it and press **Install**. The launcher downloads OpenSCCT and its game files.
 3. Click **PLAY**. By default, the launcher checks for updates each time it starts.
 
-No original Chaos Theory installation is needed to play. The launcher downloads the required
-shared content and stock maps; **Maps** manages additional downloads. See the
+The Godot client uses downloadable shared content and stock maps. **Maps** manages additional downloads. See the
 [launcher guide](docs/LAUNCHER.md) for setup, storage and troubleshooting.
 
 | Platform | Status |
@@ -40,7 +50,7 @@ On **Linux**, download **OpenSCCT.Launcher-linux-x64** from a release with Linux
 make it executable and run it. The launcher archive also includes an installer for application-menu
 and website Join links. See the [Linux guide](docs/LINUX.md) for dependencies and Flatpak setup.
 
-## What you can do
+## Playing the Godot rewrite
 
 | Feature | Details |
 |---|---|
@@ -51,14 +61,14 @@ and website Join links. See the [Linux guide](docs/LINUX.md) for dependencies an
 | Player progression | Track career stats, ranks, XP, achievements and cosmetic unlocks. Eligible rounds on official servers count toward progression. [Player stats](docs/PLAYER-STATS.md) |
 | Replays and match history | Save demos, watch from player or free-camera views, and revisit permanent scoreboards. Playback needs a compatible build and matching map content. [Demos](docs/DEMOS.md), [scoreboards](docs/SCOREBOARD.md) |
 | Player website | Find servers, join through the launcher, view profiles and leaderboards, and manage account privacy. [Player hub](https://master.lumbridge.co.uk), [guide](docs/PLAYER-HUB.md) |
-| Map editor | Make and edit maps with [OpenSCCT Editor](https://github.com/Lumbridge/OpenSCCT-Editor), available as an optional install from the Windows launcher's **Editor** tab. |
+| Map editor | Make and edit maps with [OpenSCCT Editor](https://github.com/OpenSCCT/OpenSCCT-Editor), available as an optional install from the Windows launcher's **Editor** tab. |
 
 Spies can also switch between third- and first-person views; see [menus and controls](docs/MENUS.md).
 
 OpenSCCT is in active development. Matching the original game's behavior is ongoing;
 automated checks do not cover every visual, audio or multiplayer interaction.
-Follow [release notes](https://github.com/Lumbridge/OpenSCCT/releases) for shipped changes
-and [open issues](https://github.com/Lumbridge/OpenSCCT/issues) for reported problems.
+Follow [release notes](https://github.com/OpenSCCT/OpenSCCT/releases) for shipped changes
+and [open issues](https://github.com/OpenSCCT/OpenSCCT/issues) for reported problems.
 
 ## CI and coverage
 
@@ -76,9 +86,9 @@ See [testing and CI](docs/TESTING.md) for commands, artifacts and the limits of 
 
 ### Porting coverage
 
-This measures how much of the original game's inventory has a specification, a marked C# port,
-or a passing comparison scenario. **It is not line or branch test coverage, or a percentage of
-the finished game.** Rebuilt systems can work without matching an original inventory unit.
+This table tracks the original Versus inventory studied for the C# simulation. A unit
+can have a specification, a marked port or a passing comparison scenario. For progress on
+rebuilding the original machine code, use the [per-executable report](decomp/README.md).
 
 <!-- coverage:start -->
 Snapshot: **2026-10-28**. Generated from the checked-in coverage report.

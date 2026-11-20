@@ -1,0 +1,26 @@
+{
+  "id": "sles-53287-boot",
+  "label": "PAL 1.01 · Disc boot",
+  "scope": "PS2 startup program named by BOOT2",
+  "file": "SLES_532.87",
+  "release": {
+    "serial": "SLES-53287",
+    "version": "1.01",
+    "video_mode": "PAL"
+  },
+  "image": {
+    "sha256": "2100f8280c0fbfa28ae84b06d50481b5412ea00020c6f96e2991e39980403fb2",
+    "size": 1014356,
+    "format": "elf32-mipsel",
+    "executable_sections": [
+      {
+        "name": "section-1",
+        "offset": 128,
+        "size": 1013888,
+        "address": 2097152,
+        "code": false
+      }
+    ]
+  },
+  "units": []
+}

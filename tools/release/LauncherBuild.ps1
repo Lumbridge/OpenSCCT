@@ -24,7 +24,7 @@ function Resolve-LauncherExe {
     $linux = $Platform -eq 'linux-x64'
     $projectDir = if ($linux) { 'src/OpenScct.Launcher.Linux' } else { 'src/OpenScct.Launcher' }
     $sources = $projectDir, 'src/OpenScct.Launcher.Core', 'src/OpenScct.Maps', 'game/branding/icon.ico', 'shared/ProjectLinks.cs'
-    if ($linux) { $sources += 'Directory.Packages.props' }
+    if ($linux) { $sources += 'Directory.Packages.props', 'src/OpenScct.Launcher/branding/operation.jpg' }
     $fingerprint = if ($LauncherExe) { '' } else { ($sources | ForEach-Object { (& git -C $RepoRoot rev-parse "${Commit}:$_").Trim() }) -join ' ' }
     # Kept locally (and its checksum published) under the versioned name; released under the plain name.
     $launcherName = if ($linux) { "OpenSCCT.Launcher-$launcherVersion-linux-x64" } else { "OpenSCCT.Launcher-$launcherVersion-win-x64.exe" }

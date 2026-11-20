@@ -28,7 +28,7 @@ internal sealed partial class PlayerPortal
         }
     }
 
-    private IResult Home(HttpContext c)
+    private IResult Community(HttpContext c)
     {
         List<PublicServer> servers = LiveServers();
         Dictionary<string, string> settings = _store.Settings();
@@ -61,11 +61,11 @@ internal sealed partial class PlayerPortal
             Feature("03", "Join a session", "The server browser lists games and social hubs. Sign in inside the game when a server requires an account.", "/servers", "Games and hubs") + "</div>"));
         body.Append(ImprovementsPreview());
         body.Append(Section("Players and results", "<div class=\"grid-three\">" +
-            Feature("01", "Account", "View your level and achievements, choose your appearance, and manage your privacy.", "/account", "Account") +
+            Feature("01", "Player directory", "Browse public profiles, player statistics and achievements.", "/players", "Player profiles") +
             Feature("02", "Leaderboards", "Rank public player profiles by XP, wins, combat stats or objectives completed.", "/leaderboards", "Leaderboards") +
             Feature("03", "Match results", "Recorded rounds include the winner, participating players and their scores.", "/matches", "Match history") + "</div>"));
         body.Append(Section("Documentation", "<div class=\"panel community-wiki-callout\"><div><p class=\"eyebrow\">WIKI</p><h3>OpenSCCT wiki</h3><p>Articles about gameplay, server hosting and the map editor.</p></div>" + Link("/wiki", "Wiki", "button secondary") + "</div>"));
-        return Show(c, "Home", "home", body.ToString());
+        return Show(c, "Player hub", "community", body.ToString());
     }
 
     private static string Feature(string step, string title, string description, string url, string label) =>

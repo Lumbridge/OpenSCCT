@@ -21,7 +21,7 @@ internal sealed partial class MainForm
     private UnrealCheck? _unrealCheck;
     private bool _unrealSetupFailed;
     private ProductStatus _unrealStatus = new(string.Empty, StatusKind.Normal);
-    private readonly Button _unrealTab = Theme.Button("Unreal");
+    private readonly LibraryEntry _unrealTab = new LibraryEntry("UE", "OpenSCCT Unreal", "Versus remake");
 
     private void RefreshUnrealPanel(bool busy)
     {
@@ -59,7 +59,7 @@ internal sealed partial class MainForm
         }
         else if (prerequisite is not null)
         {
-            _heading.Text = "Set up the game first";
+            _heading.Text = "Shared game files needed";
             _launchDetail.Text = prerequisite;
         }
         else if (pending is not null)
@@ -79,7 +79,7 @@ internal sealed partial class MainForm
             : installed is null ? "Install Unreal"
             : _unrealSetupFailed ? "Retry update"
             : update ? "Update Unreal"
-            : prerequisite is not null ? "Go to Game"
+            : prerequisite is not null ? "Get shared files"
             : waiting ? "Waiting for game to close"
             : "Play";
         bool waitingAction = !busy && !unreleased && installed is not null && !_unrealSetupFailed && !update && prerequisite is null && waiting;
@@ -120,7 +120,7 @@ internal sealed partial class MainForm
         }
         if (_unreal.PrerequisiteProblem() is not null)
         {
-            SelectProduct(Product.Game);
+            await RunAsync(DownloadContentAsync);
             return;
         }
         if (_unreal.Pending is not null && _unreal.IsRunning)

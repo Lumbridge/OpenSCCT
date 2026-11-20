@@ -77,7 +77,7 @@ Reports published to GitHub are also subject to
 Account data and reported scoreboards are kept while your account exists; scoreboards are not automatically
 deleted with match timelines or demos. Demos are deleted after 7 days. Locally saved scoreboards remain on the
 computer where they were saved. To have your account and its data
-deleted, open an issue at [github.com/Lumbridge/OpenSCCT/issues](https://github.com/Lumbridge/OpenSCCT/issues) (don't
+deleted, open an issue at [github.com/OpenSCCT/OpenSCCT/issues](https://github.com/OpenSCCT/OpenSCCT/issues) (don't
 post personal details there; we'll follow up). You can also remove the OpenSCCT app under Discord → User Settings →
 Authorized Apps.
 

@@ -97,8 +97,11 @@ public sealed class LauncherSwapAndSettingsTests
         Assert.False(saved.RootElement.GetProperty("CheckOnStart").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("EditorCheckOnStart").GetBoolean());
         Assert.False(saved.RootElement.GetProperty("UnrealCheckOnStart").GetBoolean());
-        // The game's five preferences, and the Unreal tab's prerelease, startup check and repository settings.
-        Assert.Equal(8, saved.RootElement.EnumerateObject().Count());
+        Assert.False(saved.RootElement.GetProperty("OriginalCheckOnStart").GetBoolean());
+        Assert.False(saved.RootElement.GetProperty("UnrealMapModsEnabled").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, saved.RootElement.GetProperty("UnrealMapModRoot").ValueKind);
+        Assert.False(saved.RootElement.GetProperty("Retail").GetProperty("UseMod").GetBoolean());
+        Assert.Equal(12, saved.RootElement.EnumerateObject().Count());
     }
 
     [Fact]
