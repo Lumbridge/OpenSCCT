@@ -160,7 +160,8 @@ newer Ubuntu) and `libpulse0`. Run `tools/linux/bootstrap.sh` to fetch the pinne
 Linux export templates into local/user directories. Godot downloads are checked against pinned upstream SHA-512
 sums. Bootstrap downloads the full templates archive but extracts only Linux x86_64 templates.
 
-On Ubuntu 22.04, install `python3-pip` and run `python3 -m pip install --user 'pip==25.1.1' 'cmake==3.31.6'`.
+On Ubuntu 22.04, install `librsvg2-common` for Flatpak's icon validator and `python3-pip` for the converter.
+Run `python3 -m pip install --user 'pip==25.1.1' 'cmake==3.31.6'`.
 Include `$HOME/.local/bin` in `PATH`. This pip version resolves the converter's wheels for its bundled Python 3.11
 interpreter when the build host runs Python 3.10.
 
