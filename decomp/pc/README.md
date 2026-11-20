@@ -57,10 +57,11 @@ The campaign experiment reproduced three retail bytes under two different compil
 
 From the repository root, pass the installed game directory to the verifier.
 Pass the x86 compiler paths for MSVC 19.44.35229.0 and Visual C++ Toolkit 2003
-13.10.3052. Each function's manifest identifies the tool used to reproduce it.
+13.10.3052, and the Clang 19.1.0 executable for the EAX-based Versus actor
+initializers. Each manifest records the compiler revision and target.
 
 ```powershell
-python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl
+python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl --clang $clang19
 ```
 
 The verifier checks each complete retail SHA-256 and each source receipt,
@@ -76,6 +77,8 @@ operands and call displacements. Microsoft's linker independently reproduced
 the campaign vector-product, stereo panning and directory-function bodies.
 When the compiler emits a pooled constant, the verifier first compares its
 complete object section to read-only data at the declared retail address.
+For switch tables stored in the code section, it uses the compiler's local
+label offsets. The complete comparison includes every jump-table entry.
 The object shows where an address is needed. The locked reference supplies
 the bytes used only in the final equality check.
 
