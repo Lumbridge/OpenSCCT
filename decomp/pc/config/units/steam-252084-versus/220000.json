@@ -1118,6 +1118,328 @@
     }
   },
   {
+    "id": "unsupported-copyfilew",
+    "size": 13,
+    "offset": 2234506,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CopyFileW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220f9d passes this fallback directly to its resolver for CopyFileW. Calls the named SetLastError import with 120 and returns with 12 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "c553145d28d3fd2a048bb7dc66f4af9854b78d14ebaac80955818dfea883d6b5",
+      "inputs_sha256": "d60e4e176e5fa241e823d2b84fb1bfe64520c212db7437e3119fbc332d375682"
+    }
+  },
+  {
+    "id": "unsupported-createdirectoryw",
+    "size": 13,
+    "offset": 2234519,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateDirectoryW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220f09 passes this fallback directly to its resolver for CreateDirectoryW. Calls the named SetLastError import with 120 and returns with 8 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "48244924d4aac3e916bbeb26f0a8674fe670752b9cd2a81f19c62685b5c8d2b6",
+      "inputs_sha256": "70f6b30b4ea6d4fcc1845deda50065fa8c7e9901229548c287128f83e1ff4a6c"
+    }
+  },
+  {
+    "id": "unsupported-createeventw",
+    "size": 14,
+    "offset": 2234532,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateEventW@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x28431b passes this fallback directly to its resolver for CreateEventW. Calls the named SetLastError import with 120 and returns with 16 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "eaab929c1b8044e8d2b0e0d7f3d9f6930047e02d39d631e12acd2e857bb7709c",
+      "inputs_sha256": "d4072010546495926325ff0465ab40a8f179fc187e01953ce1fda28b9d9af65e"
+    }
+  },
+  {
+    "id": "unsupported-createfilew",
+    "size": 14,
+    "offset": 2234546,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateFileW@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x221031 passes this fallback directly to its resolver for CreateFileW. Calls the named SetLastError import with 120 and returns with 28 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "36cbd66dade11a83b23008e53986f8e28b9094cef89d9cc3bc0b44e4117c3802",
+      "inputs_sha256": "fc09766a27cd893ce8e2c4373e967f6e8b37462f7340b91a628c4a31b48365aa"
+    }
+  },
+  {
+    "id": "unsupported-createmutexw",
+    "size": 14,
+    "offset": 2234560,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateMutexW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220e75 passes this fallback directly to its resolver for CreateMutexW. Calls the named SetLastError import with 120 and returns with 12 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "d7c660e4a613cf23357a542b9e8bc6ec420523ff6c4f733a8a769c7e3ce70dab",
+      "inputs_sha256": "98378f239eabd938ef369f9625a1aedbce9d82de26fea5e94e3392b93e0030cd"
+    }
+  },
+  {
+    "id": "unsupported-createprocessw",
+    "size": 13,
+    "offset": 2234574,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateProcessW@40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x2841f3 passes this fallback directly to its resolver for CreateProcessW. Calls the named SetLastError import with 120 and returns with 40 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "467ab18bbc687ad43399b7185997cb536a0d14b739f3172ba12b8a1cf3a90a0f",
+      "inputs_sha256": "a04d51e6db8f6d41a8254fdbddc7190ff90a5088a88eb32cbcefa1ba8aabf264"
+    }
+  },
+  {
+    "id": "unsupported-dispatchmessagew",
+    "size": 13,
+    "offset": 2234587,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_DispatchMessageW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220e50 passes this fallback directly to its resolver for DispatchMessageW. Calls the named SetLastError import with 120 and returns with 4 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "409e135e360c292066077a8ca23e64a7108fb0ced8e35aed608de1355426e4e7",
+      "inputs_sha256": "a09ceb6bda2895539cc527bf3f01b1d7939ddb75c1b6d9d2c90fdc813e56e5e1"
+    }
+  },
+  {
+    "id": "unsupported-findfirstfilew",
+    "size": 14,
+    "offset": 2234600,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_FindFirstFileW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220e9a passes this fallback directly to its resolver for FindFirstFileW. Calls the named SetLastError import with 120 and returns with 8 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "6e53ddb8d4274d22f7e2b42509e43ccb504eecf05296bd2761de1c2043fd5dff",
+      "inputs_sha256": "c87fa741c40524f061d4208c2baf7108e87bce78e5bbcd0aac58c33f5624754d"
+    }
+  },
+  {
+    "id": "unsupported-formatmessagew",
+    "size": 13,
+    "offset": 2234716,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_FormatMessageW@28",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x28413a passes this fallback directly to its resolver for FormatMessageW. Calls the named SetLastError import with 120 and returns with 28 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "3a319861a3da7ae9355bdc4c27464d566ee7ea9424f915a4b3ac953c728c50c9",
+      "inputs_sha256": "151f57246bc325c3f7ef7c384ec0fcb0961c28896c1e21b99a9fcccd8d3b5713"
+    }
+  },
+  {
+    "id": "unsupported-createwindowexw",
+    "size": 13,
+    "offset": 2234826,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateWindowExW@48",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x2845da passes this fallback directly to its resolver for CreateWindowExW. Calls the named SetLastError import with 120 and returns with 48 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "84ae9c9b5120d273a4651521d8e52ccb239afe140b7d75a580995981e413b7f8",
+      "inputs_sha256": "38f2803edca732a8186219617f5005967b5f30639599b7fd02557d8f9a0fed70"
+    }
+  },
+  {
+    "id": "unsupported-createdialogparamw",
+    "size": 13,
+    "offset": 2235003,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_CreateDialogParamW@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220f2e passes this fallback directly to its resolver for CreateDialogParamW. Calls the named SetLastError import with 120 and returns with 20 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "7bba35bd05bfbb215848e65d22cd7e2aa765bff9519f8ebfb7e6b07814850360",
+      "inputs_sha256": "920c7ff060bd0a4b41ae70ab470c1c964c0d7688411c4b90bf2706924eb2de32"
+    }
+  },
+  {
+    "id": "unsupported-globaladdatomw",
+    "size": 14,
+    "offset": 2235016,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_GlobalAddAtomW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x2844d7 passes this fallback directly to its resolver for GlobalAddAtomW. Calls the named SetLastError import with 120 and returns with 4 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "06e5d029fa229b93136708fd7d0c5cb78d4eb413874942c94432c29842269dd8",
+      "inputs_sha256": "5a9048e42911dead2cc4c732c23a27bc5954a9d43ba87e4bcc9f26633ad3f1d7"
+    }
+  },
+  {
+    "id": "unsupported-sendmessagew",
+    "size": 13,
+    "offset": 2235153,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_SendMessageW@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x220ebf passes this fallback directly to its resolver for SendMessageW. Calls the named SetLastError import with 120 and returns with 16 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "4b408c4739e151bfadee5db34370bff1f38b0fc761667fa9707cb2678201dbe0",
+      "inputs_sha256": "0c063599532fc8b65b5fb8c2f255e31a6c5ea8a3e82300125ae7a01091f66f73"
+    }
+  },
+  {
+    "id": "unsupported-shellexecutew",
+    "size": 13,
+    "offset": 2235265,
+    "inputs": [
+      "src/versus_windows_fallbacks.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_unsupported_ShellExecuteW@24",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_fallbacks.obj src/versus_windows_fallbacks.c",
+    "link_bindings": {
+      "__imp__SetLastError@4": {
+        "va": 280883480,
+        "basis": "Named Windows SetLastError import slot."
+      }
+    },
+    "identification": "Windows API dispatch wrapper RVA 0x2210ea passes this fallback directly to its resolver for ShellExecuteW. Calls the named SetLastError import with 120 and returns with 24 bytes of stack arguments.",
+    "match": {
+      "bytes_sha256": "44476a7590fe26e0a394835a4e24a1c7086635221fd3d13c9296051222caf97c",
+      "inputs_sha256": "9903df60c663f02d9776a1d40f2f95fb99f20328d7ffceb3e2720110ec3c1d37"
+    }
+  },
+  {
     "id": "delete-record-2262c0",
     "offset": 2253504,
     "size": 33,
