@@ -78,9 +78,6 @@ public sealed class LobbyRoomModel
         Check(SessionRow.SpyBots, before.SpyBots != after.SpyBots);
         Check(SessionRow.MercBots, before.MercBots != after.MercBots);
         Check(SessionRow.BotSkill, before.BotSkill != after.BotSkill);
-        Check(SessionRow.Sidearms, before.Sidearms != after.Sidearms);
-        Check(SessionRow.Rifles, before.Rifles != after.Rifles);
-        Check(SessionRow.ResponsiveSmoke, before.ResponsiveSmoke != after.ResponsiveSmoke);
         Check(SessionRow.Practice, before.Practice != after.Practice);
         return rows;
     }

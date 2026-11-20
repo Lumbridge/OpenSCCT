@@ -14,7 +14,7 @@ public partial class SGameInfo
     public static string? GunClassOf(SWeapon? weapon) => weapon switch
     {
         MercSidearm pistol => pistol.Definition.Id,
-        SWeaponDefense_Uzi => "smg",
+        SWeaponDefense_Uzi or Svm.CompactSMG => "smg",
         SWeaponDefense_Shotgun => "shotgun",
         SWeaponDefense => "ar",
         _ => null,
@@ -34,6 +34,11 @@ public partial class SGameInfo
 
         spy.PlayerReplicationInfo?.Stats?.AddFeat(FeatKeys.SpyMineKills);
     }
+
+    private static bool IsMagnifiedShot(SWeapon? weapon, SDamageType type) =>
+        weapon is SWeaponDefense { AimRequested: true } aimed
+            ? WeaponAttachments.OpticPower(aimed) > 1f
+            : type == SDamageType.SDTSnipeShot;
 
     /// <summary>Counts one enemy kill's cause for the killer and the victim.</summary>
     private static void CountKillFeats(Controller killer, Controller killed, Pawn? killedPawn, SDamageType type)
@@ -117,7 +122,9 @@ public partial class SGameInfo
             return;
         }
 
-        if (GunClassOf(killedPawn is SBasePawn { LastBulletWeapon: { } damageWeapon } && ReferenceEquals(damageWeapon.Instigator, merc) ? damageWeapon : merc.MyWeapon) is not { } gun)
+        var firearm = killedPawn is SBasePawn { LastBulletWeapon: { } damageWeapon } && ReferenceEquals(damageWeapon.Instigator, merc)
+            ? damageWeapon : merc.MyWeapon;
+        if (GunClassOf(firearm) is not { } gun)
         {
             return;
         }
@@ -130,7 +137,7 @@ public partial class SGameInfo
             ks.AddFeat(FeatKeys.GunHeadshots(gun));
         }
 
-        if (type == SDamageType.SDTSnipeShot)
+        if (IsMagnifiedShot(firearm, type))
         {
             ks.Merc_WeaponSniperKills++;
             ks.AddFeat(FeatKeys.MercSniperKills);
@@ -139,7 +146,7 @@ public partial class SGameInfo
                 vs.Spy_DeathFromWeaponSniper++;
             }
         }
-        else
+        else if (firearm is not SWeaponDefense { AimRequested: true })
         {
             ks.Merc_WeaponHipfireKills++;
             ks.AddFeat(FeatKeys.MercHipfireKills);

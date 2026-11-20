@@ -4,6 +4,8 @@ using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Physics.Collision;
+using OpenScct.Physics.Movement;
+using OpenScct.Physics.Traversal;
 
 namespace OpenScct.Game.AI;
 
@@ -51,11 +53,18 @@ public sealed partial class NavBuilder
     private readonly Dictionary<(int X, int Y), List<int>> _columns = new();
     private readonly List<List<(int To, NavEdgeKind Kind, float Cost, int Link)>> _edges = new();
     private readonly List<NavLink> _links = new();
+    private readonly Pawn _ledgeProbe;
+    private readonly List<GEHit> _ledgeHits = new();
 
     private NavBuilder(ICollisionWorld world, NavProfile profile, FVector min, FVector max)
     {
         _world = world;
         _profile = profile;
+        _ledgeProbe = new NavigationPawn
+        {
+            bIsAPawn = true, bCollideWorld = true, bCollideActors = true, bBlockActors = true, bBlockPlayers = true,
+            CollisionRadius = profile.Radius, CollisionHeight = profile.StandingHeight, CrouchHeight = profile.CrouchHeight,
+        };
         _min = min;
         _max = max;
         _nx = Math.Max(1, (int)((max.X - min.X) / profile.Spacing) + 1);
@@ -537,6 +546,7 @@ public sealed partial class NavBuilder
 
     private void AddLinks(IReadOnlyList<GERecord> ges, byte mask)
     {
+        GEIndex? index = null;
         foreach (GERecord ge in ges)
         {
             if (!ge.IsActive(mask) || ge.Platform == GEPlatform.PS2Only)
@@ -559,7 +569,7 @@ public sealed partial class NavBuilder
             switch (ge.Kind)
             {
                 case GEKind.LG:
-                    AddLedge(ge);
+                    AddLedge(ge, index ??= new GEIndex(ges), mask);
                     AddBarrierHops(ge);
                     break;
                 case GEKind.PIPE:
@@ -578,7 +588,7 @@ public sealed partial class NavBuilder
         }
     }
 
-    private void AddLedge(GERecord ge)
+    private void AddLedge(GERecord ge, GEIndex index, byte mask)
     {
         FVector p0 = ge.P0;
         FVector p1 = ge.P1;
@@ -595,7 +605,7 @@ public sealed partial class NavBuilder
 
         int lastBottom = -1;
         float margin = AiK.LedgeEndMargin + _profile.Radius + 8f;
-        int samples = Math.Max(1, (int)MathF.Ceiling((length - 2f * margin) / 96f) + 1);
+        int samples = Math.Max(1, (int)MathF.Ceiling((length - 2f * margin) / AiK.PawnRadius) + 1);
         for (int i = 0; i < samples; i++)
         {
             float t = samples == 1 ? length * 0.5f : margin + (length - 2f * margin) * (i / (float)(samples - 1));
@@ -643,6 +653,11 @@ public sealed partial class NavBuilder
             {
                 continue;
             }
+
+            // A walkway behind a rail supplies a valid floor node even where the spy cannot get over its lip.
+            FVector hang = at + outward * AiK.LedgeHangReach - new FVector(0f, 0f, AiK.LedgeHangDrop);
+            if (!PhysicsDriver.CanExitLedge(_world, _ledgeProbe, hang, inward, ge, index, mask, _ledgeHits, AiK.LedgeArmsRadius, WorldFlags))
+                continue;
 
             lastBottom = bottom;
             AddLink(new NavLink(NavEdgeKind.LedgeClimb, bottom, topNode, new FVector(approach.X, approach.Y, bz), yaw,

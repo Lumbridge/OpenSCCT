@@ -6,19 +6,28 @@ namespace OpenScct.Net.Cosmetics;
 
 /// <summary>
 /// What a player wears on one side: one item per slot, packed as a byte per <see cref="CosmeticSlot"/> holding the
-/// item's bit + 1 (0 is the retail look). Sent at join as <c>?SvmLook=</c> (hex) and replicated to every client.
+/// item's stable look code (0 is the retail look). Sent at join as <c>?SvmLook=</c> (hex) and replicated to every client.
 /// </summary>
 public readonly record struct CosmeticLook(long Packed, long Extra = 0)
 {
     public static CosmeticLook Default => new(0);
 
     public bool IsDefault => Packed == 0 && Extra == 0;
-    public CosmeticItem? this[CosmeticSlot slot] => CosmeticCatalog.ByBit((int)(((int)slot < 8 ? Packed : Extra) >> (8 * ((int)slot % 8)) & 0xFF) - 1);
+    public CosmeticItem? this[CosmeticSlot slot] =>
+        CosmeticCatalog.ByLookCode(slot, (byte)(((int)slot < 8 ? Packed : Extra) >> (8 * ((int)slot % 8))));
+
+    /// <summary>Approved rifles keep their shared rifle finish until the player equips an individual one.</summary>
+    public CosmeticItem? WeaponItem(string? classPath)
+    {
+        if (CosmeticCatalog.WeaponSlot(classPath) is not { } slot) return null;
+        return this[slot] ?? (slot is >= CosmeticSlot.M4A1S and <= CosmeticSlot.Famas ? this[CosmeticSlot.GunAr] : null);
+    }
 
     public CosmeticLook With(CosmeticSlot slot, CosmeticItem? item)
     {
         int shift = 8 * ((int)slot % 8);
-        long value = item is null ? 0 : item.Bit + 1;
+        if ((int)slot >= 16) throw new ArgumentOutOfRangeException(nameof(slot));
+        long value = CosmeticCatalog.LookCode(slot, item);
         return (int)slot < 8
             ? new CosmeticLook((Packed & ~(0xFFL << shift)) | (value << shift), Extra)
             : new CosmeticLook(Packed, (Extra & ~(0xFFL << shift)) | (value << shift));

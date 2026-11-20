@@ -406,6 +406,14 @@ public partial class SPlayerController
     private int ResolveDamage(SBasePawn victim, int Damage, Pawn? instigatedBy, FVector HitLocation, SDamageType DamageType,
         ref int PillTag)
     {
+        if (DamageType is SDamageType.SDTBase or SDamageType.SDTSnipeShot &&
+            CombatDeathContext.Current.DirectFirearm is Svm.PrecisionRifle rifle && ReferenceEquals(rifle.Instigator, instigatedBy))
+        {
+            if (!CombatRules.IsRealPill(PillTag))
+                PillTag = (int)CombatRules.ApproxPill(victim.Location, victim.Rotation, victim.CollisionHeight, HitLocation) + 1;
+            return PillTag == 1 ? rifle.Definition.HeadDamage : rifle.Definition.Damage;
+        }
+
         if ((PillTag <= 0 || PillTag > K.LastPill) && DamageType != SDamageType.SDTStickyShocker)
         {
             PillTag = (int)CombatRules.ApproxPill(victim.Location, victim.Rotation, victim.CollisionHeight, HitLocation) + 1;

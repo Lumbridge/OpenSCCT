@@ -968,7 +968,7 @@ public static class CombatActionAnimation
         return weapon switch
         {
             SWeaponDefense_Shotgun or SWeaponDefenseDummy_Shotgun => new Name("ReloStSpFd2S"),
-            SWeaponDefense_Uzi or SWeaponDefenseDummy_Uzi => new Name("ReloStSpFd2SU"),
+            SWeaponDefense_Uzi or SWeaponDefenseDummy_Uzi or Svm.CompactSMG or Svm.CompactSMGDummy => new Name("ReloStSpFd2SU"),
             _ => new Name("ReloStSpFd2"),
         };
     }

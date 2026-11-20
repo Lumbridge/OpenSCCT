@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 
 namespace OpenScct.Game.AI;
@@ -45,6 +46,9 @@ public sealed class AiController
     private float _crouchAt = -10f;
     private float _lastTick = -1f;
     private int _lastHealth;
+    private float _stillOnLedgeSince = -1f;
+    private FVector _ledgePosition;
+    private bool _attemptedLedgeExit;
     private SBasePawn? _pawn;
 
     public AiController(AiWorld world, SPlayerController controller, AiDifficulty difficulty, int index)
@@ -238,6 +242,7 @@ public sealed class AiController
         {
             TeamPlay.CancelOrder(now);
             _pawn = pawn;
+            _stillOnLedgeSince = -1f;
             EnsureGoggle(pawn);
             _lastHealth = pawn.Health;
             Memory.Clear();
@@ -307,10 +312,36 @@ public sealed class AiController
             ScopeKey(now, ref plan, !_teamHeld && Brain is MercAi merc && merc.WantsScope(now));
         }
 
+        RecoverFromIdleHang(pawn, now, ref plan);
         AiInput input = Turn(plan, dt);
         Stance(pawn, ref input, plan.Crouched, now);
         Apply(input);
         GoggleClip(now);
+    }
+
+    private void RecoverFromIdleHang(SBasePawn pawn, float now, ref AiPlan plan)
+    {
+        // Combat and team orders can take over before the follower gets to steer an accidental grab.
+        if (pawn.Physics != EPhysics.PHYS_Ledge || !Controller.IsInState(MovementStateNames.OnLedge) ||
+            TeamPlay.Goal is TeamGoal.OfferBoost or TeamGoal.ClimbHoist or TeamGoal.ClimbBoost)
+        {
+            _stillOnLedgeSince = -1f;
+            return;
+        }
+        if (_stillOnLedgeSince < 0f || (pawn.Location - _ledgePosition).SizeSquared() > 20f * 20f)
+        {
+            _stillOnLedgeSince = now;
+            _ledgePosition = pawn.Location;
+            _attemptedLedgeExit = false;
+        }
+        if (now - _stillOnLedgeSince < 2.5f) return;
+
+        // Try the ordinary forward input once. If the top is blocked (or a prior order still failed), let go.
+        bool canClimb = !_attemptedLedgeExit && Controller.TestTopLedge(false) != 0;
+        _attemptedLedgeExit = true;
+        plan = new AiPlan { Tolerance = 65536 };
+        if (canClimb) plan.Keys.BT_Up = 1;
+        else plan.Keys.BT_Down = 1;
     }
 
     private float _scopeKeyAt = -10f;
@@ -321,6 +352,11 @@ public sealed class AiController
     /// </summary>
     private void ScopeKey(float now, ref AiPlan plan, bool wanted)
     {
+        if (Controller.SBPawn?.MyWeapon is Svm.PrecisionRifle rifle)
+        {
+            if (rifle.AimRequested != wanted) rifle.SetAiming(Controller, wanted);
+            return;
+        }
         if (Controller.bBinocularVision == wanted || now - _scopeKeyAt < 0.5f)
         {
             return;
@@ -333,6 +369,8 @@ public sealed class AiController
     /// <summary>How much larger the screen shows the scene than the default view: 1, or the scope's magnification.</summary>
     private float Zoom()
     {
+        if (Controller.SBPawn?.MyWeapon is Svm.PrecisionRifle { AimRequested: true } rifle)
+            return Equipment.WeaponAttachments.OpticPower(rifle);
         float fov = Controller.FovAngle;
         float normal = Controller.DefaultFOV;
         return fov > 1f && fov < normal - 1f

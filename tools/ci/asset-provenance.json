@@ -1705,6 +1705,210 @@
     "src/openscct.launcher/branding/operation.jpg": {
       "bytes": 125055,
       "sha256": "a4a61c159fb4372f97e73bb84ab243c5f2b84013c9128cf623811c00ba8582c8"
+    },
+    "content/assets/rifles/export/boltrifle.glb": {
+      "bytes": 294436,
+      "sha256": "6e1718f45e52ec653796791f8c33fceab0ee9bd54c144057d514206e90dd67ef"
+    },
+    "content/assets/rifles/export/boltrifle_first.glb": {
+      "bytes": 6577892,
+      "sha256": "e7c76989491fb892997e0ea3f8da0126236fa939781e88173be7fd2a7e4e93bd"
+    },
+    "content/assets/rifles/export/compactsmg.glb": {
+      "bytes": 321268,
+      "sha256": "95f25db7d06077874620304535ddd268134620f6bce03f02a684a50ee0e7abf4"
+    },
+    "content/assets/rifles/export/compactsmg_first.glb": {
+      "bytes": 6579412,
+      "sha256": "dbffd7075d631faff5c3ff559e4f0fe5bb63a14b23c06aa3a985f2f9dc46818c"
+    },
+    "content/assets/rifles/export/designatedmarksman.glb": {
+      "bytes": 133792,
+      "sha256": "c150e3f3e12728c04368731ef86662670272be5c8892c07b55d87d3df3bb4f60"
+    },
+    "content/assets/rifles/export/designatedmarksman_first.glb": {
+      "bytes": 6380272,
+      "sha256": "8f5b18c2c0925da97835dd731a3ea0c4fad612331bd4a368863d1ce967814317"
+    },
+    "content/assets/rifles/export/pumpshotgun.glb": {
+      "bytes": 1189320,
+      "sha256": "38b3c557a4abe46897714f6a812243169b8de63581bee662067a266e776eedcc"
+    },
+    "content/assets/rifles/export/pumpshotgun_first.glb": {
+      "bytes": 7615252,
+      "sha256": "ecb59fca0e7fabd574c510a39c162b580b3ab0c545cf381514a0dea63a80caf2"
+    },
+    "content/assets/rifles/export/textures/boltrifle_icon.png": {
+      "bytes": 143834,
+      "sha256": "7271eed28ab6c738e03e87e12b8b7951c614b05f2e1489e57701c0992556d302"
+    },
+    "content/assets/rifles/export/textures/compactsmg_icon.png": {
+      "bytes": 210169,
+      "sha256": "183db3478a8f56e4900976b8db4cd91d8198296516296f718dd56645340e7e4b"
+    },
+    "content/assets/rifles/export/textures/designatedmarksman_icon.png": {
+      "bytes": 134662,
+      "sha256": "acb5aefc66be1ba55b52a082e6f7d9ff8855b3df8d0d39967a8376c16b44ab85"
+    },
+    "content/assets/rifles/export/textures/enfield_color.jpg": {
+      "bytes": 1118303,
+      "sha256": "aec2283c2bb8024569f6986b47bde684878f2d1275b630c7e7b209c2c2305a66"
+    },
+    "content/assets/rifles/export/textures/enfield_normal.png": {
+      "bytes": 3858756,
+      "sha256": "99d1ebf080ca9a43c1aadec0c4037a52891c8d160b6f7157096413768affe391"
+    },
+    "content/assets/rifles/export/textures/enfield_orm.png": {
+      "bytes": 793506,
+      "sha256": "b521b65f0170ff966d33a475fa895b3f3aef89219d27efc51091857a02b7c7a3"
+    },
+    "content/assets/rifles/export/textures/finishgripcolor.jpg": {
+      "bytes": 88962,
+      "sha256": "2b2c27a2f1bc1e5a0dda1a7f47ce10b4491f6dd462b159f11c3a8fb007a63fb1"
+    },
+    "content/assets/rifles/export/textures/finishgripnormal.png": {
+      "bytes": 1101149,
+      "sha256": "5738f65e001c6a3d63c20b9fd3b053a4e215c820653ad064887338036de36527"
+    },
+    "content/assets/rifles/export/textures/finishgriporm.png": {
+      "bytes": 396981,
+      "sha256": "b0fd0b8fbfb1671c1abe234a7c79bdcb00f961bef4e03c9b404646b54e253883"
+    },
+    "content/assets/rifles/export/textures/finishparkerizedcolor.jpg": {
+      "bytes": 79397,
+      "sha256": "f60ef34970517d95843be660ae8bb35177495cdae5e27e490984e41dfb9f7af4"
+    },
+    "content/assets/rifles/export/textures/finishparkerizednormal.png": {
+      "bytes": 1073504,
+      "sha256": "3d3f9238ebd32681a29fffcfddd9513c9265097c38d850f2fa058e7a2926754f"
+    },
+    "content/assets/rifles/export/textures/finishparkerizedorm.png": {
+      "bytes": 398499,
+      "sha256": "27796e66fa63f2b4cdd0dda24649754c5124f78e3b61ded70c6872cf22e21f70"
+    },
+    "content/assets/rifles/export/textures/finishpolymercolor.jpg": {
+      "bytes": 83332,
+      "sha256": "36c39f2ed9123b1790bfdd586ea6888faee26a9d2db61782d3afd2e18f097c9a"
+    },
+    "content/assets/rifles/export/textures/finishpolymernormal.png": {
+      "bytes": 1102273,
+      "sha256": "4f6f15ba0d395e086e8eee43829113833fcac68d5990777d18caf864d7d2d24b"
+    },
+    "content/assets/rifles/export/textures/finishpolymerorm.png": {
+      "bytes": 407076,
+      "sha256": "75e51ce16fa49b164b89d6dfe6678a6d7d86a8165219c594ce96c5c75df901b1"
+    },
+    "content/assets/rifles/export/textures/finishreceivercolor.jpg": {
+      "bytes": 84845,
+      "sha256": "abea3ebe7bf135631b0681c940f9931d31905e20084050a96935e160bae029a0"
+    },
+    "content/assets/rifles/export/textures/finishreceivernormal.png": {
+      "bytes": 1095459,
+      "sha256": "688bf7bc85d3f0c72345057ad3e9adf45bf6e9663c5425222dff44cca684dd96"
+    },
+    "content/assets/rifles/export/textures/finishreceiverorm.png": {
+      "bytes": 391437,
+      "sha256": "d048021b961c32aaf5ec7cd07d0753117d541c56d6a2a32783e198ae35073a97"
+    },
+    "content/assets/rifles/export/textures/finishshellbrasscolor.jpg": {
+      "bytes": 79114,
+      "sha256": "b4958d7ca6a1d7d35f77f3e08508b9c0e7e6e16f5dc22490c0a0ac7236bb1ced"
+    },
+    "content/assets/rifles/export/textures/finishshellbrassnormal.png": {
+      "bytes": 1073372,
+      "sha256": "0d21de7ffa3871936f0daf810ffe8d33198e952538c0221b4b1fc1dbc7732daa"
+    },
+    "content/assets/rifles/export/textures/finishshellbrassorm.png": {
+      "bytes": 396429,
+      "sha256": "53335b1bc3a320b51aa556ca84ac229e49b0744ed9260efb3886a28582f89c24"
+    },
+    "content/assets/rifles/export/textures/finishshellredcolor.jpg": {
+      "bytes": 78329,
+      "sha256": "2342a04b7e84150166b5f20bd10624945fcaaf896c1e4665bc577ace8af6a052"
+    },
+    "content/assets/rifles/export/textures/finishshellrednormal.png": {
+      "bytes": 1069735,
+      "sha256": "e7615ec5ece9b17699df581f5b0caae2b19edfa38371283cea702cf63e305161"
+    },
+    "content/assets/rifles/export/textures/finishshellredorm.png": {
+      "bytes": 394168,
+      "sha256": "d728a41e8eb591c4932a53b5d628d0ef05b488f2f7a73d6bf42540108335dda0"
+    },
+    "content/assets/rifles/export/textures/finishwalnutcolor.jpg": {
+      "bytes": 91823,
+      "sha256": "e1a17acb3bb3a480bfac64aa242ce9d30a5ae9252d046936edd9b482997570b2"
+    },
+    "content/assets/rifles/export/textures/finishwalnutnormal.png": {
+      "bytes": 1110568,
+      "sha256": "ccfdbd60590cd6e5f36bd2b0e94cbfd204742c145882a46b227e6696ed82d5b6"
+    },
+    "content/assets/rifles/export/textures/finishwalnutorm.png": {
+      "bytes": 379301,
+      "sha256": "397ee908c32fd0695a3dcadc73ef01a9f9fad28b4217ac5f96c7f3b5cdec8571"
+    },
+    "content/assets/rifles/export/textures/pumpshotgun_icon.png": {
+      "bytes": 29365,
+      "sha256": "e8437ec5ff40fd3a2bf654f288a3bb89aa8c0df9e826b554f4adb3a357e7471e"
+    },
+    "content/assets/rifles/export/textures/scorpion_color.jpg": {
+      "bytes": 943193,
+      "sha256": "615c6599a874a5f212a243f44b36660eed56bd8b7ac22a1e636d0a61ab3c6015"
+    },
+    "content/assets/rifles/export/textures/scorpion_normal.png": {
+      "bytes": 2428178,
+      "sha256": "b68f0187f1b435486b7453cf97d45e50db14922f1eb3e246954a547df5c080b7"
+    },
+    "content/assets/rifles/export/textures/scorpion_orm.png": {
+      "bytes": 1027259,
+      "sha256": "2e652eda54d1b15370c474de1a43a1bb4723f78832b036a06b1b31367b5984af"
+    },
+    "content/assets/rifles/export/textures/spas12barrelcolor.jpg": {
+      "bytes": 194939,
+      "sha256": "059a4c1ea4e822d8f9f7cf8c9e6255d1b28ba38b240251006305446062522fec"
+    },
+    "content/assets/rifles/export/textures/spas12barrelnormal.png": {
+      "bytes": 989355,
+      "sha256": "23814513e7de9c9e469a0cee3c0f3acdead849fc42037027026d665e959d5325"
+    },
+    "content/assets/rifles/export/textures/spas12barrelorm.png": {
+      "bytes": 942790,
+      "sha256": "b3412d3a4dda2cc7efb1b19f16c97e91843d05e0c048f15ad19a4c88dedd045a"
+    },
+    "content/assets/rifles/export/textures/spas12hardwarecolor.jpg": {
+      "bytes": 197388,
+      "sha256": "bb0f32b1e4fa904cdd9699237b6d4f348ac1fb262fdf1fab1b4141930eb04a9d"
+    },
+    "content/assets/rifles/export/textures/spas12hardwarenormal.png": {
+      "bytes": 917270,
+      "sha256": "a3179045ec1d321d7c45a1bff59d735f1e9a1433877142570f5d2e40597da73c"
+    },
+    "content/assets/rifles/export/textures/spas12hardwareorm.png": {
+      "bytes": 978408,
+      "sha256": "f171a1ad5adc6761598c611f99137e5182ff06f4c4eaf218e0a61093de6d8824"
+    },
+    "content/assets/rifles/export/textures/spas12receivercolor.jpg": {
+      "bytes": 177765,
+      "sha256": "ccff729d2e8a2246c2e8748e65a87e65334009773401e4ffc0eba79e4cb28b42"
+    },
+    "content/assets/rifles/export/textures/spas12receivernormal.png": {
+      "bytes": 879184,
+      "sha256": "71d8aec2fbf030b7d3bdeede8f62dc8f4baaa78b092d96ed44d2644f71f16b72"
+    },
+    "content/assets/rifles/export/textures/spas12receiverorm.png": {
+      "bytes": 780123,
+      "sha256": "308c4e93bd10f8d9e15dbf6dcd048be10223635f5ed374cab72f02b707ec5720"
+    },
+    "content/assets/rifles/export/textures/spas12stockcolor.jpg": {
+      "bytes": 243118,
+      "sha256": "3812eeb2d091c987602a240ed349b5ba6f92b3f77e56a8dfd64903b3e2090de4"
+    },
+    "content/assets/rifles/export/textures/spas12stocknormal.png": {
+      "bytes": 830950,
+      "sha256": "c867f37333d297534c4f0ed3ee2487725976b777a5a0e830c06fb7d4b159f4a2"
+    },
+    "content/assets/rifles/export/textures/spas12stockorm.png": {
+      "bytes": 761327,
+      "sha256": "d11e4846458de33aa8a6b42e05e80f4fce9ebce6f73712061a94aedd31ebe688"
     }
   },
   "additional_credits": [

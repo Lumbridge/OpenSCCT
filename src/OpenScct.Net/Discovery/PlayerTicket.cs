@@ -33,7 +33,7 @@ public sealed record PlayerTicket
 
     private const int MaxServerIdBytes = 32;
     private const int MaxNameBytes = 48;
-    private const int MaxUnlockBytes = 64;
+    internal const int MaxUnlockBytes = 64;
     private const int MaxTitleBytes = 32;
 
     public long AccountId { get; init; }
@@ -63,6 +63,9 @@ public sealed record PlayerTicket
 
     /// <summary>The titles the account has unlocked, as a bit set by title bit (OpenScct.Net.Cosmetics.TitleCatalog).</summary>
     public byte[] Titles { get; init; } = [];
+
+    /// <summary>Authoritative career totals, in WeaponCareerCounters order. Absent on older tickets.</summary>
+    public int[] WeaponKills { get; init; } = [];
 
     /// <summary>The ticket's text, signed with the master's private key.</summary>
     public string Sign(ECDsa key)
@@ -168,7 +171,9 @@ public sealed record PlayerTicket
             throw new InvalidOperationException("Ticket server id, name or unlocks too long.");
         }
 
-        byte[] data = new byte[1 + 1 + 8 + 8 + 8 + 1 + server.Length + 1 + name.Length + 1 + Unlocks.Length + 4 + 1 + Titles.Length];
+        if (WeaponKills.Length > byte.MaxValue) throw new InvalidOperationException("Too many weapon counts.");
+        int extra = WeaponKills.Length == 0 ? 0 : 1 + WeaponKills.Length * sizeof(int);
+        byte[] data = new byte[1 + 1 + 8 + 8 + 8 + 1 + server.Length + 1 + name.Length + 1 + Unlocks.Length + 4 + 1 + Titles.Length + extra];
         int at = 0;
         data[at++] = FormatVersion;
         data[at++] = (byte)Flags;
@@ -192,6 +197,15 @@ public sealed record PlayerTicket
         data[at++] = (byte)Titles.Length;
         Titles.CopyTo(data, at);
         at += Titles.Length;
+        if (extra > 0)
+        {
+            data[at++] = (byte)WeaponKills.Length;
+            foreach (int kills in WeaponKills)
+            {
+                BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(at), Math.Max(0, kills));
+                at += sizeof(int);
+            }
+        }
         return data;
     }
 
@@ -232,6 +246,7 @@ public sealed record PlayerTicket
         byte[] unlocks = [];
         int rank = 0;
         byte[] titles = [];
+        int[] weaponKills = [];
         if (hasUnlocks)
         {
             // Bytes after the unlocks are fields a newer master added; this reader skips them, so the master can add
@@ -255,6 +270,14 @@ public sealed record PlayerTicket
                 {
                     titles = data.AsSpan(at, titleLength).ToArray();
                     at += titleLength;
+                    if (at < data.Length)
+                    {
+                        int count = data[at++];
+                        if (at + count * sizeof(int) > data.Length) return false;
+                        weaponKills = new int[count];
+                        for (int i = 0; i < count; i++, at += sizeof(int))
+                            weaponKills[i] = Math.Max(0, BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(at)));
+                    }
                 }
             }
         }
@@ -262,7 +285,7 @@ public sealed record PlayerTicket
         ticket = new PlayerTicket
         {
             AccountId = account, Name = name, ServerId = server, Expires = DateTimeOffset.FromUnixTimeSeconds(expires), TicketId = id,
-            Flags = flags, Unlocks = unlocks, Rank = rank, Titles = titles,
+            Flags = flags, Unlocks = unlocks, Rank = rank, Titles = titles, WeaponKills = weaponKills,
         };
         return true;
     }

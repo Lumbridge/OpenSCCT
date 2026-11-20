@@ -27,14 +27,24 @@ public static class SidearmNet
         registry.Register<MercSidearmDummy>(dummy);
         for (int i = 0; i < registry.Count; i++)
         {
-            if (!typeof(SWeaponDefense).IsAssignableFrom(registry.Classes[i].Type)) continue;
+            var weaponType = registry.Classes[i].Type;
+            if (!typeof(SWeaponDefense).IsAssignableFrom(weaponType)) continue;
             var ammo = new RepExtension();
+            ammo.Properties.Add(new("WeaponAttachmentMask", nameof(SWeaponDefense.AttachmentMask), RepLeafKind.Int));
+            // Keep the original bolt-action channel layout for older recordings of its adjustable magazine.
+            if (WeaponAttachments.SupportsExtendedMagazine(weaponType) || weaponType == typeof(Game.Svm.BoltRifle))
+            {
+                ammo.Properties.Add(new("MagazineCapacity", nameof(SWeaponDefense.ClipMaxAmmo), RepLeafKind.Int));
+                ammo.Properties.Add(new("AmmoCapacity", nameof(SWeaponDefense.MaxAmmo), RepLeafKind.Int));
+            }
             ammo.Properties.Add(new("CarriedDummy", nameof(SWeaponDefense.Dummy), RepLeafKind.Object));
             ammo.Properties.Add(new("CarriedClip", nameof(SWeaponDefense.CarriedClip), RepLeafKind.Int));
             ammo.Properties.Add(new("CarriedAmmo", nameof(SWeaponDefense.CarriedAmmo), RepLeafKind.Int));
             ammo.Properties.Add(new("CarriedShot", nameof(SWeaponDefense.CarriedShot), RepLeafKind.Int));
             ammo.Properties.Add(new("CarriedAmmoRevision", nameof(SWeaponDefense.CarriedAmmoRevision), RepLeafKind.Int));
-            registry.Extend(registry.Classes[i].Type, ammo);
+            if (weaponType == typeof(MercSidearm))
+                ammo.Properties.Add(new(nameof(MercSidearm.AimRequested), nameof(MercSidearm.AimRequested), RepLeafKind.Bool));
+            registry.Extend(weaponType, ammo);
         }
     }
 
@@ -47,6 +57,7 @@ public static class SidearmNet
         ext.Properties.Add(new("PrimaryWeapon", nameof(SBasePawn.PrimaryWeapon), RepLeafKind.Object, PrimaryWeaponVisible));
         ext.Properties.Add(new("SidearmWeapon", nameof(SBasePawn.SidearmWeapon), RepLeafKind.Object));
         ext.Properties.Add(new("ActiveWeaponSlot", nameof(SBasePawn.ActiveWeaponSlot), RepLeafKind.Int));
+        ext.Properties.Add(new("PrimaryAttachmentMask", nameof(SBasePawn.PrimaryAttachmentMask), RepLeafKind.Int));
         ext.Properties.Add(new("WeaponSwitching", nameof(SBasePawn.WeaponSwitching), RepLeafKind.Bool));
         return ext;
     }

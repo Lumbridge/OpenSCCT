@@ -123,9 +123,10 @@ public sealed class ViewModelPose
 
             _sequence[c] = sequence;
             _remaining[c] = remaining;
+            bool backward = anim.IsBackward(c);
+            if (sequence == ViewModelClips.FirstDrawStEd2)
+                ViewModelClips.ResolveDrawDirection(ref sequence, ref backward, sampler.Has("FirstHolsterStFd2"));
             string clipName = sequence.ToString();
-            bool authoredHolster = anim.IsBackward(c) && sequence == ViewModelClips.FirstDrawStEd2 && sampler.Has("FirstHolsterStFd2");
-            if (authoredHolster) clipName = "FirstHolsterStFd2";
             if (sequence.IsNone || sampler.Find(clipName) is not { } clip)
             {
                 continue;
@@ -161,7 +162,7 @@ public sealed class ViewModelPose
                 frame = Math.Clamp(progress, 0f, 1f) * last;
             }
 
-            float clipFrame = anim.IsBackward(c) && !authoredHolster ? MathF.Max(0f, last - frame) : frame;
+            float clipFrame = backward ? MathF.Max(0f, last - frame) : frame;
             _channels[c] = new ChannelPose
             {
                 Clip = clip,

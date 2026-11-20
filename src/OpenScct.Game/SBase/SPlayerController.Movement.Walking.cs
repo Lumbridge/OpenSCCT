@@ -168,13 +168,17 @@ public partial class SPlayerController
         }
 
         // Apply ADS after the analog-input dead zone: a slow walking request must remain usable.
-        if (pawn.MyWeapon is Svm.MercRifle { AimRequested: true }) pawn.GroundSpeed *= Svm.MercRifle.AimSpeedScale;
+        pawn.GroundSpeed *= WeaponGroundSpeedScale(pawn);
 
         if (pawn.GroundSpeed == 0f)
         {
             newAccel = default;
         }
     }
+
+    public static float WeaponGroundSpeedScale(SBasePawn? pawn) =>
+        pawn is { Physics: EPhysics.PHYS_Walking, MyWeapon: SWeaponDefense { AimRequested: true } weapon } &&
+        weapon is Svm.MercRifle or MercSidearm ? Svm.MercRifle.AimSpeedScale : 1f;
 
     /// <summary>The ceiling probe: a (35, 35, 50) box traced 20 up from the pawn hits something.</summary>
     public bool CeilingAbove(SBasePawn pawn) =>

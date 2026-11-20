@@ -2,6 +2,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using Xunit;
 
 namespace OpenScct.Game.Tests.Combat;
@@ -63,6 +64,30 @@ public sealed class DamageTests
         Assert.True(near.Z > 0f);
     }
 
+    [Theory]
+    [InlineData(true, 21, 5)]
+    [InlineData(false, 17, 6)]
+    public void M4TorsoShotsAtTenMetresDefeatAFullHealthSpy(bool beforeRebalance, int perHit, int shots)
+    {
+        var scene = new CombatScene(ENetMode.NM_ListenServer);
+        var (spyPc, spy) = scene.Player(true, new FVector(1000, 0, 100));
+        var (_, merc) = scene.Player(false, new FVector(0, 0, 100));
+        var rifle = scene.Give(new OpenScct.Game.Svm.M4A1S(), merc);
+        rifle.GiveTo(merc);
+        if (beforeRebalance) rifle.BaseDamage = 17;
+        scene.Run(1);
+        Assert.Equal(100, spy.Health);
+        int damage = OpenScct.Game.Equipment.WeaponRules.DistanceDamage(rifle, FVector.Dist(merc.Location, spy.Location));
+        for (int i = 0; i < shots; i++)
+        {
+            Assert.True(spy.Health > 0);
+            // Pill 2 spans spine to pelvis and uses the normal torso multiplier.
+            spyPc.PawnTakeDamage(damage, merc, spy.Location, default, rifle.MyDamageType, 2, rifle.PercentDamageRefillable);
+            Assert.Equal(perHit, spyPc.LastDamages[0].Damage);
+        }
+        Assert.True(spy.Health <= 0);
+    }
+
     [Fact]
     public void RifleHitOnTheHeadPillDealsTripleDamageToASpy()
     {
@@ -73,6 +98,34 @@ public sealed class DamageTests
         int before = spy.Health;
         spyPc.PawnTakeDamage(25, merc, spy.Location, new FVector(-1f, 0f, 0f), SDamageType.SDTBase, 1, 70);
         Assert.Equal(before - 75, spy.Health);
+    }
+
+    [Theory]
+    [InlineData(typeof(M4A1S), 1000f, 17)]
+    [InlineData(typeof(M4A1S), 6000f, 13)]
+    [InlineData(typeof(Famas), 1000f, 17)]
+    [InlineData(typeof(Famas), 6000f, 15)]
+    [InlineData(typeof(Galil), 1000f, 18)]
+    [InlineData(typeof(Galil), 6000f, 16)]
+    public void RecoilRecoveryRifleHitAppliesTheWeaponRangeFalloffOnTheServer(System.Type type, float range, int damage)
+    {
+        var scene = new CombatScene(ENetMode.NM_ListenServer);
+        var (pc, merc) = scene.Player(false, new FVector(0, 0, 100));
+        var rifle = scene.Give((MercRifle)System.Activator.CreateInstance(type)!, merc);
+        rifle.GiveTo(merc);
+        merc.WeaponLoaded = 2;
+        scene.Run(1);
+        pc.GotoState(new Name("s_PlayerWalkingSt2H"));
+        var (spyPc, spy) = scene.Player(true, new FVector(range, 0, 100));
+        rifle.MinDispersion = rifle.MaxDispersion = 0;
+        var (start, end) = rifle.AimRay(pc.MyDesiredRotation);
+        spy.SetLocation(start + (end - start).SafeNormal() * range - new FVector(0, 0, spy.CollisionHeight * .27f));
+        Assert.Equal(14, rifle.BaseDamage);
+        pc.bFire = 1;
+        pc.eventFire(1f);
+        Assert.Same(rifle, spy.LastBulletWeapon);
+        Assert.Equal(damage, spyPc.LastDamages[0].Damage);
+        Assert.Equal(100 - damage, spy.Health);
     }
 
     [Fact]

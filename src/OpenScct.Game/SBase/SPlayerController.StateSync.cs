@@ -84,9 +84,17 @@ public partial class SPlayerController
             PreviousState = StateNode.Name;
         }
 
+        bool leavingLadder = StateNode is s_LadderBase;
         EGotoState result = base.GotoState(NewState, Label);
         if (result == EGotoState.GOTOSTATE_Success)
         {
+            if (leavingLadder && StateNode is (s_PlayerWalkingSt2H or s_PlayerWalkingCr2H or s_PlayerJump) &&
+                SBPawn is SPAWNDEFENSE { MyWeapon: SWeaponDefense rifle } merc)
+            {
+                // A mirrored dismount or a clip without a draw notify can leave the equipped rifle holstered.
+                if (bBehindView || bFirstPersonWithPawn) MercLadderCameraOff();
+                if (merc.WeaponLoaded == 0 || !rifle.bDrawWeapon) rifle.RestoreAfterBodyMove(merc);
+            }
             ResetGasActivityAfterStateChange(NewState);
             ReloadedStateEntered(NewState);
         }

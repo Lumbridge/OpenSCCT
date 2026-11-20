@@ -38,7 +38,7 @@ public partial class SWeaponDefense
 
     /// <summary>
     /// The start of a reload: the sound, the reload clip, the third-person action (the shotgun passes its shell
-    /// count's, or -1 for none), no reticle or laser, the message. <paramref name="ClearFlash"/> also stops the
+    /// count's, or -1 for none), hides the reticle and posts the message. <paramref name="ClearFlash"/> also stops the
     /// low-ammo flash.
     /// </summary>
     private protected void ReloadBegin(float MessageTime, int Action = SBasePawn.SA_RELOAD, bool ClearFlash = true)
@@ -47,7 +47,8 @@ public partial class SWeaponDefense
         ViewAnim.SetAlpha(ACTIONCHANNEL, 1f);
         var clip = ViewModelClips.DataOf(AFirstReloSt);
         float rate = this is Svm.MercRifle rifle ? clip.Seconds(1f) / rifle.Definition.ReloadSeconds : 1f;
-        ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, clip, rate);
+        ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, clip, rate,
+            Duration: this is Svm.M4A1S or Svm.CompactSMG or Svm.PrecisionRifle ? AuthoritativeReloadSeconds() : 0f);
         if (Action >= 0 && Instigator is SBasePawn pawn)
         {
             CombatServices.Ports(this).ChangeEnumAction(pawn, Action, false);
@@ -56,7 +57,6 @@ public partial class SWeaponDefense
         if (OwnerPC is { } pc)
         {
             pc.bNoReticule = true;
-            pc.EteintLaser();
             if (ClearFlash && pc.myHUD is SHud hud)
             {
                 hud.bReticuleFlash = false;
@@ -79,7 +79,7 @@ public partial class SWeaponDefense
         if (Channel == ACTIONCHANNEL)
         {
             ViewAnim.SetAlpha(ACTIONCHANNEL, 0f);
-            GotoState(FireHeld ? CNAME_s_Firing : CNAME_s_Selected);
+            GotoState(FireHeld && !RequiresTriggerRelease ? CNAME_s_Firing : CNAME_s_Selected);
         }
 
         AnimEnd(Channel);
@@ -93,7 +93,6 @@ public partial class SWeaponDefense
         if (OwnerPC is { } pc)
         {
             pc.bNoReticule = false;
-            pc.RallumeLaserEteint();
         }
     }
 
@@ -513,6 +512,7 @@ public partial class SWeaponDefense
                 if (w.ViewAnim.IsBackward(MVTCHANNEL))
                 {
                     w.GotoState(CNAME_s_Selected);
+                    w.AnimEnd(Channel);
                 }
                 else
                 {
@@ -555,7 +555,7 @@ public partial class SWeaponDefense
             if (Channel == MVTCHANNEL && w.ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstDrawStEd2 &&
                 w.ViewAnim.IsBackward(MVTCHANNEL))
             {
-                w.GotoState(CNAME_s_Selected);
+                base.AnimEnd(self, Channel);
                 return;
             }
 

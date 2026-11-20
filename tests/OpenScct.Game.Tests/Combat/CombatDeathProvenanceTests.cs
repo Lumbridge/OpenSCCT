@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Linq;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
+using OpenScct.Game.Devices;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Game;
 using Xunit;
@@ -313,16 +316,58 @@ public sealed class CombatDeathProvenanceTests
     }
 
     [Theory]
+    [MemberData(nameof(MasteryShots))]
+    public void ActualFatalTraceCreditsOnlyItsExactGunAndSight(PrimaryMasteryWeapon weapon, bool head, int optic, bool aim)
+    {
+        var (world, spy, merc) = Match();
+        spy.Pawn!.SetLocation(new FVector(100, 0, 100));
+        merc.Pawn!.SetLocation(new FVector(0, 0, 100));
+        world.Level.SetService<IHitZones>(new HitPawn((SBasePawn)spy.Pawn, head ? 1 : 2));
+        spy.Pawn.Health = 1;
+        var gun = Assert.IsAssignableFrom<SWeaponDefense>(DeviceClasses.Spawn(merc.Pawn, new(weapon.ClassPath), merc.Pawn, default, merc.Pawn.Location, default));
+        gun.GiveTo(merc.Pawn);
+        WeaponAttachments.Apply(gun, optic);
+        gun.GotoState("s_Selected");
+        gun.SetAiming(merc, aim);
+        Assert.Equal(aim, gun.AimRequested);
+        gun.TraceFire(0, 0, 0);
+        var stats = merc.PlayerReplicationInfo!.Stats!;
+        foreach (var primary in MercPrimaryMastery.All)
+        {
+            Assert.Equal(primary == weapon ? 1 : 0, stats.Feats.GetValueOrDefault(FeatKeys.GunKills(primary.Id)));
+            Assert.Equal(primary == weapon && head ? 1 : 0, stats.Feats.GetValueOrDefault(FeatKeys.GunHeadshots(primary.Id)));
+        }
+        Assert.Equal(1, stats.Feats[FeatKeys.GunKills(weapon.Family)]);
+        Assert.Equal(head ? 1 : 0, stats.Feats.GetValueOrDefault(FeatKeys.GunHeadshots(weapon.Family)));
+        Assert.Equal(aim && WeaponAttachments.OpticPower(gun) > 1f ? 1 : 0, stats.Feats.GetValueOrDefault(FeatKeys.MercSniperKills));
+        Assert.Equal(aim && head && WeaponAttachments.OpticPower(gun) > 1f ? 1 : 0, stats.Merc_SniperHeadshots);
+        Assert.Equal(aim ? 0 : 1, stats.Feats.GetValueOrDefault(FeatKeys.MercHipfireKills));
+    }
+
+    public static IEnumerable<object[]> MasteryShots()
+    {
+        foreach (var primary in MercPrimaryMastery.All)
+        {
+            yield return [primary, false, 0, false];
+            yield return [primary, true, WeaponAttachments.Acog, true];
+            yield return [primary, true, WeaponAttachments.RedDot, true];
+            yield return [primary, false, 0, true];
+        }
+    }
+
+    [Theory]
     [InlineData(CombatDeathCause.Rifle, false)]
     [InlineData(CombatDeathCause.Rifle, true)]
     [InlineData(CombatDeathCause.Shotgun, false)]
     [InlineData(CombatDeathCause.Shotgun, true)]
     [InlineData(CombatDeathCause.Smg, false)]
+    [InlineData(CombatDeathCause.Smg, false, true)]
+    [InlineData(CombatDeathCause.Smg, true, true)]
     [InlineData(CombatDeathCause.Sniper, false)]
     [InlineData(CombatDeathCause.Sniper, true)]
     [InlineData(CombatDeathCause.Pistol, false)]
     [InlineData(CombatDeathCause.Revolver, true)]
-    public void ActualWeaponTraceReportsWeaponAndLethalHeadHits(CombatDeathCause cause, bool head)
+    public void ActualWeaponTraceReportsWeaponAndLethalHeadHits(CombatDeathCause cause, bool head, bool compactSmg = false)
     {
         var (world, spy, merc) = Match();
         spy.Pawn!.SetLocation(new FVector(100, 0, 100));
@@ -332,7 +377,7 @@ public sealed class CombatDeathProvenanceTests
         SWeaponDefense gun = cause switch
         {
             CombatDeathCause.Shotgun => new SWeaponDefense_Shotgun(),
-            CombatDeathCause.Smg => new SWeaponDefense_Uzi(),
+            CombatDeathCause.Smg => compactSmg ? new Svm.CompactSMG() : new SWeaponDefense_Uzi(),
             CombatDeathCause.Pistol => new MercSidearm { Kind = (int)SidearmKind.Unsuppressed },
             CombatDeathCause.Revolver => new MercSidearm { Kind = (int)SidearmKind.Magnum44 },
             _ => new SWeaponDefense(),
@@ -346,5 +391,11 @@ public sealed class CombatDeathProvenanceTests
         Assert.Equal(head, CombatActivityDeath.LegacySwitch(death.Int) == 23);
         Assert.Same(merc.PlayerReplicationInfo, death.Pri1);
         Assert.Equal(cause == CombatDeathCause.Sniper && head ? 1 : 0, merc.PlayerReplicationInfo!.Stats!.Merc_SniperHeadshots);
+        if (cause == CombatDeathCause.Smg)
+        {
+            Assert.Equal(compactSmg ? 1 : 0, merc.WeaponProgress.Kills("Svm.CompactSMG"));
+            Assert.Equal(compactSmg ? 0 : 1, merc.WeaponProgress.Kills("SBase.SWeaponDefense_Uzi"));
+            Assert.Equal(1, merc.PlayerReplicationInfo.Stats.Feats["merc.smg.kills"]);
+        }
     }
 }

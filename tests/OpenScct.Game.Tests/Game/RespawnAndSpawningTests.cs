@@ -260,11 +260,15 @@ public class RespawnAndSpawningTests
         Assert.Single(w.Ports.StartStates);
 
         SPlayerController host = w.Join("?Name=H?Team=1", local: true);
+        host.bBehindView = true;
+        host.bFirstPersonWithPawn = true;
         w.Game.eventRestartPlayer(host);
         Assert.Empty(w.Host.To(host, "ClientRestart"));
         Assert.Empty(w.Host.To(host, "PCChangeClientState"));
         Assert.Equal(3, w.Ports.StartStates.Count); // Restart, then ClientRestart run here
         Assert.Same(host.Pawn, host.ViewTarget);
+        Assert.False(host.bBehindView);
+        Assert.False(host.bFirstPersonWithPawn);
     }
 
     [Fact]

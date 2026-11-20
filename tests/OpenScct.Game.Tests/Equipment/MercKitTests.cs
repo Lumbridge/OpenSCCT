@@ -191,7 +191,8 @@ public sealed class MercKitTests
     [Fact]
     public void TheLaserMarksTheFirstLivingPawnOnItsBeam()
     {
-        (CombatScene scene, SPlayerController pc, SBasePawn merc, _) = Merc();
+        (CombatScene scene, SPlayerController pc, SBasePawn merc, SWeaponDefense rifle) = Merc();
+        rifle.AttachmentMask = WeaponAttachments.Laser;
         pc.MyDesiredRotation = new FRotator(0, 0, 0);
         (_, SBasePawn spy) = scene.Player(true, new FVector(400f, 0f, 100f));
         var laser = GadgetKit.Gadget(scene, merc, new SGadTorcheLaser(), Select: false);
@@ -210,7 +211,8 @@ public sealed class MercKitTests
     [Fact]
     public void TheLaserRunsToAPointFifteenThousandUnitsOutRaisedFromTheMerc()
     {
-        (CombatScene scene, SPlayerController pc, SBasePawn merc, _) = Merc();
+        (CombatScene scene, SPlayerController pc, SBasePawn merc, SWeaponDefense rifle) = Merc();
+        rifle.AttachmentMask = WeaponAttachments.Laser;
         pc.MyDesiredRotation = new FRotator(0, 0, 0);
         var laser = GadgetKit.Gadget(scene, merc, new SGadTorcheLaser(), Select: false);
         laser.bInUse = true;

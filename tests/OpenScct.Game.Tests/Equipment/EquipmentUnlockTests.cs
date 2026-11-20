@@ -55,7 +55,7 @@ public sealed class EquipmentUnlockTests
         Loadouts.ServerSpawnWeapon(pawn, new ClassRef("Svm.M4A1S"));
         Assert.Null(pawn.MyWeapon);
         Loadouts.ServerSpawnWeapon(pawn, Loadouts.MercWeapon);
-        Assert.IsType<SWeaponDefense>(pawn.MyWeapon);
+        Assert.Equal(MercPrimarySelection.Smg, pawn.MyWeapon!.GetUcClass().Path);
     }
 
     [Fact]
@@ -67,11 +67,27 @@ public sealed class EquipmentUnlockTests
         pawn.PlayerReplicationInfo!.Team = new STeamDefenseur();
         pawn.PlayerReplicationInfo.SvmRank = 1;
         pc.RespawnWeapon = new ClassRef("Svm.M4A1S");
-        Assert.Equal(Loadouts.MercWeapon, pc.SpawnWeaponFor(Loadouts.MercWeapon));
+        Assert.Equal(MercPrimarySelection.Smg, pc.SpawnWeaponFor(Loadouts.MercWeapon).Path);
         pawn.PlayerReplicationInfo.SvmRank = 30;
         pc.RespawnWeapon = new ClassRef("Svm.M4A1S");
         Assert.Equal("Svm.M4A1S", pc.SpawnWeaponFor(Loadouts.MercWeapon).Path);
         pc.GameReplicationInfo.RiflesEnabled = false;
-        Assert.Equal(Loadouts.MercWeapon, pc.SpawnWeaponFor(Loadouts.MercWeapon));
+        Assert.Equal(MercPrimarySelection.Smg, pc.SpawnWeaponFor(Loadouts.MercWeapon).Path);
+    }
+
+    [Theory]
+    [InlineData(false, false, MercPrimarySelection.Smg)]
+    [InlineData(false, true, MercPrimarySelection.Smg)]
+    [InlineData(true, false, WeaponAttachments.M4)]
+    [InlineData(true, true, WeaponAttachments.M4)]
+    public void AutomaticMercKitsRespectTheSamePrimaryChoices(bool rifles, bool bot, string expected)
+    {
+        var scene = new CombatScene();
+        var (pc, pawn) = scene.Player(false, FVector.Zero);
+        pc.GameReplicationInfo = new GameReplicationInfo { RiflesEnabled = rifles };
+        pawn.PlayerReplicationInfo!.Team = new STeamDefenseur();
+        if (bot) pc.Player = new OpenScct.Game.AI.AiViewport();
+        Loadouts.UpdateInventory(pawn, EGameMode.GM_Neutralization);
+        Assert.Equal(expected, pawn.MyWeapon!.GetUcClass().Path);
     }
 }

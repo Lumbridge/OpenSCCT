@@ -38,8 +38,8 @@ internal static class GameAdditions
         new("equipment", "Equipment and player options", "Loadouts, sidearms, cloak and view controls.",
         [
             // spec/additions/merc-sidearms.md; src/OpenScct.Core/Engine/Sidearms.cs.
-            new("sidearms", "Mercenary sidearms", "Hosts can enable a dedicated pistol slot for mercenaries.",
-                ["Sidearms are off by default and do not use a gadget slot.", "Five pistols have different ammunition, firing and reload characteristics.", "Pistols unlock as you level up; all are available in offline, LAN and practice sessions when the host enables them."],
+            new("sidearms", "Mercenary sidearms", "Mercenaries carry a pistol in a dedicated sidearm slot.",
+                ["Your sidearm leaves all gadget slots available.", "Five pistols have different ammunition, firing and reload characteristics.", "Pistols unlock as you gain levels. Offline, LAN and practice sessions offer the full selection."],
                 "/wiki/gadgets-and-loadouts#sidearms", "Sidearm and loadout guide"),
 
             // docs/HUD.md, Options and settings; docs/MENUS.md, Role configuration.

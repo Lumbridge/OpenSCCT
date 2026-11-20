@@ -119,7 +119,8 @@ public sealed class CreateSessionModel
     public event Action? Changed;
 
     /// <summary>The rows in page order: Map / Mode, then the session rows, then the rules boxes.</summary>
-    public static IReadOnlyList<SessionRow> Rows { get; } = Enum.GetValues<SessionRow>();
+    public static IReadOnlyList<SessionRow> Rows { get; } = Array.FindAll(Enum.GetValues<SessionRow>(),
+        row => row is not (SessionRow.Sidearms or SessionRow.Rifles or SessionRow.ResponsiveSmoke));
 
     /// <summary>
     /// The modes the current map offers, as the page lists them: the map's own entries, then Merc Deathmatch. An
@@ -190,6 +191,7 @@ public sealed class CreateSessionModel
     {
         SessionRow.ActiveDisks or SessionRow.DisksToTake => Setup.Mode == EGameMode.GM_DiskHunt,
         SessionRow.GamesInARow => !Setup.Revenge,
+        SessionRow.Sidearms or SessionRow.Rifles or SessionRow.ResponsiveSmoke => false,
         SessionRow.BotsPerSide => Setup.Bots == BotFill.PerSide,
         SessionRow.BotSkill => Setup.Bots != BotFill.Off,
         SessionRow.SpyBots => Setup.Bots == BotFill.Custom && Setup.Mode != EGameMode.GM_MercDeathMatch,
@@ -200,7 +202,7 @@ public sealed class CreateSessionModel
     /// <summary>Whether a row is a check box.</summary>
     public static bool IsCheck(SessionRow row) =>
         row is SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate
-            or SessionRow.Sidearms or SessionRow.Rifles or SessionRow.ResponsiveSmoke or SessionRow.Practice;
+            or SessionRow.Practice;
 
     /// <summary>The range of a number row (inclusive).</summary>
     public (int Min, int Max) Range(SessionRow row) => row switch
@@ -437,15 +439,6 @@ public sealed class CreateSessionModel
                 break;
             case SessionRow.Alternate:
                 Set(Setup with { Alternate = Setup.Alternate with { On = on } });
-                break;
-            case SessionRow.Rifles:
-                Set(Setup with { Rifles = on });
-                break;
-            case SessionRow.Sidearms:
-                Set(Setup with { Sidearms = on });
-                break;
-            case SessionRow.ResponsiveSmoke:
-                Set(Setup with { ResponsiveSmoke = on });
                 break;
             case SessionRow.Practice:
                 Set(Setup with { Practice = on });

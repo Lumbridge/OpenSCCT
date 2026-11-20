@@ -203,9 +203,10 @@ internal sealed partial class PlayerPortal
     {
         CosmeticSlot.Body => side == CosmeticSide.Spy ? "Suit" : "Armour",
         CosmeticSlot.Light => side == CosmeticSide.Spy ? "Goggle lights" : "Helmet light",
-        CosmeticSlot.Pistol => "Shocker", CosmeticSlot.GunAr => "Assault rifle", CosmeticSlot.GunSmg => "SMG", CosmeticSlot.GunShotgun => "Shotgun",
+        CosmeticSlot.Pistol => "Shocker", CosmeticSlot.GunAr => "Shared rifle finish",
+        CosmeticSlot.GunSmg => "Legacy Uzi", CosmeticSlot.GunShotgun => "Legacy shotgun",
         CosmeticSlot.Suppressed => "Suppressed pistol", CosmeticSlot.Automatic => "Automatic pistol", CosmeticSlot.Magnum44 => ".44 Magnum",
-        CosmeticSlot.DesertEagle => "Desert Eagle", CosmeticSlot.Unsuppressed => "Pistol", _ => slot.ToString(),
+        CosmeticSlot.DesertEagle => "Desert Eagle", CosmeticSlot.Unsuppressed => "Pistol", _ => CosmeticCatalog.SlotName(slot, side),
     };
 
     private static string Swatch(CosmeticItem? item)

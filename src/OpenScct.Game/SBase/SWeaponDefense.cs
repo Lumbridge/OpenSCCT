@@ -16,7 +16,34 @@ namespace OpenScct.Game.SBase;
 /// </summary>
 public partial class SWeaponDefense
 {
+    // UObject has applied the concrete class defaults, including its reserve, before this constructor runs.
+    public SWeaponDefense() => WeaponAttachments.Apply(this, 0);
+
+    public bool AimRequested;
+
+    public void SetAiming(SPlayerController pc, bool requested)
+    {
+        if (!ReferenceEquals(Instigator?.Controller, pc)) return;
+        bool aiming = requested && CanAim(pc);
+        if (Role == ENetRole.ROLE_Authority)
+            GadgetNet.ToOwner(pc, new CombatCall(new Name("RifleAimState")) { Target = this, Bool1 = aiming });
+        if (AimRequested == aiming) return;
+        AimRequested = aiming;
+        GadgetNet.ToServer(this, pc, new CombatCall(new Name("SetRifleAim")) { Target = this, Bool1 = aiming });
+    }
+
+    private bool CanAim(SPlayerController pc) =>
+        Instigator is SBasePawn { Health: > 0, bWeaponTransit: false, bStickyShocking: false } pawn &&
+        ReferenceEquals(pc.SBPawn, pawn) && ReferenceEquals(pawn.MyWeapon, this) &&
+        (this is not MercSidearm sidearm || (sidearm.ReloadUntil <= 0f && !pawn.bLyingOnGround &&
+            pawn.Level.TimeSeconds >= pawn.WeaponSwitchUntil)) &&
+        !pc.bIsInInventoryMode && pc.iDontUpdatePadInput == 0 && pc.FreeCameraFlying == 0 &&
+        (IsInState("s_Selected") || IsInState("s_Firing"));
+
     public virtual float ShotInterval => RateOfFire;
+    public virtual bool RequiresTriggerRelease => false;
+    private bool _triggerDown;
+    private float _nextTriggerShot;
     /// <summary>The muzzle bone of the first-person and third-person guns.</summary>
     public static readonly Name FxBone = new("FX");
 
@@ -181,6 +208,12 @@ public partial class SWeaponDefense
     public override void Fire(float Value)
     {
         if (!SidearmEquipment.Ready(this)) return;
+        if (RequiresTriggerRelease)
+        {
+            if (_triggerDown) return;
+            _triggerDown = true;
+            if (!IsInState(CNAME_s_Selected) || XLevel.WorldTimeSeconds + .0001f < _nextTriggerShot) return;
+        }
         if (ClipAmmo == 0)
         {
             ServerSound(EmptySound, ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
@@ -212,6 +245,7 @@ public partial class SWeaponDefense
     [PortOf("uc:SBase.SWeaponDefense:FireWeapon", Spec = "spec/equipment/merc-rifle.md#rules")]
     public virtual void FireWeapon()
     {
+        if (RequiresTriggerRelease) _nextTriggerShot = XLevel.WorldTimeSeconds + ShotInterval;
         // Automatic fire's pull budget normally mirrors the magazine. Practice keeps
         // that magazine full, so its pull must also remain live until fire is released.
         // Burst and single-shot modes still finish their normal number of shots.
@@ -237,8 +271,10 @@ public partial class SWeaponDefense
 
         SpawnSFX();
         ApplyWeaponJump();
-        ViewAnim.SetAlpha(ACTIONCHANNEL, K.ShotClipAlpha);
-        ViewAnim.Play(ACTIONCHANNEL, AFirstShooSt, ViewModelClips.DataOf(AFirstShooSt));
+        bool manualCycle = this is Svm.BoltRifle or Svm.PumpShotgun;
+        ViewAnim.SetAlpha(ACTIONCHANNEL, manualCycle ? 1f : K.ShotClipAlpha);
+        ViewAnim.Play(ACTIONCHANNEL, AFirstShooSt, ViewModelClips.DataOf(AFirstShooSt),
+            Duration: manualCycle || this is Svm.CompactSMG or Svm.DesignatedMarksman ? ShotInterval : 0f);
     }
 
     /// <summary>
@@ -247,7 +283,7 @@ public partial class SWeaponDefense
     /// </summary>
     [Uc("SBase.SWeaponDefense.ApplyWeaponJump", Sha1 = "870b787fe8c59b579c3e419e6dac405081bfbe68")]
     [PortOf("uc:SBase.SWeaponDefense:ApplyWeaponJump", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public void ApplyWeaponJump()
+    public virtual void ApplyWeaponJump()
     {
         if (OwnerPC is not { } pc)
         {
@@ -311,12 +347,11 @@ public partial class SWeaponDefense
             bool predicted = PredictsImpacts && FirePrediction.IsOn(this);
             if (predicted)
             {
-                PredictTraceFire(shot, InScope ? 0f : GetAccuracy());
+                PredictTraceFire(shot, AimingThroughScope ? 0f : GetAccuracy());
             }
 
             // The owner hears the shot with its predicted recoil and flash, including on the first rifle shot.
-            Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false,
-                K.ShotSoundRadius * MercRifles.NoiseScale(this));
+            PlayShotSound();
 
             CombatServices.Net(this).ServerCall(client, new CombatCall(CNAME_ServerFireWeapon)
             {
@@ -336,10 +371,9 @@ public partial class SWeaponDefense
             SPlayerController.IncStat(pc, static s => s.ShotsFired++);
         }
 
-        DispersionActuelle = InScope ? 0f : GetAccuracy();
+        DispersionActuelle = AimingThroughScope ? 0f : GetAccuracy();
         TraceFire(DispersionActuelle, 0f, 0f);
-        Instigator?.PlayOwnedSound(FireSingleShotSound, ESoundSlot.SLOT_None, null, false,
-            K.ShotSoundRadius * MercRifles.NoiseScale(this));
+        PlayShotSound();
         if (Dummy is { } dummy)
         {
             dummy.AddMuzzleCount();
@@ -347,8 +381,19 @@ public partial class SWeaponDefense
         }
     }
 
+    private void PlayShotSound()
+    {
+        if (Instigator is not { } shooter) return;
+        bool fitted = (AttachmentMask & WeaponAttachments.Suppressor) != 0;
+        var cue = fitted && this is MercSidearm { Kind: (int)SidearmKind.Unsuppressed }
+            ? new AssetRef("OpenScctSidearms.suppressed_fire") : FireSingleShotSound;
+        shooter.PlayOwnedSound(cue, ESoundSlot.SLOT_None, fitted ? shooter.TransientSoundVolume * .5f : null,
+            Radius: K.ShotSoundRadius * MercRifles.NoiseScale(this), Pitch: fitted ? .94f : 1f);
+    }
+
     /// <summary>True when the server's copy of the owner's controller is in the scope (exactly s_Binoculars_Def).</summary>
     public bool InScope => bCanSnipe && OwnerPC?.GetStateName() == CNAME_s_Binoculars_Def;
+    private bool AimingThroughScope => InScope || this is Svm.PrecisionRifle { AimRequested: true };
 
     /// <summary>GetAccuracy (native 1286): the spread of the shot (rule 13).</summary>
     [UcNative("ASWeaponDefense::execGetAccuracy", Exe = 0x10abcfc0)]
@@ -377,8 +422,8 @@ public partial class SWeaponDefense
         {
             MercSidearm { Kind: (int)SidearmKind.Magnum44 } => CombatDeathCause.Revolver,
             MercSidearm => CombatDeathCause.Pistol,
-            SWeaponDefense_Uzi => CombatDeathCause.Smg,
-            _ => InScope ? CombatDeathCause.Sniper : CombatDeathCause.Rifle,
+            SWeaponDefense_Uzi or Svm.CompactSMG => CombatDeathCause.Smg,
+            _ => AimingThroughScope ? CombatDeathCause.Sniper : CombatDeathCause.Rifle,
         };
         using var activity = CombatDeathContext.Push(new(activityCause));
         ShotRay(shooter, Accuracy, ActiveShotId, TraceStartLocation, out FVector startTrace, out FVector endTrace, out FVector wStart);
@@ -449,7 +494,13 @@ public partial class SWeaponDefense
 
         victim.LastBulletWeapon = this;
         FVector momentum = (hit.HitLocation - startTrace) * K.BulletMomentumScale;
-        if (InScope)
+        if (this is Svm.PrecisionRifle precision)
+        {
+            using var direct = CombatDeathContext.Push(CombatDeathContext.Current with { DirectFirearm = precision });
+            victim.Controller?.PawnTakeDamage(BaseDamage, shooter, hit.HitLocation, momentum,
+                AimingThroughScope ? SDamageType.SDTSnipeShot : MyDamageType, hit.PillTag, PercentDamageRefillable);
+        }
+        else if (InScope)
         {
             int scopedDamage = SvmMath.Trunc(BaseDamage * SvmMath.Pow(WeaponRules.RangeModifier(this),
                 FVector.Dist(hit.HitLocation, wStart) / 1270f));
@@ -625,11 +676,14 @@ public partial class SWeaponDefense
     [PortOf("uc:SBase.SWeaponDefense:GetNbBulletsFromROF", Spec = "spec/equipment/merc-rifle.md#rules")]
     public int GetNbBulletsFromROF() => WeaponRules.BulletsForMode(ROFMode, ClipAmmo);
 
+    protected virtual bool SupportsFireMode(SRateOfFireMode mode) => true;
+
     /// <summary>The owner's rate of fire on the server (reliable owner to server).</summary>
     [Uc("SBase.SWeaponDefense.ServerSetROF", Sha1 = "1deec70343687193c452a617b95e68abda610ed7")]
     [PortOf("uc:SBase.SWeaponDefense:ServerSetROF", Spec = "spec/equipment/merc-rifle.md#rules")]
     public void ServerSetROF(SRateOfFireMode newROFMode)
     {
+        if (!SupportsFireMode(newROFMode)) return;
         if (Role < ENetRole.ROLE_Authority && OwnerPC is { } pc)
         {
             CombatServices.Net(this).ServerCall(pc, new CombatCall(CNAME_ServerSetROF) { Target = this, Int1 = (int)newROFMode });
@@ -675,10 +729,11 @@ public partial class SWeaponDefense
     /// <summary>The HUD name of the mode.</summary>
     [Uc("SBase.SWeaponDefense.GetROFName", Sha1 = "9d1e9cd3c3b597b0e6c332818ddd00bf0906436d")]
     [PortOf("uc:SBase.SWeaponDefense:GetROFName", Spec = "spec/equipment/merc-rifle.md#rules")]
-    public string GetROFName() => WeaponRules.ModeName(ROFMode);
+    public virtual string GetROFName() => WeaponRules.ModeName(ROFMode);
 
     private void SetMode(SRateOfFireMode mode)
     {
+        if (!SupportsFireMode(mode)) return;
         ServerSound(SwitchROFSound, ESoundSlot.SLOT_None, (int)K.WeaponSoundRadius);
         ROFMode = mode;
         if (Skins.Count > ROF_MaterialID)
@@ -744,10 +799,30 @@ public partial class SWeaponDefense
 
     // ---- tick ---------------------------------------------------------------------------------------------
 
+    protected override void NativeTick(float deltaSeconds)
+    {
+        if (RequiresTriggerRelease)
+        {
+            if (!FireHeld) _triggerDown = false;
+            else if (!IsInState(CNAME_s_Selected)) _triggerDown = true;
+        }
+        base.NativeTick(deltaSeconds);
+    }
+
     /// <summary>The global tick: the native spread decay.</summary>
     [Uc("SBase.SWeaponDefense.Tick", Sha1 = "f722d00d54cc6605a6a8eb31656fa13351c1e4ee")]
     [PortOf("uc:SBase.SWeaponDefense:Tick", Spec = "spec/equipment/merc-rifle.md#rules")]
-    protected override void Tick(float DeltaTime) => NativeTickSWeaponDefense(DeltaTime);
+    protected override void Tick(float DeltaTime)
+    {
+        NativeTickSWeaponDefense(DeltaTime);
+        if (AimRequested)
+        {
+            // An observing client has no owning controller and receives the pose from the server.
+            var owner = OwnerPC;
+            if (owner is null ? Role == ENetRole.ROLE_Authority : !CanAim(owner))
+                AimRequested = false;
+        }
+    }
 
     /// <summary>
     /// NativeTickSWeaponDefense (native 1285, decoded part, rule 12): the spread stays open one RateOfFire after the
@@ -794,6 +869,14 @@ public partial class SWeaponDefense
     [PortOf("uc:SBase.SWeaponDefense:AnimateUnDraw", Spec = "spec/equipment/merc-rifle.md#rules")]
     [Provenance(ProvenanceKind.Estimated, "AnimateUnDraw body not specced: the holster state and its clip")]
     public void AnimateUnDraw() => GotoState(CNAME_s_IdleInHolster);
+
+    internal void RestoreAfterBodyMove(SBasePawn pawn)
+    {
+        pawn.WeaponLoaded = 2;
+        GotoState(CNAME_s_Selected);
+        AnimateWaiting();
+        bDrawWeapon = true;
+    }
 
     /// <summary>The weapon lowered for a grab: the grab clip.</summary>
     [Uc("SBase.SWeaponDefense.AnimateUnDraw_GRAB", Sha1 = "b960ea6e60ec28dc00e6dc55cfe1551f2a758622")]

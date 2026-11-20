@@ -6,6 +6,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.AI;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Net;
 using OpenScct.Net.Discovery;
 using OpenScct.Server;
@@ -107,18 +108,21 @@ public sealed class PracticeBotCommandTests
         Assert.All(bots.Where(pc => SGameInfo.TeamIndexOf(pc) == 1), pc =>
         {
             var pawn = Assert.IsAssignableFrom<SPAWNDEFENSE>(pc.Pawn);
-            var weapon = Assert.IsType<SWeaponDefense_Shotgun>(pawn.MyWeapon);
+            var weapon = Assert.IsType<PumpShotgun>(pawn.MyWeapon);
             Assert.NotNull(weapon.Dummy);
             Assert.Same(weapon.Dummy, pawn.WeaponDummy);
         });
         Assert.Same(spyWeapon, spy.MyWeapon);
         Assert.Same(humanWeapon, human.MyWeapon);
-        foreach (string command in new[] { "botweapon", "botweapon shocker", "botweapon default", "botweapon merc shotgun", "botweapon all rifle" })
-            Assert.Equal("usage: botweapon <rifle|uzi|shotgun> (all living merc bots)", Command(command));
+        foreach (string command in new[] { "botweapon", "botweapon shocker", "botweapon merc shotgun", "botweapon all rifle" })
+            Assert.Equal("usage: botweapon <default|shotgun> (all living merc bots)", Command(command));
         Assert.Equal("Equipped 2 merc bot(s) with uzi.", Command("botweapon uzi"));
         Assert.All(bots.Where(pc => SGameInfo.TeamIndexOf(pc) == 1), pc => Assert.IsType<SWeaponDefense_Uzi>(((SBasePawn)pc.Pawn!).MyWeapon));
         Assert.Equal("Equipped 2 merc bot(s) with rifle.", Command("botweapon rifle"));
         Assert.All(bots.Where(pc => SGameInfo.TeamIndexOf(pc) == 1), pc => Assert.IsType<SWeaponDefense>(((SBasePawn)pc.Pawn!).MyWeapon));
+        Assert.Equal("Equipped 2 merc bot(s) with default.", Command("botweapon default"));
+        Assert.All(bots.Where(pc => SGameInfo.TeamIndexOf(pc) == 1), pc =>
+            Assert.IsType<CompactSMG>(((SBasePawn)pc.Pawn!).MyWeapon));
         Assert.Contains("Moved 1", Command("botteam spy merc"));
         Assert.All(bots, pc => Assert.IsAssignableFrom<SPAWNDEFENSE>(pc.Pawn));
         Assert.True(rig.Server.RoundBots!.Stopped);

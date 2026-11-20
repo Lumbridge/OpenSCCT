@@ -12,6 +12,36 @@ namespace OpenScct.Game.Tests.Combat;
 
 public sealed class ShotgunPelletTests
 {
+    [Fact]
+    public void PumpShotgunRequiresAnotherPressAfterCyclingAndDisplaysItsActualAction()
+    {
+        var scene = new CombatScene(ENetMode.NM_ListenServer);
+        var (pc, merc) = scene.Player(false, new FVector(0, 0, 100));
+        var gun = scene.Level.SpawnActor(new Svm.PumpShotgun(), merc.Location, merc.Rotation, merc, merc)!;
+        gun.GiveTo(merc);
+        merc.WeaponLoaded = 2;
+        scene.Run(1);
+        pc.GotoState(new Name("s_PlayerWalkingSt2H"));
+        gun.ServerSetROF(SRateOfFireMode.ROF_Auto);
+        Assert.Equal(SRateOfFireMode.ROF_Single, gun.ROFMode);
+        Assert.Equal("Pump Action", gun.GetROFName());
+
+        pc.bFire = 1;
+        pc.eventFire(1f);
+        Assert.Equal(5, gun.ClipAmmo);
+        for (int tick = 0; tick < 2 * Sim.Hz; tick++)
+        {
+            scene.World.Step();
+            pc.eventFire(1f);
+        }
+        Assert.Equal(5, gun.ClipAmmo);
+        pc.bFire = 0;
+        scene.World.Step();
+        pc.bFire = 1;
+        pc.eventFire(1f);
+        Assert.Equal(4, gun.ClipAmmo);
+    }
+
     [Theory]
     [InlineData(0, 0)]
     [InlineData(1, 23)]

@@ -89,7 +89,10 @@ public static class Loadouts
                 if (!g.IsNone) ServerSpawnInventory(Pawn, g);
             }
 
-            ServerSpawnWeapon(Pawn, spy ? SpyWeapon : MercWeapon);
+            ClassRef fixedWeapon = spy ? SpyWeapon : MercWeapon;
+            if (!spy && !tutorial && Team(Pawn) is { ClassWeapon.Count: > 0 } mercTeam)
+                fixedWeapon = MercPrimarySelection.Resolve(fixedWeapon, mercTeam, Pawn.Controller as PlayerController);
+            ServerSpawnWeapon(Pawn, fixedWeapon, bot && !spy ? WeaponAttachments.Laser : 0);
             if (spy && IsBombMode(Mode))
             {
                 ServerSpawnInventory(Pawn, GadBomb);
@@ -110,7 +113,7 @@ public static class Loadouts
             if (Team(Pawn) is { } chosenTeam)
             {
                 ApplyRestrictions(equipment, chosenTeam);
-                if (chosenTeam.ClassWeapon.Count > 0 && IndexOfClass(chosenTeam.ClassWeapon, weapon) < 0)
+                if (spy && chosenTeam.ClassWeapon.Count > 0 && IndexOfClass(chosenTeam.ClassWeapon, weapon) < 0)
                 {
                     weapon = chosenTeam.ClassWeapon[0];
                 }
@@ -131,7 +134,9 @@ public static class Loadouts
             }
         }
 
-        if (!EquipmentUnlocks.Available(Pawn.Controller as PlayerController, weapon.Path))
+        if (!spy && !tutorial && Team(Pawn) is { ClassWeapon.Count: > 0 } mercWeapons)
+            weapon = MercPrimarySelection.Resolve(weapon, mercWeapons, Pawn.Controller as PlayerController);
+        else if (!EquipmentUnlocks.Available(Pawn.Controller as PlayerController, weapon.Path))
             weapon = spy ? SpyWeapon : MercWeapon;
 
         for (int i = 0; i < slots && i < equipment.Length; i++)
@@ -142,10 +147,11 @@ public static class Loadouts
             }
         }
 
-        // Request the sidearm before the primary completes the initial kit grant.
-        if (!spy && SidearmEquipment.Enabled(Pawn) && source is not null && !source.Sidearm().IsNone)
-            ServerSpawnInventory(Pawn, source.Sidearm());
-        ServerSpawnWeapon(Pawn, weapon);
+        // UpdateInventory can arrive before the owning client receives the sidearm rule. Request its saved
+        // sidearm with the spawn kit; the server's grant checks the match rule and the player's unlock.
+        if (!spy && source?.Sidearm() is { IsNone: false } sidearm)
+            ServerSpawnInventory(Pawn, sidearm, source.Attachments(sidearm.Path ?? ""));
+        ServerSpawnWeapon(Pawn, weapon, source?.Attachments(weapon.Path ?? "") ?? 0);
         PawnInventory.SelectGagdet(Pawn, 0);
         if (spy && IsBombMode(Mode))
         {
@@ -213,11 +219,11 @@ public static class Loadouts
     /// <summary>The server spawns an equipment item at the pawn and gives it (reliable owner to server).</summary>
     [Uc("SBase.SBasePawn.ServerSpawnInventory", Sha1 = "6c393d3ddedf9252e33a8e303f80cfe7ac2d9d0d")]
     [PortOf("uc:SBase.SBasePawn:ServerSpawnInventory", Spec = "spec/equipment/loadouts.md#rules")]
-    public static void ServerSpawnInventory(SBasePawn Pawn, ClassRef Class)
+    public static void ServerSpawnInventory(SBasePawn Pawn, ClassRef Class, int attachments = 0)
     {
         if (Pawn.Role < ENetRole.ROLE_Authority && Pawn.Controller is SPlayerController pc)
         {
-            CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_ServerSpawnInventory) { Target = Pawn, Name1 = new Name(Class.Path ?? "") });
+            CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_ServerSpawnInventory) { Target = Pawn, Name1 = new Name(Class.Path ?? ""), Int1 = attachments });
             return;
         }
 
@@ -229,6 +235,7 @@ public static class Loadouts
         switch (DeviceClasses.Spawn(Pawn, Class, Pawn, default, Pawn.Location, Pawn.Rotation))
         {
             case SGadget gadget:
+                if (gadget is SidearmCarry carry) carry.AttachmentMask = WeaponAttachments.Granted(Pawn, Class.Path, attachments);
                 gadget.GiveTo(Pawn);
                 if (Stats(Pawn) is { } stats && ReferenceEquals(gadget.Owner, Pawn))
                 {
@@ -245,14 +252,23 @@ public static class Loadouts
     /// <summary>The server spawns the weapon (the controller may substitute it) and gives it (reliable owner to server).</summary>
     [Uc("SBase.SBasePawn.ServerSpawnWeapon", Sha1 = "e72d99e5bf85c59a3faa39cc982c2ca917a67f05")]
     [PortOf("uc:SBase.SBasePawn:ServerSpawnWeapon", Spec = "spec/equipment/loadouts.md#rules")]
-    public static void ServerSpawnWeapon(SBasePawn Pawn, ClassRef Class)
+    public static void ServerSpawnWeapon(SBasePawn Pawn, ClassRef Class, int attachments = 0)
     {
         if (Pawn.Role < ENetRole.ROLE_Authority && Pawn.Controller is SPlayerController pc)
         {
-            CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_ServerSpawnWeapon) { Target = Pawn, Name1 = new Name(Class.Path ?? "") });
+            CombatServices.Net(Pawn).ServerCall(pc, new CombatCall(CNAME_ServerSpawnWeapon) { Target = Pawn, Name1 = new Name(Class.Path ?? ""), Int1 = attachments });
             return;
         }
 
+        // Older clients can still send their former primary directly during the initial kit exchange.
+        if (Pawn is SPAWNDEFENSE && MercPrimarySelection.IsLegacy(Class.Path) &&
+            (Pawn.Controller as PlayerController)?.GameReplicationInfo?.bTutorMode != true &&
+            Team(Pawn) is { ClassWeapon.Count: > 0 } team)
+        {
+            ClassRef replacement = MercPrimarySelection.Resolve(Class, team, Pawn.Controller as PlayerController);
+            if (replacement != Class) attachments = 0;
+            Class = replacement;
+        }
         if (!TakeGrant(Pawn, Class, true))
         {
             return;
@@ -262,6 +278,12 @@ public static class Loadouts
         if (!EquipmentUnlocks.Available(Pawn.Controller as PlayerController, cls.Path)) cls = MercWeapon;
         if (DeviceClasses.Spawn(Pawn, cls, Pawn, default, Pawn.Location, Pawn.Rotation) is SWeapon weapon)
         {
+            if (weapon is SWeaponDefense gun)
+            {
+                int granted = cls == Class ? WeaponAttachments.Granted(Pawn, cls.Path, attachments) : 0;
+                WeaponAttachments.Apply(gun, granted);
+                Pawn.PrimaryAttachmentMask = granted;
+            }
             weapon.GiveTo(Pawn);
             if (Stats(Pawn) is { } stats && ReferenceEquals(weapon.Owner, Pawn)) stats.Weapon = cls.Path ?? string.Empty;
             Pawn.GearStartAmmo = weapon.Ammo;

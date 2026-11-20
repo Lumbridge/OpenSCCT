@@ -258,6 +258,7 @@ public sealed class SessionPlayer
 
     /// <summary>What the player's ticket (or the listen host's account) unlocks; none for guests and bots. A look changed in the lobby is checked against it.</summary>
     public CosmeticUnlocks Unlocks { get; internal set; } = CosmeticUnlocks.None;
+    internal OpenScct.Game.Equipment.WeaponCareer WeaponProgress { get; init; } = new();
 
     /// <summary>The checked cosmetic looks (only what the ticket unlocks; retail for guests and bots).</summary>
     internal long AppearanceRevision { get; set; }
@@ -684,7 +685,8 @@ public sealed partial class OnlineServer : IDisposable
         // Native series URLs omit added match rules. Freeze the pending host choice into both the
         // game initialization URL and recorded metadata before creating the next round.
         if (!isLobby)
-            gameOptions = NativeUrl.Rebuild(gameOptions + "?SvmResponsiveSmoke=" + (Setup.ResponsiveSmoke ? "1" : "0"));
+            gameOptions = NativeUrl.Rebuild(gameOptions + $"?SvmSidearms={(Setup.Sidearms ? 1 : 0)}?SvmRifles={(Setup.Rifles ? 1 : 0)}" +
+                $"?SvmResponsiveSmoke={(Setup.ResponsiveSmoke ? 1 : 0)}");
         var settings = new ServerSettings
         {
             Map = map,
@@ -1757,6 +1759,7 @@ public sealed partial class OnlineServer : IDisposable
                 AccountId = ticket?.AccountId ?? hostAccount?.AccountId,
                 Verified = ticket is not null || hostAccount is not null,
                 Unlocks = unlocks,
+                WeaponProgress = new(dropped?.WeaponKills ?? ticket?.WeaponKills ?? hostAccount?.WeaponKills),
                 SpyLook = CheckedLook(options, "SvmLookS", CosmeticSide.Spy, unlocks),
                 MercLook = CheckedLook(options, "SvmLookM", CosmeticSide.Merc, unlocks),
                 Rank = PlayerRanks.Checked(UcOptions.ParseOption(options, "SvmTitle"), ticket, hostAccount),
@@ -1769,6 +1772,8 @@ public sealed partial class OnlineServer : IDisposable
                         ? requested : SmallerTeam()),
                 Rejoin = spectator ? null : dropped,
             };
+            var joinedPlayer = player;
+            joinedPlayer.WeaponProgress.KillRecorded += _ => SendWeaponProgress(joinedPlayer);
             _players.Add(player);
             if (player.Rejoin is { } place)
             {
@@ -2078,6 +2083,7 @@ public sealed partial class OnlineServer : IDisposable
         if (slot.Controller is SPlayerController pc)
         {
             pc.bTeamVoiceOnly = p.TeamVoiceOnly;
+            pc.WeaponProgress = p.WeaponProgress;
         }
 
         if (slot.Controller?.PlayerReplicationInfo is { } voicePri)

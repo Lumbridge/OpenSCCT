@@ -180,6 +180,7 @@ public sealed class OnlineLobby : IOnlineLobbySession
         {
             Revenge = State.Setup.Revenge,
             GamesInARow = State.Setup.GamesInARow,
+            Rifles = State.Setup.Rifles, Sidearms = State.Setup.Sidearms, ResponsiveSmoke = State.Setup.ResponsiveSmoke,
         };
 
     public void Chat(string text, bool teamOnly) => _client.Chat(text, teamOnly);

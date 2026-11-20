@@ -77,8 +77,6 @@ public sealed record PlayConfig
             Difficulty = options.PlayDifficulty,
             MatchPlayers = options.PlayPlayers,
             ResponsiveSmoke = options.ResponsiveSmoke,
-            Sidearms = options.Sidearms,
-            Rifles = options.Rifles,
             UnlimitedGear = options.Practice,
             OfflineRules = options.Practice,
             StartAt = options.PlayStartAt,

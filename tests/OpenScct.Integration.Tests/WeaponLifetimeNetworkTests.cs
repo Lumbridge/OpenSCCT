@@ -3,6 +3,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Net;
 using OpenScct.Server;
 using Xunit;
@@ -17,7 +18,7 @@ public sealed class WeaponLifetimeNetworkTests
     }
 
     [Fact]
-    public void StandardRifleOwnerAndAuthorityAgreeAfterFireAndReload()
+    public void DefaultMercSmgOwnerAndAuthorityAgreeAfterFireAndReload()
     {
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 615, SimLinkProfile.Get("200"));
@@ -39,8 +40,8 @@ public sealed class WeaponLifetimeNetworkTests
         var bot = match.Bots[2];
         var owner = Assert.IsAssignableFrom<SBasePawn>(bot.Controller!.Pawn);
         var source = Assert.IsAssignableFrom<SBasePawn>(match.ServerController(bot)!.Pawn);
-        var gun = Assert.IsType<SWeaponDefense>(owner.MyWeapon);
-        var authority = Assert.IsType<SWeaponDefense>(source.MyWeapon);
+        var gun = Assert.IsType<CompactSMG>(owner.MyWeapon);
+        var authority = Assert.IsType<CompactSMG>(source.MyWeapon);
         int ammo = gun.Ammo, clip = gun.ClipAmmo;
         gun.FireWeapon();
         Tick(120);

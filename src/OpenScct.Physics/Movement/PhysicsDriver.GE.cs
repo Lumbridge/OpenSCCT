@@ -146,16 +146,20 @@ public sealed partial class PhysicsDriver
     [Provenance(ProvenanceKind.Estimated, "Candidates come in GE list order, not the stored k-d tree order: only exact distance ties can differ")]
     private List<GEHit> SearchGEs(Pawn p, FVector center, float radius)
     {
-        GEs.QuerySphere(center, radius, AllGEKinds, p.Level.GEActivationMask, _geHits);
-        for (int i = _geHits.Count - 1; i >= 0; i--)
+        SearchGEs(GEs, center, radius, p.Level.GEActivationMask, _geHits);
+        return _geHits;
+    }
+
+    private static void SearchGEs(GEIndex index, FVector center, float radius, byte mask, List<GEHit> hits)
+    {
+        index.QuerySphere(center, radius, AllGEKinds, mask, hits);
+        for (int i = hits.Count - 1; i >= 0; i--)
         {
-            if (_geHits[i].Distance >= radius)
+            if (hits[i].Distance >= radius)
             {
-                _geHits.RemoveAt(i);
+                hits.RemoveAt(i);
             }
         }
-
-        return _geHits;
     }
 
     /// <summary>
@@ -186,13 +190,19 @@ public sealed partial class PhysicsDriver
         }
 
         List<GEHit> hits = SearchGEs(Pawn, ArmsZonePoint(Pawn, ZoneOffset), Radius);
-        int best = -1;
         GEKind prefer = Pawn.Physics switch
         {
             EPhysics.PHYS_OnPipe => GEKind.PIPE,
             EPhysics.PHYS_OnPipeH => GEKind.HOH,
             _ => 0,
         };
+        return SelectArmsGE(hits, prefer, out Best, out Second);
+    }
+
+    private static bool SelectArmsGE(List<GEHit> hits, GEKind prefer, out GERecord? Best, out GERecord? Second)
+    {
+        Best = Second = null;
+        int best = -1;
         if (prefer != 0)
         {
             best = Nearest(hits, prefer);
@@ -933,33 +943,8 @@ public sealed partial class PhysicsDriver
         Pawn p = Pawn;
         p.Rotation.GetAxes(out FVector fwd, out FVector right, out _);
         FVector loc = p.Location;
-        float h = p.CollisionHeight;
-        FVector box = K.LedgeClearanceExtent;
-        var crouchBox = new FVector(box.X, box.Y, p.CrouchHeight);
-        int result = 0;
-        if (!bCrouchOnly)
-        {
-            FVector up = loc + new FVector(0f, 0f, K.GE.TopStandUp);
-            if (Clear(p, loc, up, box) && Clear(p, up, up + fwd * K.GE.TopStandForward, box))
-            {
-                result = 1;
-            }
-        }
-
-        if (result == 0)
-        {
-            var start = new FVector(loc.X, loc.Y, loc.Z - (h - p.CrouchHeight));
-            FVector up = start + new FVector(0f, 0f, K.GE.TopCrouchUp);
-            if (Clear(p, start, up, crouchBox) && Clear(p, up, up + fwd * K.GE.TopCrouchForward, crouchBox))
-            {
-                result = 2;
-            }
-
-            if (bCrouchOnly)
-            {
-                return result;
-            }
-        }
+        int result = PullUpClearance(Collision, p, loc, fwd, bCrouchOnly, K.Flags.Clearance);
+        if (bCrouchOnly) return result;
 
         ISBasePawnPhysics? sb = p as ISBasePawnPhysics;
         if (result != 0)
@@ -973,6 +958,35 @@ public sealed partial class PhysicsDriver
         }
 
         return BarrierAboveClear(p, loc, fwd, right, sb.ZipP1, sb.ZipP2, best, second, K.Flags.Clearance) ? 4 : 0;
+    }
+
+    private static int PullUpClearance(ICollisionWorld world, Pawn p, FVector hang, FVector forward, bool crouchOnly, ETraceFlags flags)
+    {
+        FVector box = K.LedgeClearanceExtent;
+        if (!crouchOnly)
+        {
+            FVector up = hang + new FVector(0f, 0f, K.GE.TopStandUp);
+            if (!world.LineCheck(out _, p, up, hang, box, flags) &&
+                !world.LineCheck(out _, p, up + forward * K.GE.TopStandForward, up, box, flags)) return 1;
+        }
+
+        var start = new FVector(hang.X, hang.Y, hang.Z - (p.CollisionHeight - p.CrouchHeight));
+        FVector crouchUp = start + new FVector(0f, 0f, K.GE.TopCrouchUp);
+        var crouchBox = new FVector(box.X, box.Y, p.CrouchHeight);
+        return !world.LineCheck(out _, p, crouchUp, start, crouchBox, flags) &&
+               !world.LineCheck(out _, p, crouchUp + forward * K.GE.TopCrouchForward, crouchUp, crouchBox, flags) ? 2 : 0;
+    }
+
+    /// <summary>Tests possible exits from a hypothetical hang against the same pull-up and upper-barrier clearances as TestTopLedge.</summary>
+    public static bool CanExitLedge(ICollisionWorld world, Pawn probe, FVector hang, FVector forward, GERecord ledge,
+        GEIndex ges, byte activationMask, List<GEHit> hits, float armsRadius, ETraceFlags flags)
+    {
+        if (PullUpClearance(world, probe, hang, forward, false, flags) != 0) return true;
+        FVector zone = hang + forward * K.GE.TopBarrierZone.X + new FVector(0f, 0f, K.GE.TopBarrierZone.Z);
+        SearchGEs(ges, zone, armsRadius, activationMask, hits);
+        if (!SelectArmsGE(hits, 0, out GERecord? best, out GERecord? second)) return false;
+        var right = new FVector(-forward.Y, forward.X, 0f);
+        return BarrierAboveClear(world, probe, hang, forward, right, ledge.P0, ledge.P1, best, second, flags);
     }
 
     /// <summary>
@@ -1000,6 +1014,10 @@ public sealed partial class PhysicsDriver
     /// L.Z + 173.
     /// </summary>
     private bool BarrierAboveClear(Pawn p, FVector loc, FVector fwd, FVector right, FVector ledgeA, FVector ledgeB,
+        GERecord? best, GERecord? second, ETraceFlags flags) =>
+        BarrierAboveClear(Collision, p, loc, fwd, right, ledgeA, ledgeB, best, second, flags);
+
+    private static bool BarrierAboveClear(ICollisionWorld world, Pawn p, FVector loc, FVector fwd, FVector right, FVector ledgeA, FVector ledgeB,
         GERecord? best, GERecord? second, ETraceFlags flags)
     {
         GERecord? upper = best is { Kind: GEKind.LG } ? best : second is { Kind: GEKind.LG } ? second : null;
@@ -1025,8 +1043,8 @@ public sealed partial class PhysicsDriver
         var aTop = new FVector(a.X, a.Y, a.Z + (h - p.CrouchHeight));
         FVector c = aTop + fwd * K.GE.TopBarrierForward;
         var d = new FVector(c.X, c.Y, loc.Z + K.GE.TopBarrierTop);
-        return Clear(p, loc, a, standBox, flags) && Clear(p, a, b, standBox, flags) && Clear(p, aTop, c, crouchBox, flags) &&
-               Clear(p, c, d, crouchBox, flags);
+        return !world.LineCheck(out _, p, a, loc, standBox, flags) && !world.LineCheck(out _, p, b, a, standBox, flags) &&
+               !world.LineCheck(out _, p, c, aTop, crouchBox, flags) && !world.LineCheck(out _, p, d, c, crouchBox, flags);
     }
 
     /// <summary>True when <paramref name="p"/> projects strictly inside the segment a-b: 0 &lt; (p - a) . (b - a) &lt; |b - a|^2.</summary>

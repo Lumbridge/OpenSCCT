@@ -44,6 +44,7 @@ public sealed partial class OnlineServer
     private void SendWelcome(SessionPlayer p)
     {
         Send(p, SessionProtocol.Line("hello", SessionProtocol.Version, p.Id, Settings.Dedicated, Setup.MaxPlayers, Settings.Name));
+        SendWeaponProgress(p);
         SendDemoWelcome(p);
         Send(p, SessionProtocol.Line("sidearms", Settings.Master is null ? 1 : 0));
         SendSetup(p);
@@ -80,6 +81,9 @@ public sealed partial class OnlineServer
             RoundScoreboardTracker.Send(previousSlot.Connection, previous, -1, historical: true);
         }
     }
+
+    private void SendWeaponProgress(SessionPlayer p) =>
+        Send(p, SessionProtocol.Line("weaponkills", string.Join(" ", p.WeaponProgress.Snapshot())));
 
     private void SendSetup(SessionPlayer? to)
     {

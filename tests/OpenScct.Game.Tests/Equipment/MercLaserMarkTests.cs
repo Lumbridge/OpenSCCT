@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.Combat;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Tests.Combat;
 using Xunit;
@@ -23,6 +24,7 @@ public sealed class MercLaserMarkTests
         (SPlayerController pc, SBasePawn merc) = scene.Player(false, new FVector(0f, 0f, 100f));
         if (dedicatedBot) pc.Player = new OpenScct.Game.AI.AiViewport();
         SWeaponDefense rifle = scene.Give(new SWeaponDefense(), merc);
+        rifle.AttachmentMask = WeaponAttachments.Laser;
         rifle.GiveTo(merc);
         merc.WeaponLoaded = 2;
         pc.MyDesiredRotation = new FRotator(0, 0, 0);
@@ -108,6 +110,7 @@ public sealed class MercLaserMarkTests
     [InlineData("dead-owner")]
     [InlineData("old-pawn")]
     [InlineData("disabled")]
+    [InlineData("unequipped")]
     public void OwnerRequestsCannotBypassTheAuthoritativeLaserRules(string invalid)
     {
         var (scene, pc, merc, spy, laser) = Setup(dedicatedBot: true);
@@ -116,6 +119,7 @@ public sealed class MercLaserMarkTests
         laser.NativeTickTorcheLaser(0f);
         switch (invalid)
         {
+            case "unequipped": ((SWeaponDefense)merc.MyWeapon!).AttachmentMask = 0; break;
             case "out-of-range": spy.SetLocation(new FVector(50000f, 0f, 100f)); break;
             case "occluded": GadgetKit.Walls(scene, GadgetKit.WallAt(200f)); break;
             case "holstered": merc.WeaponLoaded = 0; break;

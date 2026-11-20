@@ -821,6 +821,17 @@ public sealed partial class MercAi : AiBrain
             return;
         }
 
+        if (w.RequiresTriggerRelease)
+        {
+            _burstStart = -1f;
+            if (!w.IsInState("s_Selected")) return;
+            _pauseUntil = now + w.ShotInterval;
+            Bursts++;
+            plan.Keys.Press(AiCommand.Fire);
+            plan.Keys.bFire = 1;
+            return;
+        }
+
         if (_burstStart < 0f)
         {
             _burstStart = now;
@@ -1402,7 +1413,7 @@ public sealed partial class MercAi : AiBrain
             MercSmokeTactics.LastSeenShot(World, AiSight.Eye(Pawn), target, now, out _, 7f);
         if (Pawn is SPAWNDEFENSE { TorcheLaser: { } laser } && now - _torchAt > .5f)
         {
-            bool wantLaser = smokeShot && Difficulty.GadgetUse >= .5f;
+            bool wantLaser = smokeShot && Difficulty.GadgetUse >= .5f && Equipment.WeaponAttachments.HasLaser(Pawn);
             if (wantLaser != laser.bInUse)
             {
                 plan.Keys.Press(AiCommand.GadLaserSwitch);

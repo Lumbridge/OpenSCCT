@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using OpenScct.Game.Equipment;
 using OpenScctGame.Controls;
 
 namespace OpenScctGame.Options;
@@ -352,9 +353,9 @@ public sealed class EnhancedImport
         if (ConfigPath is null && ProfileNumber("iVoiceChatVolume") is { } voiceVolume) s.VoiceVolume = voiceVolume;
 
         bool gear = Gear("ATTEquipment", s.Loadout.SpyGadgets) | Gear("DEFEquipment", s.Loadout.MercGadgets);
-        if (ProfileClass("DEFWeapClass") is { } weapon && weapon.StartsWith("SBase.SWeapon", StringComparison.Ordinal))
+        if (ProfileClass("DEFWeapClass") is { } weapon && weapon.StartsWith("SBase.SWeapon", StringComparison.OrdinalIgnoreCase))
         {
-            s.Loadout.MercWeapon = weapon;
+            s.Loadout.MercWeapon = MercPrimarySelection.SavedPreference(weapon);
             gear = true;
         }
 

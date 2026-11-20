@@ -9,6 +9,7 @@
     <ProjectReference Include="..\OpenScct.Physics\OpenScct.Physics.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Equipment/ResponsiveSmokeNoise.r8" LogicalName="OpenScct.ResponsiveSmokeNoise.r8" />
     <InternalsVisibleTo Include="OpenScct.Game.Tests" />
   </ItemGroup>
 </Project>

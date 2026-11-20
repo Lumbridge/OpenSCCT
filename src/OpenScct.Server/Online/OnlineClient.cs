@@ -125,6 +125,7 @@ public sealed record OnlineClientSettings
 /// </summary>
 public sealed partial class OnlineClient : IDisposable
 {
+    public OpenScct.Game.Equipment.WeaponCareer WeaponProgress { get; private set; } = new();
     private const long Second = 1_000_000;
 
     private readonly JoinTarget _target;
@@ -756,6 +757,7 @@ public sealed partial class OnlineClient : IDisposable
                 }
 
                 Lobby.ClearPlayers();
+                WeaponProgress = new();
                 Lobby.LocalId = SessionProtocol.Int(f, 1, -1);
                 Lobby.Dedicated = SessionProtocol.Int(f, 2) != 0;
                 Lobby.MaxPlayers = SessionProtocol.Int(f, 3);
@@ -798,6 +800,14 @@ public sealed partial class OnlineClient : IDisposable
                 Lobby.Upsert(new LobbyPlayer(SessionProtocol.Int(f, 0), SessionProtocol.Text(f, 5), (byte)SessionProtocol.Int(f, 1),
                     (SessionPlayerFlags)SessionProtocol.Int(f, 2), SessionProtocol.Int(f, 3), (MapState)SessionProtocol.Int(f, 4)));
                 break;
+            case "weaponkills":
+            {
+                int count = Math.Min(f.Count, OpenScct.Core.Engine.WeaponCareerCounters.Count);
+                int[] kills = new int[count];
+                for (int i = 0; i < count; i++) kills[i] = SessionProtocol.Int(f, i);
+                WeaponProgress = new(kills);
+                break;
+            }
             case "rank":
                 Lobby.SetRank(SessionProtocol.Int(f, 0), SessionProtocol.Int(f, 1));
                 break;

@@ -61,6 +61,8 @@ public static class FeatKeys
     public static readonly string[] All =
     [
         .. CareerStatCounters.All.Select(c => c.Key),
+        .. WeaponCareerCounters.NewRifleKeys,
+        .. MercPrimaryMastery.All.Select(gun => GunHeadshots(gun.Id)),
         SpyGrabKills, SpyGrabKos, SpyShockerStuns, SpyDropKos, EnemyKills, SpyNeutralisations,
         SpyNeckBreaks, SpyChokes, SpyDropKills, SpyStickyKos, SpyObjectives,
         SpySmokeKos, SpyStickyCamUses, SpyShockerHeadshots, SpyLedgeGrabs, SpyChaffJams, SpyMineKills, SpyBulletHits, SpyFlashes,

@@ -148,14 +148,17 @@ public sealed record LobbySetup
     /// </summary>
     public bool Practice { get; init; }
 
-    /// <summary>Allow mercenary sidearms in this session. Opt-in, independent of alternate rules.</summary>
-    public bool Sidearms { get; init; }
+    /// <summary>Allow mercenary sidearms in this session.</summary>
+    public bool Sidearms { get; init; } = true;
 
-    /// <summary>Allow the additional mercenary rifles. Disabled by default.</summary>
-    public bool Rifles { get; init; }
+    /// <summary>Allow the additional mercenary rifles.</summary>
+    public bool Rifles { get; init; } = true;
 
-    /// <summary>Experimental geometry-filling spy smoke. Shared by the match, opt-in and fixed for each round.</summary>
-    public bool ResponsiveSmoke { get; init; }
+    /// <summary>Geometry-filling spy smoke. The host's choice applies to all players for the round.</summary>
+    public bool ResponsiveSmoke { get; init; } = true;
+
+    /// <summary>Start a new player-hosted session with the standard rules, including when reusing an older saved setup.</summary>
+    public LobbySetup WithStandardFeatures() => this with { Sidearms = true, Rifles = true, ResponsiveSmoke = true };
 
     /// <summary>A mode by its menu name or number.</summary>
     public static bool TryParseMode(string? text, out EGameMode mode)
@@ -289,6 +292,8 @@ public sealed record LobbySetup
         gri.VoiceChatMode = VoiceMode;
         gri.allowVoiceChatInLobby = VoiceInLobby;
         gri.bRandomMap = RandomMap;
+        gri.SidearmsEnabled = Sidearms;
+        gri.RiflesEnabled = Rifles;
         gri.ResponsiveSmokeEnabled = ResponsiveSmoke;
     }
 
@@ -403,7 +408,7 @@ public sealed record LobbySetup
         int respawn = Practice ? MinRespawn : RespawnSeconds;
         string practice = Practice ? ", practice" : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{(ResponsiveSmoke ? ", responsive smoke" : "")}{Alternate.Describe()}");
+            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{(ResponsiveSmoke ? "" : ", original smoke")}{Alternate.Describe()}");
     }
 
     private static string Lives(int lives) => lives <= 0 ? "unlimited" : lives.ToString(CultureInfo.InvariantCulture);

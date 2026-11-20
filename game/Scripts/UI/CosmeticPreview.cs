@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using OpenScct.Game.Equipment;
 using OpenScct.Net.Cosmetics;
 using OpenScctGame.Render;
 using OpenScctGame.Render.Characters;
@@ -148,7 +149,7 @@ public partial class CosmeticPreview : Control
         CosmeticSlot.GunAr => "SWeaponFirst.M160",
         CosmeticSlot.GunSmg => "SWeaponFirst.Hk81",
         CosmeticSlot.GunShotgun => "SWeaponFirst.BM401",
-        _ => side == CosmeticSide.Spy ? "SPerso.ATT_01" : "SPerso.DEF_01",
+        _ => MercRifles.Find(CosmeticCatalog.PrimaryClass(slot))?.Asset ?? (side == CosmeticSide.Spy ? "SPerso.ATT_01" : "SPerso.DEF_01"),
     };
 
     /// <summary>

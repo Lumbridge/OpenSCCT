@@ -158,9 +158,11 @@ public sealed class AnimationStudioTests
         var anim = new OpenScct.Game.Equipment.ViewModelAnim { ResolveClip = (name, fallback) => source.Resolve(owner, name, fallback) };
         var slot = OpenScct.Game.Equipment.ViewModelClips.FirstDrawStEd2;
         var stock = OpenScct.Game.Equipment.ViewModelClips.DataOf(slot);
-        anim.Play(0, slot, stock, Backward: true); Assert.Equal(2, anim.Remaining(0), .0001f);
+        anim.Play(0, slot, stock); Assert.Equal(2, anim.Remaining(0), .0001f);
         anim.SetFrame(0, (anim.Data(0).Frames - 1) / 2f, stock);
         Assert.Equal(1, anim.Remaining(0), .0001f); Assert.Equal(1, anim.Elapsed(0, stock), .0001f);
+        anim.Play(0, slot, stock, Backward: true);
+        Assert.Equal(stock.Seconds(1f), anim.Remaining(0), .0001f);
     }
     [Fact]
     public void CoordinateAdapterMatchesOriginalAxes()

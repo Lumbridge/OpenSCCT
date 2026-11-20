@@ -4,6 +4,8 @@ using OpenScct.Content;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Net.Cosmetics;
+using OpenScct.Game.Animation;
+using OpenScct.Game.Equipment;
 using OpenScctGame.Options;
 
 namespace OpenScctGame.Render.Characters;
@@ -71,18 +73,9 @@ public static class PawnCosmetics
             return look[CosmeticSlot.Pistol];
         }
 
-        return SGameInfo.GunClassOf(carriedWeapon ?? sb.MyWeapon) switch
-        {
-            "suppressed" => look[CosmeticSlot.Suppressed],
-            "unsuppressed" => look[CosmeticSlot.Unsuppressed],
-            "automatic" => look[CosmeticSlot.Automatic],
-            "magnum44" => look[CosmeticSlot.Magnum44],
-            "desert_eagle" => look[CosmeticSlot.DesertEagle],
-            "ar" => look[CosmeticSlot.GunAr],
-            "smg" => look[CosmeticSlot.GunSmg],
-            "shotgun" => look[CosmeticSlot.GunShotgun],
-            _ => null,
-        };
+        if (sb is not SPAWNDEFENSE merc) return null;
+        SWeapon? displayed = carriedWeapon ?? (NetworkPawnAttachments.For(merc).ActiveSlot == 0 ? merc.PrimaryWeapon : merc.SidearmWeapon);
+        return look.WeaponItem(displayed is SWeaponDefense weapon ? WeaponAttachments.Key(weapon) : merc.WeaponDummy?.Mesh.Path);
     }
 
     /// <summary>The hue turn (radians) from the side's retail light colour to the item's, or null for retail.</summary>

@@ -60,6 +60,55 @@ def _joint(doc, data, name, parent, world):
     return node, len(skin['joints'])-1
 
 
+def split_m4_backup_sight(reference, folder):
+    """Give the M4's folding aperture a draw section so a mounted handle can replace it."""
+    import copy
+    world, blob = read(reference)
+    receiver = next(mesh for mesh in world['meshes'] if mesh['name'] == 'm4a1s')
+    for part in receiver['primitives']:
+        positions = values(world, blob, part['attributes']['POSITION'])
+        faces = values(world, blob, part['indices']).reshape(-1, 3)
+        # This artist mesh has a disconnected rear leaf. Its corners fit wholly inside
+        # these bounds, including duplicate vertices along UV and shading seams.
+        inside = np.all((positions >= [-.0172, .1354, -.0059]) &
+                        (positions <= [-.0085, .1680, .0056]), axis=1)
+        leaf = inside[faces].all(axis=1)
+        if leaf.any():
+            if not np.array_equal(leaf, inside[faces].any(axis=1)):
+                raise ValueError("M4 rear sight intersects receiver triangles")
+            break
+    else:
+        raise ValueError("Could not locate the folding sight on the M4 receiver")
+
+    uv = values(world, blob, part['attributes']['TEXCOORD_0'])
+    material_name = 'OpenScctRifles.M4BackupSight'
+    for suffix, mesh_name in (('', 'm4a1s'), ('_first', 'm4a1s_parts')):
+        path = folder / ('m4a1s' + suffix + '.glb')
+        doc, data = read(path)
+        if any(material['name'] == material_name for material in doc['materials']):
+            continue
+        mesh = next(mesh for mesh in doc['meshes'] if mesh['name'] == mesh_name)
+        # The two rigs share UVs and triangle order. Only the first-person vertex positions differ.
+        for primitive in mesh['primitives']:
+            indices = values(doc, data, primitive['indices']).reshape(-1, 3)
+            if (np.array_equal(indices, faces) and
+                    np.array_equal(values(doc, data, primitive['attributes']['TEXCOORD_0']), uv)):
+                break
+        else:
+            raise ValueError(f"No matching receiver topology in {path.name}")
+        material = copy.deepcopy(doc['materials'][primitive['material']])
+        material['name'] = material_name
+        sight = dict(primitive, material=len(doc['materials']))
+        doc['materials'].append(material)
+        component = doc['accessors'][primitive['indices']]['componentType']
+        primitive['indices'] = append(doc, data, indices[~leaf].reshape(-1, 1), 'SCALAR', component, 34963)
+        sight['indices'] = append(doc, data, indices[leaf].reshape(-1, 1), 'SCALAR', component, 34963)
+        mesh['primitives'].append(sight)
+        pending = path.with_suffix('.writing')
+        write(pending, doc, data)
+        pending.replace(path)
+
+
 def _part_points(doc, data, world, node):
     skin = doc['skins'][0]; joint = skin['joints'].index(node)
     bind = values(doc, data, skin['inverseBindMatrices'])[joint].reshape(4, 4).T

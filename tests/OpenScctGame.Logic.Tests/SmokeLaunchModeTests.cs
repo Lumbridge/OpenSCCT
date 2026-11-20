@@ -5,11 +5,10 @@ namespace OpenScctGame.Logic.Tests;
 public sealed class SmokeLaunchModeTests
 {
     [Fact]
-    public void RiflesRequireAnExplicitLocalLaunchOption()
+    public void OlderEnableFlagsRemainRecognisedWithTheNewDefaults()
     {
-        Assert.False(LaunchOptions.Parse([]).Rifles);
-        var options = LaunchOptions.Parse(["--svm-play=AquaE", "--svm-rifles", "--svm-practice"]);
-        Assert.True(options.Rifles);
+        Assert.True(LaunchOptions.Parse([]).ResponsiveSmoke);
+        var options = LaunchOptions.Parse(["--svm-play=AquaE", "--svm-rifles", "--svm-sidearms", "--svm-practice"]);
         Assert.True(options.Practice);
         Assert.Empty(options.Unknown);
     }
@@ -48,7 +47,7 @@ public sealed class SmokeLaunchModeTests
     public void InvalidSmokeModesStayVisibleAsUnknownArguments()
     {
         LaunchOptions options = LaunchOptions.Parse(["--svm-smoke-mode=ultra"]);
-        Assert.False(options.ResponsiveSmoke);
+        Assert.True(options.ResponsiveSmoke);
         Assert.Null(options.SmokeMode);
         Assert.Contains("--svm-smoke-mode=ultra", options.Unknown);
     }

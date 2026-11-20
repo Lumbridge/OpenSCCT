@@ -73,17 +73,20 @@ public sealed class MercWeaponStateCleanupTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void AmmoCrateReloadRestoresTheLaserOnCompletionOrInterruption(bool interrupt)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void MagazineAndAmmoCrateReloadsPreserveTheLaserToggle(bool fullReload, bool interrupt)
     {
         var (scene, pc, pawn, rifle) = Merc();
+        rifle.AttachmentMask = WeaponAttachments.Laser;
         var laser = GadgetKit.Gadget(scene, pawn, new SGadTorcheLaser(), Select: false);
         pawn.TorcheLaser = laser;
         laser.TorcheON();
-        Assert.True(rifle.eventFullReload());
-        Assert.False(laser.bInUse);
-        Assert.True(pc.bLaserEtaitAllume);
+        Assert.True(fullReload ? rifle.eventFullReload() : rifle.eventReload());
+        Assert.True(laser.bInUse);
+        Assert.False(pc.bLaserEtaitAllume);
 
         if (interrupt) PawnWeapons.MercNotifyDrawUndrawWeapon(pawn);
         scene.Run(3f);

@@ -14,14 +14,15 @@ namespace OpenScct.Integration.Tests;
 
 public sealed class SidearmNetworkTests
 {
-    private sealed class ShotSounds(bool includeReload = false) : ISimEventSink
+    private sealed class ShotSounds(bool includeReload = false, string? primaryFireCue = null) : ISimEventSink
     {
         public readonly List<SimEvent> Calls = [];
         public void OnSimEvents(long tick, ReadOnlySpan<SimEvent> events)
         {
             foreach (var e in events)
                 if (e.Kind == SimEventKind.PlaySound &&
-                    (e.What.ToString().EndsWith("_fire", StringComparison.Ordinal) ||
+                    (string.Equals(e.What.ToString(), primaryFireCue, StringComparison.OrdinalIgnoreCase) ||
+                     e.What.ToString().EndsWith("_fire", StringComparison.Ordinal) ||
                      e.What.ToString().Contains("_1shot", StringComparison.OrdinalIgnoreCase) ||
                      (includeReload && e.What.ToString().EndsWith("_reload", StringComparison.Ordinal)))) Calls.Add(e);
         }
@@ -171,9 +172,11 @@ public sealed class SidearmNetworkTests
         for (int i = 0; i < 1200 && (session.LocalPawn is null || session.ServerController?.Pawn is null ||
             session.LocalController!.IsInState("WaitingForPawn")); i++) Tick();
         Assert.IsAssignableFrom<SPAWNDEFENSE>(session.LocalPawn);
-        var sounds = new ShotSounds();
-        var router = OpenScctGame.Play.PlayAudioRouter.Install(session.Client, sounds);
         var serverPawn = Assert.IsAssignableFrom<SBasePawn>(session.ServerController!.Pawn);
+        for (int i = 0; i < 120 && serverPawn.PrimaryWeapon is null; i++) Tick();
+        var grantedPrimary = Assert.IsAssignableFrom<SWeaponDefense>(serverPawn.PrimaryWeapon);
+        var sounds = new ShotSounds(primaryFireCue: grantedPrimary.FireSingleShotSound.Path);
+        var router = OpenScctGame.Play.PlayAudioRouter.Install(session.Client, sounds);
         foreach (var definition in Sidearms.All)
         {
             SidearmEquipment.Give(serverPawn, definition.Kind);

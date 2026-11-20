@@ -70,7 +70,8 @@ def render(request):
     dependency = bpy.context.evaluated_depsgraph_get()
     points = []
     for obj in scene.objects:
-        if obj.type != 'MESH' or (request.get('target') and obj == board): continue
+        # glTF armatures may add a hidden unit-size bone display mesh to the scene.
+        if obj.type != 'MESH' or not obj.visible_get() or obj.hide_render or (request.get('target') and obj == board): continue
         evaluated = obj.evaluated_get(dependency); mesh = evaluated.to_mesh()
         points.extend(evaluated.matrix_world @ v.co for v in mesh.vertices)
         evaluated.to_mesh_clear()

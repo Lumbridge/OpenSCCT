@@ -41,6 +41,7 @@ internal sealed record DroppedPlayer
     public int Objectives { get; init; }
 
     public USPlayerStats? Stats { get; init; }
+    public int[]? WeaponKills { get; init; }
 
     public bool WaitForRespawn { get; init; }
 
@@ -78,7 +79,7 @@ public sealed partial class OnlineServer
             HasStats = pri is not null, Score = pri?.Score ?? 0f, Kills = pri?.Kills ?? 0,
             Deaths = (pri?.Deaths ?? 0) + (lostLife ? 1 : 0),
             Lives = (pri?.NumLives ?? 0) - (lostLife ? 1 : 0), Objectives = pri?.iNbObjectivesTaken ?? 0,
-            Stats = pri?.Stats, WaitForRespawn = waitForRespawn,
+            Stats = pri?.Stats, WaitForRespawn = waitForRespawn, WeaponKills = p.WeaponProgress.Snapshot(),
         });
         Log($"{p.Name} dropped out of round {RoundsStarted}: his place is kept until the session is back in the lobby");
     }

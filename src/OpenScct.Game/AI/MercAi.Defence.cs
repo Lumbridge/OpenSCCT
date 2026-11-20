@@ -38,9 +38,10 @@ public sealed partial class MercAi
     public bool WantsScope(float now) => _scopeWantAt == now;
 
     /// <summary>The scope is up and zoomed (the raise clip has ended).</summary>
-    private bool Scoped => Pc.bBinocularVision && Pc.GetStateName() == NameScope && Pc.FovAngle <= Equipment.K.ScopeFov1 + 1f;
+    private bool Scoped => Pawn.MyWeapon is Svm.PrecisionRifle { AimRequested: true } ||
+        (Pc.bBinocularVision && Pc.GetStateName() == NameScope && Pc.FovAngle <= Equipment.K.ScopeFov1 + 1f);
 
-    private bool CanSnipe => Difficulty.GadgetUse >= 0.5f && Pawn.MyWeapon is SWeaponDefense { bCanSnipe: true };
+    private bool CanSnipe => Difficulty.GadgetUse >= 0.5f && Pawn.MyWeapon is (Svm.PrecisionRifle or SWeaponDefense { bCanSnipe: true });
 
     /// <summary>The range a spy is shot at: with a scope to raise, as far as it reaches.</summary>
     private float EngageRange => CanSnipe ? AiK.MercScopeRange : AiK.MercEngageRange;
@@ -507,7 +508,7 @@ public sealed partial class MercAi
         }
 
         float distance = (target.Position - Pawn.Location).Size();
-        if (distance < (Pc.bBinocularVision ? AiK.ScopeLeaveRange : AiK.ScopeEnterRange))
+        if (distance < (Scoped || Pc.bBinocularVision ? AiK.ScopeLeaveRange : AiK.ScopeEnterRange))
         {
             return false;
         }
@@ -541,7 +542,8 @@ public sealed partial class MercAi
             return;
         }
 
-        if (now - _scopeShotAt < AiK.ScopeShotSeconds || AimErrorTo(target) > spread + AiK.ScopeAimSlack || TeammateInTheWay(target) ||
+        float interval = rifle is Svm.PrecisionRifle ? rifle.ShotInterval : AiK.ScopeShotSeconds;
+        if (now - _scopeShotAt < interval || AimErrorTo(target) > spread + AiK.ScopeAimSlack || TeammateInTheWay(target) ||
             ShotBlocked(target))
         {
             return;

@@ -20,14 +20,16 @@ public sealed class ResponsiveSmokeSettingsTests : IDisposable
         if (Directory.Exists(_demos)) Directory.Delete(_demos, recursive: true);
     }
 
-    [Fact]
-    public void RevengeRoundRetainsSmokeRuleInInitializationAndDemoMetadata()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void RevengeRoundRetainsHostRulesOnBothClientsAndInDemoMetadata(bool enabled)
     {
         Assert.SkipWhen(WalkerRig.Maps.FindFolder(MapCatalog.TestBox) is null, "The TestBox fixture is not in this checkout.");
         var clock = new VirtualClock();
         var network = new SimLinkNetwork(clock, 19, SimLinkProfile.A);
         OnlineServerSettings settings = OnlineRig.Settings(MapCatalog.TestBox, timeLimit: 1);
-        settings = settings with { DemoFolder = _demos, Setup = settings.Setup with { Revenge = true, ResponsiveSmoke = true } };
+        settings = settings with { DemoFolder = _demos, Setup = settings.Setup with { Revenge = true, ResponsiveSmoke = enabled, Rifles = !enabled, Sidearms = enabled } };
         using var rig = new OnlineRig(new OnlineServer(network.Bind("server"), settings, clock.NowMicroseconds), clock);
         OnlineClient Join(string name, int team)
         {
@@ -50,25 +52,35 @@ public sealed class ResponsiveSmokeSettingsTests : IDisposable
 
         void VerifyRule()
         {
-            Assert.True(rig.Server.Host.Game!.GameReplicationInfo!.ResponsiveSmokeEnabled);
-            Assert.Contains("?SvmResponsiveSmoke=1", rig.Server.Host.Settings.GameOptions);
-            Assert.NotNull(rig.Server.Host.Recorder);
-            Assert.Contains("?SvmResponsiveSmoke=1", rig.Server.Host.Recorder!.Writer.Header.GameOptions);
+            bool Matches(OpenScct.Core.Engine.GameReplicationInfo? gri) =>
+                gri != null && gri.ResponsiveSmokeEnabled == enabled && gri.RiflesEnabled == !enabled && gri.SidearmsEnabled == enabled;
+            Assert.True(Matches(rig.Server.Host.Game!.GameReplicationInfo));
+            Assert.True(rig.RunUntil(() => Matches(spy.Session?.LocalPlayer?.GameReplicationInfo) &&
+                Matches(merc.Session?.LocalPlayer?.GameReplicationInfo), 10));
+            foreach (var option in new[] { $"?SvmResponsiveSmoke={(enabled ? 1 : 0)}", $"?SvmRifles={(enabled ? 0 : 1)}", $"?SvmSidearms={(enabled ? 1 : 0)}" })
+            {
+                Assert.Contains(option, rig.Server.Host.Settings.GameOptions);
+                Assert.Contains(option, rig.Server.Host.Recorder!.Writer.Header.GameOptions);
+            }
         }
     }
 
     [Fact]
-    public void SmokeRuleDefaultsOffAndRoundTripsThroughSavedLobbyAndLaunchOptions()
+    public void SmokeRuleDefaultsOnAndRoundTripsThroughSavedLobbyAndLaunchOptions()
     {
-        Assert.False(new LobbySetup().ResponsiveSmoke);
-        Assert.False(LobbySetup.FromOptions("?MapName=ClubE").ResponsiveSmoke);
-        var enabled = new LobbySetup { ResponsiveSmoke = true };
+        var enabled = new LobbySetup();
+        var disabled = new LobbySetup { ResponsiveSmoke = false };
+        Assert.True(enabled.ResponsiveSmoke);
+        Assert.True(LobbySetup.FromOptions("?MapName=ClubE").ResponsiveSmoke);
         Assert.True(LobbySetup.FromOptions(enabled.ToOptions()).ResponsiveSmoke);
         Assert.True(LobbySetup.FromOptions("?TimeLimit=5", enabled).ResponsiveSmoke);
         Assert.False(LobbySetup.FromOptions("?SvmResponsiveSmoke=0", enabled).ResponsiveSmoke);
         Assert.Contains("?SvmResponsiveSmoke=1", enabled.ToGameOptions(2));
-        Assert.Contains("?SvmResponsiveSmoke=0", new LobbySetup().ToGameOptions(2));
-        Assert.Contains("responsive smoke", enabled.Describe());
+        Assert.False(LobbySetup.FromOptions(disabled.ToOptions()).ResponsiveSmoke);
+        Assert.False(LobbySetup.FromOptions("?TimeLimit=5", disabled).ResponsiveSmoke);
+        Assert.Contains("?SvmResponsiveSmoke=0", disabled.ToGameOptions(2));
+        Assert.DoesNotContain("smoke", enabled.Describe());
+        Assert.Contains("original smoke", disabled.Describe());
     }
 
     [Fact]

@@ -44,7 +44,7 @@ public sealed class MercShockAnimationNetworkTests
         var client = match.Bots[2];
         var owner = Assert.IsType<SPlayerController>(client.Controller);
         var pawn = Assert.IsAssignableFrom<SBasePawn>(owner.Pawn);
-        var rifle = Assert.IsType<SWeaponDefense>(pawn.MyWeapon);
+        var rifle = Assert.IsAssignableFrom<SWeaponDefense>(pawn.MyWeapon);
         var authority = match.ServerController(client)!;
         if (charging) owner.eventChangeState(new Name("s_PlayerCharging"));
         authority.TimeShock = -100f;

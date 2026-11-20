@@ -80,6 +80,29 @@ public sealed class SidearmTests
         return (scene, pc, pawn, primary);
     }
 
+    [Theory]
+    [InlineData(SidearmKind.Unsuppressed, 12, 48)]
+    [InlineData(SidearmKind.Suppressed, 12, 48)]
+    [InlineData(SidearmKind.Automatic, 20, 80)]
+    [InlineData(SidearmKind.Magnum44, 6, 24)]
+    [InlineData(SidearmKind.DesertEagle, 7, 21)]
+    public void SidearmsReloadToTheirOriginalCapacityWithAnOptic(SidearmKind kind, int capacity, int reserve)
+    {
+        var (scene, pc, pawn, _) = Rig(kind);
+        var pistol = pawn.SidearmWeapon!;
+        WeaponAttachments.Apply(pistol, WeaponAttachments.Acog);
+        pc.SwapWeapon();
+        scene.Run(.6f);
+        Assert.Equal(capacity, pistol.ClipAmmo);
+        Assert.Equal(capacity + reserve, pistol.Ammo);
+        pistol.FireWeapon();
+        Assert.Equal(capacity - 1, pistol.ClipAmmo);
+        Assert.True(pistol.Reload());
+        scene.Run(pistol.Definition.ReloadSeconds + .1f);
+        Assert.Equal(capacity, pistol.ClipAmmo);
+        Assert.Equal(reserve - 1, pistol.Ammo - pistol.ClipAmmo);
+    }
+
     [Fact]
     public void SwappingPreservesBothMagazinesAndNeedsFireRelease()
     {

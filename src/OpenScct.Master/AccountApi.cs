@@ -454,6 +454,7 @@ internal sealed partial class AccountApi
             TicketId = PlayerTicket.NewTicketId(), Flags = _options.IsAdmin(account.DiscordId) ? PlayerTicketFlags.Admin : PlayerTicketFlags.None,
             Unlocks = CosmeticUnlocks.Of(_store.Unlocked(account.Id)).ToBytes(),
             Rank = _store.ProgressionOf(account.Id).Rank.Pack(), Titles = TitleCatalog.ToBytes(_store.Titles(account.Id)),
+            WeaponKills = OpenScct.Core.Engine.WeaponCareerCounters.FromFeats(_store.Progress(account.Id).Feats),
         };
         return (_signer.Sign(ticket), null);
     }

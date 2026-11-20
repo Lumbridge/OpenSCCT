@@ -14,5 +14,21 @@
   "famas": {
     "triangles": 24010,
     "muzzle": 0.3655923870086669
+  },
+  "compactsmg": {
+    "triangles": 5374,
+    "muzzle": 0.26885899999999996
+  },
+  "pumpshotgun": {
+    "triangles": 16792,
+    "muzzle": 0.70633
+  },
+  "boltrifle": {
+    "triangles": 5090,
+    "muzzle": 0.8057039999999999
+  },
+  "designatedmarksman": {
+    "triangles": 1675,
+    "muzzle": 0.8569200000000001
   }
 }

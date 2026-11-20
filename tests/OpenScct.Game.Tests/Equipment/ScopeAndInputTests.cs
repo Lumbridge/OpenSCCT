@@ -29,7 +29,7 @@ public sealed class ScopeAndInputTests
     {
         (_, SPlayerController pc, _, SWeaponDefense rifle) = Merc();
         pc.eventFire(1f);
-        Assert.Equal(24, rifle.ClipAmmo);
+        Assert.Equal(19, rifle.ClipAmmo);
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public sealed class ScopeAndInputTests
         merc.bStickyShocking = false;
         merc.WeaponLoaded = 0;
         pc.eventFire(1f);
-        Assert.Equal(25, rifle.ClipAmmo);
+        Assert.Equal(20, rifle.ClipAmmo);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public sealed class ScopeAndInputTests
         (_, SPlayerController pc, _, SWeaponDefense rifle) = Merc();
         pc.GotoState(new Name("s_GrabbedByPlayer"));
         pc.eventFire(1f);
-        Assert.Equal(25, rifle.ClipAmmo);
+        Assert.Equal(20, rifle.ClipAmmo);
     }
 
     [Fact]
@@ -65,17 +65,17 @@ public sealed class ScopeAndInputTests
         Assert.Equal(30f, pc.fBinocularVisionFOV);
 
         pc.eventFire(1f);
-        Assert.Equal(25, rifle.ClipAmmo);
+        Assert.Equal(20, rifle.ClipAmmo);
         Assert.True(rifle.bDrawWeapon);
         scene.Run(0.25f);
         Assert.True(rifle.bDrawWeapon);
         scene.Run(0.05f);
         Assert.False(rifle.bDrawWeapon);
         pc.eventFire(1f);
-        Assert.Equal(24, rifle.ClipAmmo);
+        Assert.Equal(19, rifle.ClipAmmo);
         Assert.True(pc.bBinocularKick);
         pc.eventFire(1f);
-        Assert.Equal(24, rifle.ClipAmmo);
+        Assert.Equal(19, rifle.ClipAmmo);
     }
 
     [Fact]

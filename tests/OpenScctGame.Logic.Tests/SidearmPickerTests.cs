@@ -11,7 +11,7 @@ public sealed class SidearmPickerTests
     public void SessionWithoutSidearmsDisablesPickerAndPreservesSavedPistol()
     {
         var saved = new LoadoutSettings { MercSidearm = Sidearms.Get(SidearmKind.Magnum44).CarryId };
-        var model = GearMenuModel.ForLobby(1, new OpenScct.Server.Online.LobbySetup(), saved, 55)!;
+        var model = GearMenuModel.ForLobby(1, new OpenScct.Server.Online.LobbySetup { Sidearms = false }, saved, 55)!;
         Assert.False(model.SidearmsEnabled);
         Assert.Empty(model.SidearmOptions);
         Assert.False(model.IsAllowed(saved.MercSidearm));

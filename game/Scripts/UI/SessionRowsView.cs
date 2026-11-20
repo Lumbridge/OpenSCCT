@@ -144,7 +144,7 @@ public partial class SessionRowsView : VBoxContainer
                 SessionRow.Map or SessionRow.Mode => top,
                 SessionRow.Password or SessionRow.VoiceChat or SessionRow.MaxPlayers => session,
                 SessionRow.Revenge or SessionRow.RandomMap or SessionRow.VoiceInLobby or SessionRow.AutoBalance or SessionRow.Alternate or
-                    SessionRow.GamesInARow or SessionRow.Sidearms or SessionRow.Rifles or SessionRow.ResponsiveSmoke or SessionRow.Practice => left,
+                    SessionRow.GamesInARow or SessionRow.Practice => left,
                 SessionRow.TimeLimit or SessionRow.SpyLives or SessionRow.MercLives => mid,
                 _ => right,
             };
@@ -562,9 +562,6 @@ public partial class SessionRowsView : VBoxContainer
         SessionRow.AutoBalance => "Keep the teams balanced when players join.",
         SessionRow.Alternate => "Customize the abilities and gadgets allowed for each team using Alternate rules.",
         SessionRow.Practice => "Unlimited lives, quick respawns and practice commands. Match stats are not recorded.",
-        SessionRow.Sidearms => "Allow mercenaries to carry a sidearm.",
-        SessionRow.Rifles => "Add Galil (level 1), FAMAS (level 5), AK-47 (level 20) and M4A1-S (level 30) to mercenary equipment.",
-        SessionRow.ResponsiveSmoke => "Use volumetric spy smoke that fills spaces and briefly clears around shots and explosions. Shared by everyone; applies from the next round.",
         SessionRow.MaxPlayers => "Up to 24 places for human players and bots (12v12). Spectators do not use these places.",
         SessionRow.SpyBots or SessionRow.MercBots => "Requested bots on this team. Use 0 for no bots. Human players take priority when slots are full.",
         _ => string.Empty,

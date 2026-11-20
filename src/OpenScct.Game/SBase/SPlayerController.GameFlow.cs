@@ -1,6 +1,7 @@
 using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.GameFlow;
 using OpenScct.Game.Movement;
 using OpenScct.Provenance;
@@ -746,8 +747,10 @@ public partial class SPlayerController
         for (int step = 1; step <= team.ClassWeapon.Count; step++)
         {
             int i = (start + step) % team.ClassWeapon.Count;
-            if (!OpenScct.Game.Equipment.EquipmentUnlocks.Available(this, team.ClassWeapon[i].Path)) continue;
-            RespawnWeapon = team.ClassWeapon[i];
+            ClassRef candidate = team.ClassWeapon[i];
+            if (!EquipmentUnlocks.Available(this, candidate.Path) ||
+                (MercPrimarySelection.IsLegacy(candidate.Path) && MercPrimarySelection.Resolve(candidate, team, this) != candidate)) continue;
+            RespawnWeapon = candidate;
             break;
         }
 
@@ -764,16 +767,14 @@ public partial class SPlayerController
             return Requested;
         }
 
-        if (RespawnWeapon.IsNone && PlayerReplicationInfo?.Team is STeamInfo team && team.ClassWeapon.Count > 0)
+        if (PlayerReplicationInfo?.Team is STeamInfo { ClassWeapon.Count: > 0 } team)
         {
-            RespawnWeapon = team.ClassWeapon[SvmMath.Max(MercWeaponIndex(Requested), 0)];
-            ClientSetRespawnWeapon(RespawnWeapon);
-        }
-
-        if (!OpenScct.Game.Equipment.EquipmentUnlocks.Available(this, RespawnWeapon.Path))
-        {
-            RespawnWeapon = OpenScct.Game.Equipment.Loadouts.MercWeapon;
-            ClientSetRespawnWeapon(RespawnWeapon);
+            ClassRef chosen = MercPrimarySelection.Resolve(RespawnWeapon.IsNone ? Requested : RespawnWeapon, team, this);
+            if (chosen != RespawnWeapon)
+            {
+                RespawnWeapon = chosen;
+                ClientSetRespawnWeapon(chosen);
+            }
         }
         return RespawnWeapon;
     }

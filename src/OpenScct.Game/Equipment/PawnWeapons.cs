@@ -18,7 +18,6 @@ public static class PawnWeapons
     private static readonly ClassRef TorcheClass = new("SBase.SGadTorche");
     private static readonly ClassRef TorcheLaserClass = new("SBase.SGadTorcheLaser");
     private static readonly Name NAME_s_InteractWithObject = new("s_InteractWithObject");
-    private static readonly Name NAME_s_Reloading = new("s_Reloading");
 
     /// <summary>
     /// The merc's pad-up gadgets (merc-flashlight.md rule 1): a torch and a laser spawned at the pawn on the server
@@ -84,7 +83,7 @@ public static class PawnWeapons
             return;
         }
 
-        if (GadgetClass != TorcheLaserClass)
+        if (GadgetClass != TorcheLaserClass || !WeaponAttachments.HasLaser(Merc))
         {
             return;
         }
@@ -99,11 +98,6 @@ public static class PawnWeapons
             }
 
             goggle?.ResetVisionMode();
-        }
-
-        if (Merc.MyWeapon is { } weapon && weapon.IsInState(NAME_s_Reloading))
-        {
-            return;
         }
 
         Merc.Torche?.Unload();

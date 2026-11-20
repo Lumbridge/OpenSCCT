@@ -37,7 +37,7 @@ public static class CombatActivityDeath
 /// <summary>Stable identity and source data, retained separately from destructible mines, props and poison emitters.</summary>
 public readonly record struct CombatDeathSource(CombatDeathCause Cause,
     CombatDeathTrigger Trigger = CombatDeathTrigger.None, PlayerReplicationInfo? Detonator = null,
-    PlayerReplicationInfo? Instigator = null);
+    PlayerReplicationInfo? Instigator = null, SWeaponDefense? DirectFirearm = null);
 
 /// <summary>Nested, synchronous damage provenance. Delayed effects explicitly save and restore their own snapshot.</summary>
 public static class CombatDeathContext

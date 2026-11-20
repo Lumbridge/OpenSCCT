@@ -15,6 +15,7 @@ public partial class SWeaponDefense
     // A reliable batch may recover one second of previously fired shots. The client's rate still has to
     // match the weapon, and its total clock advance may never run arbitrarily ahead of real server time.
     private const float MaximumShotClockLead = 1f;
+    public int AttachmentMask;
     public int CarriedClip;
     public int CarriedAmmo;
     public int CarriedShot;
@@ -92,16 +93,17 @@ public partial class SWeaponDefense
     {
         float now = XLevel.WorldTimeSeconds;
         float rate = System.Math.Max(Sim.DeltaTime, ShotInterval);
+        float tolerance = RequiresTriggerRelease ? .0001f : Sim.DeltaTime * 2;
         if (ActiveClientShotTime is not { } stamp)
         {
-            if (now + Sim.DeltaTime * 2 < _nextCarriedShot) return false;
+            if (now + tolerance < _nextCarriedShot) return false;
             _nextCarriedShot = System.Math.Max(now, _nextCarriedShot) + rate;
             return true;
         }
         if (!float.IsFinite(stamp) || stamp < 0) return false;
         if (_hasClientShotClock)
         {
-            if (stamp <= _lastClientShotTime || stamp + Sim.DeltaTime * 2 < _nextClientShotTime ||
+            if (stamp <= _lastClientShotTime || stamp + tolerance < _nextClientShotTime ||
                 stamp - (double)_clientShotOrigin > now - (double)_serverShotOrigin + MaximumShotClockLead)
                 return false;
         }

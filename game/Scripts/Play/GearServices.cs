@@ -47,7 +47,7 @@ public sealed class SettingsLoadoutSource : ILoadoutSource
         }
 
         string merc = SettingsStore.Current.Loadout.MercWeapon;
-        return merc.Length == 0 ? Loadouts.MercWeapon : new ClassRef(merc);
+        return new ClassRef(MercPrimarySelection.SavedPreference(merc));
     }
 }
 

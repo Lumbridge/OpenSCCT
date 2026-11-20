@@ -83,8 +83,11 @@ public static class StatsModel
             rows.Add(new(counter.Category, counter.Label, Feat(counter.Key)));
         long Total(string key) => account.Career?.Feats.GetValueOrDefault(key) ?? 0;
         rows.Add(new("Weapons", "Accuracy", account.Career is null ? "—" : Ratio(Total(CareerStatCounters.ShotsHit), Total(CareerStatCounters.ShotsFired), true)));
-        var guns = new[] { (Id: "ar", Name: "Assault rifle"), (Id: "smg", Name: "SMG"), (Id: "shotgun", Name: "Shotgun") }
+        var guns = new[] { (Id: "ar", Name: "Rifle family"), (Id: "smg", Name: "SMG family"), (Id: "shotgun", Name: "Shotgun family") }
+            .Concat(MercPrimaryMastery.All.Select(g => (g.Id, g.Name)))
             .Concat(Sidearms.All.Select(g => (g.Id, g.Name)));
+        if (account.Career?.Feats.TryGetValue(FeatKeys.GunKills("fn2000"), out int historicalKills) == true && historicalKills > 0)
+            rows.Add(new("Weapons", "FN2000 (legacy) · Kills", Number(historicalKills)));
         foreach (var gun in guns)
         {
             rows.Add(new("Weapons", gun.Name + " · Kills", Feat(FeatKeys.GunKills(gun.Id))));

@@ -57,7 +57,7 @@ public sealed class EquipmentUnlockMenuSmoke : SmokeTest
             if (MercRifles.Find(options[i]) is not null && (!tile.HasIcon || tile.Atlas is null))
                 return SmokeResult.Fail("Missing rifle side render");
         }
-        if (!_model.RiflesEnabled && options.Any(w => MercRifles.Find(w) is not null))
+        if (!_model.RiflesEnabled && options.Any(MercPrimarySelection.RequiresRifleOption))
             return SmokeResult.Fail("Disabled rifles remain visible");
         MenuPage.Shot(_page, $"equipment-unlocks-{state}-{size.X}x{size.Y}");
         if (_page.FindChild("OK", true, false) is not Button apply ||

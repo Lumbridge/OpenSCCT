@@ -748,6 +748,7 @@ public sealed class PlaySession : IDisposable
         pc.Player = new SimNetConnection();
         pc.Role = ENetRole.ROLE_Authority;
         pc.RemoteRole = ENetRole.ROLE_AutonomousProxy;
+        if (pc is SPlayerController merc && Settings.LocalWeaponCareer is { } career) merc.WeaponProgress = career;
         slot.Connection.Actor = pc;
         game.PostLogin(pc);
         ServerController = pc as SPlayerController;

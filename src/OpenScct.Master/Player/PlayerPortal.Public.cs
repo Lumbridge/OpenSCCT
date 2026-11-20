@@ -276,7 +276,8 @@ internal sealed partial class PlayerPortal
         groups.Append(Metric("Accuracy", Ratio(progress.Feat(CareerStatCounters.ShotsHit), progress.Feat(CareerStatCounters.ShotsFired), true)));
         if (displayed == 0) groups.Append("<p class=\"muted\">Detailed stats appear after you play rounds that qualify for stats and XP.</p>");
         groups.Append("</div></div></div>");
-        var weapons = new[] { (Id: "ar", Name: "Assault rifle"), (Id: "smg", Name: "Submachine gun"), (Id: "shotgun", Name: "Shotgun") }
+        var weapons = new[] { (Id: "ar", Name: "Rifle family"), (Id: "smg", Name: "SMG family"), (Id: "shotgun", Name: "Shotgun family") }
+            .Concat(MercPrimaryMastery.All.Select(g => (g.Id, g.Name)))
             .Concat(Sidearms.All.Select(g => (g.Id, g.Name))).ToArray();
         if (weapons.Any(g => progress.Feats.ContainsKey(FeatKeys.GunKills(g.Id)) || progress.Feats.ContainsKey(FeatKeys.GunHeadshots(g.Id))))
             groups.Append("<div class=\"section\">").Append(Table(["Weapon", "Kills", "Headshot kills"], weapons.Select(g => new[]

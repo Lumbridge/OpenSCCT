@@ -455,19 +455,21 @@ public class DeathLivesRespawnTests
         Assert.True(a.CanPickRespawnWeapon());
         Assert.Equal(-1, a.MercWeaponIndex(a.RespawnWeapon));
 
-        a.ServerCycleRespawnWeapon();
-        Assert.Equal(new ClassRef("SBase.SWeaponDefense"), a.RespawnWeapon);
-        a.ServerCycleRespawnWeapon();
-        a.ServerCycleRespawnWeapon();
-        Assert.Equal(new ClassRef("SBase.SWeaponDefense_Shotgun"), a.RespawnWeapon);
-        foreach (string rifle in rifles ? new[] { "M4A1S", "AK47", "Galil", "Famas" } : System.Array.Empty<string>())
+        var remaining = new HashSet<ClassRef> { new("Svm.CompactSMG"), new("Svm.PumpShotgun") };
+        if (rifles)
+            foreach (string rifle in new[] { "M4A1S", "AK47", "Galil", "Famas", "BoltRifle", "DesignatedMarksman" })
+                remaining.Add(new ClassRef("Svm." + rifle));
+        int count = remaining.Count;
+        ClassRef first = default;
+        for (int i = 0; i < count; i++)
         {
             a.ServerCycleRespawnWeapon();
-            Assert.Equal(new ClassRef("Svm." + rifle), a.RespawnWeapon);
+            if (i == 0) first = a.RespawnWeapon;
+            Assert.True(remaining.Remove(a.RespawnWeapon), $"Unexpected or repeated choice {a.RespawnWeapon}");
         }
         a.ServerCycleRespawnWeapon();
-        Assert.Equal(new ClassRef("SBase.SWeaponDefense"), a.RespawnWeapon);
-        Assert.Equal(rifles ? 8 : 4, w.Host.To(a, "ClientSetRespawnWeapon").Count);
+        Assert.Equal(first, a.RespawnWeapon);
+        Assert.Equal(count + 1, w.Host.To(a, "ClientSetRespawnWeapon").Count);
     }
 
     [Fact]
@@ -479,9 +481,10 @@ public class DeathLivesRespawnTests
         Assert.True(story[0].RespawnWeapon.IsNone);
 
         (GameWorld _, SPlayerController[] dm) = Match("?GameMode=7", "?Name=A");
-        Assert.Equal(uzi, dm[0].SpawnWeaponFor(uzi));
-        Assert.Equal(uzi, dm[0].SpawnWeaponFor(new ClassRef("SBase.SWeaponDefense_Shotgun")));
-        Assert.Equal(new ClassRef("SBase.SWeaponDefense"), Match("?GameMode=7", "?Name=B").Players[0].SpawnWeaponFor(new ClassRef("SBase.Nothing")));
+        var smg = new ClassRef("Svm.CompactSMG");
+        Assert.Equal(smg, dm[0].SpawnWeaponFor(uzi));
+        Assert.Equal(smg, dm[0].SpawnWeaponFor(new ClassRef("Svm.PumpShotgun")));
+        Assert.Equal(smg, Match("?GameMode=7", "?Name=B").Players[0].SpawnWeaponFor(new ClassRef("SBase.Nothing")));
     }
 
     [Fact]
@@ -493,11 +496,11 @@ public class DeathLivesRespawnTests
         a.bUsing = 1;
         a.CheckRespawnWeaponKey();
         a.CheckRespawnWeaponKey();
-        Assert.Equal(new ClassRef("SBase.SWeaponDefense"), a.RespawnWeapon);
+        Assert.Equal(new ClassRef("Svm.CompactSMG"), a.RespawnWeapon);
         a.bUsing = 0;
         a.CheckRespawnWeaponKey();
         a.bUsing = 1;
         a.CheckRespawnWeaponKey();
-        Assert.Equal(new ClassRef("SBase.SWeaponDefense_Uzi"), a.RespawnWeapon);
+        Assert.Equal(new ClassRef("Svm.PumpShotgun"), a.RespawnWeapon);
     }
 }

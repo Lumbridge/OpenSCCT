@@ -281,7 +281,10 @@ public partial class GearMenu : MenuPage
             Stat("RATE OF FIRE", rifle?.BurstDefault == true ? "667 auto / 800 burst RPM" : MathF.Round(60f / weapon.RateOfFire) + " RPM");
             float reload = rifle?.ReloadSeconds ?? Sidearms.Find(path)?.ReloadSeconds ??
                 ViewModelClips.DataOf(weapon.AFirstReloSt).Seconds(1f);
-            Stat("RELOAD", reload.ToString("0.00") + " s");
+            if (rifle?.EmptyReloadSeconds is float emptyReload)
+                Stat("RELOAD / EMPTY", $"{reload:0.00} / {emptyReload:0.00} s");
+            else
+                Stat("RELOAD", reload.ToString("0.00") + " s");
             Stat("SIGHTS", rifle is null ? weapon.bCanSnipe ? "Scope" : "Hip fire" : rifle.Id == "M4A1S" ? "Red dot" : "Iron sights");
             if (_model!.RequiredLevel(path) > 0) Stat("UNLOCK", "Level " + _model.RequiredLevel(path));
         }

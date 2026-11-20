@@ -577,7 +577,6 @@ public partial class SPlayerController
                 return;
             }
 
-            CombatFx.Notify(pc, CombatFx.HeadCamera, 0f);
             pc.GotoWaitingStateCombat();
         }
 
@@ -590,6 +589,7 @@ public partial class SPlayerController
         public override void EndState(Actor self)
         {
             var pc = (SPlayerController)self;
+            CombatFx.Notify(pc, CombatFx.HeadCamera, 0f);
             if (!pc.bLaserEtaitAllume)
             {
                 pc.bNoReticule = false;
@@ -607,10 +607,7 @@ public partial class SPlayerController
                 {
                     // A headless bot can miss the wake clip's draw notify. Restore the
                     // gameplay hand state as well as the view model before selecting it.
-                    pawn.WeaponLoaded = 2;
-                    rifle.GotoState(CNAME_s_Selected);
-                    rifle.AnimateWaiting();
-                    rifle.bDrawWeapon = true;
+                    rifle.RestoreAfterBodyMove(pawn);
                 }
 
                 CombatFx.Notify(pc, CombatFx.FirstPersonView, 1f);

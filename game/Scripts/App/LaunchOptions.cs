@@ -121,12 +121,7 @@ public sealed class LaunchOptions
     /// <summary>Record the offline play (<c>--svm-record</c>) as a demo in the user's demos folder (docs/DEMOS.md).</summary>
     public bool PlayRecord { get; private init; }
 
-    /// <summary>Enable experimental responsive smoke in a locally hosted match.</summary>
-    public bool ResponsiveSmoke { get; private init; }
-
-    /// <summary>Give the mercenaries of a locally hosted match their pistols (<c>--svm-sidearms</c>).</summary>
-    public bool Sidearms { get; private init; }
-    public bool Rifles { get; private init; }
+    public bool ResponsiveSmoke => SmokeMode != "original";
 
     /// <summary>Enable Practice rules in a local test launch.</summary>
     public bool Practice { get; private init; }
@@ -209,9 +204,6 @@ public sealed class LaunchOptions
         int playPlayers = 0;
         string difficulty = "normal";
         bool record = false;
-        bool responsiveSmoke = false;
-        bool sidearms = false;
-        bool rifles = false;
         bool practice = false;
         string? smokeMode = null;
         string? demo = null;
@@ -310,21 +302,14 @@ public sealed class LaunchOptions
             {
                 difficulty = arg[DifficultyPrefix.Length..].ToLowerInvariant();
             }
-            else if (arg == ResponsiveSmokeFlag)
+            else if (arg is ResponsiveSmokeFlag or RiflesFlag or SidearmsFlag)
             {
-                responsiveSmoke = true;
+                // Older launch commands explicitly enabled features which are now part of a normal match.
+                continue;
             }
             else if (arg == PracticeFlag)
             {
                 practice = true;
-            }
-            else if (arg == RiflesFlag)
-            {
-                rifles = true;
-            }
-            else if (arg == SidearmsFlag)
-            {
-                sidearms = true;
             }
             else if (arg.StartsWith(SmokeModePrefix, StringComparison.Ordinal)
                 && arg[SmokeModePrefix.Length..] is "original" or "fast" or "full")
@@ -407,9 +392,6 @@ public sealed class LaunchOptions
             PlayPlayers = playPlayers,
             PlayDifficulty = difficulty,
             PlayRecord = record,
-            ResponsiveSmoke = smokeMode is null ? responsiveSmoke : smokeMode != "original",
-            Sidearms = sidearms,
-            Rifles = rifles,
             Practice = practice,
             SmokeMode = smokeMode,
             DemoFile = demo,

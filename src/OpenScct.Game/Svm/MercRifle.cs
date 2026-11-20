@@ -12,30 +12,8 @@ public abstract class MercRifle : SWeaponDefense
 {
     public const float AimSpeedScale = .25f;
     public abstract MercRifleDefinition Definition { get; }
-    public bool AimRequested;
     public override float ShotInterval => Definition.BurstDefault && ROFMode == SRateOfFireMode.ROF_Burst ? .075f : RateOfFire;
 
-    public void SetAiming(SPlayerController pc, bool requested)
-    {
-        bool aiming = requested && CanAim(pc);
-        if (Role == ENetRole.ROLE_Authority)
-            GadgetNet.ToOwner(pc, new CombatCall(new Name("RifleAimState")) { Target = this, Bool1 = aiming });
-        if (AimRequested == aiming) return;
-        AimRequested = aiming;
-        GadgetNet.ToServer(this, pc, new CombatCall(new Name("SetRifleAim")) { Target = this, Bool1 = aiming });
-    }
-
-    private bool CanAim(SPlayerController pc) =>
-        Instigator is SBasePawn { Health: > 0, bWeaponTransit: false, bStickyShocking: false } pawn &&
-        ReferenceEquals(pc.SBPawn, pawn) && ReferenceEquals(pawn.MyWeapon, this) &&
-        !pc.bIsInInventoryMode && pc.iDontUpdatePadInput == 0 && pc.FreeCameraFlying == 0 &&
-        (IsInState("s_Selected") || IsInState("s_Firing"));
-
-    protected override void Tick(float deltaTime)
-    {
-        base.Tick(deltaTime);
-        if (AimRequested && (OwnerPC is not { } pc || !CanAim(pc))) AimRequested = false;
-    }
 
     protected override void SetDefaults()
     {
@@ -58,12 +36,12 @@ public abstract class MercRifle : SWeaponDefense
         ValeurReculVer = d.VerticalRecoil;
         ValeurReculHor = d.HorizontalRecoil;
         ROFMode = d.BurstDefault ? SRateOfFireMode.ROF_Burst : SRateOfFireMode.ROF_Auto;
-        FireSingleShotSound = new("OpenScctRifles." + d.Id.ToLowerInvariant() + "_fire");
-        ReloadSound = new("OpenScctRifles." + d.Id.ToLowerInvariant() + "_reload");
+        FireSingleShotSound = new(d.FireCue ?? d.Asset + "_fire");
+        ReloadSound = new(d.ReloadCue ?? d.Asset + "_reload");
         Skins.Clear();
     }
 
-    protected override float AuthoritativeReloadSeconds() => Definition.ReloadSeconds;
+    protected override float AuthoritativeReloadSeconds() => Definition.ReloadDuration(ClipAmmo);
 
     protected override AssetRef ReloadAudio() => this is M4A1S && ClipAmmo > 0
         ? new AssetRef("OpenScctRifles.m4a1s_reload_tactical") : base.ReloadAudio();
@@ -75,11 +53,12 @@ public abstract class MercRifle : SWeaponDefense
         new(path, typeof(T), SWeaponDefenseDummy.UcMeta.Class, (UcClassFlags)0x36u, null, 0, static () => new T(), [], [], [], null);
 }
 
-public sealed class M4A1S : MercRifle
+public sealed class M4A1S : RecoilRecoveryRifle
 {
     public static readonly UcClassInfo ClassInfo = RifleClass<M4A1S>("Svm.M4A1S");
     public override MercRifleDefinition Definition => MercRifles.All[0];
     public override UcClassInfo GetUcClass() => ClassInfo;
+    protected override bool SupportsFireMode(SRateOfFireMode mode) => mode == SRateOfFireMode.ROF_Auto;
 }
 public sealed class AK47 : MercRifle
 {
@@ -87,13 +66,13 @@ public sealed class AK47 : MercRifle
     public override MercRifleDefinition Definition => MercRifles.All[1];
     public override UcClassInfo GetUcClass() => ClassInfo;
 }
-public sealed class Galil : MercRifle
+public sealed class Galil : RecoilRecoveryRifle
 {
     public static readonly UcClassInfo ClassInfo = RifleClass<Galil>("Svm.Galil");
     public override MercRifleDefinition Definition => MercRifles.All[2];
     public override UcClassInfo GetUcClass() => ClassInfo;
 }
-public sealed class Famas : MercRifle
+public sealed class Famas : RecoilRecoveryRifle
 {
     public static readonly UcClassInfo ClassInfo = RifleClass<Famas>("Svm.Famas");
     public override MercRifleDefinition Definition => MercRifles.All[3];

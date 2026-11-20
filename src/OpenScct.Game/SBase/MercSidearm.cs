@@ -91,7 +91,6 @@ public sealed class MercSidearm : SWeaponDefense
         if (ReloadUntil > 0)
         {
             Instigator?.StopSound(ReloadSound);
-            OwnerPC?.RallumeLaserEteint();
         }
         ReloadUntil = 0; ViewAnim.Stop(ACTIONCHANNEL);
     }
@@ -133,7 +132,7 @@ public sealed class MercSidearm : SWeaponDefense
         if (ReloadUntil > 0 || ClipAmmo >= ClipMaxAmmo || Ammo <= ClipAmmo || !SidearmEquipment.Ready(this) || OwnerPC?.IsHudPerturbed == true)
             return false;
         ReloadUntil = Level.TimeSeconds + Definition.ReloadSeconds;
-        OwnerPC?.EteintLaser();
+        if (AimRequested && OwnerPC is { } controller) SetAiming(controller, false);
         ViewAnim.SetAlpha(ACTIONCHANNEL, 1f);
         var clip = ViewModelClips.DataOf(AFirstReloSt);
         ViewAnim.Play(ACTIONCHANNEL, AFirstReloSt, clip, clip.Seconds(1f) / Definition.ReloadSeconds);
@@ -152,7 +151,7 @@ public sealed class MercSidearm : SWeaponDefense
 
     private void Step(float delta)
     {
-        NativeTickSWeaponDefense(delta);
+        base.Tick(delta);
         Configure();
         if (!ViewAnim.IsAnimating(MVTCHANNEL) || ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWaitStFd2 ||
             ViewAnim.Sequence(MVTCHANNEL) == ViewModelClips.FirstWalkStFd2)

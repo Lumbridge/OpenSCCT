@@ -26,11 +26,12 @@ public static class SidearmEquipment
         return null;
     }
 
-    public static void Give(SBasePawn pawn, SidearmKind kind)
+    public static void Give(SBasePawn pawn, SidearmKind kind, int attachments = 0)
     {
         var pistol = pawn.XLevel.SpawnActor(new MercSidearm { Kind = (int)kind }, pawn.Location, pawn.Rotation, pawn, pawn);
         if (pistol is MercSidearm weapon)
         {
+            WeaponAttachments.Apply(weapon, attachments);
             weapon.GiveTo(pawn);
             // Both carried actors must follow the pawn's relevance for observers and late joiners.
             // First-person rendering still belongs to FirstPersonView; these inventory actors stay hidden.
@@ -66,6 +67,7 @@ public static class SidearmEquipment
         if (pawn.Controller is SPlayerController { bBinocularVision: true } scoped) scoped.eventSwitchBinocularVision();
         if (pawn.MyWeapon is SWeaponDefense old)
         {
+            if (old.AimRequested && pawn.Controller is SPlayerController controller) old.SetAiming(controller, false);
             if (old is MercSidearm pistol) pistol.CancelReload();
             old.CancelCarriedReload();
             old.BulletsToFire = 0;
@@ -80,6 +82,8 @@ public static class SidearmEquipment
             }
         }
         CarryEmf(pawn, pawn.MyWeapon, weapon);
+        if (weapon is SWeaponDefense next && (next.AttachmentMask & WeaponAttachments.Laser) == 0 &&
+            pawn is SPAWNDEFENSE { TorcheLaser: { bInUse: true } laser }) laser.TorcheOFF();
         pawn.ActiveWeaponSlot = slot;
         pawn.MyWeapon = weapon;
         pawn.WeaponSwitchUntil = pawn.Level.TimeSeconds + Sidearms.SwitchSeconds;
@@ -139,12 +143,13 @@ public static class SidearmEquipment
 public sealed class SidearmCarry : SGadget
 {
     public int Kind;
+    internal int AttachmentMask;
     public SidearmCarry() { bActivatable = false; Charge = 0; }
     public override void GiveTo(Pawn other)
     {
         base.GiveTo(other);
         if (other is SBasePawn pawn && pawn.Role == ENetRole.ROLE_Authority && pawn.SidearmWeapon is null)
-            SidearmEquipment.Give(pawn, (SidearmKind)Kind);
+            SidearmEquipment.Give(pawn, (SidearmKind)Kind, AttachmentMask);
     }
     protected override void Destroyed()
     {

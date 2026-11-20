@@ -26,7 +26,8 @@ public interface IPracticeBotControl
 /// <summary>Shared by online practice and offline Visit Map. Called on the host thread.</summary>
 public static class PracticeBotCommands
 {
-    public const string WeaponHelp = "botweapon <rifle|uzi|shotgun> (all living merc bots)";
+    private const string WeaponUsage = "botweapon <default|shotgun>";
+    public const string WeaponHelp = WeaponUsage + " (all living merc bots)";
 
     private static readonly (string Verb, string Usage, string Description)[] HelpEntries =
     [
@@ -37,7 +38,7 @@ public static class PracticeBotCommands
         ("botstop", "botstop", "Stop all bots, including future spawns and respawns."),
         ("botresume", "botresume", "Resume all stopped bots."),
         ("bothealth", "bothealth <team|all> <1-10000>", "Set living bots' health; resets on respawn."),
-        ("botweapon", "botweapon <rifle|uzi|shotgun>", "Equip all living merc bots; resets on respawn."),
+        ("botweapon", WeaponUsage, "Equip all living merc bots; resets on respawn."),
         ("botteam", "botteam <from> <to> [number]", "Change team and respawn bots; number defaults to 1."),
     ];
 
@@ -53,7 +54,7 @@ public static class PracticeBotCommands
                 lines.Add(prefix + entry.Usage + " - " + entry.Description);
         if (topic is "bots" or "addbot" or "kickbot" or "placebot" or "bothealth" or "botteam")
             lines.Add("Teams: spy / merc (also spies / mercs or 0 / 1). Counts: 1-24, subject to session capacity.");
-        if (topic == "botweapon") lines.Add($"Example: {prefix}botweapon shotgun. Use {prefix}botweapon rifle to restore the normal gun.");
+        if (topic == "botweapon") lines.Add($"Example: {prefix}botweapon shotgun. Use {prefix}botweapon default to restore the normal gun.");
         if (topic == "bots") lines.Add($"Use {prefix}help <command> for details, e.g. {prefix}help botweapon.");
         return lines;
     }
@@ -146,19 +147,22 @@ public static class PracticeBotCommands
     {
         if (args.Length != 1) return "usage: " + WeaponHelp;
         string weapon = args[0].ToLowerInvariant();
-        if (weapon is not ("rifle" or "uzi" or "shotgun")) return "usage: " + WeaponHelp;
+        if (weapon is not ("default" or "rifle" or "uzi" or "shotgun")) return "usage: " + WeaponHelp;
         var targets = bots.Controllers.Where(pc => pc.Pawn is SPAWNDEFENSE { Health: > 0, bDeleteMe: false }).ToArray();
         if (targets.Length == 0) return "No living merc bots to equip.";
         int changed = 0;
         foreach (var pc in targets)
         {
             var pawn = (SBasePawn)pc.Pawn!;
+            // Keep the original explicit practice commands usable in recorded scenarios.
             ClassRef cls = weapon switch
             {
-                "uzi" => new("SBase.SWeaponDefense_Uzi"), "shotgun" => new("SBase.SWeaponDefense_Shotgun"),
-                _ => Loadouts.MercWeapon,
+                "rifle" => Loadouts.MercWeapon,
+                "uzi" => new("SBase.SWeaponDefense_Uzi"),
+                "shotgun" => new(MercPrimarySelection.Shotgun),
+                _ => Loadouts.Team(pawn) is { } team ? MercPrimarySelection.Resolve(default, team, pc) : default,
             };
-            if (DeviceClasses.Spawn(pawn, cls, pawn, default, pawn.Location, pawn.Rotation) is not SWeapon next) continue;
+            if (cls.IsNone || DeviceClasses.Spawn(pawn, cls, pawn, default, pawn.Location, pawn.Rotation) is not SWeaponDefense next) continue;
             var old = pawn.PrimaryWeapon ?? pawn.MyWeapon;
             (old as SWeaponDefense)?.Dummy?.Destroy();
             old?.Destroy();
@@ -168,7 +172,8 @@ public static class PracticeBotCommands
             pawn.WeaponSwitchUntil = 0;
             if (pawn is SPAWNDEFENSE merc) merc.WeaponDummy = null;
             next.GiveTo(pawn);
-            if (pawn is SPAWNDEFENSE equipped) equipped.WeaponDummy = (next as SWeaponDefense)?.Dummy;
+            pawn.PrimaryAttachmentMask = next.AttachmentMask;
+            if (pawn is SPAWNDEFENSE equipped) equipped.WeaponDummy = next.Dummy;
             changed++;
         }
         return $"Equipped {changed} merc bot(s) with {weapon}.";

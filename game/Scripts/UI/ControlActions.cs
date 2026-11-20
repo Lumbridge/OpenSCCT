@@ -45,7 +45,7 @@ public static class ControlActions
         A("ready", "Combat", "Ready / holster weapon", "With the weapon holstered, tap to ready it with the laser; hold longer than 0.5 seconds to ready it without the laser. Press again to leave weapon mode where permitted.", "InvButton bFireMode", "bFireMode") with { Merc = false },
         A("reload", "Combat", "Reload", "Reload the current weapon when permitted.", "Button bReload", "bReload"),
         A("swapweapon", "Combat", "Swap weapon", "Switch between your primary and carried pistol. A pistol occupies one gadget slot.", "SwapWeapon", "SwapWeapon") with { Spy = false },
-        A("rof", "Combat", "Switch fire mode", "Switch the mercenary rifle's firing mode (burst / full auto), once per press.", "Button bROF", "bROF", "SwitchROF") with { Spy = false },
+        A("rof", "Combat", "Switch fire mode", "Cycle the available firing modes on weapons that support more than one.", "Button bROF", "bROF", "SwitchROF") with { Spy = false },
         A("breath", "Combat", "Hold breath", "Hold to steady the mercenary sniper scope when available.", "Button bHoldBreath", "bHoldBreath") with { Spy = false },
         A("cloak", "Combat", "Cloak", "Use the spy's built-in camo suit, independently of gadgets. Hold activates on press and deactivates on release; Toggle switches on each press. Choose the behavior for this action. Wheel bindings always toggle.", "Button bCloak", "bCloak") with { Merc = false },
         A("quick1", "Gadgets", "Quick-use gadget slot 1", "While the spy is unarmed, quick-launch a supported gadget from slot 1.", "GadgetQuickChoice 0", "GadgetQuickChoice 0") with { Merc = false },

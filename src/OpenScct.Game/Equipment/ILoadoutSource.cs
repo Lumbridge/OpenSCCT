@@ -18,4 +18,6 @@ public interface ILoadoutSource
 
     /// <summary>The independent merc sidearm, or None.</summary>
     ClassRef Sidearm() => default;
+
+    int Attachments(string weaponClass) => 0;
 }

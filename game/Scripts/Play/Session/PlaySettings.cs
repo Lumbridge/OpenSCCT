@@ -68,6 +68,8 @@ public sealed record PlayRoute(IReadOnlyList<string> Stops, PlaySide Side, strin
 /// <summary>What <see cref="PlaySession"/> hosts and joins.</summary>
 public sealed record PlaySettings
 {
+    /// <summary>Local player progression bound to the authoritative controller before its first spawn.</summary>
+    public OpenScct.Game.Equipment.WeaponCareer? LocalWeaponCareer { get; init; }
     /// <summary>The SVMap folder name (<c>.content/svmap/&lt;Map&gt;</c>).</summary>
     public string Map { get; init; } = "SteeE";
 
@@ -78,13 +80,13 @@ public sealed record PlaySettings
 
     public PlayRules Rules { get; init; } = PlayRules.MapSettings;
 
-    public bool Sidearms { get; init; }
+    public bool Sidearms { get; init; } = true;
 
-    /// <summary>Allow the additional mercenary rifles. Disabled by default.</summary>
-    public bool Rifles { get; init; }
+    /// <summary>Allow the additional mercenary rifles.</summary>
+    public bool Rifles { get; init; } = true;
 
-    /// <summary>Opt in to responsive spy smoke for this local match.</summary>
-    public bool ResponsiveSmoke { get; init; }
+    /// <summary>Use the shared responsive smoke field for this local match.</summary>
+    public bool ResponsiveSmoke { get; init; } = true;
 
     public PlayHostMode HostMode { get; init; } = PlayHostMode.Thread;
 

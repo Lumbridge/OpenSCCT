@@ -29,7 +29,7 @@ class CharsStep(Step):
                   "content/svmbuild/skeleton.py", "content/svmbuild/gunskin.py", "content/svmbuild/fitted.py", "content/svmbuild/cosmetic_art.py", "content/svmbuild/sidearms.py", "content/svmbuild/sidearm_models.py", "content/svmbuild/pistol_arms.py",
                   "content/svmbuild/authored_characters.py", "content/svmbuild/reload_motion.py",
                   "content/svmbuild/reload_choreography.py", "content/svmbuild/spy_viewmodel.py", "content/svmbuild/rifles.py",
-                  "content/svmbuild/rifle_arms.py", "content/svmbuild/rifle_handling.py", "content/svmbuild/rifle_contacts.py", "content/svmbuild/weapon_icons.py",
+                  "content/svmbuild/rifle_arms.py", "content/svmbuild/rifle_handling.py", "content/svmbuild/rifle_contacts.py", "content/svmbuild/rifle_finishes.py", "content/svmbuild/weapon_icons.py",
                   "content/svmbuild/viewmodel_actions.py", "content/svmbuild/ak_reload.py",
                   "content/svmbuild/mine_handling.py", "content/svmbuild/revolver_details.py")
 

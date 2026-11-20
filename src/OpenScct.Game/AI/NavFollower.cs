@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
 using OpenScct.Physics.Collision;
 using OpenScct.Physics.Conveyors;
@@ -485,6 +486,12 @@ public sealed partial class NavFollower
             return cmd;
         }
 
+        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_Ledge)
+        {
+            return Hanging(pawn, now);
+        }
+        _hangSince = -1f;
+
         if (!_hasGoal || Failed)
         {
             return cmd;
@@ -514,12 +521,6 @@ public sealed partial class NavFollower
         }
 
         Arrived = false;
-        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_Ledge)
-        {
-            return Hanging(pawn, now);
-        }
-
-        _hangSince = -1f;
         if (now < _wiggleUntil)
         {
             return Wiggle(pawn, now);
@@ -789,7 +790,7 @@ public sealed partial class NavFollower
 
     /// <summary>
     /// Hanging from a ledge the walk did not plan (a fall caught by the arms): climb when the next waypoint is on top,
-    /// let go (the crouch key) when it is below or the climb does not come.
+    /// pull back to let go when it is below or the climb does not come.
     /// </summary>
     private NavCommand Hanging(SBasePawn pawn, float now)
     {
@@ -801,7 +802,7 @@ public sealed partial class NavFollower
 
         float lip = pawn.Location.Z + AiK.LedgeHangDrop;
         FVector target = _next < _path.Count ? _path[_next].Point : _goal;
-        bool climb = target.Z > lip - 60f && now - _hangSince < 2.5f;
+        bool climb = _hasGoal && !Failed && target.Z > lip - 60f && now - _hangSince < 2.5f;
         if (climb)
         {
             cmd.Keys.BT_Up = 1;
@@ -812,10 +813,6 @@ public sealed partial class NavFollower
             // Back on the stick lets go (OnLedge.PlayerMove: iMove back sets bCrouchWithRoll, then SA_LEDGEFALL); the
             // crouch key's latch only toggles where the state reads it.
             cmd.Keys.BT_Down = 1;
-            if (((int)((now - _hangSince) * 4f) & 1) == 0)
-            {
-                cmd.Keys.bCrouch = 1;
-            }
         }
 
         _progressAt = -1f;
@@ -1381,11 +1378,12 @@ public sealed partial class NavFollower
                     return Done(pawn, link, step);
                 }
 
-                if (now - _phaseAt > 5f)
+                if ((now - _phaseAt > 0.75f && pawn.Controller is SPlayerController pc &&
+                     pc.IsInState(MovementStateNames.OnLedge) && pc.TestTopLedge(false) == 0) || now - _phaseAt > 5f)
                 {
-                    // Let go (the crouch key drops from a hang) and give the link up.
+                    // OnLedge releases on backward input. The crouch latch alone does not reliably drop the pawn.
                     cmd.Keys.BT_Up = 0;
-                    cmd.Keys.bCrouch = 1;
+                    cmd.Keys.BT_Down = 1;
                     return Fail(pawn, link, step, cmd);
                 }
 

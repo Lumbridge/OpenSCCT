@@ -27,8 +27,8 @@ public sealed class StudioViewAnimationSource(AnimationWorld world) : IViewAnima
     }
     public void Advance(Actor owner, Name sequence, float from, float to, bool includeStart, bool backward, bool loop)
     {
-        if (backward && sequence == ViewModelClips.FirstDrawStEd2 && Clip(owner, new Name("FirstHolsterStFd2")) is { })
-        { sequence = new Name("FirstHolsterStFd2"); backward = false; }
+        if (sequence == ViewModelClips.FirstDrawStEd2)
+            ViewModelClips.ResolveDrawDirection(ref sequence, ref backward, Clip(owner, ViewModelClips.FirstHolsterStFd2) is not null);
         if (owner.Role != ENetRole.ROLE_Authority || owner.XLevel.World.IsReplaying || Clip(owner, sequence) is not { } clip) return;
         AnimationClip source = clip;
         if (backward || source.Loop != loop)

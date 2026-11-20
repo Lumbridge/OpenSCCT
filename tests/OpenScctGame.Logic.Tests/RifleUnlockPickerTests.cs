@@ -13,11 +13,11 @@ public sealed class RifleUnlockPickerTests
     public void DisabledRiflesAreHiddenEvenForUnrestrictedPlayersAndSavedChoicesFallBack()
     {
         var saved = new LoadoutSettings { MercWeapon = "Svm.M4A1S" };
-        var model = GearMenuModel.ForLobby(1, new LobbySetup(), saved, 55, true)!;
-        Assert.DoesNotContain(model.Weapons, w => MercRifles.Find(w) is not null);
-        Assert.Equal(Loadouts.MercWeapon.Path, model.ChosenWeapon);
+        var model = GearMenuModel.ForLobby(1, new LobbySetup { Rifles = false }, saved, 55, true)!;
+        Assert.Equal(new[] { MercPrimarySelection.Smg, MercPrimarySelection.Shotgun }, model.Weapons);
+        Assert.Equal(MercPrimarySelection.Smg, model.ChosenWeapon);
         model.ChooseWeapon("Svm.M4A1S");
-        Assert.Equal(Loadouts.MercWeapon.Path, model.ChosenWeapon);
+        Assert.Equal(MercPrimarySelection.Smg, model.ChosenWeapon);
     }
 
     [Theory]
@@ -32,10 +32,10 @@ public sealed class RifleUnlockPickerTests
     {
         var saved = new LoadoutSettings { MercWeapon = "Svm.M4A1S" };
         var model = GearMenuModel.ForLobby(1, new LobbySetup { Rifles = true }, saved, level)!;
-        var rifles = model.Weapons.Where(w => MercRifles.Find(w) is not null).ToArray();
-        Assert.Equal(new[] { "Svm.Galil", "Svm.Famas", "Svm.AK47", "Svm.M4A1S" }, rifles);
-        Assert.Equal(count, rifles.Count(model.IsAllowed));
-        Assert.Equal(level == 30 ? "Svm.M4A1S" : Loadouts.MercWeapon.Path, model.ChosenWeapon);
+        var rifles = model.Weapons.Where(MercPrimarySelection.RequiresRifleOption).ToArray();
+        Assert.Equal(new[] { "Svm.Galil", "Svm.BoltRifle", "Svm.DesignatedMarksman", "Svm.Famas", "Svm.AK47", "Svm.M4A1S" }, rifles);
+        Assert.Equal(count + 2, rifles.Count(model.IsAllowed));
+        Assert.Equal(level == 30 ? "Svm.M4A1S" : MercPrimarySelection.Smg, model.ChosenWeapon);
         foreach (string rifle in rifles)
         {
             string before = model.ChosenWeapon;
@@ -80,11 +80,26 @@ public sealed class RifleUnlockPickerTests
     [Fact]
     public void PracticeUnlocksGearButStillRequiresTheRifleHostOption()
     {
-        var setup = new LobbySetup { Practice = true };
-        Assert.DoesNotContain(GearMenuModel.ForLobby(1, setup, new(), 1)!.Weapons, w => MercRifles.Find(w) is not null);
+        var setup = new LobbySetup { Practice = true, Rifles = false };
+        Assert.DoesNotContain(GearMenuModel.ForLobby(1, setup, new(), 1)!.Weapons, MercPrimarySelection.RequiresRifleOption);
         var merc = GearMenuModel.ForLobby(1, setup with { Rifles = true }, new(), 1)!;
         Assert.All(merc.Weapons, w => Assert.True(merc.IsAllowed(w)));
         var spy = GearMenuModel.ForLobby(0, setup, new(), 1)!;
         Assert.True(spy.IsAllowed("Svm.CloneGadget"));
+    }
+
+    [Theory]
+    [InlineData("SBase.SWeaponDefense", WeaponAttachments.M4, MercPrimarySelection.Smg)]
+    [InlineData("sbase.sweapondefense_uzi", MercPrimarySelection.Smg, MercPrimarySelection.Smg)]
+    [InlineData("SBase.SWeaponDefense_Shotgun", MercPrimarySelection.Shotgun, MercPrimarySelection.Shotgun)]
+    public void LegacyPreferencesFollowTheirReplacementAcrossRooms(string previous, string unrestricted, string stock)
+    {
+        var profile = new LoadoutSettings { MercWeapon = previous };
+        var stockRoom = GearMenuModel.ForLobby(1, new LobbySetup { Rifles = false }, profile, 1)!;
+        Assert.Equal(stock, stockRoom.ChosenWeapon);
+        stockRoom.SaveTo(profile);
+        var openRoom = GearMenuModel.ForLobby(1, new LobbySetup { Rifles = true }, profile, 30)!;
+        Assert.Equal(unrestricted, openRoom.ChosenWeapon);
+        Assert.DoesNotContain(openRoom.Weapons, MercPrimarySelection.IsLegacy);
     }
 }

@@ -54,16 +54,18 @@ public sealed class ViewModelAnim
     public void SetAlpha(int Channel, float Alpha) => _alpha[Channel] = Alpha;
 
     /// <summary>PlayAnim: a one-shot of <paramref name="Clip"/> at <paramref name="Rate"/>.</summary>
-    public void Play(int Channel, Name Sequence, ClipData Clip, float Rate = 1f, bool Backward = false, float TweenTime = 0f)
+    public void Play(int Channel, Name Sequence, ClipData Clip, float Rate = 1f, bool Backward = false, float TweenTime = 0f,
+        float Duration = 0f)
     {
         Clip = ResolveClip?.Invoke(Sequence, Clip) ?? Clip;
-        if (Backward && Sequence == ViewModelClips.FirstDrawStEd2)
-            Clip = ResolveClip?.Invoke(new Name("FirstHolsterStFd2"), Clip) ?? Clip;
+        if (!Backward && Sequence == ViewModelClips.FirstDrawStEd2)
+            Clip = ResolveClip?.Invoke(ViewModelClips.FirstHolsterStFd2, Clip) ?? Clip;
+        if (Duration > 0f && Clip.Frames > 1) Rate = Clip.Seconds(1f) / Duration;
         _clips[Channel] = Clip; _elapsed[Channel] = 0; _notifyStart[Channel] = true;
         _sequence[Channel] = Sequence;
         _rate[Channel] = Rate;
         _tweenTime[Channel] = MathF.Max(0f, TweenTime);
-        _remaining[Channel] = _tweenTime[Channel] + Clip.Seconds(Rate);
+        _remaining[Channel] = _tweenTime[Channel] + (Duration > 0f ? Duration : Clip.Seconds(Rate));
         _loop[Channel] = false;
         _playing[Channel] = true;
         _backward[Channel] = Backward;
@@ -153,6 +155,16 @@ public sealed class ViewModelAnim
 [Provenance(ProvenanceKind.Decoded, "SWeaponFirst.ukx clip frames and rates (merc-rifle.md, spy-shocker.md)")]
 public static class ViewModelClips
 {
+    public static readonly Name FirstHolsterStFd2 = new("FirstHolsterStFd2");
+
+    /// <summary>The original clip stows forward and draws in reverse. A rig with separate clips plays each forward.</summary>
+    public static void ResolveDrawDirection(ref Name sequence, ref bool backward, bool hasSeparateHolster)
+    {
+        if (sequence != FirstDrawStEd2 || !hasSeparateHolster) return;
+        if (!backward) sequence = FirstHolsterStFd2;
+        backward = false;
+    }
+
     public static readonly Name FirstShooStFd2 = new("FirstShooStFd2");
     public static readonly Name FirstReloStFd2 = new("FirstReloStFd2");
     public static readonly Name FirstReloStFd1 = new("FirstReloStFd1");

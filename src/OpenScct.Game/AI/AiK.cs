@@ -139,6 +139,10 @@ public static class AiK
     [Provenance(ProvenanceKind.Measured, "docs/spikes/R4-traversal.md spy-ledge-grab: hang at lip - 39 horizontally, LG z - 117")]
     public const float LedgeHangDrop = 117f;
 
+    [Provenance(ProvenanceKind.Decoded, "SBasePawn defaults m_LedgeGrabArmsZone.X 39, m_LedgeGrabArmsRadius 40")]
+    public const float LedgeHangReach = 39f;
+    public const float LedgeArmsRadius = 40f;
+
     /// <summary>Lip heights above the floor a standing jump catches (container A: 263.5, caught at a 53.4 rise; JumpZ 610 rises 124).</summary>
     [Provenance(ProvenanceKind.Estimated, "from the hang spot (lip - 117), the standing location (floor + 89) and the 124 uu jump rise")]
     public const float LedgeJumpMin = 215f;

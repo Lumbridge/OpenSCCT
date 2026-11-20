@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using OpenScct.Content;
 using OpenScct.Core;
 using OpenScct.Core.Engine;
+using OpenScct.Game.Equipment;
 using OpenScct.Game.Movement;
 using OpenScct.Game.SBase;
+using OpenScct.Game.Svm;
 using OpenScct.Physics.Collision;
 using Xunit;
 using static OpenScct.Game.Tests.Movement.MovementTestKit;
@@ -217,6 +219,107 @@ public sealed class LadderTests
         // A view 1000 to the right of the ladder is aimed 1400 to the right.
         rig.Step(new PlayerInputFrame { View = new FRotator(0, 16384 + 1000, 0) });
         Assert.Equal(16384 + 1400, rig.Controller.MyDesiredRotation.Yaw & 65535);
+    }
+
+    [Theory]
+    [InlineData("top")]
+    [InlineData("bottom")]
+    [InlineData("drop")]
+    public void MercGetsTheEquippedRifleBackWhenLeavingALadder(string exit)
+    {
+        PawnRig rig = LadderRig(PawnTeam.Merc);
+        var rifle = rig.Pawn.XLevel.Spawn<SWeaponDefense>(rig.Pawn.Location)!;
+        rifle.GiveTo(rig.Pawn);
+        rig.Pawn.WeaponLoaded = 2;
+        rifle.bDrawWeapon = true;
+        rifle.GotoState(new Name("s_Selected"));
+        Assert.True(StepUntil(rig, Up, MovementStateNames.s_OnLadder, 200));
+        Assert.False(rifle.bDrawWeapon);
+        rig.Hold(Up, 45);
+        // The mount lowered the gun, but the converted dismount clip has no draw notify.
+        rig.Pawn.WeaponLoaded = 0;
+        rifle.AnimateUnDraw();
+        var seen = new List<Name>();
+        var input = exit switch { "top" => Up, "bottom" => Down, _ => Crouch };
+        Assert.True(StepUntil(rig, input, MovementStateNames.s_PlayerWalkingSt2H, 900, seen,
+            exit == "drop" ? NoInput : input), Seen(seen));
+        rig.Hold(NoInput, 15);
+        Assert.False(rig.Controller.bBehindView);
+        Assert.False(rig.Controller.bFirstPersonWithPawn);
+        Assert.Equal(2, rig.Pawn.WeaponLoaded);
+        Assert.True(rifle.bDrawWeapon);
+        Assert.True(rifle.IsInState(new Name("s_Selected")), rifle.GetStateName().ToString());
+        int clip = rifle.ClipAmmo;
+        rig.Controller.eventFire(1f);
+        Assert.Equal(clip - 1, rifle.ClipAmmo);
+    }
+
+    [Fact]
+    public void MirroredLadderExitRestoresTheRifleOnTheServerWithoutOwnerAnimation()
+    {
+        PawnRig rig = LadderRig(PawnTeam.Merc);
+        var rifle = rig.Pawn.XLevel.Spawn<SWeaponDefense>(rig.Pawn.Location)!;
+        rifle.GiveTo(rig.Pawn);
+        rig.Controller.RemoteRole = ENetRole.ROLE_AutonomousProxy;
+        rig.Controller.GotoState(MovementStateNames.s_EndLadderDrawWeapon);
+        rig.Pawn.WeaponLoaded = 0;
+        rifle.bDrawWeapon = false;
+        rifle.AnimateUnDraw();
+        rig.Controller.PCChangeServerState(rig.Controller.MirrorStateAcknowledgementTime,
+            MovementStateNames.s_PlayerWalkingSt2H);
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerWalkingSt2H));
+        Assert.Equal(2, rig.Pawn.WeaponLoaded);
+        Assert.True(rifle.bDrawWeapon);
+        Assert.True(rifle.IsInState(new Name("s_Selected")));
+    }
+
+    [Theory]
+    [InlineData("top", false)]
+    [InlineData("bottom", false)]
+    [InlineData("top", true)]
+    [InlineData("bottom", true)]
+    public void M4RedrawOnDismountReturnsToAnActiveLocomotionPose(string exit, bool useCharacterClips)
+    {
+        var options = useCharacterClips ? ContentOptions() : null;
+        if (useCharacterClips && options is null) Assert.Skip("no converted characters under .content/shared/chars");
+        var (level, ges) = LadderLevel();
+        PawnRig rig = PawnRig.Create(PawnTeam.Merc, level.Build(), ges, options);
+        rig.Place(V(0f, 20f, 89.5f), new FRotator(0, 16384, 0), new FRotator(0, 16384, 0), false);
+        rig.WaitStill(120);
+        var rifle = rig.Pawn.XLevel.Spawn<M4A1S>(rig.Pawn.Location)!;
+        rifle.GiveTo(rig.Pawn);
+        rig.Pawn.WeaponLoaded = 2;
+        rifle.bDrawWeapon = true;
+        rifle.GotoState(new Name("s_Selected"));
+        Assert.True(StepUntil(rig, Up, MovementStateNames.s_GrabLadder, 120));
+        if (!useCharacterClips) PawnWeapons.MercNotifyDrawUndrawWeapon((SPAWNDEFENSE)rig.Pawn);
+        Assert.True(StepUntil(rig, Up, MovementStateNames.s_OnLadder, 200));
+        rig.Hold(Up, 45);
+        var input = exit == "top" ? Up : Down;
+        var dismount = exit == "top" ? MovementStateNames.s_LadderTop : MovementStateNames.s_EndLadderDrawWeapon;
+        Assert.True(StepUntil(rig, input, dismount, 900));
+        Assert.Equal(0, rig.Pawn.WeaponLoaded);
+        // The synthetic character has no animation events. Supply the two authored hand notifies in that case.
+        if (!useCharacterClips)
+            PawnWeapons.MercNotifyDrawUndrawWeapon((SPAWNDEFENSE)rig.Pawn);
+        bool drewFromHolster = false;
+        for (int tick = 0; tick < 180; tick++)
+        {
+            drewFromHolster |= rifle.ViewAnim.IsAnimating(SWeaponDefense.MVTCHANNEL) &&
+                rifle.ViewAnim.IsBackward(SWeaponDefense.MVTCHANNEL) &&
+                rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL) == ViewModelClips.FirstDrawStEd2;
+            if (rig.Controller.IsInState(MovementStateNames.s_PlayerWalkingSt2H)) break;
+            rig.Step(input);
+        }
+        Assert.True(rig.Controller.IsInState(MovementStateNames.s_PlayerWalkingSt2H));
+        Assert.True(drewFromHolster);
+        rig.Hold(NoInput, 90);
+        Assert.False(rig.Controller.bBehindView);
+        Assert.Equal(2, rig.Pawn.WeaponLoaded);
+        Assert.True(rifle.bDrawWeapon);
+        Assert.True(rifle.IsInState(new Name("s_Selected")));
+        Assert.Equal(ViewModelClips.FirstWaitStFd2, rifle.ViewAnim.Sequence(SWeaponDefense.MVTCHANNEL));
+        Assert.True(rifle.ViewAnim.IsAnimating(SWeaponDefense.MVTCHANNEL));
     }
 
     [Fact]

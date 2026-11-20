@@ -211,13 +211,15 @@ public class MatchOptionsTests
     }
 
     [Theory]
-    [InlineData("", false)]
-    [InlineData("?SvmResponsiveSmoke=0", false)]
-    [InlineData("?SvmResponsiveSmoke=1", true)]
-    public void ResponsiveSmokeRuleIsOptInAndCopiedToReplicationInfo(string options, bool enabled)
+    [InlineData("", true)]
+    [InlineData("?SvmResponsiveSmoke=0?SvmRifles=0?SvmSidearms=0", false)]
+    [InlineData("?SvmResponsiveSmoke=1?SvmRifles=1?SvmSidearms=1", true)]
+    public void StandardMatchRulesDefaultOnAndAreCopiedToReplicationInfo(string options, bool enabled)
     {
         GameWorld world = new GameWorld().Load(options);
         Assert.Equal(enabled, world.Gri.ResponsiveSmokeEnabled);
+        Assert.Equal(enabled, world.Gri.RiflesEnabled);
+        Assert.Equal(enabled, world.Gri.SidearmsEnabled);
     }
 
     [Fact]

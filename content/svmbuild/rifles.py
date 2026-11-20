@@ -27,7 +27,7 @@ def install_models(chars_dir):
     for image in (chars_dir/'OpenScctSidearms/textures').glob('cosmetic_*OpenScctSidearms_arms_arms_baseColor.png'):
         prefix,base=image.name.split('OpenScctSidearms_',1)
         shutil.copy2(image,target/'textures'/(prefix+'shared_OpenScctSidearms_'+base))
-    from .rifle_handling import author_rifle, world_sights
+    from .rifle_handling import author_rifle, world_sights, split_m4_backup_sight
     from .weapon_icons import render
     for name in IDS:
         contextual_clips(target/(name+'_first.glb'),chars_dir/'SWeaponFirst/1DEF_01.glb')
@@ -35,7 +35,14 @@ def install_models(chars_dir):
         if name in ('m4a1s', 'famas'):
             world_sights(target/(name+'.glb'), target/(name+'_first.glb'), name)
             render(target/(name+'.glb'), target/'textures'/(name+'_icon.png'))
-    return {'models':8,'icons':4}
+    split_m4_backup_sight(SOURCE/'m4a1s.glb', target)
+    weapons = json.loads((target / 'models.json').read_text(encoding='utf-8'))
+    from .rifle_finishes import install as install_finishes
+    return {
+        'models': sum((target / (name + suffix + '.glb')).is_file() for name in weapons for suffix in ('', '_first')),
+        'icons': sum((target / 'textures' / (name + '_icon.png')).is_file() for name in weapons),
+        'finishes': install_finishes(target, SOURCE),
+    }
 
 
 def install_audio(audio_dir):

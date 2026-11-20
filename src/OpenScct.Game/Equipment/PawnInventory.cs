@@ -171,6 +171,7 @@ public static class PawnInventory
         Pawn.PrimaryWeapon?.Destroy();
         if (!ReferenceEquals(Pawn.SidearmWeapon, Pawn.PrimaryWeapon)) Pawn.SidearmWeapon?.Destroy();
         Pawn.PrimaryWeapon = null;
+        Pawn.PrimaryAttachmentMask = 0;
         Pawn.SidearmWeapon = null;
         Pawn.ActiveWeaponSlot = 0;
         Pawn.WeaponSwitchUntil = 0;

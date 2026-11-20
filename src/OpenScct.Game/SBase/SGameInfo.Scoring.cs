@@ -2,6 +2,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Core.Uc;
 using OpenScct.Game.Combat;
+using OpenScct.Game.Equipment;
 using OpenScct.Provenance;
 using K = OpenScct.Game.GameFlow.K;
 
@@ -55,6 +56,13 @@ public partial class SGameInfo
                         }
                         else
                         {
+                            if (Role == ENetRole.ROLE_Authority && DamageType is SDamageType.SDTBase or SDamageType.SDTSnipeShot &&
+                                CombatDeathContext.Current.Cause is CombatDeathCause.Rifle or CombatDeathCause.Shotgun or
+                                    CombatDeathCause.Smg or CombatDeathCause.Sniper or CombatDeathCause.Pistol or CombatDeathCause.Revolver &&
+                                KilledPawn is SBasePawn { LastBulletWeapon: SWeaponDefense firearm } &&
+                                ReferenceEquals(firearm.Instigator?.Controller, Killer) && WeaponAttachments.Key(firearm) is { } key)
+                                WeaponCareer.RecordKill(Killer, key, Killed is SPlayerController victimPlayer &&
+                                    victimPlayer.LastDamages[0].PillTag == K.HeadPill);
                             CountKillFeats(Killer, Killed, KilledPawn, DamageType);
                         }
 
@@ -182,8 +190,13 @@ public partial class SGameInfo
     public override void BroadcastDeathMessage(Controller? Killer, Controller? Other, SDamageType DamageType)
     {
         int msgSwitch = (int)DamageType;
-        if (DamageType == SDamageType.SDTSnipeShot && Other is SPlayerController victim &&
-            victim.LastDamages[0].PillTag == K.HeadPill)
+        var firingWeapon = Other?.Pawn is SBasePawn { LastBulletWeapon: { } gun } &&
+            ReferenceEquals(gun.Instigator?.Controller, Killer) ? gun : null;
+        if (DamageType is SDamageType.SDTSnipeShot or SDamageType.SDTBase &&
+            IsMagnifiedShot(firingWeapon, DamageType) && Other is SPlayerController victim &&
+            victim.LastDamages[0].PillTag == K.HeadPill &&
+            (DamageType == SDamageType.SDTSnipeShot || CombatDeathContext.Current.Cause is
+                CombatDeathCause.Rifle or CombatDeathCause.Shotgun or CombatDeathCause.Smg or CombatDeathCause.Pistol or CombatDeathCause.Revolver))
         {
             msgSwitch = K.DeathMessageHeadshot;
             if (Killer is SPlayerController { PlayerReplicationInfo.Stats: { } stats })

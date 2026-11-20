@@ -19,36 +19,20 @@ public sealed class MenuCreateSessionBotsTests
         return new CreateSessionModel(maps, _ => story, LobbySetup.ForMap("SteeE", EGameMode.GM_Multi, story, 4));
     }
 
-    [Fact]
-    public void RiflesDefaultOffAndPersistAcrossMapAndModeChanges()
+    [Theory]
+    [InlineData(SessionRow.Sidearms)]
+    [InlineData(SessionRow.Rifles)]
+    [InlineData(SessionRow.ResponsiveSmoke)]
+    public void StandardRulesAreEnabledAndDoNotAppearInTheHostMenu(SessionRow rule)
     {
         var page = Page();
-        Assert.Contains(SessionRow.Rifles, CreateSessionModel.Rows);
-        Assert.True(CreateSessionModel.IsCheck(SessionRow.Rifles));
-        Assert.False(page.Checked(SessionRow.Rifles));
-        var before = page.Setup;
-        page.SetChecked(SessionRow.Rifles, true);
-        Assert.Contains(SessionRow.Rifles, LobbyRoomModel.Differences(before, page.Setup));
+        Assert.DoesNotContain(rule, CreateSessionModel.Rows);
+        Assert.False(page.Visible(rule));
+        Assert.False(CreateSessionModel.IsCheck(rule));
+        page.SetChecked(rule, false);
+        page.Step(rule, -1);
         page.SelectMap("Other");
-        Assert.True(page.Setup.Rifles);
-        page.SetChecked(SessionRow.Rifles, false);
-        Assert.False(page.Setup.Rifles);
-    }
-
-    [Fact]
-    public void SidearmsDefaultOffAndPersistAcrossMapChanges()
-    {
-        var page = Page();
-        Assert.Contains(SessionRow.Sidearms, CreateSessionModel.Rows);
-        Assert.True(CreateSessionModel.IsCheck(SessionRow.Sidearms));
-        Assert.False(page.Checked(SessionRow.Sidearms));
-        var before = page.Setup;
-        page.SetChecked(SessionRow.Sidearms, true);
-        Assert.Contains(SessionRow.Sidearms, LobbyRoomModel.Differences(before, page.Setup));
-        page.SelectMap("Other");
-        Assert.True(page.Setup.Sidearms);
-        page.SetChecked(SessionRow.Sidearms, false);
-        Assert.False(page.Setup.Sidearms);
+        Assert.True(page.Setup.Rifles && page.Setup.Sidearms && page.Setup.ResponsiveSmoke);
     }
 
     [Fact]

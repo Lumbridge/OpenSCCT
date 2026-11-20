@@ -1,14 +1,10 @@
 # Optional rifles and equipment levels
 
-The **Additional rifles** host checkbox defaults to off, independently of Sidearms,
-Practice and Alternate rules. It is available in Create Session, lobby parameters
-and the hub laptop. `LobbySetup.Rifles` round-trips as `SvmRifles=0|1`, survives map
-and mode changes, and becomes the replicated `GameReplicationInfo.RiflesEnabled`.
-Local Play Level scenarios can opt in with `--svm-rifles` / `PlaySettings.Rifles`.
+New matches enable additional rifles and sidearms by default. The creation and lobby menus use these standard rules.
+The server carries `SvmRifles` and `SvmSidearms` in the round and replay options through map and mode changes.
+A custom server can still set either rule to zero. Its equipment menu and grant checks honor the restriction.
 
-When disabled, the four additional rifles are absent from the Equipment menu and
-the server rejects requests for them. When enabled, they appear after the stock
-weapons in this order:
+The following items have level requirements.
 
 | Equipment | Required level |
 | --- | ---: |
@@ -27,7 +23,7 @@ Mercenary Deathmatch's respawn weapon selection.
 
 Levels use the current rank, so prestige relocks equipment. Like existing sidearm
 rules, offline/practice and authenticated unrestricted sessions bypass levels.
-The host must still enable rifles, including in Practice.
+Custom servers can also restrict equipment through their match rules.
 
 Coverage: `EquipmentUnlockTests`, `RifleUnlockPickerTests`,
 `RifleSessionOptionTests`, and the rendered `equipment-unlocks` smoke at

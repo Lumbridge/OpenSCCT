@@ -48,9 +48,9 @@ public sealed class MovingTargetHitRegistrationTests(ITestOutputHelper output)
         for (int i = 0; i < 900; i++) rig.Step();
         var owner = Assert.IsType<SPlayerController>(client.LocalPlayer);
         var shooter = Assert.IsAssignableFrom<SPAWNDEFENSE>(owner.Pawn);
-        var rifle = Assert.IsType<SWeaponDefense>(shooter.MyWeapon);
+        var rifle = Assert.IsAssignableFrom<SWeaponDefense>(shooter.MyWeapon);
         var authority = Assert.IsType<SPlayerController>(rig.Server.Players.Single().Controller);
-        var serverRifle = Assert.IsType<SWeaponDefense>(((SBasePawn)authority.Pawn!).MyWeapon);
+        var serverRifle = Assert.IsAssignableFrom<SWeaponDefense>(((SBasePawn)authority.Pawn!).MyWeapon);
         rifle.MinDispersion = rifle.MaxDispersion = serverRifle.MinDispersion = serverRifle.MaxDispersion = 0;
         var target = rig.Server.World.Level.Spawn<SPawnAttaque>()!;
         target.Health = 10000;

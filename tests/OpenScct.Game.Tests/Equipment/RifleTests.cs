@@ -2,6 +2,7 @@ using OpenScct.Core;
 using OpenScct.Core.Engine;
 using OpenScct.Game.SBase;
 using OpenScct.Game.Equipment;
+using OpenScct.Game.Svm;
 using OpenScct.Game.Tests.Combat;
 using Xunit;
 
@@ -60,8 +61,8 @@ public sealed class RifleTests
     {
         (_, _, SWeaponDefense rifle) = Merc();
         Assert.Equal(Selected, rifle.GetStateName());
-        Assert.Equal(25, rifle.ClipAmmo);
-        Assert.Equal(125, rifle.Ammo);
+        Assert.Equal(20, rifle.ClipAmmo);
+        Assert.Equal(120, rifle.Ammo);
         Assert.Equal(SRateOfFireMode.ROF_Auto, rifle.ROFMode);
     }
 
@@ -109,14 +110,196 @@ public sealed class RifleTests
         pc.bFire = 1;
         rifle.eventFire(1f);
         Assert.Equal(Firing, rifle.GetStateName());
-        Assert.Equal(24, rifle.ClipAmmo);
-        Assert.Equal(124, rifle.Ammo);
+        Assert.Equal(19, rifle.ClipAmmo);
+        Assert.Equal(119, rifle.Ammo);
         scene.Run(0.45f);
-        Assert.Equal(22, rifle.ClipAmmo);
+        Assert.Equal(17, rifle.ClipAmmo);
         pc.bFire = 0;
         scene.Run(0.25f);
         Assert.Equal(Selected, rifle.GetStateName());
-        Assert.Equal(22, rifle.ClipAmmo);
+        Assert.Equal(17, rifle.ClipAmmo);
+    }
+
+    [Fact]
+    public void M4KeepsFullAutoOnModeInputAndRemoteModeRequests()
+    {
+        (CombatScene scene, SPlayerController pc, SWeaponDefense rifle) = Merc(new M4A1S());
+        rifle.SwitchROF();
+        rifle.ServerSetROF(SRateOfFireMode.ROF_Burst);
+        rifle.ServerSetROF(SRateOfFireMode.ROF_Single);
+        Assert.Equal(SRateOfFireMode.ROF_Auto, rifle.ROFMode);
+        Assert.Equal("Full Auto", rifle.GetROFName());
+        pc.bFire = 1;
+        rifle.eventFire(1f);
+        pc.bFire = 0;
+        scene.Run(.2f);
+        Assert.Equal(19, rifle.ClipAmmo);
+    }
+
+    [Theory]
+    [InlineData(typeof(M4A1S), false)]
+    [InlineData(typeof(M4A1S), true)]
+    [InlineData(typeof(Famas), false)]
+    [InlineData(typeof(Famas), true)]
+    [InlineData(typeof(Galil), false)]
+    [InlineData(typeof(Galil), true)]
+    public void RecoilRaisesTheNextShotAndRetainsAnOpposingLookOnRelease(System.Type type, bool counter)
+    {
+        var (scene, pc, rifle) = Merc((SWeaponDefense)System.Activator.CreateInstance(type)!);
+        if (rifle.ROFMode == SRateOfFireMode.ROF_Burst) rifle.SwitchROF();
+        pc.bFire = 1;
+        rifle.eventFire(1f);
+        scene.World.Step(10);
+        int raised = pc.LocalMyDesiredRotation.Pitch;
+        Assert.InRange(raised, 2 * 24, 2 * 39);
+        Assert.InRange(rifle.AccurateRotation.Pitch, 24, 39);
+        if (counter)
+        {
+            var look = pc.LocalMyDesiredRotation;
+            look.Pitch -= raised + 20;
+            pc.Rotation = pc.MyDesiredRotation = pc.LocalMyDesiredRotation = look;
+        }
+        pc.bFire = 0;
+        scene.Run(1f);
+        Assert.Equal(counter ? -20 : 0, pc.LocalMyDesiredRotation.Pitch);
+        Assert.Equal(0, pc.LocalMyDesiredRotation.Yaw);
+    }
+
+    [Theory]
+    [InlineData(typeof(M4A1S), false)]
+    [InlineData(typeof(Famas), false)]
+    [InlineData(typeof(Galil), false)]
+    [InlineData(typeof(M4A1S), true)]
+    [InlineData(typeof(Famas), true)]
+    [InlineData(typeof(Galil), true)]
+    public void RifleRecoilRecoversAcrossReloadAndWeaponSwap(System.Type type, bool swap)
+    {
+        var (scene, pc, rifle) = Merc((SWeaponDefense)System.Activator.CreateInstance(type)!);
+        var pawn = pc.SBPawn!;
+        if (rifle.ROFMode == SRateOfFireMode.ROF_Burst) rifle.SwitchROF();
+        SidearmEquipment.Give(pawn, SidearmKind.Unsuppressed);
+        pc.GotoState(new Name("s_PlayerWalkingSt2H"));
+        pc.bFire = 1;
+        pc.eventFire(1f);
+        scene.World.Step(3);
+        Assert.True(pc.LocalMyDesiredRotation.Pitch > 0);
+        pc.bFire = 0;
+        if (swap)
+        {
+            pc.SwapWeapon();
+            Assert.Same(pawn.SidearmWeapon, pawn.MyWeapon);
+        }
+        else
+        {
+            scene.World.Step(4);
+            Assert.True(rifle.eventReload());
+            Assert.Equal(Reloading, rifle.GetStateName());
+        }
+        scene.Run(3.5f);
+        Assert.Equal(0, pc.LocalMyDesiredRotation.Pitch);
+        Assert.Equal(0, pc.LocalMyDesiredRotation.Yaw);
+        if (swap)
+        {
+            pc.SwapWeapon();
+            scene.Run(.6f);
+        }
+        Assert.Same(rifle, pawn.MyWeapon);
+        Assert.Equal(swap ? 19 : 20, rifle.ClipAmmo);
+        pc.bFire = 1;
+        pc.eventFire(1f);
+        scene.World.Step(4);
+        Assert.InRange(pc.LocalMyDesiredRotation.Pitch, 24, 39);
+    }
+
+    [Fact]
+    public void ReleasedFamasTriggerKeepsRecoilUntilBothQueuedShotsFire()
+    {
+        var (scene, pc, rifle) = Merc(new Famas());
+        Assert.Equal(SRateOfFireMode.ROF_Burst, rifle.ROFMode);
+        pc.bFire = 1;
+        rifle.eventFire(1f);
+        Assert.Equal(19, rifle.ClipAmmo);
+        pc.bFire = 0;
+        int previousPitch = 0;
+        for (int tick = 0; tick < 12 && rifle.ClipAmmo > 17; tick++)
+        {
+            scene.World.Step();
+            int currentPitch = pc.LocalMyDesiredRotation.Pitch;
+            Assert.True(currentPitch >= previousPitch, $"Queued burst recovered early on tick {tick + 1}");
+            previousPitch = currentPitch;
+        }
+        Assert.Equal(17, rifle.ClipAmmo);
+        Assert.InRange(rifle.AccurateRotation.Pitch, 48, 78);
+        scene.Run(1f);
+        Assert.Equal(17, rifle.ClipAmmo);
+        Assert.Equal(Selected, rifle.GetStateName());
+        Assert.Equal(0, pc.LocalMyDesiredRotation.Pitch);
+        Assert.Equal(0, pc.LocalMyDesiredRotation.Yaw);
+    }
+
+    [Theory]
+    [InlineData(false, .075f, 3)]
+    [InlineData(true, .09f, 5)]
+    public void FamasKeepsItsBurstAndAutomaticCadences(bool automatic, float interval, int shots)
+    {
+        var (scene, pc, rifle) = Merc(new Famas());
+        Assert.Equal(SRateOfFireMode.ROF_Burst, rifle.ROFMode);
+        if (automatic) rifle.SwitchROF();
+        Assert.Equal(automatic ? SRateOfFireMode.ROF_Auto : SRateOfFireMode.ROF_Burst, rifle.ROFMode);
+        Assert.Equal(interval, rifle.ShotInterval, 5);
+        pc.bFire = 1;
+        rifle.eventFire(1f);
+        Assert.Equal(19, rifle.ClipAmmo);
+        int clip = rifle.ClipAmmo;
+        for (int tick = 1; tick <= 24; tick++)
+        {
+            scene.World.Step();
+            if (clip == rifle.ClipAmmo) continue;
+            Assert.Equal(--clip, rifle.ClipAmmo);
+            float elapsed = tick * Sim.DeltaTime;
+            Assert.InRange(elapsed - (19 - clip) * interval, -.00001f, Sim.DeltaTime + .00001f);
+        }
+        Assert.Equal(20 - shots, rifle.ClipAmmo);
+        pc.bFire = 0;
+        scene.Run(.6f);
+        Assert.Equal(Selected, rifle.GetStateName());
+        rifle.SwitchROF();
+        Assert.Equal(automatic ? SRateOfFireMode.ROF_Burst : SRateOfFireMode.ROF_Auto, rifle.ROFMode);
+    }
+
+    [Theory]
+    [InlineData(0, 20)]
+    [InlineData(WeaponAttachments.ExtendedMagazine, 30)]
+    public void M4KeepsItsNinetyMillisecondScheduleAcrossTheMagazine(int attachments, int magazine)
+    {
+        (CombatScene scene, SPlayerController pc, SWeaponDefense rifle) = Merc(new M4A1S());
+        WeaponAttachments.Apply(rifle, attachments);
+        Assert.Equal(magazine, rifle.ClipAmmo);
+        Assert.Equal(magazine, rifle.ClipMaxAmmo);
+        Assert.Equal(80, rifle.Ammo - rifle.ClipAmmo);
+        Assert.Equal(14, rifle.BaseDamage);
+        Assert.Equal(18, WeaponRules.DistanceDamage(rifle, 0));
+        pc.bFire = 1;
+        rifle.eventFire(1f);
+        int lastClip = rifle.ClipAmmo;
+        Assert.Equal(magazine - 1, lastClip);
+        int ticksToLastShot = (int)System.MathF.Ceiling((magazine - 1) * .09f * Sim.Hz);
+        for (int tick = 1; tick <= ticksToLastShot + 1; tick++)
+        {
+            scene.World.Step(1);
+            if (rifle.ClipAmmo == lastClip) continue;
+            Assert.Equal(lastClip - 1, rifle.ClipAmmo);
+            // Each shot arrives within one 60-Hz tick of its 90-ms deadline, including exact tick boundaries.
+            int repeat = magazine - 1 - rifle.ClipAmmo;
+            Assert.InRange(tick * Sim.DeltaTime - repeat * .09f, -.00001f, Sim.DeltaTime + .00001f);
+            lastClip = rifle.ClipAmmo;
+        }
+        Assert.Equal(0, lastClip);
+        pc.bFire = 0;
+        scene.Run(rifle.RateOfFire + .2f);
+        scene.Run(((M4A1S)rifle).Definition.ReloadDuration(0) + .2f);
+        Assert.Equal(magazine, rifle.ClipAmmo);
+        Assert.Equal(80 - magazine, rifle.Ammo - rifle.ClipAmmo);
     }
 
     [Fact]
@@ -128,7 +311,7 @@ public sealed class RifleTests
         pc.bFire = 1;
         rifle.eventFire(1f);
         scene.Run(1f);
-        Assert.Equal(22, rifle.ClipAmmo);
+        Assert.Equal(17, rifle.ClipAmmo);
         Assert.Equal(Selected, rifle.GetStateName());
     }
 
@@ -141,7 +324,7 @@ public sealed class RifleTests
         rifle.ROF_Single(true);
         rifle.eventFire(1f);
         rifle.eventFire(1f);
-        Assert.Equal(24, rifle.ClipAmmo);
+        Assert.Equal(19, rifle.ClipAmmo);
         Assert.Equal(SRateOfFireMode.ROF_Auto, rifle.PreviousROFMode);
     }
 
@@ -156,7 +339,7 @@ public sealed class RifleTests
         rifle.eventFire(1f);
         Assert.Equal(10, rifle.ClipAmmo);
         scene.Run(2.2f);
-        Assert.Equal(25, rifle.ClipAmmo);
+        Assert.Equal(20, rifle.ClipAmmo);
         Assert.Equal(110, rifle.Ammo);
         Assert.Equal(Selected, rifle.GetStateName());
     }
@@ -188,8 +371,8 @@ public sealed class RifleTests
         Assert.True(rifle.eventFullReload());
         Assert.Equal(FullReloading, rifle.GetStateName());
         scene.Run(2.2f);
-        Assert.Equal(125, rifle.Ammo);
-        Assert.Equal(25, rifle.ClipAmmo);
+        Assert.Equal(120, rifle.Ammo);
+        Assert.Equal(20, rifle.ClipAmmo);
     }
 
     [Fact]

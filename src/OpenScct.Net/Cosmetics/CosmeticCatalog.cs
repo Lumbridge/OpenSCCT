@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OpenScct.Core.Engine;
+using OpenScct.Net.Discovery;
 
 namespace OpenScct.Net.Cosmetics;
 
@@ -10,7 +12,7 @@ public enum CosmeticSide : byte
     Merc = 1,
 }
 
-/// <summary>Where an item goes. The gun slots are the merc's three gun classes; the pistol is the spy's.</summary>
+/// <summary>Persistent byte positions in the player's packed look. Append new slots only.</summary>
 public enum CosmeticSlot : byte
 {
     Body = 0,
@@ -24,6 +26,10 @@ public enum CosmeticSlot : byte
     Magnum44 = 8,
     DesertEagle = 9,
     Unsuppressed = 10,
+    M4A1S = 11,
+    AK47 = 12,
+    Galil = 13,
+    Famas = 14,
 }
 
 public enum CosmeticKind : byte
@@ -72,8 +78,8 @@ public sealed record CamoPattern(string Id, string Name, string Shape, IReadOnly
 /// </summary>
 public static class CosmeticCatalog
 {
-    /// <summary>The largest bit an item may take (looks pack bit + 1 into a byte per slot).</summary>
-    public const int MaxBit = 253;
+    /// <summary>The highest permanent entitlement bit a signed ticket can carry.</summary>
+    public const int MaxBit = PlayerTicket.MaxUnlockBytes * 8 - 1;
 
     /// <summary>Base maps for the map achievements and camos: code prefix, name, palette (dark to light).</summary>
     public static IReadOnlyList<(string Code, string Name, uint[] Palette)> Maps { get; } =
@@ -119,6 +125,28 @@ public static class CosmeticCatalog
 
     private static readonly Dictionary<string, CosmeticItem> s_byId;
     private static readonly CosmeticItem?[] s_byBit;
+    private static readonly Dictionary<string, CosmeticSlot> s_weaponSlots = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly CosmeticItem?[][] s_bySlotCode = new CosmeticItem?[16][];
+    private static readonly byte[] s_lookCodes;
+
+    private static readonly (CosmeticSlot Slot, string Class)[] s_primaries =
+    [
+        (CosmeticSlot.M4A1S, "Svm.M4A1S"), (CosmeticSlot.AK47, "Svm.AK47"),
+        (CosmeticSlot.Galil, "Svm.Galil"), (CosmeticSlot.Famas, "Svm.Famas"),
+    ];
+
+    /// <summary>The approved model for an individual primary slot. Family and non-weapon slots have no individual model.</summary>
+    public static string? PrimaryClass(CosmeticSlot slot) => s_primaries.FirstOrDefault(p => p.Slot == slot).Class;
+
+    /// <summary>Accepts a weapon class or the mesh shown on a remote player's replicated weapon dummy.</summary>
+    public static CosmeticSlot? WeaponSlot(string? classPath) =>
+        classPath != null && s_weaponSlots.TryGetValue(classPath, out var slot) ? slot : null;
+
+    internal static CosmeticItem? ByLookCode(CosmeticSlot slot, byte code) =>
+        (int)slot < s_bySlotCode.Length ? s_bySlotCode[(int)slot]?[code] : null;
+
+    internal static byte LookCode(CosmeticSlot slot, CosmeticItem? item) =>
+        item != null && item.Slot == slot ? s_lookCodes[item.Bit] : (byte)0;
 
     /// <summary>The base map code of a map ("SteeE" to "Stee"), or null when it has none.</summary>
     public static string? BaseMap(string? map)
@@ -141,7 +169,7 @@ public static class CosmeticCatalog
     /// <summary>The slots a side's look uses.</summary>
     public static IReadOnlyList<CosmeticSlot> SlotsOf(CosmeticSide side) => side == CosmeticSide.Spy
         ? [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.Pistol]
-        : [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.GunAr, CosmeticSlot.GunSmg, CosmeticSlot.GunShotgun, CosmeticSlot.Unsuppressed, CosmeticSlot.Automatic, CosmeticSlot.Suppressed, CosmeticSlot.Magnum44, CosmeticSlot.DesertEagle];
+        : [CosmeticSlot.Body, CosmeticSlot.Light, CosmeticSlot.GunAr, CosmeticSlot.GunSmg, CosmeticSlot.GunShotgun, CosmeticSlot.M4A1S, CosmeticSlot.AK47, CosmeticSlot.Galil, CosmeticSlot.Famas, CosmeticSlot.Unsuppressed, CosmeticSlot.Automatic, CosmeticSlot.Suppressed, CosmeticSlot.Magnum44, CosmeticSlot.DesertEagle];
 
     public static IEnumerable<CosmeticItem> For(CosmeticSide side, CosmeticSlot slot) => All.Where(i => i.Side == side && i.Slot == slot);
 
@@ -158,6 +186,8 @@ public static class CosmeticCatalog
         CosmeticSlot.Magnum44 => ".44 Magnum",
         CosmeticSlot.DesertEagle => "Desert Eagle",
         CosmeticSlot.Unsuppressed => "Unsuppressed pistol",
+        CosmeticSlot.M4A1S or CosmeticSlot.AK47 or CosmeticSlot.Galil or CosmeticSlot.Famas =>
+            MercPrimaryMastery.Find(PrimaryClass(slot))!.Name,
         _ => slot.ToString(),
     };
 
@@ -345,17 +375,46 @@ public static class CosmeticCatalog
                 Add($"merc.{pistol.Id}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc,
                     (CosmeticSlot)(6 + (int)pistol.Kind), CosmeticKind.Texture, pattern: camo);
 
+        foreach ((CosmeticSlot slot, string classPath) in s_primaries)
+        {
+            var primary = MercPrimaryMastery.Find(classPath)!;
+            s_weaponSlots.Add(primary.ClassPath, slot);
+            s_weaponSlots.Add("OpenScctRifles." + primary.Id, slot);
+            foreach (string camo in new[] { "woodland", "desert", "digital", "red_tiger", "blue_tiger", "golden" })
+                Add($"merc.{primary.Id}.{camo}", PatternName(patterns, camo), CosmeticSide.Merc, slot, CosmeticKind.Texture, pattern: camo);
+        }
+        foreach (var pistol in Sidearms.All)
+        {
+            var slot = (CosmeticSlot)(6 + (int)pistol.Kind);
+            s_weaponSlots.Add(pistol.CarryId, slot);
+            s_weaponSlots.Add(pistol.Asset, slot);
+        }
+        s_weaponSlots.Add("SBase.SWeaponDefense", CosmeticSlot.GunAr);
+        s_weaponSlots.Add("SWeaponFirst.M160", CosmeticSlot.GunAr);
+        s_weaponSlots.Add("SBase.SWeaponDefense_Uzi", CosmeticSlot.GunSmg);
+        s_weaponSlots.Add("SWeaponFirst.Hk81", CosmeticSlot.GunSmg);
+        s_weaponSlots.Add("SBase.SWeaponDefense_Shotgun", CosmeticSlot.GunShotgun);
+        s_weaponSlots.Add("SWeaponFirst.BM401", CosmeticSlot.GunShotgun);
+
         if (bit - 1 > MaxBit)
         {
-            throw new InvalidOperationException("Too many cosmetics for the look's byte per slot.");
+            throw new InvalidOperationException("The cosmetic entitlement set exceeds the signed ticket capacity.");
         }
 
         All = items;
         s_byId = items.ToDictionary(i => i.Id, StringComparer.Ordinal);
         s_byBit = new CosmeticItem?[bit];
+        s_lookCodes = new byte[bit];
+        var slotCounts = new int[s_bySlotCode.Length];
         foreach (CosmeticItem i in items)
         {
             s_byBit[i.Bit] = i;
+            // Released slots store the global entitlement bit + 1. New slots number items locally
+            // so the same two replicated 64-bit words still hold every weapon's selection.
+            int slot = (int)i.Slot;
+            byte code = checked((byte)(slot <= (int)CosmeticSlot.Unsuppressed ? i.Bit + 1 : ++slotCounts[slot]));
+            s_lookCodes[i.Bit] = code;
+            (s_bySlotCode[slot] ??= new CosmeticItem?[256])[code] = i;
         }
     }
 

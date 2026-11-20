@@ -26,7 +26,7 @@ public partial class SGadTorcheLaser
     public override void Use(float Value)
     {
         GameReplicationInfo? gri = (OwnerPawn?.Controller as PlayerController)?.GameReplicationInfo ?? Level.Game?.GameReplicationInfo;
-        if (gri is { bAvlb_MERC_Laser: false })
+        if (!bInUse && (!WeaponAttachments.HasLaser(OwnerPawn) || gri is { bAvlb_MERC_Laser: false }))
         {
             return;
         }
@@ -62,7 +62,9 @@ public partial class SGadTorcheLaser
     [PortOf("uc:SBase.SGadTorcheLaser:TorcheON", Spec = "spec/equipment/merc-laser.md#rules")]
     public void TorcheON()
     {
-        if (ServerRelay(CNAME_TorcheON))
+        if (!WeaponAttachments.HasLaser(OwnerPawn) ||
+            ((OwnerPawn?.Controller as PlayerController)?.GameReplicationInfo ?? Level.Game?.GameReplicationInfo) is { bAvlb_MERC_Laser: false } ||
+            ServerRelay(CNAME_TorcheON))
         {
             return;
         }
@@ -193,7 +195,7 @@ public partial class SGadTorcheLaser
     {
         pawn = OwnerPawn as SPAWNDEFENSE;
         if (!bInUse || bDeleteMe || pawn is not { Health: > 0, bDeleteMe: false, Controller: PlayerController pc } ||
-            !ReferenceEquals(pc.Pawn, pawn) || PawnInventory.SelectionRefused(pawn, false)) return false;
+            !ReferenceEquals(pc.Pawn, pawn) || !WeaponAttachments.HasLaser(pawn) || PawnInventory.SelectionRefused(pawn, false)) return false;
         return (pc.GameReplicationInfo ?? Level.Game?.GameReplicationInfo) is not { bAvlb_MERC_Laser: false };
     }
 

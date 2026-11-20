@@ -24,7 +24,11 @@ public sealed class M4ReloadAudioTests
             Assert.True(rifle.eventReload());
             Assert.Contains(scene.World.Events.Late.ToArray(), x => x.Kind == SimEventKind.PlaySound && x.What == new Name(sound));
             Assert.Equal("OpenScctRifles.m4a1s_reload", rifle.ReloadSound.Path);
-            scene.Run(rifle.Definition.ReloadSeconds + .2f);
+            float seconds = rifle.Definition.ReloadDuration(rounds);
+            Assert.Equal(rounds == 0 ? 2.536f : 2.090f, seconds, 3);
+            scene.World.Step((int)(seconds * Sim.Hz));
+            Assert.Equal(rounds, rifle.ClipAmmo);
+            scene.World.Step(1);
             Assert.Equal(rifle.ClipMaxAmmo, rifle.ClipAmmo);
         }
     }

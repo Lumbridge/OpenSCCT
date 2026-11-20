@@ -50,7 +50,7 @@ internal enum NameClaim
 /// </summary>
 internal sealed partial class AccountStore : IDisposable
 {
-    public const int SchemaVersion = 12;
+    public const int SchemaVersion = 13;
 
     /// <summary>Seconds between renames.</summary>
     public const long RenameCooldown = 30 * 86400;
@@ -171,9 +171,29 @@ internal sealed partial class AccountStore : IDisposable
             MigratePlayerPortal();
             MigrateAppearance();
             MigrateAdminFeatures();
+            BackfillPrimaryMastery();
             Exec("DELETE FROM schema_version; INSERT INTO schema_version (version) VALUES ($v);", ("$v", SchemaVersion));
             return 0;
         });
+    }
+
+    // This runs once when opening an older database, in the migration transaction. Only exact gun
+    // counters can satisfy a milestone. Existing achievement dates and administrative grants survive.
+    private void BackfillPrimaryMastery()
+    {
+        long now = Now;
+        foreach (long accountId in Query("SELECT DISTINCT account_id FROM feat_totals WHERE feat LIKE 'merc.%' AND total > 0;",
+            row => row.GetInt64(0)))
+        {
+            AccountProgress progress = ProgressLocked(accountId);
+            foreach (Achievement achievement in Achievements.PrimaryMasteries)
+            {
+                var (current, target) = achievement.Goal(progress);
+                if (current < target || !progress.Earned.Add(achievement.Id)) continue;
+                Exec("INSERT INTO achievements (account_id, achievement_id, earned, server) VALUES ($a, $id, $now, $s);",
+                    ("$a", accountId), ("$id", achievement.Id), ("$now", now), ("$s", "career migration"));
+            }
+        }
     }
 
     private void CreateVersion1()

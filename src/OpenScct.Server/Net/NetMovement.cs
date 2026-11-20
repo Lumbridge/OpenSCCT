@@ -123,8 +123,7 @@ public sealed partial class SBasePawnMoves : IMovePawn, IMovePrediction, IMoveCo
 
     public float RunningSpeed => P?.RunningSpeed ?? 0f;
 
-    public float GroundSpeedMultiplier => P is { Physics: EPhysics.PHYS_Walking, MyWeapon: OpenScct.Game.Svm.MercRifle { AimRequested: true } }
-        ? OpenScct.Game.Svm.MercRifle.AimSpeedScale : 1f;
+    public float GroundSpeedMultiplier => SPlayerController.WeaponGroundSpeedScale(P);
 
     public float GroundSpeed
     {

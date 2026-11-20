@@ -16,7 +16,7 @@ public static class EquipmentUnlocks
         unrestricted || Math.Max(1, level) >= RequiredLevel(path);
 
     public static bool Available(PlayerController? pc, string? path) =>
-        (MercRifles.Find(path) is null || pc?.GameReplicationInfo?.RiflesEnabled == true) &&
+        (!MercPrimarySelection.RequiresRifleOption(path) || pc?.GameReplicationInfo?.RiflesEnabled == true) &&
         LevelAllows(path, (pc?.PlayerReplicationInfo?.SvmRank ?? 0) & 255,
             pc is not null && (pc.Level.NetMode == ENetMode.NM_Standalone ||
             pc.PlayerReplicationInfo?.SvmSidearmsUnrestricted == true || Modes.PracticeRules.IsOn(pc)));

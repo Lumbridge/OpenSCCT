@@ -21,7 +21,7 @@ public sealed class ConsoleBotCommandTests
         Assert.Contains(bots, line => line.Contains("addbot <team> [number]") && line.Contains("defaults to 1"));
         Assert.Contains(bots, line => line.Contains("botstop") && line.Contains("future spawns"));
         var weapon = commands.Run("help BOTWEAPON");
-        Assert.Contains(weapon, line => line.Contains("botweapon <rifle|uzi|shotgun>") && line.Contains("living merc bots"));
+        Assert.Contains(weapon, line => line.Contains("botweapon <default|shotgun>") && line.Contains("living merc bots"));
         Assert.Contains(weapon, line => line.Contains("resets on respawn"));
         Assert.Contains(commands.Run("help kickbot"), line => line.StartsWith("kickbot all"));
         Assert.Contains("Close the game", Assert.Single(commands.Run("help quit")));

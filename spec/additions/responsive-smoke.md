@@ -1,17 +1,17 @@
-# Responsive spy smoke (experimental)
+# Responsive spy smoke
 
-An optional replacement for the spy smoke grenade, inspired by the responsive volumetric smoke in CS2. It is a match rule, disabled by default. The ordinary smoke grenade remains the default; enabling this rule changes both concealment and merc gas exposure for everyone in the round.
+New matches use responsive spy smoke for concealment and mercenary gas exposure. The authority applies the same simulation to all players.
 
 ## Enabling and saving the rule
 
-- In **Create a Session** or the lobby's **Settings → Rules → Extra rules**, enable **Responsive smoke (experimental)**. Only players allowed to control the lobby can change it; changes reset player readiness.
-- A dedicated server's JSON config accepts `"responsiveSmoke": true`. Omitted values are false. The server console accepts `set responsivesmoke on` and `set responsivesmoke off`.
+- Creating a match from the menu uses responsive smoke automatically.
+- Dedicated servers default to responsive smoke. The JSON setting `responsiveSmoke` and the `set responsivesmoke` console command support explicit overrides.
 - Offline play and a command-line LAN host accept `--svm-responsive-smoke` with `--svm-play=Map`.
 - The Editor's **Build → Play Options** saves **Smoke: Original**, **Smoke: Volumetric Fast** or **Smoke: Volumetric Full** for every play action. The game accepts `--svm-smoke-mode=original|fast|full`: Original disables the replacement; Fast selects Low detail; Full selects High detail and scene lighting attenuation. These detail overrides last for that launch and do not write the player's graphics preference. The legacy enable flag alone retains the normal detail preference.
 - Local TestRange launches automatically enable Practice resources. Explicit online sessions and recorded demos retain their authoritative rules.
 - Host setup persistence and game/demo launch options use `?SvmResponsiveSmoke=0|1`. The rule is independent of Practice and Alternate rules and survives map/mode changes and rotation.
 - The running round keeps the rule with which it started. A server-console change during a match configures the next round; the browser and match log continue to identify the active round's setting.
-- The browser labels enabled servers with **responsive smoke**. Host lobby setup includes the option for every participant.
+- The browser reports the running server’s smoke mode.
 
 ## Shared gameplay
 

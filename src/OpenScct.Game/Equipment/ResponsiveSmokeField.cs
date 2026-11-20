@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using OpenScct.Core;
 
 namespace OpenScct.Game.Equipment;
@@ -226,11 +227,50 @@ public sealed partial class ResponsiveSmokeField
         return true;
     }
 
-    public float SampleDensity(FVector point, float now)
+    public float SampleDensity(FVector point, float now) => SampleDensity(point, now, CollectionsMarshal.AsSpan(_carves));
+
+    private ushort[]? _openAirTicks;
+    private uint _openAirRevision, _openAirSnapshotRevision;
+
+    /// <summary>For bulk sampling, caches the last activation tick of each completely open 2×2×2 neighbourhood.</summary>
+    public ReadOnlyMemory<ushort> PrepareDensityGrid()
+    {
+        if (_openAirTicks is not null && _openAirRevision == Revision && _openAirSnapshotRevision == SnapshotRevision)
+            return _openAirTicks;
+        _openAirTicks ??= new ushort[CellCount];
+        Array.Fill(_openAirTicks, Unreached);
+        int plane = Dimension * Dimension;
+        for (int z = 0; z < Dimension - 1; z++) for (int y = 0; y < Dimension - 1; y++)
+        {
+            for (int x = 0; x < Dimension - 1; x++)
+            {
+                int i = Index(x, y, z);
+                if (Cells[i] == 0 || Cells[i + 1] == 0 || Cells[i + Dimension] == 0 || Cells[i + Dimension + 1] == 0 ||
+                    Cells[i + plane] == 0 || Cells[i + plane + 1] == 0 || Cells[i + plane + Dimension] == 0 || Cells[i + plane + Dimension + 1] == 0)
+                    continue;
+                ushort bottom = Math.Max(Math.Max(ActivationTicks[i], ActivationTicks[i + 1]),
+                    Math.Max(ActivationTicks[i + Dimension], ActivationTicks[i + Dimension + 1]));
+                ushort top = Math.Max(Math.Max(ActivationTicks[i + plane], ActivationTicks[i + plane + 1]),
+                    Math.Max(ActivationTicks[i + plane + Dimension], ActivationTicks[i + plane + Dimension + 1]));
+                _openAirTicks[i] = Math.Max(bottom, top);
+            }
+        }
+        _openAirRevision = Revision;
+        _openAirSnapshotRevision = SnapshotRevision;
+        return _openAirTicks;
+    }
+
+    /// <summary>Samples the same field for renderers that evaluate some shot holes per pixel.</summary>
+    public float SampleDensity(FVector point, float now, ReadOnlySpan<ResponsiveSmokeCarve> carves) =>
+        SampleDensity(point, now, carves, default);
+
+    /// <summary>Samples a visual grid using the uniform air neighbourhoods prepared from this field revision.</summary>
+    public float SampleDensity(FVector point, float now, ReadOnlySpan<ResponsiveSmokeCarve> carves, ReadOnlySpan<ushort> openAirTicks)
     {
         int nearest = CellIndex(point);
         float age = now - CreatedAt;
         if (nearest < 0 || age < 0f || age >= Lifetime) return 0f;
+        if (Cells[nearest] == 0 && !_boundaries.ContainsKey(nearest)) return 0f;
         float radial = Envelope(point - Center, age, ShapeExtents);
         if (radial <= 0f) return 0f;
         FVector p = (point - Origin) / CellSize - new FVector(.5f, .5f, .5f);
@@ -238,7 +278,11 @@ public sealed partial class ResponsiveSmokeField
         Coordinates(nearest, out int nx, out int ny, out int nz);
         float fx = p.X - x, fy = p.Y - y, fz = p.Z - z, density = 0f, weight = 0f;
         int maskCell = nearest;
-        if (Cells[nearest] == 0) density = BoundaryDensity(nearest, point, age, out maskCell);
+        // Once all eight corners are open and fully grown, the weighted sum divided by its
+        // weights is exactly one. Mixed, unreached and partially obstructed cells use the normal path.
+        ushort openAt = !openAirTicks.IsEmpty && Inside(x, y, z) ? openAirTicks[Index(x, y, z)] : Unreached;
+        if (openAt != Unreached && (age - openAt / TickRate) / GrowthFade >= 1f) density = 1f;
+        else if (Cells[nearest] == 0) density = BoundaryDensity(nearest, point, age, out maskCell);
         else for (int iz = 0; iz <= 1; iz++) for (int iy = 0; iy <= 1; iy++) for (int ix = 0; ix <= 1; ix++)
         {
             if (!Inside(x + ix, y + iy, z + iz)) continue;
@@ -255,7 +299,7 @@ public sealed partial class ResponsiveSmokeField
         }
         if (Cells[nearest] != 0 && weight > 0f) density /= weight;
         density *= radial * (1f - Smooth(FadeStart, Lifetime, age));
-        foreach (ResponsiveSmokeCarve carve in _carves)
+        foreach (ResponsiveSmokeCarve carve in carves)
         {
             float elapsed = now - carve.CreatedAt;
             if (elapsed < 0f || elapsed >= carve.Hold + carve.Refill || carve.AffectedCells is { } mask && (maskCell < 0 || mask[maskCell] == 0)) continue;
@@ -356,16 +400,20 @@ public sealed partial class ResponsiveSmokeField
         float radiusSquared = relative.SizeSquared();
         if (radiusSquared <= 150f * 150f) return 1f;
         if (radiusSquared >= QueryRadius * QueryRadius) return 0f;
-        float radius = MathF.Sqrt(radiusSquared);
+        float taper = 1 - .16f * Smooth(-.1f, 1, relative.Z / extents.Z);
+        FVector p = new(MathF.Abs(relative.X / (extents.X * taper)), MathF.Abs(relative.Y / (extents.Y * taper)), MathF.Abs(relative.Z / extents.Z));
+        float bodyCubed = p.X * p.X * p.X + p.Y * p.Y * p.Y + p.Z * p.Z * p.Z;
+        // Noise changes only the shell. Its maximum outer edge is 1 and its unmodulated interior ends at .55.
+        float core = radiusSquared < 180f * 180f ? 1f - Smooth(150f, 180f, MathF.Sqrt(radiusSquared)) : 0f;
+        if (bodyCubed >= 1f) return core;
+        float body = MathF.Cbrt(bodyCubed);
+        if (body <= .55f) return 1f;
         FVector material = MaterialCoordinate(relative, age);
         float macro = Smooth(.28f, .72f, ResponsiveSmokeNoise.Sample(material / 135f + new FVector(11.17f, 7.31f, 19.83f)));
         float fine = ResponsiveSmokeNoise.Sample(material / 55f + new FVector(23.41f, 3.71f, 13.29f));
-        float taper = 1 - .16f * Smooth(-.1f, 1, relative.Z / extents.Z);
-        FVector p = new(MathF.Abs(relative.X / (extents.X * taper)), MathF.Abs(relative.Y / (extents.Y * taper)), MathF.Abs(relative.Z / extents.Z));
-        float body = MathF.Cbrt(p.X * p.X * p.X + p.Y * p.Y * p.Y + p.Z * p.Z * p.Z);
         float edge = .90f + .08f * macro + .02f * fine;
         float shell = 1f + (.70f + .30f * macro - 1f) * Smooth(.55f, .88f, body);
         float density = shell * (1f - Smooth(edge - .07f, edge, body));
-        return Math.Max(1f - Smooth(150f, 180f, radius), density);
+        return Math.Max(core, density);
     }
 }

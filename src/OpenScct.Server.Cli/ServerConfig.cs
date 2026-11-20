@@ -304,8 +304,8 @@ internal sealed record ServerConfig
     /// </summary>
     public bool Practice { get; init; }
 
-    /// <summary>Experimental responsive spy smoke for the server rotation, disabled by default.</summary>
-    public bool ResponsiveSmoke { get; init; }
+    /// <summary>Use responsive spy smoke for the server rotation.</summary>
+    public bool ResponsiveSmoke { get; init; } = true;
 
     public ulong Seed { get; init; } = 1;
 

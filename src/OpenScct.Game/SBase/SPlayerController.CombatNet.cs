@@ -193,10 +193,10 @@ public partial class SPlayerController
                 taser.UseBulletSet();
                 break;
             case "ServerSpawnInventory" when target is SBasePawn pawn:
-                Loadouts.ServerSpawnInventory(pawn, new ClassRef(c.Name1.ToString()));
+                Loadouts.ServerSpawnInventory(pawn, new ClassRef(c.Name1.ToString()), c.Int1);
                 break;
             case "ServerSpawnWeapon" when target is SBasePawn pawn:
-                Loadouts.ServerSpawnWeapon(pawn, new ClassRef(c.Name1.ToString()));
+                Loadouts.ServerSpawnWeapon(pawn, new ClassRef(c.Name1.ToString()), c.Int1);
                 break;
             case "ServerChangeGear":
                 ServerChangeGear();

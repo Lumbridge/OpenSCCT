@@ -1,8 +1,8 @@
 OpenSCCT realistic merc rifles
 =============================
 
-All model downloads were free and displayed CC-BY-4.0, permitting commercial
-reuse with attribution. https://creativecommons.org/licenses/by/4.0/
+The four original rifle models and the shared arms use CC BY 4.0.
+https://creativecommons.org/licenses/by/4.0/
 
 M4A1-S model and draw/fire/reload/holster animation reference:
 This work is based on "M4 - FPS Weapon Animations Pack V.1"
@@ -64,3 +64,30 @@ Reports are game sound designs; Galil/FAMAS/M4 suppressor layers are adapted
 references rather than exact recordings of each displayed configuration.
 
 No Valve/Counter-Strike assets, paid content or AI-generated gun assets used.
+
+SPAS-12 shotgun model
+SPAS 12 shotgun by quick_loop, licensed under Creative Commons Attribution 4.0.
+https://sketchfab.com/3d-models/spas-12-shotgun-a0f118ec8a984f09b602fb3a54f56a9e
+https://creativecommons.org/licenses/by/4.0/
+Source copy distributed through the Allen Institute for AI's Objaverse dataset.
+https://huggingface.co/datasets/allenai/objaverse
+OpenSCCT adapted the mesh for its first- and third-person rigs, mounted equipment,
+pump and reload animations, and equipment portrait.
+
+Compact SMG
+Submachine Gun (Scorpion-inspired) by Kutejnikov, licensed under CC BY 4.0.
+https://opengameart.org/content/submachine-gun-scorpion-inspired
+https://creativecommons.org/licenses/by/4.0/
+
+Bolt-action rifle
+Bolt action Rifle: Lee Enfield by Lucian Pavel, CC0 1.0.
+https://opengameart.org/content/bolt-action-rifle-lee-enfield
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Designated marksman rifle
+Dragunov from Various Small Arms by Tabasco, CC0 1.0.
+https://opengameart.org/content/various-small-arms-assault-rifles-sniper-pistol
+https://creativecommons.org/publicdomain/zero/1.0/
+
+OpenSCCT adapted these models to the shared mercenary arms, created the first-
+and third-person actions, and prepared the materials and equipment portraits.

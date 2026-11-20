@@ -79,12 +79,14 @@ public static class Achievements
         ("blue_tiger", true, 200, "Blue Tiger"),
     ];
 
-    private static readonly (string Key, string Name)[] s_guns = [("ar", "Assault rifle"), ("smg", "SMG"), ("shotgun", "Shotgun")];
+    private static readonly (string Key, string Name)[] s_guns = [("ar", "Rifle"), ("smg", "SMG"), ("shotgun", "Shotgun")];
 
     /// <summary>Wins a map achievement needs on each side.</summary>
     private const int MapWinsPerSide = 3;
 
     public static IReadOnlyList<Achievement> All { get; } = Build();
+    public static IReadOnlyList<Achievement> PrimaryMasteries { get; } =
+        All.Where(a => a.Id.StartsWith("primary_", StringComparison.Ordinal)).ToArray();
 
     /// <summary>The cosmetics an account has from its earned achievements.</summary>
     public static IReadOnlyList<string> Unlocked(IEnumerable<string> earned)
@@ -227,13 +229,13 @@ public static class Achievements
             {
                 string key = headshots ? FeatKeys.GunHeadshots(gun) : FeatKeys.GunKills(gun);
                 string what = headshots ? "headshot kills" : "kills";
-                list.Add(Count($"{gun}_{camo}", $"{gunName}: {title}", $"Get {count} {what} with the {gunName.ToLowerInvariant()}.", W,
+                list.Add(Count($"{gun}_{camo}", $"{gunName} family · {title}", $"Get {count} {what} across the {gunName} family.", W,
                     p => p.Feat(key), count, $"merc.{gun}.{camo}"));
             }
         }
 
         string[] weaponIds = list.Where(a => a.Category == W).Select(a => a.Id).ToArray();
-        list.Add(new Achievement("gilded", "Gilded", "Finish every weapon achievement: the golden camo for all three merc guns.", W,
+        list.Add(new Achievement("gilded", "Gilded", "Complete Marksman, Deadeye, Executioner and the rifle, SMG and shotgun family ladders.", W,
             p => (weaponIds.Count(p.Earned.Contains), weaponIds.Length), ["merc.ar.golden", "merc.smg.golden", "merc.shotgun.golden"],
             (p, _, _) => weaponIds.All(p.Earned.Contains)));
 
@@ -286,6 +288,26 @@ public static class Achievements
                 "Complete all five mastery milestones for this pistol.", W,
                 p => (requirements.Count(p.Earned.Contains), requirements.Count), [$"merc.{pistol.Id}.golden"],
                 (p, _, _) => requirements.All(p.Earned.Contains)));
+        }
+
+        foreach (var gun in MercPrimaryMastery.All)
+        {
+            string prefix = $"primary_{gun.Id}_";
+            var requirements = new List<string>();
+            foreach (var tier in s_gunLadder)
+            {
+                string id = prefix + tier.Camo;
+                requirements.Add(id);
+                string key = tier.Headshots ? FeatKeys.GunHeadshots(gun.Id) : FeatKeys.GunKills(gun.Id);
+                string goal = $"{tier.Count} {(tier.Headshots ? "headshot kills" : "kills")}";
+                string title = gun.HasSkinRewards ? tier.Title : goal;
+                list.Add(Count(id, $"{gun.Name} · {title}", $"Get {goal} with the {gun.Name}.", W,
+                    p => p.Feat(key), tier.Count, gun.HasSkinRewards ? [$"merc.{gun.Id}.{tier.Camo}"] : []));
+            }
+            list.Add(new Achievement(prefix + "gold", $"{gun.Name} · Gold mastery",
+                $"Complete all five mastery milestones for the {gun.Name}.", W,
+                p => (requirements.Count(p.Earned.Contains), requirements.Count),
+                gun.HasSkinRewards ? [$"merc.{gun.Id}.golden"] : []));
         }
 
         foreach (string reward in list.SelectMany(a => a.Rewards))

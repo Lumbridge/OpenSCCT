@@ -156,7 +156,7 @@ public partial class HostScreen : MenuPage
         Rows.MoveRowsTo(rules, SessionRow.Revenge, SessionRow.GamesInARow, SessionRow.RandomMap, SessionRow.AutoBalance,
             SessionRow.VoiceInLobby);
         Heading(rules, "Extra rules");
-        Rows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Sidearms, SessionRow.Rifles, SessionRow.ResponsiveSmoke, SessionRow.Alternate);
+        Rows.MoveRowsTo(rules, SessionRow.Practice, SessionRow.Alternate);
         AlternateButton = UiStyle.MenuButton("Configure alternate rules", OpenAlternate, "AlternateMode");
         AlternateButton.CustomMinimumSize = new Vector2(0, 36);
         rules.AddChild(AlternateButton);
@@ -278,7 +278,7 @@ public partial class HostScreen : MenuPage
         int Players(string map) => s.HostPlayersChosen ? s.HostMaxPlayers : CreateSessionModel.FollowedPlayers(maps.GetCatalogEntry(map)?.StatedPlayers);
         if (s.HostSetup.Length > 0)
         {
-            LobbySetup last = LobbySetup.FromOptions(s.HostSetup);
+            LobbySetup last = LobbySetup.FromOptions(s.HostSetup).WithStandardFeatures();
             if (maps.FindMap(last.Map) is not null)
             {
                 return last with { MaxPlayers = Players(last.Map) };

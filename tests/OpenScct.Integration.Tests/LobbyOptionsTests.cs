@@ -51,7 +51,7 @@ public sealed class LobbyOptionsTests
     public void ResponsiveSmokeIsSharedHostControlledAndFixedForTheRunningRound()
     {
         Assert.SkipWhen(TestBoxMissing, "The TestBox fixture is not in this checkout.");
-        (OnlineRig rig, SimLinkNetwork network) = Create(Listen() with { AutoLaunch = false });
+        (OnlineRig rig, SimLinkNetwork network) = Create(Listen(s => s with { ResponsiveSmoke = false }) with { AutoLaunch = false });
         using (rig)
         {
             OnlineClient host = Join(rig, network, "Host", 0, "k");

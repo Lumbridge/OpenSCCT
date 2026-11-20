@@ -117,6 +117,81 @@ public sealed class NavTraversalImprovementsTests
     }
 
     [Fact]
+    public void AWalkablePlatformWithAParapetOnlyAdmitsPullUpsThroughTheOpening()
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-600f, 100f, 0f), V(600f, 700f, 250f));
+        level.AddBox(V(-600f, 112f, 290f), V(-90f, 120f, 352f));
+        level.AddBox(V(90f, 112f, 290f), V(600f, 120f, 352f));
+        TraversalDoc ges = Doc(Ge(0, GEKind.LG, V(-600f, 100f, 250f), V(600f, 100f, 250f)),
+            Ge(1, GEKind.LG, V(-600f, 112f, 352f), V(-90f, 112f, 352f)),
+            Ge(2, GEKind.LG, V(90f, 112f, 352f), V(600f, 112f, 352f)));
+        NavGraph graph = NavBuilder.Build(CollisionWorld.Build(level.Build()), V(-640f, -300f, -100f),
+            V(640f, 700f, 550f), NavProfile.Spy, ges.Ges);
+        Assert.Contains(graph.Links, l => l.Kind == NavEdgeKind.LedgeClimb && l.GE == 0);
+        foreach (NavLink link in graph.Links)
+            if (link.Kind == NavEdgeKind.LedgeClimb && link.GE == 0) Assert.InRange(link.Start.X, -55f, 55f);
+    }
+
+    [Fact]
+    public void AnAccidentalHangWithoutARouteReleasesOnTheFirstInput()
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-300f, 100f, 0f), V(300f, 700f, 250f));
+        level.AddBox(V(-300f, 112f, 290f), V(300f, 120f, 352f));
+        TraversalDoc ges = Doc(Ge(0, GEKind.LG, V(-300f, 100f, 250f), V(300f, 100f, 250f)));
+        PawnRig rig = Rig(level, ges, V(0f, -65f, 0f));
+        AiWorld world = World(rig, V(-400f, -300f, -100f), V(400f, 700f, 550f), ges);
+        var facing = new FRotator(0, 16384, 0);
+        rig.Place(V(0f, 61f, 133f), facing, facing, crouched: false);
+        rig.Pawn.ZipP1 = ges.Ges[0].P0;
+        rig.Pawn.ZipP2 = ges.Ges[0].P1;
+        rig.Pawn.SetLedgeGrabZones();
+        rig.Pawn.SetPhysics(EPhysics.PHYS_Ledge);
+        rig.Controller.GotoState(MovementStateNames.OnLedge);
+        Assert.Equal(0, rig.Controller.TestTopLedge(false));
+        var follower = new NavFollower(world, spy: true);
+        NavCommand release = follower.Steer(rig.Pawn, rig.Level.TimeSeconds, facing.Yaw, false);
+        Assert.Equal(1, release.Keys.BT_Down);
+        Assert.Equal(0, release.Keys.BT_Up);
+        rig.Step(new PlayerInputFrame { BT_Down = release.Keys.BT_Down });
+        Assert.False(rig.Controller.IsInState(MovementStateNames.OnLedge));
+    }
+
+    [Fact]
+    public void ANewObstructionDuringAPlannedClimbReleasesAndRejectsTheLink()
+    {
+        CollisionDataBuilder level = Floor();
+        level.AddBox(V(-300f, 100f, 0f), V(300f, 700f, 250f));
+        TraversalDoc ges = Doc(Ge(0, GEKind.LG, V(-300f, 100f, 250f), V(300f, 100f, 250f)));
+        var openWorld = CollisionWorld.Build(level.Build());
+        FVector min = V(-400f, -300f, -100f);
+        FVector max = V(400f, 700f, 550f);
+        var nav = NavBuilder.Build(openWorld, min, max, NavProfile.Spy, ges.Ges);
+        level.AddBox(V(-300f, 112f, 290f), V(300f, 120f, 352f));
+        PawnRig rig = Rig(level, ges, V(0f, -200f, 0f));
+        var world = new AiWorld(rig.Level, rig.Collision!, nav, nav);
+        var follower = new NavFollower(world, spy: true);
+        Assert.True(follower.SetGoal(rig.Pawn, V(0f, 400f, 250f)));
+
+        int hangingTicks = 0;
+        for (int i = 0; i < 8 * Sim.Hz && follower.LinksFailed == 0; i++)
+        {
+            NavCommand command = follower.Steer(rig.Pawn, rig.Level.TimeSeconds, rig.Controller.Rotation.Yaw, false);
+            if (rig.Controller.IsInState(MovementStateNames.OnLedge)) hangingTicks++;
+            rig.Step(new PlayerInputFrame { BT_Up = command.Keys.BT_Up, BT_Down = command.Keys.BT_Down,
+                BT_Left = command.Keys.BT_Left, BT_Right = command.Keys.BT_Right,
+                Jump = command.Keys.Command1 == AiCommand.Jump, FastSpeed = true,
+                View = command.Yaw is { } yaw ? new FRotator(0, yaw, 0) : null });
+        }
+        Assert.InRange(hangingTicks, 1, Sim.Hz);
+        Assert.Equal(1, follower.LinksFailed);
+        Assert.Equal(0, follower.LinksDone);
+        Assert.NotEmpty(world.BadLinks(spy: true));
+        Assert.False(rig.Controller.IsInState(MovementStateNames.OnLedge));
+    }
+
+    [Fact]
     public void LongLedgeFindsAShortUsableSectionBetweenTheOldSixSamples()
     {
         CollisionDataBuilder level = Floor();

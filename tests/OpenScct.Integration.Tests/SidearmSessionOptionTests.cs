@@ -12,14 +12,15 @@ namespace OpenScct.Integration.Tests;
 public sealed class SidearmSessionOptionTests
 {
     [Fact]
-    public void DefaultsOffAndRoundTripsThroughLobbyAndLaunchOptions()
+    public void DefaultsOnAndPreservesAnExplicitServerRule()
     {
-        Assert.False(new LobbySetup().Sidearms);
-        Assert.False(LobbySetup.FromOptions("?MapName=ClubE").Sidearms);
+        Assert.True(new LobbySetup().Sidearms);
+        Assert.True(new PlaySettings().Sidearms);
+        Assert.True(LobbySetup.FromOptions("?MapName=ClubE").Sidearms);
         var on = new LobbySetup { Sidearms = true };
         Assert.True(LobbySetup.FromOptions(on.ToOptions()).Sidearms);
         Assert.Contains("?SvmSidearms=1", on.ToGameOptions(2));
-        Assert.Contains("?SvmSidearms=0", new LobbySetup().ToGameOptions(2));
+        Assert.Contains("?SvmSidearms=0", new LobbySetup { Sidearms = false }.ToGameOptions(2));
         Assert.False(LobbySetup.FromOptions("?SvmSidearms=0", on).Sidearms);
     }
 
@@ -28,11 +29,11 @@ public sealed class SidearmSessionOptionTests
     [InlineData(true)]
     public void HostRuleReplicatesAndControlsSidearmGrants(bool enabled)
     {
-        Assert.SkipWhen(MapCatalog.CreateDefault().FindFolder("TestRange") is null, "TestRange content required.");
+        Assert.SkipWhen(MapCatalog.CreateDefault().FindFolder(MapCatalog.TestBox) is null, "TestBox content required.");
         var clock = new StepClock();
         using var session = new PlaySession(new PlaySettings
         {
-            Map = "TestRange", Side = PlaySide.Merc, Rules = PlayRules.PlayLevel,
+            Map = MapCatalog.TestBox, Side = PlaySide.Merc, Rules = PlayRules.PlayLevel,
             HostMode = PlayHostMode.Inline, Sidearms = enabled,
         }, clock);
         void Tick(int n = 1)

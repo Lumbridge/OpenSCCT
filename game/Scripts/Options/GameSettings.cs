@@ -16,7 +16,7 @@ public enum ResponsiveSmokeQuality { Low, Medium, High }
 /// <summary>
 /// The player's chosen gear per side (an OpenSCCT addition, spec/additions/gear-change.md): class paths of the four
 /// gadget slots and the merc's weapon. Read on this machine whenever the server asks for a kit, so a new choice goes
-/// on at the next spawn (or at once while the server allows it). Defaults are the fixed kits (loadouts.md rule 2.1).
+/// on at the next spawn (or at once while the server allows it). New profiles use the fixed gadget kits and the M4 primary.
 /// </summary>
 public sealed class LoadoutSettings
 {
@@ -29,7 +29,7 @@ public sealed class LoadoutSettings
     public string[] MercGadgets { get; set; } = DefaultMerc();
 
     [JsonPropertyName("merc_weapon")]
-    public string MercWeapon { get; set; } = Loadouts.MercWeapon.Path ?? "";
+    public string MercWeapon { get; set; } = WeaponAttachments.M4;
 
     [JsonPropertyName("merc_sidearm")]
     public string MercSidearm { get; set; } = DefaultSidearm;
@@ -55,7 +55,7 @@ public sealed class LoadoutSettings
                 { SpyGadgets[i] = replacement; break; }
         }
         MercGadgets = Fit(MercGadgets, DefaultMerc());
-        MercWeapon ??= "";
+        MercWeapon = MercPrimarySelection.SavedPreference(MercWeapon);
         MercSidearm ??= DefaultSidearm;
         bool migrated = false;
         for (int i = 0; i < MercGadgets.Length; i++)

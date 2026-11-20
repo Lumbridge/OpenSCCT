@@ -269,6 +269,17 @@ public sealed class MercBrain : BotBrain
             return input;
         }
 
+        if (context.Pawn.MyWeapon is SWeaponDefense { RequiresTriggerRelease: true } weapon)
+        {
+            _burstStart = -1f;
+            if (!weapon.IsInState("s_Selected")) return input;
+            _pauseUntil = now + weapon.ShotInterval;
+            Bursts++;
+            input.FirePressed = true;
+            input.FireHeld = true;
+            return input;
+        }
+
         if (_burstStart < 0f)
         {
             _burstStart = now;
