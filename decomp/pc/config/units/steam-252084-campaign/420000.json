@@ -119,6 +119,38 @@
     }
   },
   {
+    "id": "find-421780-8",
+    "size": 42,
+    "offset": 4331392,
+    "inputs": [
+      "src/campaign_find_named_record.c"
+    ],
+    "rebuilt_symbol": "@find_421780@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_named_record.obj src/campaign_find_named_record.c",
+    "identification": "Default Ghidra extent. Looks up a name identifier at record offset 20 through the pointer range at receiver offset 8.",
+    "match": {
+      "bytes_sha256": "0a876a0053e53e57ffd59f18568380f399160387b1d1ee9c972c94517f0d9abc",
+      "inputs_sha256": "7f74970730ea180fc2babf5046be7ab24b90de934f34ba21fe7b709e35fb0b6c"
+    }
+  },
+  {
+    "id": "find-4217b0-8",
+    "size": 42,
+    "offset": 4331440,
+    "inputs": [
+      "src/campaign_find_named_record.c"
+    ],
+    "rebuilt_symbol": "@find_4217b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_named_record.obj src/campaign_find_named_record.c",
+    "identification": "Default Ghidra extent. Looks up a name identifier at record offset 4 through the pointer range at receiver offset 24.",
+    "match": {
+      "bytes_sha256": "6f86b6e43a046f5d3848a9b3374a2339ae620d7c69f1d5367c3df748983a4c04",
+      "inputs_sha256": "73b30e1b3218856c79eda0cda681a3853ee06dbc1f39d9cecb16c7f22b12054b"
+    }
+  },
+  {
     "id": "clear-owned-storage-4218a0",
     "size": 42,
     "offset": 4331680,

@@ -17,6 +17,22 @@
     }
   },
   {
+    "id": "find-430670-8",
+    "size": 42,
+    "offset": 4392560,
+    "inputs": [
+      "src/campaign_find_named_record.c"
+    ],
+    "rebuilt_symbol": "@find_430670@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_named_record.obj src/campaign_find_named_record.c",
+    "identification": "Default Ghidra extent. Looks up a name identifier at record offset 4 through the pointer range at receiver offset 8.",
+    "match": {
+      "bytes_sha256": "c04dfd147ee837298044710fb8977a9f46a477efcffc518954df286fb6b47971",
+      "inputs_sha256": "f177f654e21d39037c03797ae8093edd855ca6c8d565f0cdb5440bc70356643e"
+    }
+  },
+  {
     "id": "clear-owned-storage-4306d0",
     "size": 42,
     "offset": 4392656,

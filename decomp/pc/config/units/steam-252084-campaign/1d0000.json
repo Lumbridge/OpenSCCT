@@ -178,6 +178,32 @@
     }
   },
   {
+    "id": "find-name-1d3fe0",
+    "size": 33,
+    "offset": 1916896,
+    "inputs": [
+      "src/campaign_find_record_by_name.c"
+    ],
+    "rebuilt_symbol": "_find_name_1d3fe0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_record_by_name.obj src/campaign_find_record_by_name.c",
+    "identification": "Default Ghidra extent. Computes the name CRC and searches the pointer range for a record with that identifier.",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Rebuilt CRC-32 for the supplied name."
+      },
+      "@find_430670@8": {
+        "va": 282265200,
+        "basis": "Rebuilt linear lookup for a named record."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2b2d3b732b9575f5e0bfd58d74d90ea4d8918402918bc76fde8db9896021826c",
+      "inputs_sha256": "597a38e3163ea166a5d9c8d3618ada4d81278184c3eec3f775576485ff7d8211"
+    }
+  },
+  {
     "id": "delete-members-1d40c0",
     "size": 30,
     "offset": 1917120,
@@ -324,6 +350,58 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "1b2c6e77f08f7cc4f6c7f85f1c486f3a93ddf30eec329bf259f809e8a6f4a389"
+    }
+  },
+  {
+    "id": "find-name-1d5340",
+    "size": 33,
+    "offset": 1921856,
+    "inputs": [
+      "src/campaign_find_record_by_name.c"
+    ],
+    "rebuilt_symbol": "_find_name_1d5340",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_record_by_name.obj src/campaign_find_record_by_name.c",
+    "identification": "Default Ghidra extent. Computes the name CRC and searches the pointer range for a record with that identifier.",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Rebuilt CRC-32 for the supplied name."
+      },
+      "@find_430670@8": {
+        "va": 282265200,
+        "basis": "Rebuilt linear lookup for a named record."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7b0036c56c5d1e5752692877d7c8b20eea4c6c193d3a1e6b0c44988d3d6c2a44",
+      "inputs_sha256": "15419c3f012cd09782f482f8f2589425c44c07ba96d5bbfad36c1595b619ecc7"
+    }
+  },
+  {
+    "id": "find-name-1d5370",
+    "size": 33,
+    "offset": 1921904,
+    "inputs": [
+      "src/campaign_find_record_by_name.c"
+    ],
+    "rebuilt_symbol": "_find_name_1d5370",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_find_record_by_name.obj src/campaign_find_record_by_name.c",
+    "identification": "Default Ghidra extent. Computes the name CRC and searches the pointer range for a record with that identifier.",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Rebuilt CRC-32 for the supplied name."
+      },
+      "@find_421780@8": {
+        "va": 282204032,
+        "basis": "Rebuilt linear lookup for a named record."
+      }
+    },
+    "match": {
+      "bytes_sha256": "86000b907c9e8739a6196f509e9e9cc11adb773f4dd5f96e30ffe10db96cee49",
+      "inputs_sha256": "b17ac9f763a88af353a7e51bcb1ceb20405cd17ea1d5a546fa0bd19b2a4a3c4b"
     }
   },
   {
