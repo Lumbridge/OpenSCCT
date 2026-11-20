@@ -2160,6 +2160,22 @@
     }
   },
   {
+    "id": "cursor-advance-32-23fae0",
+    "size": 18,
+    "offset": 2357984,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_32@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x23fae0 with a 32-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "eb0e469dfe6035b0e76e9d8d1aa30d88355298b1e13bd822f3b12b1cd3e72be5",
+      "inputs_sha256": "de35b5d6ccd3e6e853bf652b41eb912b7d9d6d22e8b1582764673219f34faf32"
+    }
+  },
+  {
     "id": "register-names-23fb00",
     "size": 393,
     "offset": 2358016,

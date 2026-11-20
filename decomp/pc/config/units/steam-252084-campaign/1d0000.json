@@ -583,6 +583,80 @@
     }
   },
   {
+    "id": "cursor-advance-4-1d4e10",
+    "size": 18,
+    "offset": 1920528,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x1d4e10 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "c737de445cda8543e885974053530e1aaa42526958c42ff38ccfe5393fc0a2f7",
+      "inputs_sha256": "ad74f0793e5dfb23442cd242c4763540d267ff4e87200c5fc5917863d55e7f2f"
+    }
+  },
+  {
+    "id": "cursor-advance-4-1d4e40",
+    "size": 18,
+    "offset": 1920576,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x1d4e40 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "c737de445cda8543e885974053530e1aaa42526958c42ff38ccfe5393fc0a2f7",
+      "inputs_sha256": "f157f953127e5fffc0ef43b53f3d99536ceb16eb5794cb22ce1454bb11ae5e02"
+    }
+  },
+  {
+    "id": "cursor-advance-60-1d4e80",
+    "size": 18,
+    "offset": 1920640,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_60@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x1d4e80 with a 60-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "538ebad68573194e8bd4addefe2cbde0ffff10b2209c078d61134dd1b452f2e0",
+      "inputs_sha256": "e11161c8f3f6cc7ca4d78543f34029d670aa6fd9fd76ebd5258ae5360cb9e821"
+    }
+  },
+  {
+    "id": "element-buffer-2-1d4f10",
+    "size": 25,
+    "offset": 1920784,
+    "inputs": [
+      "src/campaign_element_allocation.c"
+    ],
+    "rebuilt_symbol": "@allocate_2@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_element_allocation.obj src/campaign_element_allocation.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 287353436,
+        "basis": "Writable allocation label passed as the second allocator argument."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Campaign shared buffer allocator."
+      }
+    },
+    "identification": "Complete aligned typed allocation method at RVA 0x1d4f10; converts the element count into bytes at a stride of 2, loads the allocation label and returns the shared allocator result.",
+    "match": {
+      "bytes_sha256": "4934a0f939c5bbdce27956d2bbfdf0ef0278f8226c03be85697a8617647b064f",
+      "inputs_sha256": "f4b0298501aabd406ef794d3b8cf58a9db7a0acf913e3065426927158a454300"
+    }
+  },
+  {
     "id": "simple-table-destroy-1d5260",
     "size": 31,
     "offset": 1921632,
@@ -1367,6 +1441,32 @@
     }
   },
   {
+    "id": "element-buffer-16-1da8d0",
+    "size": 25,
+    "offset": 1943760,
+    "inputs": [
+      "src/campaign_element_allocation.c"
+    ],
+    "rebuilt_symbol": "@allocate_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_element_allocation.obj src/campaign_element_allocation.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 287356552,
+        "basis": "Writable allocation label passed as the second allocator argument."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Campaign shared buffer allocator."
+      }
+    },
+    "identification": "Complete aligned typed allocation method at RVA 0x1da8d0; converts the element count into bytes at a stride of 16, loads the allocation label and returns the shared allocator result.",
+    "match": {
+      "bytes_sha256": "5b3a52975e434239ee2fc7c13c728196d00c267ec1a04d3b9003d39f7a89295a",
+      "inputs_sha256": "a343f5f4b6a3a00e8f88b6ac6ba57d5cd84ebc539d1917d4670c9442c6e31350"
+    }
+  },
+  {
     "id": "clear-owned-storage-1daf10",
     "size": 42,
     "offset": 1945360,
@@ -1683,6 +1783,48 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "d7483959dda77b506530a913ed7a79d5daa85d9e62c9aae7e0714bf4840f645a"
+    }
+  },
+  {
+    "id": "element-buffer-12-1db780",
+    "size": 28,
+    "offset": 1947520,
+    "inputs": [
+      "src/campaign_element_allocation.c"
+    ],
+    "rebuilt_symbol": "@allocate_12@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_element_allocation.obj src/campaign_element_allocation.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 287356632,
+        "basis": "Writable allocation label passed as the second allocator argument."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Campaign shared buffer allocator."
+      }
+    },
+    "identification": "Complete aligned typed allocation method at RVA 0x1db780; converts the element count into bytes at a stride of 12, loads the allocation label and returns the shared allocator result.",
+    "match": {
+      "bytes_sha256": "fccc4b98c83318352582f6c6bbb45bc35f3f9f2a3df45381ecdc70a6db5dff2e",
+      "inputs_sha256": "f39628be2c9848041570932c9611f302a4149a734e48d88e63d01fe8cd65b945"
+    }
+  },
+  {
+    "id": "cursor-advance-4-1db7f0",
+    "size": 18,
+    "offset": 1947632,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x1db7f0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "c737de445cda8543e885974053530e1aaa42526958c42ff38ccfe5393fc0a2f7",
+      "inputs_sha256": "3e0b711d957f134658ec13ea6922750f2739827d237cb36ca53f4017f852cf9e"
     }
   },
   {
@@ -2499,6 +2641,32 @@
     "match": {
       "bytes_sha256": "dcb4e22a2dd20651e53d33ad49315eba28c049dc7c8a00f4658191a134b4377a",
       "inputs_sha256": "1144635aaa8ec78763161efc0ee08b22e2190ba81780f99be6fc89dffdfd8c43"
+    }
+  },
+  {
+    "id": "element-buffer-16-1dd2b0",
+    "size": 25,
+    "offset": 1954480,
+    "inputs": [
+      "src/campaign_element_allocation.c"
+    ],
+    "rebuilt_symbol": "@allocate_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_element_allocation.obj src/campaign_element_allocation.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 287356680,
+        "basis": "Writable allocation label passed as the second allocator argument."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Campaign shared buffer allocator."
+      }
+    },
+    "identification": "Complete aligned typed allocation method at RVA 0x1dd2b0; converts the element count into bytes at a stride of 16, loads the allocation label and returns the shared allocator result.",
+    "match": {
+      "bytes_sha256": "98e26ef8c13ff10a0d4ed54651202f823d0d1edb2cb07890904a5fecbbb302c4",
+      "inputs_sha256": "b11f373a034f56d1f397ab5a5402f7f7d0a1ee60a0ed74050003f044333774fd"
     }
   },
   {

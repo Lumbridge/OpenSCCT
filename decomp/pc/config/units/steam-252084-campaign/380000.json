@@ -1,5 +1,37 @@
 [
   {
+    "id": "cursor-advance-12-380480",
+    "size": 21,
+    "offset": 3671168,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_12@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x380480 with a 12-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "de9a3ca594c8aa65931ab8a2a1a911d2434b4404cf1d93e3eac1b6c7de98b99c",
+      "inputs_sha256": "82a5db923b1484ade73141fdfc0a7ad89903a9bfd9a76e6febdcc7eaf50f9671"
+    }
+  },
+  {
+    "id": "cursor-distance-12-380630",
+    "size": 29,
+    "offset": 3671600,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@distance_12@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor distance routine at RVA 0x380630 with a 12-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "62e2613c0b347b3444be77404f64e81296679754d973e1d247e8709d3a03f895",
+      "inputs_sha256": "5ef738010785a36e73b64a6d141d39789c68de9505cd43e5663a433583ca82ad"
+    }
+  },
+  {
     "id": "range-operation-380670",
     "size": 22,
     "offset": 3671664,

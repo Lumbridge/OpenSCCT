@@ -837,6 +837,22 @@
     }
   },
   {
+    "id": "cursor-advance-4-26afa0",
+    "size": 18,
+    "offset": 2535328,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x26afa0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "c737de445cda8543e885974053530e1aaa42526958c42ff38ccfe5393fc0a2f7",
+      "inputs_sha256": "cf309f33794db4abfbe55c5fa4980ba7a242884b75f9d572dea1aa26ba294a6c"
+    }
+  },
+  {
     "id": "delete-record-26b580",
     "offset": 2536832,
     "size": 33,

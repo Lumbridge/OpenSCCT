@@ -4201,6 +4201,90 @@
     }
   },
   {
+    "id": "element-buffer-4-10de30",
+    "size": 29,
+    "offset": 1105456,
+    "inputs": [
+      "src/campaign_element_allocation.c"
+    ],
+    "rebuilt_symbol": "@allocate_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_element_allocation.obj src/campaign_element_allocation.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 287283600,
+        "basis": "Writable allocation label passed as the second allocator argument."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Campaign shared buffer allocator."
+      }
+    },
+    "identification": "Complete aligned typed allocation method at RVA 0x10de30; converts the element count into bytes at a stride of 4, loads the allocation label and returns the shared allocator result.",
+    "match": {
+      "bytes_sha256": "4496bbd6770a1fe2e7e583f524a355929906b0e6f8f3223355aaeda14368351f",
+      "inputs_sha256": "cca07d3fe903453d239793874e800c7ec4748bbc35cae0139f2cc0a00c331cac"
+    }
+  },
+  {
+    "id": "cursor-advance-4-10de90",
+    "size": 18,
+    "offset": 1105552,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@advance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor advance routine at RVA 0x10de90 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "c737de445cda8543e885974053530e1aaa42526958c42ff38ccfe5393fc0a2f7",
+      "inputs_sha256": "362e59869acf5df231ed1fa16a7d2a7e8ee0c6924ee416cc4e690e6cecd13f5e"
+    }
+  },
+  {
+    "id": "cursor-distance-4-10deb0",
+    "size": 14,
+    "offset": 1105584,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@distance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor distance routine at RVA 0x10deb0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "a1ac14913e402e074bec291c4b40ee821f84ac2a910c0cadf8f65a1b79b6761c",
+      "inputs_sha256": "8b85704134f2a61eb934d35878d5a398be2258af28f62d2bd6425742309db231"
+    }
+  },
+  {
+    "id": "element-buffer-1-10ded0",
+    "size": 22,
+    "offset": 1105616,
+    "inputs": [
+      "src/campaign_element_allocation.c"
+    ],
+    "rebuilt_symbol": "@allocate_1@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_element_allocation.obj src/campaign_element_allocation.c",
+    "link_bindings": {
+      "_allocation_kind": {
+        "va": 287283600,
+        "basis": "Writable allocation label passed as the second allocator argument."
+      },
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Campaign shared buffer allocator."
+      }
+    },
+    "identification": "Complete aligned typed allocation method at RVA 0x10ded0; converts the element count into bytes at a stride of 1, loads the allocation label and returns the shared allocator result.",
+    "match": {
+      "bytes_sha256": "fb935becd567612a11b184aa0aabb55ed604edf4232dfb8ed37053d381f7bd7a",
+      "inputs_sha256": "6c201febb8cbc69655e5f90466c7e967a52fd4a19ef18dc4d5705b004a94d78c"
+    }
+  },
+  {
     "id": "assign-range-10df00",
     "offset": 1105664,
     "size": 30,
@@ -4302,6 +4386,22 @@
     "match": {
       "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
       "inputs_sha256": "67642ca01548eea0085291dffb05297914628ab61de453f67fbca04f5cee30bf"
+    }
+  },
+  {
+    "id": "cursor-distance-4-10e3f0",
+    "size": 14,
+    "offset": 1106928,
+    "inputs": [
+      "src/campaign_typed_cursor.c"
+    ],
+    "rebuilt_symbol": "@distance_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_cursor.obj src/campaign_typed_cursor.c",
+    "identification": "Aligned complete cursor distance routine at RVA 0x10e3f0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "a1ac14913e402e074bec291c4b40ee821f84ac2a910c0cadf8f65a1b79b6761c",
+      "inputs_sha256": "2fabfda9c0076ab0bad07ca0c1402b47d62c7d43e2f513777b8992d16350cd5c"
     }
   },
   {
