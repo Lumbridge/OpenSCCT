@@ -527,6 +527,526 @@
     }
   },
   {
+    "id": "pool-take-4271d0",
+    "size": 51,
+    "offset": 4354512,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_4271d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17b44": {
+        "va": 288455492,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 36-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "5689b3ce14b0840f07f6e9da53cae1d841aa2a21ee16744275d1531f96c9b5f1",
+      "inputs_sha256": "4c93fa89970dad4009541c33fafdc23c5fb7066a047f9ebbd65d3dde104c0190"
+    }
+  },
+  {
+    "id": "pool-take-427290",
+    "size": 51,
+    "offset": 4354704,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427290",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a18020": {
+        "va": 288456736,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 80-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "31c08cd3403605e94ebbe3bd9df9b3dacbd654f3b92e83ddf0797e05be50bc7c",
+      "inputs_sha256": "85c2f61a76ecdc4837f610dc76bcce4745272b65a49812e0f9fa84f5df8b69d8"
+    }
+  },
+  {
+    "id": "pool-take-4272d0",
+    "size": 51,
+    "offset": 4354768,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_4272d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a128": {
+        "va": 288465192,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 52-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "d1a196f6f586c718a908e8ade0b76e9aef79379313efdb98827a9238abc5b329",
+      "inputs_sha256": "d82a73364cb482997db9bebf1bb3f465f8c8bf3894233794db4822010b6099f3"
+    }
+  },
+  {
+    "id": "pool-take-427310",
+    "size": 51,
+    "offset": 4354832,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427310",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a258": {
+        "va": 288465496,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 88-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "8135307119836fb266f9fd4edeba96cbcd55c543d469462c1b4cacdc26674a9a",
+      "inputs_sha256": "276d5e01a673abe196c53bab62424cfc9ae69402f95f5502851fb16a710f3061"
+    }
+  },
+  {
+    "id": "pool-take-427350",
+    "size": 51,
+    "offset": 4354896,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427350",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a21c": {
+        "va": 288465436,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 92-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "5665fde462c2783a87b380e6b3f3cf519dc732b58e65d6eb0ac1f36072380f07",
+      "inputs_sha256": "72766e621b2f98e577cdeab9ca24c14d1c5da7b318d2e84b09a71c31c5cc20ad"
+    }
+  },
+  {
+    "id": "pool-take-4273d0",
+    "size": 51,
+    "offset": 4355024,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_4273d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17bbc": {
+        "va": 288455612,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 80-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "3ee5628dc6c8fbcef0846fb4ea9777db3d2e57e95162ae7e1f7b1d5c93255335",
+      "inputs_sha256": "04777d994e40cb7b5ce49cf046cd344339b3417c2412d69707734f138ab910a0"
+    }
+  },
+  {
+    "id": "pool-take-427410",
+    "size": 51,
+    "offset": 4355088,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427410",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a348": {
+        "va": 288465736,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 84-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "b07dc56d37456cfb339f75f672416c6a2c8ce266a877e906d1c98a739ac5031b",
+      "inputs_sha256": "5020649a71bb8b20bcc1550dd82ae57c2a8c9ef885cb0bf7885d5082f095f882"
+    }
+  },
+  {
+    "id": "pool-take-427450",
+    "size": 51,
+    "offset": 4355152,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427450",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a384": {
+        "va": 288465796,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 52-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "fc299bb7281dfb02eca4acb06bb49fcf5df55c5b152d37285a8670775cf8d90c",
+      "inputs_sha256": "95496699a91b9eb8212dfe24c4887133df857bed69e00c6535283facc6197143"
+    }
+  },
+  {
+    "id": "pool-take-427490",
+    "size": 51,
+    "offset": 4355216,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427490",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a294": {
+        "va": 288465556,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 92-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "9e4e13bc59ff640566571330b73e741e255c7b7fbdfe0e038f7554b965013a46",
+      "inputs_sha256": "88423dd0af6b29d914d491db8855116b6a71ec5f938afeebdb8c94124570ad8e"
+    }
+  },
+  {
+    "id": "pool-take-4274d0",
+    "size": 51,
+    "offset": 4355280,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_4274d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a1e0": {
+        "va": 288465376,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 40-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "069bdbd63746190b6334cb360d8ea04f10aaeda02367302030e76605d074ff11",
+      "inputs_sha256": "68037f670a1cf1015217cc1a942a9900a14c50fa39eceb60914256dcdf94c99e"
+    }
+  },
+  {
+    "id": "pool-take-427510",
+    "size": 54,
+    "offset": 4355344,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427510",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a0ec": {
+        "va": 288465132,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 204-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "ec6708872889b8ae0b61c2293fadfe8005a058eb95fc4200b74e0ec5c259b215",
+      "inputs_sha256": "dbc46957ab6f514b893fd5d8c40338d91eb6b3d2e217d9071266a1e6bce59642"
+    }
+  },
+  {
+    "id": "pool-take-427550",
+    "size": 51,
+    "offset": 4355408,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427550",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a1a4": {
+        "va": 288465316,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 16-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "c3173c801a30d8b325f0b74b51e994503799db9a7ba1152f3c5f07ee5fd41f8c",
+      "inputs_sha256": "1b8a20603e6829466d82843e76734b8d6dc29d8faf36d1a7855a7dfa8c91ca37"
+    }
+  },
+  {
+    "id": "pool-take-427590",
+    "size": 51,
+    "offset": 4355472,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a3c0": {
+        "va": 288465856,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 28-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "8ac8aabb544edce0d0d6f95017983caf620882e2034ec24c38662fb54a711405",
+      "inputs_sha256": "c30957f8e810fdd33886394297300674b7f91a080683123d428e751f2d1f3498"
+    }
+  },
+  {
+    "id": "pool-take-4275d0",
+    "size": 54,
+    "offset": 4355536,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_4275d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17c24": {
+        "va": 288455716,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 208-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "39506ca308e19c8a79619fcd1790bdc50e9450078517d7cd121b2d933e0dcfdf",
+      "inputs_sha256": "96a50b225b6aadfc53d4efd5e328b3047445d433e97fe4fdbed5f6f7eb270e8e"
+    }
+  },
+  {
+    "id": "pool-take-427610",
+    "size": 51,
+    "offset": 4355600,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427610",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17cf0": {
+        "va": 288455920,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 36-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "70dc9bb5397867e995a44f92cf54ff46ac9938fe2b5d737c13873ef1993a2453",
+      "inputs_sha256": "e7f910e689a0829d12e5fe4cc552507f75c50a246d3a857dbcb000ec3293d95d"
+    }
+  },
+  {
+    "id": "pool-take-427650",
+    "size": 54,
+    "offset": 4355664,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427650",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17b08": {
+        "va": 288455432,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 192-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "e3e1bfff70fce68452b649c13e7ba89adccbf933cf6da2998f2c594a293f066c",
+      "inputs_sha256": "564d5ed7f7163922bde803c2dbbb7c6be97b16a988834ff0c07216f9bc3b82c3"
+    }
+  },
+  {
+    "id": "pool-take-427690",
+    "size": 51,
+    "offset": 4355728,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427690",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17b80": {
+        "va": 288455552,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 84-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "015d739e061b5a19eb82d85f4b974bbe2909d2f17be5447dabcf3a08ff7d4fb1",
+      "inputs_sha256": "b5def9a997e44c22e2676df3aa3062ba6dda953c5626c3431dccaf07188d38c4"
+    }
+  },
+  {
+    "id": "pool-take-4276d0",
+    "size": 51,
+    "offset": 4355792,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_4276d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a3fc": {
+        "va": 288465916,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 84-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "cb69fbc7bce6f810b52b50c611d6ea344b74996f6ad40e5801afefebffa5f61a",
+      "inputs_sha256": "98aff49b8f77dfb331e0fc9839c65a131a2713b4f490491e7af4212aaa1bb200"
+    }
+  },
+  {
+    "id": "pool-take-427710",
+    "size": 51,
+    "offset": 4355856,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427710",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a1a2d0": {
+        "va": 288465616,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 92-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "c931ab9f3cf6cd4aee6605a1e8945c541a3351e26547d5b7b641748133d5df1d",
+      "inputs_sha256": "dd840525e7fac0730868026835805e86af14927df311d9ce6375782e4d3bfddb"
+    }
+  },
+  {
+    "id": "pool-take-427750",
+    "size": 51,
+    "offset": 4355920,
+    "inputs": [
+      "src/campaign_pool_take.c"
+    ],
+    "rebuilt_symbol": "_take_427750",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_take.obj src/campaign_pool_take.c",
+    "link_bindings": {
+      "_allocate_block": {
+        "va": 279826608,
+        "basis": "Fallback to the shared campaign heap allocator."
+      },
+      "_pool_a17fe4": {
+        "va": 288456676,
+        "basis": "Static pool record with active flag at sixteen and descriptor end at eight."
+      }
+    },
+    "identification": "Default Ghidra extent. Takes a 28-byte entry from the active block, increments its reference count, or allocates the requested size when inactive.",
+    "match": {
+      "bytes_sha256": "d43f8c87b60fb7d72c2730073e5712f3fd12110f2555c26c89281a15a07dd450",
+      "inputs_sha256": "907316aea7e122257aadef0df9e35cc1705e718a1d1ac909b772f3230b94d601"
+    }
+  },
+  {
     "id": "block-pool-release-427b20",
     "size": 43,
     "offset": 4356896,
