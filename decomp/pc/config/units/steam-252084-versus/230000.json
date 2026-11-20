@@ -43,6 +43,23 @@
     }
   },
   {
+    "id": "copy-word-235f10",
+    "offset": 2318096,
+    "size": 13,
+    "inputs": [
+      "src/versus_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_235f10@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_range_helpers.obj src/versus_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x235e11 in the independently delineated retail function at RVA 0x235dc0. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "101c318376199297c2c15f8028a7a61ff57d0003dd7315ac6f43a1efe75802f0"
+    }
+  },
+  {
     "id": "init-tree-head-235f20",
     "offset": 2318112,
     "size": 62,

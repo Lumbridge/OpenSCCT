@@ -27,6 +27,29 @@
     }
   },
   {
+    "id": "release-allocation-2c0f80",
+    "offset": 2887552,
+    "size": 13,
+    "inputs": [
+      "src/versus_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@release_2c0f80@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_range_helpers.obj src/versus_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x235e59 in the independently delineated retail function at RVA 0x235dc0. The complete 13-byte function releases the allocation using the stock deallocation wrapper.",
+    "link_bindings": {
+      "_release_storage@4": {
+        "va": 279385360,
+        "basis": "Direct call to the retail storage release routine."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "7d1b7b6b1669a2a2698bea6bb742f0f3f35adbdfcbf33f10f9dc623dada8b81f",
+      "inputs_sha256": "7282944f6513f988cb6230a8390c3446ec12d5a74a39dfe40d324ed7a2590d1f"
+    }
+  },
+  {
     "id": "delete-record-2c1510",
     "offset": 2888976,
     "size": 27,

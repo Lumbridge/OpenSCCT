@@ -23,6 +23,40 @@
     }
   },
   {
+    "id": "copy-word-5f72c0",
+    "offset": 6255296,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_5f72c0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x5f54c9 in the independently delineated retail function at RVA 0x5f5330. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "862889d388835abef9d5191f04860999a44817af54fc745cc008ea79985da638"
+    }
+  },
+  {
+    "id": "copy-word-5f7720",
+    "offset": 6256416,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_5f7720@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x5f5d33 in the independently delineated retail function at RVA 0x5f5b70. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "ee9dccde174b2d938c06152e18818d5e3464a6e1a207f5f0bdacbcd3e0bb1d16"
+    }
+  },
+  {
     "id": "tree-begin-5f7bd0",
     "offset": 6257616,
     "size": 14,
@@ -442,6 +476,23 @@
     "match": {
       "bytes_sha256": "825340f16a1ae3ac3e513be5e80d9b15fe3790d2d32c6d6ce6f30f425c1bb634",
       "inputs_sha256": "2af68650d012ea6eb9194093baf4ddba47393e001371ff043e8633a989ee7782"
+    }
+  },
+  {
+    "id": "copy-word-5fde20",
+    "offset": 6282784,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_5fde20@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x5fddc2 in the independently delineated retail function at RVA 0x5fdd90. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "9c663f94c9a82621911c4d54be3451bcbf29a2bafdb03c186fd3671275371233"
     }
   }
 ]

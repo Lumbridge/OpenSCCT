@@ -1,5 +1,22 @@
 [
   {
+    "id": "copy-word-722850",
+    "offset": 7481424,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_722850@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x7227f2 in the independently delineated retail function at RVA 0x7227c0. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "5a36640ef8a597dff88b68dbd807aab2c15fecbc50b066543c8e92b58c0e3409"
+    }
+  },
+  {
     "id": "tree-begin-722b70",
     "offset": 7482224,
     "size": 14,
@@ -13,6 +30,74 @@
     "match": {
       "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
       "inputs_sha256": "1dfd1b60e4ed8e228a87816395c1f0c1656282a84080901387e747efc1e408a7"
+    }
+  },
+  {
+    "id": "copy-word-722b80",
+    "offset": 7482240,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_722b80@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x722a31 in the independently delineated retail function at RVA 0x7229e0. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "7bd536367ed917f4bd97436942d98d49850eda85becb32d3d5afe71dda9a9716"
+    }
+  },
+  {
+    "id": "copy-word-722d80",
+    "offset": 7482752,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_722d80@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x72247a in the independently delineated retail function at RVA 0x722440. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "04e3e9ba61e687cbb08ac356971d26a35573f2814aadf51a8f0d209e80ff8de1"
+    }
+  },
+  {
+    "id": "copy-word-722da0",
+    "offset": 7482784,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_722da0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x72260a in the independently delineated retail function at RVA 0x7225d0. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "a2af542d02f6f04faf6f8219d5a90d2681aeafe632b664193a1420b7f5a976b3"
+    }
+  },
+  {
+    "id": "copy-word-722e90",
+    "offset": 7483024,
+    "size": 13,
+    "inputs": [
+      "src/campaign_tree_range_helpers.c"
+    ],
+    "rebuilt_symbol": "@copy_722e90@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_range_helpers.obj src/campaign_tree_range_helpers.c",
+    "identification": "Direct call at RVA 0x721c85 in the independently delineated retail function at RVA 0x721c10. The complete 13-byte function copies one word and returns the output pointer.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9c375493fe6e8516cd7ebdc429fa91c81045e81d62b4225dc8b83f1e3b160f39",
+      "inputs_sha256": "7db46d4216bd34a4f8f3067c45122a263467f98a6e15bed46a38ba794cb6f414"
     }
   },
   {
