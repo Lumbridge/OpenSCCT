@@ -9996,6 +9996,188 @@
     }
   },
   {
+    "id": "startup-default-2d8600",
+    "size": 12,
+    "offset": 2983424,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8600",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_finalize_2dc650": {
+        "va": 280872528,
+        "basis": "Static termination callback."
+      },
+      "_atexit": {
+        "va": 280508022,
+        "basis": "Retail CRT atexit registration routine."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347e4 establishes the entry for termination callback registration.",
+    "match": {
+      "bytes_sha256": "34c746c98f5b4ba9c1a199897db647b8c20cb8070558de86265c4d544257395b",
+      "inputs_sha256": "e5e6462228691abc5b54d0b93c5dd300e1b5f06d01b429cbe01d2dbe62155e2a"
+    }
+  },
+  {
+    "id": "startup-default-2d8640",
+    "size": 11,
+    "offset": 2983488,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8640",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3cacc0": {
+        "va": 281849024,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3cac00": {
+        "va": 281848832,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347c8 establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "1c35f0accdbf3c66c5018e09d89b1f39a1e30410912d0967905c1b6e39e836e6",
+      "inputs_sha256": "f45e4e38009d316b3022b6c9b3ef90ea7e251ae4c8fdd93fc3c409e9c55b810f"
+    }
+  },
+  {
+    "id": "startup-default-2d8650",
+    "size": 11,
+    "offset": 2983504,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8650",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3cacc4": {
+        "va": 281849028,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3cac0c": {
+        "va": 281848844,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347cc establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "d7f7ae045d7c61722cabd8707b7f19ea649365a64f11a81a3e932aa42ad117a7",
+      "inputs_sha256": "f1759c300b1794f188ace90742f414130f388a29c8cb1ebbb5e7bb72d982c915"
+    }
+  },
+  {
+    "id": "startup-default-2d8660",
+    "size": 11,
+    "offset": 2983520,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8660",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3cacb8": {
+        "va": 281849016,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3cac18": {
+        "va": 281848856,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347d0 establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "a892f6250ba66442a39815c449f065a906e87ed9e20c3735490db6e80c20becb",
+      "inputs_sha256": "25c8d3da3d97b38390018517fec77607c42908358a3de0b252d2329ed9463fc3"
+    }
+  },
+  {
+    "id": "startup-default-2d8670",
+    "size": 11,
+    "offset": 2983536,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3cacbc": {
+        "va": 281849020,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3cac24": {
+        "va": 281848868,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347d4 establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "a41aab2f4f7483111842f22205e903a32aa46359ffbaab7a63ca1e70ff1fcd84",
+      "inputs_sha256": "153e84321f85461f4fb49348273cd27665d72647fdbb6d70a7ef5b9168d2dc3d"
+    }
+  },
+  {
+    "id": "startup-default-2d8680",
+    "size": 11,
+    "offset": 2983552,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8680",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3cabf4": {
+        "va": 281848820,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3cac5c": {
+        "va": 281848924,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347d8 establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "82a8b745fbed8a3f147dcf3f24292c7c9515631f26867b1938f619d8101acf9b",
+      "inputs_sha256": "e27a70b0cb734a1026066941ab0def118589efba5f8366b11cfee73c057de01b"
+    }
+  },
+  {
+    "id": "startup-default-2d8690",
+    "size": 11,
+    "offset": 2983568,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d8690",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3cabf8": {
+        "va": 281848824,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3cac30": {
+        "va": 281848880,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3347dc establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "ecb63fb94efc78ce5389a3204f51bedeb8347c43be7f08671ae92c1ebef15a75",
+      "inputs_sha256": "9d24165005206d203afd67eabd0d9791c94a48ebf4236ef7bc7b3641aef2b6c6"
+    }
+  },
+  {
     "id": "registered-object-init-2d86a0",
     "size": 24,
     "offset": 2983584,
@@ -17200,6 +17382,32 @@
     }
   },
   {
+    "id": "startup-default-2da3f0",
+    "size": 12,
+    "offset": 2991088,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2da3f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_finalize_2dd500": {
+        "va": 280876288,
+        "basis": "Static termination callback."
+      },
+      "_atexit": {
+        "va": 280508022,
+        "basis": "Retail CRT atexit registration routine."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x334428 establishes the entry for termination callback registration.",
+    "match": {
+      "bytes_sha256": "ca4a5615cc82e2c54563bc97be3d17859d21e1b03fe7c581378057b0a87de5bf",
+      "inputs_sha256": "e879c3b0495fd43a3cedba3c37d688409ec7fede205e6c7b9fada4d1a03e5f0b"
+    }
+  },
+  {
     "id": "default-object-init-2da410",
     "size": 22,
     "offset": 2991120,
@@ -17231,6 +17439,36 @@
     "match": {
       "bytes_sha256": "4eeb649f22ed9517d766995d71d9abecaf59ba20bf73b22ceb451deafee3d649",
       "inputs_sha256": "b0451ede5bb05a50a156e8cbbea787052c56a54b407496361ee7c2bc4691b3f5"
+    }
+  },
+  {
+    "id": "startup-default-2da430",
+    "size": 19,
+    "offset": 2991152,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2da430",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_factor_2ff1a4": {
+        "va": 281014692,
+        "basis": "Read-only floating point operand."
+      },
+      "_factor_310a10": {
+        "va": 281086480,
+        "basis": "Read-only floating point operand."
+      },
+      "_product_3b7858": {
+        "va": 281770072,
+        "basis": "Writable product destination."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x33441c establishes the entry for floating point product initialization.",
+    "match": {
+      "bytes_sha256": "a234e86a916753949894f6c717e9c28f178b25b0bd753f7e36cc48e2a131bf69",
+      "inputs_sha256": "330c1cc3a531fc1242596c6f8ad85c4f9132e7b8c5c3efdf2046f35c96a11463"
     }
   },
   {
@@ -17537,6 +17775,58 @@
     "match": {
       "bytes_sha256": "41943f0b7be8cdd0631ba1a5215022c440285501c0918ccb53da8c859805908b",
       "inputs_sha256": "330a100dcfd754236a92780658a683d35606e483763c439baabdbed98c8f1e76"
+    }
+  },
+  {
+    "id": "startup-default-2da640",
+    "size": 11,
+    "offset": 2991680,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2da640",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_selected_3a7060": {
+        "va": 281702496,
+        "basis": "Writable pointer initialized by this entry."
+      },
+      "_storage_3a7020": {
+        "va": 281702432,
+        "basis": "Static storage whose address is assigned."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3343ec establishes the entry for static storage pointer assignment.",
+    "match": {
+      "bytes_sha256": "86c981ea313f416144a42f8bd6d15179ace85bebb680b90fe51772c09a6eef34",
+      "inputs_sha256": "4f33eb989a0211a4962d20903beec203d9ae2d619a6d03a3dba3bc3f9ec40b17"
+    }
+  },
+  {
+    "id": "startup-default-2da660",
+    "size": 12,
+    "offset": 2991712,
+    "inputs": [
+      "src/versus_startup_defaults.c"
+    ],
+    "rebuilt_symbol": "_initialize_2da660",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_startup_defaults.obj src/versus_startup_defaults.c",
+    "link_bindings": {
+      "_finalize_2dd5d0": {
+        "va": 280876496,
+        "basis": "Static termination callback."
+      },
+      "_atexit": {
+        "va": 280508022,
+        "basis": "Retail CRT atexit registration routine."
+      }
+    },
+    "identification": "Startup table pointer at RVA 0x3343e4 establishes the entry for termination callback registration.",
+    "match": {
+      "bytes_sha256": "26a0f66fb17c15b3e2638828a95d3d3baab79f25d60b4770640a7f6c00e863fc",
+      "inputs_sha256": "f9fad26297f62dad2eb94ab44ec36b36cb27008fe984d5b7c1ba629f7b72f5cb"
     }
   },
   {
