@@ -814,6 +814,22 @@
     }
   },
   {
+    "id": "init-tree-node-48be40",
+    "offset": 4767296,
+    "size": 61,
+    "inputs": [
+      "src/campaign_tree_node_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_node_48be40@24",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_node_construction.obj src/campaign_tree_node_construction.c",
+    "identification": "Retail call at VA 0x10d8c756. Initializes the three links, copies 12 bytes of payload, sets the supplied color and clears the sentinel flag.",
+    "match": {
+      "bytes_sha256": "8d0609dfa4b7d86f243dd469261ec228052565290191ab36319684c77d316775",
+      "inputs_sha256": "da00336c5196799f66f621a865d018f56fb2d5fa860bfcaf99fc17065827da78"
+    }
+  },
+  {
     "id": "clear-record-48c2b0",
     "offset": 4768432,
     "size": 37,
