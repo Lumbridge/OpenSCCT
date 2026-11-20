@@ -1,5 +1,1123 @@
 [
   {
+    "id": "windows-dispatch-dispatchmessagew",
+    "size": 37,
+    "offset": 2231888,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_DispatchMessageW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_DispatchMessageW": {
+        "va": 280884780,
+        "basis": "Retail export name DispatchMessageW."
+      },
+      "_slot_DispatchMessageW": {
+        "va": 281496568,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b90": {
+        "va": 282401680,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_DispatchMessageW@4": {
+        "va": 280107227,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!DispatchMessageW. The pointer at RVA 0x374bf8 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "3df730297025fc425a388a3e100851bd33f75d9dd98e7dac977f95e5bdaffa5e",
+      "inputs_sha256": "cc800c57e3a040ed9bfe2f2b619f92b2c82e57923960c4f6c2056361cdf35971"
+    }
+  },
+  {
+    "id": "windows-dispatch-createmutexw",
+    "size": 37,
+    "offset": 2231925,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_CreateMutexW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_CreateMutexW": {
+        "va": 280884816,
+        "basis": "Retail export name CreateMutexW."
+      },
+      "_slot_CreateMutexW": {
+        "va": 281496428,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b8c": {
+        "va": 282401676,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_CreateMutexW@12": {
+        "va": 280107200,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!CreateMutexW. The pointer at RVA 0x374b6c initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "62fe31ba09d5361e27c03932d7e4c40d7fcddce6452a2dd593aafce45f03991f",
+      "inputs_sha256": "0cf0c83c50fe4d84b94e6f344dd845f60ed7d6f617498fa5d1c746e77d5dd5f1"
+    }
+  },
+  {
+    "id": "windows-dispatch-findfirstfilew",
+    "size": 37,
+    "offset": 2231962,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_FindFirstFileW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_FindFirstFileW": {
+        "va": 280884832,
+        "basis": "Retail export name FindFirstFileW."
+      },
+      "_slot_FindFirstFileW": {
+        "va": 281496440,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b88": {
+        "va": 282401672,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_FindFirstFileW@8": {
+        "va": 280107240,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!FindFirstFileW. The pointer at RVA 0x374b78 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "fbd0df0d6467e5b3cd09c985b5a167ebdb74e81ac8d0b8d0e2b058093d65a03b",
+      "inputs_sha256": "101e174f46927d85d1c9adbe4696db273f98de60fa14a64e817e1f5095bce201"
+    }
+  },
+  {
+    "id": "windows-dispatch-sendmessagew",
+    "size": 37,
+    "offset": 2231999,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_SendMessageW@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_SendMessageW": {
+        "va": 280884848,
+        "basis": "Retail export name SendMessageW."
+      },
+      "_slot_SendMessageW": {
+        "va": 281496652,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b84": {
+        "va": 282401668,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_SendMessageW@16": {
+        "va": 280107793,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!SendMessageW. The pointer at RVA 0x374c4c initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "3f494bd64ee0e6a9c200deaf45859afe1005d612e67bfe8bcd27c4f97a200e62",
+      "inputs_sha256": "b5b68582eb40161edd94c67775ec1d340e7854c7b8de6ed6bc4506f91abcbf40"
+    }
+  },
+  {
+    "id": "windows-dispatch-messageboxw",
+    "size": 37,
+    "offset": 2232036,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_MessageBoxW@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_MessageBoxW": {
+        "va": 280884864,
+        "basis": "Retail export name MessageBoxW."
+      },
+      "_slot_MessageBoxW": {
+        "va": 281496624,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b80": {
+        "va": 282401664,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_MessageBoxW@16": {
+        "va": 280107602,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!MessageBoxW. The pointer at RVA 0x374c30 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "8d3efbdc333969bb35aa88e83c3bdf423a6e3bf62ce7632ae1ff25e4b70de223",
+      "inputs_sha256": "62ae354b949cabef56bf5e23830118050b1b2dcc5e6cfd879c3edecefbf879d9"
+    }
+  },
+  {
+    "id": "windows-dispatch-createdirectoryw",
+    "size": 37,
+    "offset": 2232073,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_CreateDirectoryW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_CreateDirectoryW": {
+        "va": 280884876,
+        "basis": "Retail export name CreateDirectoryW."
+      },
+      "_slot_CreateDirectoryW": {
+        "va": 281496416,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b7c": {
+        "va": 282401660,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_CreateDirectoryW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!CreateDirectoryW. The pointer at RVA 0x374b60 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "0844a0fcbb1721d674e45ab824b2dc816c8870a557428d257f36d4aa88603f4a",
+      "inputs_sha256": "d85571ad8262f6c9174c7f636d03fdcd7727b43f3b223220ff31b165bad37c2a"
+    }
+  },
+  {
+    "id": "windows-dispatch-createdialogparamw",
+    "size": 37,
+    "offset": 2232110,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_CreateDialogParamW@20",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_CreateDialogParamW": {
+        "va": 280884896,
+        "basis": "Retail export name CreateDialogParamW."
+      },
+      "_slot_CreateDialogParamW": {
+        "va": 281496548,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b78": {
+        "va": 282401656,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_CreateDialogParamW@20": {
+        "va": 280107643,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!CreateDialogParamW. The pointer at RVA 0x374be4 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "0a0459cf8a1ea16345eebf4eeebe2b3068eb8cd13db55108ae12e35198a3a314",
+      "inputs_sha256": "c7ebe92f26e0cfb5c90cf609397a4a8c8b6fd0c74aaf6e21dd004edddf3c219c"
+    }
+  },
+  {
+    "id": "windows-dispatch-getsystemdirectoryw",
+    "size": 37,
+    "offset": 2232147,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_GetSystemDirectoryW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_GetSystemDirectoryW": {
+        "va": 280884916,
+        "basis": "Retail export name GetSystemDirectoryW."
+      },
+      "_slot_GetSystemDirectoryW": {
+        "va": 281496484,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b74": {
+        "va": 282401652,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_GetSystemDirectoryW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!GetSystemDirectoryW. The pointer at RVA 0x374ba4 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "d4a01123dde3b6450c823a1eb74cb5de421dcd3aa1b986b149d57a928fe0e64c",
+      "inputs_sha256": "2ed8547bf71029c5ec83c8a92ba86de10447f16f52892cf95a6191fb9d4f6015"
+    }
+  },
+  {
+    "id": "windows-dispatch-peekmessagew",
+    "size": 37,
+    "offset": 2232184,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_PeekMessageW@20",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_PeekMessageW": {
+        "va": 280884936,
+        "basis": "Retail export name PeekMessageW."
+      },
+      "_slot_PeekMessageW": {
+        "va": 281496628,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b70": {
+        "va": 282401648,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_PeekMessageW@20": {
+        "va": 280107643,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!PeekMessageW. The pointer at RVA 0x374c34 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "3a2712ff70d1bd7c8ebc55a31aae17b353bb3e9f1265786050a9c356cd231cff",
+      "inputs_sha256": "f4e8a54c62aab194799c172a810b99630de939ae04d89fef82ce7698e4407f38"
+    }
+  },
+  {
+    "id": "windows-dispatch-copyfilew",
+    "size": 37,
+    "offset": 2232221,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_CopyFileW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_CopyFileW": {
+        "va": 280884952,
+        "basis": "Retail export name CopyFileW."
+      },
+      "_slot_CopyFileW": {
+        "va": 281496412,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b6c": {
+        "va": 282401644,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_CopyFileW@12": {
+        "va": 280107146,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!CopyFileW. The pointer at RVA 0x374b5c initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "deda2774e5aec8f5d699b33be1b95b4cd857ae5b86385acd532f4ba1bcc576de",
+      "inputs_sha256": "e6f8a8d04bd51b0cdca79a21b074df6c312297cd1e4cb08d91ce12c16028f54b"
+    }
+  },
+  {
+    "id": "windows-dispatch-loadiconw",
+    "size": 37,
+    "offset": 2232295,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_LoadIconW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_LoadIconW": {
+        "va": 280884976,
+        "basis": "Retail export name LoadIconW."
+      },
+      "_slot_LoadIconW": {
+        "va": 281496612,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b64": {
+        "va": 282401636,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_LoadIconW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!LoadIconW. The pointer at RVA 0x374c24 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "da3a56c30933ba24de67e2a982174f0de631b2defe43bdda24d6314187a1b72f",
+      "inputs_sha256": "5bfaa3bbdbde663861c5291e04eb66563d5ca8177c82341e514afedfce0948d9"
+    }
+  },
+  {
+    "id": "windows-dispatch-getmodulefilenamew",
+    "size": 37,
+    "offset": 2232332,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_GetModuleFileNameW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_GetModuleFileNameW": {
+        "va": 280884988,
+        "basis": "Retail export name GetModuleFileNameW."
+      },
+      "_slot_GetModuleFileNameW": {
+        "va": 281496472,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b60": {
+        "va": 282401632,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_GetModuleFileNameW@12": {
+        "va": 280107146,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!GetModuleFileNameW. The pointer at RVA 0x374b98 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "173fc7c48995d1cc78ea47ca3c25275d55d2005dc9b200aabf4b37e4c972f423",
+      "inputs_sha256": "b044477fbaa4ac4750a91ad1c97316b3738b903cf00048ec52c4c20711253ccb"
+    }
+  },
+  {
+    "id": "windows-dispatch-createfilew",
+    "size": 37,
+    "offset": 2232369,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_CreateFileW@28",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_CreateFileW": {
+        "va": 280885008,
+        "basis": "Retail export name CreateFileW."
+      },
+      "_slot_CreateFileW": {
+        "va": 281496424,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b5c": {
+        "va": 282401628,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_CreateFileW@28": {
+        "va": 280107186,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!CreateFileW. The pointer at RVA 0x374b68 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "0e674cb1ebb6c05f53d4e92947acd10a686bfe9550fc8ae43a4559b0cd815957",
+      "inputs_sha256": "ab1fbd3623fa6f5cbd7389a38584b2fdf018431d9f2442ca4ed5c9e73dbb4f55"
+    }
+  },
+  {
+    "id": "windows-dispatch-setpropw",
+    "size": 37,
+    "offset": 2232406,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_SetPropW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_SetPropW": {
+        "va": 280885020,
+        "basis": "Retail export name SetPropW."
+      },
+      "_slot_SetPropW": {
+        "va": 281496664,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b58": {
+        "va": 282401624,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_SetPropW@12": {
+        "va": 280107146,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!SetPropW. The pointer at RVA 0x374c58 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "9d27b475f36ecb2d045a8b8715ab5af474c8ba71c2992e6bb86420ae3510801d",
+      "inputs_sha256": "5bbe4fc14aa8a06cf83571f50d9a4c6ed11e0cb42854192943b4524ef0ff5219"
+    }
+  },
+  {
+    "id": "windows-dispatch-getcurrentdirectoryw",
+    "size": 37,
+    "offset": 2232443,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_GetCurrentDirectoryW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_GetCurrentDirectoryW": {
+        "va": 280885032,
+        "basis": "Retail export name GetCurrentDirectoryW."
+      },
+      "_slot_GetCurrentDirectoryW": {
+        "va": 281496464,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b54": {
+        "va": 282401620,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_GetCurrentDirectoryW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!GetCurrentDirectoryW. The pointer at RVA 0x374b90 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "31a80d6bcd838c62f634d88d9c099e9502e790ae70b08c6870c4c02e69faf9ce",
+      "inputs_sha256": "3d5e75ab78f9f0f05992075b0ae272d54bc9a8bb766328ac787d336adc93610c"
+    }
+  },
+  {
+    "id": "windows-dispatch-movefilew",
+    "size": 37,
+    "offset": 2232480,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_MoveFileW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_MoveFileW": {
+        "va": 280885056,
+        "basis": "Retail export name MoveFileW."
+      },
+      "_slot_MoveFileW": {
+        "va": 281496508,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b50": {
+        "va": 282401616,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_MoveFileW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!MoveFileW. The pointer at RVA 0x374bbc initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "e9a378f1be7fc4ab404ca5ef9c092ef2f1a024a5bf0167caf6abb0d20580d46f",
+      "inputs_sha256": "0c2c0a67323dd90870a5066dc9f1ba6d11dafbcf0b934195a346fcf2d1a4bf93"
+    }
+  },
+  {
+    "id": "windows-dispatch-shellexecutew",
+    "size": 37,
+    "offset": 2232554,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_ShellExecuteW@24",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df758": {
+        "va": 280885080,
+        "basis": "Retail DLL name shell32.dll."
+      },
+      "_name_ShellExecuteW": {
+        "va": 280885092,
+        "basis": "Retail export name ShellExecuteW."
+      },
+      "_slot_ShellExecuteW": {
+        "va": 281496536,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b48": {
+        "va": 282401608,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_ShellExecuteW@24": {
+        "va": 280107905,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests shell32.dll!ShellExecuteW. The pointer at RVA 0x374bd8 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "8591965e912d117f3052117ebcd22a45af1966d86c6b4b37d96a9a91006386e0",
+      "inputs_sha256": "ec880f6de22e3c0cec500e71c03df64b4155537b6b5cf29887a528c43ca4f4ee"
+    }
+  },
+  {
+    "id": "windows-dispatch-setcurrentdirectoryw",
+    "size": 37,
+    "offset": 2232591,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_SetCurrentDirectoryW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_SetCurrentDirectoryW": {
+        "va": 280885108,
+        "basis": "Retail export name SetCurrentDirectoryW."
+      },
+      "_slot_SetCurrentDirectoryW": {
+        "va": 281496520,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b44": {
+        "va": 282401604,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_SetCurrentDirectoryW@4": {
+        "va": 280107227,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!SetCurrentDirectoryW. The pointer at RVA 0x374bc8 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "40e06d9c8dc9d083d66250424833908f83da5907f50cb7e24022094a8dff8bfd",
+      "inputs_sha256": "6c70f539a0e9e027b114e83dab604e3f6b7116456b49c968cd404b0215ac0987"
+    }
+  },
+  {
+    "id": "windows-dispatch-removedirectoryw",
+    "size": 37,
+    "offset": 2232628,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_RemoveDirectoryW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_RemoveDirectoryW": {
+        "va": 280885132,
+        "basis": "Retail export name RemoveDirectoryW."
+      },
+      "_slot_RemoveDirectoryW": {
+        "va": 281496516,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b40": {
+        "va": 282401600,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_RemoveDirectoryW@4": {
+        "va": 280107227,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!RemoveDirectoryW. The pointer at RVA 0x374bc4 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "adfc745aac8d08e4286e0d130232c8894408661efe97a0697a0d09cdd1c2fe6f",
+      "inputs_sha256": "a97020a39693e385679608f1b8636d849995dbb91d234987c0d2007fcd353006"
+    }
+  },
+  {
+    "id": "windows-dispatch-registerwindowmessagew",
+    "size": 37,
+    "offset": 2232665,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_RegisterWindowMessageW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_RegisterWindowMessageW": {
+        "va": 280885152,
+        "basis": "Retail export name RegisterWindowMessageW."
+      },
+      "_slot_RegisterWindowMessageW": {
+        "va": 281496640,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b3c": {
+        "va": 282401596,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_RegisterWindowMessageW@4": {
+        "va": 280107227,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!RegisterWindowMessageW. The pointer at RVA 0x374c40 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "d168701b67df99f20af696c4bba4b4622b2fed4d1a34982fcc14e1d504522397",
+      "inputs_sha256": "3bf98ced36b165edd58717be4c907b6490e4e9831b30cac7e929dcf43db220bd"
+    }
+  },
+  {
+    "id": "windows-dispatch-findnextfilew",
+    "size": 37,
+    "offset": 2232702,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_FindNextFileW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_FindNextFileW": {
+        "va": 280885176,
+        "basis": "Retail export name FindNextFileW."
+      },
+      "_slot_FindNextFileW": {
+        "va": 281496444,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b38": {
+        "va": 282401592,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_FindNextFileW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!FindNextFileW. The pointer at RVA 0x374b7c initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "1bb9f1278cc027f6750978ca8059e14a2f97287530aa101fdb08a9d0cd887d37",
+      "inputs_sha256": "c3bb97ca1eecb5ce85c1e3b438565467adc181765dcff44587556c14065476b4"
+    }
+  },
+  {
+    "id": "windows-dispatch-getfileattributesexw",
+    "size": 37,
+    "offset": 2232739,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_GetFileAttributesExW@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_GetFileAttributesExW": {
+        "va": 280885192,
+        "basis": "Retail export name GetFileAttributesExW."
+      },
+      "_slot_GetFileAttributesExW": {
+        "va": 281496468,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b34": {
+        "va": 282401588,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_GetFileAttributesExW@12": {
+        "va": 280107146,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!GetFileAttributesExW. The pointer at RVA 0x374b94 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "0a5872bc9a7ab98cde459fa2208c2c67a749d13981cea2c7539536a26e48bd8f",
+      "inputs_sha256": "a72e6c84b3df5b7682e458a9bfbd856c2952d6ec987c793e449e881585a6b51a"
+    }
+  },
+  {
+    "id": "windows-dispatch-removepropw",
+    "size": 37,
+    "offset": 2232776,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_RemovePropW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df620": {
+        "va": 280884768,
+        "basis": "Retail DLL name user32.dll."
+      },
+      "_name_RemovePropW": {
+        "va": 280885216,
+        "basis": "Retail export name RemovePropW."
+      },
+      "_slot_RemovePropW": {
+        "va": 281496648,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b30": {
+        "va": 282401584,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_RemovePropW@8": {
+        "va": 280107240,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests user32.dll!RemovePropW. The pointer at RVA 0x374c48 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "224fd5ac2de4d8c0ca5dc974773c4ac69ecaff5a355f13067b23fc2690f66480",
+      "inputs_sha256": "3c1c5996ed1e59421a45d691fecba548f3a62f1f57207b82a45472f1f67e58bc"
+    }
+  },
+  {
+    "id": "windows-dispatch-getwindowsdirectoryw",
+    "size": 37,
+    "offset": 2232813,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_GetWindowsDirectoryW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_GetWindowsDirectoryW": {
+        "va": 280885228,
+        "basis": "Retail export name GetWindowsDirectoryW."
+      },
+      "_slot_GetWindowsDirectoryW": {
+        "va": 281496492,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b2c": {
+        "va": 282401580,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_GetWindowsDirectoryW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!GetWindowsDirectoryW. The pointer at RVA 0x374bac initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "59e9799825792ba982b71e999be994b4956816cbcf98b3b794bb141922f8b97a",
+      "inputs_sha256": "65b1a44cee8e54e496682b48ef3fdd8f27de39ce58bde6a9cf12c5ec22967498"
+    }
+  },
+  {
+    "id": "windows-dispatch-deletefilew",
+    "size": 37,
+    "offset": 2232850,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_DeleteFileW@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_DeleteFileW": {
+        "va": 280885252,
+        "basis": "Retail export name DeleteFileW."
+      },
+      "_slot_DeleteFileW": {
+        "va": 281496436,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b28": {
+        "va": 282401576,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_DeleteFileW@4": {
+        "va": 280107227,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!DeleteFileW. The pointer at RVA 0x374b74 initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "55a21a49ee11fb3f3dac7e59fe2d4fdc8265ea7954d1a977034880807134f6e5",
+      "inputs_sha256": "a81f42a911da6ef479a541016b3cd8eb78a67af34c8daaab188b37681f704d81"
+    }
+  },
+  {
+    "id": "windows-dispatch-setfileattributesw",
+    "size": 37,
+    "offset": 2232887,
+    "inputs": [
+      "src/versus_windows_dispatch.c",
+      "src/windows_dispatch_types.h"
+    ],
+    "rebuilt_symbol": "_dispatch_SetFileAttributesW@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/versus_windows_dispatch.obj src/versus_windows_dispatch.c",
+    "link_bindings": {
+      "_module_2df640": {
+        "va": 280884800,
+        "basis": "Retail DLL name kernel32.dll."
+      },
+      "_name_SetFileAttributesW": {
+        "va": 280885264,
+        "basis": "Retail export name SetFileAttributesW."
+      },
+      "_slot_SetFileAttributesW": {
+        "va": 281496524,
+        "basis": "Writable dispatch slot initially pointing to this wrapper."
+      },
+      "_handle_451b24": {
+        "va": 282401572,
+        "basis": "Module state passed to the shared resolver."
+      },
+      "_fallback_SetFileAttributesW@8": {
+        "va": 280107159,
+        "basis": "Fallback implementation supplied to the resolver."
+      },
+      "_resolve_api@20": {
+        "va": 280106807,
+        "basis": "Shared five-argument resolver called by the complete wrapper."
+      }
+    },
+    "identification": "Retail resolver requests kernel32.dll!SetFileAttributesW. The pointer at RVA 0x374bcc initially points to this wrapper and receives the resolved implementation.",
+    "match": {
+      "bytes_sha256": "8a2afb73373560364354638a510b974662b8c73fafbafbb450060d85aec8465e",
+      "inputs_sha256": "86af2a908e241f87ba619020d025689b97fec7440e86d3327674dff7ce8ecbdc"
+    }
+  },
+  {
     "id": "delete-record-2262c0",
     "offset": 2253504,
     "size": 33,
