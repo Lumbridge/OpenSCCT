@@ -39,11 +39,11 @@ internal sealed partial class PlayerPortal
             .Append("</p>");
         foreach (var group in maps.GroupBy(map => map.Category).OrderBy(group => group.Key switch
         {
-            "Original releases" => 0, "Community maps" => 1, "Enhanced variants" => 2, "Recovered editor maps" => 3,
+            "Community maps" => 1, "Enhanced variants" => 2, "Recovered editor maps" => 3,
             _ when group.Key.StartsWith("Ports", StringComparison.Ordinal) => 4, _ => 5,
         }).ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase))
         {
-            body.Append("<details").Append(searching || maps.Length < 20 || group.Key == "Original releases" ? " open" : "").Append("><summary>")
+            body.Append("<details").Append(searching || maps.Length < 20 ? " open" : "").Append("><summary>")
                 .Append(H(group.Key)).Append("<small>").Append(N(group.Count())).Append("</small></summary><div class=\"mod-grid\">");
             foreach (var map in group.OrderBy(map => map.Title, StringComparer.OrdinalIgnoreCase))
             {

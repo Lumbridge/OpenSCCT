@@ -1114,7 +1114,7 @@
   {
     "Title": "Moonlight Park",
     "Code": "MoonD",
-    "Category": "Original releases",
+    "Category": "Community maps",
     "Path": "release/MoonD",
     "Image": "showcase-archive-release-moond.webp",
     "Kind": "Map preview"
@@ -1122,7 +1122,7 @@
   {
     "Title": "Shipment",
     "Code": "ShipD",
-    "Category": "Original releases",
+    "Category": "Community maps",
     "Path": "release/ShipD",
     "Image": "showcase-archive-release-shipd.webp",
     "Kind": "Map preview"
