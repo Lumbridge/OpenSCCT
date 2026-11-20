@@ -1197,6 +1197,28 @@
     }
   },
   {
+    "id": "static-state-constructor-00cfa0",
+    "size": 182,
+    "offset": 53152,
+    "inputs": [
+      "src/versus_static_state_constructor.c"
+    ],
+    "rebuilt_symbol": "@initialize_state@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_state_constructor.obj src/versus_static_state_constructor.c",
+    "link_bindings": {
+      "_state_methods": {
+        "va": 281073720,
+        "basis": "Read-only method table installed in the three static state objects."
+      }
+    },
+    "identification": "Indexed whole constructor called by three registered Versus initializers. Sets a marker and method table, clears four field groups and returns its receiver.",
+    "match": {
+      "bytes_sha256": "c8696ec67bd7e66358397700959ed7030e332eb4328523790bf72e6106643103",
+      "inputs_sha256": "abbf2accfc4e5bb111d717542b22a1d831ce2f613a25d9aa7a57952c97531c7e"
+    }
+  },
+  {
     "id": "delete-uclass",
     "offset": 53456,
     "size": 33,
