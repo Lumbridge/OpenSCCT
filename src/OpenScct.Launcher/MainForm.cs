@@ -169,7 +169,8 @@ internal sealed partial class MainForm : Form
         _launcherBanner.BackColor = Theme.Panel;
         _launcherBanner.Padding = new Padding(14, 10, 14, 10);
         _launcherBanner.Margin = new Padding(0, 0, 0, 12);
-        _launcherBanner.Visible = false;
+        _launcherInfo.Text = $"OpenSCCT Launcher {_launcherVersion}";
+        _launcherButton.Text = "Check launcher updates";
         _launcherButton.Anchor = AnchorStyles.Right;
         _launcherButton.Name = "UpdateLauncher";
         Theme.AddRow(_launcherBanner, Theme.Wrapping(_launcherInfo), _launcherButton);
@@ -325,7 +326,7 @@ internal sealed partial class MainForm : Form
         _help.Click += (_, _) => OpenHelp();
         _settingsButton.Click += (_, _) => SelectPage(LibraryPage.Settings);
         _mapsButton.Click += (_, _) => OpenMaps();
-        _launcherButton.Click += async (_, _) => await RunAsync(UpdateLauncherAsync);
+        _launcherButton.Click += async (_, _) => await RunAsync(_swap is { HasStaged: true } || _lastCheck?.LauncherUpdateAvailable == true ? UpdateLauncherAsync : CheckLauncherAsync);
     }
 
     private void RefreshReleasePreview()
@@ -764,6 +765,12 @@ internal sealed partial class MainForm : Form
             _launcherButton.Text = "Update launcher";
             _launcherButton.Visible = writable;
             _launcherBanner.Visible = true;
+        }
+        else if (_swap is not { HasStaged: true })
+        {
+            _launcherButton.Text = "Check launcher updates";
+            _launcherButton.Visible = true;
+            _launcherInfo.Text = check.Feed.Problem ?? $"OpenSCCT Launcher {_launcherVersion}";
         }
     }
 

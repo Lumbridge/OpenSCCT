@@ -145,7 +145,7 @@ internal sealed partial class MainForm
             BackColor = Color.Transparent, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
         };
         content.ColumnStyles.Add(Theme.Fill);
-        foreach (Control row in new Control[] { _compactPicker, _launcherBanner, _sourceCard, launch, _details, tools, preview })
+        foreach (Control row in new Control[] { _compactPicker, _sourceCard, launch, _details, tools, preview })
         {
             int r = content.RowCount++;
             content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -161,12 +161,14 @@ internal sealed partial class MainForm
         body.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         body.Controls.Add(rail, 0, 0);
         body.Controls.Add(detailPane, 1, 0);
-        var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Margin = new Padding(0) };
+        var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) };
         shell.ColumnStyles.Add(Theme.Fill);
+        shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         shell.Controls.Add(header, 0, 0);
-        shell.Controls.Add(body, 0, 1);
+        shell.Controls.Add(_launcherBanner, 0, 1);
+        shell.Controls.Add(body, 0, 2);
         _mainLayout = content;
         void AdaptWidth()
         {
@@ -406,7 +408,7 @@ internal sealed partial class MainForm
 
     private static Control LibraryCard(string title, string description, params Button[] buttons)
     {
-        var card = Theme.Grid(Theme.Fill, Theme.Auto);
+        var card = Theme.Grid(Theme.Fill);
         card.BackColor = Theme.Panel;
         card.Padding = new Padding(18, 16, 18, 16);
         var heading = Theme.Wrapping(Theme.Label(title, CardHeading));
@@ -415,25 +417,13 @@ internal sealed partial class MainForm
         var text = Theme.Wrapping(Theme.Label(description, Theme.Body, Theme.Muted));
         text.UseMnemonic = false;
         text.Margin = new Padding(0, 6, 0, 0);
-        var actions = Theme.Flow(false, buttons);
-        actions.WrapContents = true;
-        if (buttons.Length <= 2)
-        {
-            actions.Anchor = AnchorStyles.Right;
-            Theme.AddRow(card, heading, actions);
-        }
-        else
-        {
-            Theme.AddRow(card, heading);
-            actions.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-        }
+        Theme.AddRow(card, heading);
         Theme.AddRow(card, text);
-        card.SetColumnSpan(text, 2);
-        if (buttons.Length > 2)
+        foreach (Button button in buttons)
         {
-            actions.Margin = new Padding(0, 10, 0, 0);
-            Theme.AddRow(card, actions);
-            card.SetColumnSpan(actions, 2);
+            button.Anchor = AnchorStyles.Left;
+            button.Margin = new Padding(0, 8, 0, 0);
+            Theme.AddRow(card, button);
         }
         LibraryVisuals.Round(card, 10);
         return card;

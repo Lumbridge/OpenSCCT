@@ -114,10 +114,9 @@ internal sealed partial class MainForm
         {
             menu.Items.Add("Browse maps", null, (_, _) => OpenMaps());
             menu.Items.Add("Release notes", null, async (_, _) => await OpenChangelogAsync());
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add("Check edition updates", null, async (_, _) => await RunAsync(CheckSelectedAsync));
         }
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(IsOriginalEdition ? "Check launcher updates" : "Check for updates", null,
-            async (_, _) => await RunAsync(CheckSelectedAsync));
         menu.Closed += (_, _) => menu.Dispose();
         menu.Show(_moreActions, new Point(0, _moreActions.Height));
     }

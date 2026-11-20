@@ -104,7 +104,7 @@ internal sealed partial class MainWindow
 
         var body = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Margin = new Thickness(13, 19, 18, 0) };
         body.Children.Add(_sidebar);
-        var pageStack = Ui.Stack(_compactEditions, _launcherBanner, _feedback, _page);
+        var pageStack = Ui.Stack(_compactEditions, _feedback, _page);
         pageStack.Spacing = 13;
         pageStack.Margin = new Thickness(0, 0, 0, 20);
         _libraryScroll.Content = pageStack;
@@ -124,10 +124,11 @@ internal sealed partial class MainWindow
         }
         SizeChanged += (_, e) => ResizeLibrary(e.NewSize.Width);
         ResizeLibrary(Width);
-        var shell = new Grid { RowDefinitions = new RowDefinitions("Auto,*") };
+        var shell = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,*") };
         shell.Children.Add(new Border { Child = header, BorderBrush = Ui.Edge, BorderThickness = new Thickness(0, 0, 0, 1),
             Background = Shade("#20291F", "#161C17") });
-        Grid.SetRow(body, 1); shell.Children.Add(body);
+        Grid.SetRow(_launcherBanner, 1); shell.Children.Add(_launcherBanner);
+        Grid.SetRow(body, 2); shell.Children.Add(body);
         Content = shell;
         ShowPage("Games", _edition);
     }

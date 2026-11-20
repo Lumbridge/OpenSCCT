@@ -825,6 +825,11 @@ internal static class Program
                     Field<Button>(form, page).PerformClick();
                     Settle(form);
                     Check(Selected(form) == edition && Field<Button>(form, page).CanSelect, edition + " page navigation " + page);
+                    var update = Field<Button>(form, "_launcherButton");
+                    Check(IsInClient(form, update) && !Field<Control>(form, "_mainLayout").Contains(update),
+                        edition + " launcher update stays above the scrolling edition");
+                    foreach (Button action in Walk(Field<Control>(form, "_details")).OfType<Button>().Where(b => b.Visible))
+                        Check(action.Parent!.ClientRectangle.Contains(action.Bounds), action.Text + " fits its immediate container");
                     bool games = page == "_gamesPage";
                     Check(Field<Control>(form, "_launchCard").Visible == games, edition + " primary action belongs to Games");
                     if (page == "_modsPage") Check(Field<Control>(form, "_details").Visible, edition + " has mod controls");

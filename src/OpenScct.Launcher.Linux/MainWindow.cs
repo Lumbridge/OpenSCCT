@@ -82,7 +82,7 @@ internal sealed partial class MainWindow : Window
         _playCurrent.HorizontalAlignment = HorizontalAlignment.Right;
         _installActivity = Ui.Panel(Ui.Stack(_heading, _detail, _status, _progress, _playCurrent));
         _launcherBanner = Ui.Panel(Ui.Columns(_launcherText, _launcher));
-        _launcherBanner.IsVisible = false;
+        _launcher.Content = "Check launcher updates";
         var changelog = Ui.Button("Release notes");
         changelog.Click += async (_, _) => await ShowNotesAsync();
         var release = Ui.Panel(Ui.Stack(Ui.Columns(_notesTitle, changelog), _notes));
@@ -107,7 +107,8 @@ internal sealed partial class MainWindow : Window
         {
             if (model.LauncherStaged)
                 await model.RunAsync("Restarting launcher", _ => { model.RestartLauncher(); return Task.CompletedTask; });
-            else await model.RunAsync("Updating launcher", model.StageLauncherAsync);
+            else if (model.HasLauncherUpdate) await model.RunAsync("Updating launcher", model.StageLauncherAsync);
+            else await model.RunAsync("Checking launcher updates", model.CheckAsync);
         };
         model.Changed += Refresh;
         model.GameStarted += () => WindowState = WindowState.Minimized;
@@ -253,10 +254,11 @@ internal sealed partial class MainWindow : Window
         _check.IsEnabled = _maps.IsEnabled = _settings.IsEnabled = !_model.Busy;
         bool hasLauncherUpdate = _model.HasLauncherUpdate;
         bool writableLauncher = hasLauncherUpdate && _model.CanUpdateLauncher;
-        _launcherBanner.IsVisible = hasLauncherUpdate;
-        _launcher.Content = _model.LauncherStaged ? "Restart to finish" : "Update launcher";
-        _launcher.IsEnabled = !_model.Busy && writableLauncher;
+        
+        _launcher.Content = _model.LauncherStaged ? "Restart to finish" : hasLauncherUpdate ? "Update launcher" : "Check launcher updates";
+        _launcher.IsEnabled = !_model.Busy && (!hasLauncherUpdate || writableLauncher);
         _launcherText.Text = _model.LauncherStaged ? "A new launcher is ready. Restart when you are ready."
+            : !hasLauncherUpdate ? "OpenSCCT Launcher " + _model.LauncherVersion
             : writableLauncher ? "Launcher " + _model.Check?.LatestLauncher + " is available."
             : "A launcher update is available. Download it from Releases; this folder is read only.";
         if (_model.Check?.Latest is { } latest)
