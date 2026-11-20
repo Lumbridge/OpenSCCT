@@ -672,6 +672,28 @@
     }
   },
   {
+    "id": "place-upalette",
+    "size": 32,
+    "offset": 672928,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UPalette",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_vtable_UPalette": {
+        "va": 281034696,
+        "basis": "Placement instruction at RVA 0xa44aa installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UPalette::PrivateStaticClass identifies the stock class at RVA 0x3bd9e0. The registry call at RVA 0xa2159 passes its placement callback at RVA 0xa44a0. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "7f11232054618a54c5e6ff9bd254cd18b0deb975919f078c86ff694d5b01caa2",
+      "inputs_sha256": "d1334524cb8f2f2bf4215e50e70c736ecfcd8ab1c643e42e3b1b7f9b67f2bb5c"
+    }
+  },
+  {
     "id": "place-astaticmeshactor",
     "offset": 673024,
     "size": 20,
@@ -4477,6 +4499,58 @@
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
       "inputs_sha256": "4d0905e3cbe4b0f66e74d3fa9ddf090a3a561e9fc81c9eddfc8c552604c8891b"
+    }
+  },
+  {
+    "id": "place-uactorchannel",
+    "size": 71,
+    "offset": 703792,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UActorChannel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_vtable_UActorChannel": {
+        "va": 281036336,
+        "basis": "Placement instruction at RVA 0xabd3a installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UActorChannel::PrivateStaticClass identifies the stock class at RVA 0x3bf0d8. The registry call at RVA 0x9fcc0 passes its placement callback at RVA 0xabd30. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "8673d94bdb32b63d908b901c31e1b6a89aaba8045f5c5d2355e381803f8f0a3c",
+      "inputs_sha256": "0c5d56830dbdc2f8bdd8900a37930e5faf1b7c3056a086850cdfdf847172de5f"
+    }
+  },
+  {
+    "id": "place-ucontrolchannel",
+    "size": 29,
+    "offset": 703904,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UControlChannel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_initial_table_UControlChannel_58": {
+        "va": 281076728,
+        "basis": "Placement instruction at RVA 0xabda8 installs this read-only methods table at receiver offset 0x58. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      },
+      "_vtable_UControlChannel": {
+        "va": 281036216,
+        "basis": "Placement instruction at RVA 0xabdaf installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      },
+      "_secondary_table_UControlChannel_58": {
+        "va": 281036328,
+        "basis": "Placement instruction at RVA 0xabdb5 installs this read-only methods table at receiver offset 0x58. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UControlChannel::PrivateStaticClass identifies the stock class at RVA 0x3befc0. The registry call at RVA 0x9fc67 passes its placement callback at RVA 0xabda0. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "899156f5a5da06a4275544fa4067882a03221206ca77eb93dde7e143e4571a4b",
+      "inputs_sha256": "25ee2eda091101ab09c62c6f501f4a9832515c66369c48d7eda7dfe576802c97"
     }
   },
   {

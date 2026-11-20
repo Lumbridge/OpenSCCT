@@ -74,6 +74,58 @@
     }
   },
   {
+    "id": "place-upackage",
+    "size": 22,
+    "offset": 254848,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UPackage",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_vtable_UPackage": {
+        "va": 281072112,
+        "basis": "Placement instruction at RVA 0x3e388 installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UPackage::PrivateStaticClass identifies the stock class at RVA 0x3ca798. The registry call at RVA 0x3f940 passes its placement callback at RVA 0x3e380. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "fb70ee326c235e07eaf8c9f941b135edf2fbde55a03f4511edd7e88b8db29ac1",
+      "inputs_sha256": "722d1e1fe846a4422b3351078b89c44268f16c0202608a8ffde3c80d325ddd1c"
+    }
+  },
+  {
+    "id": "place-usystem",
+    "size": 29,
+    "offset": 255024,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_USystem",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_initial_table_USystem_28": {
+        "va": 281077532,
+        "basis": "Placement instruction at RVA 0x3e438 installs this read-only methods table at receiver offset 0x28. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      },
+      "_vtable_USystem": {
+        "va": 281073528,
+        "basis": "Placement instruction at RVA 0x3e43f installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      },
+      "_secondary_table_USystem_28": {
+        "va": 281073524,
+        "basis": "Placement instruction at RVA 0x3e445 installs this read-only methods table at receiver offset 0x28. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for USystem::PrivateStaticClass identifies the stock class at RVA 0x3caae0. The registry call at RVA 0x3ff1e passes its placement callback at RVA 0x3e430. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "4fa2afb47bfca2e1f3b7219d73f58ebd5cc58a6fbf2e711980cca777b5cc81d9",
+      "inputs_sha256": "605022940e5f90d285b9c2af87fffd38f58ce979356e1b19fab8da1c6aed5a0d"
+    }
+  },
+  {
     "id": "delete-ulinkerload",
     "offset": 255952,
     "size": 33,
@@ -97,6 +149,72 @@
     "match": {
       "bytes_sha256": "7bc60017fce6f9de26f44b9c65cadb6662612d26acd8025e857571ef126c06a3",
       "inputs_sha256": "8120c7723b027e8a42ddd1b91ec0e8c2ac0f4930f941fd770f5505f6bf263c9e"
+    }
+  },
+  {
+    "id": "place-ustruct",
+    "size": 23,
+    "offset": 256896,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UStruct",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_vtable_UStruct": {
+        "va": 281072376,
+        "basis": "Placement instruction at RVA 0x3eb8a installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UStruct::PrivateStaticClass identifies the stock class at RVA 0x3c98e8. The registry call at RVA 0x3ff73 passes its placement callback at RVA 0x3eb80. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "aa7c4a02b0ba810cff09660c9f4d2445c75c94c04f8370a0d48bd6ad1e3a9a31",
+      "inputs_sha256": "9eb7df76fee08d1e8043f54c5cd7ad2ee8c570192d71bbcfc3aec29473caca57"
+    }
+  },
+  {
+    "id": "place-ufunction",
+    "size": 23,
+    "offset": 256928,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UFunction",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_vtable_UFunction": {
+        "va": 281070568,
+        "basis": "Placement instruction at RVA 0x3ebb0 installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UFunction::PrivateStaticClass identifies the stock class at RVA 0x3c9c30. The registry call at RVA 0x400d6 passes its placement callback at RVA 0x3eba0. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "4e8e57c1e0077ca83f8b948b6ceb3d3cd83688af7a4f493397f76546c304de03",
+      "inputs_sha256": "521afceb61b3564d69fd78a36b3ccbae72e8cffbd055f9d49f18e8d995c857f4"
+    }
+  },
+  {
+    "id": "place-ustate",
+    "size": 35,
+    "offset": 256960,
+    "inputs": [
+      "src/versus_record_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UState",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_placement.obj src/versus_record_placement.c",
+    "link_bindings": {
+      "_vtable_UState": {
+        "va": 281073856,
+        "basis": "Placement instruction at RVA 0x3ebd0 installs this read-only methods table at receiver offset 0x0. The same table entry and instruction appear in the separately fingerprinted Enhanced reference."
+      }
+    },
+    "identification": "The reflection annotation for UState::PrivateStaticClass identifies the stock class at RVA 0x3c9a00. The registry call at RVA 0x40025 passes its placement callback at RVA 0x3ebc0. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
+    "match": {
+      "bytes_sha256": "5fc0e4a09a9d3895fea0710b56332e476fdf17d17a2cc043dfdab016a2aab1d7",
+      "inputs_sha256": "7f79e8d3b4bbaa292248cce4eda3b959c93d650ef99c0e071769507d997d28a2"
     }
   },
   {
