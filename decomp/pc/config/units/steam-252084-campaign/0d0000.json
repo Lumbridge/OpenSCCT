@@ -252,6 +252,22 @@
     }
   },
   {
+    "id": "animation-channel-clip",
+    "size": 36,
+    "offset": 859232,
+    "inputs": [
+      "src/campaign_channel_sequence.c"
+    ],
+    "rebuilt_symbol": "@channel_clip@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_sequence.obj src/campaign_channel_sequence.c",
+    "identification": "Animation method pointer at RVA 0x7cfcb0. Selects the channel animation bank and passes the sequence name to its lookup method.",
+    "match": {
+      "bytes_sha256": "6d2bb92ec7dd332dd105213d05d55d8a93f78ca3956d4fbd1e09ef3b1f5b19b5",
+      "inputs_sha256": "3808d3a79ddc62ad253860694b30694603f1ee970e1303ff437dc85b1c72dc10"
+    }
+  },
+  {
     "id": "mesh-sequence-first-group",
     "size": 38,
     "offset": 859280,
@@ -265,6 +281,50 @@
     "match": {
       "bytes_sha256": "9f281990092b89e69091d28f76c12f727cbe6634d29b5744d8a7b85d1a57b2d5",
       "inputs_sha256": "0b66eb82f16a7f77fb1ce939c9e16c426c8baffdda0c44c70162efde15259f1f"
+    }
+  },
+  {
+    "id": "animation-channel-frames",
+    "size": 59,
+    "offset": 859328,
+    "inputs": [
+      "src/campaign_channel_sequence.c"
+    ],
+    "rebuilt_symbol": "@channel_frames@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_sequence.obj src/campaign_channel_sequence.c",
+    "link_bindings": {
+      "_zero_frames": {
+        "va": 285966880,
+        "basis": "Stock operand for zero frames."
+      }
+    },
+    "identification": "Aligned Campaign entry with adjacent returns and compiler padding. Looks up the channel sequence and reads its frame count, returning zero when absent.",
+    "match": {
+      "bytes_sha256": "3d7c4b7696d6ee2e5628db38224b1715aad0e9a9c74caf3b3a31685e61ccf3de",
+      "inputs_sha256": "f01e2d2b19e64c17f858b9281560c0509e63638efc84dbc8d2f726997adf8bf4"
+    }
+  },
+  {
+    "id": "animation-channel-rate",
+    "size": 59,
+    "offset": 859392,
+    "inputs": [
+      "src/campaign_channel_sequence.c"
+    ],
+    "rebuilt_symbol": "@channel_rate@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_sequence.obj src/campaign_channel_sequence.c",
+    "link_bindings": {
+      "_missing_rate": {
+        "va": 285985396,
+        "basis": "Stock operand for missing rate."
+      }
+    },
+    "identification": "Aligned Campaign entry with adjacent returns and compiler padding. Looks up the channel sequence and reads its rate, returning minus one when absent.",
+    "match": {
+      "bytes_sha256": "129f4d18e9dac0fdcc4724e10521c4157177e6f6c7d394cd092d17d04cb8c356",
+      "inputs_sha256": "7db5bcc1317329178e836ede4e3727ce91b079e4b3aee53c1a7459674dd6768e"
     }
   },
   {
