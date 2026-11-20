@@ -80,3 +80,17 @@ The Dolby queries reference the retail float tables at image addresses
 `0x111e7838` and `0x111e7dd8`. Their C definitions use these fixed addresses
 for this build. Both return paths are included in each 33-byte comparison.
 The table data is outside the measured ranges.
+
+## Versus data objects
+
+The Versus payload has no export directory. Its C++ runtime type information
+identifies the virtual tables for `clDataLong`, `clDataBin`, `clDataStr`
+and `clDataRef`. The [Versus manifest](config/steam-252084-versus.json)
+records the table RVA, zero-based slot and function boundary for each match.
+
+Two functions return the byte size of a long and of a pointer range. A third
+dispatches a formatting call through another slot on the same object. Five
+more forward operations to the referenced object held by `clDataRef`.
+Shared implementations count once. The C names describe the recovered
+operations. The C calling conventions put the object in ECX and preserve
+the retail layout of arguments passed on the stack.

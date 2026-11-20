@@ -60,10 +60,10 @@
           "label": "Steam 252084 · Versus",
           "scope": "Retail Versus game payload",
           "sha256": "e3da0a152a8152af0c912e42dac8ef5378279b2ceb4f335f4efab070d45c80f3",
-          "matched_bytes": 0,
+          "matched_bytes": 60,
           "total_bytes": 2991392,
-          "matched_units": 0,
-          "percent": 0.0,
+          "matched_units": 8,
+          "percent": 0.002006,
           "evidence": "decomp/pc/config/steam-252084-versus.json"
         }
       ]
