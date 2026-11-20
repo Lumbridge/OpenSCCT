@@ -568,6 +568,22 @@
     }
   },
   {
+    "id": "animation-set-rate",
+    "size": 41,
+    "offset": 873136,
+    "inputs": [
+      "src/campaign_channel_controls.c"
+    ],
+    "rebuilt_symbol": "@set_rate@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_controls.obj src/campaign_channel_controls.c",
+    "identification": "Indexed whole function checks the channel index and uses a 128-byte stride. Stores the requested rate multiplied by the channel scale.",
+    "match": {
+      "bytes_sha256": "28f779b707764282d0b279997cbd46cb4b0e92c32dffe896de7ccc25a0fbc168",
+      "inputs_sha256": "3551e228d2310f2a64e29f49b4950cced3bef3a2e0f28931db6d35da61fe20af"
+    }
+  },
+  {
     "id": "channel-float-query-0d52e0",
     "size": 41,
     "offset": 873184,
@@ -587,6 +603,32 @@
     "match": {
       "bytes_sha256": "dc941536f95aeec13419a4e1bafa1d9872228b0b86a29251e28fa9debce94e1a",
       "inputs_sha256": "92fef84e90484af6ab893aab1e6d6069cf6e9acc6b832bb9ac4132294ad34849"
+    }
+  },
+  {
+    "id": "animation-set-weight",
+    "size": 97,
+    "offset": 873232,
+    "inputs": [
+      "src/campaign_channel_controls.c"
+    ],
+    "rebuilt_symbol": "@set_weight@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_controls.obj src/campaign_channel_controls.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Stock operand for zero value."
+      },
+      "_unit_value": {
+        "va": 285975104,
+        "basis": "Stock operand for unit value."
+      }
+    },
+    "identification": "Indexed whole function checks the channel index and uses a 128-byte stride. Clamps the requested weight before storing it.",
+    "match": {
+      "bytes_sha256": "709c27c70b26cb053517bbc75fba9825475915e13c6856073173d3c20a82f2fa",
+      "inputs_sha256": "fc486d8a961d5b8ced3539c90efbd83295edfeed578e455feb9029a39e5fb9dc"
     }
   },
   {
@@ -631,6 +673,60 @@
     "match": {
       "bytes_sha256": "8ed4d1a7cd732d612cd9ce516822401eb4e8690f68960e6c3286c31890409856",
       "inputs_sha256": "18c40427dead78bab4b6879ef5194e0f0ff1d77dd217192bb01c7a16e5ae2d87"
+    }
+  },
+  {
+    "id": "animation-optional-field-3c",
+    "size": 51,
+    "offset": 873440,
+    "inputs": [
+      "src/campaign_channel_controls.c"
+    ],
+    "rebuilt_symbol": "@optional_field_3c@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_controls.obj src/campaign_channel_controls.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Stock operand for zero value."
+      }
+    },
+    "identification": "Indexed whole function checks the channel index and uses a 128-byte stride. Reads the field at offset 60 when bit ten is set.",
+    "match": {
+      "bytes_sha256": "7566b3b1d9eb99c18814ed74d2ec4630484c7d90a0f4377a855d837198ff7415",
+      "inputs_sha256": "a0223b391b0de90e06f675cd8d02e9665f754b3a00481a1624b66f6b81908f8c"
+    }
+  },
+  {
+    "id": "animation-advance-position",
+    "size": 56,
+    "offset": 873504,
+    "inputs": [
+      "src/campaign_channel_controls.c"
+    ],
+    "rebuilt_symbol": "@advance_position@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_controls.obj src/campaign_channel_controls.c",
+    "identification": "Indexed whole function checks the channel index and uses a 128-byte stride. Adds a rate-scaled step to the position unless either disabling bit is set.",
+    "match": {
+      "bytes_sha256": "8aa8121ccc7910cc37a23d0467136668bb9a16c64f81b480f98eb5158c3b320e",
+      "inputs_sha256": "c00f5566da7770e2c4400917a7ca9174fb99e27483c22d30c3cd4dafd0b8c329"
+    }
+  },
+  {
+    "id": "animation-set-flag-four",
+    "size": 50,
+    "offset": 873568,
+    "inputs": [
+      "src/campaign_channel_controls.c"
+    ],
+    "rebuilt_symbol": "@set_flag_four@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_controls.obj src/campaign_channel_controls.c",
+    "identification": "Indexed whole function checks the channel index and uses a 128-byte stride. Sets bit four from the low bit of the argument.",
+    "match": {
+      "bytes_sha256": "df94412cb4abd30d16a0466e025cbea7b92a1190203b893cbe2818c1a679ecf2",
+      "inputs_sha256": "d892d8d3e15f5a47bfd9393a6173842a788b31916ea42a7eec7b4cde9ab1fb63"
     }
   },
   {
