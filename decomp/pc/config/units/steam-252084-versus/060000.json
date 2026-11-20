@@ -1,0 +1,28 @@
+[
+  {
+    "id": "delete-ud3drenderdevice",
+    "offset": 394464,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UD3DRenderDevice@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UD3DRenderDevice vtable at RVA 0x30c1f0, slot 3, points to entry RVA 0x604e0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UD3DRenderDevice@4": {
+        "va": 278267152,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x60510."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "05347c86594e5aea76bc6ff8951fbc1aa04f02e2a2da2879f759cbb574a32d8e"
+    }
+  }
+]

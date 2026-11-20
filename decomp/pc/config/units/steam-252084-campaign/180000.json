@@ -1,0 +1,417 @@
+[
+  {
+    "id": "script-event-nomorefloor",
+    "offset": 1581552,
+    "size": 32,
+    "rebuilt_symbol": "@event_NoMoreFloor@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_NoMoreFloor": {
+        "va": 287285400,
+        "basis": "FName initialized with retail UTF-16 NoMoreFloor (VA 0x110d5430). The FName constructor call at RVA 0x13be31 precedes the store to this slot at RVA 0x13be43."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail NoMoreFloor event wrapper at RVA 0x1821f0, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "e251a6c8c8a9539117be166b17d4fe2d3b672236016bed172cd7b35cbed0f617",
+      "inputs_sha256": "e268adb0bc33d25abfb3feab3143c240fd4b2b4434ffc9e013d32e2228b3a932"
+    }
+  },
+  {
+    "id": "script-event-movetodestinationsucceeded",
+    "offset": 1581584,
+    "size": 32,
+    "rebuilt_symbol": "@event_MoveToDestinationSucceeded@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_MoveToDestinationSucceeded": {
+        "va": 287285396,
+        "basis": "FName initialized with retail UTF-16 MoveToDestinationSucceeded (VA 0x110d5448). The FName constructor call at RVA 0x13be19 precedes the store to this slot at RVA 0x13be22."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail MoveToDestinationSucceeded event wrapper at RVA 0x182210, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "0039532769b90477bf90bc84b832517bb1ca9a51e8dd42f249d3198cca32088d",
+      "inputs_sha256": "3ee57d29accc970445052dac036ca3f6d8c8806170f202c3fac5966ce72b2d93"
+    }
+  },
+  {
+    "id": "script-event-movetodestinationfailed",
+    "offset": 1581616,
+    "size": 32,
+    "rebuilt_symbol": "@event_MoveToDestinationFailed@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_MoveToDestinationFailed": {
+        "va": 287285392,
+        "basis": "FName initialized with retail UTF-16 MoveToDestinationFailed (VA 0x110d5480). The FName constructor call at RVA 0x13be02 precedes the store to this slot at RVA 0x13be14."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail MoveToDestinationFailed event wrapper at RVA 0x182230, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "b8b073621b8ea3549fecd93b8d846c91e921687959426cb133c6a34b98d023d3",
+      "inputs_sha256": "d383ed6f5015c59351178c9e6eab744400180526971b363d2378ffbea3e57c08"
+    }
+  },
+  {
+    "id": "game-engine-actor-findbase",
+    "offset": 1583744,
+    "size": 46,
+    "rebuilt_symbol": "@exec_Engine_Actor_FindBase@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Engine_Actor_FindBase at RVA 0x182a80; callback cell and name are evidenced by the verified register-native-engine-actor-findbase CRT entry at RVA 0x7a4a80. Forwards its receiver to the native implementation. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Engine_Actor_FindBase@4": {
+        "va": 279489760,
+        "basis": "Direct call at stock RVA 0x182aa5 forwards the owning object in ECX to routine 0x18ace0."
+      }
+    },
+    "match": {
+      "bytes_sha256": "15c4c8b4c500481d4836115a9c366809b099fdcd98ee76f24f98954c1e7fb3e4",
+      "inputs_sha256": "34dd9f995bc74e2a739b38c7d62e53085189460bcf25938fe6b6704517f1dcf2"
+    }
+  },
+  {
+    "id": "game-engine-pawn-iscrouch",
+    "offset": 1594304,
+    "size": 52,
+    "rebuilt_symbol": "@exec_Engine_Pawn_IsCrouch@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Engine_Pawn_IsCrouch at RVA 0x1853c0; callback cell and name are evidenced by the verified register-native-engine-pawn-iscrouch CRT entry at RVA 0x7a54e0. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Engine_Pawn_IsCrouch@4": {
+        "va": 279487808,
+        "basis": "Direct call at stock RVA 0x1853e5 forwards the owning object in ECX to routine 0x18a540."
+      }
+    },
+    "match": {
+      "bytes_sha256": "bf3667458b40f41f78a08ebf8e670ddfdce42b6089f8f3b1a76972543f8d9b98",
+      "inputs_sha256": "9ea91fb617e26d968ccfd72c44a7ed6b5f4051d02eccfa17b2a8df0e1043f375"
+    }
+  },
+  {
+    "id": "game-engine-pawn-prone",
+    "offset": 1594544,
+    "size": 46,
+    "rebuilt_symbol": "@exec_Engine_Pawn_Prone@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Engine_Pawn_Prone at RVA 0x1854b0; callback cell and name are evidenced by the verified register-native-engine-pawn-prone CRT entry at RVA 0x7a54c0. Forwards its receiver to the native implementation. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Engine_Pawn_Prone@4": {
+        "va": 278598928,
+        "basis": "Direct call at stock RVA 0x1854d5 forwards the owning object in ECX to routine 0xb1510."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6babfd316e7feb42a4fa77cfc1f8dd3814070a572606cd444ae950b74b49bea3",
+      "inputs_sha256": "50b1020f52086bbd5896bffa3c538173c5f06b2d8afcafea6fd453a577f79025"
+    }
+  },
+  {
+    "id": "cast-ustaticmesh",
+    "offset": 1596240,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UStaticMesh",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UStaticMesh": {
+        "va": 287271412,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UStaticMesh": {
+        "va": 278677904,
+        "basis": "The constructor passes both the UTF-16 UStaticMesh allocation tag and StaticMesh class name to the engine."
+      },
+      "_register_UStaticMesh": {
+        "va": 278622736,
+        "basis": "Direct registration call after initializing the singleton for UStaticMesh."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x185b50, directly called at RVA 0x18609d. Its class constructor at RVA 0xc4990 identifies UStaticMesh; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "36583bae5aba3a7675a0082ef579e6594379b16cc7bfe9cc49eecfa0798e6e05",
+      "inputs_sha256": "2567e905fea4ae1a27bd45d63c00f83e4761a939a19ce21d7ec2629f6b130dae"
+    }
+  },
+  {
+    "id": "script-event-felloutofworld",
+    "offset": 1615392,
+    "size": 32,
+    "rebuilt_symbol": "@event_FellOutOfWorld@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_FellOutOfWorld": {
+        "va": 287285272,
+        "basis": "FName initialized with retail UTF-16 FellOutOfWorld (VA 0x110d57b0). The FName constructor call at RVA 0x13bb3c precedes the store to this slot at RVA 0x13bb4e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail FellOutOfWorld event wrapper at RVA 0x18a620, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "2551779d16dca06527b75ebbf047095a55eb5383bb711e1a415711c412f56e2f",
+      "inputs_sha256": "7128b83bc60e448ecabb36d38e64f717acea62cde42d96aca941ba3c4e3384e7"
+    }
+  },
+  {
+    "id": "script-frame-endedrotation",
+    "offset": 1615424,
+    "size": 55,
+    "rebuilt_symbol": "@script_frame_EndedRotation@4",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_EndedRotation": {
+        "va": 287285248,
+        "basis": "FName initialized with retail UTF-16 EndedRotation (VA 0x110d587c). The FName constructor call at RVA 0x13baae precedes the store to this slot at RVA 0x13bac0."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail EndedRotation event wrapper at RVA 0x18a640, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.EndedRotation at serial offset 0x319fb.",
+    "match": {
+      "bytes_sha256": "98fa8959bb830ece79c591cdf56c69afeae0385b1bd4685d3089adc8f54ac1d5",
+      "inputs_sha256": "7e4e2dd97c890956881de3894ff778c5653a865dae96aade254c10e7994fdd6e"
+    }
+  },
+  {
+    "id": "script-frame-falling",
+    "offset": 1615488,
+    "size": 55,
+    "rebuilt_symbol": "@script_frame_Falling@4",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_Falling": {
+        "va": 287285268,
+        "basis": "FName initialized with retail UTF-16 Falling (VA 0x110d57d0). The FName constructor call at RVA 0x13bb24 precedes the store to this slot at RVA 0x13bb36."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Falling event wrapper at RVA 0x18a680, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Falling at serial offset 0x1fad3.",
+    "match": {
+      "bytes_sha256": "82aa35c98baf95cd1d9f568245eb1fa20302a38323abd75e06c91ee73f882e3e",
+      "inputs_sha256": "f0cd38bb573a84d13745701f70e91fd8fd2f24b2c75a7f7ccb5e0adc74501fd0"
+    }
+  },
+  {
+    "id": "script-frame-mayfall",
+    "offset": 1615584,
+    "size": 53,
+    "rebuilt_symbol": "@script_frame_MayFall@4",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_MayFall": {
+        "va": 287285384,
+        "basis": "FName initialized with retail UTF-16 MayFall (VA 0x110d54c4). The FName constructor call at RVA 0x13bdd2 precedes the store to this slot at RVA 0x13bddb."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail MayFall event wrapper at RVA 0x18a6e0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Controller.MayFall at serial offset 0x52e2d.",
+    "match": {
+      "bytes_sha256": "ef6043ff55723e733ab4a0809faf7e3051bb7d7a457b09c5f1730ad466841d55",
+      "inputs_sha256": "3f6dbc71dd8664ac56ddf3fd96495540d67b340971c2a8c44c3af644e3080bb9"
+    }
+  },
+  {
+    "id": "script-event-stepdampingchanged",
+    "offset": 1615648,
+    "size": 32,
+    "rebuilt_symbol": "@event_StepDampingChanged@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_StepDampingChanged": {
+        "va": 287285576,
+        "basis": "FName initialized with retail UTF-16 StepDampingChanged (VA 0x110d4f3c). The FName constructor call at RVA 0x13c242 precedes the store to this slot at RVA 0x13c24b."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail StepDampingChanged event wrapper at RVA 0x18a720, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "2399c0d3d865c5b401c51dbed3c505da677f9c9b47d4a3171ba8c8dbe6a57fd4",
+      "inputs_sha256": "d4fbebba9ae0624fd657c22a78804616201212f99ef6c5d1600ee99d7478e1cc"
+    }
+  },
+  {
+    "id": "script-frame-landed",
+    "offset": 1636000,
+    "size": 91,
+    "rebuilt_symbol": "@script_frame_Landed@16",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_Landed": {
+        "va": 287285364,
+        "basis": "FName initialized with retail UTF-16 Landed (VA 0x110d551c). The FName constructor call at RVA 0x13bd5c precedes the store to this slot at RVA 0x13bd65."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Landed event wrapper at RVA 0x18f6a0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Landed at serial offset 0x3189b.",
+    "match": {
+      "bytes_sha256": "e07d233a96f60f0fd2b219418f17b40f61640693c3c3ae9e2f9977c2a4472c47",
+      "inputs_sha256": "ec550d306313cf4f4864f49aa5143744d2efae426150554d45c22d6f895f920f"
+    }
+  },
+  {
+    "id": "script-frame-hitwall",
+    "offset": 1636096,
+    "size": 99,
+    "rebuilt_symbol": "@script_frame_HitWall@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_HitWall": {
+        "va": 287285332,
+        "basis": "FName initialized with retail UTF-16 HitWall (VA 0x110d55e8). The FName constructor call at RVA 0x13bc9f precedes the store to this slot at RVA 0x13bcb1."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail HitWall event wrapper at RVA 0x18f700, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.HitWall at serial offset 0x31857.",
+    "match": {
+      "bytes_sha256": "1138d334042f42c4b4486a42b4921577a5feca3465979af32cbd5d50b7c330e0",
+      "inputs_sha256": "8da51413fa5f6d87856d7d925762cdce0aa68c8edfe3a5982e776e71ca5ce2d7"
+    }
+  },
+  {
+    "id": "script-frame-notifytouchwall",
+    "offset": 1636208,
+    "size": 78,
+    "rebuilt_symbol": "@script_frame_NotifyTouchWall@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_NotifyTouchWall": {
+        "va": 287285436,
+        "basis": "FName initialized with retail UTF-16 NotifyTouchWall (VA 0x110d5310). The FName constructor call at RVA 0x13bf06 precedes the store to this slot at RVA 0x13bf18."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail NotifyTouchWall event wrapper at RVA 0x18f770, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Controller.NotifyTouchWall at serial offset 0x530aa.",
+    "match": {
+      "bytes_sha256": "35c8e37c65af36a1c9a4ceca3e30aff60038eabd873dfdb6ae2ba1c142984625",
+      "inputs_sha256": "e6199148fc5e01c49552d7f9f0417927a7d7decbd2c20e61f675c4946a0b945d"
+    }
+  }
+]

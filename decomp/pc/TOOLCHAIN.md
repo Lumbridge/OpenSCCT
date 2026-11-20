@@ -46,3 +46,15 @@ the initialized non-debug section data agree. The 1,069 paired named code
 contributions also agree in bytes and relocation locations. This identifies
 the runtime family and explains why these twelve units still carry candidate
 receipts. The campaign manifest records the per-member hashes. [CRT makefile](https://github.com/QianNangong/VC6Ultimate/blob/620bdecb834a8d59c576e20fa65086b4c654eb5b/VisualUltimate/WindowsSDKs/vc7/crt/src/makefile.sub#L38-L67)
+
+## Versus actor placement
+
+The stock AActor placement callback at RVA `0xae2f0` transfers the object in
+EAX to the initializer at RVA `0x92100`. A C declaration with `regparm(1)`
+reproduces this convention using Clang 19.1.0, revision
+`2cfe42ea4a7fe364dcb197beca469af8edec0ad6`, for `i686-pc-windows-msvc`.
+With `-O2 -ffunction-sections`, 177 complete placement callbacks match in
+both the Steam executable and the locked Enhanced reference. Rebuilding with
+ordinary cdecl or with `-O0` produced zero complete matches in this group.
+The compiler executable used to reproduce these candidates has SHA-256
+`0d08cdd309906d6287d4791fabd3f00ad8d6bbaa550d6615bdefd5d352de0dab`.

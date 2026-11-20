@@ -1,0 +1,70 @@
+[
+  {
+    "id": "delete-uwindowsclient",
+    "offset": 2172336,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UWindowsClient@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UWindowsClient vtable at RVA 0x2f2698, slot 3, points to entry RVA 0x2125b0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UWindowsClient@4": {
+        "va": 280044848,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x212530."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
+      "inputs_sha256": "65d65788a85f384659b79c105fb3c3c206ef2e775392c397fc31c21824bbe2bd"
+    }
+  },
+  {
+    "id": "delete-uwindowmanager",
+    "offset": 2177184,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UWindowManager@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UWindowManager vtable at RVA 0x2f2628, slot 3, points to entry RVA 0x2138a0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UWindowManager@4": {
+        "va": 280049568,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2137a0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "badf59430ff99380ccbf7480943f152cdfaf1aaa1b9b2dfac4c6f8f5454ecafd",
+      "inputs_sha256": "5d811105f33dbaac3d862d9b27cf35878181ab6b8c5fb435ad85342219c29061"
+    }
+  },
+  {
+    "id": "versus-sha1-digest-width",
+    "offset": 2206656,
+    "size": 6,
+    "rebuilt_symbol": "@sha1_digest_width@4",
+    "inputs": [
+      "src/digest_dimensions.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+    "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x2e1ccc, zero-based slot 7, selects RVA 0x21abc0. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "b5e246fbf558c442548ccb78aa6a03d48027a6f91f15c02d7dc661bd43aaaab1",
+      "inputs_sha256": "416371fdff8f3f627be7349fff703a6b51ebe2154adcb0df2ecde492ff91a510"
+    }
+  }
+]

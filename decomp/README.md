@@ -16,7 +16,11 @@ source, then compare its complete machine code with that release. The Godot and 
 Each edition owns its manifests in `config/`. Each manifest identifies one
 executable by SHA-256, records its executable sections and lists the units that
 contributors are working on. Independently written C belongs in the edition's
-`src/` directory. Compiled output, game files, disc images and analyst databases
+`src/` directory. Large targets keep their unit records in the JSON lists
+referenced by `unit_files`, with paths relative to the edition directory.
+Each Steam list groups starting offsets in one 64 KiB window. All lists
+contribute to the same overlap check and totals for that executable.
+Compiled output, game files, disc images and analyst databases
 belong in an ignored `local/` directory or outside the checkout.
 
 The shared [image reader](tools/images.py) reads x86 PE32, MIPS ELF32 and x86

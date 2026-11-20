@@ -1,0 +1,132 @@
+[
+  {
+    "id": "array-remove-2103b0",
+    "size": 138,
+    "offset": 2163632,
+    "rebuilt_symbol": "@array_remove_r2103b0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2103b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x21097b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "ae8e5593c367f36f88e76376b437ccb82ecdc4b1213d5f03c26e5dc07eb6c083",
+      "inputs_sha256": "f9f5d46b648f429e89f71ba0f65b2d76777d92083a09eac04bb76ec2b74fad1b"
+    }
+  },
+  {
+    "id": "game-uscmagmainteractionmpgame-staticinit",
+    "offset": 2227680,
+    "size": 40,
+    "rebuilt_symbol": "@exec_USCMagmaInteractionMPGame_StaticInit@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback USCMagmaInteractionMPGame_StaticInit at RVA 0x21fde0; callback cell and name are evidenced by the verified register-native-uscmagmainteractionmpgame-staticinit CRT entry at RVA 0x7a61b0. Invokes the shared Magma game-mode initialization. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "_magma_static_init": {
+        "va": 280106080,
+        "basis": "Shared native static initialization called by the three campaign Magma game-mode script callbacks."
+      }
+    },
+    "match": {
+      "bytes_sha256": "09fade72784b6ea4dd96480f6b029b75b4f8d92c1876f7ea436b60c5d8891b5e",
+      "inputs_sha256": "805d158830938b7d6ff18e324b32baa255ca31379265d63e91c6d091758cf0fe"
+    }
+  },
+  {
+    "id": "class-registration-uscmagmainteractionmpgame",
+    "offset": 2227776,
+    "size": 264,
+    "rebuilt_symbol": "_register_USCMagmaInteractionMPGame",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_USCMagmaInteractionMPGame": {
+        "va": 287495164,
+        "basis": "The USCMagmaInteractionMPGame class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_USCMagmaInteraction": {
+        "va": 287283640,
+        "basis": "The USCMagmaInteraction class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_USCMagmaInteraction": {
+        "va": 278984896,
+        "basis": "The constructor names USCMagmaInteraction using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_USCMagmaInteraction": {
+        "va": 278978832,
+        "basis": "Registration target reached after the USCMagmaInteraction constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USCMagmaInteractionMPGame at RVA 0x21fe40, called immediately after the class factory at RVA 0x2206f0 in the singleton initialization path. Sets superclass USCMagmaInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "8a1bbbd22e738c26606459c252f75a8a77813f44d131a442898a69750e38a21c",
+      "inputs_sha256": "e4e76da7b40c940bc9f53e4284fc400c49a8c5bab791cf4e26a2b6022893008a"
+    }
+  }
+]

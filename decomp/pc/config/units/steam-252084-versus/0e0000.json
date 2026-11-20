@@ -1,0 +1,94 @@
+[
+  {
+    "id": "delete-ugameengine",
+    "offset": 975376,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGameEngine@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGameEngine vtable at RVA 0x3041e8, slot 3, points to entry RVA 0xee210. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGameEngine@4": {
+        "va": 278848064,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0xee240."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "17027da4c455585c664b04ec73fa3a408c4f5a59020289c416d56a889c899670"
+    }
+  },
+  {
+    "id": "versus-close-file-log",
+    "offset": 981328,
+    "size": 40,
+    "rebuilt_symbol": "@versus_close_file_log@16",
+    "inputs": [
+      "src/versus_log_files.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_log_files.obj src/versus_log_files.c",
+    "identification": "Retail registration at RVA 0x0966db assigns GNatives[1170] to RVA 0x0ef950. The class and function name FileLog.CloseLog agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "fe886d50103a68d75e8bfc6d427a3db2ae29a654e0b666685118e7362765240a",
+      "inputs_sha256": "02800b1782025b7f939d06251e6c3fcef45c816213cf9a0c4c5962fe0f1bd943"
+    }
+  },
+  {
+    "id": "versus-player-uses-viewport",
+    "offset": 981648,
+    "size": 40,
+    "rebuilt_symbol": "@player_uses_viewport@4",
+    "inputs": [
+      "src/versus_player_camera.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_camera.obj src/versus_player_camera.c",
+    "identification": "The project reflection annotations identify ASPlayerController vftable RVA 0x2fa678. Its constructor store, table through zero-based slot 80, and the complete body at RVA 0x0efa90 agree between the locked Enhanced and Steam images. The corresponding reflected fields are Player at +0x4a4. The class walk compares the UViewport::PrivateStaticClass address from the locked annotations.",
+    "match": {
+      "bytes_sha256": "a9d047a7902c61611b435136947f413efed2112701dbee74e15443785f4924a3",
+      "inputs_sha256": "fa8b53b93f9ef66332b9c346024a560998f99565fd7aea7afe1e359db0284f34"
+    }
+  },
+  {
+    "id": "versus-player-walking-or-crouched",
+    "offset": 981856,
+    "size": 28,
+    "rebuilt_symbol": "@player_walking_or_crouched@4",
+    "inputs": [
+      "src/versus_player_camera.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_camera.obj src/versus_player_camera.c",
+    "identification": "The project reflection annotations identify ASPlayerController vftable RVA 0x2fa678. Its constructor store, table through zero-based slot 81, and the complete body at RVA 0x0efb60 agree between the locked Enhanced and Steam images. The corresponding reflected fields are Pawn at +0x2fc, bIsCrouched at +0x4a8, bIsWalking at +0x4a8. Both pawn bits match the runtime reflection masks (0x20 and 0x04).",
+    "match": {
+      "bytes_sha256": "abd99db6acc5c184fa13b8c865cd26f3a06e03c03342f6e3ea14752cd00b32c1",
+      "inputs_sha256": "cac10dff4954034dfdc8c08f7fa58ff38877b491644940679f2176212e0bfd72"
+    }
+  },
+  {
+    "id": "versus-entry-level-actor",
+    "offset": 982256,
+    "size": 39,
+    "rebuilt_symbol": "@versus_entry_level_actor@16",
+    "inputs": [
+      "src/versus_level_queries.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_level_queries.obj src/versus_level_queries.c",
+    "identification": "Retail registration at RVA 0x09553d assigns GNatives[1183] to RVA 0x0efcf0. The class and function name PlayerController.GetEntryLevel agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "96998dee08a56a9d125641bb231ce6341dee9db40c0845f2009a3b95d819054f",
+      "inputs_sha256": "f8b98857f2c38c440598bee8184fd51ad89720e1e1f06442d31d3d08196934df"
+    }
+  }
+]

@@ -1,0 +1,1727 @@
+[
+  {
+    "id": "script-parameters-getmaxfov",
+    "offset": 2556816,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetMaxFOV@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetMaxFOV": {
+        "va": 287506148,
+        "basis": "FName initialized with retail UTF-16 GetMaxFOV (VA 0x111101ec). The FName constructor call at RVA 0x37f333 precedes the store to this slot at RVA 0x37f345."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetMaxFOV event wrapper at RVA 0x270390, including the return. The name initialization and script lookup link the wrapper to its event. Steam package EchelonIngredient.u declares EStickyCamera.GetMaxFOV with Float ReturnValue at serial offset 0x27636.",
+    "match": {
+      "bytes_sha256": "06bbae9cb90eb96e69786c5f2dc0bc98be1bf814084fe11b90c93051c558afc1",
+      "inputs_sha256": "ff2d408f66689d57448ab609513f248c0bb21fd8b17f68dcb16c2f84981541a6"
+    }
+  },
+  {
+    "id": "script-parameters-getcurrentfov",
+    "offset": 2556880,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetCurrentFOV@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetCurrentFOV": {
+        "va": 287506140,
+        "basis": "FName initialized with retail UTF-16 GetCurrentFOV (VA 0x11110220). The FName constructor call at RVA 0x37f303 precedes the store to this slot at RVA 0x37f30c."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetCurrentFOV event wrapper at RVA 0x2703d0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package EchelonIngredient.u declares EStickyCamera.GetCurrentFOV with Float ReturnValue at serial offset 0x2766f.",
+    "match": {
+      "bytes_sha256": "56bdf4f7e5e04faee7865ee9b4cfc26738cee5b52bef75fad9df48783caab1c2",
+      "inputs_sha256": "8513c7bcf865f1e02516e8b4185a82a011acdb6eaa70cbda74e1f90b59ee628d"
+    }
+  },
+  {
+    "id": "cast-aestickycamera",
+    "offset": 2557280,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AEStickyCamera",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AEStickyCamera": {
+        "va": 287504968,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AEStickyCamera": {
+        "va": 281360080,
+        "basis": "The constructor passes both the UTF-16 AEStickyCamera allocation tag and EStickyCamera class name to the engine."
+      },
+      "_register_AEStickyCamera": {
+        "va": 281353968,
+        "basis": "Direct registration call after initializing the singleton for AEStickyCamera."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x270560, directly called at RVA 0x27079f. Its class constructor at RVA 0x3536d0 identifies AEStickyCamera; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "7c9c6d4915a3ef1c17d1cd20fe31c5443f4b050c39bbad3857aa4bf5a5e31203",
+      "inputs_sha256": "90248fe1b924f17a790b3f1947a8a0b996c8b22b5c19d6a306a1509e386dd06b"
+    }
+  },
+  {
+    "id": "script-parameters-switchattachment",
+    "offset": 2575536,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_SwitchAttachment@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_SwitchAttachment": {
+        "va": 287504064,
+        "basis": "FName initialized with retail UTF-16 SwitchAttachment (VA 0x110e5848). The FName constructor call at RVA 0x3362e5 precedes the store to this slot at RVA 0x3362ee."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail SwitchAttachment event wrapper at RVA 0x274cb0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.SwitchAttachment with Bool ReturnValue at serial offset 0xaa2d4.",
+    "match": {
+      "bytes_sha256": "df3a18f18ace794d6174f8b00827cf9b47324fb96eba30cf48a0d4efbebe15ba",
+      "inputs_sha256": "ab74b9c37a285f9ed745a1e2e824662c21c8bd0c9957923a6374adefa53a1813"
+    }
+  },
+  {
+    "id": "array-remove-275d00",
+    "size": 138,
+    "offset": 2579712,
+    "rebuilt_symbol": "@array_remove_r275d00@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x275d00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x27618b, 0x27626b, 0x27630c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "8ce9439143013daf0f4d304fbab4eb7809747167c01b6b720745bfe811894c0b",
+      "inputs_sha256": "55ee91672f0f926976cb85c32509c0c37d859dfea729fdf59546b502acb3423f"
+    }
+  },
+  {
+    "id": "array-remove-276a30",
+    "size": 138,
+    "offset": 2583088,
+    "rebuilt_symbol": "@array_remove_r276a30@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x276a30, including RET. Incoming transfer decoded within analyzed function code at RVA 0x276fbb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "0cf2465311d30bf02cd5802217080d6c7898359bac76710d147745c35ab7b7c3",
+      "inputs_sha256": "12fcb72cc72594117d81da8b2ea0de75176a37afd7d61df55ea080519bec3ac6"
+    }
+  },
+  {
+    "id": "array-remove-279b40",
+    "size": 138,
+    "offset": 2595648,
+    "rebuilt_symbol": "@array_remove_r279b40@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x279b40, including RET. Incoming transfer decoded within analyzed function code at RVA 0x279d8b, 0x27a020. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "2657cbd15069d1897c61e08973ac73744e3690e4b42343783454513a97b47153",
+      "inputs_sha256": "2545af19b86ceba658be0adb19de8d8ba38e79eef92ea137b72d2a2a3865ae5e"
+    }
+  },
+  {
+    "id": "delete-uactioncomponent",
+    "offset": 2599296,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UActionComponent@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UActionComponent UClass factory at RVA 0x27ace0 references the named placement constructor at RVA 0x27ac30. That constructor installs the vtable at RVA 0x7e7850, whose slot 3 points to this deleting destructor at RVA 0x27a980. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UActionComponent": {
+        "va": 286160976,
+        "basis": "The placement constructor at RVA 0x27ac30 installs this same vtable at RVA 0x27ac40."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UActionComponent@4": {
+        "va": 281920608,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c5bab58f1ab100e62df5b1a7b3d4e9e3349a7e0c693b89d501eb311d3d54e5ad",
+      "inputs_sha256": "063853615c2ee7820d842cdff7aa133645bc40ae0f228810faf1ba1436586c60"
+    }
+  },
+  {
+    "id": "delete-uexplosioncomponent",
+    "offset": 2599392,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UExplosionComponent@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UExplosionComponent UClass factory at RVA 0x27ac70 references the named placement constructor at RVA 0x27ac50. That constructor installs the vtable at RVA 0x7e78b0, whose slot 3 points to this deleting destructor at RVA 0x27a9e0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UExplosionComponent": {
+        "va": 286161072,
+        "basis": "The placement constructor at RVA 0x27ac50 installs this same vtable at RVA 0x27ac60."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UExplosionComponent@4": {
+        "va": 281920608,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "190698482adf52feaec2c0cb8a86a57d3cdda2a415349daa98f1371c5029ccce",
+      "inputs_sha256": "1551266f96e23ae09e63a0e5cd84343feed44ff03db30fbadd3feca5c9569b8a"
+    }
+  },
+  {
+    "id": "class-registration-uexplosioncomponent",
+    "offset": 2599440,
+    "size": 264,
+    "rebuilt_symbol": "_register_UExplosionComponent",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UExplosionComponent": {
+        "va": 287500284,
+        "basis": "The UExplosionComponent class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UExplosionComponent at RVA 0x27aa10, called immediately after the class factory at RVA 0x27ac70 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "7bc9f7600818cdc34d4f05db6ad78648fac6ecc8b4e48919c42ef4fcf219c49e",
+      "inputs_sha256": "db412efd72c8044fc087f669e6da2ad38c588a9cc2cd9c54de9fb51e06d550e6"
+    }
+  },
+  {
+    "id": "class-registration-uactioncomponent",
+    "offset": 2599712,
+    "size": 264,
+    "rebuilt_symbol": "_register_UActionComponent",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UActionComponent": {
+        "va": 287500288,
+        "basis": "The UActionComponent class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UActionComponent at RVA 0x27ab20, called immediately after the class factory at RVA 0x27ace0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "2ce064f2b134f0c4f61a724fc91ddfe895ce88cc1bc035929513ec391ee2a411",
+      "inputs_sha256": "8dde55f09ad35793fea5133a8f67c447ce055adc471a00b09085c1b96d88681b"
+    }
+  },
+  {
+    "id": "placement-uactioncomponent",
+    "offset": 2599984,
+    "size": 24,
+    "rebuilt_symbol": "_place_UActionComponent",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UActionComponent class descriptor."
+      },
+      "_vtable_UActionComponent": {
+        "va": 286160976,
+        "basis": "Class-specific table installed after base initialization in the named UActionComponent descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UActionComponent class factory at RVA 0x27ace0. The callback at RVA 0x27ac30 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "d5a02fc897d2067fac5d7c08cf47535f3bc9213688160fb56a44a6a596c31db2",
+      "inputs_sha256": "20090fdacca3ff4d201be4bfd78fef43590349abc90a13dddc877597505a40eb"
+    }
+  },
+  {
+    "id": "placement-uexplosioncomponent",
+    "offset": 2600016,
+    "size": 24,
+    "rebuilt_symbol": "_place_UExplosionComponent",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UExplosionComponent class descriptor."
+      },
+      "_vtable_UExplosionComponent": {
+        "va": 286161072,
+        "basis": "Class-specific table installed after base initialization in the named UExplosionComponent descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UExplosionComponent class factory at RVA 0x27ac70. The callback at RVA 0x27ac50 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "5d33fe601bd588d03f5a4f58b287291e3ef3aa476e823dca4412fed9319e6e2d",
+      "inputs_sha256": "14ef9484912e6dba3d86c24f0ea92ddb9f3b32641f3cb35cb8855c4a4e4db236"
+    }
+  },
+  {
+    "id": "class-factory-uexplosioncomponent",
+    "offset": 2600048,
+    "size": 102,
+    "rebuilt_symbol": "_create_UExplosionComponent",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UExplosionComponent": {
+        "va": 286161168,
+        "basis": "Retail UTF-16 UExplosionComponent allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UExplosionComponent": {
+        "va": 280472656,
+        "basis": "Placement callback passed to the native descriptor constructor for UExplosionComponent."
+      },
+      "@static_init_UExplosionComponent@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UExplosionComponent."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x27ac70; its allocation tag and reflected class name identify UExplosionComponent. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "67d8f7ed471f1561bcd37002f151496887cb67319c504198f0243caaf1ba2560",
+      "inputs_sha256": "843ef0a7d7aa541cf8bd6f55ffc0474d0552292cbd77f1ccfa62f25d6c92d436"
+    }
+  },
+  {
+    "id": "class-factory-uactioncomponent",
+    "offset": 2600160,
+    "size": 102,
+    "rebuilt_symbol": "_create_UActionComponent",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UActionComponent": {
+        "va": 286161208,
+        "basis": "Retail UTF-16 UActionComponent allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UActionComponent": {
+        "va": 280472624,
+        "basis": "Placement callback passed to the native descriptor constructor for UActionComponent."
+      },
+      "@static_init_UActionComponent@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UActionComponent."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x27ace0; its allocation tag and reflected class name identify UActionComponent. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "6b2920a474452a319ccdc618fed178eab95825255021e60e1b565fe8c934a680",
+      "inputs_sha256": "d7726ed18a142123231cf28c34c5e6f3244038ac3e8b13a601803d69c2ab2cac"
+    }
+  },
+  {
+    "id": "script-parameters-setvolumezone",
+    "offset": 2600352,
+    "size": 61,
+    "rebuilt_symbol": "@script_call_SetVolumeZone@12",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_SetVolumeZone": {
+        "va": 287504008,
+        "basis": "FName initialized with retail UTF-16 SetVolumeZone (VA 0x110fa488). The FName constructor call at RVA 0x33619a precedes the store to this slot at RVA 0x3361ac."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail SetVolumeZone event wrapper at RVA 0x27ada0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.SetVolumeZone with Bool bEntering, EVolume Volume at serial offset 0x6067d.",
+    "match": {
+      "bytes_sha256": "024a45af0dee21f8627fb7e8c9a769b006730229e3d8a7293fc2d33d6748d932",
+      "inputs_sha256": "9e905d469f75169bde277fdc269cecfbe50c09d19919f7f8cb34cec44b70bea6"
+    }
+  },
+  {
+    "id": "class-registration-aevolume",
+    "offset": 2600416,
+    "size": 264,
+    "rebuilt_symbol": "_register_AEVolume",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AEVolume": {
+        "va": 287500292,
+        "basis": "The AEVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APhysicsVolume": {
+        "va": 287271160,
+        "basis": "The APhysicsVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APhysicsVolume": {
+        "va": 278491136,
+        "basis": "The constructor names APhysicsVolume using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APhysicsVolume": {
+        "va": 278499472,
+        "basis": "Registration target reached after the APhysicsVolume constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AEVolume at RVA 0x27ade0, called immediately after the class factory at RVA 0x27b8b0 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "298939a74c6d0cad1d9a965a9d145efa079fcf5f0ebc46def7f12ad66fe5f6f8",
+      "inputs_sha256": "f82a56fbf4619c513de6f98f454445308898b3b841b06ef32127498163a2f9d4"
+    }
+  },
+  {
+    "id": "class-registration-aecoopinteractvolume",
+    "offset": 2600688,
+    "size": 264,
+    "rebuilt_symbol": "_register_AECoopInteractVolume",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AECoopInteractVolume": {
+        "va": 287500296,
+        "basis": "The AECoopInteractVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APhysicsVolume": {
+        "va": 287271160,
+        "basis": "The APhysicsVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APhysicsVolume": {
+        "va": 278491136,
+        "basis": "The constructor names APhysicsVolume using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APhysicsVolume": {
+        "va": 278499472,
+        "basis": "Registration target reached after the APhysicsVolume constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AECoopInteractVolume at RVA 0x27aef0, called immediately after the class factory at RVA 0x27b920 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "9d0a43c385056dbebfaf518aab559fe3706f311a3b042b8cb22a2003c460f94a",
+      "inputs_sha256": "6c48ce43824453f4140944ee473a32738fe467a4ab0b6ebb873f189e6425a85b"
+    }
+  },
+  {
+    "id": "class-registration-aecoopsuccessvolume",
+    "offset": 2600960,
+    "size": 264,
+    "rebuilt_symbol": "_register_AECoopSuccessVolume",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AECoopSuccessVolume": {
+        "va": 287500300,
+        "basis": "The AECoopSuccessVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APhysicsVolume": {
+        "va": 287271160,
+        "basis": "The APhysicsVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APhysicsVolume": {
+        "va": 278491136,
+        "basis": "The constructor names APhysicsVolume using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APhysicsVolume": {
+        "va": 278499472,
+        "basis": "Registration target reached after the APhysicsVolume constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AECoopSuccessVolume at RVA 0x27b000, called immediately after the class factory at RVA 0x27b990 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "1561740ab2499d1be0416b0e120776d95ce2a4915ab48c5a597fecd4c230ed48",
+      "inputs_sha256": "0bf9e174903f5a6c9b1f59ac97ee24e6dc947da8b4754edfff2065894548f690"
+    }
+  },
+  {
+    "id": "class-registration-aecoopblockingvolume",
+    "offset": 2601232,
+    "size": 264,
+    "rebuilt_symbol": "_register_AECoopBlockingVolume",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AECoopBlockingVolume": {
+        "va": 287500304,
+        "basis": "The AECoopBlockingVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APhysicsVolume": {
+        "va": 287271160,
+        "basis": "The APhysicsVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APhysicsVolume": {
+        "va": 278491136,
+        "basis": "The constructor names APhysicsVolume using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APhysicsVolume": {
+        "va": 278499472,
+        "basis": "Registration target reached after the APhysicsVolume constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AECoopBlockingVolume at RVA 0x27b110, called immediately after the class factory at RVA 0x27ba00 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "e8887870042d492af6029059c6f063cdb6e1c49abee89af951590bb740255182",
+      "inputs_sha256": "339d1f64a048470ac59ccb36cf0f66c00bb5f097cb6180d833a0f078d07071f1"
+    }
+  },
+  {
+    "id": "script-frame-takedamage",
+    "offset": 2601632,
+    "size": 150,
+    "rebuilt_symbol": "@script_frame_TakeDamage@56",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_TakeDamage": {
+        "va": 287285588,
+        "basis": "FName initialized with retail UTF-16 TakeDamage (VA 0x110d4ecc). The FName constructor call at RVA 0x13c289 precedes the store to this slot at RVA 0x13c292."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail TakeDamage event wrapper at RVA 0x27b2a0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.TakeDamage at serial offset 0x1be80.",
+    "match": {
+      "bytes_sha256": "9e4297717f1c4d146b04955ea30559aed6d4ccb28543b7764af5bcc4745cb9ee",
+      "inputs_sha256": "595f467257a6ae46ef4458d6837fd59aef1dae0c8f0580466adcfd437ecf6c78"
+    }
+  },
+  {
+    "id": "delete-aecoopblockingvolume",
+    "offset": 2602592,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AECoopBlockingVolume@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AECoopBlockingVolume UClass factory at RVA 0x27ba00 references the named placement constructor at RVA 0x27b7b0. That constructor installs the vtable at RVA 0x7e7960, whose slot 3 points to this deleting destructor at RVA 0x27b660. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AECoopBlockingVolume": {
+        "va": 286161248,
+        "basis": "The placement constructor at RVA 0x27b7b0 installs this same vtable at RVA 0x27b7e8."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AECoopBlockingVolume@4": {
+        "va": 278479888,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5104ded364b74091c303cc804261e867b23335246ab99cc13b031d4774640847",
+      "inputs_sha256": "d698ce67e2427dd84cf15a09a7b209a5c155661e3e9a17434525dbc9fd51e817"
+    }
+  },
+  {
+    "id": "delete-aecoopinteractvolume",
+    "offset": 2602688,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AECoopInteractVolume@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AECoopInteractVolume UClass factory at RVA 0x27b920 references the named placement constructor at RVA 0x27b7f0. That constructor installs the vtable at RVA 0x7e7c00, whose slot 3 points to this deleting destructor at RVA 0x27b6c0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AECoopInteractVolume": {
+        "va": 286161920,
+        "basis": "The placement constructor at RVA 0x27b7f0 installs this same vtable at RVA 0x27b828."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AECoopInteractVolume@4": {
+        "va": 278479888,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "26ae156979fb5e028c26e2fa1bae0bf30dac89d5e6d5ac14782913ae4c75aabc",
+      "inputs_sha256": "fbfc12149e6c380c9d68575e20692f2c1e7306c69bbae94167b669502f393da2"
+    }
+  },
+  {
+    "id": "delete-aecoopsuccessvolume",
+    "offset": 2602784,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AECoopSuccessVolume@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AECoopSuccessVolume UClass factory at RVA 0x27b990 references the named placement constructor at RVA 0x27b830. That constructor installs the vtable at RVA 0x7e7ea0, whose slot 3 points to this deleting destructor at RVA 0x27b720. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AECoopSuccessVolume": {
+        "va": 286162592,
+        "basis": "The placement constructor at RVA 0x27b830 installs this same vtable at RVA 0x27b868."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AECoopSuccessVolume@4": {
+        "va": 278479888,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c1fe73e2d7f0e425b6639b07616df5537ffa44365fe1617fb5cbebc4d91cd573",
+      "inputs_sha256": "c473ac0a39c7c91d3576fdeb3e358a0b0a7effd4022c163bd9e7eae48414f4a6"
+    }
+  },
+  {
+    "id": "delete-aevolume",
+    "offset": 2602880,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AEVolume@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AEVolume UClass factory at RVA 0x27b8b0 references the named placement constructor at RVA 0x27b870. That constructor installs the vtable at RVA 0x7e8140, whose slot 3 points to this deleting destructor at RVA 0x27b780. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AEVolume": {
+        "va": 286163264,
+        "basis": "The placement constructor at RVA 0x27b870 installs this same vtable at RVA 0x27b8a8."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AEVolume@4": {
+        "va": 278479888,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a9f535bed24a8f7d8c8014b0f0cec38a5c6d9460aa02c4c0319d5b17b3d242ad",
+      "inputs_sha256": "9baa7e93d17550978382b17a0a9042c2dd1bd48b0ae7e0293f3b5ab5ec66c7c6"
+    }
+  },
+  {
+    "id": "placement-aecoopblockingvolume",
+    "offset": 2602928,
+    "size": 64,
+    "rebuilt_symbol": "_place_AECoopBlockingVolume",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AECoopBlockingVolume class descriptor."
+      },
+      "_vtable_AECoopBlockingVolume": {
+        "va": 286161248,
+        "basis": "Class-specific table installed after base initialization in the named AECoopBlockingVolume descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AECoopBlockingVolume class factory at RVA 0x27ba00. The callback at RVA 0x27b7b0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "ad952b759f1acb75c569e3792ffb29d84b5c8e9ca175fae5d0f305f10dff8167",
+      "inputs_sha256": "7b22a4a8f906c1e58d1b5f5cddeeddee7f5ffadc2bcc41ac7d0f817a8dc20e77"
+    }
+  },
+  {
+    "id": "placement-aecoopinteractvolume",
+    "offset": 2602992,
+    "size": 64,
+    "rebuilt_symbol": "_place_AECoopInteractVolume",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AECoopInteractVolume class descriptor."
+      },
+      "_vtable_AECoopInteractVolume": {
+        "va": 286161920,
+        "basis": "Class-specific table installed after base initialization in the named AECoopInteractVolume descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AECoopInteractVolume class factory at RVA 0x27b920. The callback at RVA 0x27b7f0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "44c12cb4259970a9f97ae4b5edc5207ef7ed34fe34152400be5a3c84fe7c7717",
+      "inputs_sha256": "738e61f26ea970280fa1b0eb60677f6a629e9cc7caa86f6481560cbadfffb423"
+    }
+  },
+  {
+    "id": "placement-aecoopsuccessvolume",
+    "offset": 2603056,
+    "size": 64,
+    "rebuilt_symbol": "_place_AECoopSuccessVolume",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AECoopSuccessVolume class descriptor."
+      },
+      "_vtable_AECoopSuccessVolume": {
+        "va": 286162592,
+        "basis": "Class-specific table installed after base initialization in the named AECoopSuccessVolume descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AECoopSuccessVolume class factory at RVA 0x27b990. The callback at RVA 0x27b830 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "3834d44395dd3aae88a3e13564690e75f0a520e3e95fbab5f93f49bd32c284b3",
+      "inputs_sha256": "aa0645c65e764784cf6a3efd526a5f574f3eac357ae7690061540e257fea1088"
+    }
+  },
+  {
+    "id": "placement-aevolume",
+    "offset": 2603120,
+    "size": 64,
+    "rebuilt_symbol": "_place_AEVolume",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AEVolume class descriptor."
+      },
+      "_vtable_AEVolume": {
+        "va": 286163264,
+        "basis": "Class-specific table installed after base initialization in the named AEVolume descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AEVolume class factory at RVA 0x27b8b0. The callback at RVA 0x27b870 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "e074e5b693524c8b9c5569daf09854e2d0e38053af96127930d0ab2309e05d74",
+      "inputs_sha256": "68fc71006398da62934aa6d1f56c3fe66017a932c9c7fb59ddd2753beb59f7da"
+    }
+  },
+  {
+    "id": "class-factory-aevolume",
+    "offset": 2603184,
+    "size": 105,
+    "rebuilt_symbol": "_create_AEVolume",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AEVolume": {
+        "va": 286163936,
+        "basis": "Retail UTF-16 AEVolume allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AEVolume": {
+        "va": 280475760,
+        "basis": "Placement callback passed to the native descriptor constructor for AEVolume."
+      },
+      "@static_init_AEVolume@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AEVolume."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x27b8b0; its allocation tag and reflected class name identify AEVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "b4517bf6d0e26f551b1de9f30fb5cae96d0c60ae601f503484e042e0e737ff0d",
+      "inputs_sha256": "76277c5c6ac899e0acb7064211e3800574621dad541be176d6c21981b8b9c7ba"
+    }
+  },
+  {
+    "id": "class-factory-aecoopinteractvolume",
+    "offset": 2603296,
+    "size": 105,
+    "rebuilt_symbol": "_create_AECoopInteractVolume",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AECoopInteractVolume": {
+        "va": 286163956,
+        "basis": "Retail UTF-16 AECoopInteractVolume allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AECoopInteractVolume": {
+        "va": 280475632,
+        "basis": "Placement callback passed to the native descriptor constructor for AECoopInteractVolume."
+      },
+      "@static_init_AECoopInteractVolume@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AECoopInteractVolume."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x27b920; its allocation tag and reflected class name identify AECoopInteractVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "c93df10bbb3f511f6d6faa2bfb58755a807de6a65c0928421ac80fd1a5e54610",
+      "inputs_sha256": "425edf07b0cb5836cc07be8b41dcf5fac9e27b8fff4f5b8fde6c478ee4585261"
+    }
+  },
+  {
+    "id": "class-factory-aecoopsuccessvolume",
+    "offset": 2603408,
+    "size": 105,
+    "rebuilt_symbol": "_create_AECoopSuccessVolume",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AECoopSuccessVolume": {
+        "va": 286164000,
+        "basis": "Retail UTF-16 AECoopSuccessVolume allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AECoopSuccessVolume": {
+        "va": 280475696,
+        "basis": "Placement callback passed to the native descriptor constructor for AECoopSuccessVolume."
+      },
+      "@static_init_AECoopSuccessVolume@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AECoopSuccessVolume."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x27b990; its allocation tag and reflected class name identify AECoopSuccessVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "2f1561fe0d11e2ee8a2419deb1b51877ed6722c5a9db151644d81c9f53757d99",
+      "inputs_sha256": "9a0ecef2117d5722c2a08104a54e708d377a850315df568ce1b5be36688253fb"
+    }
+  },
+  {
+    "id": "class-factory-aecoopblockingvolume",
+    "offset": 2603520,
+    "size": 105,
+    "rebuilt_symbol": "_create_AECoopBlockingVolume",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AECoopBlockingVolume": {
+        "va": 286164040,
+        "basis": "Retail UTF-16 AECoopBlockingVolume allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AECoopBlockingVolume": {
+        "va": 280475568,
+        "basis": "Placement callback passed to the native descriptor constructor for AECoopBlockingVolume."
+      },
+      "@static_init_AECoopBlockingVolume@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AECoopBlockingVolume."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x27ba00; its allocation tag and reflected class name identify AECoopBlockingVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "9d41a10756f8b92a2b7fff60e4a3646a86f4b2385792e5b3e213733aa0ec9c04",
+      "inputs_sha256": "af946008b0db1b902a8ec0510fe42801b61e952c74e156511794a052547d1cfe"
+    }
+  },
+  {
+    "id": "script-parameters-sethandik",
+    "offset": 2611456,
+    "size": 61,
+    "rebuilt_symbol": "@script_call_SetHandIK@12",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_SetHandIK": {
+        "va": 287285548,
+        "basis": "FName initialized with retail UTF-16 SetHandIK (VA 0x110d4fec). The FName constructor call at RVA 0x13c19d precedes the store to this slot at RVA 0x13c1af."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail SetHandIK event wrapper at RVA 0x27d900, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.SetHandIK with Bool in_activate, Float in_fade at serial offset 0x92aac.",
+    "match": {
+      "bytes_sha256": "d4abddad6a6b5903661ce253882a69d9dccca4c6c1be394e470b8e4c85ff459c",
+      "inputs_sha256": "941ff9513aed5067f8bc054508a00a5a56f5600debff0509e9d146876b9f95aa"
+    }
+  },
+  {
+    "id": "script-parameters-takehit",
+    "offset": 2611632,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_TakeHit@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_TakeHit": {
+        "va": 287504080,
+        "basis": "FName initialized with retail UTF-16 TakeHit (VA 0x110fa30c). The FName constructor call at RVA 0x336344 precedes the store to this slot at RVA 0x336356."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail TakeHit event wrapper at RVA 0x27d9b0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EGameplayObject.TakeHit with Bool ReturnValue at serial offset 0x5d744.",
+    "match": {
+      "bytes_sha256": "2ebc31260b8614a9cef35a9f538bb05a2a0aa4a6ecaa66e796a329072cdd744b",
+      "inputs_sha256": "26a4911e037eefbfb12c364c0d6e797f9365d6549d0f8e1ba3d848a2edaf8082"
+    }
+  },
+  {
+    "id": "script-parameters-isjumpingforward",
+    "offset": 2611696,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_IsJumpingForward@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsJumpingForward": {
+        "va": 287503660,
+        "basis": "FName initialized with retail UTF-16 IsJumpingForward (VA 0x110faf80). The FName constructor call at RVA 0x33598f precedes the store to this slot at RVA 0x3359a1."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsJumpingForward event wrapper at RVA 0x27d9f0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.IsJumpingForward with Bool ReturnValue at serial offset 0x7d6e5.",
+    "match": {
+      "bytes_sha256": "051dfcb82fd2b57ff07893d49461d4fbabaae1749ef673516e8369131ed8c770",
+      "inputs_sha256": "9b762f41b8428897ef9943014cb2a2cc7ff1341974e7c87a1176502a4f6c6424"
+    }
+  },
+  {
+    "id": "script-parameters-iswaiting",
+    "offset": 2611760,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_IsWaiting@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsWaiting": {
+        "va": 287503692,
+        "basis": "FName initialized with retail UTF-16 IsWaiting (VA 0x110fae60). The FName constructor call at RVA 0x335a4c precedes the store to this slot at RVA 0x335a55."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsWaiting event wrapper at RVA 0x27da30, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.IsWaiting with Bool ReturnValue at serial offset 0x8f0f9.",
+    "match": {
+      "bytes_sha256": "07127ca950d9b503348897cf22056b4a84e5361b4c77e9d5e9d4abd2deeee680",
+      "inputs_sha256": "8e7db33c854fc0b26821fe1d901526b756734b7a22e7fe076f9a7240ae1cf949"
+    }
+  },
+  {
+    "id": "script-parameters-isextrawaiting",
+    "offset": 2611824,
+    "size": 66,
+    "rebuilt_symbol": "@script_call_IsExtraWaiting@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsExtraWaiting": {
+        "va": 287503644,
+        "basis": "FName initialized with retail UTF-16 IsExtraWaiting (VA 0x110faff0). The FName constructor call at RVA 0x335930 precedes the store to this slot at RVA 0x335939."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsExtraWaiting event wrapper at RVA 0x27da70, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.IsExtraWaiting with Int F, Bool ReturnValue at serial offset 0x6d01b.",
+    "match": {
+      "bytes_sha256": "75ca0110734fb6883267d3e48b193eb7dcd4a185b84526fc5887e11167910cdf",
+      "inputs_sha256": "cdd3eb0580a66e88e0ab319df51106d0ef214b85b12b99221b65a1a0b04468c6"
+    }
+  },
+  {
+    "id": "script-frame-generateainoise",
+    "offset": 2611904,
+    "size": 78,
+    "rebuilt_symbol": "@script_frame_GenerateAINoise@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_GenerateAINoise": {
+        "va": 287503500,
+        "basis": "FName initialized with retail UTF-16 GenerateAINoise (VA 0x110fb41c). The FName constructor call at RVA 0x3355dc precedes the store to this slot at RVA 0x3355e5."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GenerateAINoise event wrapper at RVA 0x27dac0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPawn.GenerateAINoise at serial offset 0x9f0af.",
+    "match": {
+      "bytes_sha256": "098c00d3ca218a0b4d1d7d4cd84cb714410029533667a4834462a32952cc329a",
+      "inputs_sha256": "177031b7bb773a20c4710597e6e5ac27b2ec5bf452526cd11ce2ada171194cfe"
+    }
+  },
+  {
+    "id": "script-parameters-addambientdamage",
+    "offset": 2611984,
+    "size": 61,
+    "rebuilt_symbol": "@script_call_AddAmbientDamage@12",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_AddAmbientDamage": {
+        "va": 287503328,
+        "basis": "FName initialized with retail UTF-16 AddAmbientDamage (VA 0x110fb93c). The FName constructor call at RVA 0x3351e3 precedes the store to this slot at RVA 0x3351f5."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail AddAmbientDamage event wrapper at RVA 0x27db10, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.AddAmbientDamage with Int Ambient, Int Fire at serial offset 0x76716.",
+    "match": {
+      "bytes_sha256": "6194bcaaca97f42e63ca4640b2deeb31ec936e9e7c40e42075023f94e9869040",
+      "inputs_sha256": "0926b9883a9e7e0ebbf1c44f22162e436b6bd10c21720d2cc172b5e34692d1de"
+    }
+  },
+  {
+    "id": "script-parameters-specialtick",
+    "offset": 2612048,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_SpecialTick@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_SpecialTick": {
+        "va": 287504036,
+        "basis": "FName initialized with retail UTF-16 SpecialTick (VA 0x110fa3d8). The FName constructor call at RVA 0x336240 precedes the store to this slot at RVA 0x336252."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail SpecialTick event wrapper at RVA 0x27db50, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.SpecialTick with Float DeltaTime at serial offset 0x5c808.",
+    "match": {
+      "bytes_sha256": "3284294f0247bb412038770109ddc0634dd401fcbe863ad6121036ebe2c1e0dc",
+      "inputs_sha256": "6dca324225d9e0571a05f88479ff7910a42df9c89dd1b1767647f8852d62a7c8"
+    }
+  },
+  {
+    "id": "script-parameters-cansplash",
+    "offset": 2612096,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_CanSplash@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_CanSplash": {
+        "va": 287503388,
+        "basis": "FName initialized with retail UTF-16 CanSplash (VA 0x110fb73c). The FName constructor call at RVA 0x335346 precedes the store to this slot at RVA 0x335358."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail CanSplash event wrapper at RVA 0x27db80, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.CanSplash with Bool ReturnValue at serial offset 0xc0c0e.",
+    "match": {
+      "bytes_sha256": "34b49bfb69f9569015c1b63ac8ada0555fe065dbca40f78a255956c1b674e884",
+      "inputs_sha256": "dc66b7dae2b7c0ff33d5e0ab518b87ff22c68c2ebdb95cc599d5927ba94fbe82"
+    }
+  },
+  {
+    "id": "class-registration-aepawn",
+    "offset": 2612864,
+    "size": 264,
+    "rebuilt_symbol": "_register_AEPawn",
+    "inputs": [
+      "src/campaign_class_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_3.obj src/campaign_class_registration_3.c",
+    "link_bindings": {
+      "_class_AEPawn": {
+        "va": 287500308,
+        "basis": "The AEPawn class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APawn": {
+        "va": 287271404,
+        "basis": "The APawn class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APawn": {
+        "va": 278614496,
+        "basis": "The constructor names APawn using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APawn": {
+        "va": 278595600,
+        "basis": "Registration target reached after the APawn constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AEPawn at RVA 0x27de80, called immediately after the class factory at RVA 0x28c720 in the singleton initialization path. Sets superclass APawn, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "5b0fab1678785409044b6b4c1d7a062a1c1ed9defeb85a1b69ed4ce543c557cf",
+      "inputs_sha256": "4fc025cec78c78889acdb8a8a6fc65595c75d0e8f802a4c60fd388d67f298d2f"
+    }
+  },
+  {
+    "id": "class-registration-aesoundvolume",
+    "offset": 2613136,
+    "size": 264,
+    "rebuilt_symbol": "_register_AESoundVolume",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AESoundVolume": {
+        "va": 287500312,
+        "basis": "The AESoundVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APhysicsVolume": {
+        "va": 287271160,
+        "basis": "The APhysicsVolume class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APhysicsVolume": {
+        "va": 278491136,
+        "basis": "The constructor names APhysicsVolume using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APhysicsVolume": {
+        "va": 278499472,
+        "basis": "Registration target reached after the APhysicsVolume constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AESoundVolume at RVA 0x27df90, called immediately after the class factory at RVA 0x28c790 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "a28c2d17ac90a6311b312b429b7b63f24f44adab4a9f9a38bac629b4fc890ece",
+      "inputs_sha256": "73d273c7c724b7e0970475df9ef033d56cc9868c371e21e6c772b3de53e71201"
+    }
+  },
+  {
+    "id": "game-echelon-epawn-createhavokshape",
+    "offset": 2614272,
+    "size": 44,
+    "rebuilt_symbol": "@exec_Echelon_EPawn_CreateHavokShape@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EPawn_CreateHavokShape at RVA 0x27e400; callback cell and name are evidenced by the verified register-native-echelon-epawn-createhavokshape CRT entry at RVA 0x7aa690. Consumes the argument terminator and optional debug token. This body has no further game action. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
+      "inputs_sha256": "0ff1ddced9196cdd788733a03a421fa884c188c603d17f264488352a79cfaf34"
+    }
+  },
+  {
+    "id": "game-echelon-epawn-destroyhavokshape",
+    "offset": 2614320,
+    "size": 44,
+    "rebuilt_symbol": "@exec_Echelon_EPawn_DestroyHavokShape@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EPawn_DestroyHavokShape at RVA 0x27e430; callback cell and name are evidenced by the verified register-native-echelon-epawn-destroyhavokshape CRT entry at RVA 0x7aa670. Consumes the argument terminator and optional debug token. This body has no further game action. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
+      "inputs_sha256": "ef9ad6e8bcace8041290f13b4c3665c3b745bee8633376f603825af943045a1d"
+    }
+  },
+  {
+    "id": "game-echelon-epawn-stopmouthmotion",
+    "offset": 2617328,
+    "size": 49,
+    "rebuilt_symbol": "@exec_Echelon_EPawn_StopMouthMotion@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EPawn_StopMouthMotion at RVA 0x27eff0; callback cell and name are evidenced by the verified register-native-echelon-epawn-stopmouthmotion CRT entry at RVA 0x7aa2b0. Dispatches vtable slot 202 on its receiver. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3a593b69f0cb4afe89f8600bfb16cef7ed7c3dde533eef6fce07a52562f5b4db",
+      "inputs_sha256": "8ecd5d57dfe76e819fe3eb761913aa11d6889bf0bdc576fa1acdead6d200ace4"
+    }
+  }
+]

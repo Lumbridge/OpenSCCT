@@ -1,0 +1,1476 @@
+[
+  {
+    "id": "placement-uenavmesh",
+    "offset": 1488944,
+    "size": 14,
+    "rebuilt_symbol": "_place_UENavMesh",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UENavMesh@4": {
+        "va": 279358464,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UENavMesh class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UENavMesh class factory at RVA 0x16b840. The callback at RVA 0x16b830 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "aff9f4db9a15d740c5da527e39df07e85bb2b63350ade75b55488bfba5c05bd5",
+      "inputs_sha256": "6ac1129e593feefc8a84622e8575979cfe943ad3d08235606dabd557573e229d"
+    }
+  },
+  {
+    "id": "class-factory-uenavmesh",
+    "offset": 1488960,
+    "size": 105,
+    "rebuilt_symbol": "_create_UENavMesh",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UENavMesh": {
+        "va": 286095568,
+        "basis": "Retail UTF-16 UENavMesh allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UENavMesh": {
+        "va": 279361584,
+        "basis": "Placement callback passed to the native descriptor constructor for UENavMesh."
+      },
+      "@static_init_UENavMesh@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UENavMesh."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16b840; its allocation tag and reflected class name identify UENavMesh. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "f25b66c7e5774f61fe2ee19581f56ad72bef927e5cc187593eea7232a6eeee11",
+      "inputs_sha256": "f82344e17c0b843647528bfb4578cd99368f223db8a16b84359d599210ac988c"
+    }
+  },
+  {
+    "id": "class-registration-umeshinstance",
+    "offset": 1489200,
+    "size": 264,
+    "rebuilt_symbol": "_register_UMeshInstance",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UMeshInstance": {
+        "va": 287286488,
+        "basis": "The UMeshInstance class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UPrimitive": {
+        "va": 287268812,
+        "basis": "The UPrimitive class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UPrimitive": {
+        "va": 278344544,
+        "basis": "The constructor names UPrimitive using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UPrimitive": {
+        "va": 278341120,
+        "basis": "Registration target reached after the UPrimitive constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UMeshInstance at RVA 0x16b930, called immediately after the class factory at RVA 0x16bd10 in the singleton initialization path. Sets superclass UPrimitive, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "79dc9599f2b0415b91a7ba9a130ae7b88273d0507f3af660711e1cef9167b36f",
+      "inputs_sha256": "7627e07c4c132b07b96815c3cc060c6dfbb09b8526fc882f85d57d30882b9963"
+    }
+  },
+  {
+    "id": "class-registration-umesh",
+    "offset": 1489520,
+    "size": 264,
+    "rebuilt_symbol": "_register_UMesh",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UMesh": {
+        "va": 287286492,
+        "basis": "The UMesh class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UPrimitive": {
+        "va": 287268812,
+        "basis": "The UPrimitive class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UPrimitive": {
+        "va": 278344544,
+        "basis": "The constructor names UPrimitive using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UPrimitive": {
+        "va": 278341120,
+        "basis": "Registration target reached after the UPrimitive constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UMesh at RVA 0x16ba70, called immediately after the class factory at RVA 0x16bd80 in the singleton initialization path. Sets superclass UPrimitive, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "34e3575cd8a5e7124dd34703451ee29eb7cc42244197f9e40341dd695e6de448",
+      "inputs_sha256": "0aff063bb2ca5fd282b9fb4eb78cb170e293a1c801f1a7300e8d6b97d81c707d"
+    }
+  },
+  {
+    "id": "placement-umeshinstance",
+    "offset": 1490160,
+    "size": 24,
+    "rebuilt_symbol": "_place_UMeshInstance",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_UMeshInstance@4": {
+        "va": 278344368,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UMeshInstance class descriptor."
+      },
+      "_vtable_UMeshInstance": {
+        "va": 286061960,
+        "basis": "Class-specific table installed after base initialization in the named UMeshInstance descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UMeshInstance class factory at RVA 0x16bd10. The callback at RVA 0x16bcf0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "a5a27955a2eef1a632134bdc4b7786fb4bfbd6a950935010756512fdd46ec012",
+      "inputs_sha256": "d367998b6089f1effe8f9da024b934c93e9d75befe33fccf2d6eaa9ab61b18bb"
+    }
+  },
+  {
+    "id": "class-factory-umeshinstance",
+    "offset": 1490192,
+    "size": 102,
+    "rebuilt_symbol": "_create_UMeshInstance",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UMeshInstance": {
+        "va": 286095588,
+        "basis": "Retail UTF-16 UMeshInstance allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UMeshInstance": {
+        "va": 279362800,
+        "basis": "Placement callback passed to the native descriptor constructor for UMeshInstance."
+      },
+      "@static_init_UMeshInstance@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UMeshInstance."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16bd10; its allocation tag and reflected class name identify UMeshInstance. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "b86275d47ce91fb1a4e847ff5cde2d49e53a79e4d7b020d4abc9c93c14784f5c",
+      "inputs_sha256": "cf320b26ed8a563f0225cfe2919ef5360da4908e9a5224774d564c9d814f6af0"
+    }
+  },
+  {
+    "id": "class-factory-umesh",
+    "offset": 1490304,
+    "size": 106,
+    "rebuilt_symbol": "_create_UMesh",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UMesh": {
+        "va": 286095616,
+        "basis": "Retail UTF-16 UMesh allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UMesh": {
+        "va": 279362752,
+        "basis": "Placement callback passed to the native descriptor constructor for UMesh."
+      },
+      "@static_init_UMesh@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UMesh."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16bd80; its allocation tag and reflected class name identify UMesh. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "c9c90318aad0f1911c8d4f83c9dda68685da79abc6fc7ece38aff6040b280d27",
+      "inputs_sha256": "0ca4d02d9c61d3072b75ddce0fad5f06919332837ac00c230f8144e39d98aed8"
+    }
+  },
+  {
+    "id": "class-registration-ulodmeshinstance",
+    "offset": 1491728,
+    "size": 264,
+    "rebuilt_symbol": "_register_ULodMeshInstance",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_ULodMeshInstance": {
+        "va": 287286496,
+        "basis": "The ULodMeshInstance class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UMeshInstance": {
+        "va": 287286488,
+        "basis": "The UMeshInstance class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UMeshInstance": {
+        "va": 279362832,
+        "basis": "The constructor names UMeshInstance using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UMeshInstance": {
+        "va": 279361840,
+        "basis": "Registration target reached after the UMeshInstance constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ULodMeshInstance at RVA 0x16c310, called immediately after the class factory at RVA 0x16cb60 in the singleton initialization path. Sets superclass UMeshInstance, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "6e1e9585ea0539cf349d081c8e46dbd7e8722e5a523a0cb250702b2e6df60f3d",
+      "inputs_sha256": "c81df3cfbf33f5474cfcad3297f530fe844fac3b861fc874a02fdbba726f0d94"
+    }
+  },
+  {
+    "id": "class-registration-ulodmesh",
+    "offset": 1492000,
+    "size": 264,
+    "rebuilt_symbol": "_register_ULodMesh",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_ULodMesh": {
+        "va": 287286500,
+        "basis": "The ULodMesh class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UMesh": {
+        "va": 287286492,
+        "basis": "The UMesh class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UMesh": {
+        "va": 279362944,
+        "basis": "The constructor names UMesh using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UMesh": {
+        "va": 279362160,
+        "basis": "Registration target reached after the UMesh constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ULodMesh at RVA 0x16c420, called immediately after the class factory at RVA 0x16d530 in the singleton initialization path. Sets superclass UMesh, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "73f46eaba11300e63e87044eb59b05fa8cbf39fe3892dd5504af6a0e7ac9d93b",
+      "inputs_sha256": "c7f0d07204d3349c35349ff050375cb54be68375b0e038da202c46e47e2a335b"
+    }
+  },
+  {
+    "id": "placement-ulodmeshinstance",
+    "offset": 1493824,
+    "size": 24,
+    "rebuilt_symbol": "_place_ULodMeshInstance",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_ULodMeshInstance@4": {
+        "va": 278344368,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ULodMeshInstance class descriptor."
+      },
+      "_vtable_ULodMeshInstance": {
+        "va": 286062280,
+        "basis": "Class-specific table installed after base initialization in the named ULodMeshInstance descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the ULodMeshInstance class factory at RVA 0x16cb60. The callback at RVA 0x16cb40 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "e344a1cadef37796892daeb42183c3ae7e8b5407e7289545be094fc75455d9ae",
+      "inputs_sha256": "16c7dcf14ca62451f8257bf4ab4ecd366d80dd616fe59cd631e0b05c16fb353a"
+    }
+  },
+  {
+    "id": "class-factory-ulodmeshinstance",
+    "offset": 1493856,
+    "size": 103,
+    "rebuilt_symbol": "_create_ULodMeshInstance",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_ULodMeshInstance": {
+        "va": 286095628,
+        "basis": "Retail UTF-16 ULodMeshInstance allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_ULodMeshInstance": {
+        "va": 279366464,
+        "basis": "Placement callback passed to the native descriptor constructor for ULodMeshInstance."
+      },
+      "@static_init_ULodMeshInstance@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for ULodMeshInstance."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16cb60; its allocation tag and reflected class name identify ULodMeshInstance. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "fd6272d12f01741e63a66b5f6851cabeab3d2251c2272e5010714b3878d61f19",
+      "inputs_sha256": "3b5ef2edde11a718ea1a919d8c2e48c02cfc43d8ca2aa786707a386f5bdd350c"
+    }
+  },
+  {
+    "id": "placement-ulodmesh",
+    "offset": 1496352,
+    "size": 14,
+    "rebuilt_symbol": "_place_ULodMesh",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_ULodMesh@4": {
+        "va": 278867952,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ULodMesh class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the ULodMesh class factory at RVA 0x16d530. The callback at RVA 0x16d520 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "72102c6b98d716d355ff19189000e628a27ead91a6fce30642e905282835ed4b",
+      "inputs_sha256": "4c9ca867cad2eaa89eefea18cdad1e03c41ed4584359c28150645470453417ec"
+    }
+  },
+  {
+    "id": "class-factory-ulodmesh",
+    "offset": 1496368,
+    "size": 106,
+    "rebuilt_symbol": "_create_ULodMesh",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_ULodMesh": {
+        "va": 286095664,
+        "basis": "Retail UTF-16 ULodMesh allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_ULodMesh": {
+        "va": 279368992,
+        "basis": "Placement callback passed to the native descriptor constructor for ULodMesh."
+      },
+      "@static_init_ULodMesh@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for ULodMesh."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16d530; its allocation tag and reflected class name identify ULodMesh. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "0e637d43532188547050f847ed085dcabfabcf762fde19746acc516fcf2ff4ed",
+      "inputs_sha256": "ff5e95faa62498774ceaecc223f191a14f842524061e8a7c0c2d60b9e8405532"
+    }
+  },
+  {
+    "id": "class-registration-usound",
+    "offset": 1496592,
+    "size": 264,
+    "rebuilt_symbol": "_register_USound",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_USound": {
+        "va": 287286508,
+        "basis": "The USound class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USound at RVA 0x16d610, called immediately after the class factory at RVA 0x16dc60 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "8d0c6c97f21ee5992fef019725d725f95dbad2eaba1bded3ff7ab78f28db936a",
+      "inputs_sha256": "203d616c8ded2d44761183b7d52e2ba2790ad5bd1b0972137b4d65b11bfc00db"
+    }
+  },
+  {
+    "id": "class-factory-uaudiosubsystem",
+    "offset": 1496864,
+    "size": 103,
+    "rebuilt_symbol": "_create_UAudioSubsystem",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UAudioSubsystem": {
+        "va": 286095684,
+        "basis": "Retail UTF-16 UAudioSubsystem allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UAudioSubsystem": {
+        "va": 278298224,
+        "basis": "Placement callback passed to the native descriptor constructor for UAudioSubsystem."
+      },
+      "@static_init_UAudioSubsystem@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UAudioSubsystem."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16d720; its allocation tag and reflected class name identify UAudioSubsystem. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "19212ce336fa0f4d5d9d6441b775bc1cf000cc5ee2a8aac74dda3282cede9fe7",
+      "inputs_sha256": "0273d2ca07942354fda0438ef9b3e5f2c22cc74ef43ed57c442c1079f54b2ecd"
+    }
+  },
+  {
+    "id": "class-registration-uaudiosubsystem",
+    "offset": 1496976,
+    "size": 264,
+    "rebuilt_symbol": "_register_UAudioSubsystem",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UAudioSubsystem": {
+        "va": 287286512,
+        "basis": "The UAudioSubsystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_USubsystem": {
+        "va": 288432228,
+        "basis": "The USubsystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_USubsystem": {
+        "va": 281903680,
+        "basis": "The constructor names USubsystem using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_USubsystem": {
+        "va": 281909168,
+        "basis": "Registration target reached after the USubsystem constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UAudioSubsystem at RVA 0x16d790, called immediately after the class factory at RVA 0x16d720 in the singleton initialization path. Sets superclass USubsystem, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "28680d50c68f844ec45f95c3ccb2bb0caa5905439ea2a1b8a2efe45115d39edc",
+      "inputs_sha256": "b0c4c17152d60b72e4ea9c2bb5ca1ef751cf19e6fcec3a7474ecdd2c70327a2b"
+    }
+  },
+  {
+    "id": "delete-usound",
+    "offset": 1497472,
+    "size": 54,
+    "inputs": [
+      "src/campaign_member_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_USound@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_member_destruction.obj src/campaign_member_destruction.c",
+    "identification": "Stock USound UClass factory at RVA 0x16dc60 references the placement constructor at RVA 0x16dc20. Its vtable at RVA 0x7d7968 points to this complete function in slot 3. The function destroys the member at offset 0x44, then the base, and conditionally frees the whole object.",
+    "link_bindings": {
+      "_vtable_USound": {
+        "va": 286095720,
+        "basis": "The placement constructor at RVA 0x16dc20 installs this vtable at RVA 0x16dc33."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_member_USound@4": {
+        "va": 277920368,
+        "basis": "Direct call with this pointing to the embedded member at offset 0x44."
+      },
+      "@destroy_base_USound@4": {
+        "va": 281920608,
+        "basis": "The next direct destruction call restores the original receiver before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator on the conditional release path. Its slot 2 receives the original object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1b0c207948adb13b665d41516f869cdc7c9ea7ccab843d01ecf91544b4c731b0",
+      "inputs_sha256": "258ad9cebe1c8466b622fd53d0f660eb143dc56a2a194dba5dd0a1a8a01ebea0"
+    }
+  },
+  {
+    "id": "class-factory-usound",
+    "offset": 1498208,
+    "size": 106,
+    "rebuilt_symbol": "_create_USound",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USound": {
+        "va": 286095836,
+        "basis": "Retail UTF-16 USound allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USound": {
+        "va": 279370784,
+        "basis": "Placement callback passed to the native descriptor constructor for USound."
+      },
+      "@static_init_USound@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for USound."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16dc60; its allocation tag and reflected class name identify USound. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "386adb30783d2127fc04ea25caf15bd79c08a15640b91c142a8ce31a1086af4f",
+      "inputs_sha256": "5301a45192f509b3fbd13cf5fe074147f768886ab5e28d6e7310e95fc5c33ede"
+    }
+  },
+  {
+    "id": "class-registration-uterrainsector",
+    "offset": 1500256,
+    "size": 264,
+    "rebuilt_symbol": "_register_UTerrainSector",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UTerrainSector": {
+        "va": 287286516,
+        "basis": "The UTerrainSector class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UTerrainSector at RVA 0x16e460, called immediately after the class factory at RVA 0x170960 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "49f11317752c148db014858b530544a5a0b0495bcb883d39ca588769ef10bd9a",
+      "inputs_sha256": "1b60c01edcea973f2e595e4ac4a943b845467f962488212c1162f9e84b953942"
+    }
+  },
+  {
+    "id": "class-registration-uterrainprimitive",
+    "offset": 1500592,
+    "size": 264,
+    "rebuilt_symbol": "_register_UTerrainPrimitive",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UTerrainPrimitive": {
+        "va": 287286520,
+        "basis": "The UTerrainPrimitive class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UPrimitive": {
+        "va": 287268812,
+        "basis": "The UPrimitive class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UPrimitive": {
+        "va": 278344544,
+        "basis": "The constructor names UPrimitive using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UPrimitive": {
+        "va": 278341120,
+        "basis": "Registration target reached after the UPrimitive constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UTerrainPrimitive at RVA 0x16e5b0, called immediately after the class factory at RVA 0x16f560 in the singleton initialization path. Sets superclass UPrimitive, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "216a1b7da4165ce9d2ff202893a094ac5b985ffc5c8baca6531b57cc06b549f9",
+      "inputs_sha256": "a15c7663fee88388daf6d36f45e2c06f0411c601cf5d7a3c5351fdf027129327"
+    }
+  },
+  {
+    "id": "class-registration-aterraininfo",
+    "offset": 1501264,
+    "size": 264,
+    "rebuilt_symbol": "_register_ATerrainInfo",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_ATerrainInfo": {
+        "va": 287286528,
+        "basis": "The ATerrainInfo class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AInfo": {
+        "va": 287271128,
+        "basis": "The AInfo class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AInfo": {
+        "va": 278490352,
+        "basis": "The constructor names AInfo using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AInfo": {
+        "va": 278493616,
+        "basis": "Registration target reached after the AInfo constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ATerrainInfo at RVA 0x16e850, called immediately after the class factory at RVA 0x170db0 in the singleton initialization path. Sets superclass AInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "92d4e29a5e3f96fc094e68b97e8f5d530fd3fbc21ec77798ee5967f46b19b40d",
+      "inputs_sha256": "cbc46f25c5f912ae46f306dde15a0214214dd7b9d1f37956c175a5340f3b1c5d"
+    }
+  },
+  {
+    "id": "delete-uterrainprimitive",
+    "offset": 1501648,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UTerrainPrimitive@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UTerrainPrimitive UClass factory at RVA 0x16f560 references the named placement constructor at RVA 0x16f040. That constructor installs the vtable at RVA 0x7d7ac8, whose slot 3 points to this deleting destructor at RVA 0x16e9d0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UTerrainPrimitive": {
+        "va": 286096072,
+        "basis": "The placement constructor at RVA 0x16f040 installs this same vtable at RVA 0x16f050."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UTerrainPrimitive@4": {
+        "va": 278344880,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a9cde935e3d2d6b03e7cb63054953b66e577e2a438f64418b1f326b2eb03f69d",
+      "inputs_sha256": "602ad06bc7c96709abb556c83b67888aa1623b181db42cfb31c4ab19af58ae0e"
+    }
+  },
+  {
+    "id": "array-remove-16ead0",
+    "size": 138,
+    "offset": 1501904,
+    "rebuilt_symbol": "@array_remove_r16ead0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16ead0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x16f62b, 0x170851. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "b5179d731a73c765105c410a4432e212ef3e996ce538566888bc996fae603042",
+      "inputs_sha256": "54ef01ca0a08f1275373d814482fa57fb729e37f70b3438dfb470b6deb064e09"
+    }
+  },
+  {
+    "id": "array-remove-16eb60",
+    "size": 138,
+    "offset": 1502048,
+    "rebuilt_symbol": "@array_remove_r16eb60@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16eb60, including RET. Incoming transfer decoded within analyzed function code at RVA 0x16f66b, 0x16f78b, 0x1701eb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "51c9f8eaf1b36b3f041b97670924ea28cb587235a179f5533cb6c0d1127ee2ea",
+      "inputs_sha256": "24de79df0bf9a0e7408f03528361f795f3c529cfc45ff3971614892d9056925f"
+    }
+  },
+  {
+    "id": "array-remove-16ed70",
+    "size": 138,
+    "offset": 1502576,
+    "rebuilt_symbol": "@array_remove_r16ed70@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16ed70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x17035e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "96bcd3d5e9d3685543cb43d10dd2a26c83400f5131c3fa78b44a1cbd57ffa39a",
+      "inputs_sha256": "6b018b6e864f3a9b037008e05762a4b446e51b182b0c8ce099caa8fb94289bce"
+    }
+  },
+  {
+    "id": "placement-uterrainprimitive",
+    "offset": 1503296,
+    "size": 24,
+    "rebuilt_symbol": "_place_UTerrainPrimitive",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_UTerrainPrimitive@4": {
+        "va": 278344368,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UTerrainPrimitive class descriptor."
+      },
+      "_vtable_UTerrainPrimitive": {
+        "va": 286096072,
+        "basis": "Class-specific table installed after base initialization in the named UTerrainPrimitive descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UTerrainPrimitive class factory at RVA 0x16f560. The callback at RVA 0x16f040 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "0d0d52a4a99d3fb4b8ec193770d274ed8909696a726bab26f295015346ed67f3",
+      "inputs_sha256": "4d87e5c62e81dfda16596444345f84f09f07ae5b7c77c4821f4330c56fd8fbed"
+    }
+  },
+  {
+    "id": "array-remove-16f0e0",
+    "size": 138,
+    "offset": 1503456,
+    "rebuilt_symbol": "@array_remove_r16f0e0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f0e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x17041d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "a5035d38e26f3b8f7570fd5078248adabcb981cfe932a770c5481409a9b11f05",
+      "inputs_sha256": "847f4b044723ce9e660895b83da14adfaaa18ae38d125e02196e4ff6f9ebf3b0"
+    }
+  },
+  {
+    "id": "array-remove-16f170",
+    "size": 138,
+    "offset": 1503600,
+    "rebuilt_symbol": "@array_remove_r16f170@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f170, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1701cc. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "6debd1c126b852f1c16db47059eb26e96a5efdec02d224065d7bdf1c4a6a175f",
+      "inputs_sha256": "bcbbcc17e9cb58772a79a03ad4911cd8f0ba62d72783b7647ad020a7333c49f9"
+    }
+  },
+  {
+    "id": "array-remove-16f200",
+    "size": 138,
+    "offset": 1503744,
+    "rebuilt_symbol": "@array_remove_r16f200@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f200, including RET. Incoming transfer decoded within analyzed function code at RVA 0x17049c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "7bba46799b8b17d1a2d041abafba122c434a422e187b4c388da50b7409843c3a",
+      "inputs_sha256": "c6c80da611662117dc31883f545cb3264ca3053a127c4f3ee6033b366bdc100e"
+    }
+  },
+  {
+    "id": "array-remove-16f290",
+    "size": 138,
+    "offset": 1503888,
+    "rebuilt_symbol": "@array_remove_r16f290@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f290, including RET. Incoming transfer decoded within analyzed function code at RVA 0x17006b, 0x170d7a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "acf6fbb4c7099f5a24f782405079d65ef3238110aa4a4ccf4bc13ae2c3c06f97",
+      "inputs_sha256": "e8afa08f440948ad5fc0a3e61eb65de6426d972ec6729553f7d16d013992735c"
+    }
+  },
+  {
+    "id": "array-remove-16f320",
+    "size": 138,
+    "offset": 1504032,
+    "rebuilt_symbol": "@array_remove_r16f320@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f320, including RET. Incoming transfer decoded within analyzed function code at RVA 0x170949. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "a02950f1cc9bcf74bc34eaa3ff64895dc3f6a2b436afee644b9bea563587f1c0",
+      "inputs_sha256": "9d2e560e7bdf50ce2fa2a9f4bbba6026b695e7b94336d09d90972521d6fa73b6"
+    }
+  },
+  {
+    "id": "array-remove-16f3b0",
+    "size": 138,
+    "offset": 1504176,
+    "rebuilt_symbol": "@array_remove_r16f3b0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f3b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1700ab, 0x170d1a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "8da6a82e2a166b09f46a87318faec6370c9ff3ff13e5f558d27b99ed7e91e537",
+      "inputs_sha256": "d633e54371839b43ae7e004e2c41f25364e506d308d4f83878ca4cb6c36fdc50"
+    }
+  },
+  {
+    "id": "array-remove-16f440",
+    "size": 138,
+    "offset": 1504320,
+    "rebuilt_symbol": "@array_remove_r16f440@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f440, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1700eb, 0x170cb8. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "7267d0db59984bce997f7a0b95856e0fb913be6ab5565acdd0ff6ddbeb02769e",
+      "inputs_sha256": "59ad193d7d067d3106df3fd3f95cc895b72c6e906486ab1e73f5e6d167cdbcae"
+    }
+  },
+  {
+    "id": "array-remove-16f4d0",
+    "size": 138,
+    "offset": 1504464,
+    "rebuilt_symbol": "@array_remove_r16f4d0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x16f4d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x17012b, 0x170c87. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "bbbeba33596afac1fc2cb4a2223888ee18ca7b93891d3de08f1a316dea2f234f",
+      "inputs_sha256": "ff79ecdcbcc02d6c8ee7050dbfb29e782c10fab5985bc67301b6de40bea753aa"
+    }
+  },
+  {
+    "id": "class-factory-uterrainprimitive",
+    "offset": 1504608,
+    "size": 102,
+    "rebuilt_symbol": "_create_UTerrainPrimitive",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UTerrainPrimitive": {
+        "va": 286096248,
+        "basis": "Retail UTF-16 UTerrainPrimitive allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UTerrainPrimitive": {
+        "va": 279375936,
+        "basis": "Placement callback passed to the native descriptor constructor for UTerrainPrimitive."
+      },
+      "@static_init_UTerrainPrimitive@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UTerrainPrimitive."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x16f560; its allocation tag and reflected class name identify UTerrainPrimitive. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "37967965d021db38e2b66bf44aa2707bb5caf1e1b46b308c4e063032e3b74d42",
+      "inputs_sha256": "7e83bed856943ac29fb543c2973f6faa14b64a7f9a7b97872aa0984da7b8dd49"
+    }
+  }
+]

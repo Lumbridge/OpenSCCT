@@ -1,0 +1,1823 @@
+[
+  {
+    "id": "class-registration-usystem",
+    "offset": 4003008,
+    "size": 264,
+    "rebuilt_symbol": "_register_USystem",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_USystem": {
+        "va": 288190820,
+        "basis": "The USystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_USubsystem": {
+        "va": 288432228,
+        "basis": "The USubsystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_USubsystem": {
+        "va": 281903680,
+        "basis": "The constructor names USubsystem using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_USubsystem": {
+        "va": 281909168,
+        "basis": "Registration target reached after the USubsystem constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USystem at RVA 0x3d14c0, called immediately after the class factory at RVA 0x3d3780 in the singleton initialization path. Sets superclass USubsystem, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "5fb28f8c05a1218c705467bc7011ec26781819dc5b738afb2179ce1365ff84da",
+      "inputs_sha256": "ee5d96688d9355ef2cb95574d282b736a0f8a2d1bfb6ee4620a62baa1a48ffa0"
+    }
+  },
+  {
+    "id": "delete-usystem",
+    "offset": 4010560,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_USystem@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock USystem vtable at RVA 0x831108, slot 3, points to entry RVA 0x3d3240. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x3d3780 references the placement constructor at RVA 0x3d3750, which installs this vtable at RVA 0x3d3767.",
+    "link_bindings": {
+      "@destroy_USystem@4": {
+        "va": 281883248,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3d3270."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "d61460e6d30f27c3e17267a6bf56962479e96e35a8080acbfb84f5262bfebc6c"
+    }
+  },
+  {
+    "id": "class-factory-usystem",
+    "offset": 4011904,
+    "size": 106,
+    "rebuilt_symbol": "_create_USystem",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USystem": {
+        "va": 286462336,
+        "basis": "Retail UTF-16 USystem allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USystem": {
+        "va": 281884496,
+        "basis": "Placement callback passed to the native descriptor constructor for USystem."
+      },
+      "@static_init_USystem@4": {
+        "va": 281874656,
+        "basis": "Static class callback passed together with the placement callback for USystem."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3d3780; its allocation tag and reflected class name identify USystem. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "470f3b44ae3740b3dfb43d83f693649557de5d624ed149e853d2b7b4ea078d5d",
+      "inputs_sha256": "c5379fa2eb8c148453187d0b795847b669f8623e7a422e03de253e83b6806413"
+    }
+  },
+  {
+    "id": "class-singleton-usystem",
+    "offset": 4012016,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_USystem",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_USystem": {
+        "va": 288190820,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_USystem": {
+        "va": 281884544,
+        "basis": "The constructor passes both the UTF-16 USystem allocation tag and System class name to the engine."
+      },
+      "_register_USystem": {
+        "va": 281875648,
+        "basis": "Direct registration call after initializing the singleton for USystem."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d37f0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3d3780 names USystem. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "34a558ce234909af63ad3605e9d8059f77645ea750c2d2b97f7536c4da2dcb11",
+      "inputs_sha256": "6a71eed68e20f194d202880f74f2ce27ef9f93a61c3f145f7b3ec53d77bb735d"
+    }
+  },
+  {
+    "id": "array-remove-3d4490",
+    "size": 138,
+    "offset": 4015248,
+    "rebuilt_symbol": "@array_remove_r3d4490@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_831360": {
+        "va": 286462816,
+        "basis": "UTF-16 allocation label 'FArray::FNameEntry*' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3d4490, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3d6a7b, 0x7b365f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "76e7b36979de535589833bbcf521fd64677affe3f9fa53984a7384965f64ac47",
+      "inputs_sha256": "cea463c32edfb7bfd685ad95d3b8e5ad58781998a87901e7debe5367d8236303"
+    }
+  },
+  {
+    "id": "class-singleton-ufield",
+    "offset": 4026048,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UField",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UField": {
+        "va": 288432352,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UField": {
+        "va": 281961584,
+        "basis": "The constructor passes both the UTF-16 UField allocation tag and Field class name to the engine."
+      },
+      "_register_UField": {
+        "va": 281952960,
+        "basis": "Direct registration call after initializing the singleton for UField."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d6ec0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3e6470 names UField. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "2134402dd378ece60486229ec3e08e75715adb47e9313a8fac9fcc2a780bc2aa",
+      "inputs_sha256": "dd647f396ec2e430afb939894d6b167ba6d02c52ceb5d07102606439959c7b60"
+    }
+  },
+  {
+    "id": "class-singleton-ufunction",
+    "offset": 4026112,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UFunction",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UFunction": {
+        "va": 288432368,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UFunction": {
+        "va": 281962032,
+        "basis": "The constructor passes both the UTF-16 UFunction allocation tag and Function class name to the engine."
+      },
+      "_register_UFunction": {
+        "va": 281966080,
+        "basis": "Direct registration call after initializing the singleton for UFunction."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d6f00, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3e6630 names UFunction. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "fa564271b69966a0ed47e3989df9b84da9f3c2f5fe4aa652dc348989c7de95b7",
+      "inputs_sha256": "8f6ba9b79f76965468e25cbb92be5945cda63d809b8ab0ffc2501d5b804beae4"
+    }
+  },
+  {
+    "id": "class-singleton-ustate",
+    "offset": 4026160,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UState",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UState": {
+        "va": 288432360,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UState": {
+        "va": 281961808,
+        "basis": "The constructor passes both the UTF-16 UState allocation tag and State class name to the engine."
+      },
+      "_register_UState": {
+        "va": 281963424,
+        "basis": "Direct registration call after initializing the singleton for UState."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d6f30, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3e6550 names UState. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "b4059010a591069cc772e250e01225336264b7fc054ed02f215e0e9fd906deee",
+      "inputs_sha256": "39438605378eb4c788318b65deee6df106b1ed320cb93c78f5e5f66de5de2c25"
+    }
+  },
+  {
+    "id": "class-singleton-uconst",
+    "offset": 4026400,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UConst",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UConst": {
+        "va": 288432372,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UConst": {
+        "va": 281962144,
+        "basis": "The constructor passes both the UTF-16 UConst allocation tag and Const class name to the engine."
+      },
+      "_register_UConst": {
+        "va": 281966352,
+        "basis": "Direct registration call after initializing the singleton for UConst."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d7020, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3e66a0 names UConst. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "68d0f18c85792c7b4be4a5359e96c1ffbd81b962b558052467223341bf27349c",
+      "inputs_sha256": "c0a2346ce32b26f84a00bf45fd5ab748e94c3d34fcbe966aad5f5196fa630090"
+    }
+  },
+  {
+    "id": "class-singleton-uclassproperty",
+    "offset": 4026496,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UClassProperty",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UClassProperty": {
+        "va": 288432920,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UClassProperty": {
+        "va": 281986832,
+        "basis": "The constructor passes both the UTF-16 UClassProperty allocation tag and ClassProperty class name to the engine."
+      },
+      "_register_UClassProperty": {
+        "va": 281990704,
+        "basis": "Direct registration call after initializing the singleton for UClassProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d7080, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3ec710 names UClassProperty. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "1b695881552a4a481c1689269af72af670564dc47e812af75f4f01686c7cdfe6",
+      "inputs_sha256": "76cb91ff07ddd0247b541b6e8720a7b68afdb843eb316d0f03c62aa4c346e729"
+    }
+  },
+  {
+    "id": "class-registration-uenum",
+    "offset": 4026544,
+    "size": 264,
+    "rebuilt_symbol": "_register_UEnum",
+    "inputs": [
+      "src/campaign_core_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_2.obj src/campaign_core_registration_2.c",
+    "link_bindings": {
+      "_class_UEnum": {
+        "va": 288432212,
+        "basis": "The UEnum class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UField": {
+        "va": 288432352,
+        "basis": "The UField class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UField": {
+        "va": 281961584,
+        "basis": "The constructor names UField using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UField": {
+        "va": 281952960,
+        "basis": "Registration target reached after the UField constructor initializes the singleton."
+      },
+      "_class_UStruct": {
+        "va": 288432356,
+        "basis": "The UStruct class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UStruct": {
+        "va": 281961696,
+        "basis": "The constructor names UStruct using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UStruct": {
+        "va": 281962480,
+        "basis": "Registration target reached after the UStruct constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for UEnum at RVA 0x3d70b0, called immediately after the class factory at RVA 0x3dce20 in the singleton initialization path. Sets superclass UField, within-class UStruct, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "2aa83ce436331f352c3ff3c8e3e376c6f288536eb97fc93b948971d89a36480a",
+      "inputs_sha256": "0e0e54268688643d7fa905905043206cd648e6bfcc1ea569282cb81a23a2855e"
+    }
+  },
+  {
+    "id": "class-singleton-ufixedarrayproperty",
+    "offset": 4026816,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UFixedArrayProperty",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UFixedArrayProperty": {
+        "va": 288432932,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UFixedArrayProperty": {
+        "va": 281987168,
+        "basis": "The constructor passes both the UTF-16 UFixedArrayProperty allocation tag and FixedArrayProperty class name to the engine."
+      },
+      "_register_UFixedArrayProperty": {
+        "va": 281984352,
+        "basis": "Direct registration call after initializing the singleton for UFixedArrayProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d71c0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3ec860 names UFixedArrayProperty. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "e4456e8e30a19fdb844f0e9b5eb42ff50fbc2b545d32d81edc2dced04490396a",
+      "inputs_sha256": "9e95acdc95650a1e54fed55120d9b0e44880bb7ee1fb16722dc88def5b589e7a"
+    }
+  },
+  {
+    "id": "class-singleton-umapproperty",
+    "offset": 4026864,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UMapProperty",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UMapProperty": {
+        "va": 288432940,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UMapProperty": {
+        "va": 281988048,
+        "basis": "The constructor passes both the UTF-16 UMapProperty allocation tag and MapProperty class name to the engine."
+      },
+      "_register_UMapProperty": {
+        "va": 281985088,
+        "basis": "Direct registration call after initializing the singleton for UMapProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3d71f0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3ecbd0 names UMapProperty. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "a8c180e9dd776f1d5bcd8c56da8d3c45fa92f43abf5ba6de25e963461befbd5e",
+      "inputs_sha256": "2f2d7d1cdc6573d5f63b2f72f4e7da4e4a855c5b78b738d0cfa0201f1cf79413"
+    }
+  },
+  {
+    "id": "object-conditional-destroy",
+    "offset": 4028976,
+    "size": 43,
+    "rebuilt_symbol": "@conditional_destroy@4",
+    "inputs": [
+      "src/conditional_destroy.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/conditional_destroy.obj src/conditional_destroy.c",
+    "identification": "Whole contiguous function at stock RVA 0x3d7a30, with independently decoded incoming calls at 0x2ad2b, 0x2c8ab, 0x2ca49. Verifies the object index and destruction flag, updates the flag word and invokes slot 9. Both return paths match the compiled function.",
+    "match": {
+      "bytes_sha256": "d4aa6675a972d3d332741e71d229f95ebae1aa9e47496ec4c36fcd461887199d",
+      "inputs_sha256": "9dacc696102a92ca9f3412ad1c9c83b5fc2a02fd474074bc42d95f916da30ba1"
+    }
+  },
+  {
+    "id": "class-registration-uobject",
+    "offset": 4029344,
+    "size": 174,
+    "rebuilt_symbol": "_register_UObject",
+    "inputs": [
+      "src/campaign_core_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_2.obj src/campaign_core_registration_2.c",
+    "link_bindings": {
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Root UObject registration at campaign RVA 0x3d7ba0. The root has a null superclass, its within-class is itself, and its metaclass is UClass. The conditional initialization path can call the same root registration function recursively.",
+    "match": {
+      "bytes_sha256": "6a7f0c65c69fce2c7661927ff3937af9260f0078cd7f3e823e4a52ffc813930f",
+      "inputs_sha256": "476c66d078aaf004d6d2bb2122b9522a88dee0882e2a13123c4f7283d5593324"
+    }
+  },
+  {
+    "id": "class-factory-usubsystem",
+    "offset": 4031040,
+    "size": 103,
+    "rebuilt_symbol": "_create_USubsystem",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USubsystem": {
+        "va": 286467564,
+        "basis": "Retail UTF-16 USubsystem allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USubsystem": {
+        "va": 278298224,
+        "basis": "Placement callback passed to the native descriptor constructor for USubsystem."
+      },
+      "@static_init_USubsystem@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for USubsystem."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3d8240; its allocation tag and reflected class name identify USubsystem. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "c1400e715a91ff6b26d08afd43792396c8b16fd2ca5630c5535193d7c45d6dc6",
+      "inputs_sha256": "3bd91743d36955c1cb677b043744aba5d4eab31c36f67a7ae2b971035362909f"
+    }
+  },
+  {
+    "id": "class-factory-ulanguage",
+    "offset": 4031216,
+    "size": 103,
+    "rebuilt_symbol": "_create_ULanguage",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_ULanguage": {
+        "va": 286467604,
+        "basis": "Retail UTF-16 ULanguage allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_ULanguage": {
+        "va": 278298224,
+        "basis": "Placement callback passed to the native descriptor constructor for ULanguage."
+      },
+      "@static_init_ULanguage@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for ULanguage."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3d82f0; its allocation tag and reflected class name identify ULanguage. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "26eb336c71aed3d08d9efebe9eabfd39dab2363360bb5005f071c1d218e1140b",
+      "inputs_sha256": "c45e8f9489388fb46d469935c5b9c3dac10b400052a099aaef0428b89c01a7a2"
+    }
+  },
+  {
+    "id": "cast-ufunction",
+    "offset": 4033040,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UFunction",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UFunction": {
+        "va": 288432368,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UFunction": {
+        "va": 281962032,
+        "basis": "The constructor passes both the UTF-16 UFunction allocation tag and Function class name to the engine."
+      },
+      "_register_UFunction": {
+        "va": 281966080,
+        "basis": "Direct registration call after initializing the singleton for UFunction."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x3d8a10, directly called at RVA 0x3d92c0. Its class constructor at RVA 0x3e6630 identifies UFunction; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "47a55eeb3bed815672cea3eb7f81e1ae3ad55cfe36540c2664153ddeabc098d2",
+      "inputs_sha256": "9b9aa067488cc039a71d1c8af5973a01e1e36e0c8d8cfe2852cffd00f08f4f18"
+    }
+  },
+  {
+    "id": "cast-ustate",
+    "offset": 4033136,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UState",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UState": {
+        "va": 288432360,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UState": {
+        "va": 281961808,
+        "basis": "The constructor passes both the UTF-16 UState allocation tag and State class name to the engine."
+      },
+      "_register_UState": {
+        "va": 281963424,
+        "basis": "Direct registration call after initializing the singleton for UState."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x3d8a70, directly called at RVA 0x3d9326. Its class constructor at RVA 0x3e6550 identifies UState; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "08d0c6b847dc36f3ebc4d98de359741945ef16bb421a3623384d6460a83956b0",
+      "inputs_sha256": "9d65597cda7047ae97026c65a2a405fbadcb03820858fbd908f4ae06d4ea2aee"
+    }
+  },
+  {
+    "id": "cast-umapproperty",
+    "offset": 4033232,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UMapProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UMapProperty": {
+        "va": 288432940,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UMapProperty": {
+        "va": 281988048,
+        "basis": "The constructor passes both the UTF-16 UMapProperty allocation tag and MapProperty class name to the engine."
+      },
+      "_register_UMapProperty": {
+        "va": 281985088,
+        "basis": "Direct registration call after initializing the singleton for UMapProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x3d8ad0, directly called at RVA 0x3dd8fe. Its class constructor at RVA 0x3ecbd0 identifies UMapProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "c420850eaab7377b58c980ded0f54dd3f45d0bc301b5e77455356386a9fb9fae",
+      "inputs_sha256": "ab344fe46b6daf0c43597cdbe526ed909c2c6542a6a8cd11ba458225b04b8f4e"
+    }
+  },
+  {
+    "id": "cast-uclass",
+    "offset": 4033328,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UClass",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor passes both the UTF-16 UClass allocation tag and Class class name to the engine."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Direct registration call after initializing the singleton for UClass."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x3d8b30, directly called at RVA 0x3e05a0. Its class constructor at RVA 0x3e65c0 identifies UClass; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "a83cdec7e69432867247bda2b87580830f6a98a757d2c5ff0fcc854b7fa18902",
+      "inputs_sha256": "bc9b6f50acfd7d485c4a877905f623fe856935542c4b7cdadd62c71639f1f1d6"
+    }
+  },
+  {
+    "id": "class-factory-uobject",
+    "offset": 4035392,
+    "size": 103,
+    "rebuilt_symbol": "_create_UObject",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UObject": {
+        "va": 286468200,
+        "basis": "Retail UTF-16 UObject allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UObject": {
+        "va": 278298224,
+        "basis": "Placement callback passed to the native descriptor constructor for UObject."
+      },
+      "@static_init_UObject@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UObject."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3d9340; its allocation tag and reflected class name identify UObject. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "692840c91f265aad0603743fb8e8fc85d2bbe89b3ff0081726fb61422a4c91ed",
+      "inputs_sha256": "0820cc1b46cce0fe6430351980efa78f54d7bb7c171aaea754ac9ceb15cd5a76"
+    }
+  },
+  {
+    "id": "class-registration-utextbuffer",
+    "offset": 4035984,
+    "size": 264,
+    "rebuilt_symbol": "_register_UTextBuffer",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_UTextBuffer": {
+        "va": 288432208,
+        "basis": "The UTextBuffer class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for UTextBuffer at RVA 0x3d9590, called immediately after the class factory at RVA 0x3dcdb0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "f037391649bb3b954b3cbf79edffd4dda857d1e62b8712f7552d32dd43272b51",
+      "inputs_sha256": "8521e56584643bd918a9b10bc639cdcf93606bc882797029c73d929f06bd677a"
+    }
+  },
+  {
+    "id": "class-registration-ulinker",
+    "offset": 4036256,
+    "size": 264,
+    "rebuilt_symbol": "_register_ULinker",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_ULinker": {
+        "va": 288432216,
+        "basis": "The ULinker class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for ULinker at RVA 0x3d96a0, called immediately after the class factory at RVA 0x3e0750 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "061147c1455f6aeadf3baa61465ce9dead9f21b1cd9070a7c500159b814a96de",
+      "inputs_sha256": "ac0e31f6fe9021fe5373ff6a27f1ffb9888603c8f4bff20b5c36a693980e0f07"
+    }
+  },
+  {
+    "id": "class-registration-usubsystem",
+    "offset": 4036528,
+    "size": 264,
+    "rebuilt_symbol": "_register_USubsystem",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_USubsystem": {
+        "va": 288432228,
+        "basis": "The USubsystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for USubsystem at RVA 0x3d97b0, called immediately after the class factory at RVA 0x3d8240 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "360c660acaa83e333e2d1f2f84558de83803b50e7ec624229f526f32c31ee300",
+      "inputs_sha256": "c1668638da6d4007aaba6ac4809ef3ea183bf7b5e3e2b44ea84b00e51719557d"
+    }
+  },
+  {
+    "id": "class-registration-ucommandlet",
+    "offset": 4036800,
+    "size": 264,
+    "rebuilt_symbol": "_register_UCommandlet",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_UCommandlet": {
+        "va": 288432232,
+        "basis": "The UCommandlet class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for UCommandlet at RVA 0x3d98c0, called immediately after the class factory at RVA 0x3dce90 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "5fba32e19beb5c9133fe371bdcafc422d0a2369302d0fbdbf86722e14e0eef8f",
+      "inputs_sha256": "2b457037eea662c8237c5b783d4e6f2eb607ffe2cda01bf004472d459a90b081"
+    }
+  },
+  {
+    "id": "class-registration-upackage",
+    "offset": 4037104,
+    "size": 264,
+    "rebuilt_symbol": "_register_UPackage",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_UPackage": {
+        "va": 288432236,
+        "basis": "The UPackage class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for UPackage at RVA 0x3d99f0, called immediately after the class factory at RVA 0x3dcf00 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "9d89fe92b632ad2f1f13c6a3e6af8137625142ff45b114f0f194c0b2513702d3",
+      "inputs_sha256": "5ba039e8b79ca5cae3bd7354bd058579746f3b1cb02a713ab20eff07504a875c"
+    }
+  },
+  {
+    "id": "class-registration-utextbufferfactory",
+    "offset": 4037376,
+    "size": 264,
+    "rebuilt_symbol": "_register_UTextBufferFactory",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_UTextBufferFactory": {
+        "va": 288432240,
+        "basis": "The UTextBufferFactory class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UFactory": {
+        "va": 288451076,
+        "basis": "The UFactory class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UFactory": {
+        "va": 282071552,
+        "basis": "The constructor names UFactory using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UFactory": {
+        "va": 282071664,
+        "basis": "Registration target reached after the UFactory constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for UTextBufferFactory at RVA 0x3d9b00, called immediately after the class factory at RVA 0x3e08a0 in the singleton initialization path. Sets superclass UFactory, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "fd6f7ce44fdeed097e945332d64d0dad636a0c2655cad6e789ce88b7786d3055",
+      "inputs_sha256": "6d3ba4f84a937b9519ed3a84443ddb8d4632b2c4756662d027e8f1921eaeda3d"
+    }
+  },
+  {
+    "id": "class-registration-ulanguage",
+    "offset": 4037808,
+    "size": 264,
+    "rebuilt_symbol": "_register_ULanguage",
+    "inputs": [
+      "src/campaign_core_registration_3.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_core_registration_3.obj src/campaign_core_registration_3.c",
+    "link_bindings": {
+      "_class_ULanguage": {
+        "va": 288432244,
+        "basis": "The ULanguage class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_ready": {
+        "va": 288432096,
+        "basis": "Engine initialization global, read directly in these Core registrations and by the getter at RVA 0x3d6fa0."
+      }
+    },
+    "identification": "Class registration for ULanguage at RVA 0x3d9cb0, called immediately after the class factory at RVA 0x3d82f0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "12210aea5a432eb9a0b83782f81a5f0f92e935bb14276e55d59267a4168eea05",
+      "inputs_sha256": "5585041cbfcc8b54122f10287d3c8eaeacf0ab6b889f5873a9d3334460ae6d13"
+    }
+  },
+  {
+    "id": "array-remove-3da0d0",
+    "size": 138,
+    "offset": 4038864,
+    "rebuilt_symbol": "@array_remove_r3da0d0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3da0d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3dcacb, 0x3dd118, 0x3ddf38. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "c5951883d70f8e201fb2463ddfc1c72b3190b72430b0d08de3ca87bb45b4860f",
+      "inputs_sha256": "24d7e24baeb0bfdc9816166d6edb14cd5181d88362e0db37bce1678269511612"
+    }
+  },
+  {
+    "id": "array-remove-3da160",
+    "size": 138,
+    "offset": 4039008,
+    "rebuilt_symbol": "@array_remove_r3da160@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3da160, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3dd27f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "eb92dfac8e6d7cf1ca929aab78af026e46ec28744adbfa259c71937900377be3",
+      "inputs_sha256": "e967cc89c4040c178f93e2631dfa0de65168b73bfc5dd9506d2ad3eebe5bb25b"
+    }
+  },
+  {
+    "id": "array-remove-3da520",
+    "size": 138,
+    "offset": 4039968,
+    "rebuilt_symbol": "@array_remove_r3da520@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3da520, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3dcbfb, 0x3dd583, 0x3dede1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "086b4f0960f4c2b816e8e3c9864c7d47c82ae641e374478e3b74b7b77b509c08",
+      "inputs_sha256": "35229c3d14d12fc26df56c5a9cf781db0f03b4308446b8bfad4d4ec13322979f"
+    }
+  },
+  {
+    "id": "array-remove-3da5b0",
+    "size": 138,
+    "offset": 4040112,
+    "rebuilt_symbol": "@array_remove_r3da5b0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3da5b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3dcc3b, 0x3ded8b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "881716aaa08cc0d9894db32a767e7e07a1d72b8cc32efadaee00bec444785e5a",
+      "inputs_sha256": "6aaeb803052992af192256823a2fa5a9f89a0209253f2bb323802069c911e831"
+    }
+  },
+  {
+    "id": "array-remove-3da640",
+    "size": 138,
+    "offset": 4040256,
+    "rebuilt_symbol": "@array_remove_r3da640@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3da640, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3dcc7b, 0x3ded5d, 0x3e2e03. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "8d1aae676206599cb67b2039a17571388bdb6de2c5b704c421e757bd50e820c1",
+      "inputs_sha256": "d87a9ab1e9bb88bcaaef5f056e9544493676cfe1735803627ef5c38a11393b1c"
+    }
+  },
+  {
+    "id": "array-remove-3da6d0",
+    "size": 138,
+    "offset": 4040400,
+    "rebuilt_symbol": "@array_remove_r3da6d0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x3da6d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3dccbb, 0x3defea. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "92d8d335fc4e525730edde3b6f6338e09fbcb133e518593abb078c557edd7d71",
+      "inputs_sha256": "bfbaf414821c3b024ed92a8a567c61234376621d6f598a966a3bc0e9d1770224"
+    }
+  },
+  {
+    "id": "class-singleton-ulanguage",
+    "offset": 4046064,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_ULanguage",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_ULanguage": {
+        "va": 288432244,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_ULanguage": {
+        "va": 281903856,
+        "basis": "The constructor passes both the UTF-16 ULanguage allocation tag and Language class name to the engine."
+      },
+      "_register_ULanguage": {
+        "va": 281910448,
+        "basis": "Direct registration call after initializing the singleton for ULanguage."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x3dbcf0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3d82f0 names ULanguage. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "8037b239c2851888a9a2ff41aa779b5aa8666f3d62e4b496ef2bb301cb000b23",
+      "inputs_sha256": "cf46ad7cc75714ca7dedaa96f8f19fbda31f13a52ed4d59ba4c97bbeb398a394"
+    }
+  },
+  {
+    "id": "delete-uenum",
+    "offset": 4048304,
+    "size": 54,
+    "inputs": [
+      "src/campaign_member_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UEnum@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_member_destruction.obj src/campaign_member_destruction.c",
+    "identification": "Stock UEnum UClass factory at RVA 0x3dce20 references the placement constructor at RVA 0x3dcd90. Its vtable at RVA 0x832a00 points to this complete function in slot 3. The function destroys the member at offset 0x34, then the base, and conditionally frees the whole object.",
+    "link_bindings": {
+      "_vtable_UEnum": {
+        "va": 286468608,
+        "basis": "The placement constructor at RVA 0x3dcd90 installs this vtable at RVA 0x3dcd9a."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_member_UEnum@4": {
+        "va": 281912416,
+        "basis": "Direct call with this pointing to the embedded member at offset 0x34."
+      },
+      "@destroy_base_UEnum@4": {
+        "va": 278616240,
+        "basis": "The next direct destruction call restores the original receiver before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator on the conditional release path. Its slot 2 receives the original object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "458ad0f946e21d2572e1ae9b23488bd64242a827a6b3275c0785202acc071acc",
+      "inputs_sha256": "96299b4a8ca80f0c9cb9b43426a73eee78dcf76d8d53c71e3ab9dad70756154a"
+    }
+  },
+  {
+    "id": "delete-utextbuffer",
+    "offset": 4048928,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UTextBuffer@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock UTextBuffer vtable at RVA 0x832a78, slot 3, points to entry RVA 0x3dc820. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x3dcdb0 references the placement constructor at RVA 0x3dcd60, which installs this vtable at RVA 0x3dcd77.",
+    "link_bindings": {
+      "@destroy_UTextBuffer@4": {
+        "va": 281921616,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3dc850."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "030a79a9357bb690efe38221adf19155737472e057ed6e26401f52e4176c54ab"
+    }
+  },
+  {
+    "id": "delete-upackage",
+    "offset": 4049280,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UPackage@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UPackage UClass factory at RVA 0x3dcf00 references the named placement constructor at RVA 0x3dcd20. That constructor installs the vtable at RVA 0x832ad8, whose slot 3 points to this deleting destructor at RVA 0x3dc980. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UPackage": {
+        "va": 286468824,
+        "basis": "The placement constructor at RVA 0x3dcd20 installs this same vtable at RVA 0x3dcd2a."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UPackage@4": {
+        "va": 281920608,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "baba6931c74b46f7cd5b5979af6a906c659361683a5282d3e8f05c3143c9cbc3",
+      "inputs_sha256": "2c5db108e2e51e2eaa6b78332b892893b0750f614224ce57059244f24c73c83c"
+    }
+  },
+  {
+    "id": "class-factory-utextbuffer",
+    "offset": 4050352,
+    "size": 102,
+    "rebuilt_symbol": "_create_UTextBuffer",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UTextBuffer": {
+        "va": 286468920,
+        "basis": "Retail UTF-16 UTextBuffer allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UTextBuffer": {
+        "va": 281922912,
+        "basis": "Placement callback passed to the native descriptor constructor for UTextBuffer."
+      },
+      "@static_init_UTextBuffer@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UTextBuffer."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3dcdb0; its allocation tag and reflected class name identify UTextBuffer. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "d08d0124bdabe1a83c16990fbede8d2611e94455c4b6f82b5334db26b7c95438",
+      "inputs_sha256": "3dbc32565ca4ed07ddca9c9b624be9de8e470f91d4dec98550efc60bce1b06cf"
+    }
+  },
+  {
+    "id": "class-factory-uenum",
+    "offset": 4050464,
+    "size": 102,
+    "rebuilt_symbol": "_create_UEnum",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UEnum": {
+        "va": 286468944,
+        "basis": "Retail UTF-16 UEnum allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UEnum": {
+        "va": 281922960,
+        "basis": "Placement callback passed to the native descriptor constructor for UEnum."
+      },
+      "@static_init_UEnum@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UEnum."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3dce20; its allocation tag and reflected class name identify UEnum. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "7aeaa7de4232fb436681587d0bbc309463af44454021a7cb28d1a67406ac1f0e",
+      "inputs_sha256": "de325aebaca21d164f4c76a736a8dfa895a5a2d5b4ffa97f4f0e10cbac200cac"
+    }
+  },
+  {
+    "id": "class-factory-ucommandlet",
+    "offset": 4050576,
+    "size": 106,
+    "rebuilt_symbol": "_create_UCommandlet",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UCommandlet": {
+        "va": 286468956,
+        "basis": "Retail UTF-16 UCommandlet allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UCommandlet": {
+        "va": 281922896,
+        "basis": "Placement callback passed to the native descriptor constructor for UCommandlet."
+      },
+      "@static_init_UCommandlet@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UCommandlet."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3dce90; its allocation tag and reflected class name identify UCommandlet. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "b274ee71e29c848f08208ab4351377f11df82c9b1abe35478c121a3eb72780a7",
+      "inputs_sha256": "0ca00353b82adf5bc7494d3805abddfab5c2af8013a316b74bdb463fa2a35ed6"
+    }
+  },
+  {
+    "id": "class-factory-upackage",
+    "offset": 4050688,
+    "size": 102,
+    "rebuilt_symbol": "_create_UPackage",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UPackage": {
+        "va": 286468980,
+        "basis": "Retail UTF-16 UPackage allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UPackage": {
+        "va": 281922848,
+        "basis": "Placement callback passed to the native descriptor constructor for UPackage."
+      },
+      "@static_init_UPackage@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UPackage."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3dcf00; its allocation tag and reflected class name identify UPackage. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "b11322c5b3605e21476909ad55c9cf402da53a2a35a72bfd961951033e450b44",
+      "inputs_sha256": "5124d5da1db526c9c71f326a05860f19eb44133833696fc476d93f67c8edb039"
+    }
+  },
+  {
+    "id": "delete-utextbufferfactory",
+    "offset": 4062384,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UTextBufferFactory@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UTextBufferFactory UClass factory at RVA 0x3e08a0 references the named placement constructor at RVA 0x3dfdc0. That constructor installs the vtable at RVA 0x832ea0, whose slot 3 points to this deleting destructor at RVA 0x3dfcb0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UTextBufferFactory": {
+        "va": 286469792,
+        "basis": "The placement constructor at RVA 0x3dfdc0 installs this same vtable at RVA 0x3dfdd0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UTextBufferFactory@4": {
+        "va": 278297664,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0d6ce5f9d7df8759c87084f1044ca2c5cc39fb9e2de541f2c0d58f402cbabce0",
+      "inputs_sha256": "0dab261d6faaa32a6de4683c131292493fe6e087fa9403e5a8f1d413831fa20d"
+    }
+  },
+  {
+    "id": "placement-ulinker",
+    "offset": 4062544,
+    "size": 14,
+    "rebuilt_symbol": "_place_ULinker",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_ULinker@4": {
+        "va": 281931280,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ULinker class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the ULinker class factory at RVA 0x3e0750. The callback at RVA 0x3dfd50 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "9e3a2999274f649b36859e3d9e7671fee4fe3e4426cbfeb9a45f3e6831baab74",
+      "inputs_sha256": "68e7ee8446b350976e35010e50be12f5138081603bbdbab19c1f576a6bce0289"
+    }
+  },
+  {
+    "id": "placement-ulinkersave",
+    "offset": 4062640,
+    "size": 14,
+    "rebuilt_symbol": "_place_ULinkerSave",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_ULinkerSave@4": {
+        "va": 281931824,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ULinkerSave class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the ULinkerSave class factory at RVA 0x3e0830. The callback at RVA 0x3dfdb0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "a2244d715377433d77531cbb9696f5cee29dc9cb753e1abe9daf4a6beb9743c2",
+      "inputs_sha256": "70b3f4b487f5e78835c6c6548257768188ba4eacd0600b7168b23b79fba4e5d0"
+    }
+  },
+  {
+    "id": "placement-utextbufferfactory",
+    "offset": 4062656,
+    "size": 24,
+    "rebuilt_symbol": "_place_UTextBufferFactory",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_UTextBufferFactory@4": {
+        "va": 282074160,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UTextBufferFactory class descriptor."
+      },
+      "_vtable_UTextBufferFactory": {
+        "va": 286469792,
+        "basis": "Class-specific table installed after base initialization in the named UTextBufferFactory descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UTextBufferFactory class factory at RVA 0x3e08a0. The callback at RVA 0x3dfdc0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "9937ec2be2c01a2b525027e40c423c1effea99d23c92b11c62c608d56aa91428",
+      "inputs_sha256": "7ae5f3b46956f4ac4d1d7456d9c5dd364323c1ae06d76ccb78e3f016b43d898c"
+    }
+  }
+]

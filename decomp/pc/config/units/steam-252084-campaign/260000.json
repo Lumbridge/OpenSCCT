@@ -1,0 +1,260 @@
+[
+  {
+    "id": "script-parameters-isvalidcontextualaction",
+    "offset": 2516784,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_IsValidContextualAction@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsValidContextualAction": {
+        "va": 287503688,
+        "basis": "FName initialized with retail UTF-16 IsValidContextualAction (VA 0x110fae74). The FName constructor call at RVA 0x335a35 precedes the store to this slot at RVA 0x335a3e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsValidContextualAction event wrapper at RVA 0x266730, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopPlayerController.IsValidContextualAction with Bool ReturnValue at serial offset 0xa9455.",
+    "match": {
+      "bytes_sha256": "624932edfd3cea5356eaa48ee15db2d27edc283790adced027cec67371142068",
+      "inputs_sha256": "c7600a55e6a515a469ea25d1a7b8f3a72dd2f1b411b96c0d11d2fb80637e860b"
+    }
+  },
+  {
+    "id": "script-parameters-ispossiblecontextualaction",
+    "offset": 2516848,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_IsPossibleContextualAction@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsPossibleContextualAction": {
+        "va": 287503668,
+        "basis": "FName initialized with retail UTF-16 IsPossibleContextualAction (VA 0x110faf30). The FName constructor call at RVA 0x3359be precedes the store to this slot at RVA 0x3359c7."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsPossibleContextualAction event wrapper at RVA 0x266770, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopPlayerController.IsPossibleContextualAction with Bool ReturnValue at serial offset 0x5ea0a.",
+    "match": {
+      "bytes_sha256": "0f9a941a8bfb563351fbc486d5a425bc8fa047a54dcfdf3831289c309e17fd7f",
+      "inputs_sha256": "126e935b4e5c53e40d190fc76355dc3c00fee7fa37381ceb58c67e9f4104afdd"
+    }
+  },
+  {
+    "id": "cast-aehandgun",
+    "offset": 2520432,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AEHandGun",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AEHandGun": {
+        "va": 287502312,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AEHandGun": {
+        "va": 280998320,
+        "basis": "The constructor passes both the UTF-16 AEHandGun allocation tag and EHandGun class name to the engine."
+      },
+      "_register_AEHandGun": {
+        "va": 280995920,
+        "basis": "Direct registration call after initializing the singleton for AEHandGun."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x267570, directly called at RVA 0x269b56. Its class constructor at RVA 0x2fb1b0 identifies AEHandGun; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "b02d315483409933bdc3b0979a7a3a84d207469198d04ec66fd8b4570225431b",
+      "inputs_sha256": "a628104d8a940e8894da92ac450fc99fbdb3485191b9552645cd314505abbcac"
+    }
+  },
+  {
+    "id": "script-event-quitcomputer",
+    "offset": 2539296,
+    "size": 32,
+    "rebuilt_symbol": "@event_QuitComputer@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_QuitComputer": {
+        "va": 287503880,
+        "basis": "FName initialized with retail UTF-16 QuitComputer (VA 0x110fa86c). The FName constructor call at RVA 0x335ea5 precedes the store to this slot at RVA 0x335eb7."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail QuitComputer event wrapper at RVA 0x26bf20, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "905e0f6145158b4684bbb8d17af763d416160b0986e0b91eaffc2d9046bddb5a",
+      "inputs_sha256": "85ad5268f3322eec9df7560b15959f16c6d313b732dbe1e8d1fa936433f0feef"
+    }
+  },
+  {
+    "id": "array-remove-26e590",
+    "size": 138,
+    "offset": 2549136,
+    "rebuilt_symbol": "@array_remove_r26e590@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x26e590, including RET. Incoming transfer decoded within analyzed function code at RVA 0x26e96b, 0x26ec7f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "c27369606847106680c78c6ffa28afa4128b3bda44c6502b434f3f5c0cfa841f",
+      "inputs_sha256": "e78a3cd8299591dfa524999b30b4f741ba87936b89839e338a801d1aab17f343"
+    }
+  },
+  {
+    "id": "script-parameters-getcurrentzoomlevel",
+    "offset": 2551536,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetCurrentZoomLevel@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetCurrentZoomLevel": {
+        "va": 287503524,
+        "basis": "FName initialized with retail UTF-16 GetCurrentZoomLevel (VA 0x110fb350). The FName constructor call at RVA 0x33566a precedes the store to this slot at RVA 0x335673."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetCurrentZoomLevel event wrapper at RVA 0x26eef0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EMainGun.GetCurrentZoomLevel with Float ReturnValue at serial offset 0xb98a7.",
+    "match": {
+      "bytes_sha256": "ba72962ec914348b975f5f78aa610c9d8354f6f767d971cc32d999188e38cb43",
+      "inputs_sha256": "a38c9041cdecd620e7f991534dc790642ca3df94cb34d519473cc381e97382ef"
+    }
+  },
+  {
+    "id": "script-parameters-getscope",
+    "offset": 2551600,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetScope@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetScope": {
+        "va": 287503552,
+        "basis": "FName initialized with retail UTF-16 GetScope (VA 0x110fb254). The FName constructor call at RVA 0x335710 precedes the store to this slot at RVA 0x335722."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetScope event wrapper at RVA 0x26ef30, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EMainGun.GetScope with EScopeAttachment ReturnValue at serial offset 0xb9773.",
+    "match": {
+      "bytes_sha256": "7917f63d47bdffcc18ccdd5027c90c47f18455ff52713206f9418b98a49c2de6",
+      "inputs_sha256": "feed74a2627897ba5c0e8abe993fab918c07d080c0e01bae3e926bdc5a644496"
+    }
+  },
+  {
+    "id": "script-parameters-getfatiguelevel",
+    "offset": 2551680,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetFatigueLevel@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetFatigueLevel": {
+        "va": 287503528,
+        "basis": "FName initialized with retail UTF-16 GetFatigueLevel (VA 0x110fb330). The FName constructor call at RVA 0x335682 precedes the store to this slot at RVA 0x335689."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetFatigueLevel event wrapper at RVA 0x26ef80, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EScopeAttachment.GetFatigueLevel with Float ReturnValue at serial offset 0xb7909.",
+    "match": {
+      "bytes_sha256": "11cff7b887b18f88c6c7f2f892f6a77bfc2729e35cf6bff1b17d983e8d3f7f2b",
+      "inputs_sha256": "d63fd109d94e8f72349c814a015812794e0917a24558db0a7754bf214a89c357"
+    }
+  },
+  {
+    "id": "array-remove-26f460",
+    "size": 138,
+    "offset": 2552928,
+    "rebuilt_symbol": "@array_remove_r26f460@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x26f460, including RET. Incoming transfer decoded within analyzed function code at RVA 0x26f64b, 0x26f7e3, 0x279ff5. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "9ed11356970a55ced66854810fb3f4039afa276a787feb77208bb044c013b7be",
+      "inputs_sha256": "04e02ba8e77c405d7dbd0164a9efc059504dcaa00c250dfe79b305cd2e05048d"
+    }
+  }
+]

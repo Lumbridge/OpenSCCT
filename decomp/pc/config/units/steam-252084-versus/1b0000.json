@@ -1,0 +1,70 @@
+[
+  {
+    "id": "versus-interaction-count",
+    "offset": 1830128,
+    "size": 22,
+    "rebuilt_symbol": "@versus_interaction_count@16",
+    "inputs": [
+      "src/versus_interaction_queries.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_queries.obj src/versus_interaction_queries.c",
+    "identification": "Retail registration at RVA 0x18c4f6 assigns GNatives[1424] to RVA 0x1becf0. The class and function name SInteractionManager.GetNbInteractions agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "0b5dd83bf22f7ed48b9ce1a96f2fe33d0b28cc597b050e6c15301ff041576d9f",
+      "inputs_sha256": "8282f28432a13a23e62be861828e23253c0cc4f25909c05668941b6ba2764811"
+    }
+  },
+  {
+    "id": "versus-current-interaction",
+    "offset": 1830288,
+    "size": 51,
+    "rebuilt_symbol": "@versus_current_interaction@16",
+    "inputs": [
+      "src/versus_interaction_queries.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_queries.obj src/versus_interaction_queries.c",
+    "identification": "Retail registration at RVA 0x18c488 assigns GNatives[1426] to RVA 0x1bed90. The class and function name SInteractionManager.GetCurrentInteraction agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "4f6855bb4b318039c6fa2ed0e755b209b6a32fc6458eb069e4a74518c2ebf70b",
+      "inputs_sha256": "35734738fbc2aa20cd60ba2befdd0fc416c97836a22d1e798a116a614aeeb680"
+    }
+  },
+  {
+    "id": "versus-current-subinteraction",
+    "offset": 1830352,
+    "size": 22,
+    "rebuilt_symbol": "@versus_current_subinteraction@16",
+    "inputs": [
+      "src/versus_interaction_queries.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_queries.obj src/versus_interaction_queries.c",
+    "identification": "Retail registration at RVA 0x18c451 assigns GNatives[1427] to RVA 0x1bedd0. The class and function name SInteractionManager.GetCurrentSubInteraction agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "874f97d296f6fb386f397b043d60d90eb32f78278025c98b6d2c45a998f7cea8",
+      "inputs_sha256": "77c7434e65bb5fa478c489b673a204419c711408e9e55c404a4919bb9a301dfa"
+    }
+  },
+  {
+    "id": "versus-compare-interactions",
+    "offset": 1831216,
+    "size": 137,
+    "rebuilt_symbol": "@versus_compare_interactions@16",
+    "inputs": [
+      "src/versus_interaction_events.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_events.obj src/versus_interaction_events.c",
+    "identification": "Retail registration at RVA 0x18c375 assigns GNatives[1431] to RVA 0x1bf130. The class and function name SInteractionManager.CheckPriority agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "0bf20a4fdee485f504173b321fd0d330fcb057caf3d0a6117123e8590280afa0",
+      "inputs_sha256": "be6c87a385fd9746d22f6b31fbfe7a486af5d646e0f7f90df0cae3315008dae3"
+    }
+  }
+]

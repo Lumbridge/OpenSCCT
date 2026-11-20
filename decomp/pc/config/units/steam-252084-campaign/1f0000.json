@@ -1,0 +1,36 @@
+[
+  {
+    "id": "cast-uscx-reflection-material",
+    "offset": 2042512,
+    "size": 85,
+    "rebuilt_symbol": "_cast_USCX_reflection_material",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_USCX_reflection_material": {
+        "va": 287283700,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_USCX_reflection_material": {
+        "va": 279018048,
+        "basis": "The constructor passes both the UTF-16 USCX_reflection_material allocation tag and SCX_reflection_material class name to the engine."
+      },
+      "_register_USCX_reflection_material": {
+        "va": 279009552,
+        "basis": "Direct registration call after initializing the singleton for USCX_reflection_material."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1f2a90, directly called at RVA 0x1f573d. Its class constructor at RVA 0x117a40 identifies USCX_reflection_material; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "398c1403d43ae40df5b29374fbc02fdf7b2f98b6407ab8751c03f82c0ae96fe6",
+      "inputs_sha256": "a78aa1a263007bf05f68884167f55002a85fab7caf6ac62322a1c964470094cb"
+    }
+  }
+]

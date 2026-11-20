@@ -1,0 +1,2384 @@
+[
+  {
+    "id": "claim-available-item",
+    "offset": 7668672,
+    "size": 64,
+    "rebuilt_symbol": "@claim_available_item@8",
+    "inputs": [
+      "src/sound_cache_manager.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_manager.obj src/sound_cache_manager.c",
+    "link_bindings": {
+      "@cache_item_busy@4": {
+        "va": 285594032,
+        "basis": "Address-checked direct target used by the rebuilt claim_available_item function at VA 0x110503d8."
+      },
+      "@mark_cache_item_busy@4": {
+        "va": 285594064,
+        "basis": "Address-checked direct target used by the rebuilt claim_available_item function at VA 0x110503f3."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110524ba. Complete x86 compiler function at 0x110503c0 through 0x11050400 exclusive. Scans the resource item array, marks the first available item busy and returns it.",
+    "match": {
+      "bytes_sha256": "c6feda56c337e9b0fe958cb7011b6a7d551c4fd2eaa357512978312a003f5ffc",
+      "inputs_sha256": "0dae1055636214a0146b06aace18c4ef88df7cd651baa763049da442de570b31"
+    }
+  },
+  {
+    "id": "take-cached-resource",
+    "offset": 7668736,
+    "size": 17,
+    "rebuilt_symbol": "@take_cached_resource@8",
+    "inputs": [
+      "src/sound_cache_manager.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_manager.obj src/sound_cache_manager.c",
+    "link_bindings": {
+      "@cache_take_key@8": {
+        "va": 285593584,
+        "basis": "Address-checked direct target used by the rebuilt take_cached_resource function at VA 0x11050409."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x11050400 through 0x11050411 exclusive. Takes a sound item by its resource key when the manager owns a cache.",
+    "match": {
+      "bytes_sha256": "ab97c51a0b0350c6a487955acaede4343e18b4d29dcf48f72e9ebd0deebabb13",
+      "inputs_sha256": "99fc456a4ef9070ca8622b4acef1d7029161fdd67102dfab6d9a9c2184640a26"
+    }
+  },
+  {
+    "id": "simple-channels",
+    "offset": 7674528,
+    "size": 8,
+    "rebuilt_symbol": "_simple_channels",
+    "inputs": [
+      "src/sound_resource_channels.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+    "identification": "A direct retail branch at VA 0x110591c9 identifies the entry. Full range 0x11051aa0..0x11051aa8 (exclusive), followed by alignment. Returns the channel count from the type-1 payload at offset 0x24.",
+    "match": {
+      "bytes_sha256": "ddcfb7bd6f480421eff2205f78860fcd2f0a42865b63b8dc6ea9cf37a9873ecc",
+      "inputs_sha256": "caf638a8ba44af496808fbb8e329961d91f58d7c61d5077580cc535ff5ad589d"
+    }
+  },
+  {
+    "id": "create-managed-item",
+    "offset": 7676960,
+    "size": 103,
+    "rebuilt_symbol": "@create_managed_item@12",
+    "inputs": [
+      "src/sound_cache_manager.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_manager.obj src/sound_cache_manager.c",
+    "link_bindings": {
+      "_allocate_work": {
+        "va": 277877888,
+        "basis": "Direct allocation call at VA 0x11052425 (24 bytes)."
+      },
+      "_AudioTaskContext": {
+        "va": 288549304,
+        "basis": "Pointer read at the call site of the 24-byte sound acquisition task initializer."
+      },
+      "@initialize_acquisition@16": {
+        "va": 285607888,
+        "basis": "Address-checked direct target used by the rebuilt create_managed_item function at VA 0x11052445."
+      },
+      "@step_acquisition@4": {
+        "va": 285608336,
+        "basis": "Address-checked direct target used by the rebuilt create_managed_item function at VA 0x11052452."
+      },
+      "@get_acquisition_state@4": {
+        "va": 285607984,
+        "basis": "Address-checked direct target used by the rebuilt create_managed_item function at VA 0x11052459."
+      },
+      "@get_acquisition_item@4": {
+        "va": 285608144,
+        "basis": "Address-checked direct target used by the rebuilt create_managed_item function at VA 0x1105246a."
+      },
+      "_free_work": {
+        "va": 277877920,
+        "basis": "Direct deallocation call at VA 0x11052472 after task completion."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110524dc. Complete x86 compiler function at 0x11052420 through 0x11052487 exclusive. Allocates a 24-byte acquisition task, runs it while state 2 is reported and returns its sound item only in state 3, then frees task storage.",
+    "match": {
+      "bytes_sha256": "33a521cd1f4c061a365cf25a011e42a04db0aaf0b44810b5bd7be5b0aea46a8c",
+      "inputs_sha256": "bee2353fd280f2d48b8f34581bf6ccddc051d289d24c7ee9ed827284d850a8d3"
+    }
+  },
+  {
+    "id": "discard-managed-item",
+    "offset": 7677072,
+    "size": 29,
+    "rebuilt_symbol": "@discard_managed_item@8",
+    "inputs": [
+      "src/sound_cache_manager.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_manager.obj src/sound_cache_manager.c",
+    "link_bindings": {
+      "@destroy_cache_item_buffers@4": {
+        "va": 285593952,
+        "basis": "Address-checked direct target used by the rebuilt discard_managed_item function at VA 0x1105249b."
+      },
+      "_free_cache_item": {
+        "va": 285594160,
+        "basis": "Address-checked direct target used by the rebuilt discard_managed_item function at VA 0x110524a1."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x11052490 through 0x110524ad exclusive. Destroys the two owned buffers and frees the item, skipping null.",
+    "match": {
+      "bytes_sha256": "a7e576f180134984e1c644698a0c7d0803ba95a46bdcda817af5ead1c09c91be",
+      "inputs_sha256": "bf100a8e51ea48e27751ccc7f7fac80d323bda4a058a83952229ac641d5a6f1e"
+    }
+  },
+  {
+    "id": "acquire-managed-item",
+    "offset": 7677104,
+    "size": 159,
+    "rebuilt_symbol": "@acquire_managed_item@12",
+    "inputs": [
+      "src/sound_cache_manager.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_manager.obj src/sound_cache_manager.c",
+    "link_bindings": {
+      "@claim_available_item@8": {
+        "va": 285541312,
+        "basis": "Address-checked direct target used by the rebuilt acquire_managed_item function at VA 0x110524ba."
+      },
+      "@cache_take_key@8": {
+        "va": 285593584,
+        "basis": "Address-checked direct target used by the rebuilt acquire_managed_item function at VA 0x110524cd."
+      },
+      "@create_managed_item@12": {
+        "va": 285549600,
+        "basis": "Address-checked direct target used by the rebuilt acquire_managed_item function at VA 0x110524dc."
+      },
+      "@primary_cache_buffer@4": {
+        "va": 285594256,
+        "basis": "Address-checked direct target used by the rebuilt acquire_managed_item function at VA 0x110524ea."
+      },
+      "@secondary_cache_buffer@4": {
+        "va": 285594272,
+        "basis": "Address-checked direct target used by the rebuilt acquire_managed_item function at VA 0x110524f3."
+      },
+      "@set_buffer_spatial_mode@8": {
+        "va": 285597888,
+        "basis": "Address-checked direct target used by the rebuilt acquire_managed_item function at VA 0x11052541."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110538a8. Complete x86 compiler function at 0x110524b0 through 0x1105254f exclusive. Tries reusable items, then cache membership by key, then acquisition. Applies the requested spatial-mode flag to both supported buffers of the result.",
+    "match": {
+      "bytes_sha256": "c9f9f7e4f7e02107def92aeabb0acfbff20d019eb2e967698c3a772dec54b9a6",
+      "inputs_sha256": "afc472aa9fd884f6a60e3507c2ce51c6d80b67f3710e82adca7777dcc1a76d99"
+    }
+  },
+  {
+    "id": "return-managed-item",
+    "offset": 7677264,
+    "size": 198,
+    "rebuilt_symbol": "@return_managed_item@8",
+    "inputs": [
+      "src/sound_cache_manager.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_manager.obj src/sound_cache_manager.c",
+    "link_bindings": {
+      "@rewind_cache_item_buffers@4": {
+        "va": 285594096,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x1105255a."
+      },
+      "@cache_item_reusable@4": {
+        "va": 285594048,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x11052561."
+      },
+      "@mark_cache_item_available@4": {
+        "va": 285594080,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x1105256c."
+      },
+      "@cache_accepts_size@8": {
+        "va": 285592560,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x1105257a."
+      },
+      "@cache_limit@4": {
+        "va": 285592624,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x110525c4."
+      },
+      "@cache_usage@4": {
+        "va": 285592608,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x110525ce."
+      },
+      "@cache_item_bytes@4": {
+        "va": 285594240,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x110525d7."
+      },
+      "@cache_pop_last@4": {
+        "va": 285593504,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x110525a6."
+      },
+      "@destroy_cache_item_buffers@4": {
+        "va": 285593952,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x11052603."
+      },
+      "_free_cache_item": {
+        "va": 285594160,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x11052609."
+      },
+      "@set_cache_priority@8": {
+        "va": 285594176,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x110525e9."
+      },
+      "@cache_insert_priority@8": {
+        "va": 285593312,
+        "basis": "Address-checked direct target used by the rebuilt return_managed_item function at VA 0x110525f2."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110526aa. Complete x86 compiler function at 0x11052550 through 0x11052616 exclusive. Rewinds the two buffers. Reusable items become available again; eligible items evict least-priority cache entries until their size fits, get the current sort key and reenter the cache. Other items are destroyed.",
+    "match": {
+      "bytes_sha256": "c89f5529a4ff235dc98355b46150c7d9c8ced6e7859ed66ff2a07b50ba297580",
+      "inputs_sha256": "3c263032d390414882bb82b181b7552ae1583b12a1e1ef7eb5f0e07c22085a49"
+    }
+  },
+  {
+    "id": "sound-destroy-crc",
+    "offset": 7685184,
+    "size": 7,
+    "rebuilt_symbol": "@sound_destroy_crc@4",
+    "inputs": [
+      "src/sound_name_crc.c",
+      "src/sound_name_tree.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_name_crc.obj src/sound_name_crc.c",
+    "identification": "Campaign RVA 0x754440. Direct ECX calls at RVAs 0x747f43 and 0x747f69 on the failure and success paths of event-name lookup. Restores the CRC vtable. Full entry through the final return, excluding alignment.",
+    "link_bindings": {
+      "_sound_crc_methods": {
+        "va": 286740052,
+        "basis": "Vtable assigned during construction and teardown of the CRC object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "85907d665950aa9494974e5e33d4c5c84326471a2ee710647f519345e171b346",
+      "inputs_sha256": "2f80d52f0ecf1390d1dab04e6ae3b4d734257951847af2077abd272e25dd40f8"
+    }
+  },
+  {
+    "id": "sound-crc-name",
+    "offset": 7685200,
+    "size": 53,
+    "rebuilt_symbol": "@sound_crc_name@8",
+    "inputs": [
+      "src/sound_name_crc.c",
+      "src/sound_name_tree.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_name_crc.obj src/sound_name_crc.c",
+    "identification": "Campaign RVA 0x754450. Direct call at RVA 0x747efb from the event-name lookup, with the CRC table object in ECX and a string pointer on the stack. Hashes the name through its terminating NUL and complements the running CRC (the NUL itself is excluded). Full entry through the final return, excluding alignment.",
+    "match": {
+      "bytes_sha256": "44355259e5c789992d2dca6ca094f8609a233aaa0a8890492b6d1d02d6c09c43",
+      "inputs_sha256": "942a417837d1d0b75eddf1a0dd44be7659d8146920d7f544388c4d7d31a9c92e"
+    }
+  },
+  {
+    "id": "sound-init-crc-table",
+    "offset": 7685360,
+    "size": 315,
+    "rebuilt_symbol": "@sound_init_crc_table@4",
+    "inputs": [
+      "src/sound_name_crc.c",
+      "src/sound_name_tree.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_name_crc.obj src/sound_name_crc.c",
+    "identification": "Campaign RVA 0x7544f0. Direct ECX call at RVA 0x754639 from the CRC constructor. Generates 256 CRC table entries with bit reflection and polynomial 0x04c11db7. Full entry through the final return, excluding alignment.",
+    "match": {
+      "bytes_sha256": "e6fe3ff04c0addd517e60663722268fc3ca90db53a40bbe77f491f68dd66ff27",
+      "inputs_sha256": "af4ea104b98d1ab1739f61f8582a5ba1048da7c09f51087d4c37b344078f85ff"
+    }
+  },
+  {
+    "id": "sound-construct-crc",
+    "offset": 7685680,
+    "size": 18,
+    "rebuilt_symbol": "@sound_construct_crc@4",
+    "inputs": [
+      "src/sound_name_crc.c",
+      "src/sound_name_tree.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_name_crc.obj src/sound_name_crc.c",
+    "identification": "Campaign RVA 0x754630. Direct call at RVA 0x747eda during event-name lookup. Assigns the CRC vtable, initializes the 256-word table and returns the object in EAX. Full entry through the final return, excluding alignment.",
+    "link_bindings": {
+      "_sound_crc_methods": {
+        "va": 286740052,
+        "basis": "Vtable assigned during construction and teardown of the CRC object."
+      },
+      "@sound_init_crc_table@4": {
+        "va": 285558000,
+        "basis": "Campaign private routine at RVA 0x7544f0. Direct ECX call at RVA 0x754639 from the CRC constructor. Generates 256 CRC table entries with bit reflection and polynomial 0x04c11db7."
+      }
+    },
+    "match": {
+      "bytes_sha256": "038240bc984f0d038b19527287b03af8c84412830971eebe6b141ae5f7fbca8f",
+      "inputs_sha256": "a6178c984fbf46d5d853eaffd2683916be92e47e1711e4b823238beab73626a8"
+    }
+  },
+  {
+    "id": "sound-vector-squared-length",
+    "offset": 7694080,
+    "size": 43,
+    "rebuilt_symbol": "_SND_fn_rNormeVectorSnd@4",
+    "inputs": [
+      "src/sound_spatial_math.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_spatial_math.obj src/sound_spatial_math.c",
+    "basis": "Retail named export _SND_fn_rNormeVectorSnd@4 starts at VA 0x11056700. The final return ends immediately before INT3 alignment at 0x1105672b.",
+    "identification": "Named retail export at RVA 0x756700. The complete function ends before alignment.",
+    "match": {
+      "bytes_sha256": "e6df59238d0fffbb075c0c56aac62a2a7a77adcf174ffc6ded10447616dbb193",
+      "inputs_sha256": "3e40b518933aa93d9c46a46f88c9674ee8d1d2b87b3d1002c65a8c73e4a234ea"
+    }
+  },
+  {
+    "id": "sound-vector-approximate-length",
+    "offset": 7694176,
+    "size": 112,
+    "inputs": [
+      "src/sound_position.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_position.obj src/sound_position.c",
+    "rebuilt_symbol": "_SND_fn_rPseudoNormeVectorSnd@4",
+    "link_bindings": {
+      "_SND_fn_rAbsRealSnd@4": {
+        "va": 285520400,
+        "basis": "Named export _SND_fn_rAbsRealSnd@4 in the locked Steam campaign PE."
+      }
+    },
+    "identification": "Retail named export _SND_fn_rPseudoNormeVectorSnd@4 begins at 0x11056760. The last return ends at 0x110567d0, followed by the exported vector dot product. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
+    "match": {
+      "bytes_sha256": "aa4210c7c47c4c4b990c44affa250194948d477b67a7a97f13819f5e96435f92",
+      "inputs_sha256": "073e0a7eb4e084758e8cc828e273301c962173636dea122c59f965d3586ee25f"
+    }
+  },
+  {
+    "id": "sound-vector-dot-product",
+    "offset": 7694288,
+    "size": 60,
+    "inputs": [
+      "src/sound_vector_products.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_vector_products.obj src/sound_vector_products.c",
+    "rebuilt_symbol": "_SND_fn_rScalaireVectorSnd@8",
+    "link_bindings": {
+      "_SND_fn_rMulRealRealSnd@8": {
+        "va": 285520496,
+        "basis": "Named export _SND_fn_rMulRealRealSnd@8 in the locked Steam campaign PE."
+      }
+    },
+    "identification": "Retail export _SND_fn_rScalaireVectorSnd@8 begins at VA 0x110567d0; the final return ends at 0x1105680c before INT3 alignment. Computes the sum of the three component products with fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
+    "match": {
+      "bytes_sha256": "a2304aa4e3688900519a25259b6a7471cc9aab8198e453bf4cf674e6208f288b",
+      "inputs_sha256": "1467692582be8a7f7fff0c16e397eb0c6f27bec4972307ae4a63e487c0f28eb7"
+    }
+  },
+  {
+    "id": "sound-vector-quick-dot-product",
+    "offset": 7694352,
+    "size": 60,
+    "inputs": [
+      "src/sound_vector_products.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_vector_products.obj src/sound_vector_products.c",
+    "rebuilt_symbol": "_SND_fn_rPseudoScalaireNormeVectorSnd@8",
+    "link_bindings": {
+      "_SND_fn_rMulRealRealQuickSnd@8": {
+        "va": 285520336,
+        "basis": "Named export _SND_fn_rMulRealRealQuickSnd@8 in the locked Steam campaign PE."
+      }
+    },
+    "identification": "Retail export _SND_fn_rPseudoScalaireNormeVectorSnd@8 begins at VA 0x11056810; the final return ends at 0x1105684c before INT3 alignment. Computes the same sum with the lower-precision fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
+    "match": {
+      "bytes_sha256": "36d1c9cc2217b1bd9261b7323e08cef5fd29bae72e8a1d8c85ca9e42a5d25bed",
+      "inputs_sha256": "7ec44468fe60f94534938940527174147f4fc121948a8dfaef171d466151c4eb"
+    }
+  },
+  {
+    "id": "sound-vector-cross-product",
+    "offset": 7694416,
+    "size": 117,
+    "inputs": [
+      "src/sound_vector_products.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_vector_products.obj src/sound_vector_products.c",
+    "rebuilt_symbol": "_SND_fn_vProduitVectorSnd@12",
+    "link_bindings": {
+      "_SND_fn_rMulRealRealSnd@8": {
+        "va": 285520496,
+        "basis": "Named export _SND_fn_rMulRealRealSnd@8 in the locked Steam campaign PE."
+      }
+    },
+    "identification": "Retail export _SND_fn_vProduitVectorSnd@12 begins at VA 0x11056850; the final return ends at 0x110568c5 before INT3 alignment. Writes the three differences of component products in cross-product order. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
+    "match": {
+      "bytes_sha256": "a42f0e593f098c266b22b13c2d248804360267725d3a8cf9366277a8afd728ce",
+      "inputs_sha256": "65ba74cfc2b3db4cc15c3d5fb7c7d2ade8b2f579d7a94cd9808f201829ff38f1"
+    }
+  },
+  {
+    "id": "collection-channels",
+    "offset": 7700144,
+    "size": 38,
+    "rebuilt_symbol": "_collection_channels",
+    "inputs": [
+      "src/sound_resource_channels.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+    "identification": "A direct retail branch at VA 0x110591b2 identifies the entry. Full range 0x11057eb0..0x11057ed6 (exclusive), followed by alignment. Finds the largest unsigned channel count among the 24-byte records of a type-6 collection.",
+    "match": {
+      "bytes_sha256": "173b0da48fa648ce40bb193566dacd5c5207c16f3403f4a60e62a1f99c3f9c06",
+      "inputs_sha256": "d8d6d24b28476e5084d626cfdd17ad524e3c53ccc34376e90b68d546eb498c48"
+    }
+  },
+  {
+    "id": "release-sample",
+    "offset": 7700848,
+    "size": 95,
+    "rebuilt_symbol": "_release_sample",
+    "inputs": [
+      "src/sound_sample_release.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_sample_release.obj src/sound_sample_release.c",
+    "link_bindings": {
+      "_EnterCriticalSectionTool_@0": {
+        "va": 285504880,
+        "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+      },
+      "_MixerLockSite": {
+        "va": 286741128,
+        "basis": "Constant original diagnostic-site argument to the named MouchardThreadTool export."
+      },
+      "_MouchardThreadTool@8": {
+        "va": 285505120,
+        "basis": "Named retail campaign export _MouchardThreadTool@8."
+      },
+      "_SoundDriver": {
+        "va": 288549376,
+        "basis": "Driver pointer loaded before its release vtable call at VA 0x1105818a."
+      },
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      },
+      "_QuitCriticalSectionTool@0": {
+        "va": 285505088,
+        "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+      }
+    },
+    "identification": "Direct retail branch at 0x1105929c. Complete isolated compiler contribution at 0x11058170 through 0x110581cf exclusive. Inside the sound lock, calls the driver release method in virtual slot 25, clears owned sample data when applicable and then clears the pointer.",
+    "match": {
+      "bytes_sha256": "1ceac8b824d21441137e5c3d5aded6a7fa2b099c247d45f43075771f4f25093d",
+      "inputs_sha256": "009e093f1cf2b10dbba3bf2d2ae4762bd4a3c3c6e369514b61786959b72b911f"
+    }
+  },
+  {
+    "id": "release-sample-collection",
+    "offset": 7700944,
+    "size": 56,
+    "rebuilt_symbol": "_release_sample_collection",
+    "inputs": [
+      "src/sound_sample_release.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_sample_release.obj src/sound_sample_release.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Complete isolated compiler contribution at 0x110581d0 through 0x11058208 exclusive. The type-6 collection release code also appears inlined in the verified resource dispatcher at 0x11059230. The standalone function accepts a flag controlling release of owned data, clears the pointer and resets the resource kind.",
+    "match": {
+      "bytes_sha256": "c78b315a5f6d125bfd6cfd27915209a69df3b2e809773e307a369db9bd30e307",
+      "inputs_sha256": "2d989f87d36de488f8c942a939825e95cd378926e7dfca0485330e7fb4ae0bb4"
+    }
+  },
+  {
+    "id": "decode-sample-fields",
+    "offset": 7701120,
+    "size": 113,
+    "rebuilt_symbol": "_decode_sample_fields",
+    "inputs": [
+      "src/sound_sample_decode.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_sample_decode.obj src/sound_sample_decode.c",
+    "identification": "Direct retail branch at 0x11059217. Complete isolated compiler contribution at 0x11058280 through 0x110582f1 exclusive. Copies serialized sound resource metadata and resolves the selected external or internal payload offset against the corresponding base.",
+    "match": {
+      "bytes_sha256": "cb86afec6a11b054bc98d403d187b922e09a0f069182485ed7e9661f101bad66",
+      "inputs_sha256": "a09a00332515d96da7e768ce8b7ce22b31b928a16690f4ea60b0110b131df854"
+    }
+  },
+  {
+    "id": "locked-resource-channels",
+    "offset": 7704944,
+    "size": 108,
+    "rebuilt_symbol": "_locked_resource_channels",
+    "inputs": [
+      "src/sound_resource_channels.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+    "link_bindings": {
+      "_EnterCriticalSectionTool_@0": {
+        "va": 285504880,
+        "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+      },
+      "_MixerLockSite": {
+        "va": 286741128,
+        "basis": "Original file identifier supplied to the named MouchardThreadTool lock diagnostic."
+      },
+      "_MouchardThreadTool@8": {
+        "va": 285505120,
+        "basis": "Named retail campaign export _MouchardThreadTool@8."
+      },
+      "_QuitCriticalSectionTool@0": {
+        "va": 285505088,
+        "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+      },
+      "_collection_channels": {
+        "va": 285572784,
+        "basis": "Finds the largest unsigned channel count among the 24-byte records of a type-6 collection."
+      },
+      "_simple_channels": {
+        "va": 285547168,
+        "basis": "Returns the channel count from the type-1 payload at offset 0x24."
+      }
+    },
+    "identification": "A direct retail branch at VA 0x1104fe20 identifies the entry. Full range 0x11059170..0x110591dc (exclusive), followed by alignment. Reads channel metadata for the three supported types while holding the audio critical section.",
+    "match": {
+      "bytes_sha256": "7596d0211827745a85e45855ddda6d2c46eb6ad219546816aa17216056cba9b8",
+      "inputs_sha256": "c4ae921945df3889b6d9af48b74a7a294757e087d8263e3a1f6cbc13bf0b1a6e"
+    }
+  },
+  {
+    "id": "decode-sound-sample",
+    "offset": 7705056,
+    "size": 75,
+    "rebuilt_symbol": "_decode_sound_sample",
+    "inputs": [
+      "src/sound_sample_decode.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_sample_decode.obj src/sound_sample_decode.c",
+    "link_bindings": {
+      "_EnterCriticalSectionTool_@0": {
+        "va": 285504880,
+        "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+      },
+      "_MixerLockSite": {
+        "va": 286741128,
+        "basis": "Constant original diagnostic-site argument to the named MouchardThreadTool export."
+      },
+      "_MouchardThreadTool@8": {
+        "va": 285505120,
+        "basis": "Named retail campaign export _MouchardThreadTool@8."
+      },
+      "_decode_sample_fields": {
+        "va": 285573760,
+        "basis": "Direct call from VA 0x11059217 to the sample metadata decoder."
+      },
+      "_QuitCriticalSectionTool@0": {
+        "va": 285505088,
+        "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+      }
+    },
+    "identification": "Direct retail branch at 0x1104f610. Complete isolated compiler contribution at 0x110591e0 through 0x1105922b exclusive. Locks the audio subsystem, computes the data address and size, then decodes the sample metadata and returns success.",
+    "match": {
+      "bytes_sha256": "a6d5decea07065a4ce7d2ae132ff18de7f1807a26955bef1e413cc80184f2ebe",
+      "inputs_sha256": "4e7a88e2d873ea990c43c12a4e505459de5f8a3c88ec88f00112c76ad4a1ebfb"
+    }
+  },
+  {
+    "id": "release-sound-resource",
+    "offset": 7705136,
+    "size": 124,
+    "rebuilt_symbol": "_release_sound_resource",
+    "inputs": [
+      "src/sound_release_resource.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_release_resource.obj src/sound_release_resource.c",
+    "link_bindings": {
+      "_EnterCriticalSectionTool_@0": {
+        "va": 285504880,
+        "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+      },
+      "_MixerLockSite": {
+        "va": 286741128,
+        "basis": "Original file identifier supplied to the named MouchardThreadTool lock diagnostic."
+      },
+      "_MouchardThreadTool@8": {
+        "va": 285505120,
+        "basis": "Named retail campaign export _MouchardThreadTool@8."
+      },
+      "_QuitCriticalSectionTool@0": {
+        "va": 285505088,
+        "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+      },
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      },
+      "_release_sample": {
+        "va": 285573488,
+        "basis": "Direct call at 0x1105929c from the type-1 disposal branch with a true release flag."
+      }
+    },
+    "identification": "Full range 0x11059230..0x110592ac (exclusive), followed by alignment. Internal audio resource disposal routine between aligned entries: checks null, enters the audio lock, releases type-1 resources through 0x11058170, selectively frees type-6 storage, and resets the type for kinds 6 and 8. Both return and tail-jump exits are inside the measured range.",
+    "match": {
+      "bytes_sha256": "ed086ffbe4524bf868e3d1f71fda64742213f86d71cbdff41b1e8ebf9751883d",
+      "inputs_sha256": "b03cf93c5eb2c90ea5cac4b8ffc8d8ea1e8c8a991ab1c680b5ec7e7268aa5675"
+    }
+  },
+  {
+    "id": "sound-release-binary-backend",
+    "offset": 7705264,
+    "size": 122,
+    "rebuilt_symbol": "_sound_release_binary_backend",
+    "inputs": [
+      "src/sound_release_backend.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_release_backend.obj src/sound_release_backend.c",
+    "identification": "Tail target of the forwarding helper at RVA 0x74f630, reached from SND_fn_vUnLoadResBinarySnd. Dispatches by resource type under the tool lock, clearing relevant state and using the driver virtual method for type one. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+    "link_bindings": {
+      "_EnterCriticalSectionTool_@0": {
+        "va": 285504880,
+        "basis": "Named export _EnterCriticalSectionTool_@0 in the Steam campaign PE."
+      },
+      "_MouchardThreadTool@8": {
+        "va": 285505120,
+        "basis": "Named export _MouchardThreadTool@8 in the Steam campaign PE."
+      },
+      "_QuitCriticalSectionTool@0": {
+        "va": 285505088,
+        "basis": "Named export _QuitCriticalSectionTool@0 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "eb06ea156a5440a9e0e9229d44a493abfb3c763aeb0f29eeea219f8e8b845da3",
+      "inputs_sha256": "5401dff03777d6260c99d4157f0e78dbce5b7d3b8ef6a289877a95de8dd7d5b0"
+    }
+  },
+  {
+    "id": "pop-mixer-action",
+    "offset": 7705696,
+    "size": 55,
+    "rebuilt_symbol": "@pop_mixer_action@12",
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Complete isolated compiler contribution at 0x11059460 through 0x11059497 exclusive. Returns the first callback and its context through the caller-provided result, updates the linked queue and frees the node.",
+    "match": {
+      "bytes_sha256": "8db7c65f12841dc8cb274728c0a31b65a12c39460bb194235ce4fbdfaf289e17",
+      "inputs_sha256": "fdda7dfa56180ce0ee66548b78330a5be24f7a013baba8a9f7a0989671c3191e"
+    }
+  },
+  {
+    "id": "insert-mixer-action",
+    "offset": 7705760,
+    "size": 71,
+    "rebuilt_symbol": "@insert_mixer_action@16",
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named retail campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Complete isolated compiler contribution at 0x110594a0 through 0x110594e7 exclusive. Allocates a 16-byte queue node, appends its callback/context pair, and repairs the empty-list head when needed.",
+    "match": {
+      "bytes_sha256": "2b47765fc7b25d83addd943e628f5e93e6a13d296ff58d0c75d5858ec4d8300f",
+      "inputs_sha256": "26e72a59a5d4d39e180a3cc0e0ee6ecaf5d6fb0fa82eb492f77488f777a420dc"
+    }
+  },
+  {
+    "id": "remove-mixer-action",
+    "offset": 7705840,
+    "size": 64,
+    "rebuilt_symbol": "@remove_mixer_action@12",
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Complete isolated compiler contribution at 0x110594f0 through 0x11059530 exclusive. Unlinks a supplied node from either end or the middle, frees it, and decrements the count. These three standalone methods have equivalent inlined operations in neighboring callback queue functions.",
+    "match": {
+      "bytes_sha256": "00095068394f81295f3a67608fb8a3343399c5d92e4313abc09c98f7f8905df1",
+      "inputs_sha256": "46b52fdec49be0ed187b52e51fff74813d6e121bcf2cf2349ca22fa4bdd79861"
+    }
+  },
+  {
+    "id": "discard-mixer-actions",
+    "offset": 7705904,
+    "size": 56,
+    "rebuilt_symbol": "@discard_mixer_actions@4",
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at 0x11059750. Complete isolated compiler contribution at 0x11059530 through 0x11059568 exclusive. Drains the queue by unlinking and freeing nodes without executing their callbacks.",
+    "match": {
+      "bytes_sha256": "802d8bfa38f52932d5b10a1b681210cea09165a1764c79ad4ed7ddfdfb33f0fa",
+      "inputs_sha256": "0ff3635c39b4b23149aeebc0145e4c16d9511e619135720f06c42ab29591e09b"
+    }
+  },
+  {
+    "id": "queue-mixer-callback",
+    "offset": 7705968,
+    "size": 81,
+    "rebuilt_symbol": "_queue_mixer_callback",
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_MixerCallbacks": {
+        "va": 288549540,
+        "basis": "Three consecutive words at 0x1132eaa4, 0x1132eaa8, 0x1132eaac are used as the head, tail and count in the callback queue functions."
+      },
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named retail campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at 0x110647b4. Complete isolated compiler contribution at 0x11059570 through 0x110595c1 exclusive. Appends the supplied callback and opaque context to the shared mixer queue.",
+    "match": {
+      "bytes_sha256": "d0ddfb34f72b664c51b31fd541d7ccf21fa43be9adb319803559a6df058b6df6",
+      "inputs_sha256": "b5b6a6096dce022ea67b67829bdabfa853bda3dce85f02327b898983e6cf2c38"
+    }
+  },
+  {
+    "id": "run-mixer-callbacks",
+    "offset": 7706064,
+    "size": 86,
+    "rebuilt_symbol": "_run_mixer_callbacks",
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_MixerCallbacks": {
+        "va": 288549540,
+        "basis": "Three consecutive words at 0x1132eaa4, 0x1132eaa8, 0x1132eaac are used as the head, tail and count in the callback queue functions."
+      },
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at 0x11053ee6. Complete isolated compiler contribution at 0x110595d0 through 0x11059626 exclusive. Pops the head before invoking its stdcall callback with the saved context; continues while the live count is nonzero.",
+    "match": {
+      "bytes_sha256": "b6ed094ba8ec34ec6910dd23e4a35386b3054bc3dad31a7298a0e3209624ce0c",
+      "inputs_sha256": "678d12d5348bc86409225e2b4cc255bb7958852c912f3ff970b7ba9b79fcfcc1"
+    }
+  },
+  {
+    "id": "resource-requirement",
+    "offset": 7706272,
+    "size": 169,
+    "rebuilt_symbol": "_resource_requirement",
+    "inputs": [
+      "src/sound_resource_requirement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_requirement.obj src/sound_resource_requirement.c",
+    "link_bindings": {
+      "_EnterCriticalSectionTool_@0": {
+        "va": 285504880,
+        "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+      },
+      "_MixerLockSite": {
+        "va": 286741128,
+        "basis": "Constant original diagnostic-site argument to the named MouchardThreadTool export."
+      },
+      "_MouchardThreadTool@8": {
+        "va": 285505120,
+        "basis": "Named retail campaign export _MouchardThreadTool@8."
+      },
+      "_locked_resource_channels": {
+        "va": 285577584,
+        "basis": "Verified locked channel lookup for kinds 1, 6 and 9; direct call from VA 0x110596d4."
+      },
+      "_channel_requirement": {
+        "va": 285545584,
+        "basis": "One-argument helper called after the channel lookup at VA 0x110596da."
+      },
+      "_QuitCriticalSectionTool@0": {
+        "va": 285505088,
+        "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+      },
+      "_resource_requirement": {
+        "va": 285578912,
+        "basis": "Recursive call from VA 0x11059703 to this function."
+      }
+    },
+    "identification": "Direct retail branch at 0x1104fe30. Complete isolated compiler contribution at 0x110596a0 through 0x11059749 exclusive. Recursively takes the maximum requirement over the 20-byte child records of a type-5 resource. Types 1, 6 and 9 use the channel query and the one-argument requirement helper. The complete contribution includes the switch destination and case-index tables.",
+    "match": {
+      "bytes_sha256": "e6fed2c5c3676a0d4dd41be5944c75dbc7dcf7b64a7e5c889fba112c371332eb",
+      "inputs_sha256": "48e1522b5aff95cddb80c838f89d8ba109909d1f61eef0c57ba5621fbe3199d7"
+    }
+  },
+  {
+    "id": "sound-sse-supported",
+    "offset": 7711104,
+    "size": 33,
+    "rebuilt_symbol": "_SND_Is_SSE_Supported@0",
+    "inputs": [
+      "src/sound_sse_query.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_sse_query.obj src/sound_sse_query.c",
+    "identification": "Steam PE export _SND_Is_SSE_Supported@0 at RVA 0x75a980. Short-circuits if either of the first two probes fails and normalizes the arithmetic probe result to zero or one. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_probe_cpu_sse": {
+        "va": 285583280,
+        "basis": "Direct target of a call from the named SND_Is_SSE_Supported retail export."
+      },
+      "_sound_probe_sse_state": {
+        "va": 285583440,
+        "basis": "Direct target of a call from the named SND_Is_SSE_Supported retail export."
+      },
+      "_sound_probe_sse_arithmetic": {
+        "va": 285583568,
+        "basis": "Direct target of a call from the named SND_Is_SSE_Supported retail export."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d524cab2d53921341920a3993fe28526021906b0c249a5be9794ac59c0ecf949",
+      "inputs_sha256": "9cb31a14600d9e1170e9c499b78a2326e1f100bc3cbb6fe6a918e020294aaf90"
+    }
+  },
+  {
+    "id": "sound-cpu-pentium",
+    "offset": 7711248,
+    "size": 26,
+    "rebuilt_symbol": "_SND_fn_bTestSnd_Pentium@0",
+    "inputs": [
+      "src/sound_cpu_probes.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cpu_probes.obj src/sound_cpu_probes.c",
+    "identification": "Steam PE export _SND_fn_bTestSnd_Pentium@0 at RVA 0x75aa10. Returns the first word written by the common CPU feature detector. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_detect_cpu": {
+        "va": 285583792,
+        "basis": "Shared call target reached directly by SND_fn_bTestSnd_Pentium and SND_fn_bTestSnd_MMX, returning two feature words."
+      }
+    },
+    "match": {
+      "bytes_sha256": "efae5a1262f89f1d50f9ecb399c9cf53e85d573e4da9d655f574061cc477350d",
+      "inputs_sha256": "35b09674c9bce6bec9d6f248da95c355d39df87c0d600a3b0ca6c1e14e3055d9"
+    }
+  },
+  {
+    "id": "sound-cpu-mmx",
+    "offset": 7711280,
+    "size": 52,
+    "rebuilt_symbol": "_SND_fn_bTestSnd_MMX@0",
+    "inputs": [
+      "src/sound_cpu_probes.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cpu_probes.obj src/sound_cpu_probes.c",
+    "identification": "Steam PE export _SND_fn_bTestSnd_MMX@0 at RVA 0x75aa30. Requires both words written by the shared detector to be nonzero. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_detect_cpu": {
+        "va": 285583792,
+        "basis": "Shared call target reached directly by SND_fn_bTestSnd_Pentium and SND_fn_bTestSnd_MMX, returning two feature words."
+      }
+    },
+    "match": {
+      "bytes_sha256": "555d36296dcdbe2eb1cc6d24ac8ccb35f1b323fb9a4eaeb5f53803ce15e27838",
+      "inputs_sha256": "b35a6c817bcd419542a3ef8dc727436be8d8c526873accf189f56d1652c73b54"
+    }
+  },
+  {
+    "id": "sound-test-winmm",
+    "offset": 7711344,
+    "size": 223,
+    "rebuilt_symbol": "_SND_fn_bTestSnd_WinMM@4",
+    "inputs": [
+      "src/sound_windows_support.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+    "link_bindings": {
+      "___security_cookie": {
+        "va": 287127248,
+        "basis": "Global used by the retail stack-protection prologue and checked before return."
+      },
+      "__imp__waveOutGetDevCapsA@12": {
+        "va": 285963844,
+        "basis": "The retail PE import table names waveOutGetDevCapsA at IAT slot VA 0x110b7644."
+      },
+      "@__security_check_cookie@4": {
+        "va": 284363865,
+        "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+      }
+    },
+    "identification": "Named retail export _SND_fn_bTestSnd_WinMM@4 at RVA 0x75aa70; whole linked symbol including each return, before alignment or next entry.",
+    "match": {
+      "bytes_sha256": "21bed59b80dfc41d0bfac6cb2115aa3da133b9340d31b808408cc80a8417ae39",
+      "inputs_sha256": "15440e26d78ed656bef8e025962ba766cd2d45776dd0eed9d4c0ee0ebd012112"
+    }
+  },
+  {
+    "id": "sound-test-win32",
+    "offset": 7711568,
+    "size": 83,
+    "rebuilt_symbol": "_SND_fn_bTestSnd_Win32@0",
+    "inputs": [
+      "src/sound_windows_support.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+    "link_bindings": {
+      "___security_cookie": {
+        "va": 287127248,
+        "basis": "Global used by the retail stack-protection prologue and checked before return."
+      },
+      "_SND_fn_vMemsetSnd@12": {
+        "va": 285460048,
+        "basis": "Steam campaign PE named export _SND_fn_vMemsetSnd@12 at RVA 0x73c650."
+      },
+      "__imp__GetVersionExA@4": {
+        "va": 285962996,
+        "basis": "The retail PE import table names GetVersionExA at IAT slot VA 0x110b72f4."
+      },
+      "@__security_check_cookie@4": {
+        "va": 284363865,
+        "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+      }
+    },
+    "identification": "Named retail export _SND_fn_bTestSnd_Win32@0 at RVA 0x75ab50; whole linked symbol including each return, before alignment or next entry.",
+    "match": {
+      "bytes_sha256": "e6b64b26ec005fd652a6a502a47e87ad64c162c1d13ecaf9c34a65802087a56b",
+      "inputs_sha256": "34b0fde722e042939313cbf799b4d259432bc339a022def11ce3cec4f5cea424"
+    }
+  },
+  {
+    "id": "sound-test-nt4",
+    "offset": 7711664,
+    "size": 112,
+    "rebuilt_symbol": "_SND_fn_bTestSnd_WinNT4@0",
+    "inputs": [
+      "src/sound_windows_support.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+    "link_bindings": {
+      "___security_cookie": {
+        "va": 287127248,
+        "basis": "Global used by the retail stack-protection prologue and checked before return."
+      },
+      "_SND_fn_vMemsetSnd@12": {
+        "va": 285460048,
+        "basis": "Steam campaign PE named export _SND_fn_vMemsetSnd@12 at RVA 0x73c650."
+      },
+      "__imp__GetVersionExA@4": {
+        "va": 285962996,
+        "basis": "The retail PE import table names GetVersionExA at IAT slot VA 0x110b72f4."
+      },
+      "@__security_check_cookie@4": {
+        "va": 284363865,
+        "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+      }
+    },
+    "identification": "Named retail export _SND_fn_bTestSnd_WinNT4@0 at RVA 0x75abb0; whole linked symbol including each return, before alignment or next entry.",
+    "match": {
+      "bytes_sha256": "d07d390972a62f5aaeabde59fe84c953c5dcfb7572c36d3c0700c2e39aa02bae",
+      "inputs_sha256": "5f5e2f1dbfffa75f93628752882ab7bf836f0a7b3da817b0ffbebf028581b45a"
+    }
+  },
+  {
+    "id": "sound-script-mode-used",
+    "offset": 7711776,
+    "size": 3,
+    "rebuilt_symbol": "_SND_fn_bIsScriptModeUsed@0",
+    "inputs": [
+      "src/sound_windows_support.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+    "identification": "Named retail export _SND_fn_bIsScriptModeUsed@0 at RVA 0x75ac20; whole linked symbol including each return, before alignment or next entry.",
+    "match": {
+      "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+      "inputs_sha256": "75322e1ed9da243fc4da045cd6b763478eeef279308df401e1fda6fd78727e7b"
+    }
+  },
+  {
+    "id": "sound-current-bank",
+    "offset": 7712272,
+    "size": 4,
+    "rebuilt_symbol": "@sound_current_bank@4",
+    "inputs": [
+      "src/sound_current_bank.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_current_bank.obj src/sound_current_bank.c",
+    "identification": "Both confirmed mode-zero bank lookups target this ECX accessor. Returns the current bank pointer at offset twelve; its only return precedes alignment. Locally assigned C name.",
+    "match": {
+      "bytes_sha256": "2e339cdc5de837ec151dbde90057caeabba18ac3ea32e7c2cffc8f95df41a6ff",
+      "inputs_sha256": "8d99928aa91ad0469cc486bb76aa3dabbc31da254458848847c898b65f35a712"
+    }
+  },
+  {
+    "id": "sound-direction-angle",
+    "offset": 7717920,
+    "size": 398,
+    "rebuilt_symbol": "@direction_in_turns@4",
+    "inputs": [
+      "src/sound_direction_angle.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_direction_angle.obj src/sound_direction_angle.c",
+    "link_bindings": {
+      "_FirstSoundReceiver": {
+        "va": 288549564,
+        "basis": "Same head pointer read by the verified receiver-list and receiver-level functions."
+      },
+      "__real@00000000": {
+        "va": 285966880,
+        "basis": "Compiler-emitted float 0.0 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      },
+      "__real@37800000": {
+        "va": 286230640,
+        "basis": "Compiler-emitted float 1.52587890625e-05 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      },
+      "__real@3e800000": {
+        "va": 286001928,
+        "basis": "Compiler-emitted float 0.25 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      },
+      "__real@3f400000": {
+        "va": 285986824,
+        "basis": "Compiler-emitted float 0.75 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      },
+      "__real@3f000000": {
+        "va": 285985376,
+        "basis": "Compiler-emitted float 0.5 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      },
+      "_approximate_atan": {
+        "va": 285505168,
+        "basis": "Signed angle-in-turns tangent table search called at 0x1105c549."
+      },
+      "__real@3f800000": {
+        "va": 285975104,
+        "basis": "Compiler-emitted float 1.0 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      }
+    },
+    "identification": "Direct retail call at 0x1105c719 to the full function at 0x1105c420. Its final return ends at 0x1105c5ae before alignment. Computes source displacement relative to the first sound receiver and projects it onto the two orientation axes. Handles axis-aligned cases directly and corrects the lookup angle for the other quadrants. Returns the angle in turns.",
+    "match": {
+      "bytes_sha256": "3c86a1bc9ab2376d4ec24b96fddfbfc7811405b0ea371cd5590c4371348bba67",
+      "inputs_sha256": "28fe28ccb99c471f9ab0e680df7d48ac446aa690794de5da8f8397a2ab3ba48f"
+    }
+  },
+  {
+    "id": "no-receiver-parameters",
+    "offset": 7718384,
+    "size": 82,
+    "rebuilt_symbol": "_no_receiver_parameters",
+    "inputs": [
+      "src/sound_no_receiver.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oa /Gy /c /Folocal/sound_no_receiver.obj src/sound_no_receiver.c",
+    "link_bindings": {
+      "_NoReceiverReported": {
+        "va": 288549580,
+        "basis": "Read at the start of the no-receiver path and set before reporting its first warning."
+      },
+      "_NoReceiverMessage": {
+        "va": 286742068,
+        "basis": "Retail warning argument paired with code 8 in the no-receiver mixer routine."
+      },
+      "_SND_fn_vDisplayError@8": {
+        "va": 285460432,
+        "basis": "Named retail campaign export _SND_fn_vDisplayError@8."
+      }
+    },
+    "identification": "A direct retail branch at VA 0x1105cb28 identifies the entry. Full range 0x1105c5f0..0x1105c642 (exclusive), followed by alignment. The default mixer writes unity pitch and zero gain, reports the missing receiver once, and resets the mode-specific pan or angle.",
+    "match": {
+      "bytes_sha256": "236ed7b9997bb2dc6a8b734da2def25675f71e307c918692b1973b7bd2bff845",
+      "inputs_sha256": "afd1b8ae4dd939b441960093d32fd768df33230b43fd10d6b833566c6e4b189c"
+    }
+  },
+  {
+    "id": "sound-spatial-mixer",
+    "offset": 7718480,
+    "size": 417,
+    "rebuilt_symbol": "_spatial_parameters",
+    "inputs": [
+      "src/sound_spatial_mixer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_spatial_mixer.obj src/sound_spatial_mixer.c",
+    "link_bindings": {
+      "_FirstSoundReceiver": {
+        "va": 288549564,
+        "basis": "Same head pointer read by the verified receiver-list and receiver-level functions."
+      },
+      "_SND_fn_rPseudoNormeVectorSnd@4": {
+        "va": 285566816,
+        "basis": "Named retail campaign export _SND_fn_rPseudoNormeVectorSnd@4."
+      },
+      "_SND_fn_rDistanceToVolumeEx@8": {
+        "va": 285521216,
+        "basis": "Named retail campaign export _SND_fn_rDistanceToVolumeEx@8."
+      },
+      "_SND_fn_rDistanceToVolume@4": {
+        "va": 285520976,
+        "basis": "Named retail campaign export _SND_fn_rDistanceToVolume@4."
+      },
+      "@direction_in_turns@4": {
+        "va": 285590560,
+        "basis": "Direct call at 0x1105c719 to the first-receiver direction helper."
+      },
+      "__real@43b40000": {
+        "va": 285986704,
+        "basis": "Compiler-emitted float 360.0 at an absolute retail operand. The literal data is checked separately against the COFF constant."
+      },
+      "__ftol2": {
+        "va": 284366420,
+        "basis": "Runtime float-to-integer conversion called immediately after scaling the angle by 360 at 0x1105c724."
+      },
+      "_SND_fn_ucPositionToPan@16": {
+        "va": 285521808,
+        "basis": "Named retail campaign export _SND_fn_ucPositionToPan@16."
+      },
+      "_SND_fn_ucPositionToDolby@12": {
+        "va": 285521984,
+        "basis": "Named retail campaign export _SND_fn_ucPositionToDolby@12."
+      },
+      "_SND_fn_rDopplerPitch@16": {
+        "va": 285521536,
+        "basis": "Named retail campaign export _SND_fn_rDopplerPitch@16."
+      },
+      "_SND_fn_rMulRealRealSnd@8": {
+        "va": 285520496,
+        "basis": "Named retail campaign export _SND_fn_rMulRealRealSnd@8."
+      }
+    },
+    "identification": "Direct retail call at 0x1105cb33 to the full function at 0x1105c650. Its final return ends at 0x1105c7f1 before alignment. Combines source pitch and gain with per-receiver attenuation, stereo or Dolby panning or integer angle, and optional Doppler correction. Final gain has a floor of -96 in signed 16.16.",
+    "match": {
+      "bytes_sha256": "2c20838c62b35fae0c8e9932af7f47e444d59f3a4b082f88c427d5efdd4fba67",
+      "inputs_sha256": "96e6522764da97678adac21043a10adef40ee64d0bd892d47eab10784b762f3d"
+    }
+  },
+  {
+    "id": "sound-receiver-level",
+    "offset": 7718912,
+    "size": 223,
+    "rebuilt_symbol": "_SND_fn_rGetNormeSxd@4",
+    "link_bindings": {
+      "_SoundReceiverCount": {
+        "va": 288549576,
+        "basis": "Referenced by retail export GetNormeSxd at 0x1105c81e. The internal query at 0x1105c8e0 reads the same value; receiver creation increments it at 0x1105c96a or 0x1105c9b2."
+      },
+      "_FirstSoundReceiver": {
+        "va": 288549564,
+        "basis": "The exported reader starts its list walk at 0x1105c82c. The creator records a new list head at 0x1105c93e."
+      },
+      "_SND_fn_rPseudoNormeVectorSnd@4": {
+        "va": 285566816,
+        "basis": "Named export _SND_fn_rPseudoNormeVectorSnd@4 in the locked campaign PE."
+      },
+      "_SND_fn_rDistanceToVolumeEx@8": {
+        "va": 285521216,
+        "basis": "Named export _SND_fn_rDistanceToVolumeEx@8 in the locked campaign PE."
+      },
+      "_SND_fn_rDistanceToVolume@4": {
+        "va": 285520976,
+        "basis": "Named export _SND_fn_rDistanceToVolume@4 in the locked campaign PE."
+      }
+    },
+    "inputs": [
+      "src/sound_receiver_level.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_level.obj src/sound_receiver_level.c",
+    "identification": "Named retail campaign export _SND_fn_rGetNormeSxd@4 at VA 0x1105c800. The final return ends at 0x1105c8df before alignment or the next named function. Computes the loudest attenuated level among enabled matching receivers in the linked list. Flag 1 returns zero; flag 4 selects the custom rolloff parameter view at offset 0x9c. The position, list links, binding stride and enabled fields are supported by retail loads.",
+    "match": {
+      "bytes_sha256": "e962ff80c0dcf525a90bd1f6959e7c4f801b8914d54da9fe2437a546f078ff3f",
+      "inputs_sha256": "9a10a54ecd503de90fffc600e373a74cd04214007ec70c64416ba65802e6505e"
+    }
+  },
+  {
+    "id": "reset-sound-receivers",
+    "offset": 7719152,
+    "size": 28,
+    "rebuilt_symbol": "_reset_sound_receivers",
+    "link_bindings": {
+      "_SoundReceiverCount": {
+        "va": 288549576,
+        "basis": "Global receiver count read at 0x1105c81e by SND_fn_rGetNormeSxd and updated by the receiver lifecycle."
+      },
+      "_SoundReceivers": {
+        "va": 288549564,
+        "basis": "List head, tail and count read or written at 0x1132eabc, 0x1132eac0 and 0x1132eac4. The create function stores the list address in its new node."
+      }
+    },
+    "inputs": [
+      "src/sound_receiver_list.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+    "identification": "Direct call at retail VA 0x1104f436 targets this internal function at 0x1105c8f0. Its last return ends before INT3 alignment at 0x1105c90c. Resets both list endpoints and both counters, and returns success. Its caller passes one argument that the recovered function leaves unused.",
+    "match": {
+      "bytes_sha256": "0fb52139119f54be0009dcd39a9f1f1b6b25a989eb5263f2b2fbb9fa6940d21d",
+      "inputs_sha256": "29e81d1b760072abb4e31f10fc764efad65ebd077a354d2f4d64110084076e1a"
+    }
+  },
+  {
+    "id": "create-sound-receiver",
+    "offset": 7719184,
+    "size": 173,
+    "rebuilt_symbol": "_create_sound_receiver",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named export _SND_fn_pvMallocSnd@4 in the exact Steam campaign image."
+      },
+      "_SoundReceivers": {
+        "va": 288549564,
+        "basis": "List head, tail and count read or written at 0x1132eabc, 0x1132eac0 and 0x1132eac4. The create function stores the list address in its new node."
+      },
+      "_SoundReceiverCount": {
+        "va": 288549576,
+        "basis": "Global receiver count read at 0x1105c81e by SND_fn_rGetNormeSxd and updated by the receiver lifecycle."
+      },
+      "_SND_fn_vMemCopySnd@12": {
+        "va": 285459920,
+        "basis": "Named export _SND_fn_vMemCopySnd@12 in the exact Steam campaign image."
+      }
+    },
+    "inputs": [
+      "src/sound_receiver_list.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+    "identification": "Direct call at retail VA 0x1104f6c6 targets this internal function at 0x1105c910. Its last return ends before INT3 alignment at 0x1105c9bd. Creates a 68-byte doubly linked receiver node and optionally copies four pose vectors.",
+    "match": {
+      "bytes_sha256": "483eaee71251bd0f86de89ef16b39bae1800b57d739bdc35d6389be2f8eb39e1",
+      "inputs_sha256": "b752dcefccf250f4fc1d416af3ed7653bfe20d0bf95d3fcb68e106e27e85b813"
+    }
+  },
+  {
+    "id": "update-sound-receiver",
+    "offset": 7719408,
+    "size": 102,
+    "rebuilt_symbol": "_update_sound_receiver",
+    "link_bindings": {
+      "_SoundReceivers": {
+        "va": 288549564,
+        "basis": "List head, tail and count read or written at 0x1132eabc, 0x1132eac0 and 0x1132eac4. The create function stores the list address in its new node."
+      },
+      "_SND_fn_vMemCopySnd@12": {
+        "va": 285459920,
+        "basis": "Named export _SND_fn_vMemCopySnd@12 in the exact Steam campaign image."
+      }
+    },
+    "inputs": [
+      "src/sound_receiver_list.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+    "identification": "Direct call at retail VA 0x1104f6ec targets this internal function at 0x1105c9f0. Its last return ends before INT3 alignment at 0x1105ca56. Looks up the target before enabling it and copying all four pose vectors.",
+    "match": {
+      "bytes_sha256": "2b56d395b6c118496231dbb30e56f41221b9712fde71c064aed4c080037e1659",
+      "inputs_sha256": "dca072a78b05f43411e6a68a05bab41906e434ddc14bb226376210377e56ed7b"
+    }
+  },
+  {
+    "id": "destroy-sound-receiver",
+    "offset": 7719520,
+    "size": 96,
+    "rebuilt_symbol": "_destroy_sound_receiver",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the exact Steam campaign image."
+      },
+      "_SoundReceiverCount": {
+        "va": 288549576,
+        "basis": "Global receiver count read at 0x1105c81e by SND_fn_rGetNormeSxd and updated by the receiver lifecycle."
+      }
+    },
+    "inputs": [
+      "src/sound_receiver_list.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+    "identification": "Direct call at retail VA 0x1104f716 targets this internal function at 0x1105ca60. Its last return ends before the next one-byte return routine at 0x1105cac0. Removes the node from both list directions, updates list endpoints and counts and frees it.",
+    "match": {
+      "bytes_sha256": "6f0d2fcf30e0f6a4922f6c6c9b4346aabfa65390882772280704371b4e91ddb4",
+      "inputs_sha256": "015ccad9c573c7696024eb3427fe511c8db4de5b5c7e0b42884c3be4c5051edf"
+    }
+  },
+  {
+    "id": "sound-convert-mixer-parameters",
+    "offset": 7719632,
+    "size": 110,
+    "rebuilt_symbol": "_SND_fn_vSndParToPrivSndPar@12",
+    "inputs": [
+      "src/sound_mixer_parameters.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_mixer_parameters.obj src/sound_mixer_parameters.c",
+    "link_bindings": {
+      "_SoundReceiverCount": {
+        "va": 288549576,
+        "basis": "Count read by both campaign spatial mixer paths and updated by the verified receiver lifecycle."
+      },
+      "_no_receiver_parameters": {
+        "va": 285591024,
+        "basis": "The default mixer writes unity pitch and zero gain, reports the missing receiver once, and resets the mode-specific pan or angle."
+      },
+      "_spatial_parameters": {
+        "va": 285591120,
+        "basis": "Call target at retail VA 0x1105c650, selected from 0x1105cb33 by the named mixer conversion export."
+      }
+    },
+    "identification": "Full range 0x1105cad0..0x1105cb3e (exclusive), followed by alignment. The named conversion export copies non-spatial values or chooses the spatial conversion based on the receiver count.",
+    "match": {
+      "bytes_sha256": "8cb31d0e93cc0ab298dcee00b2dde13fed42e295fbab335373f82e1c6fb0938b",
+      "inputs_sha256": "fb6b162607160beb055e729f055918e02e092b0356801114d93d375730b58d5e"
+    }
+  },
+  {
+    "id": "sound-select-mixer-mode",
+    "offset": 7719744,
+    "size": 103,
+    "rebuilt_symbol": "_SND_fn_vBestConvertionForSndParToPrivSndPar@16",
+    "inputs": [
+      "src/sound_mixer_parameters.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_mixer_parameters.obj src/sound_mixer_parameters.c",
+    "link_bindings": {
+      "_resource_channels": {
+        "va": 285517568,
+        "basis": "Accepts only resource kinds 1, 6 and 9 before tail-calling the channel query; null and other kinds return zero."
+      },
+      "_SND_fn_vSndParToPrivSndPar@12": {
+        "va": 285592272,
+        "basis": "The named conversion export copies non-spatial values or chooses the spatial conversion based on the receiver count."
+      }
+    },
+    "identification": "Full range 0x1105cb40..0x1105cba7 (exclusive), followed by alignment. The named mode-selection export chooses a compatible conversion mode and centres unsupported multichannel output on the specified path.",
+    "match": {
+      "bytes_sha256": "39ece02a0432380959d77a7073a2345234416b403e8a25ee7912c1e144e5d5e8",
+      "inputs_sha256": "663be3853d575be2e3a83f1e8b1c4b390508cc172dff5590351b8c78501a97c6"
+    }
+  },
+  {
+    "id": "cache-accepts-size",
+    "offset": 7719920,
+    "size": 37,
+    "rebuilt_symbol": "@cache_accepts_size@8",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@cache_item_bytes@4": {
+        "va": 285594240,
+        "basis": "Returns the item size used in capacity checks and insertion/removal accounting."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105257a. Complete x86 compiler function at 0x1105cbf0 through 0x1105cc15 exclusive. An enabled cache accepts individual items up to half its unsigned capacity.",
+    "match": {
+      "bytes_sha256": "4bc47a5865afeab2fd92a392de911ae1f18072ac31e6599dd7614b888d88d97b",
+      "inputs_sha256": "e6df2eb5222e189069501fd33274d7196349820b389af0ce6a2f27ba2ed37d7f"
+    }
+  },
+  {
+    "id": "next-cache-item-ref",
+    "offset": 7720032,
+    "size": 16,
+    "rebuilt_symbol": "@next_cache_item_ref@8",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "identification": "Complete x86 compiler function at 0x1105cc60 through 0x1105cc70 exclusive. Returns the address of the current item pointer and advances the caller cursor to the next node.",
+    "match": {
+      "bytes_sha256": "df43d2b839fc9092a0c2eed350c2fb4ec5258edc64d54a9ca7cf65c9a222d25a",
+      "inputs_sha256": "30fcef2ee3be718d24f91e797eb108c8f7bf25992b0cbcd86b5eb97ac4aa2f21"
+    }
+  },
+  {
+    "id": "allocate-cache-node",
+    "offset": 7720048,
+    "size": 34,
+    "rebuilt_symbol": "@allocate_cache_node@12",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x1105cc70 through 0x1105cc92 exclusive. Allocates a twelve-byte cache node, initializes both links and increments the count on successful allocation. This operation is also inlined by list insertion.",
+    "match": {
+      "bytes_sha256": "1c821a445d66dd74f883061f9f29ccf4db46d04d3c373a616b4f5659aa19573c",
+      "inputs_sha256": "3753892c23310737525c7698d36a3bb99e48df8698436ea1c0c93119e1829bd9"
+    }
+  },
+  {
+    "id": "prepend-cache-item",
+    "offset": 7720112,
+    "size": 62,
+    "rebuilt_symbol": "@prepend_cache_item@8",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x1105ccb0 through 0x1105ccee exclusive. Prepends a sound item, updates both endpoint pointers and records its list node. Same operation appears inlined in insert-before with a null position.",
+    "match": {
+      "bytes_sha256": "35f2ab189ed583fa7a9dcbfb22f78f6a71a9a1f70e68cd1007efa3042d03f4a9",
+      "inputs_sha256": "1d127bd9d8cb681f1505b09af8fdf38f8c9c037b653eaccd73d2983ca94207b8"
+    }
+  },
+  {
+    "id": "free-cache-node",
+    "offset": 7720176,
+    "size": 24,
+    "rebuilt_symbol": "@free_cache_node@8",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x1105ccf0 through 0x1105cd08 exclusive. Frees a non-null cache node and decrements the owning list count. This operation is also inlined by list removal.",
+    "match": {
+      "bytes_sha256": "9fc88136e5fe7546c84e14798c69549e4afcc67ca8bb5cc54db6e112228c1bdc",
+      "inputs_sha256": "0cd9b5b776f4739879bec257edd3b4d70bb98f87bc2ba3f3af0e719fd7ae579b"
+    }
+  },
+  {
+    "id": "pop-last-cache-item",
+    "offset": 7720240,
+    "size": 60,
+    "rebuilt_symbol": "@pop_last_cache_item@4",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x1105cd30 through 0x1105cd6c exclusive. Removes the tail node and returns its sound item. Also inlined in the cache eviction path.",
+    "match": {
+      "bytes_sha256": "ce1f3d66cab37085658f364b734bb1e544a7b96e7e9c7e01759fc08f9509fc59",
+      "inputs_sha256": "8749bca221ecfd7b343e3b9a3ce0117d989129ad222628665333ffe1a75eb544"
+    }
+  },
+  {
+    "id": "append-cache-item",
+    "offset": 7720304,
+    "size": 64,
+    "rebuilt_symbol": "@append_cache_item@8",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105cf23. Complete x86 compiler function at 0x1105cd70 through 0x1105cdb0 exclusive. Appends the sound item, preserving the previous tail and updating the empty-list head.",
+    "match": {
+      "bytes_sha256": "37db8bab8d4a8407fe61da2acd413392c154f12bafe1523a4220128c1c0ec6c1",
+      "inputs_sha256": "47d49a1b6ffcfa71e13f024fb23fdec6279ff39f8d2a7286c441a664b188c771"
+    }
+  },
+  {
+    "id": "unlink-cache-node",
+    "offset": 7720368,
+    "size": 64,
+    "rebuilt_symbol": "@unlink_cache_node@8",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105cf88. Complete x86 compiler function at 0x1105cdb0 through 0x1105cdf0 exclusive. Repairs both links or endpoints, releases the removed node and decrements the item count.",
+    "match": {
+      "bytes_sha256": "4048ec82f7d5126efa9b6e2d8d0f5e681bced8c74c11def97f496432b28214af",
+      "inputs_sha256": "b356bca3360fce700564a73bfc47bde9e42caee6028c36f46c1087416753542d"
+    }
+  },
+  {
+    "id": "insert-before-cache-node",
+    "offset": 7720432,
+    "size": 128,
+    "rebuilt_symbol": "@insert_before_cache_node@12",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105cf4c. Complete x86 compiler function at 0x1105cdf0 through 0x1105ce70 exclusive. Inserts before a supplied node, or prepends at the head when the position is null.",
+    "match": {
+      "bytes_sha256": "705c9698e4bd7fed8e853b3ab33cb0635e865dadffebe1d4ae143076bb9a58a0",
+      "inputs_sha256": "00c107baada1717b8e196ae35b8b74e7030e734440f240cb8a56096e5e237418"
+    }
+  },
+  {
+    "id": "find-cache-item",
+    "offset": 7720560,
+    "size": 38,
+    "rebuilt_symbol": "@find_cache_item@12",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "identification": "Complete x86 compiler function at 0x1105ce70 through 0x1105ce96 exclusive. Finds the first matching item after a supplied cursor, starting from the list head if the cursor is null.",
+    "match": {
+      "bytes_sha256": "ab9f7e3f6eea1cb2f15949fcb8d5f295625b37e60ee6b61d94a90ff0d634d15f",
+      "inputs_sha256": "94bee5186dd8dfe9ec3397c53fbaa767b72be72ce292b0d48f286050aa9e594c"
+    }
+  },
+  {
+    "id": "pop-first-cache-item",
+    "offset": 7720608,
+    "size": 53,
+    "rebuilt_symbol": "@pop_first_cache_item@4",
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x1105cea0 through 0x1105ced5 exclusive. Removes the head node and returns its sound item. The same unlink operation is inlined in clear-cache-list.",
+    "match": {
+      "bytes_sha256": "052c96ab34148a029c08cbb7ac20d20a037f5c3bdb587cd839e5b4b6189f3926",
+      "inputs_sha256": "58f1824f50f494e620e402c824644380486b2d9eb87a28b630b9a3c7fc68a3e6"
+    }
+  },
+  {
+    "id": "cache-insert-priority",
+    "offset": 7720672,
+    "size": 117,
+    "rebuilt_symbol": "@cache_insert_priority@8",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@cache_item_priority@4": {
+        "va": 285594192,
+        "basis": "Reads the signed sorting key for descending insertion order."
+      },
+      "@append_cache_item@8": {
+        "va": 285592944,
+        "basis": "Appends the sound item, preserving the previous tail and updating the empty-list head."
+      },
+      "@cache_item_bytes@4": {
+        "va": 285594240,
+        "basis": "Returns the item size used in capacity checks and insertion/removal accounting."
+      },
+      "@insert_before_cache_node@12": {
+        "va": 285593072,
+        "basis": "Inserts before a supplied node, or prepends at the head when the position is null."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110525f2. Complete x86 compiler function at 0x1105cee0 through 0x1105cf55 exclusive. Inserts by descending signed key using a before-position or the list tail; adds the item size to usage. Equal keys are placed before the existing item.",
+    "match": {
+      "bytes_sha256": "2b548849b84205aed347214ab1ed91fb45d99d0d09217aa064c7ccd70bffeb18",
+      "inputs_sha256": "a16da9176b77cc2339e9c1d1c52f2f891fa551ba3e0cf3604fce6b6dd09ae0a9"
+    }
+  },
+  {
+    "id": "cache-remove-item",
+    "offset": 7720800,
+    "size": 60,
+    "rebuilt_symbol": "@cache_remove_item@8",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@unlink_cache_node@8": {
+        "va": 285593008,
+        "basis": "Repairs both links or endpoints, releases the removed node and decrements the item count."
+      },
+      "@cache_item_bytes@4": {
+        "va": 285594240,
+        "basis": "Returns the item size used in capacity checks and insertion/removal accounting."
+      }
+    },
+    "identification": "Complete x86 compiler function at 0x1105cf60 through 0x1105cf9c exclusive. Searches the enabled cache for an item pointer, unlinks the node on a hit and subtracts the item size.",
+    "match": {
+      "bytes_sha256": "0b450f0532f4b5b65f3dc08e03460d68f8f1c188853ab4eca9641a806a73f1b5",
+      "inputs_sha256": "3b8f33a67c38d13257c080c8a77b9840d16577434f67649e10505a7c5cccbc3f"
+    }
+  },
+  {
+    "id": "cache-pop-last",
+    "offset": 7720864,
+    "size": 76,
+    "rebuilt_symbol": "@cache_pop_last@4",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      },
+      "@cache_item_bytes@4": {
+        "va": 285594240,
+        "basis": "Returns the item size used in capacity checks and insertion/removal accounting."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110525a6. Complete x86 compiler function at 0x1105cfa0 through 0x1105cfec exclusive. Removes the last item of an enabled cache and subtracts its size when non-null. The caller uses this to evict entries until a new item fits.",
+    "match": {
+      "bytes_sha256": "7baf75bec70f1d69f386eff1e11ae1408b0c1abae87013d7b57de0ad9d3a4e15",
+      "inputs_sha256": "dc0b91d8a67f81940acab712857792f11552d0aeca030fd3fc2f3976077eb96a"
+    }
+  },
+  {
+    "id": "cache-take-key",
+    "offset": 7720944,
+    "size": 103,
+    "rebuilt_symbol": "@cache_take_key@8",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@cache_item_matches@8": {
+        "va": 285594000,
+        "basis": "Compares the argument against the item identity field at +0x10."
+      },
+      "@unlink_cache_node@8": {
+        "va": 285593008,
+        "basis": "Repairs both links or endpoints, releases the removed node and decrements the item count."
+      },
+      "@cache_item_bytes@4": {
+        "va": 285594240,
+        "basis": "Returns the item size used in capacity checks and insertion/removal accounting."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110524cd. Complete x86 compiler function at 0x1105cff0 through 0x1105d057 exclusive. Searches by item identity, removes and returns the match, and adjusts usage. Disabled caches and misses return null.",
+    "match": {
+      "bytes_sha256": "3dd001c09df7bd29ae1330f7f566d8cf672f2ae6447c04ee55850678f5085a9c",
+      "inputs_sha256": "a6de7fcbb5a72527a4f29fc18bc7d45719f8a56257c7e682131424f5223464b5"
+    }
+  },
+  {
+    "id": "clear-cache-list",
+    "offset": 7721056,
+    "size": 56,
+    "rebuilt_symbol": "@clear_cache_list@4",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105d0d7. Complete x86 compiler function at 0x1105d060 through 0x1105d098 exclusive. Drains the nodes through front removal and leaves an empty list.",
+    "match": {
+      "bytes_sha256": "9445e204847ed03c4e0ef014de45c4678bebc179f227ef2c4f31fec2e2a9ebc3",
+      "inputs_sha256": "1d6cb077252182967f2b90967b75e6676bf049a00b644866793a2f4d623eb98a"
+    }
+  },
+  {
+    "id": "initialize-sound-cache",
+    "offset": 7721136,
+    "size": 57,
+    "rebuilt_symbol": "@initialize_sound_cache@8",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@clear_cache_list@4": {
+        "va": 285593696,
+        "basis": "Drains the nodes through front removal and leaves an empty list."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110535dd. Complete x86 compiler function at 0x1105d0b0 through 0x1105d0e9 exclusive. Initializes endpoints and count, sets the supplied capacity, enables the cache and zeroes usage.",
+    "match": {
+      "bytes_sha256": "5d728c76111aeacc0725fa29b2aa1352f8ced68885c2bb69708849dbee9e0a1f",
+      "inputs_sha256": "a7b5aaeac30df2a9387c5ba99b495ee0308773e938b198479b18d450b2f33a32"
+    }
+  },
+  {
+    "id": "release-sound-cache",
+    "offset": 7721200,
+    "size": 8,
+    "rebuilt_symbol": "@release_sound_cache@4",
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@clear_cache_list@4": {
+        "va": 285593696,
+        "basis": "Drains the nodes through front removal and leaves an empty list."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x110502f3. Complete x86 compiler function at 0x1105d0f0 through 0x1105d0f8 exclusive. Tail-calls list cleanup on the embedded cache list.",
+    "match": {
+      "bytes_sha256": "4bf6a946b2d74e91f7e9e9b20612ac9656f0eb15057fc82bec285f0d120e7bde",
+      "inputs_sha256": "8d55dd6c0e81226cab18cf3c4a930e2f5a7a97923c3a9a91b5d86837d71c02c3"
+    }
+  },
+  {
+    "id": "configure-cache-item",
+    "offset": 7721216,
+    "size": 57,
+    "rebuilt_symbol": "@configure_cache_item@28",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Complete x86 compiler function at 0x1105d100 through 0x1105d139 exclusive. Configures primary and secondary sound buffers, combined size, item identity and reusability; resets sorting key and busy flag.",
+    "match": {
+      "bytes_sha256": "90897d405ca191430176540831d41dee160c7724137bb006e83d47d59c6a376d",
+      "inputs_sha256": "7c934685193214629d3ff2da31e4fc01f3db291c707f38cad590115b68da12ee"
+    }
+  },
+  {
+    "id": "construct-empty-cache-item",
+    "offset": 7721280,
+    "size": 29,
+    "rebuilt_symbol": "@construct_empty_cache_item@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Complete x86 compiler function at 0x1105d140 through 0x1105d15d exclusive. Constructs an empty reusable sound item with no identity or buffer pointers.",
+    "match": {
+      "bytes_sha256": "1008b6df560f8bfe0dbbef0c2c80b8d4edd1a095ed8e6e03606f3a3d057d81cc",
+      "inputs_sha256": "97d298219b85ca354aabb4a94902db7d3fc0ca5c4c5127aa66fe9e715cb1a3d5"
+    }
+  },
+  {
+    "id": "destroy-cache-item-buffers",
+    "offset": 7721312,
+    "size": 45,
+    "rebuilt_symbol": "@destroy_cache_item_buffers@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x11050443. Complete x86 compiler function at 0x1105d160 through 0x1105d18d exclusive. Calls virtual deleting destructors for both owned buffer wrappers, passing the release flag, then clears the pointers.",
+    "match": {
+      "bytes_sha256": "3191ec5adba6cb24a5dfd6a69218654e23d0ea18c9864ec9f407e7ecd8490ca4",
+      "inputs_sha256": "de435493dea38519345b955ad613591a2feab5f1088c21c7bca976a8138072c5"
+    }
+  },
+  {
+    "id": "cache-item-matches",
+    "offset": 7721360,
+    "size": 19,
+    "rebuilt_symbol": "@cache_item_matches@8",
+    "inputs": [
+      "src/sound_cache_item.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_item.obj src/sound_cache_item.c",
+    "identification": "Direct retail branch at VA 0x1105d020. Complete x86 compiler function at 0x1105d190 through 0x1105d1a3 exclusive. Compares the argument against the item identity field at +0x10.",
+    "match": {
+      "bytes_sha256": "94404ca427568c69943bf1bdff9d4602e09a3528bc62ff1b2ec003d1d4153d45",
+      "inputs_sha256": "46d40f40847a4f9c1f835b27b0063378c4ffb15765f1979a2fe25e19bc29d2c0"
+    }
+  },
+  {
+    "id": "cache-item-busy",
+    "offset": 7721392,
+    "size": 3,
+    "rebuilt_symbol": "@cache_item_busy@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x110503d8. Complete x86 compiler function at 0x1105d1b0 through 0x1105d1b3 exclusive. Reads the busy flag used when choosing a reusable sound item.",
+    "match": {
+      "bytes_sha256": "19d200194d49b34530548575f37a1bb4203ee60f18d42f0084e86b7a8c899faa",
+      "inputs_sha256": "5caac5134fd3fc5b97452fec6050e47991f45cd91640d95c412f57328b36ff5d"
+    }
+  },
+  {
+    "id": "cache-item-reusable",
+    "offset": 7721408,
+    "size": 4,
+    "rebuilt_symbol": "@cache_item_reusable@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x11052561. Complete x86 compiler function at 0x1105d1c0 through 0x1105d1c4 exclusive. Returns the flag controlling whether the release manager can return an item to its owner for reuse.",
+    "match": {
+      "bytes_sha256": "f7e0208f5e988ae39c7a45dfddbd12921d02f9c3deb5695d4c534c8ab0ccdb0f",
+      "inputs_sha256": "099624b45815fc94a52b682599591e8f1896be8dd4f7ba8d83cfbc54a23c55a5"
+    }
+  },
+  {
+    "id": "mark-cache-item-busy",
+    "offset": 7721424,
+    "size": 12,
+    "rebuilt_symbol": "@mark_cache_item_busy@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x110503f3. Complete x86 compiler function at 0x1105d1d0 through 0x1105d1dc exclusive. Marks an available reusable item busy.",
+    "match": {
+      "bytes_sha256": "4a1e756c1d23d2c69ed2fdf438818f77b645817392a00fed0d48a2ed0434a0b5",
+      "inputs_sha256": "863a32c294f4b66f972812e322d8a20900d0c0bf28804d2dfbc426aeedbb5f68"
+    }
+  },
+  {
+    "id": "mark-cache-item-available",
+    "offset": 7721440,
+    "size": 12,
+    "rebuilt_symbol": "@mark_cache_item_available@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x1105256c. Complete x86 compiler function at 0x1105d1e0 through 0x1105d1ec exclusive. Clears the busy flag upon return of a reusable item.",
+    "match": {
+      "bytes_sha256": "b3c91600344c331e549cefef40867a3174632ca65d7eb05203eeaf65f2f48107",
+      "inputs_sha256": "164a321bbd13a0d9d79454ef8d422e435b90f0efd15e2b15f5109497b0465e10"
+    }
+  },
+  {
+    "id": "rewind-cache-item-buffers",
+    "offset": 7721456,
+    "size": 33,
+    "rebuilt_symbol": "@rewind_cache_item_buffers@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "link_bindings": {
+      "@set_buffer_position@8": {
+        "va": 285598096,
+        "basis": "Address-checked direct target used by the rebuilt rewind_cache_item_buffers function at VA 0x1105d20b."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105255a. Complete x86 compiler function at 0x1105d1f0 through 0x1105d211 exclusive. Resets the play cursor of both non-null buffers to the start.",
+    "match": {
+      "bytes_sha256": "ccf5ea7568cc9ce16ae7431d77ecceb3a5ffcdf90a149e2dbdd8548685aa2adf",
+      "inputs_sha256": "cbb29959d222c0960a5da337f8adb039479433585e00f2e916dfd4ea6a9f258c"
+    }
+  },
+  {
+    "id": "allocate-cache-item",
+    "offset": 7721504,
+    "size": 11,
+    "rebuilt_symbol": "_allocate_cache_item",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1106091e. Complete x86 compiler function at 0x1105d220 through 0x1105d22b exclusive. Forwards the requested size to the named sound allocator.",
+    "match": {
+      "bytes_sha256": "7c904a556876c96b76159ed7249be715644ede7939d513157b3b6d6d40018723",
+      "inputs_sha256": "f92013432418530456412569c2c9af815c31cc58239232826812e2b9f8d3746a"
+    }
+  },
+  {
+    "id": "free-cache-item",
+    "offset": 7721520,
+    "size": 11,
+    "rebuilt_symbol": "_free_cache_item",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x11050450. Complete x86 compiler function at 0x1105d230 through 0x1105d23b exclusive. Frees cache item storage with the named sound deallocator.",
+    "match": {
+      "bytes_sha256": "3ba47ca2e82967b6a551f9e1f42d5a40a123b5df54aa03f7d3151d8eddfd28a0",
+      "inputs_sha256": "283b251faed55403150d5546f60d43d0c21f61585104139975502ad46b40e2a6"
+    }
+  },
+  {
+    "id": "set-cache-priority",
+    "offset": 7721536,
+    "size": 10,
+    "rebuilt_symbol": "@set_cache_priority@8",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x110525e9. Complete x86 compiler function at 0x1105d240 through 0x1105d24a exclusive. Sets the signed sort value used for descending cache insertion.",
+    "match": {
+      "bytes_sha256": "0a5b1a6d212e0caedbf2d98dea5a75fa8dba9f19919dae6658f37365af35e72f",
+      "inputs_sha256": "75fbbc35ee7eba03ca9025c05cef84641362bb556cf490e793a232b6f3e47b61"
+    }
+  },
+  {
+    "id": "cache-item-priority",
+    "offset": 7721552,
+    "size": 4,
+    "rebuilt_symbol": "@cache_item_priority@4",
+    "inputs": [
+      "src/sound_cache_item.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_item.obj src/sound_cache_item.c",
+    "identification": "Direct retail branch at VA 0x1105cef7. Complete x86 compiler function at 0x1105d250 through 0x1105d254 exclusive. Reads the signed sorting key for descending insertion order.",
+    "match": {
+      "bytes_sha256": "2e339cdc5de837ec151dbde90057caeabba18ac3ea32e7c2cffc8f95df41a6ff",
+      "inputs_sha256": "2ca3b402cf77c5b6b5f396ce502d2c608f2b0739010b63efead131cb32d43dc0"
+    }
+  },
+  {
+    "id": "attach-cache-buffers",
+    "offset": 7721568,
+    "size": 30,
+    "rebuilt_symbol": "@attach_cache_buffers@20",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Complete x86 compiler function at 0x1105d260 through 0x1105d27e exclusive. Stores both buffer pointers and accounts for the sum of their sizes.",
+    "match": {
+      "bytes_sha256": "6d9fdab40898dd0465763201ed69a66f9a896e7649500d8b49a59e853d6020ff",
+      "inputs_sha256": "bcd29e7af2955a5efe13fa74e1aaa5175ef2f1f7bbcb85f11e06a5d0a7c42083"
+    }
+  },
+  {
+    "id": "cache-item-bytes",
+    "offset": 7721600,
+    "size": 4,
+    "rebuilt_symbol": "@cache_item_bytes@4",
+    "inputs": [
+      "src/sound_cache_item.c",
+      "src/sound_cache.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_item.obj src/sound_cache_item.c",
+    "identification": "Direct retail branch at VA 0x1105259a. Complete x86 compiler function at 0x1105d280 through 0x1105d284 exclusive. Returns the item size used in capacity checks and insertion/removal accounting.",
+    "match": {
+      "bytes_sha256": "916ae10aa3fd76a4d5b25b2fb66e9df0fd04957c7ab10930268d1ed7808be689",
+      "inputs_sha256": "60e85a09af4f0212fc429f200f07e2d2898c93714cbe552a5f748e9bc7043282"
+    }
+  },
+  {
+    "id": "primary-cache-buffer",
+    "offset": 7721616,
+    "size": 4,
+    "rebuilt_symbol": "@primary_cache_buffer@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x11050489. Complete x86 compiler function at 0x1105d290 through 0x1105d294 exclusive. Returns the primary sound buffer pointer.",
+    "match": {
+      "bytes_sha256": "01d3abacb68aac3537badfe563d0e21d0244fb61db1d805bcef8f455407fad96",
+      "inputs_sha256": "a350ef4ad48c8a3b145097587358056987d70a064dc60614e24dd65b1c79f893"
+    }
+  },
+  {
+    "id": "secondary-cache-buffer",
+    "offset": 7721632,
+    "size": 4,
+    "rebuilt_symbol": "@secondary_cache_buffer@4",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x11050493. Complete x86 compiler function at 0x1105d2a0 through 0x1105d2a4 exclusive. Returns the secondary sound buffer pointer.",
+    "match": {
+      "bytes_sha256": "38058506e8e859d5be73a33baa621352c08ea01f2224ee170173253757193941",
+      "inputs_sha256": "967e8c86272cbabebaec7d5f10e1f6138fcfecf0ebf0951ee6290c4abe656a4d"
+    }
+  },
+  {
+    "id": "construct-cache-item",
+    "offset": 7721648,
+    "size": 59,
+    "rebuilt_symbol": "@construct_cache_item@28",
+    "inputs": [
+      "src/sound_cache_buffers.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_buffers.obj src/sound_cache_buffers.c",
+    "identification": "Direct retail branch at VA 0x11060940. Complete x86 compiler function at 0x1105d2b0 through 0x1105d2eb exclusive. Constructs a cache item from its associated resource and buffer pair; returns the receiver.",
+    "match": {
+      "bytes_sha256": "760aa6f6950db361edc94738f3cfae0ad40c1959e3edbd448440fa0c02e5f8e4",
+      "inputs_sha256": "d98b64f20cfdbcf7fbf56258b9302b43b7ad723029cdbcf5a3a472df9975c849"
+    }
+  },
+  {
+    "id": "initialize-sound-buffer",
+    "offset": 7725056,
+    "size": 66,
+    "rebuilt_symbol": "@initialize_sound_buffer@4",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "link_bindings": {
+      "_SoundBufferMethods": {
+        "va": 286742120,
+        "basis": "Read-only virtual method table written by the audio buffer constructor and destructor."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105f73f. Complete x86 compiler function at 0x1105e000 through 0x1105e042 exclusive. Initializes the audio buffer wrapper, clears its three interface pointers and status fields, and sets the timer to the -2 sentinel.",
+    "match": {
+      "bytes_sha256": "85d2c89c530f5f34ddf6c246dcd2b9b12137d04389919cc00405606d18db3b48",
+      "inputs_sha256": "85b7ae6253ad7f2b132c9b0241c71f5de39e914e242d5a0460bcd23d21d15845"
+    }
+  },
+  {
+    "id": "release-sound-buffer",
+    "offset": 7725136,
+    "size": 92,
+    "rebuilt_symbol": "@release_sound_buffer@4",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "link_bindings": {
+      "_SoundBufferMethods": {
+        "va": 286742120,
+        "basis": "Read-only virtual method table written by the audio buffer constructor and destructor."
+      },
+      "_SND_fn_vDestroyTimer@4": {
+        "va": 285505920,
+        "basis": "Named campaign export _SND_fn_vDestroyTimer@4."
+      }
+    },
+    "identification": "Direct retail branch at VA 0x1105e4d3. Complete x86 compiler function at 0x1105e050 through 0x1105e0ac exclusive. Restores the wrapper method table, releases its three non-null COM interfaces in order, destroys the timer if present and clears the released members.",
+    "match": {
+      "bytes_sha256": "fa3bd36e036bc37dbd3d8381f8aa5d4172d09788201a41068f370da2860061f9",
+      "inputs_sha256": "4c3c36c152b3003cdb9c9cbfd145223a8cacd244308b336cbaf6585e6f1f30a7"
+    }
+  },
+  {
+    "id": "buffer-spatial-mode",
+    "offset": 7725232,
+    "size": 4,
+    "rebuilt_symbol": "@buffer_spatial_mode@4",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11050eea. Complete x86 compiler function at 0x1105e0b0 through 0x1105e0b4 exclusive. Reads the spatial-enable flag of the DirectSound buffer wrapper.",
+    "match": {
+      "bytes_sha256": "2e339cdc5de837ec151dbde90057caeabba18ac3ea32e7c2cffc8f95df41a6ff",
+      "inputs_sha256": "73fa053c92eef1a5e366562eeb021dd615fc6aa68b7a1f894baec6d9e3048509"
+    }
+  },
+  {
+    "id": "set-buffer-spatial-mode",
+    "offset": 7725248,
+    "size": 43,
+    "rebuilt_symbol": "@set_buffer_spatial_mode@8",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11051427. Complete x86 compiler function at 0x1105e0c0 through 0x1105e0eb exclusive. Updates the cached enable flag and sends IDirectSound3DBuffer::SetMode only when the flag changes; selects NORMAL or DISABLE with deferred application.",
+    "match": {
+      "bytes_sha256": "bfc71af477836cad1f3c62371ec9ca691564cc1f037846e51f54a2da279b2d77",
+      "inputs_sha256": "37712f3cdb6c2da98b9d0f4010085b1b64083f5483add2f568f3e9a92f7a1b40"
+    }
+  },
+  {
+    "id": "play-sound-buffer",
+    "offset": 7725296,
+    "size": 62,
+    "rebuilt_symbol": "@play_sound_buffer@16",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11050f68. Complete x86 compiler function at 0x1105e0f0 through 0x1105e12e exclusive. Calls IDirectSoundBuffer::Play, marks the buffer played on S_OK or DS_NO_VIRTUALIZATION, and returns DSERR_INVALIDCALL when the interface is missing.",
+    "match": {
+      "bytes_sha256": "2088f7bbc55c2c78751e5747ef1455b6b445020589809746752a8a8e670491f5",
+      "inputs_sha256": "45059046146edb57d45ece0ec2393eeb7a5b834cb5e269f9d39047d22d5fae56"
+    }
+  },
+  {
+    "id": "set-buffer-pan",
+    "offset": 7725360,
+    "size": 17,
+    "rebuilt_symbol": "@set_buffer_pan@8",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11051387. Complete x86 compiler function at 0x1105e130 through 0x1105e141 exclusive. Forwards pan to IDirectSoundBuffer::SetPan at vtable offset 0x40.",
+    "match": {
+      "bytes_sha256": "1c52b8f1ce8d2d1901f972a80da68257ff8f67e5f2e00e5db59d38181b092efd",
+      "inputs_sha256": "f1fdbebb5d9a4a5302ba270f4ee9e80f0aaa22aaa508b2fa3f6b1b360e1a35bf"
+    }
+  },
+  {
+    "id": "set-buffer-volume",
+    "offset": 7725392,
+    "size": 17,
+    "rebuilt_symbol": "@set_buffer_volume@8",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11051265. Complete x86 compiler function at 0x1105e150 through 0x1105e161 exclusive. Forwards volume to IDirectSoundBuffer::SetVolume at vtable offset 0x3c.",
+    "match": {
+      "bytes_sha256": "22b41e974b63681bc9cca42d436b0a60c2f1d45b54be4a33b835af4d99a86c2a",
+      "inputs_sha256": "9dd9e7e33f7031d548b6b92f29e394faae6a932e9fbd97cd6cd7aa7a1aea35b7"
+    }
+  },
+  {
+    "id": "set-buffer-frequency",
+    "offset": 7725424,
+    "size": 17,
+    "rebuilt_symbol": "@set_buffer_frequency@8",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x1105112a. Complete x86 compiler function at 0x1105e170 through 0x1105e181 exclusive. Forwards frequency to IDirectSoundBuffer::SetFrequency at vtable offset 0x44.",
+    "match": {
+      "bytes_sha256": "c37378c6e9a41e76c93eba84e1fd3107e862b815e02256f15c6f66dde205d575",
+      "inputs_sha256": "7351efc99761bce310fca63557576dbdb4dab10c73d95602d48c25fc364ff7a4"
+    }
+  },
+  {
+    "id": "set-buffer-position",
+    "offset": 7725456,
+    "size": 17,
+    "rebuilt_symbol": "@set_buffer_position@8",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11050fc2. Complete x86 compiler function at 0x1105e190 through 0x1105e1a1 exclusive. Forwards the position to IDirectSoundBuffer::SetCurrentPosition. The item rewind path calls this with zero for both owned buffers.",
+    "match": {
+      "bytes_sha256": "7ed5a3a620cd82e0493ab02de9eaccc737f4c481198481b6790e22ee0fe54954",
+      "inputs_sha256": "ab65bb01452d1e69d2ae443cf6b0c883d6a43482917bb5c683acfe702f518eda"
+    }
+  },
+  {
+    "id": "get-buffer-cursors",
+    "offset": 7725488,
+    "size": 22,
+    "rebuilt_symbol": "@get_buffer_cursors@12",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11051022. Complete x86 compiler function at 0x1105e1b0 through 0x1105e1c6 exclusive. Reads both play and write cursors through IDirectSoundBuffer::GetCurrentPosition.",
+    "match": {
+      "bytes_sha256": "1cdb329a10a8c6ec19108bc98b2241ae6ffdc6533a7b1df313001e2fda65233b",
+      "inputs_sha256": "3d03a1ea8f6820db022392eee3bd9177e9f487827f0e0948659dca0cb464dce5"
+    }
+  },
+  {
+    "id": "stop-sound-buffer",
+    "offset": 7725520,
+    "size": 10,
+    "rebuilt_symbol": "@stop_sound_buffer@4",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11050fa7. Complete x86 compiler function at 0x1105e1d0 through 0x1105e1da exclusive. Calls IDirectSoundBuffer::Stop through vtable offset 0x48.",
+    "match": {
+      "bytes_sha256": "096eec91ece9ca3d3ecd3223a56bb1bfe8c852a4ba9558010686c16e13592165",
+      "inputs_sha256": "83607aba47bce872d066d08325d0bae7dd77c945678834d15757ee0ca44bb1d9"
+    }
+  },
+  {
+    "id": "acquire-buffer-resources",
+    "offset": 7725536,
+    "size": 27,
+    "rebuilt_symbol": "@acquire_buffer_resources@16",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x11050f08. Complete x86 compiler function at 0x1105e1e0 through 0x1105e1fb exclusive. Forwards flags, effect count and output codes to IDirectSoundBuffer8::AcquireResources at vtable offset 0x58.",
+    "match": {
+      "bytes_sha256": "e6e2aee30c71f179d0add79ab95b5291b8c49881ca006d22e883db7ed1f456d9",
+      "inputs_sha256": "8ffb7f4eb0054b2ee4eeaec9c51d5eec613965feae01e66739b74471cf96a629"
+    }
+  },
+  {
+    "id": "get-buffer-status",
+    "offset": 7725568,
+    "size": 17,
+    "rebuilt_symbol": "@get_buffer_status@8",
+    "inputs": [
+      "src/sound_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_buffer.obj src/sound_buffer.c",
+    "identification": "Direct retail branch at VA 0x110504be. Complete x86 compiler function at 0x1105e200 through 0x1105e211 exclusive. Calls IDirectSoundBuffer::GetStatus at vtable offset 0x24.",
+    "match": {
+      "bytes_sha256": "e06754ce1c053509ec694db8bb79854f44f15adc3da186eaf3ee4b4d37d625e8",
+      "inputs_sha256": "3dc6a00f8066b15bfcc69b9375b711a7a7ac81f4fb4a47c81abd0b1af3df670b"
+    }
+  }
+]

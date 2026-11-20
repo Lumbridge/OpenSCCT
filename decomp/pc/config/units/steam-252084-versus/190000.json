@@ -1,0 +1,759 @@
+[
+  {
+    "id": "versus-toggle-binocular-lock",
+    "offset": 1642304,
+    "size": 39,
+    "rebuilt_symbol": "@versus_toggle_binocular_lock@16",
+    "inputs": [
+      "src/versus_menu_settings.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_menu_settings.obj src/versus_menu_settings.c",
+    "identification": "Retail registration at RVA 0x18c89d assigns GNatives[1441] to RVA 0x190f40. The class and function name SHud.LockObjectiveBinocularsAtt agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "b293995c0910e5cec4551ad5e91b11c802c52e4ed75c90df2296b6abe8a49bc4",
+      "inputs_sha256": "bfcbdffcd4c3ee434cef7f2d723d414a50c52ad97969990db16f6ff8bf9cef85"
+    }
+  },
+  {
+    "id": "versus-sfx-force-slot",
+    "offset": 1648192,
+    "size": 66,
+    "rebuilt_symbol": "@versus_sfx_force_slot@16",
+    "inputs": [
+      "src/versus_effects.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_effects.obj src/versus_effects.c",
+    "identification": "Retail registration at RVA 0x18c640 assigns GNatives[1453] to RVA 0x192640. The class and function name SHud.SfxForceSlot agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "5d3f61a20b615b4c55e0d96441cffbc335e1fb8e10a9661e8adb6f7f4b706f65",
+      "inputs_sha256": "031f08001d8167f150432583577500341fbb5f662ef3ccbaf71192de2d78adbd"
+    }
+  },
+  {
+    "id": "versus-following-rotation",
+    "offset": 1664240,
+    "size": 152,
+    "rebuilt_symbol": "@versus_following_rotation@16",
+    "inputs": [
+      "src/versus_camera_follow.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_camera_follow.obj src/versus_camera_follow.c",
+    "identification": "Retail registration at RVA 0x18b4a2 assigns GNatives[1395] to RVA 0x1964f0. The class and function name SPlayerCam.FollowingRotation agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "6773a433cedde46b162cd9c55231116b47de2d56e164c9b2550a380800209ec0",
+      "inputs_sha256": "4e418d958c44033891d2ac1cb1dcb72320e40b2b7457dddf7650ae339920f4c2"
+    }
+  },
+  {
+    "id": "versus-resetting-rotation",
+    "offset": 1664848,
+    "size": 109,
+    "rebuilt_symbol": "@versus_resetting_rotation@16",
+    "inputs": [
+      "src/versus_camera_rotation.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_camera_rotation.obj src/versus_camera_rotation.c",
+    "identification": "Retail registration at RVA 0x18b46b assigns GNatives[1396] to RVA 0x196750. The class and function name SPlayerCam.ResettingRotation agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "0f029f383f15558ad58899c9146ee3b3fc369628219d54b6e8794cb80454f7c8",
+      "inputs_sha256": "a3a9b0787687f2a538dba467e303cf5c8be1b89e475135fd26cd5026dbc425fe"
+    }
+  },
+  {
+    "id": "versus-camera-set-mode",
+    "offset": 1664960,
+    "size": 194,
+    "rebuilt_symbol": "@versus_camera_set_mode@16",
+    "inputs": [
+      "src/versus_camera_set_mode.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_camera_set_mode.obj src/versus_camera_set_mode.c",
+    "identification": "Retail registration at RVA 0x18b434 assigns GNatives[1397] to RVA 0x1967c0. The class and function name SPlayerCam.SetMode agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "1d18d8118a152b28f3ea5035ab6688662f8b03dacf15d94d53c86468a83f30c4",
+      "inputs_sha256": "57391bb7b74d679f492ce4bca274276c2d17a9f65849b6bdaeb40bcd39914175"
+    }
+  },
+  {
+    "id": "lobby-get-user-count",
+    "offset": 1680448,
+    "size": 32,
+    "rebuilt_symbol": "@execGetUserCount@16",
+    "identification": "SBase.SXBoxLiveRef.GetUserCount is registered at native slot 1464 by the store at VA 0x10a89e81. The complete handler advances the script cursor and calls slot 36 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "37f7ce5d78d514147c528dcdb19ad697430f619985f241c12e75676116f73540",
+      "inputs_sha256": "248763bcf13131c8104178d32d53167bd668ae5740767d266a052bc75297e1dd"
+    }
+  },
+  {
+    "id": "lobby-get-lobby-count",
+    "offset": 1681408,
+    "size": 32,
+    "rebuilt_symbol": "@execGetLobbyCount@16",
+    "identification": "SBase.SXBoxLiveRef.GetLobbyCount is registered at native slot 1489 by the store at VA 0x10a897d8. The complete handler advances the script cursor and calls slot 47 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1478787cf2095cd33820e2f8f198a067ee5d99949ad206ec9c3947a17ff799ed",
+      "inputs_sha256": "e3fb53a99041d0d492901c66497ba38a85db542610bdc63a80ef71c60b29151a"
+    }
+  },
+  {
+    "id": "lobby-leave-lobby",
+    "offset": 1681760,
+    "size": 26,
+    "rebuilt_symbol": "@execLeaveLobby@16",
+    "identification": "SBase.SXBoxLiveRef.LeaveLobby is registered at native slot 1493 by the store at VA 0x10a896fc. The complete handler advances the script cursor and calls slot 50 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "12d1ed7f5fad6dfd74fb5846658dd0a4c135bd8f8da8f1fd37ec710a7c0eb698",
+      "inputs_sha256": "2bad17ba2cf0d6f05224d781b6ff4fb08fb86e634e4be659627568470b0f3195"
+    }
+  },
+  {
+    "id": "lobby-match-query-leave-match",
+    "offset": 1687088,
+    "size": 26,
+    "rebuilt_symbol": "@execMatchQueryLeaveMatch@16",
+    "identification": "SBase.SXBoxLiveRef.MatchQueryLeaveMatch is registered at native slot 1509 by the store at VA 0x10a88e64. The complete handler advances the script cursor and calls slot 84 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "8e68f1b9ebd1507442ef7a09772e83786ee133cb54bc635f5a109103ebac11c4",
+      "inputs_sha256": "2c1340e8fff8b729c84761d3a9841f279bb8fe9edaf39b980fc141a94094fdae"
+    }
+  },
+  {
+    "id": "lobby-match-connected",
+    "offset": 1688224,
+    "size": 26,
+    "rebuilt_symbol": "@execMatchConnected@16",
+    "identification": "SBase.SXBoxLiveRef.MatchConnected is registered at native slot 1526 by the store at VA 0x10a88527. The complete handler advances the script cursor and calls slot 86 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "acddaa07bb9a63d36f53ff18dbee633fc79890a0eb5208207bb571a653734fb3",
+      "inputs_sha256": "8bab5a551225971a02fa1daf09051a1aba248eef5a35373678c8d10bf9c67511"
+    }
+  },
+  {
+    "id": "lobby-get-results-count",
+    "offset": 1688496,
+    "size": 32,
+    "rebuilt_symbol": "@execGetResultsCount@16",
+    "identification": "SBase.SXBoxLiveRef.GetResultsCount is registered at native slot 1529 by the store at VA 0x10a8844b. The complete handler advances the script cursor and calls slot 90 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a3cbdd236d3109f2b51ba7ea61923fe007311f2900a4d45a93de99acd52f00ec",
+      "inputs_sha256": "08f2f7e327a6669315fe44f7764e3fe46324f52359a14a8751a88539134d4f25"
+    }
+  },
+  {
+    "id": "lobby-terminate-match",
+    "offset": 1689088,
+    "size": 26,
+    "rebuilt_symbol": "@execTerminateMatch@16",
+    "identification": "SBase.SXBoxLiveRef.TerminateMatch is registered at native slot 1511 by the store at VA 0x10a88b62. The complete handler advances the script cursor and calls slot 93 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5c96095525b77ac6908d443b7180fa2c7590a4ecec9f2ed97e9200de1e328a47",
+      "inputs_sha256": "ec59255a8a0cc14a76534a2c9554abc77f3e9b2e66b56f4221842c52f38db47c"
+    }
+  },
+  {
+    "id": "lobby-update-match",
+    "offset": 1689120,
+    "size": 26,
+    "rebuilt_symbol": "@execUpdateMatch@16",
+    "identification": "SBase.SXBoxLiveRef.UpdateMatch is registered at native slot 1512 by the store at VA 0x10a88b2b. The complete handler advances the script cursor and calls slot 94 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ea790e63b36ae2c8218533c86dd954de82b1503072c42e7e3b69cd487bf29754",
+      "inputs_sha256": "03b069a20f53e4d506202bcc70384a246280be325568be6645df367a792d692f"
+    }
+  },
+  {
+    "id": "lobby-match-get-available-public-slots",
+    "offset": 1690768,
+    "size": 32,
+    "rebuilt_symbol": "@execMatchGetAvailablePublicSlots@16",
+    "identification": "SBase.SXBoxLiveRef.MatchGetAvailablePublicSlots is registered at native slot 1524 by the store at VA 0x10a88671. The complete handler advances the script cursor and calls slot 115 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "873bc5ad7ee21d45f055176a61809252fadc10d8505ae9498fc4caf0bf3d7a2f",
+      "inputs_sha256": "20b085c29c995a5a25dc8d498c86d262be14a73823227f2db650c593f4f203ce"
+    }
+  },
+  {
+    "id": "lobby-match-get-available-private-slots",
+    "offset": 1690800,
+    "size": 32,
+    "rebuilt_symbol": "@execMatchGetAvailablePrivateSlots@16",
+    "identification": "SBase.SXBoxLiveRef.MatchGetAvailablePrivateSlots is registered at native slot 1525 by the store at VA 0x10a8863a. The complete handler advances the script cursor and calls slot 116 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e43ef502f811056fbd0645332ccc3af9753c7aa6382b77896188b0fcb937490d",
+      "inputs_sha256": "5347535ba35babbe491f012a4c02a36b68d37f15e2e382ff0fbbcd4a39c064e6"
+    }
+  },
+  {
+    "id": "lobby-black-list-get-num",
+    "offset": 1690832,
+    "size": 32,
+    "rebuilt_symbol": "@execBlackListGetNum@16",
+    "identification": "SBase.SXBoxLiveRef.BlackListGetNum is registered at native slot 1747 by the store at VA 0x10a8779e. The complete handler advances the script cursor and calls slot 126 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b0adebf9d2825f3bcf8ab6301fc28bc9e9c42c14beae93b2356305751d9ac0d3",
+      "inputs_sha256": "910cf20e80c533e00131a20d1721a1597d8736b73ec36e8121de489790cf510a"
+    }
+  },
+  {
+    "id": "lobby-get-nb-friends-in-list",
+    "offset": 1691344,
+    "size": 32,
+    "rebuilt_symbol": "@execGetNbFriendsInList@16",
+    "identification": "SBase.SXBoxLiveRef.GetNbFriendsInList is registered at native slot 1533 by the store at VA 0x10a880db. The complete handler advances the script cursor and calls slot 124 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "84807e905831ce2eec1680d32d2c5363c89d1d7e1bcdcca0ac63e53a968be8fe",
+      "inputs_sha256": "a76a93b19ab36299b0104530518b38eccc390147beb1bdf71c65a7da9bd30e32"
+    }
+  },
+  {
+    "id": "lobby-game-is-finished",
+    "offset": 1692064,
+    "size": 26,
+    "rebuilt_symbol": "@execGameIsFinished@16",
+    "identification": "SBase.SXBoxLiveRef.GameIsFinished is registered at native slot 1744 by the store at VA 0x10a881ee. The complete handler advances the script cursor and calls slot 148 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6246e1d06861a3fdd84d9d41dd34b667fd78b97be2c8cf8d3e1c2871a8bc98df",
+      "inputs_sha256": "1c2f3b57853bf4ae2486aa33af43e51c8cff5363548a48f109b48ea5d4f4ac28"
+    }
+  },
+  {
+    "id": "lobby-current-invitation-delete",
+    "offset": 1692096,
+    "size": 26,
+    "rebuilt_symbol": "@execCurrentInvitationDelete@16",
+    "identification": "SBase.SXBoxLiveRef.CurrentInvitationDelete is registered at native slot 1742 by the store at VA 0x10a881b7. The complete handler advances the script cursor and calls slot 144 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b69f9ec6f19eba73627b7fb57a0f038a64550ad32dfca787cf1a4439c18d5561",
+      "inputs_sha256": "c92499aefea4a36e3cf576e862fdb18c807f80bf8ee3ce8a9ad1c46bcdc435b4"
+    }
+  },
+  {
+    "id": "lobby-get-friend-lobby-index",
+    "offset": 1692128,
+    "size": 32,
+    "rebuilt_symbol": "@execGetFriendLobbyIndex@16",
+    "identification": "SBase.SXBoxLiveRef.GetFriendLobbyIndex is registered at native slot 1730 by the store at VA 0x10a88149. The complete handler advances the script cursor and calls slot 136 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "14795edb0db14b400bed343ed3b25fc39c8d1c24c0274c8f1d638aac66c0fe88",
+      "inputs_sha256": "d67a779dc975e769b99479b8a97bda9c6d479f05e1bc6f96577dd99da37900c2"
+    }
+  },
+  {
+    "id": "lobby-get-last-index-friend-updated",
+    "offset": 1692320,
+    "size": 32,
+    "rebuilt_symbol": "@execGetLastIndexFriendUpdated@16",
+    "identification": "SBase.SXBoxLiveRef.GetLastIndexFriendUpdated is registered at native slot 1727 by the store at VA 0x10a88301. The complete handler advances the script cursor and calls slot 133 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "13a13d060567b8c05185577931b205313cc3a7b0527b890efc13c41c10c8a5b8",
+      "inputs_sha256": "6243cd56ad43b925798e05f9dddaa46644c40aab228f38c802d319f03bc18567"
+    }
+  },
+  {
+    "id": "lobby-get-last-index-invitation-updated",
+    "offset": 1692352,
+    "size": 32,
+    "rebuilt_symbol": "@execGetLastIndexInvitationUpdated@16",
+    "identification": "SBase.SXBoxLiveRef.GetLastIndexInvitationUpdated is registered at native slot 1734 by the store at VA 0x10a882ca. The complete handler advances the script cursor and calls slot 143 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "bc1e4a956800220f9c83f8ff47f79353227fa8387b3cf33fc19917e310ed59c1",
+      "inputs_sha256": "d03a34cf101da52f8cda7b67fdaff7fa3d4a58ec1768748ee8ab7eb9bd6ceaa8"
+    }
+  },
+  {
+    "id": "lobby-get-invitation-searched-index",
+    "offset": 1692576,
+    "size": 32,
+    "rebuilt_symbol": "@execGetInvitationSearchedIndex@16",
+    "identification": "SBase.SXBoxLiveRef.GetInvitationSearchedIndex is registered at native slot 1745 by the store at VA 0x10a87f5a. The complete handler advances the script cursor and calls slot 146 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "781759ef97097dc628daf7aaf0b28d0f406a40e796713c451a5202bb7971e4b5",
+      "inputs_sha256": "c5f2c616c4680058aabf42899fae87f5e17c06b6c10122da93c8eedd58c95656"
+    }
+  },
+  {
+    "id": "lobby-server-start-game",
+    "offset": 1692688,
+    "size": 26,
+    "rebuilt_symbol": "@execServerStartGame@16",
+    "identification": "SBase.SXBoxLiveRef.ServerStartGame is registered at native slot 1741 by the store at VA 0x10a876c2. The complete handler advances the script cursor and calls slot 138 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9df11f0b297296f58fee19a580828424d67e72cc23370ef2fba2a0ed9170c5de",
+      "inputs_sha256": "c6e4dbd80473f19a6336a92016c1a1ecfd4f9e36a66ab3713c02d80f78c3791c"
+    }
+  },
+  {
+    "id": "lobby-is-game-invite-pending",
+    "offset": 1692720,
+    "size": 32,
+    "rebuilt_symbol": "@execIsGameInvitePending@16",
+    "identification": "SBase.SXBoxLiveRef.IsGameInvitePending is registered at native slot 1534 by the store at VA 0x10a87eec. The complete handler advances the script cursor and calls slot 125 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e554d2b3da5dba0180cf39531300a343932e2f2f337e389ce07ccfe6b9c36da9",
+      "inputs_sha256": "ced0428af188f5ecc551a238077519224c55d75fedf58a70d37866faeedc5825"
+    }
+  },
+  {
+    "id": "lobby-send-game-invite-list",
+    "offset": 1692912,
+    "size": 26,
+    "rebuilt_symbol": "@execSendGameInviteList@16",
+    "identification": "SBase.SXBoxLiveRef.SendGameInviteList is registered at native slot 1537 by the store at VA 0x10a87dd9. The complete handler advances the script cursor and calls slot 151 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "8206642a2a2cd3cb0b103aae1ea634773ec6ba4a317da862f3c0dfed1d50fc5e",
+      "inputs_sha256": "48899cbaa607c3fc60a76a50fd3962761297c1bde1aa1b04cd27e88465c2a42e"
+    }
+  },
+  {
+    "id": "lobby-get-invite-count",
+    "offset": 1695264,
+    "size": 32,
+    "rebuilt_symbol": "@execGetInviteCount@16",
+    "identification": "SBase.SXBoxLiveRef.GetInviteCount is registered at native slot 1564 by the store at VA 0x10a874d3. The complete handler advances the script cursor and calls slot 172 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0aeaa4bbfa0b6bea07c25eb929caa88e62db9ba7f4fea19e72ac57492899e0af",
+      "inputs_sha256": "f96ac539bfc42e17f9ee52163ac39df70c28ea6789e81d25745e1cf3658a68f6"
+    }
+  },
+  {
+    "id": "lobby-recent-player-get-num",
+    "offset": 1695664,
+    "size": 32,
+    "rebuilt_symbol": "@execRecentPlayerGetNum@16",
+    "identification": "SBase.SXBoxLiveRef.RecentPlayerGetNum is registered at native slot 1570 by the store at VA 0x10a87389. The complete handler advances the script cursor and calls slot 174 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a2c29f872a3c6d3a7fd59c455cdd5b22e220523f02ea36da03e440d171d8af98",
+      "inputs_sha256": "5db96502412b920e689c2edbc6cf87becb182ce822aeeb4b236331947bf1f6a0"
+    }
+  },
+  {
+    "id": "lobby-ladder-dyn-get-player-finished-games-ratio",
+    "offset": 1696960,
+    "size": 32,
+    "rebuilt_symbol": "@execLadderDyn_GetPlayerFinishedGamesRatio@16",
+    "identification": "SBase.SXBoxLiveRef.LadderDyn_GetPlayerFinishedGamesRatio is registered at native slot 1772 by the store at VA 0x10a86d85. The complete handler advances the script cursor and calls slot 183 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f842a963408ccc5cb97743b8246be1316741dce2ff3f7f178a9259e69c9e73ff",
+      "inputs_sha256": "3cff8c9eaad99958775539b194c36fa7fc543cf0c10d1889e169fc11e34c32ec"
+    }
+  },
+  {
+    "id": "lobby-server-is-reachable",
+    "offset": 1698128,
+    "size": 32,
+    "rebuilt_symbol": "@execServerIsReachable@16",
+    "identification": "SBase.SXBoxLiveRef.ServerIsReachable is registered at native slot 1726 by the store at VA 0x10a88ce3. The complete handler advances the script cursor and calls slot 110 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3e32073a613989439e3da4355678521d9657df3c6cb51910254055f18c48b201",
+      "inputs_sha256": "7012828f8dc7cad3ea3bddb99cabec0266d383b0c3541f09ee1674da830b3190"
+    }
+  },
+  {
+    "id": "lobby-get-server-public-port",
+    "offset": 1698496,
+    "size": 29,
+    "rebuilt_symbol": "@execGetServerPublicPort@16",
+    "identification": "SBase.SXBoxLiveRef.GetServerPublicPort is registered at native slot 1760 by the store at VA 0x10a88338. The complete handler advances the script cursor and calls slot 26 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "40add7f36ab1655e5311da803821e8a9b97bedd1c7e7fe0c1bea256f2bcba90a",
+      "inputs_sha256": "7b963e7559d453ee174df93428bf3fd5afbc28a00ccee670bf90237755a0b190"
+    }
+  },
+  {
+    "id": "lobby-is-locked",
+    "offset": 1698528,
+    "size": 32,
+    "rebuilt_symbol": "@execIsLocked@16",
+    "identification": "SBase.SXBoxLiveRef.IsLocked is registered at native slot 1768 by the store at VA 0x10a8750a. The complete handler advances the script cursor and calls slot 195 of the engine online interface, then returns with RET 8.",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_lobby_menu.obj src/versus_lobby_menu.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "inputs": [
+      "src/versus_lobby_menu.c",
+      "src/versus_script_frame.h"
+    ],
+    "link_bindings": {
+      "_game_engine": {
+        "va": 281617344,
+        "basis": "The native reads this engine singleton before looking up its online interface at offset 0x40."
+      }
+    },
+    "match": {
+      "bytes_sha256": "66c25e2cf5c9f80f5bb837c58f1c7fc590c52928b1aff3c39b248a82395660c8",
+      "inputs_sha256": "9d75e45774a8718a36645b9e9c9653ba407fbe6f0a84413f82c79c7b3f50fe4d"
+    }
+  },
+  {
+    "id": "versus-schedule-objective-reset",
+    "offset": 1700480,
+    "size": 93,
+    "rebuilt_symbol": "@versus_schedule_objective_reset@16",
+    "inputs": [
+      "src/versus_timed_actions.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_timed_actions.obj src/versus_timed_actions.c",
+    "identification": "Retail registration at RVA 0x18bb4b assigns GNatives[1416] to RVA 0x19f280. The class and function name SObjective.ScheduleReset agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "a6a9e04e70d7983dc7ed42cf83a45c26701a9605eb0589715834236eb95f563a",
+      "inputs_sha256": "d0a4eeb204a18240b779d40b9c8620d86fd4f8ebeaf4482bd515a08eccca5b7d"
+    }
+  },
+  {
+    "id": "versus-gadget-decrement-charge",
+    "offset": 1702576,
+    "size": 60,
+    "rebuilt_symbol": "@versus_gadget_decrement_charge@16",
+    "inputs": [
+      "src/versus_effects.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_effects.obj src/versus_effects.c",
+    "identification": "Retail registration at RVA 0x18a417 assigns GNatives[1292] to RVA 0x19fab0. The class and function name SGadget.ServerDecCharge agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "4621c1d0c3bfe40e7144b431b826a5cd7a3434b9e5f6663773ad8a30e7c779b6",
+      "inputs_sha256": "b6cf9bf99a74025a2db2d99f2c4719932ad0c00fa42641f2872bc3d557cee40f"
+    }
+  },
+  {
+    "id": "versus-gadget-add-charge",
+    "offset": 1702768,
+    "size": 60,
+    "rebuilt_symbol": "@versus_gadget_add_charge@16",
+    "inputs": [
+      "src/versus_effects.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_effects.obj src/versus_effects.c",
+    "identification": "Retail registration at RVA 0x18a3a9 assigns GNatives[1294] to RVA 0x19fb70. The class and function name SGadget.ServerAddCharge agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "7dd49a04fd15545ced4127607f12866535efdf29157ae4eed7df7f2753e1167b",
+      "inputs_sha256": "45e148988ce10bbace696f1020656f206131fb66ea84df0520840f30ee4a43de"
+    }
+  }
+]

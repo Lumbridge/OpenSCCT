@@ -1,0 +1,530 @@
+[
+  {
+    "id": "game-echelon-eaicontroller-goaldistanceonpath",
+    "offset": 2825840,
+    "size": 52,
+    "rebuilt_symbol": "@exec_Echelon_EAIController_GoalDistanceOnPath@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EAIController_GoalDistanceOnPath at RVA 0x2b1e70; callback cell and name are evidenced by the verified register-native-echelon-eaicontroller-goaldistanceonpath CRT entry at RVA 0x7a9c90. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Echelon_EAIController_GoalDistanceOnPath@4": {
+        "va": 280685952,
+        "basis": "Direct call at stock RVA 0x2b1e95 forwards the owning object in ECX to routine 0x2aed80."
+      }
+    },
+    "match": {
+      "bytes_sha256": "8717ac2ed9425ff0fdb01fc038a20ca0a360bd181f53b6f1b0feaef6e9a7c113",
+      "inputs_sha256": "3ee7d8f16dabe089c1fd32aec3481ad3057d980b5c94fba1d3dd2af8e756acda"
+    }
+  },
+  {
+    "id": "placement-uetrainingdata",
+    "offset": 2826304,
+    "size": 24,
+    "rebuilt_symbol": "_place_UETrainingData",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UETrainingData class descriptor."
+      },
+      "_vtable_UETrainingData": {
+        "va": 286170520,
+        "basis": "Class-specific table installed after base initialization in the named UETrainingData descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UETrainingData class factory at RVA 0x2b21a0. The callback at RVA 0x2b2040 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "3d814437d4482107b1d03b083a5aca2b6e329fe8fd59df934764e642507d6165",
+      "inputs_sha256": "acbe142b545282da4b3c65f934d1a49ac47ed95a3d3b204e2aadf5c80dc71746"
+    }
+  },
+  {
+    "id": "class-factory-uetrainingdata",
+    "offset": 2826656,
+    "size": 102,
+    "rebuilt_symbol": "_create_UETrainingData",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UETrainingData": {
+        "va": 286170616,
+        "basis": "Retail UTF-16 UETrainingData allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UETrainingData": {
+        "va": 280698944,
+        "basis": "Placement callback passed to the native descriptor constructor for UETrainingData."
+      },
+      "@static_init_UETrainingData@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UETrainingData."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2b21a0; its allocation tag and reflected class name identify UETrainingData. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "e8799954c8d8063755286faf8fdd3ce5dffab4fb05fa6fb6c1b0e68fa5235d36",
+      "inputs_sha256": "4549755c7f77b72103d0534c9396fc400325f5a5df296f3837e1f80788740ea0"
+    }
+  },
+  {
+    "id": "delete-aeaicontroller",
+    "offset": 2848624,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AEAIController@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AEAIController vtable at RVA 0x7e9e58, slot 3, points to entry RVA 0x2b7770. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2b9be0 references the placement constructor at RVA 0x2b9b90, which installs this vtable at RVA 0x2b9bc8.",
+    "link_bindings": {
+      "@destroy_AEAIController@4": {
+        "va": 280721312,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2b77a0."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "a5bded5b933f1aaf2fd3d5b7d0f17553474b19bd33a4a7c435e8e339184fdd26"
+    }
+  },
+  {
+    "id": "delete-uesearchmanager",
+    "offset": 2849472,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UESearchManager@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock UESearchManager vtable at RVA 0x7ea120, slot 3, points to entry RVA 0x2b7ac0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x32dcb0 references the placement constructor at RVA 0x32dc90, which installs this vtable at RVA 0x32dca0.",
+    "link_bindings": {
+      "@destroy_UESearchManager@4": {
+        "va": 280722160,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2b7af0."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "a4f2d6bbfc0cd1557ffe2d357374a48bdca464432e09e5ab205ecd9f063014ee"
+    }
+  },
+  {
+    "id": "class-factory-aeaicontroller",
+    "offset": 2857952,
+    "size": 105,
+    "rebuilt_symbol": "_create_AEAIController",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AEAIController": {
+        "va": 286171608,
+        "basis": "Retail UTF-16 AEAIController allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AEAIController": {
+        "va": 280730512,
+        "basis": "Placement callback passed to the native descriptor constructor for AEAIController."
+      },
+      "@static_init_AEAIController@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AEAIController."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2b9be0; its allocation tag and reflected class name identify AEAIController. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "eb2a01a88e4cbf08fef51699d80818345027f8b605d24f06f5470c1fc82a3f42",
+      "inputs_sha256": "d3f96eb514fb5e807601f2190688954885fe975221b2ca20b699507f0c3f007c"
+    }
+  },
+  {
+    "id": "game-echelon-eplayercontroller-sendlandwarriorview",
+    "offset": 2868048,
+    "size": 44,
+    "rebuilt_symbol": "@exec_Echelon_EPlayerController_SendLandWarriorView@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EPlayerController_SendLandWarriorView at RVA 0x2bc350; callback cell and name are evidenced by the verified register-native-echelon-eplayercontroller-sendlandwarriorview CRT entry at RVA 0x7a83d0. Consumes the argument terminator and optional debug token. This body has no further game action. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
+      "inputs_sha256": "5ef1371f34e1fcd40bf2bed32950895269eb63cfca22f5cfea38938f32f4f5fe"
+    }
+  },
+  {
+    "id": "script-frame-pausegame",
+    "offset": 2872080,
+    "size": 73,
+    "rebuilt_symbol": "@script_frame_PauseGame@12",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_PauseGame": {
+        "va": 287285440,
+        "basis": "FName initialized with retail UTF-16 PauseGame (VA 0x110d52fc). The FName constructor call at RVA 0x13bf1e precedes the store to this slot at RVA 0x13bf30."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PauseGame event wrapper at RVA 0x2bd310, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares PlayerController.PauseGame at serial offset 0x53748.",
+    "match": {
+      "bytes_sha256": "073ffb83ae275d6dedbe8e1deae32b81d7a77676303318e807f479225bb21790",
+      "inputs_sha256": "7439976ffc003bbe361b51c9d78e466dd94da5627190f24ff5abca8da5145510"
+    }
+  },
+  {
+    "id": "script-event-reset",
+    "offset": 2872160,
+    "size": 32,
+    "rebuilt_symbol": "@event_Reset@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_Reset": {
+        "va": 287285520,
+        "basis": "FName initialized with retail UTF-16 Reset (VA 0x110d5098). The FName constructor call at RVA 0x13c0f7 precedes the store to this slot at RVA 0x13c109."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Reset event wrapper at RVA 0x2bd360, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "51e4f405e6d8b98608bfcb1e4ebb23fae4ad9c7fd74be62394ca94708fa2fe4e",
+      "inputs_sha256": "4137485155c094e2f1c22eb8226b64b729fb3f943f558b68ba09fbc98290bd98"
+    }
+  },
+  {
+    "id": "script-parameters-finishdooropening",
+    "offset": 2872192,
+    "size": 66,
+    "rebuilt_symbol": "@script_call_FinishDoorOpening@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_FinishDoorOpening": {
+        "va": 287503484,
+        "basis": "FName initialized with retail UTF-16 FinishDoorOpening (VA 0x110fb460). The FName constructor call at RVA 0x33557e precedes the store to this slot at RVA 0x335590."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail FinishDoorOpening event wrapper at RVA 0x2bd380, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.FinishDoorOpening with Int O, Bool ReturnValue at serial offset 0x6aae4.",
+    "match": {
+      "bytes_sha256": "95688284af9dc7666b9ec4305ce90961dbfd77a7057c06bf01f178e96e6214a4",
+      "inputs_sha256": "507cea1f158d36d8426ed2aa6a7408141725b1c73b57b0b7456fa281c955dece"
+    }
+  },
+  {
+    "id": "script-event-noge",
+    "offset": 2872272,
+    "size": 32,
+    "rebuilt_symbol": "@event_NoGE@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_NoGE": {
+        "va": 287503720,
+        "basis": "FName initialized with retail UTF-16 NoGE (VA 0x110fadc4). The FName constructor call at RVA 0x335af2 precedes the store to this slot at RVA 0x335b04."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail NoGE event wrapper at RVA 0x2bd3d0, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "0fcd67f7c02de0c3213023c959bab828105451930d2be688dbd1b570c1765289",
+      "inputs_sha256": "197ad51541df0403a76173a18dbb52b134ce5848a39252517da954f210ec3fc2"
+    }
+  },
+  {
+    "id": "script-event-addmultimapinformation",
+    "offset": 2872304,
+    "size": 32,
+    "rebuilt_symbol": "@event_AddMultiMapInformation@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_AddMultiMapInformation": {
+        "va": 287503332,
+        "basis": "FName initialized with retail UTF-16 AddMultiMapInformation (VA 0x110fb90c). The FName constructor call at RVA 0x3351fa precedes the store to this slot at RVA 0x335203."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail AddMultiMapInformation event wrapper at RVA 0x2bd3f0, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "46f94467821e1c40723b0389b513d849158ea95dd9fe513573f60106e33df3eb",
+      "inputs_sha256": "26e853877d8f8f3119822a79a8429e2cf1a8360dc83d5156366b8c6aa69c443c"
+    }
+  },
+  {
+    "id": "script-parameters-checkrepeatfire",
+    "offset": 2872336,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_CheckRepeatFire@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_CheckRepeatFire": {
+        "va": 287503412,
+        "basis": "FName initialized with retail UTF-16 CheckRepeatFire (VA 0x110fb664). The FName constructor call at RVA 0x3353d4 precedes the store to this slot at RVA 0x3353e6."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail CheckRepeatFire event wrapper at RVA 0x2bd410, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.CheckRepeatFire with Float fDeltaSeconds at serial offset 0x5c484.",
+    "match": {
+      "bytes_sha256": "8e9e4f957e30a7e275337fc0ef8ba537693e32b5ea36e9c632c907f528fed96c",
+      "inputs_sha256": "752da7c98e6938022f54162e34e332617cbf51d94d568d2adaa6a5a5f0b7dc72"
+    }
+  },
+  {
+    "id": "script-event-ledgetoladder",
+    "offset": 2872384,
+    "size": 32,
+    "rebuilt_symbol": "@event_LedgeToLadder@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_LedgeToLadder": {
+        "va": 287503700,
+        "basis": "FName initialized with retail UTF-16 LedgeToLadder (VA 0x110fae38). The FName constructor call at RVA 0x335a7c precedes the store to this slot at RVA 0x335a8e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail LedgeToLadder event wrapper at RVA 0x2bd440, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "bf68336226846eedfbefc2f856159dfb751c6388db3d7da14d4a77d981c1ec3b",
+      "inputs_sha256": "0e61c21ce23211003e9175f52a614b99add006cb33d4014b709cb4111aa04672"
+    }
+  },
+  {
+    "id": "script-event-pipehtopipev",
+    "offset": 2872416,
+    "size": 32,
+    "rebuilt_symbol": "@event_PipeHToPipeV@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_PipeHToPipeV": {
+        "va": 287503808,
+        "basis": "FName initialized with retail UTF-16 PipeHToPipeV (VA 0x110faaa4). The FName constructor call at RVA 0x335cfb precedes the store to this slot at RVA 0x335d0d."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PipeHToPipeV event wrapper at RVA 0x2bd460, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "c04be6f2e7964771830789832142b3335372cc888cbc8bd12b22c3f4192c3457",
+      "inputs_sha256": "757be56163b40fbe610bc38df8b45206449425770f9615e8bdaa90440599f504"
+    }
+  },
+  {
+    "id": "script-parameters-pipevtopipeh",
+    "offset": 2872448,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_PipeVToPipeH@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_PipeVToPipeH": {
+        "va": 287503812,
+        "basis": "FName initialized with retail UTF-16 PipeVToPipeH (VA 0x110faa88). The FName constructor call at RVA 0x335d12 precedes the store to this slot at RVA 0x335d1b."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PipeVToPipeH event wrapper at RVA 0x2bd480, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.PipeVToPipeH with Float locationEndZ at serial offset 0x64fb3.",
+    "match": {
+      "bytes_sha256": "fd0fe83261a5ea5c5d394078bc092a0f87b40c43496639184dbbf9b35dbd3014",
+      "inputs_sha256": "8432f34b4ec7171fe5f12021f89b1a58b2b87f135492d90a887b936ae148cb3e"
+    }
+  },
+  {
+    "id": "class-registration-aeplayercontroller",
+    "offset": 2873088,
+    "size": 264,
+    "rebuilt_symbol": "_register_AEPlayerController",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AEPlayerController": {
+        "va": 287501576,
+        "basis": "The AEPlayerController class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_APlayerController": {
+        "va": 287271144,
+        "basis": "The APlayerController class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_APlayerController": {
+        "va": 278490688,
+        "basis": "The constructor names APlayerController using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_APlayerController": {
+        "va": 278497600,
+        "basis": "Registration target reached after the APlayerController constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AEPlayerController at RVA 0x2bd700, called immediately after the class factory at RVA 0x2d2ed0 in the singleton initialization path. Sets superclass APlayerController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "ab2c6f4b95e525ec9f64511f9b064a261f2dd1e76634b86f5b493edd15d9a259",
+      "inputs_sha256": "e5351f28cf1513fdb965f0309df51615f70cd4092f29d01d66cacf92c7307c27"
+    }
+  }
+]

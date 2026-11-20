@@ -1,0 +1,18 @@
+[
+  {
+    "id": "versus-static-mesh-uses-collision-cylinder",
+    "offset": 1350320,
+    "size": 19,
+    "rebuilt_symbol": "@static_mesh_uses_collision_cylinder@12",
+    "inputs": [
+      "src/versus_actor_presentation.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_presentation.obj src/versus_actor_presentation.c",
+    "identification": "The project reflection annotations identify UStaticMesh vftable RVA 0x304820. Its constructor store, table through zero-based slot 27, and the complete body at RVA 0x149ab0 agree between the locked Enhanced and Steam images. The locked runtime reflection capture records Engine.Actor.bUseCylinderCollision at +0x2f0 mask 0x200000.",
+    "match": {
+      "bytes_sha256": "bb00d96472e2271141dd57912865e0568375a9c8c0ef24c3081bd762d508c7be",
+      "inputs_sha256": "89db3bc7f078090fb859cb87955a6ef5aef9e7bbadd23fd3265876286adf337f"
+    }
+  }
+]

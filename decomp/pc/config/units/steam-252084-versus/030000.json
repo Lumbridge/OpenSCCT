@@ -1,0 +1,658 @@
+[
+  {
+    "id": "delete-ufunction",
+    "offset": 243360,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UFunction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UFunction vtable at RVA 0x30cbe8, slot 3, points to entry RVA 0x3b6a0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UFunction@4": {
+        "va": 278115888,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3b630."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
+      "inputs_sha256": "377c5446b693fcfbc3ef7c3be868da877a387e5926d4c2ef289514bfc08cf8ef"
+    }
+  },
+  {
+    "id": "delete-uconst",
+    "offset": 243536,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UConst@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UConst vtable at RVA 0x30cc70, slot 3, points to entry RVA 0x3b750. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UConst@4": {
+        "va": 278116048,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3b6d0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
+      "inputs_sha256": "c67a33e42a019f0beae05c06dd56f3483c3ee9b65c05a1f1ecf8361e20896199"
+    }
+  },
+  {
+    "id": "place-uobject",
+    "offset": 254832,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UObject",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UObject::PrivateStaticClass identifies the UClass object at RVA 0x3c9ed8. Its stock registration call at RVA 0x3f687 passes callback RVA 0x3e370. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x30d710. This same base callback is shared across 26 registered classes, including UObject.",
+    "link_bindings": {
+      "_vtable_UObject": {
+        "va": 281073424,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3e378. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5aa7d74abbc878b5978b083aea51cff44a16b11060e9d09e36e66f1a97f9667d",
+      "inputs_sha256": "f220d3ff74d2a9739e134f915ad5a53116295b002e637467960d5cfcf1fb9d89"
+    }
+  },
+  {
+    "id": "delete-ulinkerload",
+    "offset": 255952,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ULinkerLoad@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ULinkerLoad vtable at RVA 0x30c4d8, slot 3, points to entry RVA 0x3e7d0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ULinkerLoad@4": {
+        "va": 278128128,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3e600."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7bc60017fce6f9de26f44b9c65cadb6662612d26acd8025e857571ef126c06a3",
+      "inputs_sha256": "bc1a35bd6c36fc9054f5b2a68cc20d4535ba6614b85012453c2d0ad8d0625422"
+    }
+  },
+  {
+    "id": "place-uenum",
+    "offset": 257008,
+    "size": 26,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UEnum",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UEnum::PrivateStaticClass identifies the stock UClass instance at RVA 0x3ca108. The registration at RVA 0x3f731 passes the null-checked placement callback at RVA 0x3ebf0 for UClass+0x104. The callback installs the class vtable at RVA 0x30ce60. Initializes the array storage to an empty state.",
+    "link_bindings": {
+      "_vtable_UEnum": {
+        "va": 281071200,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ebfa. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "dc830a6295ff7a1b37d9d71a0031b8a8eda92beabdda3b3c85a2f91ecf0ac67a",
+      "inputs_sha256": "04c92bff7466bf6b1731a7ca27a69e117d8a651070789b4348be15bc8766c449"
+    }
+  },
+  {
+    "id": "place-uconst",
+    "offset": 257056,
+    "size": 26,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UConst",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UConst::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c9d48. The registration at RVA 0x3f5db passes the null-checked placement callback at RVA 0x3ec20 for UClass+0x104. The callback installs the class vtable at RVA 0x30cc70. Initializes the array storage to an empty state.",
+    "link_bindings": {
+      "_vtable_UConst": {
+        "va": 281070704,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ec2a. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "acbb538ce3c2742c01aabe87ceb677d53b8db8a1793d90dd564f5ed1a0405c2a",
+      "inputs_sha256": "e1510d12273a3e1d8d83244d6d5e11c4689307ae9073f371b8f1eabe92e4dc04"
+    }
+  },
+  {
+    "id": "place-ubyteproperty",
+    "offset": 257200,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UByteProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UByteProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8728. The registration at RVA 0x3fa9d passes the null-checked placement callback at RVA 0x3ecb0 for UClass+0x104. The callback installs the class vtable at RVA 0x30c948. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UByteProperty": {
+        "va": 281069896,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ecc6. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b7f462060dd29657c1406ff80815b7b66d1a111d04b7903387ae407ee2aedceb",
+      "inputs_sha256": "a8fe88b9593e10d162e7ba5b275f1f96fdf8b6a51946ebb0b713bb3b0e8cde6b"
+    }
+  },
+  {
+    "id": "delete-ubyteproperty",
+    "offset": 257232,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UByteProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UByteProperty vtable at RVA 0x30c948, slot 3, points to entry RVA 0x3ecd0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UByteProperty@4": {
+        "va": 278129728,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3ec40."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
+      "inputs_sha256": "741de8e0a54668e23f173978bb9d206b81b30ff95c2e2e6c31cae315ff1073cc"
+    }
+  },
+  {
+    "id": "place-uintproperty",
+    "offset": 257280,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UIntProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UIntProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8840. The registration at RVA 0x3faf6 passes the null-checked placement callback at RVA 0x3ed00 for UClass+0x104. The callback installs the class vtable at RVA 0x30d560. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UIntProperty": {
+        "va": 281072992,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ed16. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9973c90d502cacfee773fc26400a49f33de49eb42bebdb588bba0bec810e6741",
+      "inputs_sha256": "f13cc519c69eb426af73ffc1b2848c09a62bb6b8426fe29fb0bd1214f744eb84"
+    }
+  },
+  {
+    "id": "place-uboolproperty",
+    "offset": 257312,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UBoolProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UBoolProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8a70. The registration at RVA 0x3fba8 passes the null-checked placement callback at RVA 0x3ed20 for UClass+0x104. The callback installs the class vtable at RVA 0x30d4c0. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UBoolProperty": {
+        "va": 281072832,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ed36. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "aa9cfdcbad57a79e27bf5327f50a4add7ea9fe014f7c783ff429502e31311ec6",
+      "inputs_sha256": "43fbd0e64f77b316e1949e78a4cc43560a690d71ce2da6b875f2dd94e0e9b6d2"
+    }
+  },
+  {
+    "id": "place-ufloatproperty",
+    "offset": 257456,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UFloatProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UFloatProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8b88. The registration at RVA 0x3fc01 passes the null-checked placement callback at RVA 0x3edb0 for UClass+0x104. The callback installs the class vtable at RVA 0x30c8a8. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UFloatProperty": {
+        "va": 281069736,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3edc6. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2ae3382c3e90fbcbec65438791fb772548e047ba0c7a8a8dc5fbad72e8f5d0ec",
+      "inputs_sha256": "c789d5aac6deb5fe3fbc44932f95e4b989bbf8d9c75a867eadab8c39dcdaefea"
+    }
+  },
+  {
+    "id": "delete-ufloatproperty",
+    "offset": 257488,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UFloatProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UFloatProperty vtable at RVA 0x30c8a8, slot 3, points to entry RVA 0x3edd0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UFloatProperty@4": {
+        "va": 278129984,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3ed40."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
+      "inputs_sha256": "eb36486c5fc2727069ad2402c9c074ebb82ae710493af9f76f76fcde0aa87f42"
+    }
+  },
+  {
+    "id": "place-uobjectproperty",
+    "offset": 257648,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UObjectProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UObjectProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8ca0. The registration at RVA 0x3fc5a passes the null-checked placement callback at RVA 0x3ee70 for UClass+0x104. The callback installs the class vtable at RVA 0x30c808. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UObjectProperty": {
+        "va": 281069576,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ee86. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "970a3d96f7cc6089c43400ea295f00a22ac244a5add796ea47676f253e569955",
+      "inputs_sha256": "850bcaafe80ef50c526e5a5b28c1d42deb0b3516b3717d9d9b31995ba78c713a"
+    }
+  },
+  {
+    "id": "delete-uobjectproperty",
+    "offset": 257680,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UObjectProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UObjectProperty vtable at RVA 0x30c808, slot 3, points to entry RVA 0x3ee90. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UObjectProperty@4": {
+        "va": 278130176,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3ee00."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
+      "inputs_sha256": "cffa10e28802d3189cb259f1973d076ca8d722bd6a49b06a04949b0cb1518b56"
+    }
+  },
+  {
+    "id": "place-uclassproperty",
+    "offset": 257840,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UClassProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UClassProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8db8. The registration at RVA 0x3fcaf passes the null-checked placement callback at RVA 0x3ef30 for UClass+0x104. The callback installs the class vtable at RVA 0x30c768. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UClassProperty": {
+        "va": 281069416,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3ef46. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0a8441630ba0e3888f9052f60e325ce304ef0dc67a6a4a81f99a553f39ec6e52",
+      "inputs_sha256": "13d9d5736aa09dc1e0e497ff9360d692c0337795ab6494004908b4e43a5b96db"
+    }
+  },
+  {
+    "id": "delete-uclassproperty",
+    "offset": 257888,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UClassProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UClassProperty vtable at RVA 0x30c768, slot 3, points to entry RVA 0x3ef60. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UClassProperty@4": {
+        "va": 278130368,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3eec0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "eecb5bf8013169a5c9e7c7b5191687c5e1efa97565950109152693df8a5f8d2f",
+      "inputs_sha256": "ad1acbfebc21003712d5cea5946d76786dc27a3782677e6c7c5bb1c104ceb50c"
+    }
+  },
+  {
+    "id": "place-unameproperty",
+    "offset": 258048,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UNameProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UNameProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8ed0. The registration at RVA 0x3fd08 passes the null-checked placement callback at RVA 0x3f000 for UClass+0x104. The callback installs the class vtable at RVA 0x30c6c8. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UNameProperty": {
+        "va": 281069256,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f016. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "bbdcacc468c1338f863d443bbf9ba960df5d988a4181ce503edd7df8aa0be93c",
+      "inputs_sha256": "539ff10fb126cf46d35510fe48d43f76ae2c5794e4b2cf46749e0b1a864321f4"
+    }
+  },
+  {
+    "id": "delete-unameproperty",
+    "offset": 258080,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UNameProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UNameProperty vtable at RVA 0x30c6c8, slot 3, points to entry RVA 0x3f020. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UNameProperty@4": {
+        "va": 278130576,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3ef90."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
+      "inputs_sha256": "bb5918edf2cb475cce4789117956206d92ad9a7b98ec9cc7e6cd6ff40f60c820"
+    }
+  },
+  {
+    "id": "place-ustrproperty",
+    "offset": 258128,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UStrProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UStrProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8fe8. The registration at RVA 0x3fd61 passes the null-checked placement callback at RVA 0x3f050 for UClass+0x104. The callback installs the class vtable at RVA 0x30d420. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UStrProperty": {
+        "va": 281072672,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f066. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7e20c14ce714e033e183298d96b18384805f290c294e21e7bd92287b3f1028c5",
+      "inputs_sha256": "d8d07357a89f6900ada14c709a02f45b63be6195748cd95e89534767a6071dd6"
+    }
+  },
+  {
+    "id": "place-ufixedarrayproperty",
+    "offset": 258272,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UFixedArrayProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UFixedArrayProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c9100. The registration at RVA 0x3fdba passes the null-checked placement callback at RVA 0x3f0e0 for UClass+0x104. The callback installs the class vtable at RVA 0x30caa8. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UFixedArrayProperty": {
+        "va": 281070248,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f0f6. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e6096e785bc0fe031778938e6dfe29b32ce2b6da50361edc3841e8308bc899cc",
+      "inputs_sha256": "325ae95ee8590c99b6f7b21daf4e615a24917164db8882676928c31e78df3a35"
+    }
+  },
+  {
+    "id": "place-uarrayproperty",
+    "offset": 258352,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UArrayProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UArrayProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c9218. The registration at RVA 0x3fe13 passes the null-checked placement callback at RVA 0x3f130 for UClass+0x104. The callback installs the class vtable at RVA 0x30d380. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UArrayProperty": {
+        "va": 281072512,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f146. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a76ce74a61977b5257d6ba442a3878b03805dc4e92e07106c0eada3908e1690a",
+      "inputs_sha256": "764c92fd64d4dde72eafe63b9d44868c5dc8dde615895cd50ba63a46628a1869"
+    }
+  },
+  {
+    "id": "place-umapproperty",
+    "offset": 258496,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UMapProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UMapProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c9330. The registration at RVA 0x3fe6c passes the null-checked placement callback at RVA 0x3f1c0 for UClass+0x104. The callback installs the class vtable at RVA 0x30cb48. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UMapProperty": {
+        "va": 281070408,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f1d6. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ff0d162be312bf51358ac265b9e8bdd744012436739d7e915e5165876a1763a7",
+      "inputs_sha256": "30519123212e81dc394301bea839403182c113fad996bfaa2ea093ab04e643d1"
+    }
+  },
+  {
+    "id": "place-ustructproperty",
+    "offset": 258688,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UStructProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UStructProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c9448. The registration at RVA 0x3fec5 passes the null-checked placement callback at RVA 0x3f280 for UClass+0x104. The callback installs the class vtable at RVA 0x30c628. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UStructProperty": {
+        "va": 281069096,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f296. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "df18da0cad73194a1df81de8d8025465a9aa93d377de8383e8315487d643fd0a",
+      "inputs_sha256": "e2f4f12b57650dee570baccabd97b3c41c3afc75543eacbd213b9fa79241b454"
+    }
+  },
+  {
+    "id": "delete-ustructproperty",
+    "offset": 258720,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UStructProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UStructProperty vtable at RVA 0x30c628, slot 3, points to entry RVA 0x3f2a0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UStructProperty@4": {
+        "va": 278131216,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3f210."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
+      "inputs_sha256": "7c4e4cbad8bf89cb203d9c4929a8874f58988de30d7ba05e0ffd3fb135f312b0"
+    }
+  },
+  {
+    "id": "place-udelegateproperty",
+    "offset": 258880,
+    "size": 29,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UDelegateProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UDelegateProperty::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c8958. The registration at RVA 0x3fb4f passes the null-checked placement callback at RVA 0x3f340 for UClass+0x104. The callback installs the class vtable at RVA 0x30c588. The two-byte array dimension is one, and the four-byte fields at +0x28 and +0x4c are cleared.",
+    "link_bindings": {
+      "_vtable_UDelegateProperty": {
+        "va": 281068936,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f356. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4a86f05f4be4d5fd117a4f398d947dd06c3d52975457f0c5505bf6f4e609eb23",
+      "inputs_sha256": "67788f6440e448f1f7a6bcfd8288bb73a3389237720dd7ae43ea3a5a832b4a3b"
+    }
+  },
+  {
+    "id": "delete-udelegateproperty",
+    "offset": 258912,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UDelegateProperty@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UDelegateProperty vtable at RVA 0x30c588, slot 3, points to entry RVA 0x3f360. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UDelegateProperty@4": {
+        "va": 278131408,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x3f2d0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
+      "inputs_sha256": "ff47331e42301b0e305ec1464fd10b6464fed00cf5325ff9dde7cf814d524261"
+    }
+  },
+  {
+    "id": "place-uobjectexportert3d",
+    "offset": 259264,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UObjectExporterT3D",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UObjectExporterT3D::PrivateStaticClass identifies the UClass object at RVA 0x3c96b8. Its stock registration call at RVA 0x4012b passes callback RVA 0x3f4c0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x30ca48.",
+    "link_bindings": {
+      "_vtable_UObjectExporterT3D": {
+        "va": 281070152,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f4c8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "dd052553154c4df5bb480969fed672de8f01467ea483757bc007e7b7a0e5202a",
+      "inputs_sha256": "0311aa289f4a297d58f15935d2002a155c9e630b065c6d90f40d51aea28a3942"
+    }
+  },
+  {
+    "id": "place-utextbufferfactory",
+    "offset": 259328,
+    "size": 44,
+    "inputs": [
+      "src/versus_render_property_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UTextBufferFactory",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_render_property_placement.obj src/versus_render_property_placement.c",
+    "identification": "The reflection annotation for UTextBufferFactory::PrivateStaticClass identifies the stock UClass instance at RVA 0x3ca8b0. The registration at RVA 0x3f995 passes the null-checked placement callback at RVA 0x3f500 for UClass+0x104. The callback installs the class vtable at RVA 0x30d128. Initializes the array storage to an empty state.",
+    "link_bindings": {
+      "_vtable_UTextBufferFactory": {
+        "va": 281071912,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x3f525. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3c25c7fad9335f0852b440fab54997d7e8c76f7a5fc7eee8fe493f005d10ce9f",
+      "inputs_sha256": "6036108a1643d6ad45fab90c02e1499cee1699de15a8c60f98a406b5e65266de"
+    }
+  }
+]

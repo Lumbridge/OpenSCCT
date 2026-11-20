@@ -1,0 +1,60 @@
+[
+  {
+    "id": "delete-ufont",
+    "offset": 1117456,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UFont@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UFont vtable at RVA 0x303860, slot 3, points to entry RVA 0x110d10. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UFont@4": {
+        "va": 278990144,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x110d40."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "c185208975c1cf3ffcea6533247298d4bab5b609d58e0133a8edf0607643a051"
+    }
+  },
+  {
+    "id": "versus-md5-digest-width",
+    "offset": 1120848,
+    "size": 6,
+    "rebuilt_symbol": "@md5_digest_width@4",
+    "inputs": [
+      "src/digest_dimensions.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+    "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x2e1cfc, zero-based slot 7, selects RVA 0x111a50. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "75f533bd3e59de2588c8f1901e45a3eea6688bc16b7ecaf3dcaf4d49cf4f3d49",
+      "inputs_sha256": "5a53b50a8668a3b78ea11901f76cea2e31c49f18754a0181fffdeafac3b8a0f9"
+    }
+  },
+  {
+    "id": "versus-long-data-size",
+    "offset": 1124672,
+    "size": 6,
+    "rebuilt_symbol": "@versus_long_data_size@4",
+    "inputs": [
+      "src/versus_data_sizes.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /c /Folocal/versus_data_sizes.obj src/versus_data_sizes.c",
+    "identification": "Retail RTTI identifies clDataLong vftable RVA 0x2e1f0c. Zero-based slot 5 selects this body. Its return precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "e36623525b7c35b277173e56616b2d865cf6515aa2be1d12d6814ef725cecffb",
+      "inputs_sha256": "d14bcbe860ff1069d83a0bacbf294c8f28aadd76c6242f6389b21644b11cbacd"
+    }
+  }
+]

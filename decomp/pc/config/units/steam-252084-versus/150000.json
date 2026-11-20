@@ -1,0 +1,437 @@
+[
+  {
+    "id": "versus-cause-input-event",
+    "offset": 1397728,
+    "size": 155,
+    "rebuilt_symbol": "@versus_cause_input_event@16",
+    "inputs": [
+      "src/versus_gui_input.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_input.obj src/versus_gui_input.c",
+    "identification": "Retail registration at RVA 0x169a6e assigns GNatives[1664] to RVA 0x1553e0. The project inventory identifies slot 1664 as GUIController.CauseInputEvent. The body ends at its return before alignment.",
+    "match": {
+      "bytes_sha256": "5eab67a72c0f77c9d4c5d5d0630458cf10a2d8d689eb729a2a6725949ecc25fa",
+      "inputs_sha256": "d9fb7c5f25c7fa16e69678d363d1d724c4a8e9aec5f78bc93d934b511437af1e"
+    }
+  },
+  {
+    "id": "versus-gui-profile-count",
+    "offset": 1398544,
+    "size": 41,
+    "rebuilt_symbol": "@versus_gui_profile_count@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x169e83 assigns GNatives[1642] to RVA 0x155710. The class and function name GUIController.GetProfileCount agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "fbca66846911c069cfb9553a1e3f7f05aaa8952ba1c6ed933d8702edbe2bb77a",
+      "inputs_sha256": "21832da0627d6a38ed6840c928cce37f796728eb740f84e378eac6cf271224aa"
+    }
+  },
+  {
+    "id": "versus-gui-online-available",
+    "offset": 1409616,
+    "size": 44,
+    "rebuilt_symbol": "@versus_gui_online_available@16",
+    "inputs": [
+      "src/versus_level_queries.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_level_queries.obj src/versus_level_queries.c",
+    "identification": "Retail registration at RVA 0x16a6e4 assigns GNatives[1835] to RVA 0x158250. The class and function name GUIController.IsOnlineAvailable agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "337f811a5a4a6423e5b741bd2ffa249174a4080f58c027ee243d357b7e063965",
+      "inputs_sha256": "aa7d5e8d1197437b611e795d6db3c99d86967227f6e3f2e815be45aa5b029b4c"
+    }
+  },
+  {
+    "id": "versus-gui-join-ip-requested",
+    "offset": 1409664,
+    "size": 22,
+    "rebuilt_symbol": "@versus_gui_join_ip_requested@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a6ad assigns GNatives[1850] to RVA 0x158280. The class and function name GUIController.IsRequestJoinIp agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "0c10a340ebf0ee936cc40750369dae6ffad0701b7b70a25a7d942edb39a9e159",
+      "inputs_sha256": "43b2a6df986898a264e12e926a86c7288c91ba2083b625df8347c7ad6838da2d"
+    }
+  },
+  {
+    "id": "versus-gui-create-server-requested",
+    "offset": 1409696,
+    "size": 22,
+    "rebuilt_symbol": "@versus_gui_create_server_requested@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a676 assigns GNatives[1860] to RVA 0x1582a0. The class and function name GUIController.IsCreateServer agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "a4237a9ed89aa2cf5e8cb3060cf8488294df4bc045967bafb59c398c84f095c5",
+      "inputs_sha256": "eadb33c646619a53c21ae5b09c1df8053adcaf31ccc19d00856c689a8e089e67"
+    }
+  },
+  {
+    "id": "versus-gui-auto-validate",
+    "offset": 1409728,
+    "size": 50,
+    "rebuilt_symbol": "@versus_gui_auto_validate@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a63f assigns GNatives[1851] to RVA 0x1582c0. The class and function name GUIController.IsAutoValidatePage agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "ccbd5bf00e89d84421cd886491c044a9afef6904031b4107941b6c72fa4686e6",
+      "inputs_sha256": "a3fe31c24b73f1484ed0d4948d24b55e46e208471f407568bc134a62ec9cbfd9"
+    }
+  },
+  {
+    "id": "versus-gui-clear-auto-validate",
+    "offset": 1409792,
+    "size": 22,
+    "rebuilt_symbol": "@versus_gui_clear_auto_validate@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a608 assigns GNatives[1886] to RVA 0x158300. The class and function name GUIController.ResetAutoValidatePage agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "119770936975742d4cdb0d4663901163c96e14ea5e818349408693ba0ded1248",
+      "inputs_sha256": "2ec002da5963f7cea8e473987be55bea3309d03cb420593a5a95842b695bd681"
+    }
+  },
+  {
+    "id": "versus-gui-clear-join-ip",
+    "offset": 1410176,
+    "size": 20,
+    "rebuilt_symbol": "@versus_gui_clear_join_ip@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a52c assigns GNatives[1855] to RVA 0x158480. The class and function name GUIController.ResetJoinIpRequest agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "64389291c163d698b7e14d1d84a32f47afe97eda90d32a62a63f3602d6717bf9",
+      "inputs_sha256": "7a7dde7c48ee5a47e9b828b39478423d1820e5c0481bff95fb4c4956ba135354"
+    }
+  },
+  {
+    "id": "versus-gui-clear-create-server",
+    "offset": 1410208,
+    "size": 20,
+    "rebuilt_symbol": "@versus_gui_clear_create_server@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a4f5 assigns GNatives[1861] to RVA 0x1584a0. The class and function name GUIController.ResetCreateServer agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "3314d7869086698fed8136e278093dc0a1935a977697006c54dbdccc9248fe35",
+      "inputs_sha256": "a92cbe04d442e770c4a9183739b2967581a1d478f336bb37540f9382f54361f1"
+    }
+  },
+  {
+    "id": "versus-gui-default-server-port",
+    "offset": 1410240,
+    "size": 22,
+    "rebuilt_symbol": "@versus_gui_default_server_port@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a0e0 assigns GNatives[1858] to RVA 0x1584c0. The class and function name GUIController.GetDefaultServerPort agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "a2cb8f94da9888b8433114c551a58b8d9635721e104109a5bd8fa49388b50fc7",
+      "inputs_sha256": "31b5fc176872b63399837d36fbf7d5871fe0a807db51b3cbf349f5df3ec62660"
+    }
+  },
+  {
+    "id": "versus-set-default-port",
+    "offset": 1410272,
+    "size": 77,
+    "rebuilt_symbol": "@versus_set_default_port@16",
+    "inputs": [
+      "src/versus_menu_settings.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_menu_settings.obj src/versus_menu_settings.c",
+    "identification": "Retail registration at RVA 0x16a0a9 assigns GNatives[1859] to RVA 0x1584e0. The class and function name GUIController.SetDefaultServerPort agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "4e69186c52f048ef7b17b0cefc4e66bceba4d3b2db8e99d0a12b8c75f26cfd06",
+      "inputs_sha256": "9d049986037108bd447ef026d59a2bc671133ebe623323511c06d2ed81c40264"
+    }
+  },
+  {
+    "id": "versus-gui-shutdown",
+    "offset": 1410352,
+    "size": 20,
+    "rebuilt_symbol": "@versus_gui_shutdown@16",
+    "inputs": [
+      "src/versus_gui_requests.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+    "identification": "Retail registration at RVA 0x16a4be assigns GNatives[1717] to RVA 0x158530. The class and function name GUIController.Shutdown agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "961bc12a71fef6eff66fc28e6567f2f4b003ac04c2369abd7e38fecf92cdf517",
+      "inputs_sha256": "a06f6de6b973efdafa062268e6b3aa296eaf5748ee4034adbcd94a5b9cd28abf"
+    }
+  },
+  {
+    "id": "versus-gui-update-bounds",
+    "offset": 1412752,
+    "size": 212,
+    "rebuilt_symbol": "@gui_update_bounds@4",
+    "inputs": [
+      "src/versus_gui_bounds.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_bounds.obj src/versus_gui_bounds.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 25, and the complete body at RVA 0x158e90 agree between the locked Enhanced and Steam images. The stock GUI.u interface names UGUIComponent::UpdateBounds at decoded offset 0x7c420. The complete body covers every reachable basic block through its returns.",
+    "match": {
+      "bytes_sha256": "5f4949c1197892052be6f1e6362c225ed51f1295a3644f9b24702911c82cbbd9",
+      "inputs_sha256": "cbe8dddf9066cc37ddd33791f8537b13302b9481af880ff96b3153352d65c69f"
+    }
+  },
+  {
+    "id": "versus-gui-component-actual-width",
+    "offset": 1413120,
+    "size": 103,
+    "rebuilt_symbol": "@gui_actual_width@4",
+    "inputs": [
+      "src/versus_gui_scaling.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_scaling.obj src/versus_gui_scaling.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 26, and the complete body at RVA 0x159000 agree between the locked Enhanced and Steam images. The stock GUI.u declaration names UGUIComponent::ActualWidth at decoded offset 0x7c478. The four return paths cover missing viewports, pixel dimensions, and parent or viewport scaling. The pooled 0.0f and 1.0f floats at RVAs 0x3109f8 and 0x3109fc were checked separately.",
+    "match": {
+      "bytes_sha256": "cd395bc63f89416bd29420ec97154b4b5b07651b043a1b604be3864e638119d0",
+      "inputs_sha256": "18d17d0f800aa4b811e5e9fefbdba8f193aa0ad5e067329619d70b0fa2403fb1"
+    }
+  },
+  {
+    "id": "versus-gui-actual-width",
+    "offset": 1413232,
+    "size": 21,
+    "rebuilt_symbol": "@versus_gui_actual_width@16",
+    "inputs": [
+      "src/versus_gui_layout.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+    "identification": "Retail registration at RVA 0x1696c7 assigns GNatives[1612] to RVA 0x159070. The class and function name GUIComponent.ActualWidth agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "41daa9b57993bdd3e9d59c5425525e8609747e26c2cf264a3fc9a4735ce9b278",
+      "inputs_sha256": "3c19be9dab8127f998b358c1b071cf72ca12ded2282a069dff8c85744d73cd2e"
+    }
+  },
+  {
+    "id": "versus-gui-component-actual-height",
+    "offset": 1413264,
+    "size": 103,
+    "rebuilt_symbol": "@gui_actual_height@4",
+    "inputs": [
+      "src/versus_gui_scaling.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_scaling.obj src/versus_gui_scaling.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 27, and the complete body at RVA 0x159090 agree between the locked Enhanced and Steam images. The stock GUI.u declaration names UGUIComponent::ActualHeight at decoded offset 0x7c4e1. The four return paths cover missing viewports, pixel dimensions, and parent or viewport scaling. The pooled 0.0f and 1.0f floats at RVAs 0x3109f8 and 0x3109fc were checked separately.",
+    "match": {
+      "bytes_sha256": "d33ead7981cd07b58e847bf3fe022caa68749dfcb3c248b028f0dd76d576fbfb",
+      "inputs_sha256": "31045ca257a086ecb1f070b9f36d07eefdc87ea6676739a5c74cdcccc2d5d888"
+    }
+  },
+  {
+    "id": "versus-gui-actual-height",
+    "offset": 1413376,
+    "size": 21,
+    "rebuilt_symbol": "@versus_gui_actual_height@16",
+    "inputs": [
+      "src/versus_gui_layout.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+    "identification": "Retail registration at RVA 0x169690 assigns GNatives[1613] to RVA 0x159100. The class and function name GUIComponent.ActualHeight agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "2a9b623bd96d75836a7d55af14911f962b07a6b8d7e86049e781cb10687fbd19",
+      "inputs_sha256": "f9336324a69b56849b0d98ad7be71e0540b25393a3a079a0f3caa5afd7659e5f"
+    }
+  },
+  {
+    "id": "versus-gui-actual-left",
+    "offset": 1413568,
+    "size": 21,
+    "rebuilt_symbol": "@versus_gui_actual_left@16",
+    "inputs": [
+      "src/versus_gui_layout.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+    "identification": "Retail registration at RVA 0x169659 assigns GNatives[1614] to RVA 0x1591c0. The class and function name GUIComponent.ActualLeft agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "ec915fe8fa6077cdcab1f0bcd4c4314846b02a1ae97f93ad793c6be87b104d5b",
+      "inputs_sha256": "613cc43223347d54bece9f067ea05d872c667a7f5ecfb7263058d9e062318a98"
+    }
+  },
+  {
+    "id": "versus-gui-actual-top",
+    "offset": 1413760,
+    "size": 21,
+    "rebuilt_symbol": "@versus_gui_actual_top@16",
+    "inputs": [
+      "src/versus_gui_layout.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+    "identification": "Retail registration at RVA 0x169622 assigns GNatives[1615] to RVA 0x159280. The class and function name GUIComponent.ActualTop agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "bf61a281258491cc465908486cca51d56e697014a3813e33808cce560b5bcf7f",
+      "inputs_sha256": "e805601273aef55186a52421bb8a975d2b6cbbb27d260ad6ec19bc461a361f5d"
+    }
+  },
+  {
+    "id": "versus-gui-save-canvas-state",
+    "offset": 1413792,
+    "size": 52,
+    "rebuilt_symbol": "@gui_save_canvas_state@12",
+    "inputs": [
+      "src/versus_gui_drawing.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_drawing.obj src/versus_gui_drawing.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 30, and the complete body at RVA 0x1592a0 agree between the locked Enhanced and Steam images. The Steam GUI.u package declares UGUIComponent::SaveCanvasState at decoded offset 0x7c61a.",
+    "match": {
+      "bytes_sha256": "95ac274d563c716a87e247a506403367566071515a37c644114e7a0fd6be3016",
+      "inputs_sha256": "be3c965816966fdf046151bda15fa2f4e4947551b47e9948653c725936060ab8"
+    }
+  },
+  {
+    "id": "versus-gui-restore-canvas-state",
+    "offset": 1413856,
+    "size": 52,
+    "rebuilt_symbol": "@gui_restore_canvas_state@12",
+    "inputs": [
+      "src/versus_gui_drawing.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_drawing.obj src/versus_gui_drawing.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 31, and the complete body at RVA 0x1592e0 agree between the locked Enhanced and Steam images. The Steam GUI.u package declares UGUIComponent::RestoreCanvasState at decoded offset 0x7c67b.",
+    "match": {
+      "bytes_sha256": "311b82dc2d2a3e881fc72b22c4e66e1afabdabc767a2325d0d5a8178800a5807",
+      "inputs_sha256": "fd9d55376425ea96cbe480f49c0645d44408b08dd04cb3c8dc065e8a95c88276"
+    }
+  },
+  {
+    "id": "versus-gui-clone-dimensions",
+    "offset": 1415072,
+    "size": 57,
+    "rebuilt_symbol": "@gui_clone_dimensions@12",
+    "inputs": [
+      "src/versus_gui_bounds.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_bounds.obj src/versus_gui_bounds.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 40, and the complete body at RVA 0x1597a0 agree between the locked Enhanced and Steam images. The stock GUI.u interface names UGUIComponent::CloneDims at decoded offset 0x7c965. The complete body covers every reachable basic block through its returns.",
+    "match": {
+      "bytes_sha256": "b80855a787f91092ad9f530919379c9bc1685c718bb6d04460731543c39a19f8",
+      "inputs_sha256": "87de800ae0bc7486aa5ba7bdbf2c72dd83be5614d4d6506375c6743935cfb351"
+    }
+  },
+  {
+    "id": "versus-gui-set-dimensions",
+    "offset": 1415136,
+    "size": 31,
+    "rebuilt_symbol": "@gui_set_dimensions@24",
+    "inputs": [
+      "src/versus_gui_drawing.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_drawing.obj src/versus_gui_drawing.c",
+    "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 39, and the complete body at RVA 0x1597e0 agree between the locked Enhanced and Steam images. The Steam GUI.u package declares UGUIComponent::SetDims at decoded offset 0x7c901.",
+    "match": {
+      "bytes_sha256": "a1ca7379c08354dbabad0e9ff04e98219c9681abdc551d79ddd93da28247631d",
+      "inputs_sha256": "3528c74fda2e9c9b4a415f394afe446012afc2ed3626fc93fedce935a18487eb"
+    }
+  },
+  {
+    "id": "versus-kill-timer",
+    "offset": 1415648,
+    "size": 31,
+    "rebuilt_symbol": "@versus_kill_timer@16",
+    "inputs": [
+      "src/versus_gui_timer.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_timer.obj src/versus_gui_timer.c",
+    "identification": "Retail registration at RVA 0x1696fe assigns GNatives[1611] to RVA 0x1599e0. The class and function name GUIComponent.KillTimer agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "4b0eeda8f0757654611ce210ecc2e9b86ce5bdbcf2b6cbdb9ac4625775f42e7e",
+      "inputs_sha256": "6af48898e1e7fd2afd108799ae19ca08bc6522edfb40a0c03f5a73faaaa888f6"
+    }
+  },
+  {
+    "id": "versus-gui-page-sleep",
+    "offset": 1416544,
+    "size": 72,
+    "rebuilt_symbol": "@versus_gui_page_sleep@16",
+    "inputs": [
+      "src/versus_timed_actions.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_timed_actions.obj src/versus_timed_actions.c",
+    "identification": "Retail registration at RVA 0x169811 assigns GNatives[332] to RVA 0x159d60. The class and function name GUIPage.Sleep agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "620ef1f597f2e21a5f85a108c2102dd4daf1bc950f2af5b5cfe4bf8b179613bc",
+      "inputs_sha256": "a72cc8f4145c11464354335119ca632a637e311362e28b2822b039dd9f5f417b"
+    }
+  },
+  {
+    "id": "versus-gui-init-page",
+    "offset": 1416688,
+    "size": 15,
+    "rebuilt_symbol": "@versus_gui_init_page@16",
+    "inputs": [
+      "src/versus_gui_layout.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+    "identification": "Retail registration at RVA 0x1697da assigns GNatives[1617] to RVA 0x159df0. The class and function name GUIPage.InitExecution agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "0576185785cae0aa08c42ab5f95aa9ab352e86344c3dd8d50403183c6ccae62a",
+      "inputs_sha256": "d2828f11050b7b00a21c0abcc02a0acde2e5a5d5deb41bff38a0b993eef26771"
+    }
+  }
+]

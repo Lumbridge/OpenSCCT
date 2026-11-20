@@ -1,0 +1,1521 @@
+[
+  {
+    "id": "delete-aeplayercontroller",
+    "offset": 2960416,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AEPlayerController@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AEPlayerController vtable at RVA 0x7eb180, slot 3, points to entry RVA 0x2d2c20. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2d2ed0 references the placement constructor at RVA 0x2d2e90, which installs this vtable at RVA 0x2d2ec8.",
+    "link_bindings": {
+      "@destroy_AEPlayerController@4": {
+        "va": 280833104,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2d2c50."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "fe9b563d8f0aff1cbbb98afcf8abe4328ca7ecc6e8d3f10f269e961289971106"
+    }
+  },
+  {
+    "id": "placement-aeplayercontroller",
+    "offset": 2961040,
+    "size": 64,
+    "rebuilt_symbol": "_place_AEPlayerController",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AEPlayerController class descriptor."
+      },
+      "_vtable_AEPlayerController": {
+        "va": 286175616,
+        "basis": "Class-specific table installed after base initialization in the named AEPlayerController descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AEPlayerController class factory at RVA 0x2d2ed0. The callback at RVA 0x2d2e90 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "eaa96a3ac0bde345f94fd723fdbf8a714955a3bcd3d6c9026b3e61b2e06d8491",
+      "inputs_sha256": "5fdd70d98410d1d567d84df45c43e8c122386fb43f52b2f913b7145ea0f9d2dc"
+    }
+  },
+  {
+    "id": "class-factory-aeplayercontroller",
+    "offset": 2961104,
+    "size": 106,
+    "rebuilt_symbol": "_create_AEPlayerController",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AEPlayerController": {
+        "va": 286176360,
+        "basis": "Retail UTF-16 AEPlayerController allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AEPlayerController": {
+        "va": 280833680,
+        "basis": "Placement callback passed to the native descriptor constructor for AEPlayerController."
+      },
+      "@static_init_AEPlayerController@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AEPlayerController."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d2ed0; its allocation tag and reflected class name identify AEPlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "9346973353b5f763f918be6113e3ad34e69d776646e65e605f295620bc0c61e1",
+      "inputs_sha256": "f0eea78f6f09d5793504b9c92b6a0ab7412f0656ecb2b2fffd3c56c1f0953524"
+    }
+  },
+  {
+    "id": "script-frame-performingcoopinteract",
+    "offset": 2961248,
+    "size": 66,
+    "rebuilt_symbol": "@script_frame_PerformingCoopInteract@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_PerformingCoopInteract": {
+        "va": 287503800,
+        "basis": "FName initialized with retail UTF-16 PerformingCoopInteract (VA 0x110faacc). The FName constructor call at RVA 0x335ccb precedes the store to this slot at RVA 0x335cd4."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PerformingCoopInteract event wrapper at RVA 0x2d2f60, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares ECoopPlayerController.PerformingCoopInteract at serial offset 0x75968.",
+    "match": {
+      "bytes_sha256": "011e96a15e3b6aeaea3de9ead6ddd4a618676151e8296d518226293a506457de",
+      "inputs_sha256": "3afa964abcac48cc9c979885e337f346b29ab89e404349bdb5786847c841afde"
+    }
+  },
+  {
+    "id": "class-registration-aecoopplayercontroller",
+    "offset": 2961344,
+    "size": 264,
+    "rebuilt_symbol": "_register_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_AECoopPlayerController": {
+        "va": 287502000,
+        "basis": "The AECoopPlayerController class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AEPlayerController": {
+        "va": 287501576,
+        "basis": "The AEPlayerController class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AEPlayerController": {
+        "va": 280833744,
+        "basis": "The constructor names AEPlayerController using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 Echelon package supplied to the class constructor."
+      },
+      "_register_AEPlayerController": {
+        "va": 280745728,
+        "basis": "Registration target reached after the AEPlayerController constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AECoopPlayerController at RVA 0x2d2fc0, called immediately after the class factory at RVA 0x2d5740 in the singleton initialization path. Sets superclass AEPlayerController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "fefab6044dcdceced41666e6d10363807adbdb6bff3093e180c25e2b1738d070",
+      "inputs_sha256": "443d3785cb59a4c67972806d7342857a73762406694e2476d25732d16734d148"
+    }
+  },
+  {
+    "id": "delete-aecoopplayercontroller",
+    "offset": 2971344,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AECoopPlayerController@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AECoopPlayerController UClass factory at RVA 0x2d5740 references the named placement constructor at RVA 0x2d5700. That constructor installs the vtable at RVA 0x7eb4c0, whose slot 3 points to this deleting destructor at RVA 0x2d56d0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AECoopPlayerController": {
+        "va": 286176448,
+        "basis": "The placement constructor at RVA 0x2d5700 installs this same vtable at RVA 0x2d5738."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AECoopPlayerController@4": {
+        "va": 280833104,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6348d7bb6af636fd301dd29654f0378cd28844e8b1a9bab106e877794013d948",
+      "inputs_sha256": "ee348cf698858c72d38596b901e6138d6ba7e0bb7d8466e863a16233da18fa7c"
+    }
+  },
+  {
+    "id": "placement-aecoopplayercontroller",
+    "offset": 2971392,
+    "size": 64,
+    "rebuilt_symbol": "_place_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AECoopPlayerController class descriptor."
+      },
+      "_vtable_AECoopPlayerController": {
+        "va": 286176448,
+        "basis": "Class-specific table installed after base initialization in the named AECoopPlayerController descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AECoopPlayerController class factory at RVA 0x2d5740. The callback at RVA 0x2d5700 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "70f6368a373bd77bb30b276f193f7647b1619e3cda86a744aa5095bbd7422b3f",
+      "inputs_sha256": "7c8068b4c6b6249acd2c3b80250ad63c4624c9485f3d7dd4ae409e7babff0120"
+    }
+  },
+  {
+    "id": "class-factory-aecoopplayercontroller",
+    "offset": 2971456,
+    "size": 106,
+    "rebuilt_symbol": "_create_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AECoopPlayerController": {
+        "va": 286177192,
+        "basis": "Retail UTF-16 AECoopPlayerController allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AECoopPlayerController": {
+        "va": 280844032,
+        "basis": "Placement callback passed to the native descriptor constructor for AECoopPlayerController."
+      },
+      "@static_init_AECoopPlayerController@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AECoopPlayerController."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d5740; its allocation tag and reflected class name identify AECoopPlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "ee16547af449ede6cda67ba5888569d29f925eaa069a116b070bf8637c2587b3",
+      "inputs_sha256": "07426d5d5bb0392a6d8ed95e81e2f5d94f3eea0b71b152d0cab2b958efdd9e94"
+    }
+  },
+  {
+    "id": "class-registration-ae3dmapsystem",
+    "offset": 2972512,
+    "size": 264,
+    "rebuilt_symbol": "_register_AE3DMapSystem",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AE3DMapSystem": {
+        "va": 287502012,
+        "basis": "The AE3DMapSystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AE3DMapSystem at RVA 0x2d5b60, called immediately after the class factory at RVA 0x2d85c0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "0135d19883757fe50069fe93730400b48e6acc85e9c7ea1766430b2e12446d6b",
+      "inputs_sha256": "12fc460a6ba202c91f2bc686ceb20326edfcbdd1efadfa9dfc25dbbd78c9e41a"
+    }
+  },
+  {
+    "id": "class-registration-ae3dcameratarget",
+    "offset": 2972784,
+    "size": 264,
+    "rebuilt_symbol": "_register_AE3DCameraTarget",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AE3DCameraTarget": {
+        "va": 287502016,
+        "basis": "The AE3DCameraTarget class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AE3DCameraTarget at RVA 0x2d5c70, called immediately after the class factory at RVA 0x2d7f50 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "7d04b5b6f891a971ab8e26f6a98b47df48c17a4dd1ac434d9c4181c57e2b1a82",
+      "inputs_sha256": "1805fba5e6dd9916d61e708f4b05bf13ba004a2e338fc87b82a16eb424556f23"
+    }
+  },
+  {
+    "id": "class-registration-ae3dbeacon",
+    "offset": 2973056,
+    "size": 264,
+    "rebuilt_symbol": "_register_AE3DBeacon",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AE3DBeacon": {
+        "va": 287502020,
+        "basis": "The AE3DBeacon class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AE3DBeacon at RVA 0x2d5d80, called immediately after the class factory at RVA 0x2d7fc0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "62c214f9b00da3e15d8431bfd4e3c5a16f5a131ed043ddfff94aebf93d29b429",
+      "inputs_sha256": "4d6ddfaf8e8755ee179b0fabf4f93c140c3ca8da60c266fa3fe0734aa3adbb59"
+    }
+  },
+  {
+    "id": "script-frame-actorgotostate",
+    "offset": 2974400,
+    "size": 78,
+    "rebuilt_symbol": "@script_frame_ActorGotoState@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_ActorGotoState": {
+        "va": 287503324,
+        "basis": "FName initialized with retail UTF-16 ActorGotoState (VA 0x110d5bdc). The FName constructor call at RVA 0x3351cb precedes the store to this slot at RVA 0x3351dd."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ActorGotoState event wrapper at RVA 0x2d62c0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPlayerController.ActorGotoState at serial offset 0x733d0.",
+    "match": {
+      "bytes_sha256": "450c3979f99d795a5a8c7a3f484bbb09e485b9651fa01e86f2bcb8d74dfed1cd",
+      "inputs_sha256": "65cc9e86f6d769c5ea944683197d52cf7a86f776a6557bdc736a6d7618e4588f"
+    }
+  },
+  {
+    "id": "array-remove-2d7270",
+    "size": 138,
+    "offset": 2978416,
+    "rebuilt_symbol": "@array_remove_r2d7270@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2d7270, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d76cb, 0x2d7b4b, 0x2d7c64. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "d9dffeba8a6a07226447e9b58738caa86d2f1476ddc89295496bbc713db7e1e8",
+      "inputs_sha256": "3c7889208e7044ac9f29cc4ae3a776638bf6c384b0aa0641960014d547383bae"
+    }
+  },
+  {
+    "id": "array-remove-2d7300",
+    "size": 138,
+    "offset": 2978560,
+    "rebuilt_symbol": "@array_remove_r2d7300@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2d7300, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d770b, 0x2d7b8b, 0x2d7c0e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "d9ef4fb8ee8ae6905c0d4b502a250f2c76028ea0ca51730b561a6652aea0322a",
+      "inputs_sha256": "8c0cae9bccaf12e8ce7177c1175eadeb6e4867f9ee3317f64fd9a9a67bc0f0a2"
+    }
+  },
+  {
+    "id": "array-remove-2d7390",
+    "size": 138,
+    "offset": 2978704,
+    "rebuilt_symbol": "@array_remove_r2d7390@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2d7390, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d7edb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "fcf574ee9b55d607957434ac265a80f6de466bf4872a9b68472ce3871a5861e0",
+      "inputs_sha256": "fef3d25030ff65a0d15cebcde27d62e97f6ee56218fabb7047f63e9d8e98e559"
+    }
+  },
+  {
+    "id": "array-remove-2d7420",
+    "size": 138,
+    "offset": 2978848,
+    "rebuilt_symbol": "@array_remove_r2d7420@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2d7420, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d839b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "830f489493c310f48353ba5cb5e65c80d33e0c88bccee6e2d6cd7e320d6c2e19",
+      "inputs_sha256": "7fbf0056dc6eaa5edfe1c8ac106c8863ce72d43a4512475884fc3497544b4d7e"
+    }
+  },
+  {
+    "id": "array-remove-2d74b0",
+    "size": 138,
+    "offset": 2978992,
+    "rebuilt_symbol": "@array_remove_r2d74b0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2d74b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d813d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "c8460557e8458c1ca06b507a04c476496d3e963ece08227709b6097d50746694",
+      "inputs_sha256": "a7f24a7e52b159adb1876962d87d3f0a9179d9a025772d857a131839fab6bd9a"
+    }
+  },
+  {
+    "id": "array-remove-2d7540",
+    "size": 138,
+    "offset": 2979136,
+    "rebuilt_symbol": "@array_remove_r2d7540@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2d7540, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d774b, 0x2d7c9b, 0x2d7de1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "00021f200d4ae3980b28f62e53f6e4ac1fdd61e4ebf55c1c182e397d94852601",
+      "inputs_sha256": "1921bf28b33274f04613ce2fdb8a2a4ecdc267f75b4e7c6d6246fb9d409c56af"
+    }
+  },
+  {
+    "id": "delete-ae3dbeacon",
+    "offset": 2981136,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AE3DBeacon@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AE3DBeacon UClass factory at RVA 0x2d7fc0 references the named placement constructor at RVA 0x2d7e20. That constructor installs the vtable at RVA 0x7eb7f8, whose slot 3 points to this deleting destructor at RVA 0x2d7d10. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AE3DBeacon": {
+        "va": 286177272,
+        "basis": "The placement constructor at RVA 0x2d7e20 installs this same vtable at RVA 0x2d7e58."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AE3DBeacon@4": {
+        "va": 278048032,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0cf857b413ddd7a74c36e040ef417a497a763c3e1926290afa798abddd6ace36",
+      "inputs_sha256": "e012fdd0bd3c15065567ae0d4f94be2306c29ec120b7701077eb6e89a95231b0"
+    }
+  },
+  {
+    "id": "delete-ae3dcameratarget",
+    "offset": 2981232,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AE3DCameraTarget@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AE3DCameraTarget UClass factory at RVA 0x2d7f50 references the named placement constructor at RVA 0x2d7e60. That constructor installs the vtable at RVA 0x7eba90, whose slot 3 points to this deleting destructor at RVA 0x2d7d70. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AE3DCameraTarget": {
+        "va": 286177936,
+        "basis": "The placement constructor at RVA 0x2d7e60 installs this same vtable at RVA 0x2d7e98."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AE3DCameraTarget@4": {
+        "va": 278048032,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "494c634b349623b70dc7cb10571c0092326d629379f85bd5161527a2328806ec",
+      "inputs_sha256": "a0db779ad9e41cd89bfc881948ed11ba10fceae7cf445907a750d3908ba90257"
+    }
+  },
+  {
+    "id": "placement-ae3dbeacon",
+    "offset": 2981408,
+    "size": 64,
+    "rebuilt_symbol": "_place_AE3DBeacon",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AE3DBeacon class descriptor."
+      },
+      "_vtable_AE3DBeacon": {
+        "va": 286177272,
+        "basis": "Class-specific table installed after base initialization in the named AE3DBeacon descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AE3DBeacon class factory at RVA 0x2d7fc0. The callback at RVA 0x2d7e20 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "c4ac375127363934e443fe105e172929422141a20091f83b64f1ed4b08114df5",
+      "inputs_sha256": "d010fad21404ee48ffc35a562002a0884de4c843874275901c3a04640061f543"
+    }
+  },
+  {
+    "id": "placement-ae3dcameratarget",
+    "offset": 2981472,
+    "size": 64,
+    "rebuilt_symbol": "_place_AE3DCameraTarget",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AE3DCameraTarget class descriptor."
+      },
+      "_vtable_AE3DCameraTarget": {
+        "va": 286177936,
+        "basis": "Class-specific table installed after base initialization in the named AE3DCameraTarget descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AE3DCameraTarget class factory at RVA 0x2d7f50. The callback at RVA 0x2d7e60 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "0517c0b3ff4ef92ffd30b58a62c450b26c6fb7cb3e9cbd7784fe9d7be4530595",
+      "inputs_sha256": "dafb2d51721d35c5dd6b3537ce20432ffedc30ba77eac76258e3e5c08ca54c4b"
+    }
+  },
+  {
+    "id": "class-factory-ae3dcameratarget",
+    "offset": 2981712,
+    "size": 105,
+    "rebuilt_symbol": "_create_AE3DCameraTarget",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AE3DCameraTarget": {
+        "va": 286178600,
+        "basis": "Retail UTF-16 AE3DCameraTarget allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AE3DCameraTarget": {
+        "va": 280854112,
+        "basis": "Placement callback passed to the native descriptor constructor for AE3DCameraTarget."
+      },
+      "@static_init_AE3DCameraTarget@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AE3DCameraTarget."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d7f50; its allocation tag and reflected class name identify AE3DCameraTarget. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "8c706269003e782da592ccf33f74e6444c6f79fd134a066d079a9e1cd551dcfd",
+      "inputs_sha256": "f466f71364915350de4e607696da9fe46b8f595b10bbe29774201cb4d882d2a3"
+    }
+  },
+  {
+    "id": "class-factory-ae3dbeacon",
+    "offset": 2981824,
+    "size": 105,
+    "rebuilt_symbol": "_create_AE3DBeacon",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AE3DBeacon": {
+        "va": 286178636,
+        "basis": "Retail UTF-16 AE3DBeacon allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AE3DBeacon": {
+        "va": 280854048,
+        "basis": "Placement callback passed to the native descriptor constructor for AE3DBeacon."
+      },
+      "@static_init_AE3DBeacon@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AE3DBeacon."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d7fc0; its allocation tag and reflected class name identify AE3DBeacon. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "54dc3ac531183529f21dd4c2fbf7fdac4616746d9a12047dfa84b628f24a2fc8",
+      "inputs_sha256": "ad2675b070972a7cd521e329fa3bc51e535bb798a037305a79b7e7de8941716a"
+    }
+  },
+  {
+    "id": "delete-ae3dmapsystem",
+    "offset": 2983024,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AE3DMapSystem@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AE3DMapSystem vtable at RVA 0x7ebd68, slot 3, points to entry RVA 0x2d8470. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2d85c0 references the placement constructor at RVA 0x2d8580, which installs this vtable at RVA 0x2d85b8.",
+    "link_bindings": {
+      "@destroy_AE3DMapSystem@4": {
+        "va": 280855712,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2d84a0."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "987d995bcc7e6863acde37fad12821956cceabe67e1bdbea32a5483b72c249e8"
+    }
+  },
+  {
+    "id": "placement-ae3dmapsystem",
+    "offset": 2983296,
+    "size": 64,
+    "rebuilt_symbol": "_place_AE3DMapSystem",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AE3DMapSystem class descriptor."
+      },
+      "_vtable_AE3DMapSystem": {
+        "va": 286178664,
+        "basis": "Class-specific table installed after base initialization in the named AE3DMapSystem descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AE3DMapSystem class factory at RVA 0x2d85c0. The callback at RVA 0x2d8580 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "b42ef248b1a7a6d82930f13abb7ab631e49a6921e551b19e1d1da19d584aaa79",
+      "inputs_sha256": "0d81d1644e90e370c94e293417e895ab00871feef0f80142c2d279960a3aba02"
+    }
+  },
+  {
+    "id": "class-factory-ae3dmapsystem",
+    "offset": 2983360,
+    "size": 105,
+    "rebuilt_symbol": "_create_AE3DMapSystem",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AE3DMapSystem": {
+        "va": 286179328,
+        "basis": "Retail UTF-16 AE3DMapSystem allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AE3DMapSystem": {
+        "va": 280855936,
+        "basis": "Placement callback passed to the native descriptor constructor for AE3DMapSystem."
+      },
+      "@static_init_AE3DMapSystem@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AE3DMapSystem."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d85c0; its allocation tag and reflected class name identify AE3DMapSystem. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "fc8944caa0189a0cc106f1be10a887f0bac5b0ca76593161b8e8222b41157f65",
+      "inputs_sha256": "37c745c0dbc9350de4b962592e6c779570efb48828f8fb869f67c23c9b3bc36b"
+    }
+  },
+  {
+    "id": "script-parameters-getcurrent",
+    "offset": 2985472,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetCurrent@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetCurrent": {
+        "va": 287503520,
+        "basis": "FName initialized with retail UTF-16 GetCurrent (VA 0x110fb378). The FName constructor call at RVA 0x335653 precedes the store to this slot at RVA 0x335665."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetCurrent event wrapper at RVA 0x2d8e00, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EGoalList.GetCurrent with EGoal ReturnValue at serial offset 0xce82d.",
+    "match": {
+      "bytes_sha256": "12a47473eab5dffd1611f59656420ce6cb96abf49ad19d4346cc95241d6e4bd3",
+      "inputs_sha256": "4ec43291dc54c6694a393916e3c3a47a70810806c969a8d18da4af5eec88bc8a"
+    }
+  },
+  {
+    "id": "class-registration-aeaimanager",
+    "offset": 2986544,
+    "size": 264,
+    "rebuilt_symbol": "_register_AEAIManager",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AEAIManager": {
+        "va": 287502044,
+        "basis": "The AEAIManager class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AEAIManager at RVA 0x2d9230, called immediately after the class factory at RVA 0x2e4f00 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "9a399b8695f549705669f97c50d9cdc228db4080e94d2c407df1af016dcccad6",
+      "inputs_sha256": "8ee01bda379adbf9f6ed47d40ec37206301d97717a3337d85560ba7aa1de4d2a"
+    }
+  },
+  {
+    "id": "array-remove-2dadc0",
+    "size": 138,
+    "offset": 2993600,
+    "rebuilt_symbol": "@array_remove_r2dadc0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2dadc0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dca6b, 0x2e0034, 0x2e012a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "31157e8e35359be9d889ce4fca19148551f6ef71f471a86872b29b9e840ef3d8",
+      "inputs_sha256": "567e6e39c775b237aaf5845c127f1375d44fe8c960e6f6ddb008769a91cb57a3"
+    }
+  },
+  {
+    "id": "array-remove-2daea0",
+    "size": 138,
+    "offset": 2993824,
+    "rebuilt_symbol": "@array_remove_r2daea0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2daea0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcaab, 0x2dffbb, 0x2e00d4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "c416f92b0f2eff6c632d237f3e54ec4b26a5457b4d187e16d1519dec009fad60",
+      "inputs_sha256": "0d50cd92bd93343207e4fbcedae75edb7416493654ca7a8369620f1477e3b820"
+    }
+  },
+  {
+    "id": "array-remove-2daf30",
+    "size": 138,
+    "offset": 2993968,
+    "rebuilt_symbol": "@array_remove_r2daf30@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2daf30, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcb4b, 0x2de923. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "9b53563c585d9218e36b224b4f7b33c7b349c09ab3b6d0d726d275023ec8f67c",
+      "inputs_sha256": "5e6e328d808838dd4bf21a6dcff26bf882584aa23ef79e54884f18f4786139d5"
+    }
+  },
+  {
+    "id": "array-remove-2db210",
+    "size": 138,
+    "offset": 2994704,
+    "rebuilt_symbol": "@array_remove_r2db210@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db210, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2e2b0d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "60118e489322f4cf026ce2060c8f84d4e1db66e29b9ded0f78138152ce48e741",
+      "inputs_sha256": "82ab7f3ad72c12851e3e3ba9d63b3dceaf05df17fa1e893dd76fea52fe3e6aab"
+    }
+  },
+  {
+    "id": "array-remove-2db2a0",
+    "size": 138,
+    "offset": 2994848,
+    "rebuilt_symbol": "@array_remove_r2db2a0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db2a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2e339b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "a9e01e15009bbe4eee4ee93d5386a55498012c927e0d622b7622bbac7f6f769e",
+      "inputs_sha256": "f82c8878e0fa515ab4b750509f02e190272c18c7e6e180991a06d628033dd065"
+    }
+  },
+  {
+    "id": "array-remove-2db330",
+    "size": 138,
+    "offset": 2994992,
+    "rebuilt_symbol": "@array_remove_r2db330@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db330, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dce9b, 0x2df36b, 0x2e4dc7. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "455870c49bf114b9611752cc112ed15f1b05bb63b92fd19457f0eed3c28f81b2",
+      "inputs_sha256": "8202a007c0c497f9fe75ae7b03435a099f719559e36b8270b18be6f516fe949d"
+    }
+  },
+  {
+    "id": "array-remove-2db3c0",
+    "size": 138,
+    "offset": 2995136,
+    "rebuilt_symbol": "@array_remove_r2db3c0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db3c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2df46b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "777ab307807e7cbdfcdfdbae3e9f8eb2f5b2fd471114286b1f18cebcb0ffd49b",
+      "inputs_sha256": "e0bf2b6596bae13b80f71555853d9bf157a24d269cdea83b12984480d53c2819"
+    }
+  },
+  {
+    "id": "array-remove-2db450",
+    "size": 138,
+    "offset": 2995280,
+    "rebuilt_symbol": "@array_remove_r2db450@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db450, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcedb, 0x2df3ab, 0x2e4b95. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "a7278c3b337673ec774a0f8f73c8a0136bd98a5fd8767278e5dd2277a17b6bfa",
+      "inputs_sha256": "c81fff4cabc3f0cd9ec32ecc8b06cbc3171c9ee3f44858484b35a0a36ffb3824"
+    }
+  },
+  {
+    "id": "array-remove-2db4e0",
+    "size": 138,
+    "offset": 2995424,
+    "rebuilt_symbol": "@array_remove_r2db4e0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db4e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcf1b, 0x2dd4b2, 0x2dedd8. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "d28b025788285dd3edf93066ef785308149fd1abf43cddaff81cf2f0ee1717f1",
+      "inputs_sha256": "d3e12d28fcdb87553016ad426f264e36ad22ba5ac4ebcc642bb14140d26f0c19"
+    }
+  },
+  {
+    "id": "array-remove-2db570",
+    "size": 138,
+    "offset": 2995568,
+    "rebuilt_symbol": "@array_remove_r2db570@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db570, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2e2d9b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "6ebcfba3768267b707a429d5d798e206353f6276ae5b9a14b4dd800c96a15107",
+      "inputs_sha256": "e8948b03b15beedf527e85aa657e04a840cab832b4b6bedefd86dc6baca06b10"
+    }
+  },
+  {
+    "id": "array-remove-2db600",
+    "size": 138,
+    "offset": 2995712,
+    "rebuilt_symbol": "@array_remove_r2db600@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db600, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcfab, 0x2df4cb, 0x2e306e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "dd6aaf04d88b61a934b05de4de250066a29062cb41154c29acdec4c1e422e0a8",
+      "inputs_sha256": "90d7ad7e2bfd5e592d40bd26523b06c7e47e8d791a0fb3da4f5208a4f87973da"
+    }
+  },
+  {
+    "id": "array-remove-2db690",
+    "size": 138,
+    "offset": 2995856,
+    "rebuilt_symbol": "@array_remove_r2db690@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db690, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcfeb, 0x2df48b, 0x2e29a1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "e98357842092368c0c47baf6d24d9c3f70c782d0099ca1e84f241e3397ccadb6",
+      "inputs_sha256": "2a495151795a9cc98df4cc140997b440146b2590e3c66704705ae80f22937811"
+    }
+  },
+  {
+    "id": "array-remove-2db720",
+    "size": 138,
+    "offset": 2996000,
+    "rebuilt_symbol": "@array_remove_r2db720@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2db720, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2df579. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "04e8db2fda258d6c96a4253c4db1c1aa79259870d1adf40d39d87aff3dc72280",
+      "inputs_sha256": "c2ca368bc00aeb297a44008fab61c222adf84b4ec07fdd7843ae4dacc72bd175"
+    }
+  }
+]

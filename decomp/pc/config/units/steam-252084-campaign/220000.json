@@ -1,0 +1,1038 @@
+[
+  {
+    "id": "cast-aecoopplayercontroller",
+    "offset": 2229280,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AECoopPlayerController": {
+        "va": 287502000,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AECoopPlayerController": {
+        "va": 280844096,
+        "basis": "The constructor passes both the UTF-16 AECoopPlayerController allocation tag and ECoopPlayerController class name to the engine."
+      },
+      "_register_AECoopPlayerController": {
+        "va": 280833984,
+        "basis": "Direct registration call after initializing the singleton for AECoopPlayerController."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x220420, directly called at RVA 0x22056d. Its class constructor at RVA 0x2d5740 identifies AECoopPlayerController; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "ddd004fdbd5ae7b8685c9ca83bd75fc766cb3766e929507bd63b8a74c9b4d77f",
+      "inputs_sha256": "0ca51ff8fc215c60cb5e037332653c21bd3ba688f7bbbfa2cb5b98e7e78eb377"
+    }
+  },
+  {
+    "id": "delete-uscmagmainteractionmpgame",
+    "offset": 2229904,
+    "size": 57,
+    "inputs": [
+      "src/campaign_member_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_USCMagmaInteractionMPGame@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_member_destruction.obj src/campaign_member_destruction.c",
+    "identification": "Stock USCMagmaInteractionMPGame UClass factory at RVA 0x2206f0 references the placement constructor at RVA 0x2206d0. Its vtable at RVA 0x7deb60 points to this complete function in slot 3. The function destroys the member at offset 0x98, then the base, and conditionally frees the whole object.",
+    "link_bindings": {
+      "_vtable_USCMagmaInteractionMPGame": {
+        "va": 286124896,
+        "basis": "The placement constructor at RVA 0x2206d0 installs this vtable at RVA 0x2206e0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_member_USCMagmaInteractionMPGame@4": {
+        "va": 278046432,
+        "basis": "Direct call with this pointing to the embedded member at offset 0x98."
+      },
+      "@destroy_base_USCMagmaInteractionMPGame@4": {
+        "va": 278984752,
+        "basis": "The next direct destruction call restores the original receiver before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator on the conditional release path. Its slot 2 receives the original object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "56d077ee993f0bf15b78259d0a1272b3c04cb118d9364b9075b1db0f5a5ef2a9",
+      "inputs_sha256": "ca69a0b150fad597f04b996791cae982be7c74abd6c8ee0a97d819b478b9f912"
+    }
+  },
+  {
+    "id": "placement-uscmagmainteractionmpgame",
+    "offset": 2229968,
+    "size": 24,
+    "rebuilt_symbol": "_place_USCMagmaInteractionMPGame",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named USCMagmaInteractionMPGame class descriptor."
+      },
+      "_vtable_USCMagmaInteractionMPGame": {
+        "va": 286124896,
+        "basis": "Class-specific table installed after base initialization in the named USCMagmaInteractionMPGame descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the USCMagmaInteractionMPGame class factory at RVA 0x2206f0. The callback at RVA 0x2206d0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "af9500d6a317785174fd025c344e790a94c9a27591c55d7fa07828ee25bcc61c",
+      "inputs_sha256": "da580ca30b78304d0d9a4d9122344f911079f0aea819f2c4fc98f78833b8122b"
+    }
+  },
+  {
+    "id": "class-factory-uscmagmainteractionmpgame",
+    "offset": 2230000,
+    "size": 105,
+    "rebuilt_symbol": "_create_USCMagmaInteractionMPGame",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USCMagmaInteractionMPGame": {
+        "va": 286125136,
+        "basis": "Retail UTF-16 USCMagmaInteractionMPGame allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USCMagmaInteractionMPGame": {
+        "va": 280102608,
+        "basis": "Placement callback passed to the native descriptor constructor for USCMagmaInteractionMPGame."
+      },
+      "@static_init_USCMagmaInteractionMPGame@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for USCMagmaInteractionMPGame."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2206f0; its allocation tag and reflected class name identify USCMagmaInteractionMPGame. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "bb80b8bb0373ef1fa75cd4a1839379fb9b6895da4a924a6cccf9d5ef10d7ee08",
+      "inputs_sha256": "84c25f6fdf67e6a9ad9e139e5a3ee553beb1e7cd914d9b976416e32f83cac832"
+    }
+  },
+  {
+    "id": "class-registration-uscmagmainteractionpregame",
+    "offset": 2230768,
+    "size": 264,
+    "rebuilt_symbol": "_register_USCMagmaInteractionPREGame",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_USCMagmaInteractionPREGame": {
+        "va": 287495208,
+        "basis": "The USCMagmaInteractionPREGame class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_USCMagmaInteraction": {
+        "va": 287283640,
+        "basis": "The USCMagmaInteraction class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_USCMagmaInteraction": {
+        "va": 278984896,
+        "basis": "The constructor names USCMagmaInteraction using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_USCMagmaInteraction": {
+        "va": 278978832,
+        "basis": "Registration target reached after the USCMagmaInteraction constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USCMagmaInteractionPREGame at RVA 0x2209f0, called immediately after the class factory at RVA 0x220e20 in the singleton initialization path. Sets superclass USCMagmaInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "e35507c1e29c9a2c3b0ae88159c30eb18b926ec1af02843e2c703bdf94491322",
+      "inputs_sha256": "1611166afcddbabc4eb0c2f209d083bb96656ff93b9779767d5750b497b617b8"
+    }
+  },
+  {
+    "id": "game-uscmagmainteractionpregame-staticinit",
+    "offset": 2231040,
+    "size": 40,
+    "rebuilt_symbol": "@exec_USCMagmaInteractionPREGame_StaticInit@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback USCMagmaInteractionPREGame_StaticInit at RVA 0x220b00; callback cell and name are evidenced by the verified register-native-uscmagmainteractionpregame-staticinit CRT entry at RVA 0x7a6190. Invokes the shared Magma game-mode initialization. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "_magma_static_init": {
+        "va": 280106080,
+        "basis": "Shared native static initialization called by the three campaign Magma game-mode script callbacks."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5fe5c04957a3301e586ea0a207dfba027cddf7eb2b3d5c5a6d267432fe1b00eb",
+      "inputs_sha256": "32cc95820a8456b6a1864c5c85a44f65e6cee9be672a629724525c7aa6b7b670"
+    }
+  },
+  {
+    "id": "array-remove-220b70",
+    "size": 138,
+    "offset": 2231152,
+    "rebuilt_symbol": "@array_remove_r220b70@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x220b70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x220ccf. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "3ad5afb06e84c0bcbb1cb2e49d3bae2298fec2fcdc95fa2e0ef36ba54ca2cffb",
+      "inputs_sha256": "c45bd35252923002a9d4690162e48995dcde40ea388b62e05159c3eb4c9b731a"
+    }
+  },
+  {
+    "id": "delete-uscmagmainteractionpregame",
+    "offset": 2231744,
+    "size": 57,
+    "inputs": [
+      "src/campaign_member_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_USCMagmaInteractionPREGame@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_member_destruction.obj src/campaign_member_destruction.c",
+    "identification": "Stock USCMagmaInteractionPREGame UClass factory at RVA 0x220e20 references the placement constructor at RVA 0x220e00. Its vtable at RVA 0x7ded10 points to this complete function in slot 3. The function destroys the member at offset 0x9c, then the base, and conditionally frees the whole object.",
+    "link_bindings": {
+      "_vtable_USCMagmaInteractionPREGame": {
+        "va": 286125328,
+        "basis": "The placement constructor at RVA 0x220e00 installs this vtable at RVA 0x220e10."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_member_USCMagmaInteractionPREGame@4": {
+        "va": 280104224,
+        "basis": "Direct call with this pointing to the embedded member at offset 0x9c."
+      },
+      "@destroy_base_USCMagmaInteractionPREGame@4": {
+        "va": 278984752,
+        "basis": "The next direct destruction call restores the original receiver before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator on the conditional release path. Its slot 2 receives the original object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6ded21439229ad9cf3b927447ad6400f4126ae1fe3e61da220267fa99895b77b",
+      "inputs_sha256": "25c54d6dcd3b396ebf8622a2d91f755eaff38f8eb644fd2c930ecc07547d4e6f"
+    }
+  },
+  {
+    "id": "placement-uscmagmainteractionpregame",
+    "offset": 2231808,
+    "size": 24,
+    "rebuilt_symbol": "_place_USCMagmaInteractionPREGame",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named USCMagmaInteractionPREGame class descriptor."
+      },
+      "_vtable_USCMagmaInteractionPREGame": {
+        "va": 286125328,
+        "basis": "Class-specific table installed after base initialization in the named USCMagmaInteractionPREGame descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the USCMagmaInteractionPREGame class factory at RVA 0x220e20. The callback at RVA 0x220e00 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "e9b944634a3f7afd51d2b361a0d7f7df3631eb37dfa896faab200aecab261f0a",
+      "inputs_sha256": "8eebae37bc17d8f314ddb7f4d7f530c699eb6db623669119a8bc4aeee2ddbf54"
+    }
+  },
+  {
+    "id": "class-factory-uscmagmainteractionpregame",
+    "offset": 2231840,
+    "size": 105,
+    "rebuilt_symbol": "_create_USCMagmaInteractionPREGame",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USCMagmaInteractionPREGame": {
+        "va": 286125568,
+        "basis": "Retail UTF-16 USCMagmaInteractionPREGame allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USCMagmaInteractionPREGame": {
+        "va": 280104448,
+        "basis": "Placement callback passed to the native descriptor constructor for USCMagmaInteractionPREGame."
+      },
+      "@static_init_USCMagmaInteractionPREGame@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for USCMagmaInteractionPREGame."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x220e20; its allocation tag and reflected class name identify USCMagmaInteractionPREGame. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "c04f1a12487eb68fea9ac98f16a4a6a2f660aaebb112d97028e7cccbb41170ed",
+      "inputs_sha256": "f9f103b306b0bbbc605e5d8725d13ebb195308225811cb2f1fca89fbc0333ce9"
+    }
+  },
+  {
+    "id": "game-uscmagmainteractionspgame-staticinit",
+    "offset": 2232032,
+    "size": 40,
+    "rebuilt_symbol": "@exec_USCMagmaInteractionSPGame_StaticInit@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback USCMagmaInteractionSPGame_StaticInit at RVA 0x220ee0; callback cell and name are evidenced by the verified register-native-uscmagmainteractionspgame-staticinit CRT entry at RVA 0x7a6170. Invokes the shared Magma game-mode initialization. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "_magma_static_init": {
+        "va": 280106080,
+        "basis": "Shared native static initialization called by the three campaign Magma game-mode script callbacks."
+      }
+    },
+    "match": {
+      "bytes_sha256": "df7f4f7e110d7260ba592b5d410004bb60bc03f888595963ff13d4678577db3b",
+      "inputs_sha256": "653ef3546cbe977bd7bb9832eb15db72ff2965942726500c4adaacd10dc856be"
+    }
+  },
+  {
+    "id": "class-registration-uscmagmainteractionspgame",
+    "offset": 2232608,
+    "size": 264,
+    "rebuilt_symbol": "_register_USCMagmaInteractionSPGame",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_USCMagmaInteractionSPGame": {
+        "va": 287495252,
+        "basis": "The USCMagmaInteractionSPGame class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_USCMagmaInteraction": {
+        "va": 287283640,
+        "basis": "The USCMagmaInteraction class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_USCMagmaInteraction": {
+        "va": 278984896,
+        "basis": "The constructor names USCMagmaInteraction using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_USCMagmaInteraction": {
+        "va": 278978832,
+        "basis": "Registration target reached after the USCMagmaInteraction constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USCMagmaInteractionSPGame at RVA 0x221120, called immediately after the class factory at RVA 0x2213e0 in the singleton initialization path. Sets superclass USCMagmaInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "def97a35579641918a1bed8e282399ece7bf1cf873f7c258ba46ab251ca64e25",
+      "inputs_sha256": "6cb212222c8e37f3a9b8feae7a1889b0be6758bceafc938c19285c67e99986c7"
+    }
+  },
+  {
+    "id": "delete-uscmagmainteractionspgame",
+    "offset": 2233232,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_USCMagmaInteractionSPGame@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock USCMagmaInteractionSPGame UClass factory at RVA 0x2213e0 references the named placement constructor at RVA 0x2213c0. That constructor installs the vtable at RVA 0x7dee90, whose slot 3 points to this deleting destructor at RVA 0x221390. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_USCMagmaInteractionSPGame": {
+        "va": 286125712,
+        "basis": "The placement constructor at RVA 0x2213c0 installs this same vtable at RVA 0x2213d0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_USCMagmaInteractionSPGame@4": {
+        "va": 278984752,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "98a334fa3fe982d16766dc55bbdf963b91ee028205eb41c5e33271d1f7d264cc",
+      "inputs_sha256": "21771e02a45039cb2805d864a071570662f5a2506767a265b16399a05ec1e975"
+    }
+  },
+  {
+    "id": "placement-uscmagmainteractionspgame",
+    "offset": 2233280,
+    "size": 24,
+    "rebuilt_symbol": "_place_USCMagmaInteractionSPGame",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named USCMagmaInteractionSPGame class descriptor."
+      },
+      "_vtable_USCMagmaInteractionSPGame": {
+        "va": 286125712,
+        "basis": "Class-specific table installed after base initialization in the named USCMagmaInteractionSPGame descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the USCMagmaInteractionSPGame class factory at RVA 0x2213e0. The callback at RVA 0x2213c0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "40ac84f214e387ac1d0e0715b57b579b3068f98a27fd0691698317565becd848",
+      "inputs_sha256": "490fd90e1c142d74e298d7ce5d6fcaf83922348525f2283337c1c0ed069c7900"
+    }
+  },
+  {
+    "id": "class-factory-uscmagmainteractionspgame",
+    "offset": 2233312,
+    "size": 105,
+    "rebuilt_symbol": "_create_USCMagmaInteractionSPGame",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USCMagmaInteractionSPGame": {
+        "va": 286125952,
+        "basis": "Retail UTF-16 USCMagmaInteractionSPGame allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USCMagmaInteractionSPGame": {
+        "va": 280105920,
+        "basis": "Placement callback passed to the native descriptor constructor for USCMagmaInteractionSPGame."
+      },
+      "@static_init_USCMagmaInteractionSPGame@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for USCMagmaInteractionSPGame."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2213e0; its allocation tag and reflected class name identify USCMagmaInteractionSPGame. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "a724d670630d2ac7ccfafc36951e57a87250f8a30f246bf040af449a99596f01",
+      "inputs_sha256": "61ac03936633cfe7d9b89d19b560b8c8a9a88463b95a2a21dc10d759335901e6"
+    }
+  },
+  {
+    "id": "script-parameters-isgamepaused",
+    "offset": 2234704,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_IsGamePaused@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsGamePaused": {
+        "va": 287285352,
+        "basis": "FName initialized with retail UTF-16 IsGamePaused (VA 0x110d5560). The FName constructor call at RVA 0x13bd15 precedes the store to this slot at RVA 0x13bd27."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsGamePaused event wrapper at RVA 0x221950, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.IsGamePaused with Bool ReturnValue at serial offset 0xac8f3.",
+    "match": {
+      "bytes_sha256": "871dfa0b56b22df74499e0fbaf651040e92ada7a88990f0644f5ab2206f71609",
+      "inputs_sha256": "1a645bdfc15d3f77857439ce4b26a0911aee36bdd30737371ef9c34e8be5af10"
+    }
+  },
+  {
+    "id": "script-parameters-caninteract",
+    "offset": 2234768,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_CanInteract@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_CanInteract": {
+        "va": 287285188,
+        "basis": "FName initialized with retail UTF-16 CanInteract (VA 0x110d5a34). The FName constructor call at RVA 0x13b94b precedes the store to this slot at RVA 0x13b95d."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail CanInteract event wrapper at RVA 0x221990, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopPlayerController.CanInteract with Bool ReturnValue at serial offset 0x5794d.",
+    "match": {
+      "bytes_sha256": "3295ff206905083a2aff4c953d82bc8719a35280cb6b3047f9b9217d2a09a4a6",
+      "inputs_sha256": "075cd99359f891305ba1f7a75902c0d5741d83b45b15d7c67eea5397d0aa97e7"
+    }
+  },
+  {
+    "id": "script-frame-isactiveview",
+    "offset": 2234832,
+    "size": 66,
+    "rebuilt_symbol": "@script_frame_IsActiveView@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_IsActiveView": {
+        "va": 287503640,
+        "basis": "FName initialized with retail UTF-16 IsActiveView (VA 0x110fb010). The FName constructor call at RVA 0x335919 precedes the store to this slot at RVA 0x33592b."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsActiveView event wrapper at RVA 0x2219d0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPlayerController.IsActiveView at serial offset 0x75fcd.",
+    "match": {
+      "bytes_sha256": "8eafe84a805ed0cb0926eee878fcb1c87faff155fc870f28bd2b3e75c71afe43",
+      "inputs_sha256": "48dabdffb7ed31314bc688ee866553708a71762a310f40c63b977b82cefd187b"
+    }
+  },
+  {
+    "id": "script-parameters-canaccessquick",
+    "offset": 2234912,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_CanAccessQuick@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_CanAccessQuick": {
+        "va": 287503376,
+        "basis": "FName initialized with retail UTF-16 CanAccessQuick (VA 0x110fb7a8). The FName constructor call at RVA 0x3352ff precedes the store to this slot at RVA 0x335311."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail CanAccessQuick event wrapper at RVA 0x221a20, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.CanAccessQuick with Bool ReturnValue at serial offset 0x56034.",
+    "match": {
+      "bytes_sha256": "c9bd280b15a78dba03c57a860688daf463774014f70baf3aec928272d7b5c81e",
+      "inputs_sha256": "a8aa75f30410c25d3f1b9a80769d786ea13e97c626e9584b32791e4bad5bc6b0"
+    }
+  },
+  {
+    "id": "script-parameters-escapeview",
+    "offset": 2234976,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_EscapeView@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_EscapeView": {
+        "va": 287503464,
+        "basis": "FName initialized with retail UTF-16 EscapeView (VA 0x110fb508). The FName constructor call at RVA 0x335507 precedes the store to this slot at RVA 0x335510."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail EscapeView event wrapper at RVA 0x221a60, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.EscapeView with Bool ReturnValue at serial offset 0x71088.",
+    "match": {
+      "bytes_sha256": "f7cb49735372fd233b8833ee17e6e2125938574e521fee8880c8d4a7b4dae6a3",
+      "inputs_sha256": "b3e54e597e50a345e4ef3a2a365cd06182c8d748cc2a7a04d0a9cf4efc383e49"
+    }
+  },
+  {
+    "id": "script-parameters-pausegamenotsound",
+    "offset": 2260608,
+    "size": 66,
+    "rebuilt_symbol": "@script_call_PauseGameNotSound@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_PauseGameNotSound": {
+        "va": 287503784,
+        "basis": "FName initialized with retail UTF-16 PauseGameNotSound (VA 0x110fab88). The FName constructor call at RVA 0x335c6d precedes the store to this slot at RVA 0x335c7f."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PauseGameNotSound event wrapper at RVA 0x227e80, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.PauseGameNotSound with Bool bPause, Bool ReturnValue at serial offset 0x7ce00.",
+    "match": {
+      "bytes_sha256": "6a37036106e9ebe7a8273f93d78e66536d07d22fb012f9377772703b46d3ac62",
+      "inputs_sha256": "277721a86e483a003fdc615285cfd1686f6b31cabea57e8e1f6243ab3fa04415"
+    }
+  },
+  {
+    "id": "cast-aemaingun",
+    "offset": 2269952,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AEMainGun",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AEMainGun": {
+        "va": 287502264,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AEMainGun": {
+        "va": 280985280,
+        "basis": "The constructor passes both the UTF-16 AEMainGun allocation tag and EMainGun class name to the engine."
+      },
+      "_register_AEMainGun": {
+        "va": 280979744,
+        "basis": "Direct registration call after initializing the singleton for AEMainGun."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x22a300, directly called at RVA 0x22ab2e. Its class constructor at RVA 0x2f7ec0 identifies AEMainGun; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "3d4c2260e28965ef4763b1686e8e1902dc9e474b812b08e8f595ecba19d72ab4",
+      "inputs_sha256": "9e02eb468c2286b7db6142e8a43394e57f75eeb6abbdd3e6cddf91f7614c841a"
+    }
+  },
+  {
+    "id": "cast-aeweapon",
+    "offset": 2270048,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AEWeapon",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AEWeapon": {
+        "va": 287502284,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AEWeapon": {
+        "va": 280993808,
+        "basis": "The constructor passes both the UTF-16 AEWeapon allocation tag and EWeapon class name to the engine."
+      },
+      "_register_AEWeapon": {
+        "va": 280985968,
+        "basis": "Direct registration call after initializing the singleton for AEWeapon."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x22a360, directly called at RVA 0x22ac94. Its class constructor at RVA 0x2fa010 identifies AEWeapon; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "e4965a9bee75da78b97b4017fe1a85b3303ecd74a2dba7fa5603255adcfb2646",
+      "inputs_sha256": "2d9094bda7f3330dd06e7a585929a82e63e7f1b234169535c60ec69908cfda8c"
+    }
+  },
+  {
+    "id": "cast-ucomputeraccesscomponent",
+    "offset": 2280624,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UComputerAccessComponent",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UComputerAccessComponent": {
+        "va": 287504668,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UComputerAccessComponent": {
+        "va": 281282224,
+        "basis": "The constructor passes both the UTF-16 UComputerAccessComponent allocation tag and ComputerAccessComponent class name to the engine."
+      },
+      "_register_UComputerAccessComponent": {
+        "va": 281277984,
+        "basis": "Direct registration call after initializing the singleton for UComputerAccessComponent."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x22ccb0, directly called at RVA 0x2316d3. Its class constructor at RVA 0x3406b0 identifies UComputerAccessComponent; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "2470635e9424d4aaad963dbee119731a966ca7ecd81212f7caeae01d71ca25f3",
+      "inputs_sha256": "cf9628b9a21cfae2150e3abf309fa17cd4bcb18be07359ebd974f7b8d66c6997"
+    }
+  },
+  {
+    "id": "cast-ucomputeremail",
+    "offset": 2280720,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UComputerEmail",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UComputerEmail": {
+        "va": 287504672,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UComputerEmail": {
+        "va": 281282336,
+        "basis": "The constructor passes both the UTF-16 UComputerEmail allocation tag and ComputerEmail class name to the engine."
+      },
+      "_register_UComputerEmail": {
+        "va": 281284112,
+        "basis": "Direct registration call after initializing the singleton for UComputerEmail."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x22cd10, directly called at RVA 0x230658. Its class constructor at RVA 0x340720 identifies UComputerEmail; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "19fd57b56fc7af249bd602f7315ea2ca67ae89990af2d724765cc983197f03e4",
+      "inputs_sha256": "0f94b8340f2233f5193055de752d7b8497fe10f7d619a1d27cb133c6201eff29"
+    }
+  },
+  {
+    "id": "cast-ucomputerimage",
+    "offset": 2280816,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UComputerImage",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UComputerImage": {
+        "va": 287504676,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UComputerImage": {
+        "va": 281286784,
+        "basis": "The constructor passes both the UTF-16 UComputerImage allocation tag and ComputerImage class name to the engine."
+      },
+      "_register_UComputerImage": {
+        "va": 281284384,
+        "basis": "Direct registration call after initializing the singleton for UComputerImage."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x22cd70, directly called at RVA 0x23094e. Its class constructor at RVA 0x341880 identifies UComputerImage; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "6963d614bc985df14a2903e6a2d61a333bab3141f9dea7e66c9d1bec421de1d5",
+      "inputs_sha256": "9a41067fdbde0ee4be02cbc0c9ddfb6cffe35a604c156e9797377ffd1e47a4e2"
+    }
+  },
+  {
+    "id": "cast-ucomputermusic",
+    "offset": 2280912,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UComputerMusic",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UComputerMusic": {
+        "va": 287504680,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UComputerMusic": {
+        "va": 281286896,
+        "basis": "The constructor passes both the UTF-16 UComputerMusic allocation tag and ComputerMusic class name to the engine."
+      },
+      "_register_UComputerMusic": {
+        "va": 281284656,
+        "basis": "Direct registration call after initializing the singleton for UComputerMusic."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x22cdd0, directly called at RVA 0x230a19. Its class constructor at RVA 0x3418f0 identifies UComputerMusic; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "9368bac6eb352e9787dd3d360613e63d0add9061ef73add8078fb335f4034c89",
+      "inputs_sha256": "2d284fe4a7c47db812d1f0c96e1452263d206b760f6dd77faf7ea1e4a861288f"
+    }
+  },
+  {
+    "id": "array-remove-22d680",
+    "size": 138,
+    "offset": 2283136,
+    "rebuilt_symbol": "@array_remove_r22d680@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x22d680, including RET. Incoming transfer decoded within analyzed function code at RVA 0x22e7e2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "eb6dc51348b899002cecad58d34a23f154d3698c479c7af9bfacbcefb4aa029a",
+      "inputs_sha256": "d9006d55b0e8c27aff3e5392f27131481f02895e732e223a9b4547d62720ba85"
+    }
+  },
+  {
+    "id": "array-remove-22d710",
+    "size": 138,
+    "offset": 2283280,
+    "rebuilt_symbol": "@array_remove_r22d710@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x22d710, including RET. Incoming transfer decoded within analyzed function code at RVA 0x22e96a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "bafe7ab2b69219ead9d78f14a321c018f484c74927d6036ea5e2703694ac74ec",
+      "inputs_sha256": "fdd994d4861990fcf48ebf37dc465f0125ab0335999f198957184b0df2077a30"
+    }
+  },
+  {
+    "id": "array-remove-22d7a0",
+    "size": 138,
+    "offset": 2283424,
+    "rebuilt_symbol": "@array_remove_r22d7a0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x22d7a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x22eab6. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "2013e7cafe13f785af6a1d8da210e9fb44a65921bd60172d07b17abc94eddc00",
+      "inputs_sha256": "4c41226d01e1497264090ede2db3e08ca6c66180f5a87782e7d5c831c17aa729"
+    }
+  }
+]

@@ -1,0 +1,448 @@
+[
+  {
+    "id": "script-frame-encroachedby",
+    "offset": 1651616,
+    "size": 69,
+    "rebuilt_symbol": "@script_frame_EncroachedBy@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_EncroachedBy": {
+        "va": 287285228,
+        "basis": "FName initialized with retail UTF-16 EncroachedBy (VA 0x110d58fc). The FName constructor call at RVA 0x13ba37 precedes the store to this slot at RVA 0x13ba40."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail EncroachedBy event wrapper at RVA 0x1933a0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.EncroachedBy at serial offset 0x319d0.",
+    "match": {
+      "bytes_sha256": "2746874bb389796a078449dd24b9129dc0395ba8b857c2c102a60fba7d2d8f3f",
+      "inputs_sha256": "64b260633a60e5863d5a2a305be4d81df51841da38156a2e5b3413471688f455"
+    }
+  },
+  {
+    "id": "script-frame-bump",
+    "offset": 1651792,
+    "size": 82,
+    "rebuilt_symbol": "@script_frame_Bump@12",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_Bump": {
+        "va": 287285176,
+        "basis": "FName initialized with retail UTF-16 Bump (VA 0x110d5a88). The FName constructor call at RVA 0x13b904 precedes the store to this slot at RVA 0x13b916."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Bump event wrapper at RVA 0x193450, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Bump at serial offset 0x1fce2.",
+    "match": {
+      "bytes_sha256": "1edb91793d3f5b288d3d2fe6c4de896a19c4517810e55ce109c34aaf87a4ae8c",
+      "inputs_sha256": "a22c7cf6ad3ee4b6bdefc758cd36abe85126d72b92badb22eff0420e0f84d444"
+    }
+  },
+  {
+    "id": "script-frame-physicsvolumechange",
+    "offset": 1651888,
+    "size": 69,
+    "rebuilt_symbol": "@script_frame_PhysicsVolumeChange@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_PhysicsVolumeChange": {
+        "va": 287285452,
+        "basis": "FName initialized with retail UTF-16 PhysicsVolumeChange (VA 0x110d528c). The FName constructor call at RVA 0x13bf65 precedes the store to this slot at RVA 0x13bf77."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PhysicsVolumeChange event wrapper at RVA 0x1934b0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.PhysicsVolumeChange at serial offset 0x318f1.",
+    "match": {
+      "bytes_sha256": "b5072a3dd8a0aba179d49990d944e27622a4e3425c2203f386e9c415752cea2e",
+      "inputs_sha256": "4af85619c9ee6a919cd6d78e8ad02625c5ce2fa9070d950109ebffc7dc37e095"
+    }
+  },
+  {
+    "id": "script-parameters-zonechange",
+    "offset": 1651968,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_ZoneChange@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_ZoneChange": {
+        "va": 287285632,
+        "basis": "FName initialized with retail UTF-16 ZoneChange (VA 0x110d4ddc). The FName constructor call at RVA 0x13c38e precedes the store to this slot at RVA 0x13c395."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ZoneChange event wrapper at RVA 0x193500, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares Actor.ZoneChange with ZoneInfo NewZone at serial offset 0x318c6.",
+    "match": {
+      "bytes_sha256": "7aa39ef0aabf55cfc5fcd1f18a8ad6352280a81245089f79fb19e6351d9b76a2",
+      "inputs_sha256": "29613ca009a6380b2ceec3331f0ac3250656268494f413e1ca9e71817a4da941"
+    }
+  },
+  {
+    "id": "script-event-hitfakebackdrop",
+    "offset": 1652016,
+    "size": 32,
+    "rebuilt_symbol": "@event_HitFakeBackDrop@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_HitFakeBackDrop": {
+        "va": 287285328,
+        "basis": "FName initialized with retail UTF-16 HitFakeBackDrop (VA 0x110d55f8). The FName constructor call at RVA 0x13bc87 precedes the store to this slot at RVA 0x13bc99."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail HitFakeBackDrop event wrapper at RVA 0x193530, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "9301b4e6962687a82db4485930c9f973b79113a8fb25c983265287b542339de3",
+      "inputs_sha256": "6f954c1dc55b2e61202fa15294f7807237b53ee816411880e299ec7cf4fec71b"
+    }
+  },
+  {
+    "id": "script-frame-destroyed",
+    "offset": 1652048,
+    "size": 53,
+    "rebuilt_symbol": "@script_frame_Destroyed@4",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_Destroyed": {
+        "va": 287285220,
+        "basis": "FName initialized with retail UTF-16 Destroyed (VA 0x110d5928). The FName constructor call at RVA 0x13ba08 precedes the store to this slot at RVA 0x13ba1a."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Destroyed event wrapper at RVA 0x193550, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Destroyed at serial offset 0x1a06d.",
+    "match": {
+      "bytes_sha256": "09e291f1590e36bc10bdb74453fcd4d68bf8e81df0ccaa7128596b39b9ddd741",
+      "inputs_sha256": "bfae9eaa31f921de75f89c8b50a82e848c7515d567280d357784b14042c27a78"
+    }
+  },
+  {
+    "id": "script-parameters-pawnleavingvolume",
+    "offset": 1652128,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_PawnLeavingVolume@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_PawnLeavingVolume": {
+        "va": 287285448,
+        "basis": "FName initialized with retail UTF-16 PawnLeavingVolume (VA 0x110d52b4). The FName constructor call at RVA 0x13bf4d precedes the store to this slot at RVA 0x13bf5f."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PawnLeavingVolume event wrapper at RVA 0x1935a0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopBlockingVolume.PawnLeavingVolume with Pawn P at serial offset 0x82df0.",
+    "match": {
+      "bytes_sha256": "e0280f49d321fbd366d4eafb558e6efc390dd480185af1c293bf32ca6cd16a27",
+      "inputs_sha256": "0d7292d679ac6131014e7e1df5b966bc9603ffc70a6f193e551622247fdc33ea"
+    }
+  },
+  {
+    "id": "script-parameters-pawnenteredvolume",
+    "offset": 1652176,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_PawnEnteredVolume@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_PawnEnteredVolume": {
+        "va": 287285444,
+        "basis": "FName initialized with retail UTF-16 PawnEnteredVolume (VA 0x110d52d8). The FName constructor call at RVA 0x13bf35 precedes the store to this slot at RVA 0x13bf3e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PawnEnteredVolume event wrapper at RVA 0x1935d0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopBlockingVolume.PawnEnteredVolume with Pawn P at serial offset 0x82bf2.",
+    "match": {
+      "bytes_sha256": "08af29dfbd8473770ed211f84ad58a478339cc4a26243630f0b040a10061dbda",
+      "inputs_sha256": "7239e739481306fc1615359bed13ab480ad2a25a48965ad5c0ed1ba25ac43c97"
+    }
+  },
+  {
+    "id": "script-parameters-actorleavingvolume",
+    "offset": 1652224,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_ActorLeavingVolume@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_ActorLeavingVolume": {
+        "va": 287285136,
+        "basis": "FName initialized with retail UTF-16 ActorLeavingVolume (VA 0x110d5b78). The FName constructor call at RVA 0x13b817 precedes the store to this slot at RVA 0x13b829."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ActorLeavingVolume event wrapper at RVA 0x193600, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares PhysicsVolume.ActorLeavingVolume with Actor Other at serial offset 0x4b6ec.",
+    "match": {
+      "bytes_sha256": "3edc51e9e4c0ed3641a962e733104f2bdaf05b0a339ecf027bbe355b378f5b36",
+      "inputs_sha256": "489118fc74d398db686f19295dea80e4f68aa819a5e4d0fbd658a7a1aa8e86fe"
+    }
+  },
+  {
+    "id": "script-parameters-actorenteredvolume",
+    "offset": 1652272,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_ActorEnteredVolume@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_ActorEnteredVolume": {
+        "va": 287285120,
+        "basis": "FName initialized with retail UTF-16 ActorEnteredVolume (VA 0x110d5bfc). The FName constructor call at RVA 0x13b7b8 precedes the store to this slot at RVA 0x13b7c1."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ActorEnteredVolume event wrapper at RVA 0x193630, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares PhysicsVolume.ActorEnteredVolume with Actor Other at serial offset 0x4b6c1.",
+    "match": {
+      "bytes_sha256": "048141452e41b4860820ad6187c9e922f7995d97b22754b173f4d6cb1c868afa",
+      "inputs_sha256": "5e1c2a0b37b28a79e0ddb4b88f4c551d8be53079f2d9a2dc924f98079142318a"
+    }
+  },
+  {
+    "id": "script-event-playergiven",
+    "offset": 1652512,
+    "size": 32,
+    "rebuilt_symbol": "@event_PlayerGiven@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_PlayerGiven": {
+        "va": 287285468,
+        "basis": "FName initialized with retail UTF-16 PlayerGiven (VA 0x110d5214). The FName constructor call at RVA 0x13bfc3 precedes the store to this slot at RVA 0x13bfcc."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PlayerGiven event wrapper at RVA 0x193720, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "bd45d0a828f49420f526ef693926d9788885eea164285a6a884b760f05e71e41",
+      "inputs_sha256": "399611d9f013adea9524f470adc0e71aadb470d1ca79dc5efb9bef6d0b1a6c6f"
+    }
+  },
+  {
+    "id": "script-frame-actorleaving",
+    "offset": 1652544,
+    "size": 69,
+    "rebuilt_symbol": "@script_frame_ActorLeaving@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_ActorLeaving": {
+        "va": 287285132,
+        "basis": "FName initialized with retail UTF-16 ActorLeaving (VA 0x110d5ba0). The FName constructor call at RVA 0x13b7ff precedes the store to this slot at RVA 0x13b808."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ActorLeaving event wrapper at RVA 0x193740, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares ZoneInfo.ActorLeaving at serial offset 0x29f73.",
+    "match": {
+      "bytes_sha256": "11f23acfd95ce378a5d5e51d7d5c2b103b67acd5504438eea7258c8316509676",
+      "inputs_sha256": "0db4fb4b18db12516d2fecfb4451c7f1540cd92f580ab34bb477fa1ec93e6ab6"
+    }
+  },
+  {
+    "id": "script-frame-actorentered",
+    "offset": 1652624,
+    "size": 69,
+    "rebuilt_symbol": "@script_frame_ActorEntered@8",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_ActorEntered": {
+        "va": 287285116,
+        "basis": "FName initialized with retail UTF-16 ActorEntered (VA 0x110d5c24). The FName constructor call at RVA 0x13b7a1 precedes the store to this slot at RVA 0x13b7b3."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ActorEntered event wrapper at RVA 0x193790, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares ZoneInfo.ActorEntered at serial offset 0x29fef.",
+    "match": {
+      "bytes_sha256": "1b4276affe8bbd88ddaa13ae75307e99a2a2864dadcb63d7ee09c5eea0949a86",
+      "inputs_sha256": "2f05f005f763967e7e8caa8576f17b25adcbfbf2d881547fe13c669159a8f6ba"
+    }
+  },
+  {
+    "id": "script-parameters-aisetplayerasenemy",
+    "offset": 1652704,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_AISetPlayerAsEnemy@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_AISetPlayerAsEnemy": {
+        "va": 287285108,
+        "basis": "FName initialized with retail UTF-16 AISetPlayerAsEnemy (VA 0x110d5c50). The FName constructor call at RVA 0x13b771 precedes the store to this slot at RVA 0x13b77a."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail AISetPlayerAsEnemy event wrapper at RVA 0x1937e0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EchelonLevelInfo.AISetPlayerAsEnemy with PlayerController enemyController at serial offset 0x7f74b.",
+    "match": {
+      "bytes_sha256": "4136e1458ae6aa6ef6586f8e1ba03ab82436b67cd825cdd1ae769daf9918605b",
+      "inputs_sha256": "eeb60fcf8a93595aa965daa30cc3dde6d2d9ba728ec10cc236b9a6ed055a8601"
+    }
+  },
+  {
+    "id": "cast-alight",
+    "offset": 1657200,
+    "size": 85,
+    "rebuilt_symbol": "_cast_ALight",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_ALight": {
+        "va": 287271048,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_ALight": {
+        "va": 278491872,
+        "basis": "The constructor passes both the UTF-16 ALight allocation tag and Light class name to the engine."
+      },
+      "_register_ALight": {
+        "va": 278491984,
+        "basis": "Direct registration call after initializing the singleton for ALight."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x194970, directly called at RVA 0x194afb. Its class constructor at RVA 0x972e0 identifies ALight; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "36a586bbaa8e898a643d85d4b9326bab88cfa9c0e23a19be91967fcb5378f0e7",
+      "inputs_sha256": "75292e16edefb92db87f1275bc83c28dc81336add653d6a702b6820888e35dd6"
+    }
+  },
+  {
+    "id": "cast-uplayerinput",
+    "offset": 1657296,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UPlayerInput",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UPlayerInput": {
+        "va": 287282508,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UPlayerInput": {
+        "va": 278941920,
+        "basis": "The constructor passes both the UTF-16 UPlayerInput allocation tag and PlayerInput class name to the engine."
+      },
+      "_register_UPlayerInput": {
+        "va": 278935088,
+        "basis": "Direct registration call after initializing the singleton for UPlayerInput."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1949d0, directly called at RVA 0x194d28. Its class constructor at RVA 0x1050e0 identifies UPlayerInput; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "d4b81b92d6c6cab9d0602b3d11d4a2446b0bf699769cbc040aab5896713c387c",
+      "inputs_sha256": "e754b049473886070a1be7dbcf476e443e5a5bb51684c664760e7509ae2c7faa"
+    }
+  }
+]

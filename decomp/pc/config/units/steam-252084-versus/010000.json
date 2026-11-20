@@ -1,0 +1,70 @@
+[
+  {
+    "id": "delete-upackage",
+    "offset": 87584,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UPackage@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UPackage vtable at RVA 0x30d1f0, slot 3, points to entry RVA 0x15620. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UPackage@4": {
+        "va": 277960112,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x155b0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
+      "inputs_sha256": "09dff4109c052c01412d7e56d99fc1c6913d3d4fb64ed78b4eb64ababee4caad"
+    }
+  },
+  {
+    "id": "delete-uenum",
+    "offset": 88480,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UEnum@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UEnum vtable at RVA 0x30ce60, slot 3, points to entry RVA 0x159a0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UEnum@4": {
+        "va": 277960992,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x15920."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
+      "inputs_sha256": "7703325a37a3b94fc0b9143106f1bf8e4dd67a4834c17ee5600e2750df35c8d6"
+    }
+  },
+  {
+    "id": "object-conditional-destroy",
+    "offset": 89712,
+    "size": 43,
+    "rebuilt_symbol": "@conditional_destroy@4",
+    "inputs": [
+      "src/conditional_destroy.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/conditional_destroy.obj src/conditional_destroy.c",
+    "identification": "Whole contiguous function at stock RVA 0x15e70, with independently decoded incoming calls at 0x15f01, 0x226292, 0x226662. Verifies the object index and destruction flag, updates the flag word and invokes slot 9. Both return paths match the compiled function.",
+    "match": {
+      "bytes_sha256": "d4aa6675a972d3d332741e71d229f95ebae1aa9e47496ec4c36fcd461887199d",
+      "inputs_sha256": "e3be11a10605775b422a747134e052083eb37f0a78744a4a3fdc170857a38960"
+    }
+  }
+]

@@ -1,0 +1,303 @@
+[
+  {
+    "id": "game-echelonai-basecivilian-querymalfunctionmemory",
+    "offset": 210912,
+    "size": 52,
+    "rebuilt_symbol": "@exec_EchelonAI_BaseCivilian_QueryMalfunctionMemory@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback EchelonAI_BaseCivilian_QueryMalfunctionMemory at RVA 0x337e0; callback cell and name are evidenced by the verified register-native-echelonai-basecivilian-querymalfunctionmemory CRT entry at RVA 0x7a2da0. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_EchelonAI_BaseCivilian_QueryMalfunctionMemory@4": {
+        "va": 278062000,
+        "basis": "Direct call at stock RVA 0x33805 forwards the owning object in ECX to routine 0x2e3b0."
+      }
+    },
+    "match": {
+      "bytes_sha256": "205ff6b21d946438efe165373833db1532b71dcecd0cbbc8aaa51b618de8f157",
+      "inputs_sha256": "42ce1b69fc37b1b0fa3586dbb591760aefb5ae9d099639b63594601ad44db970"
+    }
+  },
+  {
+    "id": "game-echelonai-basecivilian-addeventtomalfunctionmemory",
+    "offset": 210976,
+    "size": 46,
+    "rebuilt_symbol": "@exec_EchelonAI_BaseCivilian_AddEventToMalfunctionMemory@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback EchelonAI_BaseCivilian_AddEventToMalfunctionMemory at RVA 0x33820; callback cell and name are evidenced by the verified register-native-echelonai-basecivilian-addeventtomalfunctionmemory CRT entry at RVA 0x7a2d80. Forwards its receiver to the native implementation. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_EchelonAI_BaseCivilian_AddEventToMalfunctionMemory@4": {
+        "va": 278062160,
+        "basis": "Direct call at stock RVA 0x33845 forwards the owning object in ECX to routine 0x2e450."
+      }
+    },
+    "match": {
+      "bytes_sha256": "cd54112770fd18f07e77b1e12069c1d3ea4fff63123e945413ab3f1977c49f4a",
+      "inputs_sha256": "808dab79ff57190a179d6266f1892dc6a9552d19973f14cfe2bfe9741a721fba"
+    }
+  },
+  {
+    "id": "cast-uskeletalmeshinstance",
+    "offset": 218096,
+    "size": 85,
+    "rebuilt_symbol": "_cast_USkeletalMeshInstance",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_USkeletalMeshInstance": {
+        "va": 287279852,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_USkeletalMeshInstance": {
+        "va": 278926944,
+        "basis": "The constructor passes both the UTF-16 USkeletalMeshInstance allocation tag and SkeletalMeshInstance class name to the engine."
+      },
+      "_register_USkeletalMeshInstance": {
+        "va": 278726464,
+        "basis": "Direct registration call after initializing the singleton for USkeletalMeshInstance."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x353f0, directly called at RVA 0x3bda0. Its class constructor at RVA 0x101660 identifies USkeletalMeshInstance; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "9a54d1405074c0a6c21191e11905e93e6a6ca5cfb1f843b88dda2584d56195bf",
+      "inputs_sha256": "c3ee02881045017f0b03352176c25097c49680701e8912e210a821985614c8d4"
+    }
+  },
+  {
+    "id": "game-echelonai-basecivilian-checkenemyseeme",
+    "offset": 219440,
+    "size": 52,
+    "rebuilt_symbol": "@exec_EchelonAI_BaseCivilian_CheckEnemySeeMe@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback EchelonAI_BaseCivilian_CheckEnemySeeMe at RVA 0x35930; callback cell and name are evidenced by the verified register-native-echelonai-basecivilian-checkenemyseeme CRT entry at RVA 0x7a3600. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_EchelonAI_BaseCivilian_CheckEnemySeeMe@4": {
+        "va": 278072848,
+        "basis": "Direct call at stock RVA 0x35955 forwards the owning object in ECX to routine 0x30e10."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7abc64cc21dad8c4d7828d122ed7a4ff88e03a92acfd25e698af2aaadc7f3d77",
+      "inputs_sha256": "cbdf323410a17cfe1b04a8f26da8cf5e396dac8e64d0da98c9d4ea37f859e3d9"
+    }
+  },
+  {
+    "id": "game-echelonai-basecivilian-checkenemyforalarm",
+    "offset": 221120,
+    "size": 52,
+    "rebuilt_symbol": "@exec_EchelonAI_BaseCivilian_CheckEnemyForAlarm@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback EchelonAI_BaseCivilian_CheckEnemyForAlarm at RVA 0x35fc0; callback cell and name are evidenced by the verified register-native-echelonai-basecivilian-checkenemyforalarm CRT entry at RVA 0x7a2aa0. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_EchelonAI_BaseCivilian_CheckEnemyForAlarm@4": {
+        "va": 278090352,
+        "basis": "Direct call at stock RVA 0x35fe5 forwards the owning object in ECX to routine 0x35270."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3fd2b1bc0479abc8cf80b43e88f26cd04eb99d6486e47cc97ad06add0237cde9",
+      "inputs_sha256": "b1d452731839c7000f605c19793b928c68a7911382660ef9f9265d8c68413da8"
+    }
+  },
+  {
+    "id": "array-remove-036480",
+    "size": 138,
+    "offset": 222336,
+    "rebuilt_symbol": "@array_remove_r036480@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x36480, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3abdb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "3bf89dbbb6c27b965c28294aeb6c471d53f5a294ebe1b9abaadf4dc202b52f74",
+      "inputs_sha256": "f42e2bd407dce1e19e868f8025eaea7b233ae4a9f9e2d0b6f04f86ef26c331e4"
+    }
+  },
+  {
+    "id": "array-remove-036560",
+    "size": 138,
+    "offset": 222560,
+    "rebuilt_symbol": "@array_remove_r036560@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x36560, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3ac8b, 0x3e9e9. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "5649d50a431bc4b3131ac873979b58565da2adddcd6680902ced3dc8ee28d315",
+      "inputs_sha256": "ffc3e5c664618034f50a42a139e654f3e4a15f667bf05027e0196f7c07f5b6de"
+    }
+  },
+  {
+    "id": "array-remove-036600",
+    "size": 138,
+    "offset": 222720,
+    "rebuilt_symbol": "@array_remove_r036600@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x36600, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3ad3b, 0x3af9c, 0x3b09e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "cc67cf598de0f342533eebf991a333ef23ee50bcb172bdcec812e26e96865694",
+      "inputs_sha256": "be8744d457fcf728844b78b23121434dab242965cfd12eab0b58ef2884a59be4"
+    }
+  },
+  {
+    "id": "array-remove-036690",
+    "size": 138,
+    "offset": 222864,
+    "rebuilt_symbol": "@array_remove_r036690@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x36690, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3ad7b, 0x3d79d, 0x3d7cd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "2e5bd185d6e932f6b387e1373b9e9ca384ebcadbc4a4d82be31e85cffee3a35b",
+      "inputs_sha256": "90223760455e5ce76448062fe5ddb13ceb7b01bfd47b5686f67ed870507e4edc"
+    }
+  },
+  {
+    "id": "array-remove-036720",
+    "size": 138,
+    "offset": 223008,
+    "rebuilt_symbol": "@array_remove_r036720@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x36720, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3adbb, 0x41d3b, 0x42e20. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "a9d7e929d3f41af9ee7d987a105376dc4c22f58eddc4ee402c7d333ff35a9efe",
+      "inputs_sha256": "b8f2bdcfc4cd2d1bb69839905af139523774f704a17fe1fc6587aa7bf5466ad9"
+    }
+  }
+]

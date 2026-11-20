@@ -1,0 +1,430 @@
+[
+  {
+    "id": "script-parameters-gotostatesafe",
+    "offset": 2774848,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_GotoStateSafe_1122f4f0_ScriptEventName@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GotoStateSafe_slot_1122f4f0": {
+        "va": 287503600,
+        "basis": "FName initialized with retail UTF-16 GotoStateSafe (VA 0x110d562c). The FName constructor call at RVA 0x33582c precedes the store to this slot at RVA 0x33583e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GotoStateSafe event wrapper at RVA 0x2a5740, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares s_CoopInteract.GotoStateSafe with Name State at serial offset 0x614ea.",
+    "match": {
+      "bytes_sha256": "842b2942163f71b0996a54c84350455fba541c91e94ee207fc331420df580158",
+      "inputs_sha256": "68acd46782b4a84010c01219b6b2587b9dafb4b5b4350791182a5cdbe7ebc5a4"
+    }
+  },
+  {
+    "id": "script-frame-reservelocation",
+    "offset": 2774896,
+    "size": 78,
+    "rebuilt_symbol": "@script_frame_ReserveLocation@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_ReserveLocation": {
+        "va": 287503912,
+        "basis": "FName initialized with retail UTF-16 ReserveLocation (VA 0x110fa754). The FName constructor call at RVA 0x335f62 precedes the store to this slot at RVA 0x335f74."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail ReserveLocation event wrapper at RVA 0x2a5770, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EDummyActor.ReserveLocation at serial offset 0x7df40.",
+    "match": {
+      "bytes_sha256": "c2834ae293c245e6a4290874d88b9ce3c143afb7233027bd0f465870c16a1d0a",
+      "inputs_sha256": "8c7bc185db12240aacc32dc82161923df7d57503c3326bf94224f1c09adce7be"
+    }
+  },
+  {
+    "id": "script-frame-throw",
+    "offset": 2774976,
+    "size": 78,
+    "rebuilt_symbol": "@script_frame_Throw@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_Throw": {
+        "va": 287504088,
+        "basis": "FName initialized with retail UTF-16 Throw (VA 0x110fa2e0). The FName constructor call at RVA 0x336373 precedes the store to this slot at RVA 0x33637c."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Throw event wrapper at RVA 0x2a57c0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: EchelonIngredient.u declares EFlare.Throw at serial offset 0x246a5.",
+    "match": {
+      "bytes_sha256": "530c5bffc67fd8b90d6b54b1c4d5a5075e71d7b49c02cf6f1d4ae6974488e37f",
+      "inputs_sha256": "92d6660b6d66dc2c249b0998cbf58e9d9b96b90d1daab34729dc9004f9af6f9e"
+    }
+  },
+  {
+    "id": "script-frame-dooropentypeis",
+    "offset": 2775056,
+    "size": 85,
+    "rebuilt_symbol": "@script_frame_DoorOpenTypeIs@24",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_DoorOpenTypeIs": {
+        "va": 287503444,
+        "basis": "FName initialized with retail UTF-16 DoorOpenTypeIs (VA 0x110fb5ac). The FName constructor call at RVA 0x335491 precedes the store to this slot at RVA 0x3354a3."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail DoorOpenTypeIs event wrapper at RVA 0x2a5810, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: EchelonAI.u declares BaseCivilian.DoorOpenTypeIs at serial offset 0x1b32a.",
+    "match": {
+      "bytes_sha256": "0484f1ec5e6528908e3a8620ff4534430731dcdf8a886a6090cc9248dbd1b351",
+      "inputs_sha256": "bc1225c2047c35105a99e43dcdaf3ad5eaeedcf6b571d09858ab4c95d9aa9054"
+    }
+  },
+  {
+    "id": "script-frame-playanimnomovement",
+    "offset": 2775152,
+    "size": 90,
+    "rebuilt_symbol": "@script_frame_PlayAnimNoMovement@20",
+    "inputs": [
+      "src/campaign_script_frames.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_frames.obj src/campaign_script_frames.c",
+    "link_bindings": {
+      "_name_PlayAnimNoMovement": {
+        "va": 287503836,
+        "basis": "FName initialized with retail UTF-16 PlayAnimNoMovement (VA 0x110fa9ac). The FName constructor call at RVA 0x335da0 precedes the store to this slot at RVA 0x335da9."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail PlayAnimNoMovement event wrapper at RVA 0x2a5870, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPawn.PlayAnimNoMovement at serial offset 0x691ff.",
+    "match": {
+      "bytes_sha256": "72b99939323300142b6f617ac54840b470e2a53a690185b5050736d93f038df3",
+      "inputs_sha256": "1eedb094c632a26419931a668f1967796ae938c490cf082270164682b406b7a0"
+    }
+  },
+  {
+    "id": "game-echelon-eaicontroller-updatecurrentnavindex",
+    "offset": 2775984,
+    "size": 46,
+    "rebuilt_symbol": "@exec_Echelon_EAIController_UpdateCurrentNavIndex@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EAIController_UpdateCurrentNavIndex at RVA 0x2a5bb0; callback cell and name are evidenced by the verified register-native-echelon-eaicontroller-updatecurrentnavindex CRT entry at RVA 0x7a9ed0. Forwards its receiver to the native implementation. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Echelon_EAIController_UpdateCurrentNavIndex@4": {
+        "va": 280617248,
+        "basis": "Direct call at stock RVA 0x2a5bd5 forwards the owning object in ECX to routine 0x29e120."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2d5b72397a96321d53e4381a1a17e4005349bb2c4669d2e65f34b9a08ddcae77",
+      "inputs_sha256": "aed3ea72f7ea452d88697f643f1ece8722b3704592f4d6ecbd2f9f139318210c"
+    }
+  },
+  {
+    "id": "game-echelon-eaicontroller-unlocktriangle",
+    "offset": 2776096,
+    "size": 46,
+    "rebuilt_symbol": "@exec_Echelon_EAIController_UnLockTriangle@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EAIController_UnLockTriangle at RVA 0x2a5c20; callback cell and name are evidenced by the verified register-native-echelon-eaicontroller-unlocktriangle CRT entry at RVA 0x7a9e70. Forwards its receiver to the native implementation. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Echelon_EAIController_UnLockTriangle@4": {
+        "va": 280617856,
+        "basis": "Direct call at stock RVA 0x2a5c45 forwards the owning object in ECX to routine 0x29e380."
+      }
+    },
+    "match": {
+      "bytes_sha256": "25719e2453511ded727409e9c92324c3fe75fb23a5277223c11bf331086d8d24",
+      "inputs_sha256": "bad04dd41edc66ab387491686c4dcf7c34469dec6e9762476b9dca287bd281ed"
+    }
+  },
+  {
+    "id": "game-echelon-eaicontroller-iswaitingfordoor",
+    "offset": 2792016,
+    "size": 52,
+    "rebuilt_symbol": "@exec_Echelon_EAIController_IsWaitingForDoor@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EAIController_IsWaitingForDoor at RVA 0x2a9a50; callback cell and name are evidenced by the verified register-native-echelon-eaicontroller-iswaitingfordoor CRT entry at RVA 0x7a9c50. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Echelon_EAIController_IsWaitingForDoor@4": {
+        "va": 280635296,
+        "basis": "Direct call at stock RVA 0x2a9a75 forwards the owning object in ECX to routine 0x2a27a0."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d78a704489513ce31442576ca986a0a44996bf903358c66082df9fa3d608c1aa",
+      "inputs_sha256": "38b029a6276f45cb4944a96efe159eb93f6f74b799df88cf67242c3816c9fea0"
+    }
+  },
+  {
+    "id": "game-echelon-eaicontroller-testladderoutlocation",
+    "offset": 2792624,
+    "size": 52,
+    "rebuilt_symbol": "@exec_Echelon_EAIController_TestLadderOutLocation@16",
+    "inputs": [
+      "src/campaign_vm_game_callbacks.c",
+      "src/campaign_game_callback.h",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_game_callbacks.obj src/campaign_vm_game_callbacks.c",
+    "identification": "Stock campaign script callback Echelon_EAIController_TestLadderOutLocation at RVA 0x2a9cb0; callback cell and name are evidenced by the verified register-native-echelon-eaicontroller-testladderoutlocation CRT entry at RVA 0x7a9c30. Forwards its receiver to the native implementation and writes the returned script value. Every exit through the final return precedes INT3 alignment.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Shared stock campaign VM dispatch table. Debug-info opcode 0x42 is implemented at RVA 0x3f7780."
+      },
+      "@native_Echelon_EAIController_TestLadderOutLocation@4": {
+        "va": 280635872,
+        "basis": "Direct call at stock RVA 0x2a9cd5 forwards the owning object in ECX to routine 0x2a29e0."
+      }
+    },
+    "match": {
+      "bytes_sha256": "062ae9a951ee398831f589b8d3ccb113b2901d51bd2fef7ff63f5960377ead8e",
+      "inputs_sha256": "5d4a2faa05db2f301be2b89a969eb8c9fa238d284bf8db5ecd49abbd56a94d40"
+    }
+  },
+  {
+    "id": "array-remove-2aa430",
+    "size": 138,
+    "offset": 2794544,
+    "rebuilt_symbol": "@array_remove_r2aa430@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2aa430, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2b206b, 0x2b35bb, 0x2b7a1e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "c9be715ba6f8198fcd8ce99c296ab27ee6a2efc812dc12537d0115ec32e2fc70",
+      "inputs_sha256": "b65573b72cd13a74fb2a78d3f5b59ef6081bb0d3c0107ff0e28dd42db80b87fa"
+    }
+  },
+  {
+    "id": "array-remove-2aa4c0",
+    "size": 138,
+    "offset": 2794688,
+    "rebuilt_symbol": "@array_remove_r2aa4c0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2aa4c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2b20ae, 0x2b35fe, 0x2b795a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "9f944b2fd1bae40b77c7f28132b4b85d61232ec84fa445331c83b6f8ca7aa63e",
+      "inputs_sha256": "c8b6f06758bfdf767188a3a07a9d71e309a79811b5489fa428c5240299838358"
+    }
+  },
+  {
+    "id": "array-remove-2aa550",
+    "size": 138,
+    "offset": 2794832,
+    "rebuilt_symbol": "@array_remove_r2aa550@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2aa550, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2b20eb, 0x2b363b, 0x2b78b9. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "189b79593af5c77de2cae9b22f736fccfb98f70eaf0237fb50295613c1d6ded1",
+      "inputs_sha256": "ea3a999e13107c735999ad2d0d9f0b7177ca9e64a4eafe2766c4e29d7389f900"
+    }
+  },
+  {
+    "id": "array-remove-2aa5e0",
+    "size": 138,
+    "offset": 2794976,
+    "rebuilt_symbol": "@array_remove_r2aa5e0@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2aa5e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2b212b, 0x2b367b, 0x2b7888. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "fa95ac76705803c9d6afce09f6222086ff5880d6dfccf86350ca1cb16cfec785",
+      "inputs_sha256": "6906b71346868058fce6e1e86ab16012181fc0a1d5776d4033e593f8b6f18029"
+    }
+  },
+  {
+    "id": "array-remove-2aa670",
+    "size": 138,
+    "offset": 2795120,
+    "rebuilt_symbol": "@array_remove_r2aa670@16",
+    "inputs": [
+      "src/campaign_array_remove.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_remove.obj src/campaign_array_remove.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlap-safe move helper receives the destination, source and byte length of the trailing elements."
+      },
+      "_array_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "UTF-16 allocation label 'FArray' in the locked image. The reallocation path passes this pointer to allocator slot 1."
+      }
+    },
+    "identification": "Stock contiguous FArray routine at RVA 0x2aa670, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2b216b, 0x2b36bb, 0x2b7b39. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
+    "match": {
+      "bytes_sha256": "f7c5893993553cf08ea7731c7055439983b4266133ec7788e9920b1b87873030",
+      "inputs_sha256": "7faddb9be059e21e2a68785a369608dd5f3ac4410183821cc84ec29b02cceb9a"
+    }
+  },
+  {
+    "id": "delete-uetrainingdata",
+    "offset": 2815200,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UETrainingData@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock UETrainingData vtable at RVA 0x7e9d98, slot 3, points to entry RVA 0x2af4e0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2b21a0 references the placement constructor at RVA 0x2b2040, which installs this vtable at RVA 0x2b2050.",
+    "link_bindings": {
+      "@destroy_UETrainingData@4": {
+        "va": 280687888,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2af510."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "0a3eee41a462029676b0dec147112eb0c606071ed885750d60f4fe35fc6854fc"
+    }
+  }
+]

@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from images import coff_symbol_offset, inspect, readonly_pe_data, span
 from link_x86 import link_function
+from manifests import load_target, save_receipt
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,7 +49,9 @@ def contains(ranges, bounds):
     return any(begin <= bounds[0] and bounds[1] <= end for begin, end in ranges)
 
 
-def inputs_digest(folder, unit, image_hash):
+def inputs_digest(folder, unit, image_hash, file_cache=None):
+    if file_cache is None:
+        file_cache = {}
     inputs = unit["inputs"]
     if not isinstance(inputs, list) or not any(Path(p).suffix.lower() == ".c" for p in inputs):
         raise ValueError("a matching unit requires its independently written C source")
@@ -65,17 +68,22 @@ def inputs_digest(folder, unit, image_hash):
         inputs = [*inputs, basis]
     fingerprints = {}
     for relative in sorted(inputs):
-        path = (folder / relative).resolve()
-        if not path.is_relative_to(folder.resolve()) or Path(relative).is_absolute():
-            raise ValueError("build inputs must be project-relative")
-        data = path.read_bytes().replace(b"\r\n", b"\n")
-        if evidence and relative == evidence["basis"] and not data.strip():
+        if relative not in file_cache:
+            path = (folder / relative).resolve()
+            if not path.is_relative_to(folder.resolve()) or Path(relative).is_absolute():
+                raise ValueError("build inputs must be project-relative")
+            data = path.read_bytes().replace(b"\r\n", b"\n")
+            file_cache[relative] = (hashlib.sha256(data).hexdigest(), bool(data.strip()))
+        fingerprint, nonempty = file_cache[relative]
+        if evidence and relative == evidence["basis"] and not nonempty:
             raise ValueError("original compiler and flag evidence is empty")
-        fingerprints[relative] = hashlib.sha256(data).hexdigest()
+        fingerprints[relative] = fingerprint
     recipe = {k: v for k, v in unit.items() if k != "match"}
     if "link_bindings" in unit:
         linker = Path(__file__).with_name("link_x86.py")
-        fingerprints["decomp/tools/link_x86.py"] = hashlib.sha256(linker.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+        if linker not in file_cache:
+            file_cache[linker] = hashlib.sha256(linker.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+        fingerprints["decomp/tools/link_x86.py"] = file_cache[linker]
     payload = json.dumps([image_hash, recipe, fingerprints], sort_keys=True).encode()
     return hashlib.sha256(payload).hexdigest()
 
@@ -108,13 +116,14 @@ def summary(folder, target):
     if len({identity(u["id"]) for u in units}) != len(units):
         raise ValueError("duplicate unit id")
     matched_bytes = matched_units = candidate_bytes = candidate_units = 0
+    file_cache = {}
     for unit in units:
         if "rebuilt_symbol" in unit:
             if "rebuilt_offset" in unit or not unit["rebuilt_symbol"]:
                 raise ValueError("choose one rebuilt artifact location")
         elif type(unit.get("rebuilt_offset")) is not int or unit["rebuilt_offset"] < 0:
             raise ValueError("missing or invalid rebuilt offset")
-        signature = inputs_digest(folder, unit, image_hash)
+        signature = inputs_digest(folder, unit, image_hash, file_cache)
         if "match" in unit:
             if unit["match"]["inputs_sha256"] != signature:
                 raise ValueError(f"{unit['id']}: changed build inputs; reverify this unit")
@@ -138,7 +147,7 @@ def report(root):
         folder = root / edition
         targets = []
         for path in sorted((folder / "config").glob("*.json")):
-            target = json.loads(path.read_text(encoding="utf-8"))
+            target = load_target(path)
             if target["id"] != path.stem:
                 raise ValueError(f"target id differs from filename: {path}")
             targets.append(summary(folder, target))
@@ -222,12 +231,12 @@ def main():
     elif args.command in ("verify", "match"):
         folder = ROOT / args.edition
         path = folder / "config" / (args.target + ".json")
-        target = json.loads(path.read_text(encoding="utf-8"))
+        target = load_target(path)
         if args.command == "verify":
             verify(target, args.retail)
         else:
             match(folder, target, args.unit, args.retail, args.rebuilt)
-            write(path, target)
+            save_receipt(path, next(u for u in target["units"] if u["id"] == args.unit), write)
         print(f"Verified {target['label']}")
     else:
         feed = report(ROOT)
