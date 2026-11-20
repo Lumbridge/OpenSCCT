@@ -756,6 +756,39 @@
     }
   },
   {
+    "id": "fsarray-remove-range",
+    "size": 96,
+    "offset": 3978224,
+    "inputs": [
+      "src/campaign_fsarray_remove.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@remove_fsarray_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_remove.obj src/campaign_fsarray_remove.c",
+    "identification": "Direct call at RVA 0x8002b. Moves the remaining elements down, subtracts the removed count, and resizes the FSArray allocation to its exact new byte length.",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Same engine heap as the registered FSArray resize implementation."
+      },
+      "_fsarray_tag": {
+        "va": 286460520,
+        "basis": "Retail FSArray allocation label in UTF-16."
+      },
+      "_array_move": {
+        "va": 281849136,
+        "basis": "Shared overlapping byte move used by the registered array removal functions."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b57312bbd0755a43717f5793ebe57b71ef252adbf6ae824e3997f551d7579179",
+      "inputs_sha256": "70379b7b9e95d358de753f7f9ee94f5085a1f7e4f909f962300fb887b5ac223b"
+    }
+  },
+  {
     "id": "array-release-3cd010",
     "size": 43,
     "offset": 3985424,
