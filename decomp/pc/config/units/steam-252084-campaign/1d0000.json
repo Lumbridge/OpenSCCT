@@ -206,6 +206,22 @@
     }
   },
   {
+    "id": "empty-physics-array-1d2e10",
+    "size": 23,
+    "offset": 1912336,
+    "inputs": [
+      "src/campaign_empty_physics_array.c"
+    ],
+    "rebuilt_symbol": "@initialize_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_empty_physics_array.obj src/campaign_empty_physics_array.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Initializes a physics array with a null buffer, zero count and the high capacity bit set.",
+    "match": {
+      "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
+      "inputs_sha256": "e21700859449236ff40ed53925195c3df104781767e854287c95c70f4a6ec5c4"
+    }
+  },
+  {
     "id": "read-word-1d2f10",
     "offset": 1912592,
     "size": 4,

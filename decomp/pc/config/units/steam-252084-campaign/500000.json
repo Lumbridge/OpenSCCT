@@ -254,6 +254,22 @@
     }
   },
   {
+    "id": "empty-physics-array-5037a0",
+    "size": 23,
+    "offset": 5257120,
+    "inputs": [
+      "src/campaign_empty_physics_array.c"
+    ],
+    "rebuilt_symbol": "@initialize_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_empty_physics_array.obj src/campaign_empty_physics_array.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Initializes a physics array with a null buffer, zero count and the high capacity bit set.",
+    "match": {
+      "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
+      "inputs_sha256": "da26065a76520a5178c689bbdfd0d6e521c60da6ff8451034f639db57e8f0b8e"
+    }
+  },
+  {
     "id": "physics-buffer-release-503800",
     "size": 30,
     "offset": 5257216,
@@ -474,6 +490,22 @@
     }
   },
   {
+    "id": "empty-physics-array-5044d0",
+    "size": 23,
+    "offset": 5260496,
+    "inputs": [
+      "src/campaign_empty_physics_array.c"
+    ],
+    "rebuilt_symbol": "@initialize_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_empty_physics_array.obj src/campaign_empty_physics_array.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Initializes a physics array with a null buffer, zero count and the high capacity bit set.",
+    "match": {
+      "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
+      "inputs_sha256": "62b2ce0b988eec14a88afced084d68eb4da0ff3734616245f73fda56de57966e"
+    }
+  },
+  {
     "id": "physics-array-reserve-504520",
     "size": 39,
     "offset": 5260576,
@@ -607,6 +639,22 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "dae7cf5a2ee7dc2ca22faabbd704fb15ee9e8b9cbbbeb1edf1bbd8fafdfb1156"
+    }
+  },
+  {
+    "id": "empty-physics-array-504a90",
+    "size": 23,
+    "offset": 5261968,
+    "inputs": [
+      "src/campaign_empty_physics_array.c"
+    ],
+    "rebuilt_symbol": "@initialize_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_empty_physics_array.obj src/campaign_empty_physics_array.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Initializes a physics array with a null buffer, zero count and the high capacity bit set.",
+    "match": {
+      "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
+      "inputs_sha256": "73396fce4b11585d6c99588fa7d4264153e6b9bb46dbffb566817dc68249fa41"
     }
   },
   {
@@ -1020,6 +1068,22 @@
     }
   },
   {
+    "id": "empty-physics-array-5072b0",
+    "size": 23,
+    "offset": 5272240,
+    "inputs": [
+      "src/campaign_empty_physics_array.c"
+    ],
+    "rebuilt_symbol": "@initialize_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_empty_physics_array.obj src/campaign_empty_physics_array.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Initializes a physics array with a null buffer, zero count and the high capacity bit set.",
+    "match": {
+      "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
+      "inputs_sha256": "300c811b4989be9a86b5ed9037d0cbf36873e9e013b151a5147280aaa691cf18"
+    }
+  },
+  {
     "id": "physics-heap-forward-5072d0",
     "size": 17,
     "offset": 5272272,
@@ -1189,6 +1253,22 @@
     "match": {
       "bytes_sha256": "befb25fc460ed4e0fc728827c331447d83911736b0b92f27f135318d1aa34f19",
       "inputs_sha256": "44cf444ffa890f5bef37e519b0912123641a4a4d1b0b2f8850d16fd9fdee89b0"
+    }
+  },
+  {
+    "id": "empty-physics-array-507e30",
+    "size": 23,
+    "offset": 5275184,
+    "inputs": [
+      "src/campaign_empty_physics_array.c"
+    ],
+    "rebuilt_symbol": "@initialize_array@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_empty_physics_array.obj src/campaign_empty_physics_array.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Initializes a physics array with a null buffer, zero count and the high capacity bit set.",
+    "match": {
+      "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
+      "inputs_sha256": "daa75bf5243a20176290d3b801d5cd9ded876bd53dbc9a74c3824a6be5a28d48"
     }
   },
   {
