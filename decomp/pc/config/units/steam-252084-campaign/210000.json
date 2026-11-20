@@ -393,6 +393,33 @@
     }
   },
   {
+    "id": "delete-members-214480",
+    "size": 30,
+    "offset": 2180224,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_214480@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_2142c0@4": {
+        "va": 280052416,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "aeaad60cbe5e86f510831d34df1f0b4cef18d37a14784e8ef232c1c70b9bc717",
+      "inputs_sha256": "fa74277015d13f1ebfb75764899e5a9f8658d64f45b6e4ea2be8fc2057a2e797"
+    }
+  },
+  {
     "id": "delete-record-219d30",
     "offset": 2202928,
     "size": 33,
@@ -471,6 +498,37 @@
     "match": {
       "bytes_sha256": "cc92f3be0e86d3154eb5678b4015d43b0ecaac43de7ef240cd745f4291c6e328",
       "inputs_sha256": "9fca6d7e515a380be4f955d8e5acc9f03848c82df171530a6d6750dd43cf6415"
+    }
+  },
+  {
+    "id": "delete-members-21c680",
+    "size": 36,
+    "offset": 2213504,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_21c680@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "_methods_7de808": {
+        "va": 286124040,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_450330@4": {
+        "va": 282395440,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "68f878976ce46a3731d74095d2a54437b3f5517a622f1111106760589ee50523",
+      "inputs_sha256": "02e8c771694e70ea4257b5dbab0efae128afbd4ad579e496e14c1e9da55106d8"
     }
   },
   {
@@ -641,6 +699,37 @@
     "match": {
       "bytes_sha256": "3864b18658b570fb17b2479cf1d4565592c3c46d62ad17d3c0edbafecc3f95fc",
       "inputs_sha256": "0b74adacf51c3f8c3e9fc50de8a619afd14e9711bab748a40281f6c8e0429ba8"
+    }
+  },
+  {
+    "id": "delete-members-21ce40",
+    "size": 36,
+    "offset": 2215488,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_21ce40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "_methods_7de8c8": {
+        "va": 286124232,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_448d40@4": {
+        "va": 282365248,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "6783db0c7fb28aa6207869d1bcb50ffa0447664685074bc112c9576a61aee07d",
+      "inputs_sha256": "07a781426be5c3f260379edf4eb65deaf6d6e00858bf216e1aca0835853bebe4"
     }
   },
   {

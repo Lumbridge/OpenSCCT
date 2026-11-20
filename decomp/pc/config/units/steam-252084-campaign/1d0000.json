@@ -178,6 +178,33 @@
     }
   },
   {
+    "id": "delete-members-1d40c0",
+    "size": 30,
+    "offset": 1917120,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_1d40c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_1d40e0@4": {
+        "va": 279789792,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "3cdd2668c72e0702fa9c17509e1a4aac9c153ee16af988c4f8aaa2c0a4b941f1",
+      "inputs_sha256": "096d16dc0c7572773d42614dbaf68d091420175088f88f78355c9f454452e7dc"
+    }
+  },
+  {
     "id": "array-release-1d4ce0",
     "size": 43,
     "offset": 1920224,
@@ -894,6 +921,33 @@
     }
   },
   {
+    "id": "delete-members-1db610",
+    "size": 30,
+    "offset": 1947152,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_1db610@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_43a830@4": {
+        "va": 282306608,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "4080ca0e9eb7dd93ae61dbdefa2380b84d28b7b31b1c85c657145c89e7a59f1d",
+      "inputs_sha256": "40f9134f846039f5680c8df2aac23e27cd9298ed835256dc54cabaa1f129716d"
+    }
+  },
+  {
     "id": "array-release-1db6b0",
     "size": 43,
     "offset": 1947312,
@@ -937,6 +991,60 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "d7483959dda77b506530a913ed7a79d5daa85d9e62c9aae7e0714bf4840f645a"
+    }
+  },
+  {
+    "id": "delete-members-1db8e0",
+    "size": 30,
+    "offset": 1947872,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_1db8e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_4395d0@4": {
+        "va": 282301904,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "c964c4bfdcd1f22abf8485eaf07c7831d81a34d9d9c40dd24269d11b97439447",
+      "inputs_sha256": "2677df96bb1bf6dacee617564ebba5d0bd58bb11227d386de5f22faf5523d0c5"
+    }
+  },
+  {
+    "id": "delete-members-1db900",
+    "size": 30,
+    "offset": 1947904,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_1db900@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_439670@4": {
+        "va": 282302064,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "dfc6a6fac0cac0d4eeb61277adf736bb5223ab1cc944e2ad1445dd591eebdf28",
+      "inputs_sha256": "c2c118f08ebef9e697370e6d150af43f3299662e799c9397fe319f037221955b"
     }
   },
   {
@@ -1243,6 +1351,60 @@
     "match": {
       "bytes_sha256": "92e1ad7b62f5e9140c977c94402685c49a0c0fe8db7f982875ce166e66cc21b9",
       "inputs_sha256": "2d9eb08065b3fac5738fdd07b5302c7164ac918cce0c5007b54d60ccd036b76c"
+    }
+  },
+  {
+    "id": "delete-members-1dcc00",
+    "size": 30,
+    "offset": 1952768,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_1dcc00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_1dc7b0@4": {
+        "va": 279824304,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "69e910d73c192742a056f5b4696da357a5a982a4213fe901df4c08548e0cb8b2",
+      "inputs_sha256": "51473330d690efc1bf21daf821a5c32d7e30def15d796697a24e7fabcbb4723c"
+    }
+  },
+  {
+    "id": "delete-members-1dcd60",
+    "size": 30,
+    "offset": 1953120,
+    "inputs": [
+      "src/campaign_nested_heap_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_1dcd60@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_nested_heap_cleanup.obj src/campaign_nested_heap_cleanup.c",
+    "link_bindings": {
+      "_release_1dd0d0": {
+        "va": 279826640,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "@cleanup_1dcd80@4": {
+        "va": 279825792,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
+    "match": {
+      "bytes_sha256": "144f828c1411f75126892cff0ee72f0a11fec8b4a1baa4fb571b7ff02112dce7",
+      "inputs_sha256": "041d5843dec5c314e53b4dc7dea60dd5520ada002583b2fa0de04bb893c11914"
     }
   },
   {
