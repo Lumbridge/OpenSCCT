@@ -6426,6 +6426,60 @@
     }
   },
   {
+    "id": "script-method-echeloningredient-esprinkler-checktouching",
+    "size": 130,
+    "offset": 3526992,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_EchelonIngredient_ESprinkler_CheckTouching@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_EchelonIngredient_ESprinkler_CheckTouching@12": {
+        "va": 281397488,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback EchelonIngredient_ESprinkler_CheckTouching at RVA 0x35d150. CRT initializer at RVA 0x7aaf10 registers callback cell at VA 0x111c2d78. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "0c6407be4e1dc5d5c1d2a67cb54cb6a2408d72e11510e9a53cada51dfdfaab75",
+      "inputs_sha256": "97778380f42912b0a4adf4b8fd769033e34b60a539e704c5069d3f00c22ad859"
+    }
+  },
+  {
+    "id": "script-method-echeloningredient-esprinkler-activate",
+    "size": 91,
+    "offset": 3527136,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_EchelonIngredient_ESprinkler_Activate@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_EchelonIngredient_ESprinkler_Activate@8": {
+        "va": 281397616,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback EchelonIngredient_ESprinkler_Activate at RVA 0x35d1e0. CRT initializer at RVA 0x7aaf50 registers callback cell at VA 0x111c2d80. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "a637f6d7e78bbab5f15ddbae8eecfb4c405f46be308f1f6127e7c54de58e5b9f",
+      "inputs_sha256": "e1295ddf11b21c3f9df54176bf73b9938602999f0bf9cd209a7c940f813baf9b"
+    }
+  },
+  {
     "id": "game-echeloningredient-esprinkler-deactivate",
     "offset": 3527232,
     "size": 46,

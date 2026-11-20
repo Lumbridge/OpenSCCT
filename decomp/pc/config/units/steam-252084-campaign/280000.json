@@ -235,6 +235,60 @@
     }
   },
   {
+    "id": "script-method-echelon-epawn-rollpawn",
+    "size": 91,
+    "offset": 2633456,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_RollPawn@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPawn_RollPawn@8": {
+        "va": 280488560,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_RollPawn at RVA 0x282ef0. CRT initializer at RVA 0x7aa710 registers callback cell at VA 0x111c2c5c. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "88baf3b1fa5ae64ebd93930ce91a67b9c202edca56da549933e2b5cf022503c0",
+      "inputs_sha256": "f52bde0c03300acc5e3545ce224825c5b3bdad1dab2a4581aeee90d1e7e4d190"
+    }
+  },
+  {
+    "id": "script-method-echelon-epawn-exitrootmotion",
+    "size": 91,
+    "offset": 2635232,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_ExitRootMotion@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPawn_ExitRootMotion@8": {
+        "va": 280507248,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_ExitRootMotion at RVA 0x2835e0. CRT initializer at RVA 0x7aa9d0 registers callback cell at VA 0x111c2cb4. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "349cc5f4d6202f18628bfd6f8ff57b244d5d1273d01ea850ed14c4cf2cba035a",
+      "inputs_sha256": "ee9adc83c39af9394d421f31385973e388c9dcf7f41c4c04bb35ff1d14e5fdfd"
+    }
+  },
+  {
     "id": "game-echelon-epawn-eyeblink",
     "offset": 2641776,
     "size": 46,
@@ -288,6 +342,33 @@
     "match": {
       "bytes_sha256": "54903b42b92dbb8ff4fbc78a05cc5008a5e0a359989080b0e3d0d5666becd98c",
       "inputs_sha256": "9ec7fafd86df1319a0f700ae3347b4f4846da4378e11593a20c043fe2ba7d14a"
+    }
+  },
+  {
+    "id": "script-method-echelon-epawn-dropattacheditems",
+    "size": 91,
+    "offset": 2652096,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_DropAttachedItems@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPawn_DropAttachedItems@8": {
+        "va": 280500560,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_DropAttachedItems at RVA 0x2877c0. CRT initializer at RVA 0x7aa410 registers callback cell at VA 0x111c2bfc. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "d18998fb3d424b9c6355a40fb13dad396dba71615408e1c2920cdbf38acc2df5",
+      "inputs_sha256": "feae1258831052ceb91e5b1253901cff11bedd66aababa6039e9c80d9b9b6c6f"
     }
   },
   {
@@ -440,6 +521,33 @@
     "match": {
       "bytes_sha256": "b3f5a2d1d027ae2e40d092e667be43533788a740d6b82acd4be1836587b54b4a",
       "inputs_sha256": "2de048c4ed08a21a97741a085f93d064815748a48c9dbffa9b738bf6910dcb8a"
+    }
+  },
+  {
+    "id": "script-method-echelon-epawn-showflashlight",
+    "size": 91,
+    "offset": 2665632,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_ShowFlashlight@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPawn_ShowFlashlight@8": {
+        "va": 280524352,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_ShowFlashlight at RVA 0x28aca0. CRT initializer at RVA 0x7aa470 registers callback cell at VA 0x111c2c08. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "329aa681f348aadaabb35c80745354d085ea760658e9909a566c0ba0f86c0d35",
+      "inputs_sha256": "c878dfa83a1192a971893f8d5e7636781fe8370121cf5c3125e45510ab15309f"
     }
   },
   {

@@ -9577,6 +9577,33 @@
     }
   },
   {
+    "id": "script-method-engine-eaizone-enablezone",
+    "size": 130,
+    "offset": 641184,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_EAIZone_EnableZone@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_EAIZone_EnableZone@12": {
+        "va": 278512752,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_EAIZone_EnableZone at RVA 0x9c8a0. CRT initializer at RVA 0x7a50a0 registers callback cell at VA 0x111b1d28. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "9cd0b18b93be7c05dd1905c97cd49088eba5b030a38f389e805720fdd1503ef8",
+      "inputs_sha256": "cd61e721f84eff48b26fcd6dceed3b7da1eefbe7361170c67a5439c2ad809ba2"
+    }
+  },
+  {
     "id": "construct-actor-aeaizone",
     "offset": 641328,
     "size": 48,
@@ -10448,6 +10475,33 @@
     }
   },
   {
+    "id": "script-method-engine-einteractionmanager-removeinteractionobj",
+    "size": 91,
+    "offset": 648512,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_EInteractionManager_RemoveInteractionObj@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_EInteractionManager_RemoveInteractionObj@8": {
+        "va": 278520928,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_EInteractionManager_RemoveInteractionObj at RVA 0x9e540. CRT initializer at RVA 0x7a4ee0 registers callback cell at VA 0x111b1cf0. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "764fe43929a1cbc9fdfb378919ff959fa85994fa4288d57fce7030cfc93e5083",
+      "inputs_sha256": "73e13ec777b4719021a71135e3ec731ccaa24dd40759e32e3fec50232a735925"
+    }
+  },
+  {
     "id": "array-append-09e5a0",
     "size": 82,
     "offset": 648608,
@@ -10544,6 +10598,33 @@
     "match": {
       "bytes_sha256": "39d40ccd69762d54518271d52365bd907507383e88bbf788d355a94067aab093",
       "inputs_sha256": "1ca8cacfd83a123385d6b918352e495c713790d356ca5d8145f05ca689a7e516"
+    }
+  },
+  {
+    "id": "script-method-engine-einteractionmanager-addinteractionobj",
+    "size": 91,
+    "offset": 649488,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_EInteractionManager_AddInteractionObj@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_EInteractionManager_AddInteractionObj@8": {
+        "va": 278521840,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_EInteractionManager_AddInteractionObj at RVA 0x9e910. CRT initializer at RVA 0x7a4f00 registers callback cell at VA 0x111b1cf4. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "68e5c76d8bd09b64033d4b8810f762a961a67d13b281bd86d2615897b63acba4",
+      "inputs_sha256": "c2eac8beedc6378c322901105bb9f2a395e06b382208f5ddb1b9f1e75ea0bda8"
     }
   },
   {

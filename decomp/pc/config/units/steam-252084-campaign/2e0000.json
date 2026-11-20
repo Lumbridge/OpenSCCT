@@ -1,5 +1,32 @@
 [
   {
+    "id": "script-method-echelon-eaimanager-dosomethingifanothernpcisonthesameevent",
+    "size": 91,
+    "offset": 3024656,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_DoSomethingIfAnotherNPCIsOnTheSameEvent@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EAIManager_DoSomethingIfAnotherNPCIsOnTheSameEvent@8": {
+        "va": 280882752,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_DoSomethingIfAnotherNPCIsOnTheSameEvent at RVA 0x2e2710. CRT initializer at RVA 0x7a9a30 registers callback cell at VA 0x111c2ac0. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "71c98384b61daa72fd4180791a068f73795993d4ba6703220778eb5d6148c905",
+      "inputs_sha256": "7aa1c60b92ab9db743af75edcf584742cee888cdc4ee54cb9a4b904cf7943f44"
+    }
+  },
+  {
     "id": "typed-array-destroy-2e2830",
     "size": 54,
     "offset": 3024944,
@@ -1999,6 +2026,33 @@
     }
   },
   {
+    "id": "script-method-echelon-echangedactormanager-checkacknowledgelist",
+    "size": 91,
+    "offset": 3048544,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EChangedActorManager_CheckAcknowledgeList@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EChangedActorManager_CheckAcknowledgeList@8": {
+        "va": 280920544,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EChangedActorManager_CheckAcknowledgeList at RVA 0x2e8460. CRT initializer at RVA 0x7a8cf0 registers callback cell at VA 0x111c2918. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "64afbfa5481495a9dc0072fff378e77ec0e58092c5a00631efa64d50c446a37c",
+      "inputs_sha256": "252f7bcd916d7c0ad36a55c775b5934bdc5a98522700f1e34ea7fa70509a153c"
+    }
+  },
+  {
     "id": "aligned-array-growth-2e84c0",
     "size": 75,
     "offset": 3048640,
@@ -2110,6 +2164,114 @@
     "match": {
       "bytes_sha256": "392552dac16258558837a59bbb9db66de9b6f788fb9ea584d4aeace81dc687e3",
       "inputs_sha256": "c2abcdddd1e02a8a02741a51b84b4856d3760638dbbbbd9d5745462362ff1744"
+    }
+  },
+  {
+    "id": "script-method-echelon-echangedactormanager-addtoacknowledgelist",
+    "size": 130,
+    "offset": 3049808,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EChangedActorManager_AddToAcknowledgeList@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EChangedActorManager_AddToAcknowledgeList@12": {
+        "va": 280921648,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EChangedActorManager_AddToAcknowledgeList at RVA 0x2e8950. CRT initializer at RVA 0x7a8d70 registers callback cell at VA 0x111c2928. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "2ada896f8a722bedaef9f8236203330d5835841fd2ba80634bb1b7f406ae37ec",
+      "inputs_sha256": "6510bd065d4937e85944fe7bac1d631ba3f14a0376eae3e15016f1c301378991"
+    }
+  },
+  {
+    "id": "script-method-echelon-echangedactormanager-removefromacknowledgelist",
+    "size": 130,
+    "offset": 3049952,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EChangedActorManager_RemoveFromAcknowledgeList@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EChangedActorManager_RemoveFromAcknowledgeList@12": {
+        "va": 280921856,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EChangedActorManager_RemoveFromAcknowledgeList at RVA 0x2e89e0. CRT initializer at RVA 0x7a8d50 registers callback cell at VA 0x111c2924. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "310efe6346eae174e6d159f3d2ed5cbcd8fb4f835b7f614aedd67f5ab92f3a66",
+      "inputs_sha256": "cf378a066e899751b65ef7e5aa9accf21038a6aabce9ff0b05243d05accd6081"
+    }
+  },
+  {
+    "id": "script-method-echelon-echangedactormanager-removefromallusersacknowledgelist",
+    "size": 130,
+    "offset": 3050096,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EChangedActorManager_RemoveFromAllUsersAcknowledgeList@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EChangedActorManager_RemoveFromAllUsersAcknowledgeList@12": {
+        "va": 280922016,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EChangedActorManager_RemoveFromAllUsersAcknowledgeList at RVA 0x2e8a70. CRT initializer at RVA 0x7a8d30 registers callback cell at VA 0x111c2920. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "ca88ff3638516285f7a95432fe14c6ed459ae160db3bc19eda7062eb0ea1070e",
+      "inputs_sha256": "eb2b4817d9aab1887264fff23ea3b602fd5d419abdc71c7bc363da9e70c71706"
+    }
+  },
+  {
+    "id": "script-method-echelon-echangedactormanager-syncacknowledgedlist",
+    "size": 130,
+    "offset": 3050240,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EChangedActorManager_SyncAcknowledgedList@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EChangedActorManager_SyncAcknowledgedList@12": {
+        "va": 280922112,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EChangedActorManager_SyncAcknowledgedList at RVA 0x2e8b00. CRT initializer at RVA 0x7a8d10 registers callback cell at VA 0x111c291c. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "9a0c9fac77e04482039db297bd9f84fa956883d7535c1d9adfc15a866c50c9db",
+      "inputs_sha256": "efa188651e21ba0b973b7d3087d3ada2a264e5c7cf4cf416dc8f64aa5d3e72dd"
     }
   },
   {

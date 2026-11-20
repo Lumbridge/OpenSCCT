@@ -2528,6 +2528,33 @@
     }
   },
   {
+    "id": "script-method-echelon-einventory-setselecteditem",
+    "size": 91,
+    "offset": 3304880,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EInventory_SetSelectedItem@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EInventory_SetSelectedItem@8": {
+        "va": 281176720,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EInventory_SetSelectedItem at RVA 0x326db0. CRT initializer at RVA 0x7a7db0 registers callback cell at VA 0x111c2730. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "49011bc18ab751275ab3a55e651b23c960315803ffb78687c1e414635c752674",
+      "inputs_sha256": "4aa525083b696bbe662e113dc232a003658657e9053bde2150d32062bc63486b"
+    }
+  },
+  {
     "id": "array-add-zeroed-326e10",
     "offset": 3304976,
     "size": 113,
@@ -2607,6 +2634,33 @@
     "match": {
       "bytes_sha256": "7aa75f98e81da4c110c352b0d2b97679c4e9bee5140fffdb02edf2422af1b03e",
       "inputs_sha256": "de55d1a0cf9492260d4c95bc37e94f1866c88d07da24679f28ff3350c3117f05"
+    }
+  },
+  {
+    "id": "script-method-echelon-einventory-addinventoryitem",
+    "size": 91,
+    "offset": 3306400,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EInventory_AddInventoryItem@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EInventory_AddInventoryItem@8": {
+        "va": 281177904,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EInventory_AddInventoryItem at RVA 0x3273a0. CRT initializer at RVA 0x7a7e50 registers callback cell at VA 0x111c2744. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "d582aec6751564b3ca0e9b778cd3deb732de5771ab26c849802aaec6a49f365d",
+      "inputs_sha256": "0d8b5f62166da42d4fc633df581a86b643c9ce739d6ade9002d5a295da11e3d8"
     }
   },
   {
@@ -2976,6 +3030,33 @@
     "match": {
       "bytes_sha256": "5f07617436ccedd23e4675d57044ccb6236a30971520e2f8e5082a6ae35a5997",
       "inputs_sha256": "f2f00d2493beff04ad8d269c556d2863c90ea24195992ee7f414250e8808c216"
+    }
+  },
+  {
+    "id": "script-method-echelon-emissionmanager-setupplayer",
+    "size": 91,
+    "offset": 3309632,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EMissionManager_SetupPlayer@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EMissionManager_SetupPlayer@8": {
+        "va": 281180848,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EMissionManager_SetupPlayer at RVA 0x328040. CRT initializer at RVA 0x7a82d0 registers callback cell at VA 0x111c27d4. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "35162db69fbeb32006627d4c03e84b45747874e5a626fa553729e7a769b4c021",
+      "inputs_sha256": "2876e57553149c5ebcdc436d0c18621ac940625b544a2821f77ba6b5583231c2"
     }
   },
   {

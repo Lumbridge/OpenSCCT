@@ -5221,6 +5221,33 @@
     }
   },
   {
+    "id": "script-method-echeloningredient-ekeypad-showdoorcode",
+    "size": 91,
+    "offset": 3452048,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_EchelonIngredient_EKeyPad_ShowDoorCode@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_EchelonIngredient_EKeyPad_ShowDoorCode@8": {
+        "va": 281322416,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback EchelonIngredient_EKeyPad_ShowDoorCode at RVA 0x34ac90. CRT initializer at RVA 0x7aafd0 registers callback cell at VA 0x111c2d90. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "4171b95ef8fedb8893d24367f73542ad1025f45f43e9a3c13f483db368eda9ad",
+      "inputs_sha256": "118fd142c647847d2f0747efa9708904f164d8da7f9d65a95d8cad9e4a2f0477"
+    }
+  },
+  {
     "id": "array-destroy-34ad10",
     "size": 56,
     "offset": 3452176,

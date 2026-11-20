@@ -1,5 +1,59 @@
 [
   {
+    "id": "script-method-engine-pawn-setikcompflag",
+    "size": 130,
+    "offset": 1574032,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_SetIKCompFlag@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Pawn_SetIKCompFlag@12": {
+        "va": 279439968,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_SetIKCompFlag at RVA 0x180490. CRT initializer at RVA 0x7a5380 registers callback cell at VA 0x111b1d84. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "18849a8a69af4a69b0e0e34d99d655b097ddc805822eec5bf095d3ad60f98f68",
+      "inputs_sha256": "eaa1ee497d26aefd4341e001d51ca33b83e8abb0819fbe0076f43544779157d0"
+    }
+  },
+  {
+    "id": "script-method-engine-pawn-validatefeetik",
+    "size": 91,
+    "offset": 1577952,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_ValidateFeetIK@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Pawn_ValidateFeetIK@8": {
+        "va": 279446992,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_ValidateFeetIK at RVA 0x1813e0. CRT initializer at RVA 0x7a5320 registers callback cell at VA 0x111b1d78. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "a59e141416d3b3c936adfe1cb58aed6c89bb8c878d8d84ab92cefdc3b327a38d",
+      "inputs_sha256": "8e0d7659875f73752470efb434aa2f9e0f693010a9353552315b9a1007e973df"
+    }
+  },
+  {
     "id": "virtual-aactor-127-181c80",
     "size": 3,
     "offset": 1580160,
@@ -253,6 +307,60 @@
     }
   },
   {
+    "id": "script-method-engine-pawn-crouch",
+    "size": 91,
+    "offset": 1594112,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_Crouch@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Pawn_Crouch@8": {
+        "va": 278598080,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_Crouch at RVA 0x185300. CRT initializer at RVA 0x7a5520 registers callback cell at VA 0x111b1db8. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "dddec7c03231073fa1ee1185c2a25e40dca872c2b66b38c968b87f2a6d75b039",
+      "inputs_sha256": "4baa57bc3034fd54c88815ece97f1797c5f600cd3600f6455ed18df13ab5c376"
+    }
+  },
+  {
+    "id": "script-method-engine-pawn-uncrouch",
+    "size": 91,
+    "offset": 1594208,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_UnCrouch@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Pawn_UnCrouch@8": {
+        "va": 278598384,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_UnCrouch at RVA 0x185360. CRT initializer at RVA 0x7a5500 registers callback cell at VA 0x111b1db4. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "098a8036e6097113399b5dca93e16e36e107c9ad7111666d5794011a519abd58",
+      "inputs_sha256": "83ab31aaaf08b648144696ee5f53596da7c223913bcd5d6bc6581def8b573c4a"
+    }
+  },
+  {
     "id": "game-engine-pawn-iscrouch",
     "offset": 1594304,
     "size": 52,
@@ -309,6 +417,33 @@
     }
   },
   {
+    "id": "script-method-engine-pawn-unprone",
+    "size": 130,
+    "offset": 1594592,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_UnProne@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Pawn_UnProne@12": {
+        "va": 278599136,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_UnProne at RVA 0x1854e0. CRT initializer at RVA 0x7a54a0 registers callback cell at VA 0x111b1da8. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "a34171b20f92dd03aeb8f896c93031609a1fae4c0c998e46024249853ab9e546",
+      "inputs_sha256": "e3f6cce194574b0228e85199ac911c1a2e3e5974a2e25abbd64ec6444fdd0800"
+    }
+  },
+  {
     "id": "cast-ustaticmesh",
     "offset": 1596240,
     "size": 85,
@@ -340,6 +475,87 @@
     "match": {
       "bytes_sha256": "36583bae5aba3a7675a0082ef579e6594379b16cc7bfe9cc49eecfa0798e6e05",
       "inputs_sha256": "ed27b095e434579ce36cd4791125df5b74f3cff98926354857ee5a830177af7b"
+    }
+  },
+  {
+    "id": "script-method-engine-actor-pauseanim",
+    "size": 130,
+    "offset": 1597440,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_PauseAnim@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Actor_PauseAnim@12": {
+        "va": 279454896,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Actor_PauseAnim at RVA 0x186000. CRT initializer at RVA 0x7a4920 registers callback cell at VA 0x111b1c38. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "fe0dd9cde9fc08dc021cc93ba5b374857e15c1ecd16ecfb2dfadebadc252bded",
+      "inputs_sha256": "5959320611226924df59607aaaf3c1f695b041d7bbc32cad6931d6c3e6c7f4c9"
+    }
+  },
+  {
+    "id": "script-method-engine-actor-setstaticmesh",
+    "size": 91,
+    "offset": 1609952,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_SetStaticMesh@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Actor_SetStaticMesh@8": {
+        "va": 279470224,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Actor_SetStaticMesh at RVA 0x1890e0. CRT initializer at RVA 0x7a3d80 registers callback cell at VA 0x111b1ac4. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "8dc1a4592d3310e48f6a975fece47b3030ed133b5c502e7b3f3cbaaa915d9244",
+      "inputs_sha256": "4a9bca13ff7d0a5b2e75d43319b0888e0f073c22071ff9110c3af0826b0d646c"
+    }
+  },
+  {
+    "id": "script-method-engine-actor-setcollisionprim",
+    "size": 91,
+    "offset": 1610048,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_SetCollisionPrim@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_Actor_SetCollisionPrim@8": {
+        "va": 279470352,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_Actor_SetCollisionPrim at RVA 0x189140. CRT initializer at RVA 0x7a3d60 registers callback cell at VA 0x111b1ac0. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "bac800e5061d754cfd915dc9e9999507ed3a03ad514ae4b9e8c50677e83c834a",
+      "inputs_sha256": "7484e288ab7ecbe9867cea8ee0805fb8c93b8634e31c96610b163180b2922a5c"
     }
   },
   {

@@ -2589,6 +2589,87 @@
     }
   },
   {
+    "id": "script-method-aactor-setcollision",
+    "size": 91,
+    "offset": 1554912,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_AActor_SetCollision@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_AActor_SetCollision@8": {
+        "va": 278485104,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback AActor_SetCollision at RVA 0x17b9e0. CRT initializer at RVA 0x7a4c20 registers callback cell at VA 0x111b1c98. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "b8e9f74d6a25369f9e94beb3f6bcaf4db198834506b32dc3ac0065bd53dd38b3",
+      "inputs_sha256": "68e8a256c7c72c8afb58d3f66d499f1e7faa765d61e4626b03ce8813325f2c35"
+    }
+  },
+  {
+    "id": "script-method-aactor-setdrawscale",
+    "size": 91,
+    "offset": 1555328,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_AActor_SetDrawScale@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_AActor_SetDrawScale@8": {
+        "va": 278485680,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback AActor_SetDrawScale at RVA 0x17bb80. CRT initializer at RVA 0x7a4be0 registers callback cell at VA 0x111b1c90. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "01e22fe9bb538c2ce8df2b56aa678330d3be3eb0790cd797b34e814a5a353c0c",
+      "inputs_sha256": "6a362aab04ed5d63b0f43d66d9de954c58e461443638549d54973c2307719951"
+    }
+  },
+  {
+    "id": "script-method-aactor-setowner",
+    "size": 91,
+    "offset": 1557888,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_AActor_SetOwner@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_AActor_SetOwner@8": {
+        "va": 278462784,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback AActor_SetOwner at RVA 0x17c580. CRT initializer at RVA 0x7a4a60 registers callback cell at VA 0x111b1c60. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "5dba1437d374216f64bd621e88e3b6eaf193715505bffa5bdacf797b84194e73",
+      "inputs_sha256": "3c9fad4ecfa128800b50c6db7292d8bed90aa2b88e3ed1a5b0894610b4a5850e"
+    }
+  },
+  {
     "id": "game-engine-zoneinfo-setdynamicpermeating",
     "offset": 1565200,
     "size": 46,

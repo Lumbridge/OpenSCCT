@@ -2092,6 +2092,33 @@
     }
   },
   {
+    "id": "script-method-echelon-echelonlevelinfo-unlockladder",
+    "size": 91,
+    "offset": 3224992,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EchelonLevelInfo_UnlockLadder@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EchelonLevelInfo_UnlockLadder@8": {
+        "va": 281097424,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EchelonLevelInfo_UnlockLadder at RVA 0x3135a0. CRT initializer at RVA 0x7aac30 registers callback cell at VA 0x111c2d00. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "6d4a6ee46151f088c84812de27ae5eeac83bf478926a4712d53814931e9f03bf",
+      "inputs_sha256": "335e6b4e6d0f3459584a880ad5664788dd7e944fbfa7d1d03d47c84c5b4a1ed7"
+    }
+  },
+  {
     "id": "array-append-313600",
     "size": 82,
     "offset": 3225088,

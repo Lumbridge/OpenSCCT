@@ -1,5 +1,32 @@
 [
   {
+    "id": "script-method-echelon-eplayercontroller-playonground",
+    "size": 91,
+    "offset": 2892656,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPlayerController_PlayOnGround@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPlayerController_PlayOnGround@8": {
+        "va": 280748464,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPlayerController_PlayOnGround at RVA 0x2c2370. CRT initializer at RVA 0x7a8930 registers callback cell at VA 0x111c28a0. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "5b1f320d8edabdf5e69b989fb9e68f25fb0e98d8381ad3baea5b3b0f1a308ad8",
+      "inputs_sha256": "928a089267d9defc31320efb890e89ec0dfb87e927ef31e3ad44bb5b0bc1556b"
+    }
+  },
+  {
     "id": "script-parameters-isgamepaused-2",
     "offset": 2896320,
     "size": 52,
@@ -522,6 +549,33 @@
     "match": {
       "bytes_sha256": "f958592ce051656efc7291845b65ab19c90386bfc597abd05787531c4e0c2456",
       "inputs_sha256": "52864640acae634aa92034d0804fe474e4df7c6dc94cada1ef03a988efb25b2b"
+    }
+  },
+  {
+    "id": "script-method-echelon-eplayercontroller-refreshhumanik",
+    "size": 91,
+    "offset": 2933968,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPlayerController_RefreshHumanIK@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPlayerController_RefreshHumanIK@8": {
+        "va": 280769664,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPlayerController_RefreshHumanIK at RVA 0x2cc4d0. CRT initializer at RVA 0x7a83f0 registers callback cell at VA 0x111c27f8. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "4f71853b95f189b8b24ab7be66d2f3c16fce174eda1b3c5b48e65b2d0eaf0d21",
+      "inputs_sha256": "c498e9c3ce616c549a11b467e349a310791650628992c1b346699dfa389eb6cc"
     }
   },
   {
@@ -1051,6 +1105,33 @@
     "match": {
       "bytes_sha256": "c662ce98f9fa6d872c787dd4cd41489682eaf471bf68ddd2e48ed26a53043ddd",
       "inputs_sha256": "f6bf627a6bd6d1d703e75a1ffe64168384a5721ef02276931b1e5e0e545226f1"
+    }
+  },
+  {
+    "id": "script-method-echelon-eplayercontroller-popcamera",
+    "size": 91,
+    "offset": 2946400,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPlayerController_PopCamera@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPlayerController_PopCamera@8": {
+        "va": 280817536,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPlayerController_PopCamera at RVA 0x2cf560. CRT initializer at RVA 0x7a8a50 registers callback cell at VA 0x111c28c4. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "d0472a8c21d84b00991d4675dc555cfd65073f0fb2c871b82d9b7a69a6e0949e",
+      "inputs_sha256": "a87b1be031bf6f30990a77575d5c37dc5208eb70ba763b547778ae2098bdf33e"
     }
   },
   {

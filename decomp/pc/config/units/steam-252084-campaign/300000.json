@@ -1418,6 +1418,33 @@
     }
   },
   {
+    "id": "script-method-echelon-ecoopinteractdispatch-spawninteraction",
+    "size": 130,
+    "offset": 3152736,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_ECoopInteractDispatch_SpawnInteraction@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_ECoopInteractDispatch_SpawnInteraction@12": {
+        "va": 281022576,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_ECoopInteractDispatch_SpawnInteraction at RVA 0x301b60. CRT initializer at RVA 0x7aa1d0 registers callback cell at VA 0x111c2bb4. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "ea8c4908affe492f17fecf369a6cf7ec87714768e77e9f3704c23e0ae1f7663a",
+      "inputs_sha256": "b2af427b53c837c1a33764d1d59020795a2ef39cc8035468b3248d7c47b42636"
+    }
+  },
+  {
     "id": "script-event-shakenpc",
     "offset": 3156512,
     "size": 32,

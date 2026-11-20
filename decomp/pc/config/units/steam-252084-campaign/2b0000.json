@@ -538,6 +538,33 @@
     }
   },
   {
+    "id": "script-method-echelon-eaicontroller-addenemyinfo",
+    "size": 91,
+    "offset": 2848400,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIController_AddEnemyInfo@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EAIController_AddEnemyInfo@8": {
+        "va": 280704176,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIController_AddEnemyInfo at RVA 0x2b7690. CRT initializer at RVA 0x7a9d10 registers callback cell at VA 0x111c2b1c. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "bb7ff273e9ecfc0fd7584933ccd49b73b560b9976996d2cfb2182ba771ec345b",
+      "inputs_sha256": "7b22a97513b9a5c3d2008814a8135a98daf7f488a0e96bb19e997c39d941f57e"
+    }
+  },
+  {
     "id": "virtual-aeaicontroller-29-2b7760",
     "size": 3,
     "offset": 2848608,

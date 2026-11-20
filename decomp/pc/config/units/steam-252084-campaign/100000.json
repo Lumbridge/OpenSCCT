@@ -875,6 +875,33 @@
     }
   },
   {
+    "id": "script-method-engine-playercontroller-stoprenderworld",
+    "size": 91,
+    "offset": 1069664,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_PlayerController_StopRenderWorld@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_PlayerController_StopRenderWorld@8": {
+        "va": 278935552,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_PlayerController_StopRenderWorld at RVA 0x105260. CRT initializer at RVA 0x7a5640 registers callback cell at VA 0x111b1ddc. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "60e13c8880f42519cac5a1afea9ddf2b6bf80c053adbcef32602f4dbad751c3d",
+      "inputs_sha256": "0c30c807c622ef967143ddb77eba72a3e2f78eef3efbffd231b9a7abae9203c5"
+    }
+  },
+  {
     "id": "virtual-uecininfo-24-106750",
     "size": 5,
     "offset": 1075024,
@@ -2349,6 +2376,33 @@
     }
   },
   {
+    "id": "script-method-engine-eslist-remove",
+    "size": 91,
+    "offset": 1092192,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_ESList_Remove@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_ESList_Remove@8": {
+        "va": 278963808,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_ESList_Remove at RVA 0x10aa60. CRT initializer at RVA 0x7a3b40 registers callback cell at VA 0x111b1a7c. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "10f7b4ee91df03d8d92c64988245e63536f100abbf4fcf95f7d730d93bdc1515",
+      "inputs_sha256": "8bdca7bc1ecc8e9d0ff4556d8a550df964e954328acf5cf794f40ea79d47133d"
+    }
+  },
+  {
     "id": "placement-uelistnode",
     "offset": 1092448,
     "size": 24,
@@ -2456,6 +2510,60 @@
     "match": {
       "bytes_sha256": "ce259b280b8f7b36c2a7a68eadac91d9ffb41ca6ba22f30a053debb17dfccb7b",
       "inputs_sha256": "acfc1a3f5ae8bc8f939e28af3a67b03c967d2b7ea6b4099e47639f8e98067087"
+    }
+  },
+  {
+    "id": "script-method-engine-eslist-insertatend",
+    "size": 91,
+    "offset": 1093024,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_ESList_InsertAtEnd@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_ESList_InsertAtEnd@8": {
+        "va": 278965312,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_ESList_InsertAtEnd at RVA 0x10ada0. CRT initializer at RVA 0x7a3b60 registers callback cell at VA 0x111b1a80. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "e2ee083a8c5546308389f81415d0065c60f582b866f12183c09093376087fb98",
+      "inputs_sha256": "e06b2cb086eb05650ee3c584e9dd8746fbe039217fa083f89d5f6f8d0108f3d6"
+    }
+  },
+  {
+    "id": "script-method-engine-eslist-insertbefore",
+    "size": 130,
+    "offset": 1093120,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_ESList_InsertBefore@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Engine_ESList_InsertBefore@12": {
+        "va": 278965472,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Engine_ESList_InsertBefore at RVA 0x10ae00. CRT initializer at RVA 0x7a3b20 registers callback cell at VA 0x111b1a78. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "e62d6e2b67a392f218a14f094c609cc58d02d1c2f0a310750aec2325e64a879e",
+      "inputs_sha256": "f2d4142d12eb197ca2121f88d7931c82970e2de8c0d9b2096a9528a2dad67f48"
     }
   },
   {

@@ -264,6 +264,33 @@
     }
   },
   {
+    "id": "script-method-echelon-epattern-killnpc",
+    "size": 130,
+    "offset": 2710384,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPattern_KillNPC@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPattern_KillNPC@12": {
+        "va": 280573632,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPattern_KillNPC at RVA 0x295b70. CRT initializer at RVA 0x7a9650 registers callback cell at VA 0x111c2a44. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "22057dc3ba179d18381729594f7d3eb7223b4b6127b5e63d699a0a4931036aba",
+      "inputs_sha256": "221f3c13a62fa0b1e7f42f761f835e0e4babf8b380a355f91bb26de6e47f2548"
+    }
+  },
+  {
     "id": "typed-array-insert-2963c0",
     "size": 23,
     "offset": 2712512,
@@ -564,6 +591,33 @@
     }
   },
   {
+    "id": "script-method-echelon-epattern-retrievestack",
+    "size": 130,
+    "offset": 2723840,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPattern_RetrieveStack@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPattern_RetrieveStack@12": {
+        "va": 280594848,
+        "basis": "Direct native method called after decoding 2 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPattern_RetrieveStack at RVA 0x299000. CRT initializer at RVA 0x7a9190 registers callback cell at VA 0x111c29ac. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "5f7f7309ea6f9bd6f8c965f360993f70cc0a3ceb9f5c0c3c95ade373e00391d2",
+      "inputs_sha256": "a8d28d0d084a4e20a7c0630a2fd9b51bc08efe3b3bfa098e37ea55bb1e49c6a5"
+    }
+  },
+  {
     "id": "construct-actor-aelasermicvolume",
     "offset": 2724064,
     "size": 48,
@@ -651,6 +705,33 @@
     "match": {
       "bytes_sha256": "b4e4c46213ccb98516c96ada28ff697fc7dbdfe819e15c0bbe92182c38e1f619",
       "inputs_sha256": "277d209ec4e9bdb6920fe8d5576b466080b600e70b88da211e4d9eae2eacdbb7"
+    }
+  },
+  {
+    "id": "script-method-echelon-epattern-gotonextbehavior",
+    "size": 91,
+    "offset": 2727120,
+    "inputs": [
+      "src/campaign_script_word_methods.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPattern_GoToNextBehavior@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_word_methods.obj src/campaign_script_word_methods.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM dispatch table, also indexed for debug-info opcode 0x42."
+      },
+      "@native_Echelon_EPattern_GoToNextBehavior@8": {
+        "va": 280598240,
+        "basis": "Direct native method called after decoding 1 script argument(s)."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPattern_GoToNextBehavior at RVA 0x299cd0. CRT initializer at RVA 0x7a9210 registers callback cell at VA 0x111c29bc. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
+    "match": {
+      "bytes_sha256": "e0c32458f6535b6aea76c3641e42786aa5ad3f719a7382e85eb19622db32cbd6",
+      "inputs_sha256": "e66bd0b8b1f864ede3bdd253ed0a96e84980b10709aeaad6e0f6a859d7c116a9"
     }
   },
   {
