@@ -443,6 +443,7 @@ $quoted = ($assets | ForEach-Object {
     }) -join ' '
 $pre = if ($isPrerelease) { ' --prerelease' } else { '' }
 $publish = Join-Path $OutDir 'publish.ps1'
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'publish_store.py') -Destination $OutDir
 $versionContents = if ($StoreTag -eq 'game-files' -and -not $linux) { 'the launcher only' } else { 'the launcher and update metadata' }
 @"
 # Uploads the game files to the $StoreTag release (made once, as a prerelease so it is never "Latest"), then creates
@@ -459,13 +460,10 @@ if (`$LASTEXITCODE -ne 0) {
     gh release create $StoreTag --repo $Repo --target $commit --title "Game files (the launcher downloads these)" --prerelease --latest=false --notes "Files the OpenSCCT launcher downloads and checks by itself. You do not need anything here: download the launcher from the latest release instead."
     if (`$LASTEXITCODE -ne 0) { throw 'gh release create $StoreTag failed.' }
 }
-`$count = [int](gh release view $StoreTag --repo $Repo --json assets --jq '.assets | length')
-`$files = @(Get-ChildItem -LiteralPath (Join-Path `$PSScriptRoot 'game-files') -File | ForEach-Object FullName)
-if (`$count + `$files.Count -gt 990) { throw "$StoreTag would pass GitHub's 1000 assets per release (`$count there, `$(`$files.Count) new)." }
-for (`$i = 0; `$i -lt `$files.Count; `$i += 20) {
-    gh release upload $StoreTag @(`$files[`$i..([Math]::Min(`$i + 19, `$files.Count - 1))]) --repo $Repo --clobber
-    if (`$LASTEXITCODE -ne 0) { throw 'gh release upload failed; run this script again to retry.' }
-}
+# Verify existing store content before appending missing files. Run without --upload for a read-only audit.
+`$python = if (`$IsWindows) { 'python' } else { 'python3' }
+& `$python "`$PSScriptRoot/publish_store.py" --repo $Repo --tag $StoreTag --asset-dir "`$PSScriptRoot/game-files" --receipt "`$PSScriptRoot/store-receipt.json" --upload
+if (`$LASTEXITCODE -ne 0) { throw 'Store verification or append failed. Inspect the conflict, then retry.' }
 gh release view v$Version --repo $Repo *> `$null
 if (`$LASTEXITCODE -ne 0) {
     gh release create v$Version $quoted --repo $Repo --target $commit --title "OpenSCCT $Version" --notes-file "`$PSScriptRoot/notes.md" --draft$pre
