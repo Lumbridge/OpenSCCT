@@ -384,7 +384,9 @@ public partial class PlayRoot : Node3D
 
     private bool PrepareLateSmoke(PlaySession session)
     {
-        if (!Config.Render || !OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
+        // Headless clients simulate smoke, but have no GPU resources to prepare.
+        if (!Config.Render || DisplayServer.GetName() == "headless"
+            || !OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
             || ResponsiveSmokeRenderer.IsPrepared) return false;
         if (!_smokePreparing)
         {

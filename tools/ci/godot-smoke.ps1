@@ -163,6 +163,13 @@ function Invoke-Smoke {
     $timeoutText = $seconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
     $processTimeoutSeconds = [int][math]::Ceiling($seconds) + 60
     $arguments = @($PrefixArgs) + @('--', "--svm-smoke=$Name", "--svm-smoke-timeout=$timeoutText")
+    if ($Name -eq 'range-sim' -and $Suite -in 'editor', 'export') {
+        # CI generates this standalone map without a Steam content build.
+        $fixtureMaps = Join-Path $repoRoot '.content/svmap'
+        if (Test-Path -LiteralPath (Join-Path $fixtureMaps 'TestRange/manifest.json')) {
+            $arguments += "--svm-maps=$fixtureMaps"
+        }
+    }
     $label = if ($Repeat -gt 1) { "$Name#$Attempt" } else { $Name }
     $logName = if ($Repeat -gt 1) { "$Suite-$Name-$Attempt" } else { "$Suite-$Name" }
     $savedShots = $env:SVM_PLAY_SHOTS
