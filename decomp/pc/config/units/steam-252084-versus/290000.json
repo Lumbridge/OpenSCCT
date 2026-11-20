@@ -1,5 +1,127 @@
 [
   {
+    "id": "create-vector-indexed-29d570",
+    "size": 24,
+    "offset": 2741616,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "@create_vector@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed create vector function at RVA 0x29d570.",
+    "match": {
+      "bytes_sha256": "657564e3800709104ffff698a1ada32b974d91bf1d421b37313450bfa9ffe5b9",
+      "inputs_sha256": "03f49c2205f214ee2da542a2fea8f7cde6a418c3696eb122bb41a79d8cefc8e4"
+    }
+  },
+  {
+    "id": "dword-count-indexed-29d590",
+    "size": 19,
+    "offset": 2741648,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "@dword_count@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed dword count function at RVA 0x29d590.",
+    "match": {
+      "bytes_sha256": "ae43e511423ed41f29d85edaf2f02b5a752e32ebbe45dd99456242b3c196c50d",
+      "inputs_sha256": "4ded924fc67336e1b96b59d00b1a739fdf9fe8bb85dd00164ca8b3ae0307936e"
+    }
+  },
+  {
+    "id": "destroy-vector-indexed-29d5b0",
+    "size": 28,
+    "offset": 2741680,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Direct vector cleanup entry at RVA 0x29d5b0. Releases storage, clears the three vector pointers and returns before alignment.",
+    "link_bindings": {
+      "_free_storage": {
+        "va": 279251072,
+        "basis": "Shared deallocator called with the vector storage pointer."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "15386a41d2208ab2b42326d4f35069af520d4cfc1d2a2b0f398af2d600aa5f3a",
+      "inputs_sha256": "c578fad2296679ad7a6ebbe7d17d7d69c501eb53db5dca08da589b10ddb1ace0"
+    }
+  },
+  {
+    "id": "erase-dwords-indexed-29d770",
+    "size": 43,
+    "offset": 2742128,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "@erase_dwords@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed erase dwords function at RVA 0x29d770.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "17f4bd3ce5c373295b60b5d5ad40e446da25d9ef8fe4dfc1d664585ae44bf0bc",
+      "inputs_sha256": "fddf2b259178e561732c2281a2aade6042ee8f010265c6ceecb5f004cd709188"
+    }
+  },
+  {
+    "id": "construct-dwords-indexed-29d7a0",
+    "size": 39,
+    "offset": 2742176,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "_construct_dwords@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed construct dwords function at RVA 0x29d7a0.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "70812f08f69424355d7d7629e87de707c829d3fbee464ace353b310dbac84bb3",
+      "inputs_sha256": "3c72001021935563b4a9b4dc4cc1370a89ebe8b55c419dd5fa22b9d3b27a3ab3"
+    }
+  },
+  {
+    "id": "word-capacity-indexed-29d7d0",
+    "size": 18,
+    "offset": 2742224,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "@word_capacity@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed word capacity function at RVA 0x29d7d0.",
+    "match": {
+      "bytes_sha256": "a6f1b8d8903ddc66066b8c27f3caf9e8768c9b18bd360b6671e3b017619fca7a",
+      "inputs_sha256": "344e59591dc20e002b6c1312589889746e0c56805840ef8376da5b071c122b0b"
+    }
+  },
+  {
+    "id": "construct-words-indexed-29d990",
+    "size": 41,
+    "offset": 2742672,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "_construct_words@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed construct words function at RVA 0x29d990.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "e423a98897210cfc5eb644cb2600692ba5d7dba2451d88c6d0aa974197840d95",
+      "inputs_sha256": "b8f66cf26cbcf46d0d042fd370efebfce37d3afdac36dd89253866fb08cb217e"
+    }
+  },
+  {
     "id": "ordered-tree-begin-tree",
     "size": 14,
     "offset": 2742720,
@@ -13,6 +135,22 @@
     "match": {
       "bytes_sha256": "7ab906a72e142566903a032ad9387b921670ff0d8218b4270b5dcc8dc647701f",
       "inputs_sha256": "84a139f5b3946e6c1b6fb893d36088e99080d949cdaae71b38c158563c784e34"
+    }
+  },
+  {
+    "id": "fill-words-indexed-29df40",
+    "size": 39,
+    "offset": 2744128,
+    "inputs": [
+      "src/vector_storage_ranges.c"
+    ],
+    "rebuilt_symbol": "_fill_words@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/vector_storage_ranges.obj src/vector_storage_ranges.c",
+    "identification": "Complete indexed fill words function at RVA 0x29df40.",
+    "match": {
+      "bytes_sha256": "1a3b31af54485a4105288b0c3e5f08bd9360f7728a96f946afc1ddc6beb0562d",
+      "inputs_sha256": "4833b7a4e254fe8244ab0284acc9052e180006e7cb5051960a036656961e4c5f"
     }
   },
   {
