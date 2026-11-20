@@ -1,0 +1,53 @@
+[
+  {
+    "id": "construct-range-2a9140",
+    "size": 43,
+    "offset": 2789696,
+    "inputs": [
+      "src/versus_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r2a9140",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_copy.obj src/versus_record_copy.c",
+    "identification": "Direct call at retail VA 0x10b9f87d in the separately decoded function at RVA 0x29f860. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 8-byte records.",
+    "match": {
+      "bytes_sha256": "84a2cae803d15cb5aeb9bc50413e86944f8c026781f6e534471bd4cd3336cd06",
+      "inputs_sha256": "56a80c70dda32c958e02f65ad5eb3e568644dccd378c2f56b7674fcc74afbd85"
+    }
+  },
+  {
+    "id": "construct-copies-2ab840",
+    "size": 35,
+    "offset": 2799680,
+    "inputs": [
+      "src/versus_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_copies_r2ab840",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_copy.obj src/versus_record_copy.c",
+    "identification": "Direct call at retail VA 0x10ba5048 in the separately decoded function at RVA 0x2a5010. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 4-byte records.",
+    "match": {
+      "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
+      "inputs_sha256": "a0111b0c1ab70cd2a6a5c247f3cec19aded0b5241914129880c8450813743822"
+    }
+  },
+  {
+    "id": "construct-range-2afd60",
+    "size": 37,
+    "offset": 2817376,
+    "inputs": [
+      "src/versus_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r2afd60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_copy.obj src/versus_record_copy.c",
+    "identification": "Direct call at retail VA 0x10ba53ed in the separately decoded function at RVA 0x2a53d0. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 4-byte records.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "45af51c44292e5998bbb789a8d8311ab1a862f9fbb901c990e43a0d51b2f44e3"
+    }
+  }
+]

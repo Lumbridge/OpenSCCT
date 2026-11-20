@@ -1,0 +1,19 @@
+[
+  {
+    "id": "construct-copies-29f610",
+    "size": 41,
+    "offset": 2749968,
+    "inputs": [
+      "src/versus_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_copies_r29f610",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_record_copy.obj src/versus_record_copy.c",
+    "identification": "Direct call at retail VA 0x10b9f847 in the separately decoded function at RVA 0x29f830. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 8-byte records.",
+    "match": {
+      "bytes_sha256": "81ef6e45cd03000a57958845a5a859ba708a2c6300f4c9c6ae7dbffd63cc56ef",
+      "inputs_sha256": "df73f8496285a03e2be0c21bb020c5710a6ea90f4daab580118fab7b00c89447"
+    }
+  }
+]

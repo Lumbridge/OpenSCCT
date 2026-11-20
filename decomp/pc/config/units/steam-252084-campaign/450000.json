@@ -66,6 +66,40 @@
     }
   },
   {
+    "id": "assign-range-455060",
+    "size": 41,
+    "offset": 4542560,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r455060",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d560a7 in the separately decoded function at RVA 0x455f20. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 32-byte records.",
+    "match": {
+      "bytes_sha256": "b287121a3bc6dd6e70e577b5279a7a1974c1da2abf0e923568ceedee28a0de0e",
+      "inputs_sha256": "727ec73eb7710db7a5de40fdad1d7ada66734a8718d4f2e8953052ba2b6f1500"
+    }
+  },
+  {
+    "id": "copy-backward-455390",
+    "size": 44,
+    "offset": 4543376,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_copy_backward_r455390",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d560d2 in the separately decoded function at RVA 0x455f20. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 32-byte records.",
+    "match": {
+      "bytes_sha256": "ac231d3161fb40e6a226b8622783e5e6a25f45afbf360d199026d99647123a3d",
+      "inputs_sha256": "11893e7d788521d9b59863990771f80622421ab3342953f56bfe52d1a8ceaadd"
+    }
+  },
+  {
     "id": "clear-owned-storage-455ed0",
     "size": 42,
     "offset": 4546256,
@@ -173,6 +207,23 @@
     "match": {
       "bytes_sha256": "3a59f09e034036ed2a86b0d1ed5e604b4191940f26ee34690beafc8e4801d6c1",
       "inputs_sha256": "a508b103aebe69d48cdc2df4a98b3034895645b08b7606cc2364bc888bb1fe3e"
+    }
+  },
+  {
+    "id": "assign-range-459e80",
+    "size": 36,
+    "offset": 4562560,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r459e80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d5aa5c in the separately decoded function at RVA 0x45a8d0. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 8-byte records.",
+    "match": {
+      "bytes_sha256": "50d69d54b8aa663e515794293cb968e215715a6e7552f516cca75c987dc96a37",
+      "inputs_sha256": "3cba96e41ddbe515cd957a375cbd4ee62fc845b7b17d4a31b271bea16b5c378b"
     }
   },
   {

@@ -1,5 +1,22 @@
 [
   {
+    "id": "assign-range-4210d0",
+    "size": 30,
+    "offset": 4329680,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r4210d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d222ef in the separately decoded function at RVA 0x422170. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 4-byte records.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "840a24fb424f0787f9ce94b042b2b0fd0c9bc19151d7c5b361af024ae293691d"
+    }
+  },
+  {
     "id": "clear-owned-storage-4218a0",
     "size": 42,
     "offset": 4331680,
@@ -176,6 +193,23 @@
     }
   },
   {
+    "id": "assign-range-423640",
+    "size": 36,
+    "offset": 4339264,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r423640",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d23f3c in the separately decoded function at RVA 0x423db0. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 8-byte records.",
+    "match": {
+      "bytes_sha256": "50d69d54b8aa663e515794293cb968e215715a6e7552f516cca75c987dc96a37",
+      "inputs_sha256": "16b23ab3c49ae2f796db2bc11e40b28d06c11fcc9379bee8a886b8dc15ace808"
+    }
+  },
+  {
     "id": "clear-owned-storage-423d40",
     "size": 42,
     "offset": 4341056,
@@ -217,6 +251,40 @@
     "match": {
       "bytes_sha256": "d94af784233822a86c9b487b0ef37dd4fa80aad821c9948b4a669620f84804a2",
       "inputs_sha256": "065b2364627f45313a395d66e4736977ec8cb32388cf563984dcd733863a688d"
+    }
+  },
+  {
+    "id": "assign-range-428bd0",
+    "size": 30,
+    "offset": 4361168,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r428bd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d2ab7f in the separately decoded function at RVA 0x42aa00. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 4-byte records.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "8d7458c9f9a8c1074d0cfa5bf69491578d3a752b5f4b0b006b5e641b16bfff79"
+    }
+  },
+  {
+    "id": "assign-range-428bf0",
+    "size": 30,
+    "offset": 4361200,
+    "inputs": [
+      "src/campaign_record_copy.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_assign_range_r428bf0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy.obj src/campaign_record_copy.c",
+    "identification": "Direct call at retail VA 0x10d2ad5f in the separately decoded function at RVA 0x42abe0. Independent automatic analysis agrees with the exact extent. The complete routine operates on fixed-width 4-byte records.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "8bc2a679d3bab25c6ae2eb3b662147d00ded704bc6e510c5fdda66a96377f39c"
     }
   },
   {
