@@ -4094,6 +4094,174 @@
       }
     },
     {
+      "id": "crt-strtime",
+      "offset": 6504378,
+      "size": 103,
+      "rebuilt_symbol": "_steam_strtime",
+      "inputs": [
+        "src/crt_local_clock.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_local_clock.pdb /Folocal/crt_local_clock.obj src/crt_local_clock.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\strtime.obj (COFF SHA-256 659bcac8fe2ca27fd03ca68c99efb10f21ef1d0a6f36b0bb9121db617249b14c) names the complete __strtime function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 103 linked bytes.",
+      "link_bindings": {
+        "__imp__GetLocalTime@4": {
+          "va": 285963016,
+          "basis": "Campaign PE import table names GetLocalTime at this IAT slot."
+        }
+      },
+      "match": {
+        "bytes_sha256": "8df947d1d0b6436b4f8695f6cf79ee17ca223581dc36fe29c135120f1f24e13e",
+        "inputs_sha256": "b8357c90d53afbd940dc029c2c39b76c7f11de49cd0b46099005b4bbabfa3479"
+      }
+    },
+    {
+      "id": "crt-strdate",
+      "offset": 6504481,
+      "size": 112,
+      "rebuilt_symbol": "_steam_strdate",
+      "inputs": [
+        "src/crt_local_clock.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_local_clock.pdb /Folocal/crt_local_clock.obj src/crt_local_clock.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\strdate.obj (COFF SHA-256 d86830c9075207be3730f0a900ac28e190dc6f4e6b93b0baf7d5e197b0be27b3) names the complete __strdate function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 112 linked bytes.",
+      "link_bindings": {
+        "__imp__GetLocalTime@4": {
+          "va": 285963016,
+          "basis": "Campaign PE import table names GetLocalTime at this IAT slot."
+        }
+      },
+      "match": {
+        "bytes_sha256": "69bcdd529dc54e7c0a7aaddb94d9d8a5efbce759061c470e02d5bce5ca3b0447",
+        "inputs_sha256": "f4caf2c80862eebaa86c0717ba7b53e69b908640e38424fdd4288c8ad238bbed"
+      }
+    },
+    {
+      "id": "crt-wstrtime",
+      "offset": 6504593,
+      "size": 119,
+      "rebuilt_symbol": "_steam_wstrtime",
+      "inputs": [
+        "src/crt_local_clock.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_local_clock.pdb /Folocal/crt_local_clock.obj src/crt_local_clock.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\wstrtime.obj (COFF SHA-256 eccc6cc13ba31bee2374a2c0d280f9ea86eecb4e35d0c1863e3d664ec30600cc) names the complete __wstrtime function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 119 linked bytes.",
+      "link_bindings": {
+        "__imp__GetLocalTime@4": {
+          "va": 285963016,
+          "basis": "Campaign PE import table names GetLocalTime at this IAT slot."
+        }
+      },
+      "match": {
+        "bytes_sha256": "4c20cb3f146a93eac1547ac461cd5550a5a9210fd8b71502e78d2bf3d6de49db",
+        "inputs_sha256": "f9dbc9d67dd514eeffdf2979c6b4944ae9106159d47606ed3dbcabc4bdd12111"
+      }
+    },
+    {
+      "id": "crt-wstrdate",
+      "offset": 6504712,
+      "size": 125,
+      "rebuilt_symbol": "_steam_wstrdate",
+      "inputs": [
+        "src/crt_local_clock.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_local_clock.pdb /Folocal/crt_local_clock.obj src/crt_local_clock.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\wstrdate.obj (COFF SHA-256 087a5f3a6fdca74f31e183c0452e40c52c29bf95618bc86d3083ee7a7ac6fd95) names the complete __wstrdate function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 125 linked bytes.",
+      "link_bindings": {
+        "__imp__GetLocalTime@4": {
+          "va": 285963016,
+          "basis": "Campaign PE import table names GetLocalTime at this IAT slot."
+        }
+      },
+      "match": {
+        "bytes_sha256": "201efc6d7497d0f777a76b7b9dfe36b8110edfcb863c195732c103bc5cd3411a",
+        "inputs_sha256": "4e9f18532117fc9c8d6ca48519e9c90ee60518d5803c2b17a45b8c6cbd6753c6"
+      }
+    },
+    {
+      "id": "crt-gmtime",
+      "offset": 6505358,
+      "size": 263,
+      "rebuilt_symbol": "_steam_gmtime",
+      "inputs": [
+        "src/crt_utc_time.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_utc_time.pdb /Folocal/crt_utc_time.obj src/crt_utc_time.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libcmt.lib member build\\intel\\mt_obj\\gmtime.obj (COFF SHA-256 70637a4004875cd3889011ba2b2d4caa6ccb6da0e7f74fbc47cb029d7bef4bd3) names the complete _gmtime function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 263 linked bytes.",
+      "link_bindings": {
+        "__getptd": {
+          "va": 284393832,
+          "basis": "The campaign target is the separately identified __getptd function in CRT archive member build\\intel\\mt_obj\\tidtable.obj."
+        },
+        "_malloc": {
+          "va": 284370264,
+          "basis": "The named _malloc COFF relocation in build\\intel\\mt_obj\\gmtime.obj resolves here in the campaign, using the member's own addend at +0x26."
+        },
+        "_tb": {
+          "va": 288507144,
+          "basis": "The named _tb COFF relocation in build\\intel\\mt_obj\\gmtime.obj resolves here in the campaign, using the member's own addend at +0x31."
+        },
+        "__lpdays": {
+          "va": 287130728,
+          "basis": "The named __lpdays COFF relocation in build\\intel\\mt_obj\\gmtime.obj resolves here in the campaign, using the member's own addend at +0x87."
+        },
+        "__days": {
+          "va": 287130780,
+          "basis": "The named __days COFF relocation in build\\intel\\mt_obj\\gmtime.obj resolves here in the campaign, using the member's own addend at +0x9b."
+        }
+      },
+      "match": {
+        "bytes_sha256": "77b91277a5575d110c5118736e49fa50c3de7a5750137225543ec6626209a7b2",
+        "inputs_sha256": "471fb02f649e8474b77081e1e355daed156067447a6da32b109f9e162f933768"
+      }
+    },
+    {
+      "id": "crt-time",
+      "offset": 6505621,
+      "size": 57,
+      "rebuilt_symbol": "_steam_time",
+      "inputs": [
+        "src/crt_utc_time.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_utc_time.pdb /Folocal/crt_utc_time.obj src/crt_utc_time.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\time.obj (COFF SHA-256 320c5bc273539fb26d2baf6c525dab1b3fbc4a67f026ce0c440dd241656e01c2) names the complete _time function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 57 linked bytes.",
+      "link_bindings": {
+        "__imp__GetSystemTimeAsFileTime@4": {
+          "va": 285962772,
+          "basis": "Campaign PE import table names GetSystemTimeAsFileTime at this IAT slot."
+        },
+        "__aulldiv": {
+          "va": 284382672,
+          "basis": "The campaign target is the separately identified __aulldiv function in CRT archive member build\\intel\\st_obj\\ulldiv.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "401553a73cce176efef86c2b3217143e926bc502c88fe7e826030de9ec50b310",
+        "inputs_sha256": "a979db440804ae9e6bf67a253f03ecaf893b3226b3c1877172c23fcf77bdcb96"
+      }
+    },
+    {
+      "id": "crt-difftime",
+      "offset": 6505678,
+      "size": 17,
+      "rebuilt_symbol": "_steam_difftime",
+      "inputs": [
+        "src/crt_utc_time.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_utc_time.pdb /Folocal/crt_utc_time.obj src/crt_utc_time.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\difftime.obj (COFF SHA-256 f467e5409b29e34f2b9d7f62ad956bb6c99149073235e2e2ffe6bc5add827622) names the complete _difftime function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 17 linked bytes.",
+      "match": {
+        "bytes_sha256": "be5eee852397bcdd8abd4a3fbb66e8029409a162995b4a3b81047cc9b8c4918e",
+        "inputs_sha256": "82b8365703aafef7cb5319f247b64a93c261bcfeaac92bb970925dffda0c2450"
+      }
+    },
+    {
       "id": "crt-wcsncat",
       "offset": 6509858,
       "size": 61,
@@ -4126,6 +4294,90 @@
       }
     },
     {
+      "id": "crt-localtime",
+      "offset": 6559569,
+      "size": 384,
+      "rebuilt_symbol": "_steam_localtime",
+      "inputs": [
+        "src/crt_local_conversion.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_local_conversion.pdb /Folocal/crt_local_conversion.obj src/crt_local_conversion.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\localtim.obj (COFF SHA-256 c4a3a8f51b2361351d3dadd31ca2d960d817cc2b624fb887e258853acd3fef42) names the complete _localtime function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 384 linked bytes.",
+      "link_bindings": {
+        "___tzset": {
+          "va": 284434104,
+          "basis": "The campaign target is the separately identified ___tzset function in CRT archive member build\\intel\\mt_obj\\tzset.obj."
+        },
+        "__timezone": {
+          "va": 287130552,
+          "basis": "The named __timezone COFF relocation in build\\intel\\st_obj\\localtim.obj resolves here in the campaign, using the member's own addend at +0x2a, +0xa0, +0xb7."
+        },
+        "_gmtime": {
+          "va": 284377998,
+          "basis": "The campaign target is the separately identified _gmtime function in CRT archive member build\\intel\\mt_obj\\gmtime.obj."
+        },
+        "__daylight": {
+          "va": 287130556,
+          "basis": "The named __daylight COFF relocation in build\\intel\\st_obj\\localtim.obj resolves here in the campaign, using the member's own addend at +0x3c, +0x81."
+        },
+        "__isindst": {
+          "va": 284434233,
+          "basis": "The campaign target is the separately identified __isindst function in CRT archive member build\\intel\\mt_obj\\tzset.obj."
+        },
+        "__dstbias": {
+          "va": 287130560,
+          "basis": "The named __dstbias COFF relocation in build\\intel\\st_obj\\localtim.obj resolves here in the campaign, using the member's own addend at +0x5a, +0x9a."
+        }
+      },
+      "match": {
+        "bytes_sha256": "9334f6b97605cbf6f7d517140640939d27f060db5f2c116a7cd3904140cf9dc0",
+        "inputs_sha256": "5a95684e27a02a3c98a44caa0096c438488dcee264f0b81058ec009d36052394"
+      }
+    },
+    {
+      "id": "crt-loctotime-t",
+      "offset": 6562093,
+      "size": 270,
+      "rebuilt_symbol": "_steam_loctotime_t",
+      "inputs": [
+        "src/crt_local_conversion.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_local_conversion.pdb /Folocal/crt_local_conversion.obj src/crt_local_conversion.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\dtoxtime.obj (COFF SHA-256 b69679c3b77ff64cd964ffcc4d51f65f6c78e5e5b89482c4bcde1fb55d2325ee) names the complete ___loctotime_t function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 270 linked bytes.",
+      "link_bindings": {
+        "__days": {
+          "va": 287130780,
+          "basis": "The named __days COFF relocation in build\\intel\\st_obj\\dtoxtime.obj resolves here in the campaign, using the member's own addend at +0x35."
+        },
+        "___tzset": {
+          "va": 284434104,
+          "basis": "The campaign target is the separately identified ___tzset function in CRT archive member build\\intel\\mt_obj\\tzset.obj."
+        },
+        "__timezone": {
+          "va": 287130552,
+          "basis": "The named __timezone COFF relocation in build\\intel\\st_obj\\dtoxtime.obj resolves here in the campaign, using the member's own addend at +0xc4."
+        },
+        "__daylight": {
+          "va": 287130556,
+          "basis": "The named __daylight COFF relocation in build\\intel\\st_obj\\dtoxtime.obj resolves here in the campaign, using the member's own addend at +0xe7."
+        },
+        "__isindst": {
+          "va": 284434233,
+          "basis": "The campaign target is the separately identified __isindst function in CRT archive member build\\intel\\mt_obj\\tzset.obj."
+        },
+        "__dstbias": {
+          "va": 287130560,
+          "basis": "The named __dstbias COFF relocation in build\\intel\\st_obj\\dtoxtime.obj resolves here in the campaign, using the member's own addend at +0xfe."
+        }
+      },
+      "match": {
+        "bytes_sha256": "32300e9e2bcde7d61f4a26f54968ee40ef0744e182ff458a9f875c380e9fc667",
+        "inputs_sha256": "20175c2a41a68618cb4a337abd0c19287602da0ea70161635c1d82206340bb1e"
+      }
+    },
+    {
       "id": "crt-wcsrchr",
       "offset": 6563200,
       "size": 48,
@@ -4155,6 +4407,194 @@
       "match": {
         "bytes_sha256": "8ad650b26e0d1d817ad4833c9c1fd39cedd06acf0db0dff9df92f80e72b6e3fa",
         "inputs_sha256": "4e8de3d2450673d96c8fa7b31f9435a4f6dd13dac26ce9a405cd9a833c39df3f"
+      }
+    },
+    {
+      "id": "crt-getdays",
+      "offset": 6578861,
+      "size": 127,
+      "rebuilt_symbol": "_steam_Getdays",
+      "inputs": [
+        "src/crt_locale_names.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_locale_names.pdb /Folocal/crt_locale_names.obj src/crt_locale_names.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\strftime.obj (COFF SHA-256 c3f52e70e814864e38aab6feac7ce6b7884ffc0f6edfcb9dd8a38178aa722b79) names the complete __Getdays function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 127 linked bytes.",
+      "link_bindings": {
+        "___lc_time_curr": {
+          "va": 287131160,
+          "basis": "The named ___lc_time_curr COFF relocation in build\\intel\\st_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0x6."
+        },
+        "_strlen": {
+          "va": 284387744,
+          "basis": "The campaign target is the separately identified _strlen function in CRT archive member build\\intel\\st_obj\\strlen.obj."
+        },
+        "_malloc": {
+          "va": 284370264,
+          "basis": "The named _malloc COFF relocation in build\\intel\\st_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0x32."
+        },
+        "_strcpy": {
+          "va": 284402688,
+          "basis": "The campaign target is the separately identified _strcpy function in CRT archive member build\\intel\\st_obj\\strcat.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "f55e5cab0253b73f29059159ba2f35a2caef999654136c38d7404cb82149922b",
+        "inputs_sha256": "581757410cec13bba912dc5443ed7b01f9c75b6af7a9a19bb8ba814cf8eb8ae4"
+      }
+    },
+    {
+      "id": "crt-getmonths",
+      "offset": 6578988,
+      "size": 149,
+      "rebuilt_symbol": "_steam_Getmonths",
+      "inputs": [
+        "src/crt_locale_names.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_locale_names.pdb /Folocal/crt_locale_names.obj src/crt_locale_names.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\strftime.obj (COFF SHA-256 c3f52e70e814864e38aab6feac7ce6b7884ffc0f6edfcb9dd8a38178aa722b79) names the complete __Getmonths function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 149 linked bytes.",
+      "link_bindings": {
+        "___lc_time_curr": {
+          "va": 287131160,
+          "basis": "The named ___lc_time_curr COFF relocation in build\\intel\\st_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0xe."
+        },
+        "_strlen": {
+          "va": 284387744,
+          "basis": "The campaign target is the separately identified _strlen function in CRT archive member build\\intel\\st_obj\\strlen.obj."
+        },
+        "_malloc": {
+          "va": 284370264,
+          "basis": "The named _malloc COFF relocation in build\\intel\\st_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0x44."
+        },
+        "_strcpy": {
+          "va": 284402688,
+          "basis": "The campaign target is the separately identified _strcpy function in CRT archive member build\\intel\\st_obj\\strcat.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "d11c635ba342428bccd83e2149738ff9745fa3b60f44504e03866092617ae6f0",
+        "inputs_sha256": "a95b36c18da192541bddcd08a2ab55fe49756503ad1a8d5477f827ec541f0d66"
+      }
+    },
+    {
+      "id": "crt-gettnames",
+      "offset": 6579137,
+      "size": 563,
+      "rebuilt_symbol": "_steam_Gettnames",
+      "inputs": [
+        "src/crt_time_names_copy.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_time_names_copy.pdb /Folocal/crt_time_names_copy.obj src/crt_time_names_copy.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libcmt.lib member build\\intel\\mt_obj\\strftime.obj (COFF SHA-256 1257c88f98ff164edbc568dc817b1f71b3b0312688fa577d2b6da4a938a4e26b) names the complete __Gettnames function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 563 linked bytes.",
+      "link_bindings": {
+        "___lc_time_curr": {
+          "va": 287131160,
+          "basis": "The named ___lc_time_curr COFF relocation in build\\intel\\mt_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0xa, +0xe2."
+        },
+        "_strlen": {
+          "va": 284387744,
+          "basis": "The campaign target is the separately identified _strlen function in CRT archive member build\\intel\\st_obj\\strlen.obj."
+        },
+        "_malloc": {
+          "va": 284370264,
+          "basis": "The named _malloc COFF relocation in build\\intel\\mt_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0xca."
+        },
+        "_memcpy": {
+          "va": 284387888,
+          "basis": "The named _memcpy COFF relocation in build\\intel\\mt_obj\\strftime.obj resolves here in the campaign, using the member's own addend at +0xee."
+        },
+        "_strcpy": {
+          "va": 284402688,
+          "basis": "The campaign target is the separately identified _strcpy function in CRT archive member build\\intel\\st_obj\\strcat.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "1736422ec05a00eddda9b3b49733029d13a81e1cb8e43855505a973095183a4e",
+        "inputs_sha256": "4e416b3fa368fcfe52da60649a71d903ac18733ce082639590b56d2fd550a7f5"
+      }
+    },
+    {
+      "id": "crt-free-lc-time",
+      "offset": 6582834,
+      "size": 400,
+      "rebuilt_symbol": "_steam_free_lc_time",
+      "inputs": [
+        "src/crt_locale_names.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_locale_names.pdb /Folocal/crt_locale_names.obj src/crt_locale_names.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\inittime.obj (COFF SHA-256 3c442ff4cb3c81b27c77be52fcc5c209b28927cb05379c429fc3c7a7532ccba0) names the complete ___free_lc_time function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 400 linked bytes.",
+      "link_bindings": {
+        "_free": {
+          "va": 284370282,
+          "basis": "The campaign target is the separately identified _free function in CRT archive member build\\intel\\mt_obj\\free.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "f28669a1d026cc6e329a44c61d0e20ad64a421af60e68a09af16a254ba20bd8c",
+        "inputs_sha256": "87c8fa1f487a9ed78f299028329b5316e4c7f9ecbf48050c3e338176b6fae0ce"
+      }
+    },
+    {
+      "id": "crt-free-lconv-num",
+      "offset": 6583380,
+      "size": 95,
+      "rebuilt_symbol": "_steam_free_lconv_num",
+      "inputs": [
+        "src/crt_locale_names.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_locale_names.pdb /Folocal/crt_locale_names.obj src/crt_locale_names.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libcmt.lib member build\\intel\\mt_obj\\initnum.obj (COFF SHA-256 9dfab6e94dbd2635e677e94985bdef345cd37474160bbe0ab3890ca8db9aef12) names the complete ___free_lconv_num function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 95 linked bytes.",
+      "link_bindings": {
+        "___lconv": {
+          "va": 287131404,
+          "basis": "The named ___lconv COFF relocation in build\\intel\\mt_obj\\initnum.obj resolves here in the campaign, using the member's own addend at +0xd, +0x29, +0x45."
+        },
+        "___lconv_c": {
+          "va": 287131356,
+          "basis": "The named ___lconv_c COFF relocation in build\\intel\\mt_obj\\initnum.obj resolves here in the campaign, using the member's own addend at +0x17, +0x34, +0x50."
+        },
+        "_free": {
+          "va": 284370282,
+          "basis": "The campaign target is the separately identified _free function in CRT archive member build\\intel\\mt_obj\\free.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "5a6dc12c66636f9c9de410fe898d03bc1558aa067b0afd95ed35e6a845dbf600",
+        "inputs_sha256": "24706f2f48dc1599268789a9d699ab5c96d4d7ff2bfcd4af11fca1adb05b2da4"
+      }
+    },
+    {
+      "id": "crt-free-lconv-mon",
+      "offset": 6583987,
+      "size": 217,
+      "rebuilt_symbol": "_steam_free_lconv_mon",
+      "inputs": [
+        "src/crt_locale_names.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_locale_names.pdb /Folocal/crt_locale_names.obj src/crt_locale_names.c",
+      "identification": "The Microsoft Visual C++ Toolkit 2003 libcmt.lib member build\\intel\\mt_obj\\initmon.obj (COFF SHA-256 73f565ab2594434268120af8d84181fcdd5866ad1cfb89704060fc2620e0fa90) names the complete ___free_lconv_mon function. Its nonrelocation bytes and field positions identify this single campaign location. The independently reconstructed C reproduces all 217 linked bytes.",
+      "link_bindings": {
+        "___lconv": {
+          "va": 287131404,
+          "basis": "The named ___lconv COFF relocation in build\\intel\\mt_obj\\initmon.obj resolves here in the campaign, using the member's own addend at +0x12, +0x2f, +0x4c, +0x69, +0x86, +0xa3, +0xbf."
+        },
+        "___lconv_c": {
+          "va": 287131356,
+          "basis": "The named ___lconv_c COFF relocation in build\\intel\\mt_obj\\initmon.obj resolves here in the campaign, using the member's own addend at +0x1d, +0x3a, +0x57, +0x74, +0x91, +0xae, +0xca."
+        },
+        "_free": {
+          "va": 284370282,
+          "basis": "The campaign target is the separately identified _free function in CRT archive member build\\intel\\mt_obj\\free.obj."
+        }
+      },
+      "match": {
+        "bytes_sha256": "d75498728a34adf587eec6c7b2d7b8b883b3f97023061e72c395aa994378e2fa",
+        "inputs_sha256": "8b4a979a352711d872318d3aa84465d1a45b064957109988bb5ce821ac1e58b7"
       }
     },
     {
@@ -5306,6 +5746,36 @@
       }
     },
     {
+      "id": "approximate-atan",
+      "offset": 7632528,
+      "size": 168,
+      "rebuilt_symbol": "_approximate_atan",
+      "inputs": [
+        "src/sound_tangent_table.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_tangent_table.obj src/sound_tangent_table.c",
+      "link_bindings": {
+        "_SoundZero": {
+          "va": 285966880,
+          "basis": "Single-precision zero read from the locked image for magnitude and sign checks."
+        },
+        "_SoundTangentTable": {
+          "va": 287197144,
+          "basis": "91 pairs of 32-bit floats in the locked campaign image. Each pair holds an angle in turns and its tangent."
+        },
+        "_SoundZeroDouble": {
+          "va": 285965208,
+          "basis": "Double-precision zero used by the angle-table lower-bound correction."
+        }
+      },
+      "identification": "A direct retail branch at VA 0x1105c549 identifies the entry. Full range 0x11047690..0x11047738 (exclusive), followed by alignment. Binary-searches 91 angle/tangent pairs to find a signed angle in turns.",
+      "match": {
+        "bytes_sha256": "b206c8f0b0044575fca5cd6af78ffeae06ecaafadbe507d5fc45ca038ba36265",
+        "inputs_sha256": "6e4449fa781d1b93d3048bc1c7645feeb70c74d92fef44151688e5a233876668"
+      }
+    },
+    {
       "id": "sound-timer-seconds",
       "offset": 7632912,
       "size": 119,
@@ -5579,6 +6049,28 @@
       "match": {
         "bytes_sha256": "8882e0570d3ad1c408d94d635fa34d35a3b69972662d93c3cc9ed263d5a42e5c",
         "inputs_sha256": "1afdf9b70f60c1aca11aa581bd9daaee479faa19142fda9eeebafc221556d2a6"
+      }
+    },
+    {
+      "id": "resource-channels",
+      "offset": 7644928,
+      "size": 36,
+      "rebuilt_symbol": "_resource_channels",
+      "inputs": [
+        "src/sound_resource_channels.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+      "link_bindings": {
+        "_query_resource_channels": {
+          "va": 285539872,
+          "basis": "Tail jump to the locked channel query."
+        }
+      },
+      "identification": "A direct retail branch at VA 0x1105cb58 identifies the entry. Full range 0x1104a700..0x1104a724 (exclusive), followed by alignment. Accepts only resource kinds 1, 6 and 9 before tail-calling the channel query; null and other kinds return zero.",
+      "match": {
+        "bytes_sha256": "01fd510063323d88eed7421f7836089e1cb9a83c183edb6a6f6c6e33c1280b87",
+        "inputs_sha256": "e6ecfb6a77f1a28abff6ba86199caa5bde5a3d0dc27679b97462361f6a469851"
       }
     },
     {
@@ -6095,6 +6587,44 @@
       }
     },
     {
+      "id": "query-resource-channels",
+      "offset": 7667232,
+      "size": 5,
+      "rebuilt_symbol": "_query_resource_channels",
+      "inputs": [
+        "src/sound_resource_channels.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+      "link_bindings": {
+        "_locked_resource_channels": {
+          "va": 285577584,
+          "basis": "Reads channel metadata for the three supported types while holding the audio critical section."
+        }
+      },
+      "identification": "A direct retail branch at VA 0x1104a71f identifies the entry. Full range 0x1104fe20..0x1104fe25 (exclusive), followed by alignment. Tail jump to the locked channel query.",
+      "match": {
+        "bytes_sha256": "8a9d88e1850e5c22a22604cc6f2547330385a9bf291c0cd374ee2e07c2585832",
+        "inputs_sha256": "5ddbce17fe80ad0829f3cfdce72faf7d46e0d1e54d9fc6a58e843533d6e5e5bf"
+      }
+    },
+    {
+      "id": "simple-channels",
+      "offset": 7674528,
+      "size": 8,
+      "rebuilt_symbol": "_simple_channels",
+      "inputs": [
+        "src/sound_resource_channels.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+      "identification": "A direct retail branch at VA 0x110591c9 identifies the entry. Full range 0x11051aa0..0x11051aa8 (exclusive), followed by alignment. Returns the channel count from the type-1 payload at offset 0x24.",
+      "match": {
+        "bytes_sha256": "ddcfb7bd6f480421eff2205f78860fcd2f0a42865b63b8dc6ea9cf37a9873ecc",
+        "inputs_sha256": "caf638a8ba44af496808fbb8e329961d91f58d7c61d5077580cc535ff5ad589d"
+      }
+    },
+    {
       "id": "sound-vector-squared-length",
       "offset": 7694080,
       "size": 43,
@@ -6197,6 +6727,106 @@
       "match": {
         "bytes_sha256": "a42f0e593f098c266b22b13c2d248804360267725d3a8cf9366277a8afd728ce",
         "inputs_sha256": "4028f2a1ed5aa6ff370b8350ae9c6c31004724bdc75425b909b72be140274851"
+      }
+    },
+    {
+      "id": "collection-channels",
+      "offset": 7700144,
+      "size": 38,
+      "rebuilt_symbol": "_collection_channels",
+      "inputs": [
+        "src/sound_resource_channels.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+      "identification": "A direct retail branch at VA 0x110591b2 identifies the entry. Full range 0x11057eb0..0x11057ed6 (exclusive), followed by alignment. Finds the largest unsigned channel count among the 24-byte records of a type-6 collection.",
+      "match": {
+        "bytes_sha256": "173b0da48fa648ce40bb193566dacd5c5207c16f3403f4a60e62a1f99c3f9c06",
+        "inputs_sha256": "d8d6d24b28476e5084d626cfdd17ad524e3c53ccc34376e90b68d546eb498c48"
+      }
+    },
+    {
+      "id": "locked-resource-channels",
+      "offset": 7704944,
+      "size": 108,
+      "rebuilt_symbol": "_locked_resource_channels",
+      "inputs": [
+        "src/sound_resource_channels.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_channels.obj src/sound_resource_channels.c",
+      "link_bindings": {
+        "_EnterCriticalSectionTool_@0": {
+          "va": 285504880,
+          "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+        },
+        "_MixerLockSite": {
+          "va": 286741128,
+          "basis": "Original file identifier supplied to the named MouchardThreadTool lock diagnostic."
+        },
+        "_MouchardThreadTool@8": {
+          "va": 285505120,
+          "basis": "Named retail campaign export _MouchardThreadTool@8."
+        },
+        "_QuitCriticalSectionTool@0": {
+          "va": 285505088,
+          "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+        },
+        "_collection_channels": {
+          "va": 285572784,
+          "basis": "Finds the largest unsigned channel count among the 24-byte records of a type-6 collection."
+        },
+        "_simple_channels": {
+          "va": 285547168,
+          "basis": "Returns the channel count from the type-1 payload at offset 0x24."
+        }
+      },
+      "identification": "A direct retail branch at VA 0x1104fe20 identifies the entry. Full range 0x11059170..0x110591dc (exclusive), followed by alignment. Reads channel metadata for the three supported types while holding the audio critical section.",
+      "match": {
+        "bytes_sha256": "7596d0211827745a85e45855ddda6d2c46eb6ad219546816aa17216056cba9b8",
+        "inputs_sha256": "836c7fba99b8f8ae9f3c36969622b079f8645c4eb77ef7e61754141a836f42ac"
+      }
+    },
+    {
+      "id": "release-sound-resource",
+      "offset": 7705136,
+      "size": 124,
+      "rebuilt_symbol": "_release_sound_resource",
+      "inputs": [
+        "src/sound_release_resource.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_release_resource.obj src/sound_release_resource.c",
+      "link_bindings": {
+        "_EnterCriticalSectionTool_@0": {
+          "va": 285504880,
+          "basis": "Named retail campaign export _EnterCriticalSectionTool_@0."
+        },
+        "_MixerLockSite": {
+          "va": 286741128,
+          "basis": "Original file identifier supplied to the named MouchardThreadTool lock diagnostic."
+        },
+        "_MouchardThreadTool@8": {
+          "va": 285505120,
+          "basis": "Named retail campaign export _MouchardThreadTool@8."
+        },
+        "_QuitCriticalSectionTool@0": {
+          "va": 285505088,
+          "basis": "Named retail campaign export _QuitCriticalSectionTool@0."
+        },
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+        },
+        "_release_sample": {
+          "va": 285573488,
+          "basis": "Direct call at 0x1105929c from the type-1 disposal branch with a true release flag."
+        }
+      },
+      "identification": "Full range 0x11059230..0x110592ac (exclusive), followed by alignment. Internal audio resource disposal routine between aligned entries: checks null, enters the audio lock, releases type-1 resources through 0x11058170, selectively frees type-6 storage, and resets the type for kinds 6 and 8. Both return and tail-jump exits are inside the measured range.",
+      "match": {
+        "bytes_sha256": "ed086ffbe4524bf868e3d1f71fda64742213f86d71cbdff41b1e8ebf9751883d",
+        "inputs_sha256": "a077bdfe90d2535b21148a29c1951b27dc4cdd26d379a9bcf6050fe813bcece3"
       }
     },
     {
@@ -6434,6 +7064,36 @@
       }
     },
     {
+      "id": "no-receiver-parameters",
+      "offset": 7718384,
+      "size": 82,
+      "rebuilt_symbol": "_no_receiver_parameters",
+      "inputs": [
+        "src/sound_no_receiver.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Oa /Gy /c /Folocal/sound_no_receiver.obj src/sound_no_receiver.c",
+      "link_bindings": {
+        "_NoReceiverReported": {
+          "va": 288549580,
+          "basis": "Read at the start of the no-receiver path and set before reporting its first warning."
+        },
+        "_NoReceiverMessage": {
+          "va": 286742068,
+          "basis": "Retail warning argument paired with code 8 in the no-receiver mixer routine."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named retail campaign export _SND_fn_vDisplayError@8."
+        }
+      },
+      "identification": "A direct retail branch at VA 0x1105cb28 identifies the entry. Full range 0x1105c5f0..0x1105c642 (exclusive), followed by alignment. The default mixer writes unity pitch and zero gain, reports the missing receiver once, and resets the mode-specific pan or angle.",
+      "match": {
+        "bytes_sha256": "236ed7b9997bb2dc6a8b734da2def25675f71e307c918692b1973b7bd2bff845",
+        "inputs_sha256": "73d31bd0b13129c66a698f1df5cd01b318d7c4d2fae12df2a5c16c81a04bbffc"
+      }
+    },
+    {
       "id": "sound-receiver-level",
       "offset": 7718912,
       "size": 223,
@@ -6581,6 +7241,62 @@
       "match": {
         "bytes_sha256": "6f0d2fcf30e0f6a4922f6c6c9b4346aabfa65390882772280704371b4e91ddb4",
         "inputs_sha256": "0a45bf6da6d74725e351462757d2cb518148cec1e032707aed19253d40715611"
+      }
+    },
+    {
+      "id": "sound-convert-mixer-parameters",
+      "offset": 7719632,
+      "size": 110,
+      "rebuilt_symbol": "_SND_fn_vSndParToPrivSndPar@12",
+      "inputs": [
+        "src/sound_mixer_parameters.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_mixer_parameters.obj src/sound_mixer_parameters.c",
+      "link_bindings": {
+        "_SoundReceiverCount": {
+          "va": 288549576,
+          "basis": "Count read by both campaign spatial mixer paths and updated by the verified receiver lifecycle."
+        },
+        "_no_receiver_parameters": {
+          "va": 285591024,
+          "basis": "The default mixer writes unity pitch and zero gain, reports the missing receiver once, and resets the mode-specific pan or angle."
+        },
+        "_spatial_parameters": {
+          "va": 285591120,
+          "basis": "Call target at retail VA 0x1105c650, selected from 0x1105cb33 by the named mixer conversion export."
+        }
+      },
+      "identification": "Full range 0x1105cad0..0x1105cb3e (exclusive), followed by alignment. The named conversion export copies non-spatial values or chooses the spatial conversion based on the receiver count.",
+      "match": {
+        "bytes_sha256": "8cb31d0e93cc0ab298dcee00b2dde13fed42e295fbab335373f82e1c6fb0938b",
+        "inputs_sha256": "a8882797aefc4ac6a72a60e153ceab8692cbb93f90b1e904cd7000cb8d3b4183"
+      }
+    },
+    {
+      "id": "sound-select-mixer-mode",
+      "offset": 7719744,
+      "size": 103,
+      "rebuilt_symbol": "_SND_fn_vBestConvertionForSndParToPrivSndPar@16",
+      "inputs": [
+        "src/sound_mixer_parameters.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_mixer_parameters.obj src/sound_mixer_parameters.c",
+      "link_bindings": {
+        "_resource_channels": {
+          "va": 285517568,
+          "basis": "Accepts only resource kinds 1, 6 and 9 before tail-calling the channel query; null and other kinds return zero."
+        },
+        "_SND_fn_vSndParToPrivSndPar@12": {
+          "va": 285592272,
+          "basis": "The named conversion export copies non-spatial values or chooses the spatial conversion based on the receiver count."
+        }
+      },
+      "identification": "Full range 0x1105cb40..0x1105cba7 (exclusive), followed by alignment. The named mode-selection export chooses a compatible conversion mode and centres unsupported multichannel output on the specified path.",
+      "match": {
+        "bytes_sha256": "39ece02a0432380959d77a7073a2345234416b403e8a25ee7912c1e144e5d5e8",
+        "inputs_sha256": "72c94abad41c555c76b5f7874150b4d878a941e69d801653541f4941377376ce"
       }
     },
     {
