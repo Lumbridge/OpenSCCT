@@ -1343,5 +1343,27 @@
       "bytes_sha256": "50d69d54b8aa663e515794293cb968e215715a6e7552f516cca75c987dc96a37",
       "inputs_sha256": "9c3ff67abaf0e47afe3959a024889711bdd0d376f5acdb2c4bb0ca24df6832f4"
     }
+  },
+  {
+    "id": "vector-fill-end-8-29f830",
+    "size": 39,
+    "offset": 2750512,
+    "inputs": [
+      "src/versus_vector_fill.c"
+    ],
+    "rebuilt_symbol": "@fill_end_8@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vector_fill.obj src/versus_vector_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x29f830. Calls the range construction helper for 8-byte elements and returns the end pointer.",
+    "link_bindings": {
+      "_fill_8": {
+        "va": 280622608,
+        "basis": "Indexed range construction helper called with first, count, value, allocator and type hint."
+      }
+    },
+    "match": {
+      "bytes_sha256": "51ba461de262301db7f9b8dbc779cc0564e4ec97f39cbd5a674b207083799384",
+      "inputs_sha256": "3160313ec649f85cebdbda10f4d756ce76d057a9759e8e2d89df9ebb97c7315a"
+    }
   }
 ]

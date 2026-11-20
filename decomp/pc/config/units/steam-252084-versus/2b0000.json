@@ -158,6 +158,28 @@
     }
   },
   {
+    "id": "vector-fill-end-32-2b81a0",
+    "size": 43,
+    "offset": 2851232,
+    "inputs": [
+      "src/versus_vector_fill.c"
+    ],
+    "rebuilt_symbol": "@fill_end_32@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vector_fill.obj src/versus_vector_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x2b81a0. Calls the range construction helper for 32-byte elements and returns the end pointer.",
+    "link_bindings": {
+      "_fill_32": {
+        "va": 280723424,
+        "basis": "Indexed range construction helper called with first, count, value, allocator and type hint."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2ce0bacd161211f08d8ea55e5ecdf785b5c7fdda8cc621b80e945b8834db42ed",
+      "inputs_sha256": "5c6f1a0582eef4378940bdd156064d1dbc5762eee1fac75cbc7c0cc8749df060"
+    }
+  },
+  {
     "id": "delete-record-2ba910",
     "offset": 2861328,
     "size": 27,

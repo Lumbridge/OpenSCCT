@@ -188,6 +188,38 @@
     }
   },
   {
+    "id": "vector-copy-references-2a1a60",
+    "size": 44,
+    "offset": 2759264,
+    "inputs": [
+      "src/versus_reference_fill.c"
+    ],
+    "rebuilt_symbol": "_copy_references",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_reference_fill.obj src/versus_reference_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x2a1a60. Copies a range of object pointers and increments each non-null reference count.",
+    "match": {
+      "bytes_sha256": "bb072db5d2d933bbe4a7d4731405835a0b953caa9776d04d28975bbd8e066fd7",
+      "inputs_sha256": "6210d288dc798790a2d00c2439f3eb1057fba1dd4da0ac578db63abf0108ced0"
+    }
+  },
+  {
+    "id": "vector-fill-references-2a1ad0",
+    "size": 42,
+    "offset": 2759376,
+    "inputs": [
+      "src/versus_reference_fill.c"
+    ],
+    "rebuilt_symbol": "_fill_references",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_reference_fill.obj src/versus_reference_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x2a1ad0. Fills a range with a shared object pointer and increments its reference count for each constructed slot.",
+    "match": {
+      "bytes_sha256": "5596a0c9e54b69cf6a6dd4bd64c1e35fa81e652af040e1ec6a466d11780f74d6",
+      "inputs_sha256": "e453d5211622c7f0fa1edfe969b8d82010d57e7685d41331c336b5c51eb7b31f"
+    }
+  },
+  {
     "id": "tree-rightmost-2a5130",
     "size": 29,
     "offset": 2773296,
@@ -239,6 +271,50 @@
     }
   },
   {
+    "id": "vector-fill-end-4-2a5310",
+    "size": 39,
+    "offset": 2773776,
+    "inputs": [
+      "src/versus_vector_fill.c"
+    ],
+    "rebuilt_symbol": "@fill_end_4@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vector_fill.obj src/versus_vector_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x2a5310. Calls the range construction helper for 4-byte elements and returns the end pointer.",
+    "link_bindings": {
+      "_fill_4": {
+        "va": 280672320,
+        "basis": "Indexed range construction helper called with first, count, value, allocator and type hint."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6b369df11ce9c9da0c6514a530c9b3e91a17f8257f2cb7f5aee0773e13787d96",
+      "inputs_sha256": "0e21dd5a85623659343d8fdfd94967e55a8345f6fdbe9345a9e3f09e51962ba3"
+    }
+  },
+  {
+    "id": "vector-fill-end-4-2a71c0",
+    "size": 39,
+    "offset": 2781632,
+    "inputs": [
+      "src/versus_vector_fill.c"
+    ],
+    "rebuilt_symbol": "@fill_end_4@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vector_fill.obj src/versus_vector_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x2a71c0. Calls the range construction helper for 4-byte elements and returns the end pointer.",
+    "link_bindings": {
+      "_fill_4": {
+        "va": 280632016,
+        "basis": "Indexed range construction helper called with first, count, value, allocator and type hint."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ddced988de5a63a916cc120c146070c3d8cd729efca02c156b6c7056b7e39af3",
+      "inputs_sha256": "79cabbb785bbf8a5764ba92d9b7c23cb6021df7cd04573e366a29a37c12bb334"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,
@@ -253,6 +329,28 @@
     "match": {
       "bytes_sha256": "84a2cae803d15cb5aeb9bc50413e86944f8c026781f6e534471bd4cd3336cd06",
       "inputs_sha256": "56a80c70dda32c958e02f65ad5eb3e568644dccd378c2f56b7674fcc74afbd85"
+    }
+  },
+  {
+    "id": "vector-fill-end-32-2aa450",
+    "size": 43,
+    "offset": 2794576,
+    "inputs": [
+      "src/versus_vector_fill.c"
+    ],
+    "rebuilt_symbol": "@fill_end_32@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vector_fill.obj src/versus_vector_fill.c",
+    "identification": "Indexed complete Versus function at RVA 0x2aa450. Calls the range construction helper for 32-byte elements and returns the end pointer.",
+    "link_bindings": {
+      "_fill_32": {
+        "va": 280666848,
+        "basis": "Indexed range construction helper called with first, count, value, allocator and type hint."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3bdb36014f7401251852415a396e774bae5c919bb82d172094840eacdd5c6d2d",
+      "inputs_sha256": "f8f3f6e1e059adb72084490dc142e9860b2557ccf9e26474711b055ed91a1e1f"
     }
   },
   {
