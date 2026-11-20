@@ -1286,6 +1286,22 @@
     }
   },
   {
+    "id": "use-buffer-507d40",
+    "size": 31,
+    "offset": 5274944,
+    "inputs": [
+      "src/campaign_array_storage_binding.c"
+    ],
+    "rebuilt_symbol": "@use_buffer@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_storage_binding.obj src/campaign_array_storage_binding.c",
+    "identification": "Complete Campaign method at RVA 0x507d40. Sets the data pointer and size, and marks the supplied capacity as externally owned.",
+    "match": {
+      "bytes_sha256": "b87abc9aa220dba7b3a9c8741ecd0fc59ecb279624b5e472d975b8f04d3f1abd",
+      "inputs_sha256": "89c463370212af43ab351c7eeb71269fae6b656035672dbe146b9243d0efb170"
+    }
+  },
+  {
     "id": "physics-array-reserve-507d90",
     "size": 39,
     "offset": 5275024,
@@ -1321,6 +1337,22 @@
     "match": {
       "bytes_sha256": "82830a7097035643fa51b56e948587147e0e537510d4c0e154c0e73ec5871934",
       "inputs_sha256": "daa75bf5243a20176290d3b801d5cd9ded876bd53dbc9a74c3824a6be5a28d48"
+    }
+  },
+  {
+    "id": "use-buffer-507e60",
+    "size": 31,
+    "offset": 5275232,
+    "inputs": [
+      "src/campaign_array_storage_binding.c"
+    ],
+    "rebuilt_symbol": "@use_buffer@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_storage_binding.obj src/campaign_array_storage_binding.c",
+    "identification": "Complete Campaign method at RVA 0x507e60. Sets the data pointer and size, and marks the supplied capacity as externally owned.",
+    "match": {
+      "bytes_sha256": "b87abc9aa220dba7b3a9c8741ecd0fc59ecb279624b5e472d975b8f04d3f1abd",
+      "inputs_sha256": "030eb6edbd77f2590a2f73fc541819ae50b802858a4b523dafaf06ca0acf6f86"
     }
   },
   {
@@ -1459,6 +1491,22 @@
     "match": {
       "bytes_sha256": "f946dc62af5227dd67af72996eb608776903d0c7491f56c069152a812a5a80ea",
       "inputs_sha256": "c2c721184d9ad01335ed7f22bb8b9949308e4a1cc218a6e6fbc5f402c5c4a819"
+    }
+  },
+  {
+    "id": "use-buffer-50a440",
+    "size": 31,
+    "offset": 5284928,
+    "inputs": [
+      "src/campaign_array_storage_binding.c"
+    ],
+    "rebuilt_symbol": "@use_buffer@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_storage_binding.obj src/campaign_array_storage_binding.c",
+    "identification": "Complete Campaign method at RVA 0x50a440. Sets the data pointer and size, and marks the supplied capacity as externally owned.",
+    "match": {
+      "bytes_sha256": "b87abc9aa220dba7b3a9c8741ecd0fc59ecb279624b5e472d975b8f04d3f1abd",
+      "inputs_sha256": "4715dd85a2a9b7fb9d04d83b5b3fc8b0c53a4518da510c449f428aaf30ec1715"
     }
   },
   {
@@ -1676,6 +1724,22 @@
     }
   },
   {
+    "id": "use-buffer-50d850",
+    "size": 31,
+    "offset": 5298256,
+    "inputs": [
+      "src/campaign_array_storage_binding.c"
+    ],
+    "rebuilt_symbol": "@use_buffer@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_storage_binding.obj src/campaign_array_storage_binding.c",
+    "identification": "Complete Campaign method at RVA 0x50d850. Sets the data pointer and size, and marks the supplied capacity as externally owned.",
+    "match": {
+      "bytes_sha256": "b87abc9aa220dba7b3a9c8741ecd0fc59ecb279624b5e472d975b8f04d3f1abd",
+      "inputs_sha256": "a20d04367ddae3fbb30aad9908f4b6e0fc60fa16c123355b844b593e641b664f"
+    }
+  },
+  {
     "id": "physics-buffer-release-50d880",
     "size": 30,
     "offset": 5298304,
@@ -1805,6 +1869,22 @@
     "match": {
       "bytes_sha256": "d0048e1a68d64fb61162ccef11ac2688db0ad9fe574bc40c82c46f4fff1c7104",
       "inputs_sha256": "03fd0987eb8bb5aad4976bd913b7f5e1b4ceaa2f3f4e6f2bcf6de4eaa35d2e59"
+    }
+  },
+  {
+    "id": "use-inline-4-50dbc0",
+    "size": 24,
+    "offset": 5299136,
+    "inputs": [
+      "src/campaign_array_storage_binding.c"
+    ],
+    "rebuilt_symbol": "@use_inline_4@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_storage_binding.obj src/campaign_array_storage_binding.c",
+    "identification": "Complete Campaign method at RVA 0x50dbc0. Sets the data pointer to inline storage, saves the size, and marks the 4-element capacity as externally owned.",
+    "match": {
+      "bytes_sha256": "2b40184ecee6943840ddcfa76913f5175a3b29eeff660254da99332cd6197b35",
+      "inputs_sha256": "8156515347d9d2762f1fd7ea822f433a8f05d5e6c2cb987525c000187274a6c5"
     }
   },
   {

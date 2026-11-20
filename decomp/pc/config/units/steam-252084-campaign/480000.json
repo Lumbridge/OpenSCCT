@@ -112,6 +112,38 @@
     }
   },
   {
+    "id": "initialize-node-480690",
+    "size": 27,
+    "offset": 4720272,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x480690. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "67b4225db153536b785a5678d08296e529ad1c000b978173aa1d5cccd37ade6d"
+    }
+  },
+  {
+    "id": "initialize-node-4806b0",
+    "size": 27,
+    "offset": 4720304,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x4806b0. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "5e3739aa4ad17e55b88a77ecedefd37008f03c92497d4c4cbd1410607fda8409"
+    }
+  },
+  {
     "id": "delete-members-480820",
     "size": 79,
     "offset": 4720672,
@@ -1033,6 +1065,22 @@
     "match": {
       "bytes_sha256": "a274cf3e9e4ac305b69eb99333424ede299fc4f6d2be89998fd6dfa01980421e",
       "inputs_sha256": "4d41f93b6106d51bd597995c2a92665ecbe3c55a34d92b0cc9af6c33f2f56831"
+    }
+  },
+  {
+    "id": "initialize-node-484170",
+    "size": 27,
+    "offset": 4735344,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x484170. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "6ad72af6494c45bbb684b66f3d6117fcca7fae5aa3aa22cb76a293b3f6e6d2e8"
     }
   },
   {
@@ -2690,6 +2738,38 @@
     "match": {
       "bytes_sha256": "d101e68c97c4a12196f932013f380e1e10af4738b21ba039c26045cee64b8869",
       "inputs_sha256": "ee3883bcaf451dc25f3849b602237521a74d6064aa01fecbab8f069087a265ce"
+    }
+  },
+  {
+    "id": "initialize-node-48bd20",
+    "size": 27,
+    "offset": 4767008,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x48bd20. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "be0474ddf0f6c3faa2ec8c9c00b3f5df1ff7270da835578457cabfbcc446dbe6"
+    }
+  },
+  {
+    "id": "initialize-node-48bd40",
+    "size": 27,
+    "offset": 4767040,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x48bd40. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "018d7e957c2c342a3ef98fc2f2c3b971b7716a8c48d663e3d9f9ac6bb8d8eaf0"
     }
   },
   {

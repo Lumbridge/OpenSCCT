@@ -284,6 +284,22 @@
     }
   },
   {
+    "id": "use-buffer-572610",
+    "size": 31,
+    "offset": 5711376,
+    "inputs": [
+      "src/campaign_array_storage_binding.c"
+    ],
+    "rebuilt_symbol": "@use_buffer@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_storage_binding.obj src/campaign_array_storage_binding.c",
+    "identification": "Complete Campaign method at RVA 0x572610. Sets the data pointer and size, and marks the supplied capacity as externally owned.",
+    "match": {
+      "bytes_sha256": "b87abc9aa220dba7b3a9c8741ecd0fc59ecb279624b5e472d975b8f04d3f1abd",
+      "inputs_sha256": "6ccd16261d342b58923aa4ed5d14ac1d03e94e3fa159445a79f1601c52fe84f6"
+    }
+  },
+  {
     "id": "physics-buffer-release-572640",
     "size": 30,
     "offset": 5711424,

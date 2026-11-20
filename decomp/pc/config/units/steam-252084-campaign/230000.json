@@ -1760,6 +1760,22 @@
     }
   },
   {
+    "id": "initialize-node-23c730",
+    "size": 27,
+    "offset": 2344752,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x23c730. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "92295508096470b1aa4ee6287005fad91a97ddb150ca7c40226c95931ebe9a85"
+    }
+  },
+  {
     "id": "register-pair-23c7c0",
     "size": 49,
     "offset": 2344896,

@@ -679,6 +679,38 @@
     }
   },
   {
+    "id": "initialize-node-494370",
+    "size": 27,
+    "offset": 4801392,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x494370. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "35f82709a8aab76ac1c1a02ab6227c000dbb54ac48980e2c4922567987b2bab4"
+    }
+  },
+  {
+    "id": "initialize-node-494390",
+    "size": 27,
+    "offset": 4801424,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x494390. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "9e6c27500311d7e812ab3dae128ca8d865b80a44f21959566c1939c425b42eee"
+    }
+  },
+  {
     "id": "assign-range-4943d0",
     "offset": 4801488,
     "size": 30,
@@ -3170,6 +3202,22 @@
     "match": {
       "bytes_sha256": "9c169249e8579df742acdfe856ec92ae8409e5defe2166a35dd760c992c7a74f",
       "inputs_sha256": "55a96e99c75cb536747ab9425dfadc209ba6a9a493dfa8be45450377eaed2f1b"
+    }
+  },
+  {
+    "id": "initialize-node-49a7b0",
+    "size": 27,
+    "offset": 4827056,
+    "inputs": [
+      "src/campaign_word_node_construction.c"
+    ],
+    "rebuilt_symbol": "@initialize_node@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_word_node_construction.obj src/campaign_word_node_construction.c",
+    "identification": "Complete Campaign method at RVA 0x49a7b0. Initializes both node links and copies its four-byte value.",
+    "match": {
+      "bytes_sha256": "a7826e53e8cc65c58ed7115a7a03613957d29276fc327b0317463c02b9d787c0",
+      "inputs_sha256": "7c2ba891e539af03f6296cc5824309cc5673f4f5fae01972c5197d3f78dd3996"
     }
   },
   {
