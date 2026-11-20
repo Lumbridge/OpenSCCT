@@ -1919,6 +1919,32 @@
     }
   },
   {
+    "id": "typed-allocator-release-05e590",
+    "size": 24,
+    "offset": 386448,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_release_05e590@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_release": {
+        "va": 282637648,
+        "basis": "Indexed allocation service operation."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "a0bc2e57158735e9f00f990d80ed70cacb9c6f8a71a69a87d52480065f23002d",
+      "inputs_sha256": "0b60b98b4dc9577523c201a9d7c2761f94ebd48732b6b55c7d0bf6d50e590a0b"
+    }
+  },
+  {
     "id": "delete-members-05e6d0",
     "size": 36,
     "offset": 386768,
@@ -2002,6 +2028,118 @@
     }
   },
   {
+    "id": "typed-allocator-allocate-05e760",
+    "size": 37,
+    "offset": 386912,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_allocate_05e760@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_allocate": {
+        "va": 282637536,
+        "basis": "Indexed allocation service operation."
+      },
+      "_label_7be288": {
+        "va": 285991560,
+        "basis": "Read-only UTF-16 allocation label."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 24-byte elements through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "9caf3980e52eea6cfdf6997705328d899e3e46f523cd8f8545657d71a17527f5",
+      "inputs_sha256": "cb1014eab9aa0cd2e672d499a6ec1f3086e2d53e3a7f7057548a5b488b71a08c"
+    }
+  },
+  {
+    "id": "typed-allocator-release-05e790",
+    "size": 24,
+    "offset": 386960,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_release_05e790@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_release": {
+        "va": 282637648,
+        "basis": "Indexed allocation service operation."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "76fcb47c2389640d6dad507a86916991917d9149c29329e131ccf00e9896df71",
+      "inputs_sha256": "a872f1a1903ff2c30eb4d3a967a8fa8963fae700dcca0ae8bc515031f69647d0"
+    }
+  },
+  {
+    "id": "typed-allocator-allocate-05e7b0",
+    "size": 37,
+    "offset": 386992,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_allocate_05e7b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_allocate": {
+        "va": 282637536,
+        "basis": "Indexed allocation service operation."
+      },
+      "_label_7be288": {
+        "va": 285991560,
+        "basis": "Read-only UTF-16 allocation label."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 12-byte elements through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "e0d4e7f02aec24063b68f52b3328b9da2fc4e1955b6b7a3210392cf737238edc",
+      "inputs_sha256": "5eb9fb3867fd1c14bf40febaa36c1e2d7e8a05cb4c21f81586e11520ec11cb86"
+    }
+  },
+  {
+    "id": "typed-allocator-release-05e7e0",
+    "size": 24,
+    "offset": 387040,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_release_05e7e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_release": {
+        "va": 282637648,
+        "basis": "Indexed allocation service operation."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "9c713fabc2b259156194939280cfd64a01b69742967cfa7142fa9d3650faafab",
+      "inputs_sha256": "b7b985dec7ab22e3dbd29157e96b632c4ad4b9a6d5322a12ffca69e16df8c6cb"
+    }
+  },
+  {
     "id": "array-resize-05e810",
     "size": 37,
     "offset": 387088,
@@ -2055,6 +2193,36 @@
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
       "inputs_sha256": "404a5fc818c64d649236d2950002e6791c2807706a6945dad08e216868f93249"
+    }
+  },
+  {
+    "id": "typed-allocator-allocate-05e870",
+    "size": 34,
+    "offset": 387184,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_allocate_05e870@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_allocate": {
+        "va": 282637536,
+        "basis": "Indexed allocation service operation."
+      },
+      "_label_7be288": {
+        "va": 285991560,
+        "basis": "Read-only UTF-16 allocation label."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 64-byte elements through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "d1b46bbeb50738e948306c2984a8e196fe170a18daf9bc0b8cab47f0f6ee5497",
+      "inputs_sha256": "43a80dcd8efcbb99cc7eae179fb4037f07d31a2d046a10ff3aceddeafed67d75"
     }
   },
   {

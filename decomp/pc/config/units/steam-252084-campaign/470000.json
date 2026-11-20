@@ -843,6 +843,32 @@
     }
   },
   {
+    "id": "typed-allocator-release-47dd30",
+    "size": 24,
+    "offset": 4709680,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_release_47dd30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_release": {
+        "va": 282637648,
+        "basis": "Indexed allocation service operation."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "eb5531f1e8cd217bc0d3564e058dd09cc00fb200b5d758abbb56ce8b72e7e7d1",
+      "inputs_sha256": "33caad0534daf8fd172577c6fff0e3ee1e229124b8356c19862fa43834f289a6"
+    }
+  },
+  {
     "id": "delete-members-47e580",
     "size": 33,
     "offset": 4711808,

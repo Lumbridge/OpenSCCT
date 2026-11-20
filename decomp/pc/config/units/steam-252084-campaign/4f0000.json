@@ -1062,6 +1062,62 @@
     }
   },
   {
+    "id": "typed-allocator-allocate-4f7510",
+    "size": 37,
+    "offset": 5207312,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_allocate_4f7510@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_allocate": {
+        "va": 282637536,
+        "basis": "Indexed allocation service operation."
+      },
+      "_label_7be288": {
+        "va": 285991560,
+        "basis": "Read-only UTF-16 allocation label."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 24-byte elements through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "b874d85ad8c70799be7d913b9feffd7567ce0959934469cabdc4c3d1c81afc5c",
+      "inputs_sha256": "d47f5363cc965bb20a7b1beb35627da62cc7b9f89e7b80ed47f38e4c385f830d"
+    }
+  },
+  {
+    "id": "typed-allocator-release-4f7540",
+    "size": 24,
+    "offset": 5207360,
+    "inputs": [
+      "src/campaign_typed_allocator_adapters.c"
+    ],
+    "rebuilt_symbol": "_release_4f7540@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_allocator_adapters.obj src/campaign_typed_allocator_adapters.c",
+    "link_bindings": {
+      "_context": {
+        "va": 282637408,
+        "basis": "Indexed allocation context accessor."
+      },
+      "_release": {
+        "va": 282637648,
+        "basis": "Indexed allocation service operation."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
+    "match": {
+      "bytes_sha256": "07c541b79effba0e2dfdd45925d28eadb2c67fe11ef20c5ea2be1f0006c7abee",
+      "inputs_sha256": "fcb089febe32425ad79d0f5cde3fa13aa12eb58d4896ed14c916bbc72b2bfe6f"
+    }
+  },
+  {
     "id": "registry-member-cleanup-4f76e0",
     "size": 59,
     "offset": 5207776,
