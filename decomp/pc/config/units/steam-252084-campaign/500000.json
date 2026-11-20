@@ -1,5 +1,57 @@
 [
   {
+    "id": "delete-pool-502060",
+    "size": 40,
+    "offset": 5251168,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_502060@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_502090@4": {
+        "va": 283123856,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x849b18 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 21.",
+    "match": {
+      "bytes_sha256": "9a76b0ab7e89f915e274cf4e360c48ea357175aade84a224de846867a8fc2770",
+      "inputs_sha256": "e0cfbedb18aec21d0d1a27b42646f4dfae1eb7ddd3c8ffe17b9d8ce36386d6f9"
+    }
+  },
+  {
+    "id": "delete-pool-502bb0",
+    "size": 40,
+    "offset": 5254064,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_502bb0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_5027f0@4": {
+        "va": 283125744,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x849b7c resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 16.",
+    "match": {
+      "bytes_sha256": "c330e0fa6d03529f204a6509f55233a64754f676ceb125771012b0533950c24f",
+      "inputs_sha256": "7cd85d65b1afabd9d7ca3d5a4b951bc2af39841528d1c40338aef28ad609e87b"
+    }
+  },
+  {
     "id": "append-word-503a10",
     "offset": 5257744,
     "size": 50,
@@ -22,6 +74,84 @@
     }
   },
   {
+    "id": "delete-pool-5047e0",
+    "size": 40,
+    "offset": 5261280,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_5047e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_5064e0@4": {
+        "va": 283141344,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a128 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 6.",
+    "match": {
+      "bytes_sha256": "6dc0fd87906b7fb4568875ff0b6bdc7f1e5f8f223d2297a6cbc95a1249136b1a",
+      "inputs_sha256": "b1d988484bd9a5c9ca1b8e34dc76a0c1cb59b16a6dda2574a4e43b7e9cb2e134"
+    }
+  },
+  {
+    "id": "delete-pool-505310",
+    "size": 40,
+    "offset": 5264144,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_505310@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_5052b0@4": {
+        "va": 283136688,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a12c resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 6.",
+    "match": {
+      "bytes_sha256": "0162261eb57caf243d6dd855ab234adff2b55037f6e7d7b53e0ea676536be391",
+      "inputs_sha256": "466aa15989fd8e679e7d04d6285aa19af8b1a6500acb54fd959742ff9f77834d"
+    }
+  },
+  {
+    "id": "delete-pool-5056e0",
+    "size": 40,
+    "offset": 5265120,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_5056e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_5055b0@4": {
+        "va": 283137456,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a150 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 6.",
+    "match": {
+      "bytes_sha256": "2ab2c1e0c17dced246520ac883c5758958e0da51553926b4474a1145a0f87c7a",
+      "inputs_sha256": "6e61c5054d5c9234d1d6a0af51750d057e0439bdab5cc963a956830e7da48213"
+    }
+  },
+  {
     "id": "append-word-505850",
     "offset": 5265488,
     "size": 50,
@@ -41,6 +171,318 @@
     "match": {
       "bytes_sha256": "8fd191d3e4577da18658a27d1ad375095ef85b6173ed51133316890953393a3b",
       "inputs_sha256": "1b0763ff7475cb4d98281a154b038522899c4dd6f0d0e291769ae4f15fb7823d"
+    }
+  },
+  {
+    "id": "delete-pool-506020",
+    "size": 40,
+    "offset": 5267488,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_506020@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_505fa0@4": {
+        "va": 283140000,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a184 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 6.",
+    "match": {
+      "bytes_sha256": "8495f4e3cc5abab379b2b917d4751b72e92e782d2894c25b4c1dc8234a1471bb",
+      "inputs_sha256": "ff0f065047cec614447b0569ee693b89ba9c5aa668a8fc33ae2046141a3ecd95"
+    }
+  },
+  {
+    "id": "delete-pool-506260",
+    "size": 40,
+    "offset": 5268064,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_506260@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_5061d0@4": {
+        "va": 283140560,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a19c resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 5.",
+    "match": {
+      "bytes_sha256": "85c07992f094a4f0c725a63cdf5cffe547772a37632d046810567bcd84f90377",
+      "inputs_sha256": "c215e35e6449e3dc3a8608c9ae1e524b91ad19c7bc1e0ccaf40c55d6320d4baa"
+    }
+  },
+  {
+    "id": "delete-pool-506690",
+    "size": 40,
+    "offset": 5269136,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_506690@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_506610@4": {
+        "va": 283141648,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a1cc resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 6.",
+    "match": {
+      "bytes_sha256": "8495f4e3cc5abab379b2b917d4751b72e92e782d2894c25b4c1dc8234a1471bb",
+      "inputs_sha256": "3a2cba6a826b11f21757cb8acda80ac4135ef1d5979c8d21038454787f78f64b"
+    }
+  },
+  {
+    "id": "delete-pool-506cb0",
+    "size": 40,
+    "offset": 5270704,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_506cb0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_08a660@4": {
+        "va": 278439520,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a1f0 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "17e1aca0dce2ce127a84655d88db7d454325f2e52edb4d4c483266d7b9d64ddb",
+      "inputs_sha256": "116bf9af1b92f194df3192e40e1a31fbe99e813684adf22b0bb3805e739dc57d"
+    }
+  },
+  {
+    "id": "delete-pool-507900",
+    "size": 40,
+    "offset": 5273856,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_507900@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_507710@4": {
+        "va": 283146000,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a2a0 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "8bb933c831cc820df0128c4f2073c6ea065ff1b2f444fa442cb7a68b9ebcc91c",
+      "inputs_sha256": "f0cadf1ae04fde8918adefdacce692dfa2473c2245f6b5d291faff109fa6aa1c"
+    }
+  },
+  {
+    "id": "delete-pool-5086d0",
+    "size": 40,
+    "offset": 5277392,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_5086d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_1d2eb0@4": {
+        "va": 279785136,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a3b0 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "9000c5af78e69122c2fa2aff02e6a30f76bf86f2be1bec4aec694a837c7f8b4d",
+      "inputs_sha256": "4dd12997f7a9d0d7612cff36248dc33f712593bb917b090578e3999fbd2b7933"
+    }
+  },
+  {
+    "id": "delete-pool-5091b0",
+    "size": 40,
+    "offset": 5280176,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_5091b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_5091e0@4": {
+        "va": 283152864,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a3f0 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "7f4d176e7f3c3d73c73a85eee1d1dc24c38cf048f796830e986ffee47d18f115",
+      "inputs_sha256": "fe10bda7b489b0e798c8a9478b9b0b1b7c6d23db1d54c3a4f52d0e5a1cc72f92"
+    }
+  },
+  {
+    "id": "delete-pool-509eb0",
+    "size": 40,
+    "offset": 5283504,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_509eb0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_1d2eb0@4": {
+        "va": 279785136,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a530 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "190b9f09f7c75f6c7a36c6943004079dee613cc40307824516d3f03b6c5a5964",
+      "inputs_sha256": "f745b26c4844a14920c0e87085ee4ca9dc05581716700d71ce012090e7139d79"
+    }
+  },
+  {
+    "id": "delete-pool-50b920",
+    "size": 40,
+    "offset": 5290272,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_50b920@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_50b950@4": {
+        "va": 283162960,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a578 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "7f4d176e7f3c3d73c73a85eee1d1dc24c38cf048f796830e986ffee47d18f115",
+      "inputs_sha256": "858ad32b81c7f3cf7a631ed9c2639791e9088d7ae70c4b9169d953d70b83e25a"
+    }
+  },
+  {
+    "id": "delete-pool-50c3f0",
+    "size": 40,
+    "offset": 5293040,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_50c3f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_1d2eb0@4": {
+        "va": 279785136,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a5c0 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "0cb44d49ffa60a412a0109eec01983f34fc649876209e1594893735cbb57863c",
+      "inputs_sha256": "784d4add40d692ccd942ed58df4bb3777b0a228936f0a1697c4a8f6beee54d09"
+    }
+  },
+  {
+    "id": "delete-pool-50cd00",
+    "size": 40,
+    "offset": 5295360,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_50cd00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_1d2eb0@4": {
+        "va": 279785136,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a600 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "9a4df474dd4627765a18e73f993ebdaadca691d06d8d097fe8fe4f11227173e0",
+      "inputs_sha256": "0fafc458fd6832e25d2682000ef3bc2dac16bd77f233907b22755e5ddd26cec3"
+    }
+  },
+  {
+    "id": "delete-pool-50dec0",
+    "size": 40,
+    "offset": 5299904,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_50dec0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_50de40@4": {
+        "va": 283172416,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x84a760 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 34.",
+    "match": {
+      "bytes_sha256": "869232c44a53a7aa0b742e310846e572910824d7e19d395fdef25fe56ef300c3",
+      "inputs_sha256": "a3cb9bf3a91fdcaf7f5eeb79bc38c5c36d54f7741229910265c59f57b8e6999a"
     }
   },
   {

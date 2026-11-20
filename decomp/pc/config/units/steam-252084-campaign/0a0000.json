@@ -475,6 +475,32 @@
     }
   },
   {
+    "id": "delete-pool-0a22e0",
+    "size": 40,
+    "offset": 664288,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_0a22e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_0a2270@4": {
+        "va": 278536816,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7ca808 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 39.",
+    "match": {
+      "bytes_sha256": "c0b2082b1a8c4fe832b3e6c22bf9bfe8b2f73cc629a4783c0b9e3df6adb7c1e8",
+      "inputs_sha256": "1d30a33a1aec4f721e9cd5996b0a318b7860c7cb294294a33a58d7a648a88ee2"
+    }
+  },
+  {
     "id": "delete-aehkhingeconstraint",
     "offset": 665824,
     "size": 46,
@@ -1007,6 +1033,32 @@
     "match": {
       "bytes_sha256": "ad0351581a2224e02e2d4ad5bdfcdeb2f0fb565c369359b4a6f2f4c30eb3939b",
       "inputs_sha256": "96ade1c121c2071355dc04b130c58d95b683ab0e09d11774452de71d0c28e40d"
+    }
+  },
+  {
+    "id": "delete-pool-0a3d30",
+    "size": 40,
+    "offset": 671024,
+    "inputs": [
+      "src/campaign_pool_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_pool_0a3d30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_deletion.obj src/campaign_pool_deletion.c",
+    "link_bindings": {
+      "_pool": {
+        "va": 288469976,
+        "basis": "Shared pool with its release operation in virtual slot five."
+      },
+      "@destroy_55e210@4": {
+        "va": 283501072,
+        "basis": "Unconditional member cleanup of this receiver."
+      }
+    },
+    "identification": "The read-only pointer at RVA 0x7cb0f8 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 36.",
+    "match": {
+      "bytes_sha256": "4df7f48cd19ea9b5ee9f1f489961946829184d29f1688feacecd9c2ba79a4527",
+      "inputs_sha256": "202c4154999e1af1669bba9a3b2dbb9ae718ec13e060f0651f66c29f806c7b11"
     }
   },
   {
