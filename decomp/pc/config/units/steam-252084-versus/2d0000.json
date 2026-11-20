@@ -16158,6 +16158,108 @@
     }
   },
   {
+    "id": "framed-static-object-2d9ed0",
+    "size": 30,
+    "offset": 2989776,
+    "inputs": [
+      "src/versus_framed_static_objects.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d9ed0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Od /Gy /c /Folocal/versus_framed_static_objects.obj src/versus_framed_static_objects.c",
+    "link_bindings": {
+      "_object_3be700": {
+        "va": 281798400,
+        "basis": "Writable global used by paired startup and termination routines."
+      },
+      "@construct_00cfa0@8": {
+        "va": 277925792,
+        "basis": "Indexed constructor with a zero stack argument."
+      },
+      "_atexit": {
+        "va": 280508022,
+        "basis": "Retail CRT exit registration."
+      },
+      "_finalize_2dd270": {
+        "va": 280875632,
+        "basis": "Termination routine referencing the same object."
+      }
+    },
+    "identification": "Startup pointer at RVA 0x3344c4 selects initializer RVA 0x2d9ed0, which registers its matching global object finalizer.",
+    "match": {
+      "bytes_sha256": "2e3faf409f878b6f34187b73b1dfc50112337868d01c288bc7b3336e858a535d",
+      "inputs_sha256": "e96f886c0b00677a1d83fd0fdd8333306f60922870a4417345638f1ba94ae719"
+    }
+  },
+  {
+    "id": "framed-static-object-2d9ef0",
+    "size": 30,
+    "offset": 2989808,
+    "inputs": [
+      "src/versus_framed_static_objects.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d9ef0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Od /Gy /c /Folocal/versus_framed_static_objects.obj src/versus_framed_static_objects.c",
+    "link_bindings": {
+      "_object_3be818": {
+        "va": 281798680,
+        "basis": "Writable global used by paired startup and termination routines."
+      },
+      "@construct_00cfa0@8": {
+        "va": 277925792,
+        "basis": "Indexed constructor with a zero stack argument."
+      },
+      "_atexit": {
+        "va": 280508022,
+        "basis": "Retail CRT exit registration."
+      },
+      "_finalize_2dd280": {
+        "va": 280875648,
+        "basis": "Termination routine referencing the same object."
+      }
+    },
+    "identification": "Startup pointer at RVA 0x3344c8 selects initializer RVA 0x2d9ef0, which registers its matching global object finalizer.",
+    "match": {
+      "bytes_sha256": "d8c56c4d0749e0afe5cd1660de954b93e69506f030c1b95df77c044369b0fc72",
+      "inputs_sha256": "d1f29bb77fe901e1350668f8bab44871a20a080295d3bc9e1daac36022d1b976"
+    }
+  },
+  {
+    "id": "framed-static-object-2d9f10",
+    "size": 30,
+    "offset": 2989840,
+    "inputs": [
+      "src/versus_framed_static_objects.c"
+    ],
+    "rebuilt_symbol": "_initialize_2d9f10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Od /Gy /c /Folocal/versus_framed_static_objects.obj src/versus_framed_static_objects.c",
+    "link_bindings": {
+      "_object_3be930": {
+        "va": 281798960,
+        "basis": "Writable global used by paired startup and termination routines."
+      },
+      "@construct_00cfa0@8": {
+        "va": 277925792,
+        "basis": "Indexed constructor with a zero stack argument."
+      },
+      "_atexit": {
+        "va": 280508022,
+        "basis": "Retail CRT exit registration."
+      },
+      "_finalize_2dd290": {
+        "va": 280875664,
+        "basis": "Termination routine referencing the same object."
+      }
+    },
+    "identification": "Startup pointer at RVA 0x3344cc selects initializer RVA 0x2d9f10, which registers its matching global object finalizer.",
+    "match": {
+      "bytes_sha256": "865d96861021898f4afb1e68cd8e8fdc973b2366fb4ce04e46f3a4be8100dfae",
+      "inputs_sha256": "4f49d3880040de515942103110f968aa6a4bc9256ee5dc7a620b7d5df6b82cde"
+    }
+  },
+  {
     "id": "registered-object-init-2d9f30",
     "size": 24,
     "offset": 2989872,
