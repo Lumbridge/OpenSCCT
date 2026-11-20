@@ -1,5 +1,81 @@
 [
   {
+    "id": "register-pair-245f80",
+    "size": 49,
+    "offset": 2383744,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_245f80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e25ec": {
+        "va": 286139884,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92dad8": {
+        "va": 287496920,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92dadc": {
+        "va": 287496924,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_MenuOnline and Lst_menu using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "cd7372dcbdf631efe69eb05154726975da197968c379a03f51900bdcb456aaf4",
+      "inputs_sha256": "d37e6198a8a5a37197aaecccd0721e8573e668e84255e1844e87084323f5a538"
+    }
+  },
+  {
+    "id": "register-pair-246420",
+    "size": 49,
+    "offset": 2384928,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_246420",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e2684": {
+        "va": 286140036,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92db08": {
+        "va": 287496968,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e11a0": {
+        "va": 286134688,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92db0c": {
+        "va": 287496972,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_ManageGame and B_Accept using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "de99381a4b31f293fffe77e13a6efdfeb731fb292dce970c41c5ce91cf398813",
+      "inputs_sha256": "43aab60c3f2c3c2066456b1a87c50531dc663920e0fdba9d02111da3ec4a4d65"
+    }
+  },
+  {
     "id": "array-release-246820",
     "size": 43,
     "offset": 2385952,

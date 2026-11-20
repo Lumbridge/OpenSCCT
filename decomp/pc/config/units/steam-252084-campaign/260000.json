@@ -54,6 +54,44 @@
     }
   },
   {
+    "id": "register-pair-264720",
+    "size": 49,
+    "offset": 2508576,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_264720",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e454c": {
+        "va": 286147916,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92e428": {
+        "va": 287499304,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e4544": {
+        "va": 286147908,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92e42c": {
+        "va": 287499308,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for B_Save and B_Reset using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "7368791bdfab2d9e573dbbd038cdce349edf0c100165549b9935114bc7dda017",
+      "inputs_sha256": "449abdb9cd131adc093d180763c8fd164bc14ab5914d4db12de6623dd3d97742"
+    }
+  },
+  {
     "id": "delete-record-2650b0",
     "offset": 2511024,
     "size": 33,
@@ -78,6 +116,82 @@
     "match": {
       "bytes_sha256": "1301231d006f8455cfd4a1cab5b6bd8ba3fc58ff27548c31e82c0b6f079ac259",
       "inputs_sha256": "69506c9147da087f530d9e307db0700af12b3f0b80ead5228d7d18d4953811a1"
+    }
+  },
+  {
+    "id": "register-pair-2658e0",
+    "size": 49,
+    "offset": 2513120,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_2658e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7dfeac": {
+        "va": 286129836,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92e4ac": {
+        "va": 287499436,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e33e0": {
+        "va": 286143456,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92e4b0": {
+        "va": 287499440,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for B_Back and B_Exit using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "847efd6fe7e52c605597ef3fb07a0774be8df80ff35cd7e137fab55f9d2c1181",
+      "inputs_sha256": "4f22d391b5a4a2667823f8dde2806aa3b1dcd89a3d6dc2bfcdfbe5ed0785525a"
+    }
+  },
+  {
+    "id": "register-pair-265c60",
+    "size": 49,
+    "offset": 2514016,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_265c60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e6058": {
+        "va": 286154840,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92e4dc": {
+        "va": 287499484,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e604c": {
+        "va": 286154828,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92e4e0": {
+        "va": 287499488,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for A_OverArea and L_OverText using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "41218382abac1fc67efa1cd7151b9c3b0bc622de673e158608730a72db167fa6",
+      "inputs_sha256": "a2b8a7e0e245979e4a25e9d2e8b1a2354a0096c74c743b3bff9330372f57c9dd"
     }
   },
   {

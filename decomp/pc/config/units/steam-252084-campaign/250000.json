@@ -1,5 +1,43 @@
 [
   {
+    "id": "register-pair-250e80",
+    "size": 49,
+    "offset": 2428544,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_250e80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e3014": {
+        "va": 286142484,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92dd98": {
+        "va": 287497624,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e2f30": {
+        "va": 286142256,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92dd9c": {
+        "va": 287497628,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_MenuRoomCreateLan and B_LoadGame using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "ebd7656781b23e57f11ea7cca35d198385acb913c787f638839e2a45c29dbdcd",
+      "inputs_sha256": "63084a64bb3310ae026075dfc07faa557c40659a183301123273cbcf2bbc230e"
+    }
+  },
+  {
     "id": "delete-record-251080",
     "offset": 2429056,
     "size": 33,
@@ -24,6 +62,44 @@
     "match": {
       "bytes_sha256": "4936dd44906d4864e9067dd268e37fd484e36eb54431e5584544480fec62a824",
       "inputs_sha256": "f0f11228e7ec54e98b36412c833d2f83f48f1e166253260857ad5fe25723f9b2"
+    }
+  },
+  {
+    "id": "register-pair-252370",
+    "size": 49,
+    "offset": 2433904,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_252370",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e32c4": {
+        "va": 286143172,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92de38": {
+        "va": 287497784,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92de3c": {
+        "va": 287497788,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_MenuCoop and Lst_menu using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "809a6bfe22496bbba9c22f5b57ea0402c332f7886e7ffe1c0057035551424ab2",
+      "inputs_sha256": "6c21a0acd901ad507aa827269601274b46d5f6c0fad52937db534c7e9c7c6fe6"
     }
   },
   {
@@ -70,6 +146,82 @@
     }
   },
   {
+    "id": "register-pair-253590",
+    "size": 49,
+    "offset": 2438544,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_253590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e35bc": {
+        "va": 286143932,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df04": {
+        "va": 287497988,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7dfa60": {
+        "va": 286128736,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df08": {
+        "va": 287497992,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_MusicsBio and L_Infos using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "4be447e5defa17e31de0a9eae63c72cdadd1863953e4465eaa5ba09a9239dfeb",
+      "inputs_sha256": "d789dc05909c075267ebde611a5730bcdb56e4e7fb99064b3e51641855aecbf1"
+    }
+  },
+  {
+    "id": "register-pair-253bd0",
+    "size": 49,
+    "offset": 2440144,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_253bd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e3708": {
+        "va": 286144264,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df34": {
+        "va": 287498036,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7dfbc4": {
+        "va": 286129092,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df38": {
+        "va": 287498040,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_Extras and Lst_Menu using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "c6747497490dbd2b27b07031f2910a27d10a32e9e14a7cf60f02defc6995cee9",
+      "inputs_sha256": "7c4f6042d82756e371ef03be0c927fb62cd4e098f97e3e4f7caa698c22cbdb52"
+    }
+  },
+  {
     "id": "delete-record-253da0",
     "offset": 2440608,
     "size": 33,
@@ -97,6 +249,44 @@
     }
   },
   {
+    "id": "register-pair-253ec0",
+    "size": 49,
+    "offset": 2440896,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_253ec0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e37ec": {
+        "va": 286144492,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df64": {
+        "va": 287498084,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7daf00": {
+        "va": 286109440,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df68": {
+        "va": 287498088,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_TrainingVideo and L_Title using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "26ad1116cb9031f71c2b0ecefe92000355dfabe32300abdba12c3b1700c4a1a1",
+      "inputs_sha256": "1197eb56943f0df026f54567c007c01b806ba5312cf87d8a0dad3c4f8903a853"
+    }
+  },
+  {
     "id": "delete-record-2541e0",
     "offset": 2441696,
     "size": 33,
@@ -121,6 +311,44 @@
     "match": {
       "bytes_sha256": "52a868b3ec7103f55906865fc6a861e7220b73ce09019fa490399a0db08e2cbd",
       "inputs_sha256": "f52d3f9995b43dd1f06133719b76a54a8ff2e864d056abcaf4d881ed7004609b"
+    }
+  },
+  {
+    "id": "register-pair-2543a0",
+    "size": 49,
+    "offset": 2442144,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_2543a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e38f8": {
+        "va": 286144760,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df94": {
+        "va": 287498132,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e38ec": {
+        "va": 286144748,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92df98": {
+        "va": 287498136,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_TrainingVideoMain and Lst_Video using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "26ff1e9862bab08476479b70a15c76f6a5c64b0e34a979554800d78cfc2a4a59",
+      "inputs_sha256": "d4b8acc326db505d0e861d48d233875ab237cb99a06c50c271fe936316b596a3"
     }
   },
   {

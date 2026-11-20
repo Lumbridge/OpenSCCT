@@ -1083,6 +1083,44 @@
     }
   },
   {
+    "id": "register-pair-227f50",
+    "size": 49,
+    "offset": 2260816,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_227f50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7df894": {
+        "va": 286128276,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d54c": {
+        "va": 287495500,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d550": {
+        "va": 287495504,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_GameOverOnline and Lst_menu using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "571110887e19a375a6e757504b3d83cfb8d394a8d6a410940269d293d9a6bb67",
+      "inputs_sha256": "6ec119f16df31489f409b5e6e4a06fa34b490a1223c079de52ca9ad5fb7faae4"
+    }
+  },
+  {
     "id": "delete-members-22a140",
     "size": 30,
     "offset": 2269504,

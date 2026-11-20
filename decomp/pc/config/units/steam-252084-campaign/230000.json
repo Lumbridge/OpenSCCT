@@ -385,6 +385,44 @@
     }
   },
   {
+    "id": "register-pair-237010",
+    "size": 49,
+    "offset": 2322448,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_237010",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7df038": {
+        "va": 286126136,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d700": {
+        "va": 287495936,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d704": {
+        "va": 287495940,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_Pause and Lst_menu using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "08fe3744632562c7d29785f0eb1ce5de20fc2aade458a49a9e8a42977987ec74",
+      "inputs_sha256": "d722091236a5ff21bdb9abbc7bfd7c1b9d9f97a72067583d797cb0b0dbb95bdc"
+    }
+  },
+  {
     "id": "delete-record-237450",
     "offset": 2323536,
     "size": 33,
@@ -409,6 +447,44 @@
     "match": {
       "bytes_sha256": "7908ba88e6a862ce080b3eafc1374ef3e002aeb8890c8f43cd054742cfd7ae0b",
       "inputs_sha256": "aec838e85bccc423b5158fdb602d004cb94ad0e5dac590fd42a819dc4e9a0471"
+    }
+  },
+  {
+    "id": "register-pair-237e60",
+    "size": 49,
+    "offset": 2326112,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_237e60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7df018": {
+        "va": 286126104,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d75c": {
+        "va": 287496028,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d760": {
+        "va": 287496032,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_MenuGameOver and Lst_menu using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "434b7cfdd5516bf0d0245b43089971318a4581804c903e1cc478344bce6b49dd",
+      "inputs_sha256": "1b51b0f195ad8f643f16eaf89abbbce34dd128bb7f39b9c6680d552b767b7365"
     }
   },
   {
@@ -823,6 +899,44 @@
     }
   },
   {
+    "id": "register-pair-23c7c0",
+    "size": 49,
+    "offset": 2344896,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_23c7c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7e1588": {
+        "va": 286135688,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d890": {
+        "va": 287496336,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e1580": {
+        "va": 286135680,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d894": {
+        "va": 287496340,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for A_Chat and L_Chat using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "7d092a582e2325804e1919bc4279891700c7cbfc8d5d7434463d5dcac361e4ab",
+      "inputs_sha256": "05f5fc043a512cea6f4714d3bd622fae8f32ff532eb855b36ae7d56901f4137b"
+    }
+  },
+  {
     "id": "init-list-23cb90",
     "size": 22,
     "offset": 2345872,
@@ -896,6 +1010,44 @@
     "match": {
       "bytes_sha256": "5084bf13c9e462caec7f408c5fd7409224be3d23b8eb3ea00a8701b5a0eca934",
       "inputs_sha256": "329ea2b35daadedd4a090e4bffe5367eae0ac86770c976a4cec50b727d33e588"
+    }
+  },
+  {
+    "id": "register-pair-23d3d0",
+    "size": 49,
+    "offset": 2347984,
+    "inputs": [
+      "src/campaign_name_crc_pairs.c"
+    ],
+    "rebuilt_symbol": "_register_pair_23d3d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_pairs.obj src/campaign_name_crc_pairs.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt reflected CRC-32 routine."
+      },
+      "_name_7dae6c": {
+        "va": 286109292,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d8c0": {
+        "va": 287496384,
+        "basis": "Writable destination for the computed name identifier."
+      },
+      "_name_7e1580": {
+        "va": 286135680,
+        "basis": "Original null-terminated name supplied to CRC computation."
+      },
+      "_id_92d8c4": {
+        "va": 287496388,
+        "basis": "Writable destination for the computed name identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the identifiers for P_ChatIngame and L_Chat using the rebuilt name CRC.",
+    "match": {
+      "bytes_sha256": "6735c0bef602594587566ceb71e64d00f3754b06fe17ff98e2bfc9774dc980ca",
+      "inputs_sha256": "a36191f8e6c5c139999f5ab40fdb8159afefda0cb9706ba4e1951ef15fbf57a0"
     }
   }
 ]

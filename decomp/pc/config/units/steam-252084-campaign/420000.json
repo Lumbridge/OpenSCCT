@@ -436,6 +436,32 @@
     }
   },
   {
+    "id": "name-crc",
+    "size": 214,
+    "offset": 4338592,
+    "inputs": [
+      "src/campaign_name_crc.c"
+    ],
+    "rebuilt_symbol": "_name_crc",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc.obj src/campaign_name_crc.c",
+    "link_bindings": {
+      "_table_pending": {
+        "va": 287087996,
+        "basis": "Checked and cleared during first-use lookup table generation."
+      },
+      "_crc_table": {
+        "va": 288454240,
+        "basis": "The same 256-entry CRC table is populated and later indexed by the low byte."
+      }
+    },
+    "identification": "Direct call at RVA 0x10d61b. Computes reflected CRC-32 on a terminating-null byte string and returns the destination address.",
+    "match": {
+      "bytes_sha256": "274a980812ec099622516f8574b4dc4ffdc01dd7990a9e5777d90ad0e94eff60",
+      "inputs_sha256": "19effe3a4ad769ff9d364be0504bc07da5fc8d4ae763e5751ebe1ea82386bc05"
+    }
+  },
+  {
     "id": "assign-range-423640",
     "size": 36,
     "offset": 4339264,
