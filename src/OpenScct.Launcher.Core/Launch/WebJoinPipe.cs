@@ -12,6 +12,7 @@ public static class WebJoinPipe
 {
     public const string LauncherName = "OpenSCCT.WebJoin.Launcher";
     public const string EditionName = "OpenSCCT.Launcher.Edition";
+    public const string MapsName = "OpenSCCT.Launcher.Maps";
     public const string GameName = "OpenSCCT.WebJoin.Game";
 
     public static async Task<bool> SendAsync(string pipeName, string serverId)
