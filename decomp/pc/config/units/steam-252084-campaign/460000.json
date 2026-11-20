@@ -1326,6 +1326,40 @@
     }
   },
   {
+    "id": "vector-capacity-4631f0",
+    "size": 134,
+    "offset": 4600304,
+    "inputs": [
+      "src/campaign_vector_capacity.c"
+    ],
+    "rebuilt_symbol": "@reserve_4631f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_capacity.obj src/campaign_vector_capacity.c",
+    "link_bindings": {
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Shared engine allocation."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared engine release."
+      },
+      "_kind_a1a2e4": {
+        "va": 288465636,
+        "basis": "Allocation selector loaded before reserving new storage."
+      },
+      "@copy_463010@16": {
+        "va": 282472464,
+        "basis": "Transfers the old element range into the new allocation."
+      }
+    },
+    "identification": "Direct call at RVA 0x4636b9. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x463010.",
+    "match": {
+      "bytes_sha256": "061ec4bdc128e0e2653a8f5b12a794a45b2013df2d55ff8455fb5d8f25eb27f1",
+      "inputs_sha256": "51c72c4b3db47bb6aeeb2773ead82bae94594fa670166a3e2eb1299618f8a4df"
+    }
+  },
+  {
     "id": "clear-owned-storage-4634e0",
     "size": 42,
     "offset": 4601056,

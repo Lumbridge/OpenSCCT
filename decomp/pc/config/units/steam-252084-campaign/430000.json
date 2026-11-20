@@ -127,6 +127,40 @@
     }
   },
   {
+    "id": "vector-capacity-430c20",
+    "size": 134,
+    "offset": 4394016,
+    "inputs": [
+      "src/campaign_vector_capacity.c"
+    ],
+    "rebuilt_symbol": "@reserve_430c20@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_capacity.obj src/campaign_vector_capacity.c",
+    "link_bindings": {
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Shared engine allocation."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared engine release."
+      },
+      "_kind_a17b1c": {
+        "va": 288455452,
+        "basis": "Allocation selector loaded before reserving new storage."
+      },
+      "@copy_430a20@16": {
+        "va": 282266144,
+        "basis": "Transfers the old element range into the new allocation."
+      }
+    },
+    "identification": "Default Ghidra extent. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x430a20.",
+    "match": {
+      "bytes_sha256": "dc8d7c1053e305fd294d152049a0b144fb02691070a676054f4af64a963197c3",
+      "inputs_sha256": "e1e7b9940083409f2feeea4edaa06be78ca1ee3c57caa2f7c3d9291e5f17e950"
+    }
+  },
+  {
     "id": "clear-owned-storage-430ce0",
     "size": 42,
     "offset": 4394208,
@@ -949,6 +983,40 @@
     "match": {
       "bytes_sha256": "89aa9a591003d49aad0639c9afb8e57a80a303faee0ce07205f987a766a060d3",
       "inputs_sha256": "2f1fc2049d870366fc16e5a8774f8d7d876f02f349c2580a1df1fefdcf06a515"
+    }
+  },
+  {
+    "id": "vector-capacity-436d50",
+    "size": 134,
+    "offset": 4418896,
+    "inputs": [
+      "src/campaign_vector_capacity.c"
+    ],
+    "rebuilt_symbol": "@reserve_436d50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_capacity.obj src/campaign_vector_capacity.c",
+    "link_bindings": {
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Shared engine allocation."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared engine release."
+      },
+      "_kind_a17c38": {
+        "va": 288455736,
+        "basis": "Allocation selector loaded before reserving new storage."
+      },
+      "@copy_4368f0@16": {
+        "va": 282290416,
+        "basis": "Transfers the old element range into the new allocation."
+      }
+    },
+    "identification": "Direct call at RVA 0x437562. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x4368f0.",
+    "match": {
+      "bytes_sha256": "b149cd2e70a0170a447706bff486a7b35fe60e163e36ac469dfc22edde6ec106",
+      "inputs_sha256": "11153ac267907d254b5c54398271ff1360b698b49b48664065f58de8dfaa317e"
     }
   },
   {

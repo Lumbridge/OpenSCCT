@@ -2060,6 +2060,74 @@
     }
   },
   {
+    "id": "vector-capacity-449fa0",
+    "size": 134,
+    "offset": 4497312,
+    "inputs": [
+      "src/campaign_vector_capacity.c"
+    ],
+    "rebuilt_symbol": "@reserve_449fa0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_capacity.obj src/campaign_vector_capacity.c",
+    "link_bindings": {
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Shared engine allocation."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared engine release."
+      },
+      "_kind_a17dd8": {
+        "va": 288456152,
+        "basis": "Allocation selector loaded before reserving new storage."
+      },
+      "@copy_448da0@16": {
+        "va": 282365344,
+        "basis": "Transfers the old element range into the new allocation."
+      }
+    },
+    "identification": "Direct call at RVA 0x45482c. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x448da0.",
+    "match": {
+      "bytes_sha256": "aa7f2ca825ffc113a15fa4a7cc4aba8c4588a0619df315356942a19a35aaaa2b",
+      "inputs_sha256": "7511db48659c453833d9fb9cb2da4f71e56ac80136d673c3a419d889098edc04"
+    }
+  },
+  {
+    "id": "vector-capacity-44a030",
+    "size": 134,
+    "offset": 4497456,
+    "inputs": [
+      "src/campaign_vector_capacity.c"
+    ],
+    "rebuilt_symbol": "@reserve_44a030@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_capacity.obj src/campaign_vector_capacity.c",
+    "link_bindings": {
+      "_allocate_buffer": {
+        "va": 279826608,
+        "basis": "Shared engine allocation."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared engine release."
+      },
+      "_kind_a17dd8": {
+        "va": 288456152,
+        "basis": "Allocation selector loaded before reserving new storage."
+      },
+      "@copy_448dd0@16": {
+        "va": 282365392,
+        "basis": "Transfers the old element range into the new allocation."
+      }
+    },
+    "identification": "Direct call at RVA 0x454282. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x448dd0.",
+    "match": {
+      "bytes_sha256": "5903357dd1d294eec9a9dc9d400ec6040746fa949109e1ecf55c76392daee27d",
+      "inputs_sha256": "be7f1e3e818b390010e8334acf82d4d05f6b521d7d0e784632de6c321ffe0896"
+    }
+  },
+  {
     "id": "append-44a0e0",
     "offset": 4497632,
     "size": 103,
