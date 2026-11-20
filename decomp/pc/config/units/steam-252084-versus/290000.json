@@ -90,6 +90,64 @@
     }
   },
   {
+    "id": "mesh-first-face",
+    "size": 212,
+    "offset": 2728768,
+    "rebuilt_symbol": "@first_face@12",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_strip_start.obj src/versus_strip_start.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_strip_start.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x29a340. Implements first face using triangle vertex indices, the vertex cache or incident edge records.",
+    "link_bindings": {
+      "_other_face": {
+        "va": 280599520,
+        "basis": "Retail operand for other_face."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "e6585f8726f244aafc137db4c39976092e2d6cdf8ac3ebef4e324b6ab7a251c1",
+      "inputs_sha256": "4f38bf594137e39adec08e36435a2f02ff350c8c55e4ee37004464c7072fc0b3"
+    }
+  },
+  {
+    "id": "mesh-next-face",
+    "size": 175,
+    "offset": 2728992,
+    "rebuilt_symbol": "@next_face@12",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_strip_start.obj src/versus_strip_start.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_strip_start.c"
+    ],
+    "identification": "Complete indexed triangle mesh routine at RVA 0x29a420. Implements next face using triangle vertex indices, the vertex cache or incident edge records.",
+    "link_bindings": {
+      "@first_face@12": {
+        "va": 280601408,
+        "basis": "Retail operand for @first_face@12."
+      },
+      "_one": {
+        "va": 281086460,
+        "basis": "The retail float is 1.0, used to scale the starting face index and cap the search fraction."
+      },
+      "__real@3dcccccd": {
+        "va": 281086440,
+        "basis": "Retail single-precision 0.1 search increment, compared to the compiler constant."
+      },
+      "__ftol": {
+        "va": 280509476,
+        "basis": "Retail operand for ftol."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "5e7b3ab7ba2ddb27749892ff99389c55408e97ea5a83dacfa9c2df371d9361f6",
+      "inputs_sha256": "8874afb5322423e9184219d278a5a08039e65e7e2423d599d48c655b4340c7fc"
+    }
+  },
+  {
     "id": "distinct-vertex-indexed-29a4d0",
     "size": 66,
     "offset": 2729168,
