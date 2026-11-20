@@ -39,7 +39,8 @@ internal sealed partial class PlayerPortal
         string heroImage = AssetUrl("/web/assets/showcase-bots.webp");
         var release = (await _releases.GetAsync(c.RequestAborted).ConfigureAwait(false)).Entries.FirstOrDefault();
         string releaseLabel = release is null ? "Release notes" : "Release " + release.Tag + " · " + release.Published.ToString("d MMM yyyy", CultureInfo.InvariantCulture);
-        long matched = ProgressReport.Value.RootElement.GetProperty("editions").EnumerateArray()
+        JsonElement progressEditions = _progressReport.ReadEditions();
+        long matched = progressEditions.EnumerateArray()
             .SelectMany(e => e.GetProperty("targets").EnumerateArray()).Sum(t => t.GetProperty("matched_bytes").GetInt64());
         body.Append($"""
             <section class="project-hero" aria-labelledby="project-title">
@@ -74,7 +75,7 @@ internal sealed partial class PlayerPortal
         }
         body.Append("""
             </div>
-            """).Append(HomeProgress()).Append(MatchingWorkflow()).Append("""
+            """).Append(HomeProgress(progressEditions)).Append(MatchingWorkflow()).Append("""
             <section class="hub-section" aria-labelledby="work-heading">
               <header class="hub-heading"><h2 id="work-heading">Get involved</h2><a href="/wiki/contributing">Contributor guide</a></header>
               <div class="hub-resources">
@@ -180,21 +181,16 @@ internal sealed partial class PlayerPortal
         GuideSection("retail-maps", "PC / Steam", "SCCT Map Manager", "Download and manage original, Enhanced and community maps for the retail PC Versus game.",
             Link("https://github.com/OpenSCCT/SCCT-Map-Manager", "Map Manager") + Link("https://github.com/OpenSCCT/SCCT-Maps", "Map collection")) + "</div></div>");
 
-    private static readonly Lazy<JsonDocument> ProgressReport = new(() =>
-    {
-        using Stream stream = typeof(PlayerPortal).Assembly.GetManifestResourceStream("project-progress.json")
-            ?? throw new InvalidDataException("The project progress report is missing.");
-        return JsonDocument.Parse(stream);
-    });
+    private readonly ProjectProgressReport _progressReport = new(options.ResolvePath(ProjectProgressReport.Filename));
 
-    private static string HomeProgress()
+    private static string HomeProgress(JsonElement editions)
     {
         var body = new StringBuilder("""
             <section class="hub-section" aria-labelledby="home-progress-heading">
               <header class="hub-heading"><h2 id="home-progress-heading">Progress</h2><a href="/progress">Full report and sources</a></header>
               <div class="home-progress">
             """);
-        foreach (JsonElement edition in ProgressReport.Value.RootElement.GetProperty("editions").EnumerateArray())
+        foreach (JsonElement edition in editions.EnumerateArray())
         {
             string? id = edition.GetProperty("id").GetString();
             ProjectEdition project = Editions.First(e => e.Id == id);
@@ -241,7 +237,7 @@ internal sealed partial class PlayerPortal
             .Append("<p>Candidate functions compile to the original bytes. They count as verified once the original compiler and flags are established. A percentage also needs a known total code size for that executable.</p>")
             .Append("<div class=\"hub-link-row report-links\">").Append(Link(DecompGuide, "Reproduction guide"))
             .Append(Link(HubSource + "/blob/main/decomp/reports/progress.json", "Report source")).Append("</div>");
-        foreach (JsonElement edition in ProgressReport.Value.RootElement.GetProperty("editions").EnumerateArray())
+        foreach (JsonElement edition in _progressReport.ReadEditions().EnumerateArray())
         {
             string? id = edition.GetProperty("id").GetString();
             ProjectEdition project = Editions.First(e => e.Id == id);

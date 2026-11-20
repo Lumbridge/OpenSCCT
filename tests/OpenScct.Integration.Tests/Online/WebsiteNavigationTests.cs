@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +20,56 @@ public sealed class WebsiteNavigationTests
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
             Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("[]") });
+    }
+
+    [Fact]
+    public async Task ProgressReportsReloadAtomicallyAndRetainTheLastGoodCheckpoint()
+    {
+        CancellationToken ct = TestContext.Current.CancellationToken;
+        string directory = Directory.CreateTempSubdirectory("openscct-progress-").FullName;
+        try
+        {
+            using var feed = new HttpClient(new EmptyReleases());
+            MasterOptions options = MasterTests.LocalOptions("progress-fixture");
+            options.Introducer = options.Relay = options.Probe = false;
+            options.DataDirectory = directory;
+            options.Database = "accounts.db";
+            options.TicketKeyFile = "tickets.pem";
+            options.Discord.ClientId = "fixture-client";
+            options.Discord.ClientSecret = "fixture-secret";
+            await using MasterHost master = await MasterHost.StartAsync(options, new ReleaseChangelog(feed), ct);
+            using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
+            const string label = "Synthetic Steam checkpoint";
+            string sidecar = options.ResolvePath("project-progress.json");
+            Assert.DoesNotContain(label, await http.GetStringAsync("/progress", ct), StringComparison.Ordinal);
+            using var stream = typeof(MasterHost).Assembly.GetManifestResourceStream("project-progress.json")!;
+            JsonNode report = JsonNode.Parse(stream)!;
+            JsonNode target = report["editions"]!.AsArray().Single(e => e!["id"]!.GetValue<string>() == "pc")!["targets"]![0]!;
+            target["label"] = label;
+            target["matched_bytes"] = 731;
+            target["matched_units"] = 1;
+            void Replace(string data)
+            {
+                File.WriteAllText(sidecar + ".new", data);
+                File.Move(sidecar + ".new", sidecar, overwrite: true);
+            }
+            Replace(report.ToJsonString());
+            Assert.Contains(label, await http.GetStringAsync("/", ct), StringComparison.Ordinal);
+            Assert.Contains("731 / ", await http.GetStringAsync("/progress", ct), StringComparison.Ordinal);
+            target["matched_bytes"] = 732;
+            Replace(report.ToJsonString());
+            Assert.Contains("732 / ", await http.GetStringAsync("/", ct), StringComparison.Ordinal);
+            target["matched_bytes"] = 733;
+            target.AsObject().Remove("candidate_units");
+            foreach (string invalid in new[] { "{", "{}", """{"schema_version":1,"editions":[]}""", report.ToJsonString() })
+            {
+                Replace(invalid);
+                Assert.Contains("732 / ", await http.GetStringAsync("/progress", ct), StringComparison.Ordinal);
+            }
+            File.Delete(sidecar);
+            Assert.Contains(label, await http.GetStringAsync("/", ct), StringComparison.Ordinal);
+        }
+        finally { Directory.Delete(directory, recursive: true); }
     }
 
     [Fact]

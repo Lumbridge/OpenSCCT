@@ -32,7 +32,29 @@ before reusing names or addresses.
 2. **Rewrite.** Write plain C for one complete function. Record the compiler version and flags for that translation unit, with evidence from the reference build. Record all source and build inputs. Compile locally using that recipe. A C implementation that produces identical bytes with a different compiler is a candidate.
 3. **Verify.** Compare the whole compiled function against the locked original. Resolve relocations using the correct link layout first. Commit the C, build recipe and hashes. The website counts a function only when all bytes match and review establishes the original compiler and flags. Another owner of the same build can repeat the comparison.
 
-### Tools and project guides
+## Publish a checked progress report
+
+The master serves its embedded report on first start. It also reads
+`project-progress.json` in `Master.DataDirectory` (the configuration directory
+by default). Both the homepage and `/progress` use a single snapshot per
+request. A missing or malformed sidecar leaves the last good snapshot in use.
+
+After committing a new report, run this from that checkout to update a running
+Linux master. The SSH user needs passwordless sudo for the installation.
+
+```powershell
+python tools/deploy/publish_decomp_progress.py ubuntu@master.lumbridge.co.uk --key "$HOME/.ssh/lightsail-eu-west-2.pem"
+```
+
+The command runs `report --check`, verifies that the report matches `HEAD`,
+and installs those exact bytes with an atomic rename. It rejects an installed
+report outside the publishing commit's history or a concurrent change during
+upload. Repeated publication of the same report succeeds. For a custom
+master installation, set `--data-directory` to its configured absolute Linux
+path. Publish the current report after deploying a new master if that install
+already has a sidecar.
+
+## Tools and project guides
 
 | Tool | Where it fits |
 | --- | --- |
