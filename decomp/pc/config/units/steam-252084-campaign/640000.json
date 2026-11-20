@@ -502,6 +502,38 @@
     }
   },
   {
+    "id": "crt-is-zero-tail",
+    "offset": 6572416,
+    "size": 50,
+    "inputs": [
+      "src/crt_mantissa_tests.c"
+    ],
+    "rebuilt_symbol": "_steam_is_zero_tail",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/crt_mantissa_tests.obj src/crt_mantissa_tests.c",
+    "identification": "The complete retail body equals the _ZeroTail COFF function in the Microsoft .NET Framework SDK 1.0a static C runtime. A separate C implementation reproduces its bytes.",
+    "match": {
+      "bytes_sha256": "dd5457b4ab5fd1e8a685e0475fc9b8a7feb67729fb2cfda8af5d4ddc2c60ac98",
+      "inputs_sha256": "00e4dcd9ff3eeb78f6d7044b2b99dace7895cf920c48898034c19a330b331571"
+    }
+  },
+  {
+    "id": "crt-is-zero-mantissa",
+    "offset": 6572696,
+    "size": 25,
+    "inputs": [
+      "src/crt_mantissa_tests.c"
+    ],
+    "rebuilt_symbol": "_steam_is_zero_mantissa",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/crt_mantissa_tests.obj src/crt_mantissa_tests.c",
+    "identification": "The complete retail body equals the _IsZeroMan COFF function in the Microsoft .NET Framework SDK 1.0a static C runtime. A separate C implementation reproduces its bytes.",
+    "match": {
+      "bytes_sha256": "59cf3ced292f29c3b5304c279ea31e518cfb389eb7894f4acda74d2b62f09f59",
+      "inputs_sha256": "23b4bc61a7d970a6ddc6b1a627b41d6af33d8585d241291b9c9749a30d2940bb"
+    }
+  },
+  {
     "id": "crt-ld12told",
     "offset": 6573232,
     "size": 124,
