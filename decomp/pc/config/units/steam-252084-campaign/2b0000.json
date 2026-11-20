@@ -963,6 +963,75 @@
     }
   },
   {
+    "id": "array-release-2bd5b0",
+    "size": 43,
+    "offset": 2872752,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r2bd5b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "bbc061db1fc3d4d32580b7749a392aa726235e2d26de0b6a9225ab14c60b9ec4"
+    }
+  },
+  {
+    "id": "array-release-2bd5e0",
+    "size": 43,
+    "offset": 2872800,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r2bd5e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "a868db20da0ee8689df5f7a5ed43c0ee44998a9baec646dd3bcbaed3a02daab1"
+    }
+  },
+  {
+    "id": "array-release-2bd610",
+    "size": 43,
+    "offset": 2872848,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r2bd610@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "58ad71a6c89037ca8668956aade81f824446b77be192b438616e4a0ae3a56344"
+    }
+  },
+  {
     "id": "class-registration-aeplayercontroller",
     "offset": 2873088,
     "size": 264,

@@ -1277,6 +1277,98 @@
     }
   },
   {
+    "id": "array-release-05bcc0",
+    "size": 43,
+    "offset": 376000,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r05bcc0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "76b4ec06dfbb91199bb0ed721364bb13bb721e90074f98f9a4608f711e2af38b"
+    }
+  },
+  {
+    "id": "array-release-05bd10",
+    "size": 43,
+    "offset": 376080,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r05bd10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "9d4fafffe1a3b075a212051b5fb53f8ea8815325b96b841bb289c40a9483e656"
+    }
+  },
+  {
+    "id": "array-release-05bd80",
+    "size": 43,
+    "offset": 376192,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r05bd80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "8ca9c73b633471979cadf5ebadfad4a31c15517e2d2a0de3ca49301311366865"
+    }
+  },
+  {
+    "id": "array-release-05bdc0",
+    "size": 43,
+    "offset": 376256,
+    "inputs": [
+      "src/campaign_array_cleanup_copies.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_release_r05bdc0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_cleanup_copies.obj src/campaign_array_cleanup_copies.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "bf3fc48d5be6fcb5a942ececdf70ac1c200a23ae43e5545fe4472ff5c2c1ce92"
+    }
+  },
+  {
     "id": "virtual-ueeev-11-05cb00",
     "size": 3,
     "offset": 379648,
