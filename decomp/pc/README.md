@@ -56,17 +56,26 @@ The campaign experiment reproduced three retail bytes under two different compil
 ## Verify the complete Steam pass
 
 From the repository root, pass the installed game directory to the verifier.
-Run in an x86 Visual Studio Developer PowerShell with MSVC 19.44.35229.0,
-or use `--cl` to select that compiler explicitly.
+Pass the x86 compiler paths for MSVC 19.44.35229.0 and Visual C++ Toolkit 2003
+13.10.3052. Each function's manifest identifies the tool used to reproduce it.
 
 ```powershell
-python decomp/pc/verify_build.py 'D:\Games\Steam Games\steamapps\common\Splintercell Chaos Theory'
+python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl
 ```
 
 The verifier checks each complete retail SHA-256 and each source receipt,
 compiles in a fresh directory, and compares every byte in each named COFF
 function section. Its output includes the retail file offset and length of
 each successful comparison.
+
+For functions that refer to other code or data, `link_bindings` records the
+preferred retail address and identification of each symbol. The verifier
+applies the compiler's i386 DIR32 and REL32 relocations at the function's
+retail address. It compares the entire linked section, including address
+operands and call displacements. Microsoft's linker independently reproduced
+the campaign vector-product, stereo panning and directory-function bodies.
+The object shows where an address is needed. The locked reference supplies
+the bytes used only in the final equality check.
 
 ## Campaign audio
 

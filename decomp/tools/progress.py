@@ -10,6 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from images import coff_symbol_offset, inspect, span
+from link_x86 import link_function
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -72,6 +73,9 @@ def inputs_digest(folder, unit, image_hash):
             raise ValueError("original compiler and flag evidence is empty")
         fingerprints[relative] = hashlib.sha256(data).hexdigest()
     recipe = {k: v for k, v in unit.items() if k != "match"}
+    if "link_bindings" in unit:
+        linker = Path(__file__).with_name("link_x86.py")
+        fingerprints["decomp/tools/link_x86.py"] = hashlib.sha256(linker.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     payload = json.dumps([image_hash, recipe, fingerprints], sort_keys=True).encode()
     return hashlib.sha256(payload).hexdigest()
 
@@ -157,6 +161,31 @@ def verify(target, original):
     return data
 
 
+def built_unit_bytes(target, unit, output):
+    """Obtain the complete function at its specified position in the linked image."""
+    if "link_bindings" in unit:
+        a, b = span(unit["offset"], unit["size"], target["image"]["size"])
+        for s in target["image"]["executable_sections"]:
+            if s["code"] and s["offset"] <= a < b <= s["offset"] + s["size"]:
+                address = s["address"] + a - s["offset"]
+                return link_function(output, unit["rebuilt_symbol"], unit["size"], address, unit["link_bindings"])
+        raise ValueError("link address outside a measured code section")
+    offset = (coff_symbol_offset(output, unit["rebuilt_symbol"], unit["size"])
+              if "rebuilt_symbol" in unit else unit["rebuilt_offset"])
+    c, d = span(offset, unit["size"], len(output))
+    return output[c:d]
+
+
+def compare_unit(folder, target, unit, original, output):
+    """Compare a complete built unit against an already verified reference image."""
+    a, b = span(unit["offset"], unit["size"], len(original))
+    body = built_unit_bytes(target, unit, output)
+    if original[a:b] != body:
+        raise ValueError(f"{unit['id']}: compiler output differs from retail")
+    return dict(bytes_sha256=hashlib.sha256(body).hexdigest(),
+                inputs_sha256=inputs_digest(folder, unit, target["image"]["sha256"]))
+
+
 def match(folder, target, unit_id, retail, rebuilt):
     original = verify(target, retail)
     if retail.samefile(rebuilt):
@@ -164,15 +193,7 @@ def match(folder, target, unit_id, retail, rebuilt):
     unit = next((u for u in target["units"] if u["id"] == unit_id), None)
     if unit is None:
         raise ValueError(f"unknown unit: {unit_id}")
-    output = rebuilt.read_bytes()
-    a, b = span(unit["offset"], unit["size"], len(original))
-    offset = (coff_symbol_offset(output, unit["rebuilt_symbol"], unit["size"])
-              if "rebuilt_symbol" in unit else unit["rebuilt_offset"])
-    c, d = span(offset, unit["size"], len(output))
-    if original[a:b] != output[c:d]:
-        raise ValueError(f"{unit_id}: compiler output differs from retail")
-    unit["match"] = dict(bytes_sha256=hashlib.sha256(output[c:d]).hexdigest(),
-                         inputs_sha256=inputs_digest(folder, unit, target["image"]["sha256"]))
+    unit["match"] = compare_unit(folder, target, unit, original, rebuilt.read_bytes())
     summary(folder, target)
 
 
