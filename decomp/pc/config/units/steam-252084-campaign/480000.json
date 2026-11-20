@@ -1211,6 +1211,40 @@
     }
   },
   {
+    "id": "tree-pair-cleanup-489ce0",
+    "size": 83,
+    "offset": 4758752,
+    "inputs": [
+      "src/campaign_tree_pair_cleanup.c"
+    ],
+    "rebuilt_symbol": "@erase_nodes@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_pair_cleanup.obj src/campaign_tree_pair_cleanup.c",
+    "link_bindings": {
+      "@erase_nodes@8": {
+        "va": 282631392,
+        "basis": "Recursive right subtree destruction."
+      },
+      "@destroy_field@4": {
+        "va": 282578752,
+        "basis": "Destroys both fields in reverse order."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Prepares the removed node with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared node."
+      }
+    },
+    "identification": "Indexed tree destruction recurses right, advances left and destroys both embedded fields in reverse order before releasing each node.",
+    "match": {
+      "bytes_sha256": "8c1a90a75aef2eb384d1e82534d6ca877cfba7c1b590b072c737ad964efdbd97",
+      "inputs_sha256": "a4330cda4c0c66dced0cfa6b23ba0b671450d823f11056e493b160532ad96ce1"
+    }
+  },
+  {
     "id": "tree-clear-managed-48a040",
     "size": 43,
     "offset": 4759616,
