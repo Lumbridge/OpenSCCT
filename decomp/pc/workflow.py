@@ -10,7 +10,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "tools"))
-from images import coff_symbol_offset, inspect, span
+from images import inspect, span
+from progress import built_unit_bytes
 
 
 def read_image(game, target):
@@ -96,10 +97,13 @@ def compare(manifest, data, unit_id, rebuilt, objdiff):
     out.mkdir(parents=True, exist_ok=True)
     target, report = out / "retail.obj", out / "objdiff.json"
     target.write_bytes(retail_coff(symbol, body))
+    compiled = built_unit_bytes(manifest, unit, candidate)
+    if "link_bindings" in unit:
+        rebuilt = out / "linked.obj"
+        rebuilt.write_bytes(retail_coff(symbol, compiled))
     subprocess.run([objdiff, "diff", "-1", str(target), "-2", str(rebuilt), "-o", str(report), "--format", "json"], check=True)
     print(f"objdiff result: {report}")
-    candidate_at = coff_symbol_offset(candidate, symbol, size)
-    if candidate[candidate_at:candidate_at + size] != body:
+    if compiled != body:
         raise ValueError("rebuilt instructions differ from the retail function")
     print(f"Exact {size}-byte comparison for {symbol}")
 

@@ -14,10 +14,16 @@ import tempfile
 
 PC = Path(__file__).resolve().parent
 sys.path.insert(0, str(PC.parent / "tools"))
-from progress import match, summary, verify
+from progress import compare_unit, summary, verify
 
 
 def compiler_identity(cl, env):
+    # The Visual C++ Toolkit 2003 predates /Bv. Its banner includes the
+    # full tool build and calls the x86 target "80x86".
+    banner = subprocess.run([cl], env=env, capture_output=True, text=True, errors="replace")
+    legacy = re.search(r"Microsoft .*Compiler Version (13\.\d+\.\d+) for 80x86\b", banner.stderr + banner.stdout)
+    if legacy:
+        return f"Microsoft C/C++ {legacy[1]} for x86"
     result = subprocess.run([cl, "/Bv", "/?"], env=env, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, text=True, errors="replace", check=True)
     version = re.search(r"(?im)[\\/]cl\.exe:\s*Version (\d+\.\d+\.\d+\.\d+)", result.stdout)
@@ -54,18 +60,22 @@ def rebuild_unit(unit, cl, env, build_dir):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("steam_root", type=Path, help="installed Splinter Cell Chaos Theory folder")
-    parser.add_argument("--cl", default="cl.exe", help="path to the manifest's x86 MSVC cl.exe")
+    parser.add_argument("--cl", action="append", help="x86 cl.exe path; repeat for different toolsets")
     args = parser.parse_args()
-    cl = shutil.which(args.cl)
-    if cl is None:
-        raise ValueError(f"MSVC not found: {args.cl}. Use --cl or run in an x86 Developer PowerShell.")
-    cl = str(Path(cl).resolve())
     env = os.environ.copy()
     # cl prepends CL and appends _CL_ to the command line.
     env.pop("CL", None)
     env.pop("_CL_", None)
     env["VSLANG"] = "1033"
-    toolchain = compiler_identity(cl, env)
+    compilers = {}
+    for requested in args.cl or ["cl.exe"]:
+        resolved = shutil.which(requested)
+        if resolved is None:
+            raise ValueError(f"MSVC not found: {requested}. Pass --cl with the compiler path.")
+        cl = str(Path(resolved).resolve())
+        build_env = dict(env, PATH=str(Path(cl).parent) + os.pathsep + env.get("PATH", ""))
+        identity = compiler_identity(cl, build_env)
+        compilers[identity] = (cl, build_env)
     for edition in ("campaign", "versus"):
         target_id = f"steam-252084-{edition}"
         manifest = PC / "config" / f"{target_id}.json"
@@ -74,21 +84,25 @@ def main():
             raise ValueError(f"unexpected target ID in {manifest}")
         totals = summary(PC, target)
         retail = args.steam_root / target["file"]
-        verify(target, retail)
+        original = verify(target, retail)
         byte_count = 0
+        recipes = {}
         for unit in target["units"]:
-            receipt = unit.get("match")
-            if receipt is None:
+            if "match" not in unit:
                 raise ValueError(f"{unit['id']}: missing checked-in match receipt")
-            if unit["toolchain"] != toolchain:
-                raise ValueError(f"{unit['id']}: expected {unit['toolchain']}, found {toolchain}")
+            if unit["toolchain"] not in compilers:
+                raise ValueError(f"{unit['id']}: pass --cl for {unit['toolchain']}")
+            key = (unit["toolchain"], unit["build_command"], tuple(sorted(unit["inputs"])))
+            recipes.setdefault(key, []).append(unit)
+        for (toolchain, _, _), units in recipes.items():
+            cl, build_env = compilers[toolchain]
             with tempfile.TemporaryDirectory(prefix="scct-decomp-") as tmp:
-                obj = rebuild_unit(unit, cl, env, Path(tmp).resolve())
-                match(PC, target, unit["id"], retail, obj)
-            if unit["match"] != receipt:
-                raise ValueError(f"{unit['id']}: rebuilt receipt differs from checked-in receipt")
-            byte_count += unit["size"]
-            print(f"PASS {target_id}/{unit['id']} at file offset 0x{unit['offset']:x} ({unit['size']} bytes)")
+                obj = rebuild_unit(units[0], cl, build_env, Path(tmp).resolve()).read_bytes()
+            for unit in units:
+                if compare_unit(PC, target, unit, original, obj) != unit["match"]:
+                    raise ValueError(f"{unit['id']}: rebuilt receipt differs from checked-in receipt")
+                byte_count += unit["size"]
+                print(f"PASS {target_id}/{unit['id']} at file offset 0x{unit['offset']:x} ({unit['size']} bytes)")
         print(f"{target_id}: {len(target['units'])} functions, {byte_count:,} / {totals['total_bytes']:,} bytes")
 
 

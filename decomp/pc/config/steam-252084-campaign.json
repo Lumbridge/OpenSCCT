@@ -32,6 +32,718 @@
   },
   "units": [
     {
+      "id": "campaign-sha1-digest-width",
+      "offset": 6219296,
+      "size": 6,
+      "rebuilt_symbol": "@sha1_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x8545d4, zero-based slot 7, selects RVA 0x5ee620. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "b5e246fbf558c442548ccb78aa6a03d48027a6f91f15c02d7dc661bd43aaaab1",
+        "inputs_sha256": "0b49b43fb749b50fcd0a02a1d66e97d74a1b8854e6aa962e440290e9eea301a2"
+      }
+    },
+    {
+      "id": "campaign-sha1-double-digest-width",
+      "offset": 6219312,
+      "size": 6,
+      "rebuilt_symbol": "@sha1_double_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x8545d4, zero-based slot 8, selects RVA 0x5ee630. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "2ae904b3a6bc4ca2b742b13a6b4372b0110f2731cdf29edd795459ef1845e802",
+        "inputs_sha256": "5a18c4e293670565533b1d64d4f774922cefa558530208401d8ed0f0cfaa7f62"
+      }
+    },
+    {
+      "id": "campaign-md5-digest-width",
+      "offset": 6219472,
+      "size": 6,
+      "rebuilt_symbol": "@md5_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x85460c, zero-based slot 7, selects RVA 0x5ee6d0. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "75f533bd3e59de2588c8f1901e45a3eea6688bc16b7ecaf3dcaf4d49cf4f3d49",
+        "inputs_sha256": "2af4d43d83ad5c2f4b8db9b6c8a87e5267faa04b480d085e624fdb4b5aae872c"
+      }
+    },
+    {
+      "id": "campaign-md5-double-digest-width",
+      "offset": 6219488,
+      "size": 6,
+      "rebuilt_symbol": "@md5_double_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x85460c, zero-based slot 8, selects RVA 0x5ee6e0. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "6e7ad2e0613c7b35767a2892528cb56d04e6c29c6569027d24dd57c372d07617",
+        "inputs_sha256": "51f5b1308871244132190cb9b297dbc4994d8802a85f04be0b702f4d96e2f248"
+      }
+    },
+    {
+      "id": "campaign-named-exception-message",
+      "offset": 6258208,
+      "size": 4,
+      "rebuilt_symbol": "@named_exception_message@4",
+      "inputs": [
+        "src/named_exception_text.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/named_exception_text.obj src/named_exception_text.c",
+      "identification": "Steam MSVC complete-object RTTI names __Named_exception@_STL. Primary vftable RVA 0x8547b4, zero-based slot 1, selects RVA 0x5f7e20. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "bf9a4d01d1b8c2260962ee739fe4b6a547d3450d9b40041673ef71f673ba9bf7",
+        "inputs_sha256": "7ce6bad91e3fd1af2d0d60c933ab916286df0c09e92c271ae2d63aaec08f4660"
+      }
+    },
+    {
+      "id": "sound-allocate",
+      "offset": 7587888,
+      "size": 23,
+      "rebuilt_symbol": "_SND_fn_pvMallocSnd@4",
+      "inputs": [
+        "src/sound_allocation.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_allocation.obj src/sound_allocation.c",
+      "identification": "Steam PE export _SND_fn_pvMallocSnd@4 at RVA 0x73c830. Dispatches the requested size and a constant tag to slot zero of the allocator at VA 0x111c88a0. The object is passed in ECX. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "22c72acdfe4c7380ff0f95ccb66a9c0f64c4370b6618895098fd78f93214968e",
+        "inputs_sha256": "1948c03fa178e28ee89fb5a1d74f5c6a22fbd9da531581e90ee67204bad02a50"
+      }
+    },
+    {
+      "id": "sound-reallocate",
+      "offset": 7587920,
+      "size": 29,
+      "rebuilt_symbol": "_SND_fn_pvReAllocSnd@8",
+      "inputs": [
+        "src/sound_allocation.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_allocation.obj src/sound_allocation.c",
+      "identification": "Steam PE export _SND_fn_pvReAllocSnd@8 at RVA 0x73c850. Dispatches the existing block, new size and tag to slot one of the same allocator. The object is passed in ECX. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "3a878adb65d910ab19e76222c29734b7f5271df80f1bee83b50436453376ef68",
+        "inputs_sha256": "edbdf2fe9f12e5c61afe7612b9f58d60769833147979a5ca2a01847d398de7df"
+      }
+    },
+    {
+      "id": "sound-free-allocation",
+      "offset": 7587952,
+      "size": 11,
+      "rebuilt_symbol": "_SND_fn_vFreeSnd@4",
+      "inputs": [
+        "src/sound_allocator.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_allocator.obj src/sound_allocator.c",
+      "identification": "The named stdcall export takes its allocation on the stack, loads the allocator singleton at VA 0x111c88a0 into ECX, and tail-dispatches via virtual table slot two. Alignment follows the jump.",
+      "match": {
+        "bytes_sha256": "d416b7f25a99b31f9c55fdae14c2329234588389dc0c4f2705fa4a85c3a9831c",
+        "inputs_sha256": "83cf7c248c2c3aecc9028d61b386d785870f1dbbc5209eb9ea32dc96dfe029af"
+      }
+    },
+    {
+      "id": "sound-event-group-count",
+      "offset": 7627184,
+      "size": 3,
+      "rebuilt_symbol": "_SND_fn_ulGetNumberOfSoundEventGroup@0",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461b0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+        "inputs_sha256": "77c7d8926b5e406001999f4abc80977527e1819fafa1dc54357e59ccb411a616"
+      }
+    },
+    {
+      "id": "sound-event-group-names",
+      "offset": 7627200,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_ulGetListOfSoundEventGroupName@8",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461c0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "3df6af1ec778d46a61b8d7160523ba89fe1af814222acb1175be5a7b1748e06b",
+        "inputs_sha256": "a07eb8c08e73e30f7c1a8d1df0908b35197a0f27de301ab1cf3943d9ffb244ce"
+      }
+    },
+    {
+      "id": "sound-event-count-in-group",
+      "offset": 7627216,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_ulGetNumberOfSoundEventInGroup@4",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461d0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "5fed5afb29946811bf02359627a94bc01d08d31b779528feaadde3866af9c855",
+        "inputs_sha256": "508735897d6ab7dd156bf40cc082db259f0e5af6def0bc1988d7953b46514d09"
+      }
+    },
+    {
+      "id": "sound-event-names-in-group",
+      "offset": 7627232,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_ulGetListOfSoundEventNameInGroup@12",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461e0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+        "inputs_sha256": "25fd64c8a5508ce428ce2bab063137cf3419344c01dca3e41532cc35794995a3"
+      }
+    },
+    {
+      "id": "sound-event-name-from-editor-id",
+      "offset": 7627248,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_bGetSoundEventNameFromEditorId@12",
+      "inputs": [
+        "src/sound_event_catalogue.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_event_catalogue.obj src/sound_event_catalogue.c",
+      "identification": "Named retail export at RVA 0x7461f0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "531db4852a682340f10d91199822e1a1aed030bae016ff1e2c9f32d13b9cc9a1",
+        "inputs_sha256": "7bb9a14c8b6d3be5f5207c56d74277cb32f0c1dffff6351c460ff9ff261475af"
+      }
+    },
+    {
+      "id": "sound-get-master-directory",
+      "offset": 7627568,
+      "size": 77,
+      "rebuilt_symbol": "_SND_fn_bGetMasterDirectory@8",
+      "inputs": [
+        "src/sound_directory_paths.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_directory_paths.obj src/sound_directory_paths.c",
+      "link_bindings": {
+        "_sound_null_master_output": {
+          "va": 286733168,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Steam campaign PE named export _SND_fn_vDisplayError@8 at RVA 0x73c7d0."
+        },
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_master_directory": {
+          "va": 288537432,
+          "basis": "Shared buffer written by the exported master-directory setter and read by the exported getter."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Steam campaign PE named export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        }
+      },
+      "identification": "Named retail export _SND_fn_bGetMasterDirectory@8 at RVA 0x746330; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "342f930c234ecf43d091090c8565c4b1c996a3c381cdcaeca00904ba2577c10f",
+        "inputs_sha256": "bdd16f791e0e0924c12ebf5da6d12a47f50e3708c6f5ded87f9f86b4c1a0fbc1"
+      }
+    },
+    {
+      "id": "sound-get-partial-directory",
+      "offset": 7627648,
+      "size": 126,
+      "rebuilt_symbol": "_SND_fn_bGetOnePartialDirectory@12",
+      "inputs": [
+        "src/sound_directory_paths.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_directory_paths.obj src/sound_directory_paths.c",
+      "link_bindings": {
+        "_sound_null_partial_output": {
+          "va": 286733344,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Steam campaign PE named export _SND_fn_vDisplayError@8 at RVA 0x73c7d0."
+        },
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_partial_directory_count": {
+          "va": 288539752,
+          "basis": "Global read under the directory lock by the exported count query, also the unsigned upper bound in the partial-directory lookup."
+        },
+        "_sound_first_directory": {
+          "va": 288539744,
+          "basis": "Exported partial-directory lookup starts its linked traversal at this pointer. The exported removal routine uses the same list."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Steam campaign PE named export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        },
+        "_sound_invalid_partial_index": {
+          "va": 286733256,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        }
+      },
+      "identification": "Named retail export _SND_fn_bGetOnePartialDirectory@12 at RVA 0x746380; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "8dde1e64b7e154e6e24543b69f39a5bfc32c85e4d71949edcd802510dd205586",
+        "inputs_sha256": "41b5dcc4d7c4cb7a992c2e365a0fc2b8c03aca49de0041a766c226170e20895f"
+      }
+    },
+    {
+      "id": "sound-remove-partial-directory",
+      "offset": 7627776,
+      "size": 219,
+      "rebuilt_symbol": "_SND_fn_vRemovePartialDirectory@4",
+      "inputs": [
+        "src/sound_path_list.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_path_list.obj src/sound_path_list.c",
+      "link_bindings": {
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_paths": {
+          "va": 288539744,
+          "basis": "Exported partial-directory lookup starts its linked traversal at this pointer. The exported removal routine uses the same list."
+        },
+        "_SND_fn_lStriCmp@8": {
+          "va": 285512128,
+          "basis": "Steam campaign PE named export _SND_fn_lStriCmp@8 at RVA 0x7491c0."
+        },
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Steam campaign PE named export _SND_fn_vFreeSnd@4 at RVA 0x73c870."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vRemovePartialDirectory@4 at RVA 0x746400; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "2cc77460078e2a288615cca0de960b798c3912a91a8a0923bc0813f485fb7c52",
+        "inputs_sha256": "0d9009951d991fe9cd8c0bdf3ef069813ae4c82edff1551c0bf639e42cce4f78"
+      }
+    },
+    {
+      "id": "sound-purge-all-directories",
+      "offset": 7628000,
+      "size": 207,
+      "rebuilt_symbol": "_SND_fn_vPurgeAllDirectories@0",
+      "inputs": [
+        "src/sound_path_list.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_path_list.obj src/sound_path_list.c",
+      "link_bindings": {
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_master_directory": {
+          "va": 288537432,
+          "basis": "Shared buffer written by the exported master-directory setter and read by the exported getter."
+        },
+        "_SND_fn_vMemsetSnd@12": {
+          "va": 285460048,
+          "basis": "Steam campaign PE named export _SND_fn_vMemsetSnd@12 at RVA 0x73c650."
+        },
+        "_sound_paths": {
+          "va": 288539744,
+          "basis": "Exported partial-directory lookup starts its linked traversal at this pointer. The exported removal routine uses the same list."
+        },
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Steam campaign PE named export _SND_fn_vFreeSnd@4 at RVA 0x73c870."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vPurgeAllDirectories@0 at RVA 0x7464e0; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "4288a61cf6793afce74b578e9b635be94582fab8a19e33ea31c38b590cf3b587",
+        "inputs_sha256": "b5ffdeebd49f6ea59054bd98333dc26afb44b2f3af10be1aaea494d18792ea0b"
+      }
+    },
+    {
+      "id": "sound-partial-directory-count",
+      "offset": 7628208,
+      "size": 37,
+      "rebuilt_symbol": "_SND_fn_ulGetNumberOfPartialDirectory@0",
+      "inputs": [
+        "src/sound_directory_updates.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_directory_updates.obj src/sound_directory_updates.c",
+      "link_bindings": {
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_partial_directory_count": {
+          "va": 288539752,
+          "basis": "Global read under the directory lock by the exported count query, also the unsigned upper bound in the partial-directory lookup."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        }
+      },
+      "identification": "Named retail export _SND_fn_ulGetNumberOfPartialDirectory@0 at RVA 0x7465b0; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "3401881b559ed883cbbcec2b49aff024dc645a67f9c42f8dd8de487f18c28e20",
+        "inputs_sha256": "1cf74aed19273990d2a5464b5949a9f9dcfb185e38d5fbaa8c7940c8edf8dd9b"
+      }
+    },
+    {
+      "id": "sound-soft-directory",
+      "offset": 7628256,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_szGetSoftDirectory@0",
+      "inputs": [
+        "src/sound_directory_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+      "identification": "The retail export table names _SND_fn_szGetSoftDirectory@0 at RVA 0x7465e0. Its return immediately precedes alignment.",
+      "match": {
+        "bytes_sha256": "45510155f749040e188c1daa655d9d3eed2a0d738ab63f7c6db7b82b53d18451",
+        "inputs_sha256": "73d9d6bfd9d5d60d99d751c9db7973a51209e1a185d26fde322faae8ec644f0c"
+      }
+    },
+    {
+      "id": "sound-set-soft-directory",
+      "offset": 7628272,
+      "size": 48,
+      "rebuilt_symbol": "_SND_fn_vSetSoftDirectory@4",
+      "inputs": [
+        "src/sound_directory_updates.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_directory_updates.obj src/sound_directory_updates.c",
+      "link_bindings": {
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_soft_directory": {
+          "va": 288539760,
+          "basis": "Address returned by the PE export _SND_fn_szGetSoftDirectory@0; the matching setter copies up to 256 bytes there."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Steam campaign PE named export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vSetSoftDirectory@4 at RVA 0x7465f0; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "9de928107c30d019df7f53f1d13d5ae4fbd896da28ff2322def0202974f7ff5f",
+        "inputs_sha256": "2a9cec347f4d61be7c156159c80bde6e5c53f0069b98765ee07b7122fbf55e8c"
+      }
+    },
+    {
+      "id": "sound-set-language-directory",
+      "offset": 7628896,
+      "size": 20,
+      "rebuilt_symbol": "_SND_fn_vSetCurrentLangDirectory@4",
+      "inputs": [
+        "src/sound_directory_updates.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_directory_updates.obj src/sound_directory_updates.c",
+      "link_bindings": {
+        "_sound_current_language_directory": {
+          "va": 288540016,
+          "basis": "Address returned by the PE export _SND_fn_szGetCurrentLangDirectory@0; the matching setter copies up to nine bytes there."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Steam campaign PE named export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vSetCurrentLangDirectory@4 at RVA 0x746860; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "305e3b2355848df8a5be39d9069bd783b8b61fd2ee4e402cf06e35ea70124a44",
+        "inputs_sha256": "2f5da26af696eed0ab939d3950c5fe783f4b7be8792d198eb04cf78fd192c505"
+      }
+    },
+    {
+      "id": "sound-current-language-directory",
+      "offset": 7628928,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_szGetCurrentLangDirectory@0",
+      "inputs": [
+        "src/sound_directory_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+      "identification": "The retail export table names _SND_fn_szGetCurrentLangDirectory@0 at RVA 0x746880. Its return immediately precedes alignment.",
+      "match": {
+        "bytes_sha256": "ed7a356d2182ad5931b8ad0432bfb26c575a238acb22c51e9d6755a9a184d4c5",
+        "inputs_sha256": "4725a6ce79e67de0e84f2b342124ade32979632a3213ace67f25e20dd88c8d6b"
+      }
+    },
+    {
+      "id": "sound-add-partial-directory",
+      "offset": 7631424,
+      "size": 380,
+      "rebuilt_symbol": "_SND_fn_vAddPartialDirectory@4",
+      "inputs": [
+        "src/sound_path_insert.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_path_insert.obj src/sound_path_insert.c",
+      "link_bindings": {
+        "_sound_null_partial_input": {
+          "va": 286733728,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Steam campaign PE named export _SND_fn_vDisplayError@8 at RVA 0x73c7d0."
+        },
+        "_sound_master_directory": {
+          "va": 288537432,
+          "basis": "Shared buffer written by the exported master-directory setter and read by the exported getter."
+        },
+        "_sound_missing_master_path": {
+          "va": 286733640,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_pvMallocSnd@4": {
+          "va": 285460528,
+          "basis": "Steam campaign PE named export _SND_fn_pvMallocSnd@4 at RVA 0x73c830."
+        },
+        "_sound_insufficient_path_memory": {
+          "va": 286733576,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_cGetDirectorySeparator@0": {
+          "va": 285820496,
+          "basis": "Steam campaign PE named export _SND_fn_cGetDirectorySeparator@0 at RVA 0x794650."
+        },
+        "_sound_partial_missing_separator": {
+          "va": 286733496,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Steam campaign PE named export _SND_fn_vFreeSnd@4 at RVA 0x73c870."
+        },
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_SND_fn_bIsDataDirectory@4": {
+          "va": 285502144,
+          "basis": "Steam campaign PE named export _SND_fn_bIsDataDirectory@4 at RVA 0x746ac0."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Steam campaign PE named export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        },
+        "_sound_paths": {
+          "va": 288539744,
+          "basis": "Exported partial-directory lookup starts its linked traversal at this pointer. The exported removal routine uses the same list."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vAddPartialDirectory@4 at RVA 0x747240; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "a0802ec8213529ac281fbcd7d4f3b87f1cbff83b3ae5ca827c054d8fa40c9800",
+        "inputs_sha256": "832100bc2f451a26d0de8e7c21ee1a94cc4a798522c31f788a8b8f5416d21e66"
+      }
+    },
+    {
+      "id": "sound-timer-seconds",
+      "offset": 7632912,
+      "size": 119,
+      "rebuilt_symbol": "_SND_fn_fGetCurrentTime@4",
+      "inputs": [
+        "src/sound_timer_seconds.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_timer_seconds.obj src/sound_timer_seconds.c",
+      "identification": "Steam PE export _SND_fn_fGetCurrentTime@4 at RVA 0x747810. Reads QueryPerformanceFrequency and either the saved pause counter or QueryPerformanceCounter, subtracts the origin, and divides the elapsed ticks by the frequency. Invalid or failed queries return the float at VA 0x110b8220 (zero). All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "f30fbae51c9729856e62d6ca0abd952797c20fd4f97602fe6c121dac809919b0",
+        "inputs_sha256": "dba722404724b328444caa448497f1af9d8c0058559c3db78e400b40e9790ceb"
+      }
+    },
+    {
+      "id": "sound-timer-reset",
+      "offset": 7633088,
+      "size": 38,
+      "rebuilt_symbol": "_SND_fn_vResetTimer@4",
+      "inputs": [
+        "src/sound_timers.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_timers.obj src/sound_timers.c",
+      "identification": "Named retail export at RVA 0x7478c0. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "6780b1a2acf48da7c66a5e12a1c9c4fc982d634681eb41b98c6b9bb5a255788e",
+        "inputs_sha256": "5900c64583a90de65a21f971d3a43a00428463ed2cf8d5dcc42ccfee004e1bb0"
+      }
+    },
+    {
+      "id": "sound-timer-pause",
+      "offset": 7633152,
+      "size": 43,
+      "rebuilt_symbol": "_SND_fn_vPauseTimer@4",
+      "inputs": [
+        "src/sound_timers.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_timers.obj src/sound_timers.c",
+      "identification": "Named retail export at RVA 0x747900. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "d42c1c68a99f2cae7a92619c20986bec818396a042ffceaa53d2c752bd540a15",
+        "inputs_sha256": "59b3c6bce96f804d4402acb1929718c60f7b33a20f5b3e25c516713c2b8cb3ea"
+      }
+    },
+    {
+      "id": "sound-timer-resume",
+      "offset": 7633200,
+      "size": 74,
+      "rebuilt_symbol": "_SND_fn_vResumeTimer@4",
+      "inputs": [
+        "src/sound_timer_resume.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_timer_resume.obj src/sound_timer_resume.c",
+      "identification": "Steam PE export _SND_fn_vResumeTimer@4 at RVA 0x747930. Rejects null, -2 and running handles. On resume the pause flag clears; if QueryPerformanceCounter succeeds the paused interval is added to the timer origin. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "6d40b46781d525cd6852720886cb834c0534d7cb3eb490ccc0d44c999f774f10",
+        "inputs_sha256": "e25afa25c8ab3d2720659c3f690ca67f1f59b2e8b3fcb31506bda503887706aa"
+      }
+    },
+    {
+      "id": "sound-texture-list",
+      "offset": 7638528,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_pstGetSoundTextureList",
+      "inputs": [
+        "src/sound_storage.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_storage.obj src/sound_storage.c",
+      "identification": "Export SND_fn_pstGetSoundTextureList returns the fixed list address 0x1132c730. The only return precedes alignment; the export has no parameters.",
+      "match": {
+        "bytes_sha256": "4b6a40de49ce98e4af03e095e2ed628f0619ea6bda598a4b9a4273558d1779f6",
+        "inputs_sha256": "119898f030a6d052b00e5e9c7394d485cb4e869c514ef21965b8a0b2827911a5"
+      }
+    },
+    {
       "id": "sound-texture-count",
       "offset": 7638544,
       "size": 3,
@@ -92,6 +804,98 @@
       }
     },
     {
+      "id": "sound-ascii-case-compare",
+      "offset": 7639488,
+      "size": 67,
+      "rebuilt_symbol": "_SND_fn_lStriCmp@8",
+      "inputs": [
+        "src/sound_ascii.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_ascii.obj src/sound_ascii.c",
+      "identification": "Steam export _SND_fn_lStriCmp@8 at RVA 0x7491c0; both sides of the loop and the only return belong to the body, followed by 0xCC alignment.",
+      "match": {
+        "bytes_sha256": "526c6d304f70cd3b6ca1f004c994f6fe97603349734d3616846dc7d3a3bf0c6b",
+        "inputs_sha256": "178060f3ac15f85182cbb5a019a4e51a145e22e5bd866cd4a966aada4eaeeae0"
+      }
+    },
+    {
+      "id": "sound-ascii-lowercase",
+      "offset": 7639568,
+      "size": 44,
+      "rebuilt_symbol": "_SND_fn_lStrLwr@4",
+      "inputs": [
+        "src/sound_ascii.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_ascii.obj src/sound_ascii.c",
+      "identification": "Steam export _SND_fn_lStrLwr@4 at RVA 0x749210; both sides of the loop and the only return belong to the body, followed by 0xCC alignment.",
+      "match": {
+        "bytes_sha256": "fb90ff34de0c7bff6a2d6d2b8d9137d5e85ecbb41706e79047c6d40366dfa45f",
+        "inputs_sha256": "a4829c947f89d434a5700a9ab5ca5dcddf867458c4201bb58d7c6a59c0492c7f"
+      }
+    },
+    {
+      "id": "sound-string-copy-bounded",
+      "offset": 7639616,
+      "size": 85,
+      "rebuilt_symbol": "_SND_fn_vStrncpy@12",
+      "inputs": [
+        "src/sound_bounded_text.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_bounded_text.obj src/sound_bounded_text.c",
+      "link_bindings": {
+        "_sound_text_overflow_message": {
+          "va": 286734420,
+          "basis": "Shared read-only truncation diagnostic passed by the bounded copy and append exports."
+        },
+        "_SND_fn_vDisplayErrorEx@12": {
+          "va": 285460464,
+          "basis": "Steam campaign PE named export _SND_fn_vDisplayErrorEx@12 at RVA 0x73c7f0."
+        },
+        "_strncpy": {
+          "va": 284367408,
+          "basis": "Direct target of the named Steam bounded-string wrapper at VA 0x10f31a30; the callee copies at most count bytes and zero-pads the remainder."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vStrncpy@12 at RVA 0x749240; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "22c2a0a3c68906d4f821e4fdc958301bca95ef65d3827980be6690a9403d9c3c",
+        "inputs_sha256": "8ec5a7b402313ad979201013ff9116b6630d092aacbe9f43a8a3680ae4149e21"
+      }
+    },
+    {
+      "id": "sound-string-append-bounded",
+      "offset": 7639712,
+      "size": 130,
+      "rebuilt_symbol": "_SND_fn_vStrncat@12",
+      "inputs": [
+        "src/sound_bounded_text.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_bounded_text.obj src/sound_bounded_text.c",
+      "link_bindings": {
+        "_sound_text_overflow_message": {
+          "va": 286734420,
+          "basis": "Shared read-only truncation diagnostic passed by the bounded copy and append exports."
+        },
+        "_SND_fn_vDisplayErrorEx@12": {
+          "va": 285460464,
+          "basis": "Steam campaign PE named export _SND_fn_vDisplayErrorEx@12 at RVA 0x73c7f0."
+        },
+        "_strncat": {
+          "va": 284371856,
+          "basis": "Direct target of the named Steam bounded-string wrapper at VA 0x10f32b90; the callee scans the destination terminator, then appends up to count bytes."
+        }
+      },
+      "identification": "Named retail export _SND_fn_vStrncat@12 at RVA 0x7492a0; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "a907ea81ed200ac3851bc71252c364722e142b3d8ab0fe1376b15ff479823f32",
+        "inputs_sha256": "704bbaab769940c3ac54aab0cb86a7b48e0db62640ab64163347e11dadcd8bad"
+      }
+    },
+    {
       "id": "sound-fast-fixed-multiply",
       "offset": 7647696,
       "size": 20,
@@ -104,6 +908,70 @@
       "match": {
         "bytes_sha256": "e0af574e7c343bf333549010aa3c9cff6499510be060d4718f0960cac7f93f0a",
         "inputs_sha256": "6444e25dfc509580c0570d12b7072ab47793f5ca7378a63afc6288c030b63512"
+      }
+    },
+    {
+      "id": "sound-fixed-absolute",
+      "offset": 7647760,
+      "size": 13,
+      "rebuilt_symbol": "_SND_fn_rAbsRealSnd@4",
+      "inputs": [
+        "src/sound_fixed_conversions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_fixed_conversions.obj src/sound_fixed_conversions.c",
+      "identification": "Steam PE export _SND_fn_rAbsRealSnd@4 at RVA 0x74b210. Returns the two-complement magnitude in a 32-bit slot. The minimum signed value retains its bit pattern. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "e784915524898f29daef92ead2b8c328814d639a96d93a3b79e1b1afade8c049",
+        "inputs_sha256": "bd9a4bc62f85708e4d151dc97c772b34e8e3e8843cfc3bd87a812abd434280d1"
+      }
+    },
+    {
+      "id": "sound-unpack-fixed-twin",
+      "offset": 7647776,
+      "size": 44,
+      "rebuilt_symbol": "_SND_fn_vSndRealTwinToSndReal@12",
+      "inputs": [
+        "src/sound_fixed_conversions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_fixed_conversions.obj src/sound_fixed_conversions.c",
+      "identification": "Steam PE export _SND_fn_vSndRealTwinToSndReal@12 at RVA 0x74b220. Writes each signed 8.8 half of the packed twin, scaled to signed 16.16, when its respective output pointer is non-null. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "1cf90dbcb3e24579407672d256d29ed7d4c8aa0f640eabc401865488f546baeb",
+        "inputs_sha256": "4dc92a92b24f04ed7610e550492c778e9ff2d31dcdb30e57b21ef589b2c52a32"
+      }
+    },
+    {
+      "id": "sound-pack-fixed-twin",
+      "offset": 7647824,
+      "size": 31,
+      "rebuilt_symbol": "_SND_fn_rtSndRealToSndRealTwin@8",
+      "inputs": [
+        "src/sound_fixed_conversions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_fixed_conversions.obj src/sound_fixed_conversions.c",
+      "identification": "Steam PE export _SND_fn_rtSndRealToSndRealTwin@8 at RVA 0x74b250. Combines the middle 16 bits of each 16.16 input into the high and low halves of the result. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "9c83fd4ab0cb88c4f7d08c007b4215e21103a667395252b7eeab5b3e1811c6d9",
+        "inputs_sha256": "d08056438249c0642e0ec8f3539c1fdad5bcd4674c30027acd5a00471c4e3767"
+      }
+    },
+    {
+      "id": "sound-divide-quick",
+      "offset": 7647968,
+      "size": 99,
+      "rebuilt_symbol": "_SND_fn_rDivRealRealQuickSnd@8",
+      "inputs": [
+        "src/sound_fixed_divide.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_fixed_divide.obj src/sound_fixed_divide.c",
+      "identification": "Steam PE export _SND_fn_rDivRealRealQuickSnd@8 at RVA 0x74b2e0. Chooses the scaling and shift order by operand magnitude before signed division; includes the four distinct return paths. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "c3cab56b005d8d861a7ab66cd2144e3fb12861fb70e83952e0b882177957d7f3",
+        "inputs_sha256": "7b3be1003afdd48fbee1230b3bda9bc93720e2205e2003170c3ff9c6c8faf003"
       }
     },
     {
@@ -134,6 +1002,458 @@
       "match": {
         "bytes_sha256": "a8f91c024f230432349be0c814e62dbb4609aff72bd5a3a9b3e4af14d20a9dd6",
         "inputs_sha256": "704e07c2a1158ab8781e02a3eb43608e1e8f3516c75cc1f5676d359c0c60feac"
+      }
+    },
+    {
+      "id": "sound-distance-to-volume",
+      "offset": 7648336,
+      "size": 60,
+      "rebuilt_symbol": "_SND_fn_rDistanceToVolume@4",
+      "link_bindings": {
+        "_DefaultRollOff": {
+          "va": 287207404,
+          "basis": "Four contiguous fields of the global defaults are referenced by the named rolloff getter and setter."
+        },
+        "_SND_fn_rDistanceToVolumeEx@8": {
+          "va": 285521216,
+          "basis": "Named export _SND_fn_rDistanceToVolumeEx@8 in the locked campaign PE."
+        }
+      },
+      "inputs": [
+        "src/sound_distance_to_volume.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_distance_to_volume.obj src/sound_distance_to_volume.c",
+      "identification": "Named retail campaign export _SND_fn_rDistanceToVolume@4 at VA 0x1104b450. The final return ends at 0x1104b48c before alignment or the next named function. Copies the four global defaults to a local rolloff structure and evaluates the distance with the named extended attenuation function.",
+      "match": {
+        "bytes_sha256": "476283fe852e854cd1cf1f94145ef0f62720f29d08ef99cc79afa2a434de6cba",
+        "inputs_sha256": "398040e2fd9d9f12a232045fae04cc753d9de5698dfc7497aafb4adb8e2ab802"
+      }
+    },
+    {
+      "id": "sound-doppler-pitch",
+      "offset": 7648896,
+      "size": 188,
+      "rebuilt_symbol": "_SND_fn_rDopplerPitch@16",
+      "link_bindings": {
+        "_DopplerPropagationSpeed": {
+          "va": 287207400,
+          "basis": "Shared 32-bit value read by the pitch function and the two named Doppler-factor accessors."
+        },
+        "_SND_fn_rPseudoNormeVectorSnd@4": {
+          "va": 285566816,
+          "basis": "Named export _SND_fn_rPseudoNormeVectorSnd@4 in the locked campaign PE."
+        },
+        "_SND_fn_rScalaireVectorSnd@8": {
+          "va": 285566928,
+          "basis": "Named export _SND_fn_rScalaireVectorSnd@8 in the locked campaign PE."
+        },
+        "_SND_fn_rDivRealRealSnd@8": {
+          "va": 285520368,
+          "basis": "Named export _SND_fn_rDivRealRealSnd@8 in the locked campaign PE."
+        }
+      },
+      "inputs": [
+        "src/sound_doppler_pitch.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_doppler_pitch.obj src/sound_doppler_pitch.c",
+      "identification": "Named retail campaign export _SND_fn_rDopplerPitch@16 at VA 0x1104b680. The final return ends at 0x1104b73c before alignment or the next named function. Computes the signed 16.16 pitch ratio from source and listener velocity projections. Returns unity for a disabled, zero- or over-range case or projection at or above the scaled speed.",
+      "match": {
+        "bytes_sha256": "282591e4428902b6fbda49c45b4cb897a1efbcff0b2871dd802c3c461111e520",
+        "inputs_sha256": "2ade7b0f510090963f8274ff8d123a29e1fae232bffe420e7fc5e0044b08d8d8"
+      }
+    },
+    {
+      "id": "set-doppler-factor",
+      "offset": 7649088,
+      "size": 43,
+      "inputs": [
+        "src/doppler.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/doppler.obj src/doppler.c",
+      "rebuilt_symbol": "_SND_fn_vSetDopplerFactor@4",
+      "link_bindings": {
+        "_SND_fn_rDivRealRealSnd@8": {
+          "va": 285520368,
+          "basis": "Named export _SND_fn_rDivRealRealSnd@8 in the locked Steam campaign PE."
+        },
+        "_DopplerPropagationSpeed": {
+          "va": 287207400,
+          "basis": "Both retail Doppler factor exports access this shared 32-bit value."
+        }
+      },
+      "identification": "Retail named export _SND_fn_vSetDopplerFactor@4 at VA 0x1104b740. Both return paths end before INT3 padding at VA 0x1104b76b. Retail export _SND_fn_rDivRealRealSnd@8 at 0x1104b1f0 is a fixed-point division call target; both exports access the same data at 0x111e6fe8.",
+      "match": {
+        "bytes_sha256": "e28788ee9c1c2b65b2554eadfda4e34d3216ce246446369b53b38be1e2888a18",
+        "inputs_sha256": "1eef036f8af463714bec8755e0ba8b42131d5316525eabd44408668ad6182693"
+      }
+    },
+    {
+      "id": "get-doppler-factor",
+      "offset": 7649136,
+      "size": 27,
+      "inputs": [
+        "src/doppler.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/doppler.obj src/doppler.c",
+      "rebuilt_symbol": "_SND_fn_rGetDopplerFactor@0",
+      "link_bindings": {
+        "_DopplerPropagationSpeed": {
+          "va": 287207400,
+          "basis": "Both retail Doppler factor exports access this shared 32-bit value."
+        },
+        "_SND_fn_rDivRealRealSnd@8": {
+          "va": 285520368,
+          "basis": "Named export _SND_fn_rDivRealRealSnd@8 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail named export _SND_fn_rGetDopplerFactor@0 at VA 0x1104b770. Both return paths end before INT3 padding at VA 0x1104b78b. Retail export _SND_fn_rDivRealRealSnd@8 at 0x1104b1f0 is a fixed-point division call target; both exports access the same data at 0x111e6fe8.",
+      "match": {
+        "bytes_sha256": "95f11f361470ec6c5aab0e71fee7e32cb59ac97d148d0c67c72f1fd8dbabcd66",
+        "inputs_sha256": "81524d7006fc277c974bb48e298c0b7e2e4894af2c4095b6f5d80d4ddec5883b"
+      }
+    },
+    {
+      "id": "sound-position-to-pan",
+      "offset": 7649168,
+      "size": 175,
+      "inputs": [
+        "src/sound_position.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_position.obj src/sound_position.c",
+      "rebuilt_symbol": "_SND_fn_ucPositionToPan@16",
+      "link_bindings": {
+        "_SND_fn_rPseudoNormeVectorSnd@4": {
+          "va": 285566816,
+          "basis": "Named export _SND_fn_rPseudoNormeVectorSnd@4 in the locked Steam campaign PE."
+        },
+        "_SND_fn_rPseudoScalaireNormeVectorSnd@8": {
+          "va": 285566992,
+          "basis": "Named export _SND_fn_rPseudoScalaireNormeVectorSnd@8 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail named export _SND_fn_ucPositionToPan@16 begins at 0x1104b790. The last return ends at 0x1104b83f, followed by INT3 alignment. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
+      "match": {
+        "bytes_sha256": "2a88a3fb6061fb2586d9cdfc70d92157455303505c79e18ecca833fad524f57a",
+        "inputs_sha256": "70f1db4dd1a6ede65b276c0fa89c6c15d721f1df04d057ff862b5735a668e49b"
+      }
+    },
+    {
+      "id": "sound-position-to-dolby",
+      "offset": 7649344,
+      "size": 190,
+      "inputs": [
+        "src/sound_position.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_position.obj src/sound_position.c",
+      "rebuilt_symbol": "_SND_fn_ucPositionToDolby@12",
+      "link_bindings": {
+        "_SND_fn_rPseudoNormeVectorSnd@4": {
+          "va": 285566816,
+          "basis": "Named export _SND_fn_rPseudoNormeVectorSnd@4 in the locked Steam campaign PE."
+        },
+        "_SND_fn_rPseudoScalaireNormeVectorSnd@8": {
+          "va": 285566992,
+          "basis": "Named export _SND_fn_rPseudoScalaireNormeVectorSnd@8 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail named export _SND_fn_ucPositionToDolby@12 begins at 0x1104b840. The last return ends at 0x1104b8fe, followed by INT3 alignment. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
+      "match": {
+        "bytes_sha256": "b72e79e162b521ace95455abd598fd2a97ba000a2287b4af3174449f52a0dfca",
+        "inputs_sha256": "9bacf31085c365e0b32458cb98fb669998b21c7295856d2584ddae6f7a9ae465"
+      }
+    },
+    {
+      "id": "sound-volume-pan-to-stereo",
+      "offset": 7649536,
+      "size": 86,
+      "inputs": [
+        "src/stereo_pan.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/stereo_pan.obj src/stereo_pan.c",
+      "rebuilt_symbol": "_SND_fn_vVolPanToVolLR@16",
+      "link_bindings": {
+        "_PanAttenuation": {
+          "va": 287212408,
+          "basis": "Retail stereo pan export indexes the attenuation table at this VA using pan and 128 minus pan."
+        }
+      },
+      "identification": "Retail export _SND_fn_vVolPanToVolLR@16 at 0x1104b900, last return ends at 0x1104b956 before INT3 alignment. The constant table at VA 0x111e8378 is indexed by pan and 128 minus pan, then both outputs are clamped to -96 in signed 16.16 units. The absolute linker symbol locates the table; its data is outside the measured function.",
+      "match": {
+        "bytes_sha256": "6bcb2c2d00cd991073b73a6f7392593ac83b790d3033f23f71ef3a08bdafebda",
+        "inputs_sha256": "cd2e790b2e5c16727222d0693ca4469f11b116e7ae49d7084eca9286620bc5cc"
+      }
+    },
+    {
+      "id": "sound-angle-to-dolby-angle",
+      "offset": 7649632,
+      "size": 87,
+      "rebuilt_symbol": "_SND_fn_lSoundAngleToDolbyAngle@8",
+      "inputs": [
+        "src/sound_spatial_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_spatial_math.obj src/sound_spatial_math.c",
+      "basis": "Retail named export _SND_fn_lSoundAngleToDolbyAngle@8 starts at VA 0x1104b960. The final return ends immediately before INT3 alignment at 0x1104b9b7.",
+      "identification": "Named retail export at RVA 0x74b960. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "2874e0594337890b4c4d2d2e65d4b2e2458815b51da8cdb8798c9a94644a63bd",
+        "inputs_sha256": "335ef7a7e57c903b119bbe25f44b9f2162939f0de1768d068df2c99089e18baa"
+      }
+    },
+    {
+      "id": "sound-debug-module-handle",
+      "offset": 7655200,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_vGetHModuleDbg@0",
+      "inputs": [
+        "src/sound_storage.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_storage.obj src/sound_storage.c",
+      "identification": "The named stdcall export reads the pointer in image slot 0x1132eab0. The single return precedes alignment.",
+      "match": {
+        "bytes_sha256": "9e02040a92b6ada17e9527d411e32495a7bed1a49118d0f00b3689c32de8c9fd",
+        "inputs_sha256": "b0c3f90cab6340514cb5585e747bbce0074f8d8e360da7d7659fc8697d44a186"
+      }
+    },
+    {
+      "id": "sound-vector-squared-length",
+      "offset": 7694080,
+      "size": 43,
+      "rebuilt_symbol": "_SND_fn_rNormeVectorSnd@4",
+      "inputs": [
+        "src/sound_spatial_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_spatial_math.obj src/sound_spatial_math.c",
+      "basis": "Retail named export _SND_fn_rNormeVectorSnd@4 starts at VA 0x11056700. The final return ends immediately before INT3 alignment at 0x1105672b.",
+      "identification": "Named retail export at RVA 0x756700. The complete function ends before alignment.",
+      "match": {
+        "bytes_sha256": "e6df59238d0fffbb075c0c56aac62a2a7a77adcf174ffc6ded10447616dbb193",
+        "inputs_sha256": "3e40b518933aa93d9c46a46f88c9674ee8d1d2b87b3d1002c65a8c73e4a234ea"
+      }
+    },
+    {
+      "id": "sound-vector-approximate-length",
+      "offset": 7694176,
+      "size": 112,
+      "inputs": [
+        "src/sound_position.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_position.obj src/sound_position.c",
+      "rebuilt_symbol": "_SND_fn_rPseudoNormeVectorSnd@4",
+      "link_bindings": {
+        "_SND_fn_rAbsRealSnd@4": {
+          "va": 285520400,
+          "basis": "Named export _SND_fn_rAbsRealSnd@4 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail named export _SND_fn_rPseudoNormeVectorSnd@4 begins at 0x11056760. The last return ends at 0x110567d0, followed by the exported vector dot product. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
+      "match": {
+        "bytes_sha256": "aa4210c7c47c4c4b990c44affa250194948d477b67a7a97f13819f5e96435f92",
+        "inputs_sha256": "71a0e740e84731c328d6c0bf8aed6137a18ffcdb91ae4d6c0dfd0d970182c315"
+      }
+    },
+    {
+      "id": "sound-vector-dot-product",
+      "offset": 7694288,
+      "size": 60,
+      "inputs": [
+        "src/sound_vector_products.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_vector_products.obj src/sound_vector_products.c",
+      "rebuilt_symbol": "_SND_fn_rScalaireVectorSnd@8",
+      "link_bindings": {
+        "_SND_fn_rMulRealRealSnd@8": {
+          "va": 285520496,
+          "basis": "Named export _SND_fn_rMulRealRealSnd@8 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail export _SND_fn_rScalaireVectorSnd@8 begins at VA 0x110567d0; the final return ends at 0x1105680c before INT3 alignment. Computes the sum of the three component products with fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
+      "match": {
+        "bytes_sha256": "a2304aa4e3688900519a25259b6a7471cc9aab8198e453bf4cf674e6208f288b",
+        "inputs_sha256": "c871df7cf353c45b218836bed07024a6572b2b6d1e6b72893c9c289206dadf69"
+      }
+    },
+    {
+      "id": "sound-vector-quick-dot-product",
+      "offset": 7694352,
+      "size": 60,
+      "inputs": [
+        "src/sound_vector_products.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_vector_products.obj src/sound_vector_products.c",
+      "rebuilt_symbol": "_SND_fn_rPseudoScalaireNormeVectorSnd@8",
+      "link_bindings": {
+        "_SND_fn_rMulRealRealQuickSnd@8": {
+          "va": 285520336,
+          "basis": "Named export _SND_fn_rMulRealRealQuickSnd@8 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail export _SND_fn_rPseudoScalaireNormeVectorSnd@8 begins at VA 0x11056810; the final return ends at 0x1105684c before INT3 alignment. Computes the same sum with the lower-precision fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
+      "match": {
+        "bytes_sha256": "36d1c9cc2217b1bd9261b7323e08cef5fd29bae72e8a1d8c85ca9e42a5d25bed",
+        "inputs_sha256": "992e3b3933d786a0e9685a9a9724f50f881718f09393d03a64f9997cad58ed5a"
+      }
+    },
+    {
+      "id": "sound-vector-cross-product",
+      "offset": 7694416,
+      "size": 117,
+      "inputs": [
+        "src/sound_vector_products.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_vector_products.obj src/sound_vector_products.c",
+      "rebuilt_symbol": "_SND_fn_vProduitVectorSnd@12",
+      "link_bindings": {
+        "_SND_fn_rMulRealRealSnd@8": {
+          "va": 285520496,
+          "basis": "Named export _SND_fn_rMulRealRealSnd@8 in the locked Steam campaign PE."
+        }
+      },
+      "identification": "Retail export _SND_fn_vProduitVectorSnd@12 begins at VA 0x11056850; the final return ends at 0x110568c5 before INT3 alignment. Writes the three differences of component products in cross-product order. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
+      "match": {
+        "bytes_sha256": "a42f0e593f098c266b22b13c2d248804360267725d3a8cf9366277a8afd728ce",
+        "inputs_sha256": "cc57cca8944b21746dad3f67c0c387d877d7d64cd0be3490fa7a2a001ebeb8ba"
+      }
+    },
+    {
+      "id": "sound-file-read",
+      "offset": 7947696,
+      "size": 60,
+      "rebuilt_symbol": "_SND_fn_ulReadFileSnd@12",
+      "inputs": [
+        "src/sound_file_io.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_io.obj src/sound_file_io.c",
+      "identification": "Steam PE export _SND_fn_ulReadFileSnd@12 at RVA 0x7945b0. Passes file, buffer and count to the named ReadFile import. Both success and failure branches return a byte count, with GetLastError called before returning zero on failure. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "f9acbd2cf825496be0c60f1e154de8686db858d2a3861e028dd230e0f2e4efc1",
+        "inputs_sha256": "af7db26ee9634a88662601de6e55e49f8c623d511f9d16aad3ba7d6fefbe05c4"
+      }
+    },
+    {
+      "id": "sound-close-file",
+      "offset": 7947840,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_vCloseFileSnd@4",
+      "inputs": [
+        "src/sound_file_handles.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_file_handles.obj src/sound_file_handles.c",
+      "identification": "The named export is a single terminal indirect jump through the KERNEL32 CloseHandle import at VA 0x110b738c. The next bytes are alignment. The caller already supplied the handle on the stack.",
+      "match": {
+        "bytes_sha256": "130bca5d2a3c2ca69c636b7ee88752f201f4be9977500395b60faff6d61f8672",
+        "inputs_sha256": "3f7ee11b9dfb397dfa6a490ff06fff4e1c2496c9c8c84f6c13a141b79ded0111"
+      }
+    },
+    {
+      "id": "sound-directory-separator",
+      "offset": 7947856,
+      "size": 3,
+      "rebuilt_symbol": "_SND_fn_cGetDirectorySeparator@0",
+      "inputs": [
+        "src/sound_directory_queries.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+      "identification": "The retail export table names _SND_fn_cGetDirectorySeparator@0 at RVA 0x794650. Its return immediately precedes alignment.",
+      "match": {
+        "bytes_sha256": "843316f2067c905c3f17a526081c3028022d685a1a6652709f90bedbae6c3cd0",
+        "inputs_sha256": "fad4352d60430b56a153d75602fc8a8fea1cfb486cc849e9999ae97e262190d3"
+      }
+    },
+    {
+      "id": "sound-file-write",
+      "offset": 7948032,
+      "size": 60,
+      "rebuilt_symbol": "_SND_fn_ulWriteFileSnd@12",
+      "inputs": [
+        "src/sound_file_io.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_io.obj src/sound_file_io.c",
+      "identification": "Steam PE export _SND_fn_ulWriteFileSnd@12 at RVA 0x794700. Passes file, buffer and count to the named WriteFile import. The success path returns the written count and the failure path calls GetLastError before returning zero. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "e416902619fd4b8615916bc6a29b60ecd923be2414a89c228b15ebd712bad00a",
+        "inputs_sha256": "aba11709b6104af739d423b6e8a35ce6176568a670d5b1e07c3ee71a45e85c4a"
+      }
+    },
+    {
+      "id": "sound-file-size",
+      "offset": 7948096,
+      "size": 16,
+      "rebuilt_symbol": "_SND_fn_ulGetFileSize@4",
+      "inputs": [
+        "src/sound_file_io.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_io.obj src/sound_file_io.c",
+      "identification": "Steam PE export _SND_fn_ulGetFileSize@4 at RVA 0x794740. Calls the named GetFileSize import with the file handle and a null high-word output. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "b9e62b4613836259d794a02c6fa15785fef069c21ce34002379b0168ad8ac4eb",
+        "inputs_sha256": "53c7b5282d6f19310ca0d0c006f5585eea47395644ed7322d5872233fe21ba79"
+      }
+    },
+    {
+      "id": "sound-delete-file",
+      "offset": 7948112,
+      "size": 6,
+      "rebuilt_symbol": "_SND_fn_bDeleteFile@4",
+      "inputs": [
+        "src/sound_file_handles.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_file_handles.obj src/sound_file_handles.c",
+      "identification": "The named export is a single terminal indirect jump through KERNEL32 DeleteFileA at VA 0x110b7378. Alignment follows the jump. The single path argument is forwarded on the stack.",
+      "match": {
+        "bytes_sha256": "4d1ada4aae7132fb1bcec215d2de3d33db9804c95d7531de843c88fc708509c9",
+        "inputs_sha256": "3b24ac9fb15245207910ec10093bbd7357f390b07ba0c66d311f8a69f0f79b01"
+      }
+    },
+    {
+      "id": "sound-async-abort",
+      "offset": 7948624,
+      "size": 41,
+      "rebuilt_symbol": "_SND_fn_vAbortLastStreamAsyncSnd@4",
+      "inputs": [
+        "src/sound_stream_requests.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_requests.obj src/sound_stream_requests.c",
+      "identification": "Steam PE export _SND_fn_vAbortLastStreamAsyncSnd@4 at RVA 0x794950. A valid stream clears eight request fields. A null handle or -1 returns immediately. File and buffer ownership fields survive the reset. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "5f03f48086bf0e67ea068314dcdfe5d5fc8b1be1e80d015dfc144232e15dbc3f",
+        "inputs_sha256": "082e03bc08e2cf957aae0b094014cb5c379c55711aff0888582dce5c93dfe6e6"
+      }
+    },
+    {
+      "id": "sound-async-is-done",
+      "offset": 7948672,
+      "size": 33,
+      "rebuilt_symbol": "_SND_fn_bIsLastStreamAsyncDoneSnd@4",
+      "inputs": [
+        "src/sound_stream_requests.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_requests.obj src/sound_stream_requests.c",
+      "identification": "Steam PE export _SND_fn_bIsLastStreamAsyncDoneSnd@4 at RVA 0x794980. Null and -1 return false; for a valid pointer, state 2 signals completion. All reachable return paths are included; the following alignment is excluded.",
+      "match": {
+        "bytes_sha256": "7064f383ff0fe2c208d27ffde78be9f2a322c5df767a21786bc8b65c1653cf75",
+        "inputs_sha256": "ac7dda2ee765e280d6aa42d7b4007ad136f05a0df5e412373eb4882d8414d003"
       }
     }
   ]

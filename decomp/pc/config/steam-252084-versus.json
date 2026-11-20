@@ -25,6 +25,1166 @@
   },
   "units": [
     {
+      "id": "vm-not-pre-bool",
+      "offset": 276192,
+      "size": 69,
+      "rebuilt_symbol": "@execNot_PreBool@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 109 (Core.Object.Not_PreBool) to VA 0x109436e0 at VA 0x1094b1cd. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "b7ea9389563fe13b6621c96d1233eeb26bc8be039df9d87e1ae1826043dc67ec",
+        "inputs_sha256": "1937fbb515d64a237a7839de9f3c756d769fd4f5df25acc778bf45b75b550daf"
+      }
+    },
+    {
+      "id": "vm-equal-equal-bool-bool",
+      "offset": 276272,
+      "size": 121,
+      "rebuilt_symbol": "@execEqualEqual_BoolBool@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 108 (Core.Object.EqualEqual_BoolBool) to VA 0x10943730 at VA 0x1094b204. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "953c017f972be8fd2fc38e7e43f547ea8b29defe16cde833b0f9468dbb13d37a",
+        "inputs_sha256": "1f6ee01b82a3161465c10f404f1f7f6b32d0b66e43cb09b1544595655efb566a"
+      }
+    },
+    {
+      "id": "vm-not-equal-bool-bool",
+      "offset": 276400,
+      "size": 121,
+      "rebuilt_symbol": "@execNotEqual_BoolBool@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 110 (Core.Object.NotEqual_BoolBool) to VA 0x109437b0 at VA 0x1094b23b. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "989ea86cb4aefb023b35cf409beec8a57984298da0fad14313ec5d745e6eb4bd",
+        "inputs_sha256": "eee145247c5f29788f8c5878717bde8dad346131034a9587f80c39bdb027a178"
+      }
+    },
+    {
+      "id": "vm-add-add-pre-byte",
+      "offset": 277584,
+      "size": 103,
+      "rebuilt_symbol": "@execAddAdd_PreByte@16",
+      "identification": "Steam installs Core.Object.AddAdd_PreByte at native slot 117 with the store at VA 0x1094b3f3. The registered VA 0x10943c50 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "4f1fbd26e9e4fea9afff56c1bb21b1bf6219488ed60d31eedc4118c06cbd7053",
+        "inputs_sha256": "d08fd1c9d8364e4869489e5a63ef7e557107ef8a4ca6ba557e9392efff918264"
+      }
+    },
+    {
+      "id": "vm-subtract-subtract-pre-byte",
+      "offset": 277696,
+      "size": 103,
+      "rebuilt_symbol": "@execSubtractSubtract_PreByte@16",
+      "identification": "Steam installs Core.Object.SubtractSubtract_PreByte at native slot 118 with the store at VA 0x1094b42a. The registered VA 0x10943cc0 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "6c98942111473b0670d91db9a60e1530e00ece7ca166cedb298760ebbb5daee5",
+        "inputs_sha256": "da108b856d3983d0c7cd413a2dc809c83fe995dea04c602142ecbece5ebd18a6"
+      }
+    },
+    {
+      "id": "vm-add-add-byte",
+      "offset": 277808,
+      "size": 99,
+      "rebuilt_symbol": "@execAddAdd_Byte@16",
+      "identification": "Steam installs Core.Object.AddAdd_Byte at native slot 119 with the store at VA 0x1094b461. The registered VA 0x10943d30 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "35b67cb0eb0afc3368ae453fe00cbfcb1392475e91538933e6052c935c6d173f",
+        "inputs_sha256": "4dffed9383fc7b8b58be8e81f904e2145fc68392817aabe538630fbe12683686"
+      }
+    },
+    {
+      "id": "vm-subtract-subtract-byte",
+      "offset": 277920,
+      "size": 99,
+      "rebuilt_symbol": "@execSubtractSubtract_Byte@16",
+      "identification": "Steam installs Core.Object.SubtractSubtract_Byte at native slot 120 with the store at VA 0x1094b498. The registered VA 0x10943da0 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "dd34f7bf2a47473f1b995da4fe82ed426382dee0762678b9f57f8796d8896f02",
+        "inputs_sha256": "c83f3958ddbf680c6d7caaa63d7f8e77fd80d450314c2c0d1ab59509269dd63f"
+      }
+    },
+    {
+      "id": "vm-complement-pre-int",
+      "offset": 278032,
+      "size": 64,
+      "rebuilt_symbol": "@execComplement_PreInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 121 (Core.Object.Complement_PreInt) to VA 0x10943e10 at VA 0x1094b4cf. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "abd6b529631133fd3592bcfb83ee9c6f0f72880285e4f66db0898b8f79bc5be8",
+        "inputs_sha256": "a34406c991017a88d60c1cf5cc329830a63f84efaa556a1955a9e550c7f12037"
+      }
+    },
+    {
+      "id": "vm-greater-greater-greater-int-int",
+      "offset": 278096,
+      "size": 102,
+      "rebuilt_symbol": "@execGreaterGreaterGreater_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 122 (Core.Object.GreaterGreaterGreater_IntInt) to VA 0x10943e50 at VA 0x1094b506. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "ee1e7788334456c5f29e8eb4ab7336787c8d710e1ccb02e1affe418109c1e1fe",
+        "inputs_sha256": "a61f6a0c8e7fa7bed7704f68e37e965de628ac9d6d10a18dceb611b04d558509"
+      }
+    },
+    {
+      "id": "vm-subtract-pre-int",
+      "offset": 278208,
+      "size": 64,
+      "rebuilt_symbol": "@execSubtract_PreInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 123 (Core.Object.Subtract_PreInt) to VA 0x10943ec0 at VA 0x1094b53d. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "c60ceddc34caa6d496273c3585fbc2dece3b11b3d9def0a31c3560e872805d7a",
+        "inputs_sha256": "ac308d6a594bde37a34987b805019c2287208a98f56156483319e49a79c59ad5"
+      }
+    },
+    {
+      "id": "vm-multiply-int-int",
+      "offset": 278272,
+      "size": 101,
+      "rebuilt_symbol": "@execMultiply_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 124 (Core.Object.Multiply_IntInt) to VA 0x10943f00 at VA 0x1094b574. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "dd05afdf1b7ae3234bb52bd9de60413d90c01ba388b8a81bb3e1a36e5205a372",
+        "inputs_sha256": "e1f5927569a69ee62b88fe3feaa4ccf09b4287b61f316109c073bf7b05be508f"
+      }
+    },
+    {
+      "id": "vm-divide-int-int",
+      "offset": 278384,
+      "size": 111,
+      "rebuilt_symbol": "@execDivide_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 125 (Core.Object.Divide_IntInt) to VA 0x10943f70 at VA 0x1094b5ab. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "aae3043142f6a3a74138f28c7a90b35fcec4bfe8a0bd620ec94a692cb2fe530c",
+        "inputs_sha256": "2c2f658f73c3edb1fc7861992bba34041175a790689808da814ce0ab34655ed6"
+      }
+    },
+    {
+      "id": "vm-add-int-int",
+      "offset": 278496,
+      "size": 102,
+      "rebuilt_symbol": "@execAdd_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 126 (Core.Object.Add_IntInt) to VA 0x10943fe0 at VA 0x1094b5e2. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "e4615d11ad376700732b9e4668d595a4c78c032e5e7301878e0be0931984c10a",
+        "inputs_sha256": "7bcd38a55383b5cb7f4556ac0848199b6f8ca5dc033c7d8d64d4e4d906bc0526"
+      }
+    },
+    {
+      "id": "vm-subtract-int-int",
+      "offset": 278608,
+      "size": 102,
+      "rebuilt_symbol": "@execSubtract_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 86 (Core.Object.Subtract_IntInt) to VA 0x10944050 at VA 0x1094b619. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "9bb29e51b837726c75bc9b0ec55dac24525a7e16510e2b71e0d765ec434ccbd7",
+        "inputs_sha256": "7397bf9f79c00aa411747ec13534af7777e42331212a3f7a2330d23db0435289"
+      }
+    },
+    {
+      "id": "vm-less-less-int-int",
+      "offset": 278720,
+      "size": 102,
+      "rebuilt_symbol": "@execLessLess_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 87 (Core.Object.LessLess_IntInt) to VA 0x109440c0 at VA 0x1094b650. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "ec8401dcd961aec83866cdfe6e3a94e70a56ecef4bdadfc07f95c271c95307ee",
+        "inputs_sha256": "dd71bcea3906bfd9882cc0005a5fb8c1e6554147929e72b10d654c3fc4977f04"
+      }
+    },
+    {
+      "id": "vm-greater-greater-int-int",
+      "offset": 278832,
+      "size": 102,
+      "rebuilt_symbol": "@execGreaterGreater_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 88 (Core.Object.GreaterGreater_IntInt) to VA 0x10944130 at VA 0x1094b687. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "59cb40d5c98e1ab4ce17cd0638b654a3ad73d72e07f3772a692a0e62e2e63ff2",
+        "inputs_sha256": "57a5ae378ed5cbb18eeb6fe441a9cc2ec36d964b6782db70a64bf034adca9986"
+      }
+    },
+    {
+      "id": "vm-less-int-int",
+      "offset": 278944,
+      "size": 107,
+      "rebuilt_symbol": "@execLess_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 89 (Core.Object.Less_IntInt) to VA 0x109441a0 at VA 0x1094b6be. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "48c4c89d24b6bce4762c87566fa98a453758d23d19285d0b21575353e91897ad",
+        "inputs_sha256": "328fe64116dd03e18b84096e7cf7081fa3b415a018f49f8ce40c76f347f7ccde"
+      }
+    },
+    {
+      "id": "vm-greater-int-int",
+      "offset": 279056,
+      "size": 107,
+      "rebuilt_symbol": "@execGreater_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 90 (Core.Object.Greater_IntInt) to VA 0x10944210 at VA 0x1094b6f5. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "6c768eddb08169a3838d02bf53d6304e1254d2380c6f03ef7b3917e857cce982",
+        "inputs_sha256": "5356b7cbd664bda524d2b982e3395c10fc69e9e0fea24b3368d21c64a6f37936"
+      }
+    },
+    {
+      "id": "vm-less-equal-int-int",
+      "offset": 279168,
+      "size": 107,
+      "rebuilt_symbol": "@execLessEqual_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 91 (Core.Object.LessEqual_IntInt) to VA 0x10944280 at VA 0x1094b72c. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "6fc1de5a6419d2e1df83ce8b791377972f7a4b43f69e4afe62aa5bafe18a6d43",
+        "inputs_sha256": "8afd780bf01c162a852bbf30b318ee252e2f552fa88ca89567b15e6ab8ff36f7"
+      }
+    },
+    {
+      "id": "vm-greater-equal-int-int",
+      "offset": 279280,
+      "size": 107,
+      "rebuilt_symbol": "@execGreaterEqual_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 92 (Core.Object.GreaterEqual_IntInt) to VA 0x109442f0 at VA 0x1094b763. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "79b6121462e19648833cb0725ab71862d780dee7d12e3fb394cf414d99466d7a",
+        "inputs_sha256": "2a83bf05109f0da445165c3f41002762b2e646fed3f824bbf269a496fcbc9a93"
+      }
+    },
+    {
+      "id": "vm-equal-equal-int-int",
+      "offset": 279392,
+      "size": 107,
+      "rebuilt_symbol": "@execEqualEqual_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 93 (Core.Object.EqualEqual_IntInt) to VA 0x10944360 at VA 0x1094b79a. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "4f0d14ed98e346a117ae30dec73bdb1845707f318aa4b8ba280d8e50f8422b87",
+        "inputs_sha256": "3878014c6e93d4320aa44cdf0b7869e1c22b836a3f3d867c04ebbd702c20c1e5"
+      }
+    },
+    {
+      "id": "vm-not-equal-int-int",
+      "offset": 279504,
+      "size": 107,
+      "rebuilt_symbol": "@execNotEqual_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 94 (Core.Object.NotEqual_IntInt) to VA 0x109443d0 at VA 0x1094b7d1. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "28e3849541d79e8a108fb356a7406112093aae9b89bccf9222d9746898d85a6f",
+        "inputs_sha256": "80f9ff002f9f2fe196061463874863e51da903c50c623f7530ae7daceda17d8e"
+      }
+    },
+    {
+      "id": "vm-and-int-int",
+      "offset": 279616,
+      "size": 102,
+      "rebuilt_symbol": "@execAnd_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 95 (Core.Object.And_IntInt) to VA 0x10944440 at VA 0x1094b808. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "519122f2e68f21d7f43bbdfcbfbe3423b3d7ceeff460b7fd3eef1b7346aff867",
+        "inputs_sha256": "96cf750118e8f98265498ff9b4c4274eb35f07fd050238740c3ddd052c86b1e7"
+      }
+    },
+    {
+      "id": "vm-xor-int-int",
+      "offset": 279728,
+      "size": 102,
+      "rebuilt_symbol": "@execXor_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 96 (Core.Object.Xor_IntInt) to VA 0x109444b0 at VA 0x1094b83f. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "c03e60fb20a8dae0b6772b3dd4dfd80608280eeeb2843ee465417766caffb6f3",
+        "inputs_sha256": "510a9b58c2e8f5c06948348273f536075d05ba5af37ed8f4848fe2854d11aab5"
+      }
+    },
+    {
+      "id": "vm-or-int-int",
+      "offset": 279840,
+      "size": 102,
+      "rebuilt_symbol": "@execOr_IntInt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 97 (Core.Object.Or_IntInt) to VA 0x10944520 at VA 0x1094b876. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "732352c00b9be4d9fc8439120c4cb0dcc79242f4dff32bdcf7a29b8d2704a305",
+        "inputs_sha256": "6625d1faa1c00beba7a53f277c7c33a1b5f1105fda3d8f90fa22794a54a8eb7b"
+      }
+    },
+    {
+      "id": "vm-add-add-pre-int",
+      "offset": 280640,
+      "size": 105,
+      "rebuilt_symbol": "@execAddAdd_PreInt@16",
+      "identification": "Steam installs Core.Object.AddAdd_PreInt at native slot 102 with the store at VA 0x1094b989. The registered VA 0x10944840 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "2245ba63f47a81bc2963d158e8bf1294853f73d2fd9cab248f7890f3387d0565",
+        "inputs_sha256": "080b214e11c29d0a9f6e55c286494831182d9a260ba2557b334189fcb61466c7"
+      }
+    },
+    {
+      "id": "vm-subtract-subtract-pre-int",
+      "offset": 280752,
+      "size": 105,
+      "rebuilt_symbol": "@execSubtractSubtract_PreInt@16",
+      "identification": "Steam installs Core.Object.SubtractSubtract_PreInt at native slot 103 with the store at VA 0x1094b9c0. The registered VA 0x109448b0 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "55077749afc6da8e1168cf9b2d3106db9316eeb9d7c85abb96d47802ea9a1767",
+        "inputs_sha256": "f15237f6fb562c2e7c887e50a7cda7c294e91911ecbbb2247a16f5bd74b877f4"
+      }
+    },
+    {
+      "id": "vm-add-add-int",
+      "offset": 280864,
+      "size": 102,
+      "rebuilt_symbol": "@execAddAdd_Int@16",
+      "identification": "Steam installs Core.Object.AddAdd_Int at native slot 104 with the store at VA 0x1094b9f7. The registered VA 0x10944920 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "9ff48daea3bf0ada96519030e224f885394a41a2bf837e6f4464a363f804179b",
+        "inputs_sha256": "a031b280844be1bb768669303d98ef422c57e66534912724726b48bbd4f5f99b"
+      }
+    },
+    {
+      "id": "vm-subtract-subtract-int",
+      "offset": 280976,
+      "size": 102,
+      "rebuilt_symbol": "@execSubtractSubtract_Int@16",
+      "identification": "Steam installs Core.Object.SubtractSubtract_Int at native slot 105 with the store at VA 0x1094ba2e. The registered VA 0x10944990 uses ECX for the receiver and the stack for frame and result. It resolves the writable operand from the VM property address at VA 0x10c78b9c and returns the value before or after the update as specified by the operator.",
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_increment.obj src/versus_vm_increment.c",
+      "inputs": [
+        "src/versus_vm_increment.c"
+      ],
+      "match": {
+        "bytes_sha256": "905efda01c40a4eaca45b193c26a820afce35b5ea9edad2663364bafd04fb84a",
+        "inputs_sha256": "f559dbc17c20c19852aaee90f88d52c53beb251f1dba67c908fddc83cd2d9e9c"
+      }
+    },
+    {
+      "id": "vm-min",
+      "offset": 281184,
+      "size": 114,
+      "rebuilt_symbol": "@execMin@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 140 (Core.Object.Min) to VA 0x10944a60 at VA 0x1094ba9c. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "52f99f4c1f724e6759d6cfceb46628adde18bdf2654aa89b78c9690547676717",
+        "inputs_sha256": "89a4e317319144cb538c486c9cafeb07aadec1b9ffd6aedc6a1ab0607d623454"
+      }
+    },
+    {
+      "id": "vm-max",
+      "offset": 281312,
+      "size": 114,
+      "rebuilt_symbol": "@execMax@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 144 (Core.Object.Max) to VA 0x10944ae0 at VA 0x1094bad3. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "7d80463ae805f1b8e22e26fdbf930ae235062cb9efd3699c673701276e09a752",
+        "inputs_sha256": "d9fd14324dd70322ec75230a0f01ad0327463dcdf4c1ee867d01e98114035e3e"
+      }
+    },
+    {
+      "id": "vm-multiply-float-float",
+      "offset": 281792,
+      "size": 100,
+      "rebuilt_symbol": "@execMultiply_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 171 (Core.Object.Multiply_FloatFloat) to VA 0x10944cc0 at VA 0x1094bbaf. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "64731d21c6bb99a6e028282a20471d6570505d26dd5004aefd349ccebe53a36c",
+        "inputs_sha256": "87f80299abbce0a670d83a10dea40108f60e625f2dbf32b2045e84d8cec1cc58"
+      }
+    },
+    {
+      "id": "vm-divide-float-float",
+      "offset": 281904,
+      "size": 100,
+      "rebuilt_symbol": "@execDivide_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 172 (Core.Object.Divide_FloatFloat) to VA 0x10944d30 at VA 0x1094bbe6. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "ddaa73c6171b8317e74401f8d43be233b995798544f2feece6451d01e9956632",
+        "inputs_sha256": "eda9fabce25d09177aaf41a17d747c83d7cdf2921783315d1cfa16bea193da9c"
+      }
+    },
+    {
+      "id": "vm-add-float-float",
+      "offset": 282128,
+      "size": 100,
+      "rebuilt_symbol": "@execAdd_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 174 (Core.Object.Add_FloatFloat) to VA 0x10944e10 at VA 0x1094bc54. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "5069d8edb3318cfd13eb780cad05ee2e85154d0b1ff4176b73559a062d07ee1e",
+        "inputs_sha256": "d3b956fcef15c16f86bd9f3d5b6e2063a337ec28ad1c3101bc47fcef2fdf3295"
+      }
+    },
+    {
+      "id": "vm-subtract-float-float",
+      "offset": 282240,
+      "size": 100,
+      "rebuilt_symbol": "@execSubtract_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 175 (Core.Object.Subtract_FloatFloat) to VA 0x10944e80 at VA 0x1094bc8b. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "c61ddb23b14eee4a6be1b29c31342c1cbe5da16a8c4bc5ce111c209865e94ff7",
+        "inputs_sha256": "9a1dc44fdace6a216e0793d7d39f4794a4c3ee67c6fdb2a2af4319b3288e34a4"
+      }
+    },
+    {
+      "id": "vm-less-float-float",
+      "offset": 282352,
+      "size": 124,
+      "rebuilt_symbol": "@execLess_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 176 (Core.Object.Less_FloatFloat) to VA 0x10944ef0 at VA 0x1094bcc2. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "d1665f35603617c604f71afd76f8bb93fd656e19c6f557bb983e57eacae71f36",
+        "inputs_sha256": "76870fe2b08773c10a5bd4553e0a656413965f8780c1383c35929f36a7c369f7"
+      }
+    },
+    {
+      "id": "vm-greater-float-float",
+      "offset": 282480,
+      "size": 124,
+      "rebuilt_symbol": "@execGreater_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 177 (Core.Object.Greater_FloatFloat) to VA 0x10944f70 at VA 0x1094bcf9. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "00b4a3b8c80dc28481932210d5cb01dedf6c145063072d17c22011f51978e21c",
+        "inputs_sha256": "182341e3fd71f68eb43cdadeb27844475c79dcbbfe96e54b2354843e87aa2c9a"
+      }
+    },
+    {
+      "id": "vm-less-equal-float-float",
+      "offset": 282608,
+      "size": 124,
+      "rebuilt_symbol": "@execLessEqual_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 178 (Core.Object.LessEqual_FloatFloat) to VA 0x10944ff0 at VA 0x1094bd30. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "1bc0d1a238dc5cabbcbba8463d576e85b0613f8b47d85c83ae01e5a2a561a0d2",
+        "inputs_sha256": "4d0320f6ffb67463f0746befcdb7994920b9240479937d277477209883514f69"
+      }
+    },
+    {
+      "id": "vm-greater-equal-float-float",
+      "offset": 282736,
+      "size": 124,
+      "rebuilt_symbol": "@execGreaterEqual_FloatFloat@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 179 (Core.Object.GreaterEqual_FloatFloat) to VA 0x10945070 at VA 0x1094bd67. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "879814e916743c473421b80ace23e3b5c78729089211a6a93b7731542602826b",
+        "inputs_sha256": "25940860424c14fd621fe736c7e66673c93ecc4accdf6c29c3524097b6a78ed8"
+      }
+    },
+    {
+      "id": "vm-sin",
+      "offset": 284000,
+      "size": 64,
+      "rebuilt_symbol": "@execSin@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 147 (Core.Object.Sin) to VA 0x10945560 at VA 0x1094bf56. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "8d923f0c775f9235292b0be930bc8a30548df6a2e9e1fd8cb011244b4b7aaf9a",
+        "inputs_sha256": "b60842ff81a6617013d1b60d7558cf2dd45a9889ef1ee265bca8663b382fb868"
+      }
+    },
+    {
+      "id": "vm-cos",
+      "offset": 284144,
+      "size": 64,
+      "rebuilt_symbol": "@execCos@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 188 (Core.Object.Cos) to VA 0x109455f0 at VA 0x1094bfc4. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "ee708c719ac5f59be85d1ce7f7022d01b609ddc027a3dc8482b10868d2a43841",
+        "inputs_sha256": "f3ada2de459360c26d7b4a4fcd06d2f30730bca18dd731de1d492b28b98885f5"
+      }
+    },
+    {
+      "id": "vm-sqrt",
+      "offset": 284656,
+      "size": 64,
+      "rebuilt_symbol": "@execSqrt@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 193 (Core.Object.Sqrt) to VA 0x109457f0 at VA 0x1094c10e. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "1372dfa9e76cd7a5856a9ca9364fdcc3e99d8d375d87088db3ec969ef4c09c5f",
+        "inputs_sha256": "afd1c8e3caa052ff53f393c6a079c7f2e8ccb1437aebc1a249bd694be7af17e5"
+      }
+    },
+    {
+      "id": "vm-frand",
+      "offset": 284800,
+      "size": 36,
+      "rebuilt_symbol": "@execFRand@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 195 (Core.Object.FRand) to VA 0x10945880 at VA 0x1094c17c. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c. The stock MSVCR70.dll rand import is at VA 0x10bdf3cc, and the scale at VA 0x10c10a88 is 1/32768.",
+      "match": {
+        "bytes_sha256": "364be112c7c50612d7cf1d086a28f25c041005b9c96941c8eddce58594181536",
+        "inputs_sha256": "cf79fe239d842310618712968ba82f0698b127861e760807c754dd1b471e4b19"
+      }
+    },
+    {
+      "id": "vm-is-psx2",
+      "offset": 302912,
+      "size": 20,
+      "rebuilt_symbol": "@execIsPsx2@16",
+      "inputs": [
+        "src/versus_vm_platform.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vm_platform.obj src/versus_vm_platform.c",
+      "identification": "Steam assigns native slot 412 (Core.Object.IsPsx2) to VA 0x10949f40 at VA 0x1094d8b0. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c. Other native slots alias the same body.",
+      "match": {
+        "bytes_sha256": "3288da10156fc7a03f179f10298c2600075118954fcabc2b243e565ba965ca18",
+        "inputs_sha256": "36e4bbf592ab85f8ce61e50ac3c6090f1f38540b447422f97cd248f03e4ee995"
+      }
+    },
+    {
+      "id": "versus-md5-double-digest-width",
+      "offset": 550560,
+      "size": 6,
+      "rebuilt_symbol": "@md5_double_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x2e1cfc, zero-based slot 8, selects RVA 0x0866a0. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "6e7ad2e0613c7b35767a2892528cb56d04e6c29c6569027d24dd57c372d07617",
+        "inputs_sha256": "ce19592c38911363f08fc1b1e513079307c13d6e89a6dfd5e92ffbd67d0cbc25"
+      }
+    },
+    {
+      "id": "versus-material-get-validated",
+      "offset": 627904,
+      "size": 9,
+      "rebuilt_symbol": "@material_get_validated@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 23, and the complete body at RVA 0x0994c0 agree between the locked Enhanced and Steam images. Steam Engine.u names the GetValidated interface. The body returns flag bit 1 from the material word at +0x44.",
+      "match": {
+        "bytes_sha256": "963dd2eac6362c9ab7f41f791e9b65518c50189a195c0bbf0868b25cfda8f26d",
+        "inputs_sha256": "2f098dacf43df65e645b2fbe14394c7de85eed5d7cc934f15fd769e131bfaab2"
+      }
+    },
+    {
+      "id": "versus-material-set-validated",
+      "offset": 627920,
+      "size": 23,
+      "rebuilt_symbol": "@material_set_validated@12",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 24, and the complete body at RVA 0x0994d0 agree between the locked Enhanced and Steam images. Steam Engine.u names the SetValidated(UBOOL) interface. Only bit 1 at +0x44 changes.",
+      "match": {
+        "bytes_sha256": "6b8574462f9600039467aa926f41728ea079d039d4e54db7ee3e01b85b1c4c56",
+        "inputs_sha256": "240ac29329a36a84c42da8e53989c40ae22198469826090af4f6a7fb929561fe"
+      }
+    },
+    {
+      "id": "versus-material-has-fallback",
+      "offset": 627952,
+      "size": 11,
+      "rebuilt_symbol": "@material_has_fallback@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 34, and the complete body at RVA 0x0994f0 agree between the locked Enhanced and Steam images. The body tests the material reference at +0x3c for non-null. The reflected material layout places FallbackMaterial there.",
+      "match": {
+        "bytes_sha256": "30abca0e4f2f4c764f0fe4b535dbd8a5a08e7279538cc803526ba141ecec0340",
+        "inputs_sha256": "88a2bfde8831fd1bf16aa10f0b02e6a907d93655f3de0a50719375af05c2d8e1"
+      }
+    },
+    {
+      "id": "versus-bitmap-material-height",
+      "offset": 670144,
+      "size": 4,
+      "rebuilt_symbol": "@bitmap_material_height@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 27, and the complete body at RVA 0x0a39c0 agree between the locked Enhanced and Steam images. The V size follows U size in the bitmap layout. This body reads +0x50.",
+      "match": {
+        "bytes_sha256": "58e7369c57f4c2e5078496dcbdb6cec15f32eb29799a5b214cce0fc70a736beb",
+        "inputs_sha256": "845d91e972112059a22dc760574d76038ea043dbfb6d5ed2bca3ac4734df5862"
+      }
+    },
+    {
+      "id": "versus-bitmap-material-width",
+      "offset": 681552,
+      "size": 4,
+      "rebuilt_symbol": "@bitmap_material_width@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 26, and the complete body at RVA 0x0a6650 agree between the locked Enhanced and Steam images. The bitmap layout has consecutive USize and VSize fields. Steam Engine.u names MaterialUSize and MaterialVSize. This body reads +0x4c.",
+      "match": {
+        "bytes_sha256": "34560f51dac828d02da9eeb0e1e15a69e55eb1fbb2f1a55b4f5b7c8cee424a81",
+        "inputs_sha256": "a2962fb2892d2a98dcfcd608644a9eece8160cf1ce842f9f96f03a08f2a4f06b"
+      }
+    },
+    {
+      "id": "versus-constant-material-get-color",
+      "offset": 698016,
+      "size": 12,
+      "rebuilt_symbol": "@constant_material_get_color@16",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UConstantColor vftable RVA 0x307d00. Its constructor store, table through zero-based slot 35, and the complete body at RVA 0x0aa6a0 agree between the locked Enhanced and Steam images. Stock Engine.u declares UConstantColor::GetColor(FLOAT). The body copies the four-byte color at +0x4c to the hidden result address.",
+      "match": {
+        "bytes_sha256": "7aed2cb6f24e4477d2e2474e90eca79880428d2422e9d922aac2350609e36d4f",
+        "inputs_sha256": "30a71fe5fc4856eb3cd348c34c9b32b975e8b33df8c51fa69cc603f556124c37"
+      }
+    },
+    {
+      "id": "versus-proxy-bitmap-render-interface",
+      "offset": 699696,
+      "size": 4,
+      "rebuilt_symbol": "@proxy_bitmap_render_interface@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UProxyBitmapMaterial vftable RVA 0x307908. Its constructor store, table through zero-based slot 35, and the complete body at RVA 0x0aad30 agree between the locked Enhanced and Steam images. The proxy implementation of the same render-interface slot reads the pointer at +0x64.",
+      "match": {
+        "bytes_sha256": "6ffefd5a9a063cdcc897e922db1b401a2a6c8a8fd3c47617ed3ec2fe7dd373d8",
+        "inputs_sha256": "f3c3150f81afa92664adc09dc5a7cc1d84091f167fa50cef19c2c5d3e92d324a"
+      }
+    },
+    {
+      "id": "vm-kill",
+      "offset": 714928,
+      "size": 18,
+      "rebuilt_symbol": "@execKill@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 1155 (Engine.Emitter.Kill) to VA 0x109ae8b0 at VA 0x10994f70. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "b0b004d6afac13b6f47b946ca481e7578789256ac355419c0e80bee1d836ec60",
+        "inputs_sha256": "94340e6e5bc1f358ecf9c8e567190ce155beeeef8a9e4b9dd20944eb3aa6083b"
+      }
+    },
+    {
+      "id": "vm-force-crouch",
+      "offset": 721200,
+      "size": 20,
+      "rebuilt_symbol": "@execForceCrouch@16",
+      "inputs": [
+        "src/versus_vm_math.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_math.obj src/versus_vm_math.c",
+      "identification": "Steam assigns native slot 1201 (Engine.Pawn.ForceCrouch) to VA 0x109b0130 at VA 0x10995989. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "a3b195cbcdf93fa133aa1862add01cfb9df2ff96aa63ea361dbbb654327fae6c",
+        "inputs_sha256": "aed8ab8c60aad958bf5e7e5744aa04604d933915aa604ab3fd4e88f393917cec"
+      }
+    },
+    {
+      "id": "vm-enable-command-filter",
+      "offset": 826864,
+      "size": 20,
+      "rebuilt_symbol": "@execEnableCommandFilter@16",
+      "inputs": [
+        "src/versus_vm_platform.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vm_platform.obj src/versus_vm_platform.c",
+      "identification": "Steam assigns native slot 1698 (Engine.Interaction.EnableCommandFilter) to VA 0x109c9df0 at VA 0x10995be6. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "be5c87d224558cee5d0c23022a31be4caae587cacd76fd1f98e540c9f90a540a",
+        "inputs_sha256": "5cce1ff5a19270bedf15b7b218014a51973f090ff39c955406145065bb79b7c6"
+      }
+    },
+    {
+      "id": "vm-disable-command-filter",
+      "offset": 826896,
+      "size": 20,
+      "rebuilt_symbol": "@execDisableCommandFilter@16",
+      "inputs": [
+        "src/versus_vm_platform.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vm_platform.obj src/versus_vm_platform.c",
+      "identification": "Steam assigns native slot 1715 (Engine.Interaction.DisableCommandFilter) to VA 0x109c9e10 at VA 0x10995baf. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "cbb7cf84430cec28262db958a3f1fb64ec5ad20b6c1b8d89aca62e50dbc4d665",
+        "inputs_sha256": "d0381468435129ae9ba94ed8745563539d73524f3d3110ce4ae83f1a5e50c487"
+      }
+    },
+    {
+      "id": "versus-primitive-box-bounds",
+      "offset": 836128,
+      "size": 42,
+      "rebuilt_symbol": "@primitive_box_bounds@16",
+      "inputs": [
+        "src/versus_primitive_bounds.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_primitive_bounds.obj src/versus_primitive_bounds.c",
+      "identification": "The project reflection annotations identify UStaticMesh vftable RVA 0x304820. Its constructor store, table through zero-based slot 24, and the complete body at RVA 0x0cc220 agree between the locked Enhanced and Steam images. The body copies six coordinates beginning at +0x28 to its hidden result buffer.",
+      "match": {
+        "bytes_sha256": "561aefa0d7d781f4de63aeffd3713260dfe9978e2c0840cf893a8f7bb53509a2",
+        "inputs_sha256": "6a1ecab7a25480c57332315f8b7d1af7513a69bb8aeb00b641cc291b89378521"
+      }
+    },
+    {
+      "id": "versus-primitive-sphere-bounds",
+      "offset": 836176,
+      "size": 30,
+      "rebuilt_symbol": "@primitive_sphere_bounds@16",
+      "inputs": [
+        "src/versus_primitive_bounds.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_primitive_bounds.obj src/versus_primitive_bounds.c",
+      "identification": "The project reflection annotations identify UStaticMesh vftable RVA 0x304820. Its constructor store, table through zero-based slot 25, and the complete body at RVA 0x0cc250 agree between the locked Enhanced and Steam images. The adjacent bounds getter copies four floats beginning at +0x40 to the result buffer.",
+      "match": {
+        "bytes_sha256": "bafd75d6d0c1102d39ee0d96263bb1a7f50f8fcb38d1c44713afecb52d4bfdbe",
+        "inputs_sha256": "417d1b46c0c8feba61bb0963712d38170c8a2ace7e888e8d2070f1e1ee7997d5"
+      }
+    },
+    {
+      "id": "versus-close-file-log",
+      "offset": 981328,
+      "size": 40,
+      "rebuilt_symbol": "@versus_close_file_log@16",
+      "inputs": [
+        "src/versus_log_files.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_log_files.obj src/versus_log_files.c",
+      "identification": "Retail registration at RVA 0x0966db assigns GNatives[1170] to RVA 0x0ef950. The class and function name FileLog.CloseLog agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "fe886d50103a68d75e8bfc6d427a3db2ae29a654e0b666685118e7362765240a",
+        "inputs_sha256": "02800b1782025b7f939d06251e6c3fcef45c816213cf9a0c4c5962fe0f1bd943"
+      }
+    },
+    {
+      "id": "versus-entry-level-actor",
+      "offset": 982256,
+      "size": 39,
+      "rebuilt_symbol": "@versus_entry_level_actor@16",
+      "inputs": [
+        "src/versus_level_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_level_queries.obj src/versus_level_queries.c",
+      "identification": "Retail registration at RVA 0x09553d assigns GNatives[1183] to RVA 0x0efcf0. The class and function name PlayerController.GetEntryLevel agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "96998dee08a56a9d125641bb231ce6341dee9db40c0845f2009a3b95d819054f",
+        "inputs_sha256": "f8b98857f2c38c440598bee8184fd51ad89720e1e1f06442d31d3d08196934df"
+      }
+    },
+    {
+      "id": "versus-player-disconnect",
+      "offset": 983040,
+      "size": 27,
+      "rebuilt_symbol": "@versus_player_disconnect@16",
+      "inputs": [
+        "src/versus_player_disconnect.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_disconnect.obj src/versus_player_disconnect.c",
+      "identification": "Retail registration at RVA 0x095574 assigns GNatives[1182] to RVA 0x0f0000. The class and function name PlayerController.Disconnect agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "212b9e12a12e692c140f629b1896515f0dedaabde978ce0128f420a52905e418",
+        "inputs_sha256": "2cd316e14c6dc09f92d33264bfb6b5a9be3407339680b0c4f79f83ff2309ac27"
+      }
+    },
+    {
+      "id": "versus-stop-waiting",
+      "offset": 983136,
+      "size": 32,
+      "rebuilt_symbol": "@versus_stop_waiting@16",
+      "inputs": [
+        "src/versus_stop_waiting.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_stop_waiting.obj src/versus_stop_waiting.c",
+      "identification": "Retail registration at RVA 0x09572c assigns GNatives[1176] to RVA 0x0f0060. The class and function name Controller.StopWaiting agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "e58990b566889de6f2fbe474037b174f066f35a27716ce1f7f3ccd41c48186ee",
+        "inputs_sha256": "5cebd9b12193c61b33544eb66c34b684585b6a780c71635bec4622b9e504fc72"
+      }
+    },
+    {
+      "id": "versus-add-controller",
+      "offset": 985216,
+      "size": 34,
+      "rebuilt_symbol": "@versus_add_controller@16",
+      "inputs": [
+        "src/versus_controller_list.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_controller_list.obj src/versus_controller_list.c",
+      "identification": "Retail registration at RVA 0x095876 assigns GNatives[529] to RVA 0x0f0880. The class and function name Controller.AddController agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "e7d905c9f5d6f849d44b06e778ff91516abccc6314abef6c8ff10007ed67db70",
+        "inputs_sha256": "f4435bf8dea8ef3c4a7101d601bf3b7056b684df9db098c560e8526427923beb"
+      }
+    },
+    {
+      "id": "versus-remove-controller",
+      "offset": 985264,
+      "size": 82,
+      "rebuilt_symbol": "@versus_remove_controller@16",
+      "inputs": [
+        "src/versus_controller_list.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_controller_list.obj src/versus_controller_list.c",
+      "identification": "Retail registration at RVA 0x09583f assigns GNatives[530] to RVA 0x0f08b0. The class and function name Controller.RemoveController agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "c1d7b1334f87862666720b8329794c3573bc05e0cc5cbba5ee4ed5c224429185",
+        "inputs_sha256": "58151c60e11d82fa78ebfda2b96d1f6d396e9bb38c20898b0a203e038dcacfd6"
+      }
+    },
+    {
+      "id": "versus-wait-for-landing",
+      "offset": 985360,
+      "size": 49,
+      "rebuilt_symbol": "@versus_wait_for_landing@16",
+      "inputs": [
+        "src/versus_wait_for_landing.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_wait_for_landing.obj src/versus_wait_for_landing.c",
+      "identification": "Retail registration at RVA 0x0958ad assigns GNatives[527] to RVA 0x0f0910. The class and function name Controller.WaitForLanding agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "f86e52ca30e6e452c09a4102d8eeace3e5f5f228c6ce74d3b855d475460c60a0",
+        "inputs_sha256": "ba1d416baffda01a0ff3ca86f580cec3dd7c8f49b1d871be5c37ce28e130d463"
+      }
+    },
+    {
+      "id": "versus-finish-rotation",
+      "offset": 987376,
+      "size": 20,
+      "rebuilt_symbol": "@versus_finish_rotation@16",
+      "inputs": [
+        "src/versus_latent_movement.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /c /Folocal/versus_latent_movement.obj src/versus_latent_movement.c",
+      "identification": "Retail registration at RVA 0x095952 assigns GNatives[508] to RVA 0x0f10f0. The class and function name Controller.FinishRotation agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "8257101940b034f107dd7a1bf87f8dabd9cca4270ee20375a80222d7e61d3601",
+        "inputs_sha256": "bc8eb52ce59e5e04e037e441438c9fd354d262515feb0de8acc34e383deedcbb"
+      }
+    },
+    {
+      "id": "versus-texture-mark-realtime-changed",
+      "offset": 994544,
+      "size": 8,
+      "rebuilt_symbol": "@texture_mark_realtime_changed@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 16, and the complete body at RVA 0x0f2cf0 agree between the locked Enhanced and Steam images. The body sets bit 5 in the texture flag group at +0xb4. The reflected texture property sequence places bRealtimeChanged there.",
+      "match": {
+        "bytes_sha256": "b19e60037d1b95b31b0207c34cedcff05f1d30f29af2f5a46c13beb96ed7fa80",
+        "inputs_sha256": "0dad207557b6c73631ff99471ab2c5ed51fe07bc87def14e54d3f50538505b34"
+      }
+    },
+    {
+      "id": "versus-texture-has-alpha",
+      "offset": 1002128,
+      "size": 12,
+      "rebuilt_symbol": "@texture_has_alpha@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 28, and the complete body at RVA 0x0f4a90 agree between the locked Enhanced and Steam images. The body returns bit 1 of the texture flag word at +0xb4. The reflected property sequence identifies bAlphaTexture.",
+      "match": {
+        "bytes_sha256": "716dffcd9183ba4d63388e52df1a0b64e0e8a9eb0a095e9f966b4f89374cd2a6",
+        "inputs_sha256": "8f54f5c42b7ab7af7ccb8213308891e80716c07d946537a08b3dcfb6f8850a49"
+      }
+    },
+    {
+      "id": "versus-texture-render-interface",
+      "offset": 1003040,
+      "size": 4,
+      "rebuilt_symbol": "@texture_render_interface@4",
+      "inputs": [
+        "src/versus_material_accessors.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_material_accessors.obj src/versus_material_accessors.c",
+      "identification": "The project reflection annotations identify UTexture vftable RVA 0x303f10. Its constructor store, table through zero-based slot 35, and the complete body at RVA 0x0f4e20 agree between the locked Enhanced and Steam images. The texture getter reads +0x6c. The reflected texture layout identifies the RenderInterface field following its two cached update time words.",
+      "match": {
+        "bytes_sha256": "0b27ad85b74e93b12f68ebe531271f15e322083184edc1e582fdf577a151cffc",
+        "inputs_sha256": "d404e6e8032f5870538207b6596889ab3b39cb922c023118ecbce647f299f907"
+      }
+    },
+    {
+      "id": "versus-sha1-double-digest-width",
+      "offset": 1090224,
+      "size": 6,
+      "rebuilt_symbol": "@sha1_double_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x2e1ccc, zero-based slot 8, selects RVA 0x10a2b0. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "2ae904b3a6bc4ca2b742b13a6b4372b0110f2731cdf29edd795459ef1845e802",
+        "inputs_sha256": "201c919846f025499e7f31b891453bfb074ec7106d6372b3fb71459692086281"
+      }
+    },
+    {
+      "id": "versus-mesh-owner-location",
+      "offset": 1110304,
+      "size": 37,
+      "rebuilt_symbol": "@mesh_owner_location@16",
+      "inputs": [
+        "src/versus_primitive_bounds.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_primitive_bounds.obj src/versus_primitive_bounds.c",
+      "identification": "The project reflection annotations identify UPrimitive vftable RVA 0x30bae8. Its constructor store, table through zero-based slot 29, and the complete body at RVA 0x10f120 agree between the locked Enhanced and Steam images. The body copies the actor location vector at +0x80 to the hidden result address. It is shared by the skeletal mesh and its instance.",
+      "match": {
+        "bytes_sha256": "cfdc0fbb28e0b906f6f446ff6017cfee0c8157d2c850c297f04ab519a87cbc15",
+        "inputs_sha256": "c262b260a6b5f4fbbe442483a812a3198796f7bdabe33a169e9f8bea5f0d8851"
+      }
+    },
+    {
+      "id": "versus-md5-digest-width",
+      "offset": 1120848,
+      "size": 6,
+      "rebuilt_symbol": "@md5_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x2e1cfc, zero-based slot 7, selects RVA 0x111a50. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "75f533bd3e59de2588c8f1901e45a3eea6688bc16b7ecaf3dcaf4d49cf4f3d49",
+        "inputs_sha256": "5a53b50a8668a3b78ea11901f76cea2e31c49f18754a0181fffdeafac3b8a0f9"
+      }
+    },
+    {
       "id": "versus-long-data-size",
       "offset": 1124672,
       "size": 6,
@@ -38,6 +1198,782 @@
       "match": {
         "bytes_sha256": "e36623525b7c35b277173e56616b2d865cf6515aa2be1d12d6814ef725cecffb",
         "inputs_sha256": "d14bcbe860ff1069d83a0bacbf294c8f28aadd76c6242f6389b21644b11cbacd"
+      }
+    },
+    {
+      "id": "versus-finish-interpolation",
+      "offset": 1193024,
+      "size": 20,
+      "rebuilt_symbol": "@versus_finish_interpolation@16",
+      "inputs": [
+        "src/versus_latent_movement.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /c /Folocal/versus_latent_movement.obj src/versus_latent_movement.c",
+      "identification": "Retail registration at RVA 0x093ee5 assigns GNatives[301] to RVA 0x123440. The class and function name Actor.FinishInterpolation agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "aea0636d7aeab2ab38b2da130679941aba7e1cf8656d4179f3b10d274a0e955b",
+        "inputs_sha256": "81c6e84b6575bbab0083c6d1504e47c1caabe17de2d1e9e974a7238e19867ace"
+      }
+    },
+    {
+      "id": "versus-voice-volume",
+      "offset": 1201728,
+      "size": 56,
+      "rebuilt_symbol": "@versus_voice_volume@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x0939f4 assigns GNatives[1689] to RVA 0x125640. The class and function name Actor.GetVoiceChatVolume agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "987332e232215aa643b935204680837826c97fe90bfe0166dd43d337c56f98c5",
+        "inputs_sha256": "8e491dff8fd78cfa73087fa0335b188315dba10d0087f2992ea83c5746039aa0"
+      }
+    },
+    {
+      "id": "versus-eax-enabled",
+      "offset": 1201888,
+      "size": 62,
+      "rebuilt_symbol": "@versus_eax_enabled@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x093a2b assigns GNatives[1685] to RVA 0x1256e0. The class and function name Actor.isEAXEnabled agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "98f75583ddea048128752b3be9a1d6d2e9e7e44e78f0aa7df1f8bebdbe3c4aa9",
+        "inputs_sha256": "bccce92e8488bd346ce6f43ecc0072a0b6138abfb1c158062ee14ffede423db9"
+      }
+    },
+    {
+      "id": "versus-sound-volume",
+      "offset": 1202224,
+      "size": 56,
+      "rebuilt_symbol": "@versus_sound_volume@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x093c51 assigns GNatives[1128] to RVA 0x125830. The class and function name Actor.GetSoundVolume agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "0299f42ec0ba83ba2a6ed4504a5bf738681b1e83a5d41599427ee87e9589afcb",
+        "inputs_sha256": "2105f84ad85c756fefc2c1aaeceddc949ea7f694ce39075da965db1741cf3f25"
+      }
+    },
+    {
+      "id": "versus-music-volume",
+      "offset": 1202384,
+      "size": 56,
+      "rebuilt_symbol": "@versus_music_volume@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x093be3 assigns GNatives[1130] to RVA 0x1258d0. The class and function name Actor.GetMusicVolume agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "7f106f67fde6ca7dd0bcaf487ba91dc0dd9af50ad9485c232eb07a970fc19ae6",
+        "inputs_sha256": "2a4a727dc622e42db9aa072be05f6d0ccfe24cd287c40ee66aeeab72c39e2644"
+      }
+    },
+    {
+      "id": "versus-ambient-volume",
+      "offset": 1202544,
+      "size": 56,
+      "rebuilt_symbol": "@versus_ambient_volume@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x093b75 assigns GNatives[1132] to RVA 0x125970. The class and function name Actor.GetAmbientVolume agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "1a0fd99839b72225b61d03323e5da02bd9893c367185a41317ef40b68ab0ae17",
+        "inputs_sha256": "986bedfab9f43a2040042ca4480ab6b021c85c7951dcaf3f1527a1e7c39956ae"
+      }
+    },
+    {
+      "id": "versus-current-music",
+      "offset": 1203744,
+      "size": 43,
+      "rebuilt_symbol": "@versus_current_music@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x093cf6 assigns GNatives[1785] to RVA 0x125e20. The class and function name Actor.GetCurrentMusic agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "ae32040fc0a9139466b5ce1156f06aabe069cdf86f9180c06a2d98f63ef4a52b",
+        "inputs_sha256": "6e76d0513f73e3880193ab16f0112ff5a824d2ccfca51f1ac16027061371822a"
+      }
+    },
+    {
+      "id": "vm-launch-context",
+      "offset": 1205760,
+      "size": 17,
+      "rebuilt_symbol": "@execLaunchContext@16",
+      "inputs": [
+        "src/versus_vm_platform.c"
+      ],
+      "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_vm_platform.obj src/versus_vm_platform.c",
+      "identification": "Steam assigns native slot 1072 (Engine.Actor.LaunchContext) to VA 0x10a26600 at VA 0x10994def. The ECX receiver precedes the stack frame and result arguments; the handler consumes the end-of-arguments byte at frame offset 0x0c.",
+      "match": {
+        "bytes_sha256": "ee73bcf6a71a75d54e016186249d900282ff60946bfbc7de69a87cfb14e2381a",
+        "inputs_sha256": "7b81350a71aba847ae9b42cf69328403818ab31a8f7cbe44a5c60961b6f93dcc"
+      }
+    },
+    {
+      "id": "versus-enter-chat",
+      "offset": 1206112,
+      "size": 37,
+      "rebuilt_symbol": "@versus_enter_chat@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x0952e0 assigns GNatives[1723] to RVA 0x126760. The class and function name PlayerController.EnterVoiceChat agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "70af4ea27022b723ef77c338476dbc81e88f4c41dbeabd981f9ef69be5f269a4",
+        "inputs_sha256": "282ad8ee3acba1be7fbf8cc986c510fc0c80760b0bcc5cd2f5628747c5a73b36"
+      }
+    },
+    {
+      "id": "versus-leave-chat",
+      "offset": 1206160,
+      "size": 37,
+      "rebuilt_symbol": "@versus_leave_chat@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x0952a9 assigns GNatives[1191] to RVA 0x126790. The class and function name PlayerController.LeaveVoiceChat agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "9f99ffb358e42c3a238b69076daf2528b4d2470de6d9a79f4220c193aa37b96a",
+        "inputs_sha256": "df070cfcb934e63935bf79b5d7bef38b986628969adcec7d869bde06fa1686b1"
+      }
+    },
+    {
+      "id": "versus-voice-mask",
+      "offset": 1207040,
+      "size": 53,
+      "rebuilt_symbol": "@versus_voice_mask@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x0950f1 assigns GNatives[1198] to RVA 0x126b00. The class and function name PlayerController.GetVoiceMask agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "3c955914e3218f099aa30214d70a46a297d8ad8ca3ba7bf9c03875c24155c720",
+        "inputs_sha256": "d8a6b444dd460c5191fc96c556f6bebc56f7093f61836be0142fbf809d7a29a9"
+      }
+    },
+    {
+      "id": "versus-voice-to-speakers",
+      "offset": 1207216,
+      "size": 56,
+      "rebuilt_symbol": "@versus_voice_to_speakers@16",
+      "inputs": [
+        "src/versus_audio_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_audio_queries.obj src/versus_audio_queries.c",
+      "identification": "Retail registration at RVA 0x095083 assigns GNatives[1693] to RVA 0x126bb0. The class and function name PlayerController.GetVoiceToSpeakersState agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "7042ae40ba8a3bc745b7b4378ffc678433acaefbb0adca0adae79b36719e129e",
+        "inputs_sha256": "0c853646810215960bde1dc2520c7353a030aa046026a6310b8df867f34aaef4"
+      }
+    },
+    {
+      "id": "versus-close-event-log",
+      "offset": 1222240,
+      "size": 49,
+      "rebuilt_symbol": "@versus_close_event_log@16",
+      "inputs": [
+        "src/versus_log_files.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_log_files.obj src/versus_log_files.c",
+      "identification": "Retail registration at RVA 0x095e43 assigns GNatives[1212] to RVA 0x12a660. The class and function name SLogManager.CloseEventLog agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "58a43f1e2fbea5b25f93800d98cf0c5792ab4f8f9321fb8bb898f6eded0f16ee",
+        "inputs_sha256": "aac1fad6af21546aadfe119ae6c5e94ba3143b3a9b0dfb10d04390372d574760"
+      }
+    },
+    {
+      "id": "versus-gui-profile-count",
+      "offset": 1398544,
+      "size": 41,
+      "rebuilt_symbol": "@versus_gui_profile_count@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x169e83 assigns GNatives[1642] to RVA 0x155710. The class and function name GUIController.GetProfileCount agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "fbca66846911c069cfb9553a1e3f7f05aaa8952ba1c6ed933d8702edbe2bb77a",
+        "inputs_sha256": "21832da0627d6a38ed6840c928cce37f796728eb740f84e378eac6cf271224aa"
+      }
+    },
+    {
+      "id": "versus-gui-online-available",
+      "offset": 1409616,
+      "size": 44,
+      "rebuilt_symbol": "@versus_gui_online_available@16",
+      "inputs": [
+        "src/versus_level_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_level_queries.obj src/versus_level_queries.c",
+      "identification": "Retail registration at RVA 0x16a6e4 assigns GNatives[1835] to RVA 0x158250. The class and function name GUIController.IsOnlineAvailable agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "337f811a5a4a6423e5b741bd2ffa249174a4080f58c027ee243d357b7e063965",
+        "inputs_sha256": "aa7d5e8d1197437b611e795d6db3c99d86967227f6e3f2e815be45aa5b029b4c"
+      }
+    },
+    {
+      "id": "versus-gui-join-ip-requested",
+      "offset": 1409664,
+      "size": 22,
+      "rebuilt_symbol": "@versus_gui_join_ip_requested@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a6ad assigns GNatives[1850] to RVA 0x158280. The class and function name GUIController.IsRequestJoinIp agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "0c10a340ebf0ee936cc40750369dae6ffad0701b7b70a25a7d942edb39a9e159",
+        "inputs_sha256": "43b2a6df986898a264e12e926a86c7288c91ba2083b625df8347c7ad6838da2d"
+      }
+    },
+    {
+      "id": "versus-gui-create-server-requested",
+      "offset": 1409696,
+      "size": 22,
+      "rebuilt_symbol": "@versus_gui_create_server_requested@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a676 assigns GNatives[1860] to RVA 0x1582a0. The class and function name GUIController.IsCreateServer agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "a4237a9ed89aa2cf5e8cb3060cf8488294df4bc045967bafb59c398c84f095c5",
+        "inputs_sha256": "eadb33c646619a53c21ae5b09c1df8053adcaf31ccc19d00856c689a8e089e67"
+      }
+    },
+    {
+      "id": "versus-gui-auto-validate",
+      "offset": 1409728,
+      "size": 50,
+      "rebuilt_symbol": "@versus_gui_auto_validate@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a63f assigns GNatives[1851] to RVA 0x1582c0. The class and function name GUIController.IsAutoValidatePage agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "ccbd5bf00e89d84421cd886491c044a9afef6904031b4107941b6c72fa4686e6",
+        "inputs_sha256": "a3fe31c24b73f1484ed0d4948d24b55e46e208471f407568bc134a62ec9cbfd9"
+      }
+    },
+    {
+      "id": "versus-gui-clear-auto-validate",
+      "offset": 1409792,
+      "size": 22,
+      "rebuilt_symbol": "@versus_gui_clear_auto_validate@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a608 assigns GNatives[1886] to RVA 0x158300. The class and function name GUIController.ResetAutoValidatePage agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "119770936975742d4cdb0d4663901163c96e14ea5e818349408693ba0ded1248",
+        "inputs_sha256": "2ec002da5963f7cea8e473987be55bea3309d03cb420593a5a95842b695bd681"
+      }
+    },
+    {
+      "id": "versus-gui-clear-join-ip",
+      "offset": 1410176,
+      "size": 20,
+      "rebuilt_symbol": "@versus_gui_clear_join_ip@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a52c assigns GNatives[1855] to RVA 0x158480. The class and function name GUIController.ResetJoinIpRequest agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "64389291c163d698b7e14d1d84a32f47afe97eda90d32a62a63f3602d6717bf9",
+        "inputs_sha256": "7a7dde7c48ee5a47e9b828b39478423d1820e5c0481bff95fb4c4956ba135354"
+      }
+    },
+    {
+      "id": "versus-gui-clear-create-server",
+      "offset": 1410208,
+      "size": 20,
+      "rebuilt_symbol": "@versus_gui_clear_create_server@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a4f5 assigns GNatives[1861] to RVA 0x1584a0. The class and function name GUIController.ResetCreateServer agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "3314d7869086698fed8136e278093dc0a1935a977697006c54dbdccc9248fe35",
+        "inputs_sha256": "a92cbe04d442e770c4a9183739b2967581a1d478f336bb37540f9382f54361f1"
+      }
+    },
+    {
+      "id": "versus-gui-default-server-port",
+      "offset": 1410240,
+      "size": 22,
+      "rebuilt_symbol": "@versus_gui_default_server_port@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a0e0 assigns GNatives[1858] to RVA 0x1584c0. The class and function name GUIController.GetDefaultServerPort agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "a2cb8f94da9888b8433114c551a58b8d9635721e104109a5bd8fa49388b50fc7",
+        "inputs_sha256": "31b5fc176872b63399837d36fbf7d5871fe0a807db51b3cbf349f5df3ec62660"
+      }
+    },
+    {
+      "id": "versus-gui-shutdown",
+      "offset": 1410352,
+      "size": 20,
+      "rebuilt_symbol": "@versus_gui_shutdown@16",
+      "inputs": [
+        "src/versus_gui_requests.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_requests.obj src/versus_gui_requests.c",
+      "identification": "Retail registration at RVA 0x16a4be assigns GNatives[1717] to RVA 0x158530. The class and function name GUIController.Shutdown agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "961bc12a71fef6eff66fc28e6567f2f4b003ac04c2369abd7e38fecf92cdf517",
+        "inputs_sha256": "a06f6de6b973efdafa062268e6b3aa296eaf5748ee4034adbcd94a5b9cd28abf"
+      }
+    },
+    {
+      "id": "versus-gui-actual-width",
+      "offset": 1413232,
+      "size": 21,
+      "rebuilt_symbol": "@versus_gui_actual_width@16",
+      "inputs": [
+        "src/versus_gui_layout.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+      "identification": "Retail registration at RVA 0x1696c7 assigns GNatives[1612] to RVA 0x159070. The class and function name GUIComponent.ActualWidth agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "41daa9b57993bdd3e9d59c5425525e8609747e26c2cf264a3fc9a4735ce9b278",
+        "inputs_sha256": "3c19be9dab8127f998b358c1b071cf72ca12ded2282a069dff8c85744d73cd2e"
+      }
+    },
+    {
+      "id": "versus-gui-actual-height",
+      "offset": 1413376,
+      "size": 21,
+      "rebuilt_symbol": "@versus_gui_actual_height@16",
+      "inputs": [
+        "src/versus_gui_layout.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+      "identification": "Retail registration at RVA 0x169690 assigns GNatives[1613] to RVA 0x159100. The class and function name GUIComponent.ActualHeight agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "2a9b623bd96d75836a7d55af14911f962b07a6b8d7e86049e781cb10687fbd19",
+        "inputs_sha256": "f9336324a69b56849b0d98ad7be71e0540b25393a3a079a0f3caa5afd7659e5f"
+      }
+    },
+    {
+      "id": "versus-gui-actual-left",
+      "offset": 1413568,
+      "size": 21,
+      "rebuilt_symbol": "@versus_gui_actual_left@16",
+      "inputs": [
+        "src/versus_gui_layout.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+      "identification": "Retail registration at RVA 0x169659 assigns GNatives[1614] to RVA 0x1591c0. The class and function name GUIComponent.ActualLeft agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "ec915fe8fa6077cdcab1f0bcd4c4314846b02a1ae97f93ad793c6be87b104d5b",
+        "inputs_sha256": "613cc43223347d54bece9f067ea05d872c667a7f5ecfb7263058d9e062318a98"
+      }
+    },
+    {
+      "id": "versus-gui-actual-top",
+      "offset": 1413760,
+      "size": 21,
+      "rebuilt_symbol": "@versus_gui_actual_top@16",
+      "inputs": [
+        "src/versus_gui_layout.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+      "identification": "Retail registration at RVA 0x169622 assigns GNatives[1615] to RVA 0x159280. The class and function name GUIComponent.ActualTop agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "bf61a281258491cc465908486cca51d56e697014a3813e33808cce560b5bcf7f",
+        "inputs_sha256": "e805601273aef55186a52421bb8a975d2b6cbbb27d260ad6ec19bc461a361f5d"
+      }
+    },
+    {
+      "id": "versus-gui-save-canvas-state",
+      "offset": 1413792,
+      "size": 52,
+      "rebuilt_symbol": "@gui_save_canvas_state@12",
+      "inputs": [
+        "src/versus_gui_drawing.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_drawing.obj src/versus_gui_drawing.c",
+      "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 30, and the complete body at RVA 0x1592a0 agree between the locked Enhanced and Steam images. The Steam GUI.u package declares UGUIComponent::SaveCanvasState at decoded offset 0x7c61a.",
+      "match": {
+        "bytes_sha256": "95ac274d563c716a87e247a506403367566071515a37c644114e7a0fd6be3016",
+        "inputs_sha256": "be3c965816966fdf046151bda15fa2f4e4947551b47e9948653c725936060ab8"
+      }
+    },
+    {
+      "id": "versus-gui-restore-canvas-state",
+      "offset": 1413856,
+      "size": 52,
+      "rebuilt_symbol": "@gui_restore_canvas_state@12",
+      "inputs": [
+        "src/versus_gui_drawing.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_drawing.obj src/versus_gui_drawing.c",
+      "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 31, and the complete body at RVA 0x1592e0 agree between the locked Enhanced and Steam images. The Steam GUI.u package declares UGUIComponent::RestoreCanvasState at decoded offset 0x7c67b.",
+      "match": {
+        "bytes_sha256": "311b82dc2d2a3e881fc72b22c4e66e1afabdabc767a2325d0d5a8178800a5807",
+        "inputs_sha256": "fd9d55376425ea96cbe480f49c0645d44408b08dd04cb3c8dc065e8a95c88276"
+      }
+    },
+    {
+      "id": "versus-gui-set-dimensions",
+      "offset": 1415136,
+      "size": 31,
+      "rebuilt_symbol": "@gui_set_dimensions@24",
+      "inputs": [
+        "src/versus_gui_drawing.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_drawing.obj src/versus_gui_drawing.c",
+      "identification": "The project reflection annotations identify UGUIImage vftable RVA 0x300788. Its constructor store, table through zero-based slot 39, and the complete body at RVA 0x1597e0 agree between the locked Enhanced and Steam images. The Steam GUI.u package declares UGUIComponent::SetDims at decoded offset 0x7c901.",
+      "match": {
+        "bytes_sha256": "a1ca7379c08354dbabad0e9ff04e98219c9681abdc551d79ddd93da28247631d",
+        "inputs_sha256": "3528c74fda2e9c9b4a415f394afe446012afc2ed3626fc93fedce935a18487eb"
+      }
+    },
+    {
+      "id": "versus-kill-timer",
+      "offset": 1415648,
+      "size": 31,
+      "rebuilt_symbol": "@versus_kill_timer@16",
+      "inputs": [
+        "src/versus_gui_timer.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_timer.obj src/versus_gui_timer.c",
+      "identification": "Retail registration at RVA 0x1696fe assigns GNatives[1611] to RVA 0x1599e0. The class and function name GUIComponent.KillTimer agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "4b0eeda8f0757654611ce210ecc2e9b86ce5bdbcf2b6cbdb9ac4625775f42e7e",
+        "inputs_sha256": "6af48898e1e7fd2afd108799ae19ca08bc6522edfb40a0c03f5a73faaaa888f6"
+      }
+    },
+    {
+      "id": "versus-gui-init-page",
+      "offset": 1416688,
+      "size": 15,
+      "rebuilt_symbol": "@versus_gui_init_page@16",
+      "inputs": [
+        "src/versus_gui_layout.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gui_layout.obj src/versus_gui_layout.c",
+      "identification": "Retail registration at RVA 0x1697da assigns GNatives[1617] to RVA 0x159df0. The class and function name GUIPage.InitExecution agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "0576185785cae0aa08c42ab5f95aa9ab352e86344c3dd8d50403183c6ccae62a",
+        "inputs_sha256": "d2828f11050b7b00a21c0abcc02a0acde2e5a5d5deb41bff38a0b993eef26771"
+      }
+    },
+    {
+      "id": "versus-is-data-pending",
+      "offset": 1579488,
+      "size": 29,
+      "rebuilt_symbol": "@versus_is_data_pending@16",
+      "inputs": [
+        "src/versus_link_status.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_link_status.obj src/versus_link_status.c",
+      "identification": "Retail registration at RVA 0x183b3f assigns GNatives[1249] to RVA 0x1819e0. The class and function name InternetLink.IsDataPending agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "341ea21868a888aafa4b939048819014ff7014aa476248583b3660d199937a37",
+        "inputs_sha256": "51b24a7a4cc4f585915ae60e57ccdbfc64ba132db00e56ce718a45b6b8a48ded"
+      }
+    },
+    {
+      "id": "versus-resetting-rotation",
+      "offset": 1664848,
+      "size": 109,
+      "rebuilt_symbol": "@versus_resetting_rotation@16",
+      "inputs": [
+        "src/versus_camera_rotation.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_camera_rotation.obj src/versus_camera_rotation.c",
+      "identification": "Retail registration at RVA 0x18b46b assigns GNatives[1396] to RVA 0x196750. The class and function name SPlayerCam.ResettingRotation agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "0f029f383f15558ad58899c9146ee3b3fc369628219d54b6e8794cb80454f7c8",
+        "inputs_sha256": "a3a9b0787687f2a538dba467e303cf5c8be1b89e475135fd26cd5026dbc425fe"
+      }
+    },
+    {
+      "id": "versus-next-mine-type",
+      "offset": 1704848,
+      "size": 44,
+      "rebuilt_symbol": "@versus_next_mine_type@16",
+      "inputs": [
+        "src/versus_gadget_selection.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gadget_selection.obj src/versus_gadget_selection.c",
+      "identification": "Retail registration at RVA 0x18cbd6 assigns GNatives[1308] to RVA 0x1a0390. The class and function name SGadMultiMinesLauncher.SelectNextMineType agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "ea6dc68751929add0e74448847cb07889eeb58d4224ffa8aa3b7e17bff36e2f4",
+        "inputs_sha256": "de54ace58c17af454196cfb1e8a2b22cf8de4634f4d9435de157277705d26554"
+      }
+    },
+    {
+      "id": "versus-previous-mine-type",
+      "offset": 1704896,
+      "size": 32,
+      "rebuilt_symbol": "@versus_previous_mine_type@16",
+      "inputs": [
+        "src/versus_gadget_selection.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gadget_selection.obj src/versus_gadget_selection.c",
+      "identification": "Retail registration at RVA 0x18cb9f assigns GNatives[1309] to RVA 0x1a03c0. The class and function name SGadMultiMinesLauncher.SelectPreviousMineType agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "000a1480f8b1515d9b75a74567cb7a52482ecb7355372f5dae0de138a7973b5c",
+        "inputs_sha256": "f59c5209b3cb86681419d7ede45c44c60bddbdb393d4cb7a08ccf576398bb437"
+      }
+    },
+    {
+      "id": "versus-sticky-cam-can-use",
+      "offset": 1714288,
+      "size": 35,
+      "rebuilt_symbol": "@versus_sticky_cam_can_use@16",
+      "inputs": [
+        "src/versus_gadget_selection.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gadget_selection.obj src/versus_gadget_selection.c",
+      "identification": "Retail registration at RVA 0x18ca8c assigns GNatives[1303] to RVA 0x1a2870. The class and function name SGadStickyCam.CanUse agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "b1fe5922b8ee1b46516686a314435ba8dc6d3cd0b82a9f1a9866e99a4590c8e6",
+        "inputs_sha256": "c0132804aa9240530699ac62de148a1364a0ffd074fbdf2bde8bc124f893cd2f"
+      }
+    },
+    {
+      "id": "versus-player-screenshot",
+      "offset": 1735264,
+      "size": 25,
+      "rebuilt_symbol": "@versus_player_screenshot@16",
+      "inputs": [
+        "src/versus_player_device.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_device.obj src/versus_player_device.c",
+      "identification": "Retail registration at RVA 0x18b1d7 assigns GNatives[1366] to RVA 0x1a7a60. The class and function name SPlayerController.Screenshot agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "f0673589452469d7a09b1519cac5df62eb76530bef9ee5a829869107f4560386",
+        "inputs_sha256": "05a85e0cc236c4feda561dec2d40a1b871d8031e3438b57cb60928b487d57f52"
+      }
+    },
+    {
+      "id": "versus-rumble-pad-stop",
+      "offset": 1746640,
+      "size": 51,
+      "rebuilt_symbol": "@versus_rumble_pad_stop@16",
+      "inputs": [
+        "src/versus_player_device.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_device.obj src/versus_player_device.c",
+      "identification": "Retail registration at RVA 0x18ae67 assigns GNatives[1379] to RVA 0x1aa6d0. The class and function name SPlayerController.RumblePadStop agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "da665f3541647b0b7de4edae291839281895d963a71e103472e96a408787aff4",
+        "inputs_sha256": "84454b6cc091504456cf65b6d9342a677a24d80f14f0beab70106c807d200ec9"
+      }
+    },
+    {
+      "id": "versus-get-locked-pad",
+      "offset": 1747072,
+      "size": 68,
+      "rebuilt_symbol": "@versus_get_locked_pad@16",
+      "inputs": [
+        "src/versus_player_device.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_player_device.obj src/versus_player_device.c",
+      "identification": "Retail registration at RVA 0x18ab65 assigns GNatives[1051] to RVA 0x1aa880. The class and function name SPlayerController.GetLockedPad agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "d5749b9139ce96c54b1703e1ea0149ce9ee555ec8bc5bcc6a2fdb0408098d801",
+        "inputs_sha256": "9e847c00cc41b833e59e5c0abe0d700009717876ad0258abad32157f019b2043"
+      }
+    },
+    {
+      "id": "versus-interaction-count",
+      "offset": 1830128,
+      "size": 22,
+      "rebuilt_symbol": "@versus_interaction_count@16",
+      "inputs": [
+        "src/versus_interaction_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_queries.obj src/versus_interaction_queries.c",
+      "identification": "Retail registration at RVA 0x18c4f6 assigns GNatives[1424] to RVA 0x1becf0. The class and function name SInteractionManager.GetNbInteractions agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "0b5dd83bf22f7ed48b9ce1a96f2fe33d0b28cc597b050e6c15301ff041576d9f",
+        "inputs_sha256": "8282f28432a13a23e62be861828e23253c0cc4f25909c05668941b6ba2764811"
+      }
+    },
+    {
+      "id": "versus-current-interaction",
+      "offset": 1830288,
+      "size": 51,
+      "rebuilt_symbol": "@versus_current_interaction@16",
+      "inputs": [
+        "src/versus_interaction_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_queries.obj src/versus_interaction_queries.c",
+      "identification": "Retail registration at RVA 0x18c488 assigns GNatives[1426] to RVA 0x1bed90. The class and function name SInteractionManager.GetCurrentInteraction agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "4f6855bb4b318039c6fa2ed0e755b209b6a32fc6458eb069e4a74518c2ebf70b",
+        "inputs_sha256": "35734738fbc2aa20cd60ba2befdd0fc416c97836a22d1e798a116a614aeeb680"
+      }
+    },
+    {
+      "id": "versus-current-subinteraction",
+      "offset": 1830352,
+      "size": 22,
+      "rebuilt_symbol": "@versus_current_subinteraction@16",
+      "inputs": [
+        "src/versus_interaction_queries.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_interaction_queries.obj src/versus_interaction_queries.c",
+      "identification": "Retail registration at RVA 0x18c451 assigns GNatives[1427] to RVA 0x1bedd0. The class and function name SInteractionManager.GetCurrentSubInteraction agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "874f97d296f6fb386f397b043d60d90eb32f78278025c98b6d2c45a998f7cea8",
+        "inputs_sha256": "77c7434e65bb5fa478c489b673a204419c711408e9e55c404a4919bb9a301dfa"
+      }
+    },
+    {
+      "id": "versus-objective-is-active",
+      "offset": 2001712,
+      "size": 29,
+      "rebuilt_symbol": "@versus_objective_is_active@16",
+      "inputs": [
+        "src/versus_objective_state.c",
+        "src/versus_script_frame.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_objective_state.obj src/versus_objective_state.c",
+      "identification": "Retail registration at RVA 0x186aba assigns GNatives[1318] to RVA 0x1e8b30. The class and function name SObjectiveTrigger.IsActive agree with the project inventory at this native index. The complete body ends before alignment.",
+      "match": {
+        "bytes_sha256": "238239e02f16fb280d8d2205f4a72bf0a9950564e7cc025c9da6c6803275a351",
+        "inputs_sha256": "7b854a08e056a60e064760382db53668ff67895e30f090a8b74722c437f1903e"
+      }
+    },
+    {
+      "id": "versus-sha1-digest-width",
+      "offset": 2206656,
+      "size": 6,
+      "rebuilt_symbol": "@sha1_digest_width@4",
+      "inputs": [
+        "src/digest_dimensions.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+      "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x2e1ccc, zero-based slot 7, selects RVA 0x21abc0. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "b5e246fbf558c442548ccb78aa6a03d48027a6f91f15c02d7dc661bd43aaaab1",
+        "inputs_sha256": "416371fdff8f3f627be7349fff703a6b51ebe2154adcb0df2ecde492ff91a510"
+      }
+    },
+    {
+      "id": "versus-named-exception-message",
+      "offset": 2335792,
+      "size": 4,
+      "rebuilt_symbol": "@named_exception_message@4",
+      "inputs": [
+        "src/named_exception_text.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/named_exception_text.obj src/named_exception_text.c",
+      "identification": "Steam MSVC complete-object RTTI names __Named_exception@_STL. Primary vftable RVA 0x2e1310, zero-based slot 1, selects RVA 0x23a430. The complete body terminates at a return before alignment.",
+      "match": {
+        "bytes_sha256": "bf9a4d01d1b8c2260962ee739fe4b6a547d3450d9b40041673ef71f673ba9bf7",
+        "inputs_sha256": "893db2c169d6093ae67b0f2531d6d8b17dda7631107310c05f0b7655f0113ce9"
       }
     },
     {
