@@ -48,6 +48,33 @@
     }
   },
   {
+    "id": "heap-table-destroy-1508b0",
+    "size": 34,
+    "offset": 1378480,
+    "inputs": [
+      "src/versus_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_1508b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_heap_table_destroy.obj src/versus_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_303320": {
+        "va": 281031456,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x303320. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "108c993f94719dfc5e0313b2a19c84e497a7ffd775bbe2bf3a9a5343b7e3c1d6",
+      "inputs_sha256": "09e67da655e30c11480b7d8730dd3e48db1cee30957d46f3b56a4d69d0b0b9ee"
+    }
+  },
+  {
     "id": "delete-record-1508e0",
     "offset": 1378528,
     "size": 33,
@@ -72,6 +99,33 @@
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
       "inputs_sha256": "230a27d32236e4221bc200882fbe13df7fda4e88c2649affc7d6f85690bf1171"
+    }
+  },
+  {
+    "id": "heap-table-destroy-1509e0",
+    "size": 34,
+    "offset": 1378784,
+    "inputs": [
+      "src/versus_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_1509e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_heap_table_destroy.obj src/versus_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_303304": {
+        "va": 281031428,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x303304. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "1ef130a2043dd351737f746d2b8f3ccd6311e453a2a750a31eefbf1b2293428d",
+      "inputs_sha256": "f88c04deb7067e62892ccff33c766d8b1f184c5c9ebbe3ccb9d38a86e7fc946d"
     }
   },
   {

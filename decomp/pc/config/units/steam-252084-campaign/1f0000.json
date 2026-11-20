@@ -1,5 +1,59 @@
 [
   {
+    "id": "heap-table-destroy-1f0320",
+    "size": 34,
+    "offset": 2032416,
+    "inputs": [
+      "src/campaign_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_1f0320@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_heap_table_destroy.obj src/campaign_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_7dc328": {
+        "va": 286114600,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7dc328. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "172e5d44ffda5f1a725fbbf634294424631c855385b66e0a9da8e93d5179d09f",
+      "inputs_sha256": "ea65e684b6bf6d28b9c5d5890efe21e08652f131347326ccc55c58c2e0ef6b5b"
+    }
+  },
+  {
+    "id": "heap-table-destroy-1f0590",
+    "size": 34,
+    "offset": 2033040,
+    "inputs": [
+      "src/campaign_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_1f0590@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_heap_table_destroy.obj src/campaign_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_7dc328": {
+        "va": 286114600,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7dc33c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "172e5d44ffda5f1a725fbbf634294424631c855385b66e0a9da8e93d5179d09f",
+      "inputs_sha256": "81dc06f8552849a064df43b6fbed7ca2a7eab9df47f6f413b2cf0c74ee69c549"
+    }
+  },
+  {
     "id": "cast-uscx-reflection-material",
     "offset": 2042512,
     "size": 85,

@@ -4576,6 +4576,33 @@
     }
   },
   {
+    "id": "heap-table-destroy-0ab140",
+    "size": 34,
+    "offset": 700736,
+    "inputs": [
+      "src/versus_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_0ab140@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_heap_table_destroy.obj src/versus_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_307890": {
+        "va": 281049232,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x307890. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "a8874f5ea6bd7462817b40c82c7afe7e3b75879372b177331848aa3f1f3b6904",
+      "inputs_sha256": "75adf1543cee497091f0989a2f56bfa8d71c4988f5588d54867231af08b7881d"
+    }
+  },
+  {
     "id": "place-uinteractionmaster",
     "offset": 701216,
     "size": 15,

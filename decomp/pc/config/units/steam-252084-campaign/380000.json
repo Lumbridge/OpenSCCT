@@ -230,6 +230,60 @@
     }
   },
   {
+    "id": "heap-table-destroy-381490",
+    "size": 34,
+    "offset": 3675280,
+    "inputs": [
+      "src/campaign_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_381490@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_heap_table_destroy.obj src/campaign_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_810254": {
+        "va": 286327380,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x810254. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "df417b3eb5e5712fb92dc0252844ce464fe5e515fc500fd801e2caf8e3b34c0d",
+      "inputs_sha256": "52b02b3b3377901adcfa9b6e6feb416151e2044238ede100ddf1e18af6a23734"
+    }
+  },
+  {
+    "id": "heap-table-destroy-381630",
+    "size": 34,
+    "offset": 3675696,
+    "inputs": [
+      "src/campaign_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_381630@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_heap_table_destroy.obj src/campaign_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_810254": {
+        "va": 286327380,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x81026c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "df417b3eb5e5712fb92dc0252844ce464fe5e515fc500fd801e2caf8e3b34c0d",
+      "inputs_sha256": "8480276ad1b71754ceaa0539a6f3ae1d8c90531e090863613e775f6f268267b9"
+    }
+  },
+  {
     "id": "rotate-left-3835a0",
     "size": 85,
     "offset": 3683744,

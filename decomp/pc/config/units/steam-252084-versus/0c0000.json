@@ -1,5 +1,32 @@
 [
   {
+    "id": "heap-table-destroy-0c3ad0",
+    "size": 34,
+    "offset": 801488,
+    "inputs": [
+      "src/versus_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_0c3ad0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_heap_table_destroy.obj src/versus_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_3049cc": {
+        "va": 281037260,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x3049cc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "760b57dab057a9001f72c5a5be46d41b9d84da946bf3da22f0ded4f0fda02cdf",
+      "inputs_sha256": "e484475548c8e89f814acc8a333e775a4b114c7dd623d04407c7dd902f755c9f"
+    }
+  },
+  {
     "id": "delete-umeshanimation",
     "offset": 802832,
     "size": 33,

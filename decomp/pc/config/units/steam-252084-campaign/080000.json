@@ -4115,6 +4115,60 @@
     }
   },
   {
+    "id": "heap-table-destroy-08a580",
+    "size": 34,
+    "offset": 566656,
+    "inputs": [
+      "src/campaign_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_08a580@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_heap_table_destroy.obj src/campaign_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_7c1d78": {
+        "va": 286006648,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7c1d7c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "1e8b5461803e1cb7363a88757327d1cf5566f06b8778b756244e5a2f13ad6385",
+      "inputs_sha256": "4d2a7f725f8bffb485360b4c647c9b9581bf079d6d471bfc41494fb459f2487d"
+    }
+  },
+  {
+    "id": "heap-table-destroy-08a5c0",
+    "size": 34,
+    "offset": 566720,
+    "inputs": [
+      "src/campaign_heap_table_destroy.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@destroy_08a5c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_heap_table_destroy.obj src/campaign_heap_table_destroy.c",
+    "link_bindings": {
+      "_methods_7c1d80": {
+        "va": 286006656,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap singleton used for conditional deallocation through virtual slot two."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7c1d84. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "2aa5bfae04b5b1fef27afdefd4edd9bf3d908add33af2cf566b011392aee4a8b",
+      "inputs_sha256": "e363db062d89d90c8cab95035c428a886f9321e6cdd010c0f1a439c6811292c7"
+    }
+  },
+  {
     "id": "physics-object-allocation-08a5f0",
     "size": 25,
     "offset": 566768,
