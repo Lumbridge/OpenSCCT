@@ -1,5 +1,53 @@
 [
   {
+    "id": "allocate-engine-buffer",
+    "offset": 1378400,
+    "size": 30,
+    "inputs": [
+      "src/engine_allocation.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/engine_allocation.obj src/engine_allocation.c",
+    "rebuilt_symbol": "_allocate_engine_buffer",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 281492464,
+        "basis": "Engine heap also used by the verified array operations."
+      },
+      "_magma_tag": {
+        "va": 281310248,
+        "basis": "Stock UTF-16 Magma allocation tag selected when the caller supplies a null pointer."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b27261. The engine heap wrapper has the same complete extent in default Ghidra analysis and the rebuilt object.",
+    "match": {
+      "bytes_sha256": "e1a73cc388faa0ac2295baa515effaccb2a0ea248cde7b1db3605f029c2dc015",
+      "inputs_sha256": "becbe26002316245b8a8b17103e204dcc23f79e31cc72721146dc4b4148fbcbb"
+    }
+  },
+  {
+    "id": "release-engine-buffer",
+    "offset": 1378432,
+    "size": 17,
+    "inputs": [
+      "src/campaign_release_buffer.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_buffer.obj src/campaign_release_buffer.c",
+    "rebuilt_symbol": "_release_engine_buffer",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 281492464,
+        "basis": "Shared engine heap used by the independently identified registered string finalizers."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b8c2d8. The engine heap wrapper has the same complete extent in default Ghidra analysis and the rebuilt object.",
+    "match": {
+      "bytes_sha256": "81c12a4563e380536f2439d8d64dd6131fe42fd5484eac55c1b73c18b333f430",
+      "inputs_sha256": "4b3b85fb34790b00a2d0a245b7e5b0a4ebb8726db7c28dc2489f0667d6c1b698"
+    }
+  },
+  {
     "id": "versus-cause-input-event",
     "offset": 1397728,
     "size": 155,

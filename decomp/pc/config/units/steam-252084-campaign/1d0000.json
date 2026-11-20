@@ -832,6 +832,32 @@
     }
   },
   {
+    "id": "allocate-engine-buffer",
+    "offset": 1953968,
+    "size": 30,
+    "inputs": [
+      "src/engine_allocation.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/engine_allocation.obj src/engine_allocation.c",
+    "rebuilt_symbol": "_allocate_engine_buffer",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap also used by the verified array operations."
+      },
+      "_magma_tag": {
+        "va": 286110728,
+        "basis": "Stock UTF-16 Magma allocation tag selected when the caller supplies a null pointer."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10a0ef36. The engine heap wrapper has the same complete extent in default Ghidra analysis and the rebuilt object.",
+    "match": {
+      "bytes_sha256": "a2908ff9540e47460c979e714a6f4ebeeaab87576728c26e051a7bdce04f61ad",
+      "inputs_sha256": "dc47f2ab868a2383e5d1aa17eae79c2cee9d103720de4282f9de45797a94e8e5"
+    }
+  },
+  {
     "id": "engine-release-buffer",
     "size": 17,
     "offset": 1954000,
