@@ -1072,6 +1072,44 @@
     }
   },
   {
+    "id": "class-lookup-ustaticmesh-1b8090",
+    "size": 62,
+    "offset": 1802384,
+    "inputs": [
+      "src/campaign_class_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_UStaticMesh",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup.obj src/campaign_class_lookup.c",
+    "link_bindings": {
+      "_find_object": {
+        "va": 281935328,
+        "basis": "Retail operand for find_object in the UStaticMesh lookup wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UStaticMesh lookup wrapper."
+      },
+      "_class_UStaticMesh": {
+        "va": 287271412,
+        "basis": "Retail operand for class_UStaticMesh in the UStaticMesh lookup wrapper."
+      },
+      "_create_UStaticMesh": {
+        "va": 278677904,
+        "basis": "Retail operand for create_UStaticMesh in the UStaticMesh lookup wrapper."
+      },
+      "_register_UStaticMesh": {
+        "va": 278622736,
+        "basis": "Retail operand for register_UStaticMesh in the UStaticMesh lookup wrapper."
+      }
+    },
+    "identification": "Complete UStaticMesh lookup wrapper at aligned RVA 0x1b8090. Class singleton RVA 0x6f60 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "c53fec4ae278d0a707a61374fd9d3e4c5a81287c1ba085cd975222522c0c3f77",
+      "inputs_sha256": "30f75fc655129c61181b3c630deb3556cb4a586f15f3da8b12f6ab4a55e152d7"
+    }
+  },
+  {
     "id": "aligned-array-growth-1b80d0",
     "size": 75,
     "offset": 1802448,

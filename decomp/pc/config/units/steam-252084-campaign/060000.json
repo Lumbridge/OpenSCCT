@@ -1152,6 +1152,44 @@
     }
   },
   {
+    "id": "class-lookup-utexture-66bb0",
+    "size": 62,
+    "offset": 420784,
+    "inputs": [
+      "src/campaign_class_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_UTexture",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup.obj src/campaign_class_lookup.c",
+    "link_bindings": {
+      "_find_object": {
+        "va": 281935328,
+        "basis": "Retail operand for find_object in the UTexture lookup wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UTexture lookup wrapper."
+      },
+      "_class_UTexture": {
+        "va": 287268824,
+        "basis": "Retail operand for class_UTexture in the UTexture lookup wrapper."
+      },
+      "_create_UTexture": {
+        "va": 278380640,
+        "basis": "Retail operand for create_UTexture in the UTexture lookup wrapper."
+      },
+      "_register_UTexture": {
+        "va": 278353488,
+        "basis": "Retail operand for register_UTexture in the UTexture lookup wrapper."
+      }
+    },
+    "identification": "Complete UTexture lookup wrapper at aligned RVA 0x66bb0. Class singleton RVA 0x2ab0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "798f60c5ef81e3d310d75e0a31a77e0f3bf4f3c345a4ef3a9ce27c1c14f9967f",
+      "inputs_sha256": "c81ee4af70bc86d64b685608bf95d5fb539f859cb01f48aacf799182c2b5866c"
+    }
+  },
+  {
     "id": "typed-array-remove-066c30",
     "size": 20,
     "offset": 420912,
@@ -9275,6 +9313,44 @@
     }
   },
   {
+    "id": "class-lookup-ushader-6e7a0",
+    "size": 62,
+    "offset": 452512,
+    "inputs": [
+      "src/campaign_class_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_UShader",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup.obj src/campaign_class_lookup.c",
+    "link_bindings": {
+      "_find_object": {
+        "va": 281935328,
+        "basis": "Retail operand for find_object in the UShader lookup wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UShader lookup wrapper."
+      },
+      "_class_UShader": {
+        "va": 287268708,
+        "basis": "Retail operand for class_UShader in the UShader lookup wrapper."
+      },
+      "_create_UShader": {
+        "va": 278315872,
+        "basis": "Retail operand for create_UShader in the UShader lookup wrapper."
+      },
+      "_register_UShader": {
+        "va": 278319488,
+        "basis": "Retail operand for register_UShader in the UShader lookup wrapper."
+      }
+    },
+    "identification": "Complete UShader lookup wrapper at aligned RVA 0x6e7a0. Class singleton RVA 0x6480 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "bdf61f709087d4a8b4c3d36be117edb8310104a1b37936bf0399110b089145f0",
+      "inputs_sha256": "05a0f6ba015292b4772c3d817c1227fb44354d26b6465609d955a409dc41d7ad"
+    }
+  },
+  {
     "id": "cast-ueglow",
     "offset": 452576,
     "size": 85,
@@ -9306,6 +9382,44 @@
     "match": {
       "bytes_sha256": "2eed57af520baff4528a9c9b3ece378dfbe20c702327b08679cbcfe27deae853",
       "inputs_sha256": "bae9e8f8a69dd680ac819c9c2d430f7ab170cddd7df386753464e6e9b26f1ed6"
+    }
+  },
+  {
+    "id": "class-lookup-utexenvmap-6eaa0",
+    "size": 62,
+    "offset": 453280,
+    "inputs": [
+      "src/campaign_class_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_UTexEnvMap",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup.obj src/campaign_class_lookup.c",
+    "link_bindings": {
+      "_find_object": {
+        "va": 281935328,
+        "basis": "Retail operand for find_object in the UTexEnvMap lookup wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UTexEnvMap lookup wrapper."
+      },
+      "_class_UTexEnvMap": {
+        "va": 287268756,
+        "basis": "Retail operand for class_UTexEnvMap in the UTexEnvMap lookup wrapper."
+      },
+      "_create_UTexEnvMap": {
+        "va": 278317760,
+        "basis": "Retail operand for create_UTexEnvMap in the UTexEnvMap lookup wrapper."
+      },
+      "_register_UTexEnvMap": {
+        "va": 278324512,
+        "basis": "Retail operand for register_UTexEnvMap in the UTexEnvMap lookup wrapper."
+      }
+    },
+    "identification": "Complete UTexEnvMap lookup wrapper at aligned RVA 0x6eaa0. Class singleton RVA 0x5d00 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "78d47d5947fb2e17b79aa55a53a39cefc3d18def6219d001482efa96312503c8",
+      "inputs_sha256": "df6c7d9b9a2777b5b015839d476790186a950e6e2072a518fcaa6c0a01bc5139"
     }
   },
   {

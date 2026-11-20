@@ -2502,6 +2502,44 @@
     }
   },
   {
+    "id": "class-lookup-uclass-3eadf0",
+    "size": 62,
+    "offset": 4107760,
+    "inputs": [
+      "src/campaign_class_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_UClass",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup.obj src/campaign_class_lookup.c",
+    "link_bindings": {
+      "_find_object": {
+        "va": 281935328,
+        "basis": "Retail operand for find_object in the UClass lookup wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UClass lookup wrapper."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Retail operand for class_UClass in the UClass lookup wrapper."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Retail operand for create_UClass in the UClass lookup wrapper."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Retail operand for register_UClass in the UClass lookup wrapper."
+      }
+    },
+    "identification": "Complete UClass lookup wrapper at aligned RVA 0x3eadf0. Class singleton RVA 0x1870 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "3b203d33192f30b4d2c5b6d845f0c6903b4ed23d16d048b6400b6d96bc0778fc",
+      "inputs_sha256": "d7f0fd59f9add63f1659f2c762dcc04640ee538cc1032031f5ea056dfa710a71"
+    }
+  },
+  {
     "id": "virtual-uclassproperty-42-3eaf50",
     "size": 3,
     "offset": 4108112,
