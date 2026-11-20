@@ -173,6 +173,33 @@
     }
   },
   {
+    "id": "delete-record-256d30",
+    "offset": 2452784,
+    "size": 27,
+    "inputs": [
+      "src/versus_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_256d30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_scalar_cleanup.obj src/versus_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_241af0@4": {
+        "va": 280238832,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record@4": {
+        "va": 279385360,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x241af0 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "31c2ec5199588c11098addb19b392ce12cdcfa353c671d5a9826a2b6ae211787",
+      "inputs_sha256": "a62b2a3e21fae2057e1f8db651c1a0caade4eb075b2488dde0f85c39c9ee20ab"
+    }
+  },
+  {
     "id": "delete-record-257800",
     "offset": 2455552,
     "size": 27,

@@ -1770,6 +1770,60 @@
     }
   },
   {
+    "id": "delete-record-2f52a0",
+    "offset": 3101344,
+    "size": 33,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_2f52a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_2f5230@4": {
+        "va": 280973872,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x2f5230 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "e1b8f2475aeb8a2a94e74750ce9fce0a0a72cdc990b7ff94c554c0e2568afaf7",
+      "inputs_sha256": "f5beea45415f5e8a78256c8d2acde1aa1e57e1680a5c81ae27d6d56bca201e90"
+    }
+  },
+  {
+    "id": "delete-record-2f5410",
+    "offset": 3101712,
+    "size": 33,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_2f5410@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_2f52d0@4": {
+        "va": 280974032,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x2f52d0 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "52a868b3ec7103f55906865fc6a861e7220b73ce09019fa490399a0db08e2cbd",
+      "inputs_sha256": "df8db00e01bc723676acb7c16b948fb53df333bb37ac8a396fc05c3fc1068bab"
+    }
+  },
+  {
     "id": "typed-array-destroy-2f5d60",
     "size": 54,
     "offset": 3104096,

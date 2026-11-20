@@ -162,6 +162,60 @@
     }
   },
   {
+    "id": "delete-record-021e40",
+    "offset": 138816,
+    "size": 33,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_021e40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_021410@4": {
+        "va": 278008848,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x21410 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "30700304ef813cf6ddc45796b9ecf04988fd94785a13a2b635d57c202523afcd",
+      "inputs_sha256": "d9305e4dfb6164ebd39e26603f4db828cddc62557fadee4e6e9fe15ce323db93"
+    }
+  },
+  {
+    "id": "delete-record-022030",
+    "offset": 139312,
+    "size": 33,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_022030@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_021fe0@4": {
+        "va": 278011872,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x21fe0 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "f2b9a4dc428044c737a02272064a0a3ccd0959a07e13040e92127c8bccc03b70",
+      "inputs_sha256": "dbdd7a194e9f05bc3d23da611d9a62954364ebdd7bdea1c4b96be576cfd9313c"
+    }
+  },
+  {
     "id": "delete-record-024630",
     "offset": 149040,
     "size": 33,

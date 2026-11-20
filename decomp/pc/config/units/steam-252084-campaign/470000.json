@@ -547,6 +547,33 @@
     }
   },
   {
+    "id": "delete-record-47dac0",
+    "offset": 4709056,
+    "size": 30,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_47dac0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_49d610@4": {
+        "va": 282711568,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_release_record": {
+        "va": 282622864,
+        "basis": "Stock deallocation wrapper dispatching to the heap release operation."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x49d610 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "759a327133ad81ac8965c7850bc87e26d3203abc7d8bb0e8cae7d3fd3a5c49c9",
+      "inputs_sha256": "f753c4798392e3c47fe12780df72db1e435292e9d04292f84723aa926b404bf6"
+    }
+  },
+  {
     "id": "delete-record-47fa80",
     "offset": 4717184,
     "size": 30,

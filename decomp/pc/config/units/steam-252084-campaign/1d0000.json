@@ -522,6 +522,33 @@
     }
   },
   {
+    "id": "delete-record-1d77d0",
+    "offset": 1931216,
+    "size": 33,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_1d77d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_00ba70@4": {
+        "va": 277920368,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0xba70 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "302bca1118eab81aad9534147956aa54016ce1b29682c989d28244300be66dfc",
+      "inputs_sha256": "313fcfd7e06a6ca85a1ef124c329504022ff1d4479730c742f05bcb183b398e4"
+    }
+  },
+  {
     "id": "array-destroy-1d7f50",
     "size": 56,
     "offset": 1933136,
@@ -627,6 +654,33 @@
     "match": {
       "bytes_sha256": "b76c3adecdfb52cb83d9015cfe133c675cfe4764bf8fa5ff539ac9a401428eda",
       "inputs_sha256": "f9c6aa980386851c53ad06748f9ec6701765d1fdf0d37d8b3388bdcf5e81cb32"
+    }
+  },
+  {
+    "id": "delete-record-1d8c00",
+    "offset": 1936384,
+    "size": 33,
+    "inputs": [
+      "src/campaign_scalar_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_record_1d8c00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scalar_cleanup.obj src/campaign_scalar_cleanup.c",
+    "link_bindings": {
+      "@destroy_1d8690@4": {
+        "va": 279807632,
+        "basis": "Unconditional cleanup of the receiver before testing the deletion flag."
+      },
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Engine heap used by the independently reconstructed release routine."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x1d8690 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
+    "match": {
+      "bytes_sha256": "710c4cbf11951dfc18d4d41084b86ead0f54e1339c86975928a015c33a58d42c",
+      "inputs_sha256": "44c1b59e73316975d290d166a8f85e1d733e9ad58e84e1be38938eb41c8f7eac"
     }
   },
   {
