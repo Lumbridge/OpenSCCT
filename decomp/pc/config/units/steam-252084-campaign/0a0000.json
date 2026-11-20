@@ -4613,6 +4613,22 @@
     }
   },
   {
+    "id": "fixed-archive-size-0ab930",
+    "size": 30,
+    "offset": 702768,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_0ab930@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 4-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "b1b029299161d72fbbcaa468338daad4c723f795c5ceba0f59924e876cc692aa",
+      "inputs_sha256": "5ef99ce2d8b161508daf08aecdee00f5515d907bcdc20b92e29261fc8e2348fc"
+    }
+  },
+  {
     "id": "placement-uewaterwavesource",
     "offset": 703200,
     "size": 24,

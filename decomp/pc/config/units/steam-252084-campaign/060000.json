@@ -2099,6 +2099,22 @@
     }
   },
   {
+    "id": "fixed-archive-size-0684f0",
+    "size": 28,
+    "offset": 427248,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_0684f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 2-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "622bcb78913ee971f1ef49b0324c8974f43e489e387c91967d67201463fab008",
+      "inputs_sha256": "26a697aa851c5cc3b9ae1a1b2f84455e9aee12312f06a024c9de1de8753013b1"
+    }
+  },
+  {
     "id": "array-resize-068510",
     "size": 37,
     "offset": 427280,

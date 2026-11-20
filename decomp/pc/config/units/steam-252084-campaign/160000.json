@@ -907,6 +907,54 @@
     }
   },
   {
+    "id": "fixed-archive-size-16c5e0",
+    "size": 30,
+    "offset": 1492448,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_16c5e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 4-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "b1b029299161d72fbbcaa468338daad4c723f795c5ceba0f59924e876cc692aa",
+      "inputs_sha256": "614bfde4e77f14298e3a278c8f61ef1e0fdd93eda78cef348d27bcb3f5bf5f7d"
+    }
+  },
+  {
+    "id": "fixed-archive-size-16c630",
+    "size": 30,
+    "offset": 1492528,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_16c630@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 8-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "569c391043eea9c9e8e4f6bd7a39e238d8aee39d04a25e48b0db0003991ddc21",
+      "inputs_sha256": "a4bf4b870ba481f4a2dc4a2ba2cee708e6e39314f766c5f439b453b4faaec6da"
+    }
+  },
+  {
+    "id": "fixed-archive-size-16c680",
+    "size": 30,
+    "offset": 1492608,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_16c680@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 8-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "569c391043eea9c9e8e4f6bd7a39e238d8aee39d04a25e48b0db0003991ddc21",
+      "inputs_sha256": "5292f2da18d04f1c644fc7d533d15c947217ea2e774cfb02d756d7cf3f1aa7bb"
+    }
+  },
+  {
     "id": "aligned-array-reset-16c6a0",
     "size": 52,
     "offset": 1492640,

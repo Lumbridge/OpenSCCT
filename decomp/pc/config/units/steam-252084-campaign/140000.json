@@ -932,6 +932,22 @@
     }
   },
   {
+    "id": "fixed-archive-size-1476e0",
+    "size": 30,
+    "offset": 1341152,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_1476e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 4-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "b1b029299161d72fbbcaa468338daad4c723f795c5ceba0f59924e876cc692aa",
+      "inputs_sha256": "7f19eff83bb170bd9737f67a3bedd473cf75e8127011093f80881f8db6454ed1"
+    }
+  },
+  {
     "id": "class-factory-uclient",
     "offset": 1344976,
     "size": 106,
@@ -1705,6 +1721,86 @@
     "match": {
       "bytes_sha256": "be4e09cc54cd37fa78eaaa3383396f5b8130101dc29d2c1d9eaab612ca081259",
       "inputs_sha256": "21415f950f5c50f736c73b9173a0d97add4589e70ecf2d0ce5132fb113591783"
+    }
+  },
+  {
+    "id": "fixed-archive-size-14ea60",
+    "size": 30,
+    "offset": 1370720,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_14ea60@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 16-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "91b61df3d8a263b2c37d6313323024b418b076f4ad3e20fb1cbbdbcd37e19918",
+      "inputs_sha256": "b4b589f81a266a8594c339aecfcaab03bed38c098f55f6f8bc43d0e64dd31bd5"
+    }
+  },
+  {
+    "id": "fixed-archive-size-14eae0",
+    "size": 30,
+    "offset": 1370848,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_14eae0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 16-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "91b61df3d8a263b2c37d6313323024b418b076f4ad3e20fb1cbbdbcd37e19918",
+      "inputs_sha256": "31dfee80a08472d3190721539c55bd1f1b2a7c176244fbe78eb1c0cd70098299"
+    }
+  },
+  {
+    "id": "fixed-archive-size-14eb00",
+    "size": 30,
+    "offset": 1370880,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_14eb00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 28-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "c29b5edb3c3a2e7f9759d8d850d46edde68922523cbf5b2fc34d0ec07db06360",
+      "inputs_sha256": "7ad891e0c6d4cac38385911445ca37bc143ab36be57f3c6e2f6df24e5ac1bdfc"
+    }
+  },
+  {
+    "id": "fixed-archive-size-14eb20",
+    "size": 30,
+    "offset": 1370912,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_14eb20@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 16-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "91b61df3d8a263b2c37d6313323024b418b076f4ad3e20fb1cbbdbcd37e19918",
+      "inputs_sha256": "68ce42c7b3875847d4e468a2af68622a2da86aa9a43f6a8e6a6a540af532357f"
+    }
+  },
+  {
+    "id": "fixed-archive-size-14eb40",
+    "size": 30,
+    "offset": 1370944,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_14eb40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 8-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "569c391043eea9c9e8e4f6bd7a39e238d8aee39d04a25e48b0db0003991ddc21",
+      "inputs_sha256": "5ce468654ada16f2c8ef06d9a0ef5e5f9d246c90368cf3f6b712b3a1dc981654"
     }
   },
   {

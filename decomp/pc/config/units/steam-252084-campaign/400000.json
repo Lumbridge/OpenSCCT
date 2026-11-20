@@ -362,6 +362,38 @@
     }
   },
   {
+    "id": "fixed-archive-size-402e50",
+    "size": 30,
+    "offset": 4206160,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_402e50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 32-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "611dc6b9ca14549f583823fa50766552a21676bcd2b8961302a529723fd482b5",
+      "inputs_sha256": "10e48b0ee29892ef3fe96bdbfed92e7ded1726a7a48be8fb2ecd1538de1cb3d9"
+    }
+  },
+  {
+    "id": "fixed-archive-size-402ea0",
+    "size": 30,
+    "offset": 4206240,
+    "inputs": [
+      "src/campaign_fixed_archive_sizes.c"
+    ],
+    "rebuilt_symbol": "@count_402ea0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_archive_sizes.obj src/campaign_fixed_archive_sizes.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Passes used and allocated bytes for 4-byte elements to archive method slot five.",
+    "match": {
+      "bytes_sha256": "b1b029299161d72fbbcaa468338daad4c723f795c5ceba0f59924e876cc692aa",
+      "inputs_sha256": "5f498453f119ee7da07060c83114611427f22d54268a216a41b07d1bb08c9075"
+    }
+  },
+  {
     "id": "aligned-array-reset-402ec0",
     "size": 52,
     "offset": 4206272,
