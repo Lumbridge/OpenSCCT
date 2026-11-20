@@ -1895,6 +1895,32 @@
     }
   },
   {
+    "id": "physics-array-grow-storage",
+    "size": 98,
+    "offset": 5227456,
+    "inputs": [
+      "src/campaign_physics_array_grow.c"
+    ],
+    "rebuilt_symbol": "_grow",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_array_grow.obj src/campaign_physics_array_grow.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to allocate the new storage and release old owned storage."
+      },
+      "_copy_storage": {
+        "va": 283115136,
+        "basis": "Copy routine receives the new buffer, old buffer and live byte count."
+      }
+    },
+    "identification": "Indexed allocation helper reached by the matched physics reserve functions. Allocates the new capacity, copies the live elements and conditionally releases the old storage.",
+    "match": {
+      "bytes_sha256": "8a84b307313c8cf000d2846e773087a413d7cd9bec0ab456e7ef82d36d27b071",
+      "inputs_sha256": "0fac623b0f08b747b5e299ee4c11844b9368d9dd50bd524d3356bc8f99bb52d0"
+    }
+  },
+  {
     "id": "simple-table-destroy-4fc5e0",
     "size": 31,
     "offset": 5228000,
