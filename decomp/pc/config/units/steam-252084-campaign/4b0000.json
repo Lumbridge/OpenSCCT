@@ -1,5 +1,27 @@
 [
   {
+    "id": "tree-clear-managed-4b0840",
+    "size": 43,
+    "offset": 4917312,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4b0840@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4b06d0@8": {
+        "va": 282789584,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4b06d0, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "c3e76b480c635c6440124c8c3abe2d8b58eadbae3daf9c724098870d5e8fd2a6",
+      "inputs_sha256": "2df2eb3ad04864316394355944c2de18e05a6b2000bc7d1173e5edfeeaf72e9d"
+    }
+  },
+  {
     "id": "init-sentinel-tree-4b0ba0",
     "size": 43,
     "offset": 4918176,
@@ -1515,6 +1537,32 @@
     }
   },
   {
+    "id": "vector-clear-managed-4bc540",
+    "size": 50,
+    "offset": 4965696,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4bc540@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "b024c14b5c6ea2a47fb5f4732e26c52983da294a54aa0f78c1b46608ca1d4d6a",
+      "inputs_sha256": "19046a032ce464ce7e8a6280c6429040854b31a05998d471a300d59c29faff70"
+    }
+  },
+  {
     "id": "delete-record-4bc660",
     "offset": 4965984,
     "size": 30,
@@ -1964,6 +2012,110 @@
     "match": {
       "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
       "inputs_sha256": "c083051775c95a1477719f7e1d796c882abbda7c7fce0a74797854126a659b72"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4beb70",
+    "size": 50,
+    "offset": 4975472,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4beb70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "562e632d89e17c6e0b457ee297c10ef808d7a6b75622d4935a4566283a12a782",
+      "inputs_sha256": "5f4fbb8126a43779d91fd2201d6cfdcc88faf8d0716cb06102721f7eb0ac847a"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4bec10",
+    "size": 50,
+    "offset": 4975632,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4bec10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "5a66cb260d62db01bdf26883f6628ba7e5b8a79e68fa93716fb794f6a7b61e81",
+      "inputs_sha256": "527fd6b07cd6ba10e8c8ec411db8ad7912dbaef8d293460037d602990b3f4ddd"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4bec50",
+    "size": 50,
+    "offset": 4975696,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4bec50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "9c522b6237acbf422c10cb9909ed8591cd9b26653398c421151744d10886f87f",
+      "inputs_sha256": "7cd21625073bc08d7b1d05e9497ad990ff7bb0f6561479e2f86a9fc732bbab77"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4becc0",
+    "size": 50,
+    "offset": 4975808,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4becc0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "7aec565c6abd12f98fc245c8f3e6e222c95c08b05bce8fd36dd46baf2d128c56",
+      "inputs_sha256": "0f7bc0d82401e37df7ed9a2dabadfd45476314d6277912e7f4dcbca7d1925174"
     }
   },
   {

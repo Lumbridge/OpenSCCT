@@ -113,6 +113,110 @@
     }
   },
   {
+    "id": "vector-clear-managed-493030",
+    "size": 50,
+    "offset": 4796464,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_493030@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "8a784fe67df332fc9f8e6a042c1afce3fe48e8a85022d31479f43eb15ba83103",
+      "inputs_sha256": "3a5210a2acf58a3aa11565a90f9ac790da8493b761bf3d2007aa97ed723650c7"
+    }
+  },
+  {
+    "id": "vector-clear-managed-493260",
+    "size": 50,
+    "offset": 4797024,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_493260@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "61c4661e514bb9481630c33d08f25c93c41713f466d6d7509d64f6c730d56a34",
+      "inputs_sha256": "f4319832f1e3af2316b4c68220eb034ea1f8b351aad5b5e21fb939c0b83ad74c"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4932a0",
+    "size": 50,
+    "offset": 4797088,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4932a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "b9d99af15b42855f47e484141b5672cd55a908ad583e5b0690db1de8cc6a8b9a",
+      "inputs_sha256": "3f6c2b52014330eabf07b20ea440f8ae7d5b1fb99efcace13dda84b2090b8dab"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4933e0",
+    "size": 50,
+    "offset": 4797408,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4933e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "493621662b1975812de2f7610cd1aec7b1b8903f7007912a13a48404311a60e1",
+      "inputs_sha256": "7547f90cc0470b67ba67a7d8049f89e8b0dbc5e0a48c1e4468914947d1699878"
+    }
+  },
+  {
     "id": "write-word-493fb0",
     "offset": 4800432,
     "size": 10,
@@ -482,6 +586,58 @@
     }
   },
   {
+    "id": "vector-clear-managed-495240",
+    "size": 50,
+    "offset": 4805184,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_495240@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "ca87ac642f3c2bce51329cd4fa3c1a723c497c242c18e0b80327bf6fc11fc541",
+      "inputs_sha256": "162a9cedef6ebe85557cba03afd833a2d9df3c949d8919736f43f126a3b6d071"
+    }
+  },
+  {
+    "id": "vector-clear-managed-495490",
+    "size": 50,
+    "offset": 4805776,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_495490@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "529e7b97cd898e9de8f8f0d2300b48f00500ba70dee3ca3f7c6dd6245365a46b",
+      "inputs_sha256": "a24ab8d5d124e76be00bd29065eb9c7237f053b2c9df5f0d52d25f9e65a03505"
+    }
+  },
+  {
     "id": "delete-record-495b50",
     "offset": 4807504,
     "size": 30,
@@ -647,6 +803,28 @@
     "match": {
       "bytes_sha256": "7b9448e007d6f935c0c3bdc4b072c64dc40bb0be72c4a8855cfb00d1f7d18731",
       "inputs_sha256": "49b10dce0e23cf5af805f529c160c46006a324f898648dc4c789364edf3558a0"
+    }
+  },
+  {
+    "id": "tree-clear-managed-496a20",
+    "size": 43,
+    "offset": 4811296,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_496a20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4967c0@8": {
+        "va": 282683328,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4967c0, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "316890125fc172f0353a62f81265d17d9b67cd9561c464814dac69bac29018b2",
+      "inputs_sha256": "9836a5e95bc5ffffbd5a544f6f47223faf9bff41363830f9c1fb3a3c0aef1418"
     }
   },
   {
@@ -1223,6 +1401,28 @@
     }
   },
   {
+    "id": "tree-clear-managed-499850",
+    "size": 43,
+    "offset": 4823120,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_499850@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_499800@8": {
+        "va": 282695680,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x499800, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "f0698a82e808caa597c779d1930b32ed26e7e0ed2735c7f3ca62964207fdb3f8",
+      "inputs_sha256": "abc65dd242c27f8ac9af2bd4afefe561c6644ad5e56d4138ee5e3913daff0319"
+    }
+  },
+  {
     "id": "init-sentinel-tree-499880",
     "size": 45,
     "offset": 4823168,
@@ -1724,6 +1924,84 @@
     }
   },
   {
+    "id": "vector-clear-managed-49c4c0",
+    "size": 50,
+    "offset": 4834496,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_49c4c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "ef7b19e61fc41d092c57a4d26e08a06201bf890a1974e9982c7e49668334d757",
+      "inputs_sha256": "a055e9827859538c7053b32fe28d5821d00ec2e5b0932e720e8746c174f1bc55"
+    }
+  },
+  {
+    "id": "vector-clear-managed-49c620",
+    "size": 50,
+    "offset": 4834848,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_49c620@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "ba104b8644cab60e595153c5bef732005e450d3215ef488c25044fa21a9fa7ee",
+      "inputs_sha256": "34dedde8d175271fac86fbe7ce4d813f195cc6dc244b31afd54c4644d801c383"
+    }
+  },
+  {
+    "id": "vector-clear-managed-49c690",
+    "size": 50,
+    "offset": 4834960,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_49c690@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "cc7b41d76506abee3817fa9616f4e00252c77fd7e82719509896ba8bb5f4b256",
+      "inputs_sha256": "41a731c38c0b1640471519dbd29e8123aff78aae0f96dfa61d1b4b392cefbb06"
+    }
+  },
+  {
     "id": "delete-record-49c760",
     "offset": 4835168,
     "size": 30,
@@ -2010,6 +2288,28 @@
     "match": {
       "bytes_sha256": "7b9448e007d6f935c0c3bdc4b072c64dc40bb0be72c4a8855cfb00d1f7d18731",
       "inputs_sha256": "dda5d061d73371b44ba6abbcc88f7bd2b001b6661472c54ee0c6101c9631b1f3"
+    }
+  },
+  {
+    "id": "tree-clear-managed-49f6a0",
+    "size": 43,
+    "offset": 4847264,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_49f6a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_49f430@8": {
+        "va": 282719280,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x49f430, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "a5fd8c3452274c78a9d4eb299c579e11a1851c37865bcf1b75b16b6ce72ccd77",
+      "inputs_sha256": "c7ffb06167af8ebcc3b8898e1a3cd1cb0ce02142714d77e8195395d0e2d8f857"
     }
   },
   {

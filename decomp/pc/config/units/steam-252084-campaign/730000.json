@@ -551,6 +551,32 @@
     }
   },
   {
+    "id": "vector-clear-managed-73ab80",
+    "size": 50,
+    "offset": 7580544,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_73ab80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Direct call at RVA 0x73b3c4. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "c084f785c8382e599acbf7afd2fc14d715e5121158f73406fa59ff15d55d9048",
+      "inputs_sha256": "764dcb89c0049fc87a8215abb16839354379aa704ef73526940e5c3653d1b50e"
+    }
+  },
+  {
     "id": "init-list-73abf0",
     "size": 22,
     "offset": 7580656,
@@ -570,6 +596,32 @@
     "match": {
       "bytes_sha256": "b46e9c9d0629509187d8cd68f75867c5dd6e7f546b44a7185c776602c72cd358",
       "inputs_sha256": "011fa25f21e8e391adb52d300e68e0f821d0aa102f15a85cbbaf7bb0e849c059"
+    }
+  },
+  {
+    "id": "vector-clear-managed-73ac20",
+    "size": 50,
+    "offset": 7580704,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_73ac20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "874a7c4530ea15b2275878594d99ceae7970ebb4dab0f745520db11ad0e680f3",
+      "inputs_sha256": "c379c2e764927cb4a1a84cc2b7beea95f67f6b4ff3736cc41bc8de9a1ca6503f"
     }
   },
   {
@@ -626,6 +678,32 @@
     "match": {
       "bytes_sha256": "d1f81767a3cc6ce3b94bec7ca8ee31348c1e280d632faffec811bfc276443789",
       "inputs_sha256": "e235b2193d783c2f6b8f5f65415e4064516c00d8523fd5e5b269d99b3563aac3"
+    }
+  },
+  {
+    "id": "vector-clear-managed-73ad20",
+    "size": 50,
+    "offset": 7580960,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_73ad20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "b940cff4000fe3dce435938ae099c229b987daba3cee9facfa06ffc224ac750f",
+      "inputs_sha256": "6452f6fb37b909d0213ca67481b4fe89174e2ca9e26c55386c5c5827dc32c7d7"
     }
   },
   {

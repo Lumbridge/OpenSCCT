@@ -40,6 +40,28 @@
     }
   },
   {
+    "id": "tree-clear-managed-4c01a0",
+    "size": 43,
+    "offset": 4981152,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c01a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4bfe00@8": {
+        "va": 282852864,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4bfe00, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "078d73b94ac3bebde2bb53c731e93c8008f0304f8e1677546daf8fc8be3f2590",
+      "inputs_sha256": "f6fe11075a6dd618f02250aee400ceb94e11c607bd4b6296d64e3390ed77df84"
+    }
+  },
+  {
     "id": "tree-prev-4bfea0-prefix-4c0330",
     "offset": 4981552,
     "size": 12,
@@ -918,6 +940,28 @@
     }
   },
   {
+    "id": "tree-clear-managed-4c58b0",
+    "size": 43,
+    "offset": 5003440,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c58b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4c5450@8": {
+        "va": 282874960,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4c5450, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "12e1ff2069c545c80946230e62c66efa27fdf055ded5c05c28ecb660c4585245",
+      "inputs_sha256": "b78c8eccb9f0ff7686ede562feb5be899b668b5e7ed65315792756fe57db2a9f"
+    }
+  },
+  {
     "id": "tree-prev-4c5500-prefix-4c5a40",
     "offset": 5003840,
     "size": 12,
@@ -1409,6 +1453,110 @@
     "match": {
       "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
       "inputs_sha256": "5ac41b65b733b282ca379c281e251283046469430f97c9c8a65cfdef0b3eaf6c"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4c7800",
+    "size": 50,
+    "offset": 5011456,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c7800@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "eaab4152510787059015666da208685ac2e74d23a38d1a41b616b432591b79be",
+      "inputs_sha256": "cab334a1dd7b6a46382bd03468e7efc084aab749e8271bb2005e0154b105ed20"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4c7ab0",
+    "size": 50,
+    "offset": 5012144,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c7ab0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "38ae06bc0bee74ec683e15911ccaa91de45b40a68d8291f77e5a0abd1fae29fe",
+      "inputs_sha256": "470a67e16387aa95127566581611813510e735878e3c10e329f554e250b75e25"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4c7af0",
+    "size": 50,
+    "offset": 5012208,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c7af0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "8272d8ee754b2aea2682b1aa6b717b275c4b3f616b38bf072a219bb8e2f4c43b",
+      "inputs_sha256": "759a146d0776b615b1fe5aa62d453cb7adaa7d7a7aadf62f5e9c55c85db14223"
+    }
+  },
+  {
+    "id": "vector-clear-managed-4c7b60",
+    "size": 50,
+    "offset": 5012320,
+    "inputs": [
+      "src/campaign_managed_vector_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c7b60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_vector_clear.obj src/campaign_managed_vector_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Shared allocation manager getter."
+      },
+      "_release_buffer": {
+        "va": 282637648,
+        "basis": "Shared managed allocation release."
+      }
+    },
+    "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
+    "match": {
+      "bytes_sha256": "190d3b235f7aa5a141270fb6b9cedf9bd5c2b311bdb19ed0d6d2c990b680b38b",
+      "inputs_sha256": "2a22839f9863558e9f44a4076026e0fd4f9b010f515aebe2008e049decac7da9"
     }
   },
   {
@@ -1934,6 +2082,28 @@
     }
   },
   {
+    "id": "tree-clear-managed-4c9b70",
+    "size": 43,
+    "offset": 5020528,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4c9b70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4c95d0@8": {
+        "va": 282891728,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4c95d0, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "bcf060726962e19cc4ccd47ebcd0569968fb060b7030962142df98c21ed9421e",
+      "inputs_sha256": "81980aef97fd5e834e4b979818384a95dcf07578c597af69d2600255a3111686"
+    }
+  },
+  {
     "id": "reset-sentinel-tree-4c9be0",
     "size": 41,
     "offset": 5020640,
@@ -2065,6 +2235,28 @@
     "match": {
       "bytes_sha256": "762c74b675e750425ede848b3f21d6385446e024b1e1cc91848701070d4ba757",
       "inputs_sha256": "20fcd51175a1769b38423fdc02d033164f381eb8c16d1bae88608a65a33f4a26"
+    }
+  },
+  {
+    "id": "tree-clear-managed-4ca320",
+    "size": 43,
+    "offset": 5022496,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4ca320@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4c9f40@8": {
+        "va": 282894144,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4c9f40, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "919f7db8872e25b086bf8137c69519ef810d1387ef268218940efe172435b93e",
+      "inputs_sha256": "299aea88100498f551f8caef081a8b1880a8a273eb9e35271adf6d3e578b2fdc"
     }
   },
   {
@@ -2641,6 +2833,28 @@
     "match": {
       "bytes_sha256": "2f6f406c2a4501505eb6fed405d5e8189f644fcecc4b45b1d596ccc709adcef4",
       "inputs_sha256": "c73b6fabfa66a261b34cf9e46599846aee81127b6ea6fee190c2aaa1b57482b8"
+    }
+  },
+  {
+    "id": "tree-clear-managed-4cfac0",
+    "size": 43,
+    "offset": 5044928,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_4cfac0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_4cf820@8": {
+        "va": 282916896,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4cf820, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "36cbb2b3975fc3f5e62897d072121bec3fd763ec28b912f25110e5c2df1d04df",
+      "inputs_sha256": "56e0fb941fde42b313cba562b4584fbdc7abb1f6769c7281a7954f6c2bed6935"
     }
   },
   {

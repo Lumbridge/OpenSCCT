@@ -1073,6 +1073,28 @@
     }
   },
   {
+    "id": "tree-clear-managed-48a040",
+    "size": 43,
+    "offset": 4759616,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_48a040@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_489ce0@8": {
+        "va": 282631392,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x489ce0, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "5a9dfa386ea93cebeaae6c151d3b80aa9d7844b6d7c3b53f743207a08d7e98c8",
+      "inputs_sha256": "2bf2d992cef7b7e1e705e9e122cf0a74197ad23350970cbcbd43de384d2043ff"
+    }
+  },
+  {
     "id": "init-sentinel-tree-48a070",
     "size": 45,
     "offset": 4759664,
@@ -1688,6 +1710,28 @@
     "match": {
       "bytes_sha256": "57eb3d3853a8a086f3fed476fe46914a3d3f2f60cfd0c59c699282ac55dbcd62",
       "inputs_sha256": "35502424a57790240e507b0cce469408cd85255066fc0cecca27c38d34bb984a"
+    }
+  },
+  {
+    "id": "tree-clear-managed-48d0c0",
+    "size": 43,
+    "offset": 4772032,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_48d0c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_48cee0@8": {
+        "va": 282644192,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x48cee0, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "ecf6e2acf8adc5b3564f17bae71353e98b2a677459721ce4afa6f79df015edea",
+      "inputs_sha256": "000dac7decf64cef7f1b146f174871bb786b6e494576a49c497cca7d0a46fc96"
     }
   },
   {

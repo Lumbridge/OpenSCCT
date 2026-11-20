@@ -387,6 +387,28 @@
     }
   },
   {
+    "id": "tree-clear-managed-422af0",
+    "size": 43,
+    "offset": 4336368,
+    "inputs": [
+      "src/campaign_managed_tree_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_422af0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_tree_clear.obj src/campaign_managed_tree_clear.c",
+    "link_bindings": {
+      "@erase_422950@8": {
+        "va": 282208592,
+        "basis": "Called with the root before resetting the tree sentinel."
+      }
+    },
+    "identification": "Default Ghidra extent. Erases the subtree via RVA 0x422950, clears the count and restores three sentinel links.",
+    "match": {
+      "bytes_sha256": "4781577ccd3ef3b54e3e36388bed2a28b4acc44677e3c5d1218c2367e1187dd0",
+      "inputs_sha256": "647cd0f57e499f06806856f857627a5b8ab5133af3a9fdb7aec99209a72ced30"
+    }
+  },
+  {
     "id": "delete-members-423380",
     "size": 30,
     "offset": 4338560,
