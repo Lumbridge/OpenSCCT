@@ -1670,5 +1670,904 @@
       "bytes_sha256": "9bcb3c98f064c35d36cf05416d8cef1b250191f3cadc385e26a1909a8bb6e820",
       "inputs_sha256": "d8ea2afd9f52102cf710f8fe02f6c42e2a003e06bcdd693e9e0364e1bec6341e"
     }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-467eb0",
+    "size": 53,
+    "offset": 4619952,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r467eb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x467eb0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "f078c50e76bc92f1bf2e6b7050a143d1c8609b6145226caee5281e0da604a4db",
+      "inputs_sha256": "22b05575c436e2a4645508eb71c6f0dcea25caeaf6785e493ab7bb23fbf35391"
+    }
+  },
+  {
+    "id": "sound-list-pop-last-pointer-467ef0",
+    "size": 60,
+    "offset": 4620016,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_last_pointer_r467ef0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x467ef0. Removes the last node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "2c60b44314eb01f1680dedc7f9dec06a95c0f6a99887e53dbe9d2283e855af1c",
+      "inputs_sha256": "cb72f0f0350c3d43860c15187d0be3e2f82966bddfa5821752d90b5bda409337"
+    }
+  },
+  {
+    "id": "sound-list-remove-node-467f80",
+    "size": 64,
+    "offset": 4620160,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_remove_node_r467f80@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x467f80. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "79b8fe64bf0aa82bd2b38555aa243297cb226b012445d00ed18e72a11019e288",
+      "inputs_sha256": "5e413406fa745ad18c020a59c4c5273410b46643f4c79d6830b3f66a36bac228"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-467ff0",
+    "size": 56,
+    "offset": 4620272,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r467ff0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x467ff0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "e596ad03768334c5ade5e9bc2d570b119b10ee540e13edd0cffb322f5015a8c0",
+      "inputs_sha256": "f51fdac907a72892b94d5ab34a560bef14f820d3061649d2641f116e79f6bd0a"
+    }
+  },
+  {
+    "id": "sound-list-remove-node-4690e0",
+    "size": 64,
+    "offset": 4624608,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_remove_node_r4690e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x4690e0. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "f6b5cf2f4213e0235edc1fe754e8589976e61c5f2b83cb67abdb413816284af2",
+      "inputs_sha256": "78284a562663d0efb9350217c79ba093777598ca44762e32dc84b0fc35e9d8d8"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-469150",
+    "size": 64,
+    "offset": 4624720,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r469150@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x469150. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "2a9ca14bbdf86cbac379ee6aa11f336efd8e4f54f370f11685fcd58292e11b6d",
+      "inputs_sha256": "2feb2b44ac6f025625138ee85bc9b2b12e06b754ae35da664184a12e786b1dbd"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-469200",
+    "size": 64,
+    "offset": 4624896,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r469200@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x469200. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "a87fe3eeb323e6683d0fd4d1efcb34086415133eea165329015f3d3116678ef7",
+      "inputs_sha256": "2f03ca014b53be68d44b5110ce6ce1e26f7c950e36009e68576e58e5d28bbf56"
+    }
+  },
+  {
+    "id": "sound-list-remove-node-469240",
+    "size": 64,
+    "offset": 4624960,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_remove_node_r469240@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x469240. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "2332e5491c4e896e7e83fee49cd9701f667a71c7ac33c4d66b1fa5cfa3e62336",
+      "inputs_sha256": "d1ab0b358c1159e01b66ed6b3b1e5bf8dce8c1e10a67be119acc75ecaef02412"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46a8c0",
+    "size": 53,
+    "offset": 4630720,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46a8c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46a8c0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "157ba65e046e7d75b9c33a3224f71f832ceb1f854fd31d9b6b88f49265152990",
+      "inputs_sha256": "6403b833b12c11151f82af42946159345a3332c86be748514878b8ce0f00fe2b"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46a990",
+    "size": 56,
+    "offset": 4630928,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46a990@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46a990. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "04628ad1776e3a99898fca4e81fb4d445c9f1870dbb7e70fa5e7af37a4561c31",
+      "inputs_sha256": "42f8d3b04180a81b9c6ec97dfe00acb5071a95f36aaa5b882356f6de64acee2d"
+    }
+  },
+  {
+    "id": "sound-list-prepend-pointer-46cf60",
+    "size": 62,
+    "offset": 4640608,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_prepend_pointer_r46cf60@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46cf60. Prepends a pointer-sized item and updates the first node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "88daa311c9c21b08edaf61c9185b9d24518a35cca6b276d40e97047b6bc80340",
+      "inputs_sha256": "664a47b3f9498e47cca402b475326e976e57bb8d4c7ef720c6b362f647d93642"
+    }
+  },
+  {
+    "id": "sound-list-pop-pair-46d0d0",
+    "size": 55,
+    "offset": 4640976,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_pop_pair_r46d0d0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46d0d0. Removes the first node and copies its two-word payload to the output. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "0c906e911b1507f384a1ac89ba9ca0d35de5864b0862adf2438ebf70350ef5db",
+      "inputs_sha256": "866554f1eae487be30375403aad855933ceb4074e842e5d6d64bedc354dd159f"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46e680",
+    "size": 53,
+    "offset": 4646528,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46e680@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e680. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "8096e37c4e4213720828a8872405ca94b4a686280335dea403f9b8875cbd4342",
+      "inputs_sha256": "404ae88d3c24137d29acb4487a9cb19a388f2b531d34ad6ba67dffda51b3123c"
+    }
+  },
+  {
+    "id": "sound-list-pop-last-pointer-46e6c0",
+    "size": 60,
+    "offset": 4646592,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_last_pointer_r46e6c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e6c0. Removes the last node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "381c860ac1e6b1a856fe0785db46c825a6f2f260ab5baa1e82b0673e291e9e83",
+      "inputs_sha256": "ad2a17ed1f0f25837abf9723ff6138c97b80ddd03f18ad30fe4266f933425523"
+    }
+  },
+  {
+    "id": "sound-list-prepend-pointer-46e700",
+    "size": 62,
+    "offset": 4646656,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_prepend_pointer_r46e700@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e700. Prepends a pointer-sized item and updates the first node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "b324c6c8ec1a9e3c4a2ef438c92527c48adf31c8e233ae3bc3554c2b4b08740b",
+      "inputs_sha256": "6acc13b7c424a5ccf4c6e8a41e22612d54025c3e05caf936c8c7c451934976d2"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-46e740",
+    "size": 64,
+    "offset": 4646720,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r46e740@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e740. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "75a57dc684ee3b22ffdbdba91aaa23a60de8e23beb63380922b513be84ce1156",
+      "inputs_sha256": "65ca0e8b819075fb01a541f49720ffa4b51acf4c6513d73fa9da9a4f01fd8d12"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46e780",
+    "size": 56,
+    "offset": 4646784,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46e780@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e780. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "1d81df2fadbf44c12b4555c1565426ad6f9b6bb170ac982138b91a110b86e8ec",
+      "inputs_sha256": "e6354c77ceb3994685be71869cfb22dff28c9c51bc7877048ee838d68510b64f"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-46e7c0",
+    "size": 64,
+    "offset": 4646848,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r46e7c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e7c0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "2d4a7b1c44534311024c6712cc4a45a5807a35deeac1e4398e90f8add0fcb544",
+      "inputs_sha256": "9c080c9ed246a4360f98cb3faf1ee1a1af865d1aebd0d69ef3db07c4c3905e08"
+    }
+  },
+  {
+    "id": "sound-list-append-pair-46e800",
+    "size": 71,
+    "offset": 4646912,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_append_pair_r46e800@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named retail campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e800. Appends a two-word payload. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "4342ffff6d7a0d447446f8e90ab652dd55724bebf93dd6161cfdd05f259d3c30",
+      "inputs_sha256": "193cdeead8ab48e17228d38183a8f74b25d101db01ed48e43b1d5e9c01a6f10f"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-46e8a0",
+    "size": 64,
+    "offset": 4647072,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r46e8a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e8a0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "b2735d3ccdbf46531fa9a52300e4a19fe990c0e83e928952e52e1b8dacb6619b",
+      "inputs_sha256": "6352da63c12fe430f3bdf3541faf333925fd23034a0488eac0ec88010a3a8dd4"
+    }
+  },
+  {
+    "id": "sound-list-append-pair-46e910",
+    "size": 71,
+    "offset": 4647184,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_append_pair_r46e910@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named retail campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e910. Appends a two-word payload. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "46fad84ca478f5e0a8617029ea1df09b85264f4d85346d61556b03ebda90bf24",
+      "inputs_sha256": "102c15bac75be94f1236878b1d34f8f1fdc3067b72e2dd8eb5371ea4b2ba564f"
+    }
+  },
+  {
+    "id": "sound-list-remove-node-46e960",
+    "size": 64,
+    "offset": 4647264,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_remove_node_r46e960@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46e960. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "5eb43a03397d6655070998af92996826dd6f88c0451a9b615a5fe211f7f74ca8",
+      "inputs_sha256": "bd7b022830c66026270c7860c03659b81658e72607fc12167b8c4922454b8cf8"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46ea40",
+    "size": 56,
+    "offset": 4647488,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46ea40@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ea40. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "4e9e1ade47f21a0e50d965bac7eac97e554de40794506b738ec3fd4345d473fd",
+      "inputs_sha256": "7212c5a58f1ce530689cd1b9c70ae85667c07bd0719294c925025b6aa3478ea3"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46ea80",
+    "size": 53,
+    "offset": 4647552,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46ea80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ea80. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "e5da76e32229c7e8a4f8c963b24e32292170d606bd66fe28dd676b9db38e038d",
+      "inputs_sha256": "32d02aa594eeaebdb85147dccbde72d6a24112760aa52db545ef4747421a0144"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-46eac0",
+    "size": 64,
+    "offset": 4647616,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r46eac0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46eac0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "448234e8c808d7a98574a7f3ac23efd0b6439cb073b11eb3be573df44bc3fda9",
+      "inputs_sha256": "42ab09a43045ac8d7ba65997dc53579db7709fd0c16104896ff9ecd6c4441886"
+    }
+  },
+  {
+    "id": "sound-list-remove-node-46eb00",
+    "size": 64,
+    "offset": 4647680,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_remove_node_r46eb00@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46eb00. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "c8dfb5918192ae51d6dada7bae509ecb6160a1a3b178147c85702a52dd40ee3b",
+      "inputs_sha256": "392c5710644fee0977e463bf13dc575e96942d62fbd6c905fb0eb1d63f760ffc"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46eb70",
+    "size": 53,
+    "offset": 4647792,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46eb70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46eb70. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "2d62193ea8df4f70e669b96ee1cd8f11aca7c9dd3506639f2a3d7b62346d74af",
+      "inputs_sha256": "c29564bd559511bf3d0d808a8752939c019de04b7f71f61f7bf00207ec0cdcae"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46ebb0",
+    "size": 53,
+    "offset": 4647856,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46ebb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ebb0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "2a11e622775f562bcbaa04399ce06e74b190464ca933c0a55638579bd19c5f72",
+      "inputs_sha256": "a970317e055ea387d885c6719da42d0990e06aa8000067039d459131b6ec6e16"
+    }
+  },
+  {
+    "id": "sound-list-pop-pair-46ebf0",
+    "size": 55,
+    "offset": 4647920,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_pop_pair_r46ebf0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ebf0. Removes the first node and copies its two-word payload to the output. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "8c440758f2a23102d9fab5d31cc1edfcd4af8af6c6449449ddccf483cc8e9486",
+      "inputs_sha256": "b8f0312e519aa7395a2e804b69e55c4409c150000c6faf7d6b5f7d39ca193f7a"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46ec30",
+    "size": 53,
+    "offset": 4647984,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46ec30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ec30. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "1712a8e5a1c1dce979a49aaf0fa3e97cf95b9079a14538bf4c078c3acd5dc355",
+      "inputs_sha256": "2d4d4cb06204e65a53aa79d0775600130bdcfb5ae2711d55c836b7c78b546a79"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46ec70",
+    "size": 56,
+    "offset": 4648048,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46ec70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ec70. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "7b540a78417e8c4be3f9ea1aa23152b21625f3c035d245d3b0aa5cef36c0cfde",
+      "inputs_sha256": "42dee758d3274fb2b7901b7bf265990a0f94fb864bac6d12ea037e81bebfdb09"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46ecb0",
+    "size": 56,
+    "offset": 4648112,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46ecb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ecb0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "1ba540675479df5693c5b74df8b3fb60545b06637d4350981c9ca8677eea47c9",
+      "inputs_sha256": "bd59cbac59080e2ba7e4f663cbf54345919349d320b58e9c1e9d6829621a75bd"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46ecf0",
+    "size": 56,
+    "offset": 4648176,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46ecf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ecf0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "e7aabb5e9eb39ab1a54f200bb5c9591d55b353baaae03cdbe15608944409cacf",
+      "inputs_sha256": "ad4f0b2adca5607398892ad880645c31602df945a2c7fe589b3dbbe3f555ac6b"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46ed30",
+    "size": 53,
+    "offset": 4648240,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46ed30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ed30. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "c211b635dc3e4c968b0d7a7ebeea1e1749c72a24ba917b5beec446827efe627d",
+      "inputs_sha256": "3d76f02aedd1975c8f4137ae38a2d05b574c234261a7584dec437856777a7e25"
+    }
+  },
+  {
+    "id": "sound-list-pop-first-pointer-46ed70",
+    "size": 53,
+    "offset": 4648304,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r46ed70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ed70. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "979250db4e11d90528dcd6f4e3be4f479acc8029b24c606bf7768e973c77af5b",
+      "inputs_sha256": "7ed21840107cad99eec165b2ea0f157af83803f5a58630214bba424f7fbb80ae"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46feb0",
+    "size": 56,
+    "offset": 4652720,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46feb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46feb0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "504161bb24fb0169966429b6fe6dbede48a1466c1859f0c182f514267362144c",
+      "inputs_sha256": "f4906f79e04ea844385ac22f121a4dc9d4ec72cda30fb29744151653d05513ad"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46fef0",
+    "size": 56,
+    "offset": 4652784,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46fef0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46fef0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "dd2ae96b3d83058d9ce7b60f93bd413741e2d3f733f500b5752700d54c64ea07",
+      "inputs_sha256": "c9979ced51d1481f86ee4519234ca05095374d0275fa14187853436ed3ccccad"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46ff30",
+    "size": 56,
+    "offset": 4652848,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46ff30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ff30. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "4b9d598e64cd3ec4c3158754aa3a4fae91170c0d91957c8139897d541342da65",
+      "inputs_sha256": "c5427f0407be8b0b6a2704316d7baec1d4fcf4d323bb04ced9a6da0aa577e4ae"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46ffb0",
+    "size": 56,
+    "offset": 4652976,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46ffb0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46ffb0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "f97c58452bd89ff50e8c6377fdfa47bf19b133b5d249cdaedf576ae044b7548f",
+      "inputs_sha256": "1d56b59fe2ad36afee6621b146f57e474f908f54eb31e9eadff4cc3bc1cd038f"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-46fff0",
+    "size": 56,
+    "offset": 4653040,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r46fff0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x46fff0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "410b8bd6cc66efc9d4ae938e0e993bb28b5426d400148435946a6eeccc9ce615",
+      "inputs_sha256": "b63ea35f233e92e0af1ccce76335fe63fd126677f6a7a529fc3ed48d7f5124cb"
+    }
   }
 ]

@@ -52,7 +52,7 @@ __declspec(noinline) void __fastcall unlink_cache_node(List *list, NodeArg ref)
 }
 
 #pragma code_seg(".text$V75cdf0")
-__declspec(noinline) Node *__fastcall insert_before_cache_node(List *list, NodeArg at, ItemArg item)
+static __forceinline Node *insert_before(List *list, NodeArg at, ItemArg item)
 {
     Node *before = at.ptr, *node;
     if (!before)
@@ -67,6 +67,11 @@ __declspec(noinline) Node *__fastcall insert_before_cache_node(List *list, NodeA
     return node;
 }
 
+__declspec(noinline) Node *__fastcall insert_before_cache_node(List *list, NodeArg at, ItemArg item)
+{
+    return insert_before(list, at, item);
+}
+
 #pragma code_seg(".text$V75ce70")
 Node *__fastcall find_cache_item(List *list, ItemArg item, NodeArg after)
 {
@@ -79,4 +84,269 @@ SoundCacheItem **__fastcall next_cache_item_ref(List *list, CursorArg cursor)
     Node *node = *cursor.ptr;
     *cursor.ptr = node->next;
     return &node->item;
+}
+
+#pragma code_seg()
+
+/* Additional stock list instantiations. The node operations copy or discard
+   the payload without interpreting it. */
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r467eb0(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_last_pointer_r467ef0(List *list)
+{
+    return pop_last(list);
+}
+
+Node * __fastcall list_append_pointer_r469150(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_append_pointer_r469200(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46a8c0(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_prepend_pointer_r46cf60(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46e680(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_last_pointer_r46e6c0(List *list)
+{
+    return pop_last(list);
+}
+
+Node * __fastcall list_prepend_pointer_r46e700(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+Node * __fastcall list_append_pointer_r46e740(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_append_pointer_r46e7c0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_append_pointer_r46e8a0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46ea80(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r46eac0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46eb70(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46ebb0(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46ec30(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46ed30(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r46ed70(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r476870(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r4768b0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r476930(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_prepend_pointer_r479f40(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+Node * __fastcall list_append_pointer_r479f80(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_prepend_pointer_r47a000(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+Node * __fastcall list_append_pointer_r47a040(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_prepend_pointer_r47b310(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+Node * __fastcall list_prepend_pointer_r47b370(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+Node * __fastcall list_prepend_pointer_r47b3d0(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r47b740(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r47b780(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_insert_before_r47b7c0(List *list, NodeArg at, ItemArg item)
+{
+    return insert_before(list, at, item);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r47b840(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r47b880(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_insert_before_r47b8c0(List *list, NodeArg at, ItemArg item)
+{
+    return insert_before(list, at, item);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r47b940(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r47b980(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+Node * __fastcall list_insert_before_r47b9c0(List *list, NodeArg at, ItemArg item)
+{
+    return insert_before(list, at, item);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r74bfd0(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r74c150(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r74de10(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r74dee0(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r7533a0(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r7533e0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r761120(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_prepend_pointer_r7613f0(List *list, ItemArg item)
+{
+    return add_first(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r766470(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r7666a0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r767480(List *list)
+{
+    return pop_first(list);
+}
+
+Node * __fastcall list_append_pointer_r7674c0(List *list, ItemArg item)
+{
+    return add_last(list, item.ptr);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r76d3b0(List *list)
+{
+    return pop_first(list);
+}
+
+SoundCacheItem * __fastcall list_pop_first_pointer_r76d480(List *list)
+{
+    return pop_first(list);
 }

@@ -244,6 +244,74 @@
     }
   },
   {
+    "id": "sound-list-pop-first-pointer-7533a0",
+    "size": 53,
+    "offset": 7680928,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_pop_first_pointer_r7533a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x7533a0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "e9475a924329a15d2a68dad5e9fcd6d19734f1c9eb5b013adbd9d46b1fc9c1a3",
+      "inputs_sha256": "d0bdacdb741a02239d0fe173be6b156bf00a2028e90eccbc3143241d0bbcff53"
+    }
+  },
+  {
+    "id": "sound-list-append-pointer-7533e0",
+    "size": 64,
+    "offset": 7680992,
+    "inputs": [
+      "src/sound_cache_nodes.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@list_append_pointer_r7533e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache_nodes.obj src/sound_cache_nodes.c",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named campaign export _SND_fn_pvMallocSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x7533e0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "bf1444726c0d04b9f5c940414a5ce3e2389cab26c5c0744244ef92d43374b77a",
+      "inputs_sha256": "be7766442feb3ed4adcfc6bbcde453e1ede23ff36f90ecd8b2c6c69391321e18"
+    }
+  },
+  {
+    "id": "sound-list-clear-nodes-753420",
+    "size": 56,
+    "offset": 7681056,
+    "inputs": [
+      "src/sound_callback_queue.c"
+    ],
+    "rebuilt_symbol": "@list_clear_nodes_r753420@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_callback_queue.obj src/sound_callback_queue.c",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named retail campaign export _SND_fn_vFreeSnd@4."
+      }
+    },
+    "identification": "Independent contiguous stock list function at RVA 0x753420. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
+    "match": {
+      "bytes_sha256": "9319d30886602d8411c59709d7b572ca4d9bd2e2f6f83af142bcfe1e2577644a",
+      "inputs_sha256": "cb60c5b616f935ae68f21b560cdf7b6c686d35fc9e9abd3cd5390f78bbe63ad2"
+    }
+  },
+  {
     "id": "sound-destroy-crc",
     "offset": 7685184,
     "size": 7,
@@ -699,7 +767,7 @@
     "identification": "Complete isolated compiler contribution at 0x11059460 through 0x11059497 exclusive. Returns the first callback and its context through the caller-provided result, updates the linked queue and frees the node.",
     "match": {
       "bytes_sha256": "8db7c65f12841dc8cb274728c0a31b65a12c39460bb194235ce4fbdfaf289e17",
-      "inputs_sha256": "d05d969a668becda73563e96aa5076844f8548f2fbedb29ad43e53c1e1d119c6"
+      "inputs_sha256": "65cb89ece5af35001884f9c8824ba52a31bc7bac0debedaa3117b31cc041d85b"
     }
   },
   {
@@ -721,7 +789,7 @@
     "identification": "Complete isolated compiler contribution at 0x110594a0 through 0x110594e7 exclusive. Allocates a 16-byte queue node, appends its callback/context pair, and repairs the empty-list head when needed.",
     "match": {
       "bytes_sha256": "2b47765fc7b25d83addd943e628f5e93e6a13d296ff58d0c75d5858ec4d8300f",
-      "inputs_sha256": "1c9ae68a77b6a1fcc7d66f33af1be41c7693da279e9922e30d05f5d9e5eddd58"
+      "inputs_sha256": "5bc50df6ab43be51fc798348bd02db033214c211d456b9eca737e5d1aab87ea8"
     }
   },
   {
@@ -743,7 +811,7 @@
     "identification": "Complete isolated compiler contribution at 0x110594f0 through 0x11059530 exclusive. Unlinks a supplied node from either end or the middle, frees it, and decrements the count. These three standalone methods have equivalent inlined operations in neighboring callback queue functions.",
     "match": {
       "bytes_sha256": "00095068394f81295f3a67608fb8a3343399c5d92e4313abc09c98f7f8905df1",
-      "inputs_sha256": "64a89b8e2e455de99b363b159ba8b0856b7336934606d5963a1bc6ddb76a8f4a"
+      "inputs_sha256": "e843883de4b4365ebaea508cb90f43369f8281eda95438ba4a00f05992a4a942"
     }
   },
   {
@@ -765,7 +833,7 @@
     "identification": "Direct retail branch at 0x11059750. Complete isolated compiler contribution at 0x11059530 through 0x11059568 exclusive. Drains the queue by unlinking and freeing nodes without executing their callbacks.",
     "match": {
       "bytes_sha256": "802d8bfa38f52932d5b10a1b681210cea09165a1764c79ad4ed7ddfdfb33f0fa",
-      "inputs_sha256": "4cfc8e5ff84e5522d4dca443443ff17c024ef3d9cdc64434c37e6c8265e81d98"
+      "inputs_sha256": "3e8d87cf8b2cbc4bc4819d5377ec8cefdafc1141b5a6e1a3e95ea0563d8acc98"
     }
   },
   {
@@ -791,7 +859,7 @@
     "identification": "Direct retail branch at 0x110647b4. Complete isolated compiler contribution at 0x11059570 through 0x110595c1 exclusive. Appends the supplied callback and opaque context to the shared mixer queue.",
     "match": {
       "bytes_sha256": "d0ddfb34f72b664c51b31fd541d7ccf21fa43be9adb319803559a6df058b6df6",
-      "inputs_sha256": "4b89b9b965430e3ea59a3502c586170613cfa6bdcbdde7fa45155a80d4a5ad7e"
+      "inputs_sha256": "e3c669c9a5c9bc8c17be3aaab338f02c7fa68b9bcb5359a7859b735b8f0b6e62"
     }
   },
   {
@@ -817,7 +885,7 @@
     "identification": "Direct retail branch at 0x11053ee6. Complete isolated compiler contribution at 0x110595d0 through 0x11059626 exclusive. Pops the head before invoking its stdcall callback with the saved context; continues while the live count is nonzero.",
     "match": {
       "bytes_sha256": "b6ed094ba8ec34ec6910dd23e4a35386b3054bc3dad31a7298a0e3209624ce0c",
-      "inputs_sha256": "7292f2771a58c9ccdd291ead45c8519724cde3db06dfb29be1ed0e2889fd34ce"
+      "inputs_sha256": "88799f48c73f93f3429871f4786550cd39654d4bff69fbd466bd099b9485e405"
     }
   },
   {
@@ -1455,7 +1523,7 @@
     "identification": "Complete x86 compiler function at 0x1105cc60 through 0x1105cc70 exclusive. Returns the address of the current item pointer and advances the caller cursor to the next node.",
     "match": {
       "bytes_sha256": "df43d2b839fc9092a0c2eed350c2fb4ec5258edc64d54a9ca7cf65c9a222d25a",
-      "inputs_sha256": "30fcef2ee3be718d24f91e797eb108c8f7bf25992b0cbcd86b5eb97ac4aa2f21"
+      "inputs_sha256": "79689f5ad3a641bee2734a999b51de3c32ddc2780b47154f482348ef667f9d43"
     }
   },
   {
@@ -1478,7 +1546,7 @@
     "identification": "Complete x86 compiler function at 0x1105cc70 through 0x1105cc92 exclusive. Allocates a twelve-byte cache node, initializes both links and increments the count on successful allocation. This operation is also inlined by list insertion.",
     "match": {
       "bytes_sha256": "1c821a445d66dd74f883061f9f29ccf4db46d04d3c373a616b4f5659aa19573c",
-      "inputs_sha256": "f3d240f243ef2d0e2bdfdf29b1d485152688553541c0f935a40c33d60116ebcf"
+      "inputs_sha256": "5407b010340b1a541dd48d0cc999f66f474a7b54025c8b3a5c8369e49a9bf1c1"
     }
   },
   {
@@ -1501,7 +1569,7 @@
     "identification": "Complete x86 compiler function at 0x1105ccb0 through 0x1105ccee exclusive. Prepends a sound item, updates both endpoint pointers and records its list node. Same operation appears inlined in insert-before with a null position.",
     "match": {
       "bytes_sha256": "35f2ab189ed583fa7a9dcbfb22f78f6a71a9a1f70e68cd1007efa3042d03f4a9",
-      "inputs_sha256": "dbe5c5603db85979f2e12fa5ca77c04d353968f9d2e55a4498bf2c8ef3f651a9"
+      "inputs_sha256": "d62abe1ad04b902570c548501107322cf32b9900465bbc0127038eb6d2dbc7d2"
     }
   },
   {
@@ -1524,7 +1592,7 @@
     "identification": "Complete x86 compiler function at 0x1105ccf0 through 0x1105cd08 exclusive. Frees a non-null cache node and decrements the owning list count. This operation is also inlined by list removal.",
     "match": {
       "bytes_sha256": "9fc88136e5fe7546c84e14798c69549e4afcc67ca8bb5cc54db6e112228c1bdc",
-      "inputs_sha256": "f02f1bec370d1e5a49ab6516acab6c52fd3330f9fe1af5a52915cd4feede8f99"
+      "inputs_sha256": "6e5b2bfcc4866987be041d4e1595be257bd9367fe75e2d1db1331c43f5a94bbc"
     }
   },
   {
@@ -1547,7 +1615,7 @@
     "identification": "Complete x86 compiler function at 0x1105cd30 through 0x1105cd6c exclusive. Removes the tail node and returns its sound item. Also inlined in the cache eviction path.",
     "match": {
       "bytes_sha256": "ce1f3d66cab37085658f364b734bb1e544a7b96e7e9c7e01759fc08f9509fc59",
-      "inputs_sha256": "f3cca40d5b13b5dd2dbc6a91f8dc3277617f8e5fd797d48ab0552a304dcf3e78"
+      "inputs_sha256": "adea3f27b331c268d50a3210f6c006e934fcc85625d65e5d6eb3d3e21d9b152b"
     }
   },
   {
@@ -1570,7 +1638,7 @@
     "identification": "Direct retail branch at VA 0x1105cf23. Complete x86 compiler function at 0x1105cd70 through 0x1105cdb0 exclusive. Appends the sound item, preserving the previous tail and updating the empty-list head.",
     "match": {
       "bytes_sha256": "37db8bab8d4a8407fe61da2acd413392c154f12bafe1523a4220128c1c0ec6c1",
-      "inputs_sha256": "301495525fd6bacb841c9c648bf3ab23a9d4576ee62edc156624c19eceb81c88"
+      "inputs_sha256": "008632402af71c4bd430ea9f03ec6fe1176896d1fdd9a1d64d3a09c880b0a78b"
     }
   },
   {
@@ -1593,7 +1661,7 @@
     "identification": "Direct retail branch at VA 0x1105cf88. Complete x86 compiler function at 0x1105cdb0 through 0x1105cdf0 exclusive. Repairs both links or endpoints, releases the removed node and decrements the item count.",
     "match": {
       "bytes_sha256": "4048ec82f7d5126efa9b6e2d8d0f5e681bced8c74c11def97f496432b28214af",
-      "inputs_sha256": "f722dee9b92fcd175e14ef53a07abddf81e305ef357212672490009a970f4de5"
+      "inputs_sha256": "a319345e0f5412669dc30f73e010852f8b839a8b615e1628b2ce570e3fc23dd9"
     }
   },
   {
@@ -1616,7 +1684,7 @@
     "identification": "Direct retail branch at VA 0x1105cf4c. Complete x86 compiler function at 0x1105cdf0 through 0x1105ce70 exclusive. Inserts before a supplied node, or prepends at the head when the position is null.",
     "match": {
       "bytes_sha256": "705c9698e4bd7fed8e853b3ab33cb0635e865dadffebe1d4ae143076bb9a58a0",
-      "inputs_sha256": "1e2744bfced5a091e00ef9f7b60efe7921273f7b0e07307c83f254c582d46952"
+      "inputs_sha256": "049eb115ae0ce19e112dea1925896c5a69ffaf1289485826f4fc6be9a153a50d"
     }
   },
   {
@@ -1633,7 +1701,7 @@
     "identification": "Complete x86 compiler function at 0x1105ce70 through 0x1105ce96 exclusive. Finds the first matching item after a supplied cursor, starting from the list head if the cursor is null.",
     "match": {
       "bytes_sha256": "ab9f7e3f6eea1cb2f15949fcb8d5f295625b37e60ee6b61d94a90ff0d634d15f",
-      "inputs_sha256": "94bee5186dd8dfe9ec3397c53fbaa767b72be72ce292b0d48f286050aa9e594c"
+      "inputs_sha256": "e390ae99141cfb98f1911e944b210e1c97e901340af031320cc160477c739a14"
     }
   },
   {
@@ -1656,7 +1724,7 @@
     "identification": "Complete x86 compiler function at 0x1105cea0 through 0x1105ced5 exclusive. Removes the head node and returns its sound item. The same unlink operation is inlined in clear-cache-list.",
     "match": {
       "bytes_sha256": "052c96ab34148a029c08cbb7ac20d20a037f5c3bdb587cd839e5b4b6189f3926",
-      "inputs_sha256": "c25904d33e6b9550f36f7ea45803a8635c0555e89bd70768b66c67ff437de95f"
+      "inputs_sha256": "e3d7eaa46e139108b9e60c4d7e807e225375ccf1bdb4595383327dc0a48bd7e3"
     }
   },
   {
