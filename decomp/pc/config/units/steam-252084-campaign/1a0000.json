@@ -2123,6 +2123,58 @@
     }
   },
   {
+    "id": "delete-array-member-1aa610",
+    "size": 86,
+    "offset": 1746448,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_1aa610@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_1a9440@16": {
+        "va": 279614528,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x1a9440. Clears the array at receiver offset 4 using stride 4, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "13be9df4ba3af71b8345d5f42dca655da2e53473a66fe25c47fdaa74a23b69b3",
+      "inputs_sha256": "4538cc82dc6aa28401382f9f9a88b86846377b7728cc504a23f7c7b11563dcda"
+    }
+  },
+  {
+    "id": "delete-array-member-1aa670",
+    "size": 86,
+    "offset": 1746544,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_1aa670@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_1a94d0@16": {
+        "va": 279614672,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x1a94d0. Clears the array at receiver offset 8 using stride 4, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "f0b4a47cbbf2cd255435fe785e95b1d973b43bd4e20adfde3d45ccbb787f12fd",
+      "inputs_sha256": "4410eac74f0bc6826b3aa4b3979474ccba737beb542479951f022267e7bda752"
+    }
+  },
+  {
     "id": "typed-array-destroy-1aaa10",
     "size": 54,
     "offset": 1747472,

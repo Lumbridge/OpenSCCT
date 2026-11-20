@@ -135,6 +135,58 @@
     }
   },
   {
+    "id": "delete-array-member-170230",
+    "size": 86,
+    "offset": 1507888,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_170230@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x7710. Clears the array at receiver offset 24 using stride 2, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "d9ce747747c67f0dc5b4c1cfb9a5eb70786c21b9b10b2ed0cf13f1fcfe5b60a9",
+      "inputs_sha256": "7cf87e9512e4a03acf4f25b1262db4e5042c118670a23602b6191cbeb0449cb4"
+    }
+  },
+  {
+    "id": "delete-array-member-170290",
+    "size": 86,
+    "offset": 1507984,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_170290@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x7710. Clears the array at receiver offset 24 using stride 2, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "fd906fc91a437f27988e07ace916463d0d42e410036d82a6739a9bed2563c2a0",
+      "inputs_sha256": "d768eb1db882750954af3d056941fce46664d49bb0a6b448b409ee385d16069a"
+    }
+  },
+  {
     "id": "typed-array-destroy-170370",
     "size": 54,
     "offset": 1508208,

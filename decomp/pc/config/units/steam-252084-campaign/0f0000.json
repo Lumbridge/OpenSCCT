@@ -142,6 +142,32 @@
     }
   },
   {
+    "id": "delete-array-member-0f35b0",
+    "size": 86,
+    "offset": 996784,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_0f35b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_0da320@16": {
+        "va": 278766368,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0xda320. Clears the array at receiver offset 12 using stride 8, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "4c3d0b28557cc780273f44f310aaf8e64ee1c5a7ef4307e53a5f7208f981fa44",
+      "inputs_sha256": "74040dde5b55d43f129a2a28e1d64f983292cb14ab8833edcf496101c7bf00b8"
+    }
+  },
+  {
     "id": "delete-record-0f3610",
     "offset": 996880,
     "size": 33,

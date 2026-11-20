@@ -1390,6 +1390,58 @@
     }
   },
   {
+    "id": "delete-array-member-082950",
+    "size": 86,
+    "offset": 534864,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_082950@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_029260@16": {
+        "va": 278041184,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x29260. Clears the array at receiver offset 4 using stride 12, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "d2d38b7e600932d8a909f9e4e93f56b48f8ae2a767b5542d416ad64855aa9422",
+      "inputs_sha256": "790388732967a20acacb2e4e29758632cf5020d2844990bc212deb705205f4a0"
+    }
+  },
+  {
+    "id": "delete-array-member-082a00",
+    "size": 86,
+    "offset": 535040,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_082a00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_007710@16": {
+        "va": 277903120,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x7710. Clears the array at receiver offset 20 using stride 2, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "004a0fc697fb640d74ef75a6a3b82abc25863870e6d97f0d111797f78311c8d1",
+      "inputs_sha256": "d428171dd933577839de83c0504d6666c0bfa4b33da9e31f6f977a93afeeb5d8"
+    }
+  },
+  {
     "id": "array-destroy-0839e0",
     "size": 56,
     "offset": 539104,
@@ -1522,6 +1574,32 @@
     "match": {
       "bytes_sha256": "e58412aace2bb1f3e7d04bf4d6397e1fc4ce9446e61c6534cdaf88d38329f200",
       "inputs_sha256": "3932b8e55bb1d1580d7bce3808ac172f7caf72973a2c2b2c63d26c9591768f81"
+    }
+  },
+  {
+    "id": "delete-array-member-083ca0",
+    "size": 86,
+    "offset": 539808,
+    "inputs": [
+      "src/campaign_array_member_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_member_083ca0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_member_deletion.obj src/campaign_array_member_deletion.c",
+    "link_bindings": {
+      "@remove_range_0802d0@16": {
+        "va": 278397648,
+        "basis": "Independently rebuilt array range removal."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator accessed for both virtual release calls."
+      }
+    },
+    "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x802d0. Clears the array at receiver offset 20 using stride 28, releases its allocation, and conditionally releases the receiver.",
+    "match": {
+      "bytes_sha256": "c2a4ac85ed0aee2d6d8e055b01480ee7d15ae54ccd419622ecc21766da64b42f",
+      "inputs_sha256": "5f26e22ad4defb8233ae0c564c173af61912ab06ce98d8f17a00fe743c8b2ede"
     }
   },
   {
