@@ -2661,6 +2661,60 @@
     }
   },
   {
+    "id": "cleanup-owned-array-3dd0f0",
+    "size": 74,
+    "offset": 4051184,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_3dd0f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_3da0d0@16": {
+        "va": 281911504,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 12-byte elements through the independently rebuilt removal routine at RVA 0x3da0d0. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "13b7e4a0fb83dfa4807f96c9a1736e97e6e205e033f134e29847c37fdb1147d3",
+      "inputs_sha256": "919a98aa5681c0e84f0ce0641a36cbf6d3c40ffde6bfc4d25a06b5027b513be9"
+    }
+  },
+  {
+    "id": "cleanup-owned-array-3ddf10",
+    "size": 74,
+    "offset": 4054800,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_3ddf10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_3da0d0@16": {
+        "va": 281911504,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 12-byte elements through the independently rebuilt removal routine at RVA 0x3da0d0. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "def76bda51cc590b91bde12e7e96373fc25d63008a980dd208fa67e2b4b023c4",
+      "inputs_sha256": "8ed6f3ccdda81bf20ea70bed4cf4ca79ca1088c0c34886f8f50562904073db47"
+    }
+  },
+  {
     "id": "typed-array-destroy-3dec90",
     "size": 54,
     "offset": 4058256,

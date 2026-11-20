@@ -1,5 +1,32 @@
 [
   {
+    "id": "cleanup-owned-array-1b02d0",
+    "size": 74,
+    "offset": 1770192,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_1b02d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_1ae2a0@16": {
+        "va": 279634592,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 12-byte elements through the independently rebuilt removal routine at RVA 0x1ae2a0. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "2fe50d6e4758f613ae385e4dec5233110b75eb5b294456f04cb3e1807ad66018",
+      "inputs_sha256": "e4df166f45687d44b547b6041996cfd69defed173dd35b5a392cad225bf8a5cb"
+    }
+  },
+  {
     "id": "placement-utexturestreamer",
     "offset": 1772144,
     "size": 14,
@@ -290,6 +317,33 @@
     "match": {
       "bytes_sha256": "8989fdb47aaa0dc42ac63d81bab3a7159586fa88d1fc71a404b191c7da406ed1",
       "inputs_sha256": "fd338725455baf6ab2f0d3960738ddbee4239e87252517109740e225e17bb971"
+    }
+  },
+  {
+    "id": "cleanup-owned-array-1b6010",
+    "size": 79,
+    "offset": 1794064,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_1b6010@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_029a90@16": {
+        "va": 278043280,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 4-byte elements through the independently rebuilt removal routine at RVA 0x29a90. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "7ce178f816c9843b7d140bb0d99df084819d3764326dd6b843ca3f30d4d5dc7f",
+      "inputs_sha256": "5f81e0ba6471d5a1f0ee96a5aa3cd092df45319b2ab8deee8b5442abb11945bd"
     }
   },
   {

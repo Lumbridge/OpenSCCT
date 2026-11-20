@@ -250,6 +250,33 @@
     }
   },
   {
+    "id": "cleanup-owned-array-0c0d40",
+    "size": 79,
+    "offset": 789824,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_0c0d40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_0beb60@16": {
+        "va": 278653792,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 4-byte elements through the independently rebuilt removal routine at RVA 0xbeb60. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "4f9d159566824e986e79956ff6f71220d4fce4c5e1759ac55c7c9bda84240cdf",
+      "inputs_sha256": "7ca2815b641dad364d8dd7e8818e45e71bff34e99d52a61149190cd719e8504f"
+    }
+  },
+  {
     "id": "array-destroy-0c0e20",
     "size": 56,
     "offset": 790048,
@@ -360,6 +387,33 @@
     }
   },
   {
+    "id": "cleanup-owned-array-0c1910",
+    "size": 74,
+    "offset": 792848,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_0c1910@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_0bedf0@16": {
+        "va": 278654448,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 12-byte elements through the independently rebuilt removal routine at RVA 0xbedf0. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "ca2737f53df6eb808e762c82adea0fa1efc2d56f5802e6965bcf6293db895671",
+      "inputs_sha256": "726341f1795d1636aedc172b23d50e0de0e17bceed8918188741589eefe9bf53"
+    }
+  },
+  {
     "id": "typed-array-destroy-0c1ca0",
     "size": 54,
     "offset": 793760,
@@ -384,6 +438,33 @@
     "match": {
       "bytes_sha256": "d6b760d9efa319180a20b49fa25661a70c189b268f6e5fe3a2c4e6fe845dc3e3",
       "inputs_sha256": "2b7795bb6ea1f188f87e34f3db97b53acf465108c423f61ee743e50008fb18f9"
+    }
+  },
+  {
+    "id": "cleanup-owned-array-0c1d00",
+    "size": 74,
+    "offset": 793856,
+    "inputs": [
+      "src/campaign_array_owner_cleanup.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@cleanup_0c1d00@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_cleanup.obj src/campaign_array_owner_cleanup.c",
+    "link_bindings": {
+      "@remove_0bedf0@16": {
+        "va": 278654448,
+        "basis": "Separately reconstructed FArray remove routine."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The engine heap releases storage through slot two."
+      }
+    },
+    "identification": "Default Ghidra range. Clears 12-byte elements through the independently rebuilt removal routine at RVA 0xbedf0. Both storage releases dispatch through the engine heap.",
+    "match": {
+      "bytes_sha256": "05b016c99e153309787d03927d550648f7903d47c34b4665479beaebec4f0f81",
+      "inputs_sha256": "b082956c4ccf4959eb8aa5f33a21b8a02757887a2f413785d4302c9554a4250d"
     }
   },
   {
