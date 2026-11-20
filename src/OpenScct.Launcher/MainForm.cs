@@ -97,8 +97,6 @@ internal sealed partial class MainForm : Form
     private readonly Button _help = Theme.QuietButton("&Help");
     private readonly Button _mapsButton = Theme.QuietButton("Maps");
     private readonly Button _settingsButton = Theme.QuietButton("Settings");
-    private readonly TableLayoutPanel _launcherBanner = Theme.Grid(Theme.Fill, Theme.Auto);
-    private readonly Label _launcherInfo = Theme.Label(string.Empty, Theme.Body, Theme.Warning);
     private readonly Button _launcherButton = Theme.Button("Restart to finish");
     private readonly System.Windows.Forms.Timer _pendingTimer = new() { Interval = 3000 };
     private readonly ToolTip _tips = new();
@@ -165,15 +163,10 @@ internal sealed partial class MainForm : Form
         Font = Theme.Body;
         Padding = new Padding(14, 10, 20, 12);
 
-        _launcherBanner.Name = "LauncherUpdate";
-        _launcherBanner.BackColor = Theme.Panel;
-        _launcherBanner.Padding = new Padding(14, 10, 14, 10);
-        _launcherBanner.Margin = new Padding(0, 0, 0, 12);
-        _launcherInfo.Text = $"OpenSCCT Launcher {_launcherVersion}";
-        _launcherButton.Text = "Check launcher updates";
+        _tips.SetToolTip(_launcherButton, $"OpenSCCT Launcher {_launcherVersion}");
+        _launcherButton.Text = "Updates";
         _launcherButton.Anchor = AnchorStyles.Right;
         _launcherButton.Name = "UpdateLauncher";
-        Theme.AddRow(_launcherBanner, Theme.Wrapping(_launcherInfo), _launcherButton);
 
         _heading.Name = "LaunchHeading";
         _heading.Font = Theme.Heading;
@@ -326,7 +319,15 @@ internal sealed partial class MainForm : Form
         _help.Click += (_, _) => OpenHelp();
         _settingsButton.Click += (_, _) => SelectPage(LibraryPage.Settings);
         _mapsButton.Click += (_, _) => OpenMaps();
-        _launcherButton.Click += async (_, _) => await RunAsync(_swap is { HasStaged: true } || _lastCheck?.LauncherUpdateAvailable == true ? UpdateLauncherAsync : CheckLauncherAsync);
+        _launcherButton.Click += async (_, _) =>
+        {
+            if (_lastCheck?.LauncherUpdateAvailable == true && _swap is not { HasStaged: true } && _swap?.CanWriteFolder() != true)
+            {
+                OpenLink("https://github.com/OpenSCCT/OpenSCCT/releases/latest");
+                return;
+            }
+            await RunAsync(_swap is { HasStaged: true } || _lastCheck?.LauncherUpdateAvailable == true ? UpdateLauncherAsync : CheckLauncherAsync);
+        };
     }
 
     private void RefreshReleasePreview()
@@ -431,10 +432,9 @@ internal sealed partial class MainForm : Form
         _launcherButton.Enabled = !busy;
         if (_swap is { HasStaged: true })
         {
-            _launcherInfo.Text = "A new version of this launcher is ready.";
+            _tips.SetToolTip(_launcherButton, "A new version of this launcher is ready.");
             _launcherButton.Text = "Restart to finish";
             _launcherButton.Visible = true;
-            _launcherBanner.Visible = true;
         }
 
         if (_selected == Product.Game) RefreshMainButton(current, busy);
@@ -759,18 +759,17 @@ internal sealed partial class MainForm : Form
         if (check.LauncherUpdateAvailable && check.LatestLauncher is { } launcher && _swap is not { HasStaged: true })
         {
             bool writable = _swap?.CanWriteFolder() == true;
-            _launcherInfo.Text = writable
+            _tips.SetToolTip(_launcherButton, writable
                 ? $"Launcher {launcher} is available. You can update it when you are ready."
-                : $"Launcher {launcher} is available. Download it from the OpenSCCT releases page (this folder is read only).";
-            _launcherButton.Text = "Update launcher";
-            _launcherButton.Visible = writable;
-            _launcherBanner.Visible = true;
+                : $"Launcher {launcher} is available. Download it from the OpenSCCT releases page (this folder is read only).");
+            _launcherButton.Text = writable ? "Update launcher" : "Download update";
+            _launcherButton.Visible = true;
         }
         else if (_swap is not { HasStaged: true })
         {
-            _launcherButton.Text = "Check launcher updates";
+            _launcherButton.Text = "Updates";
             _launcherButton.Visible = true;
-            _launcherInfo.Text = check.Feed.Problem ?? $"OpenSCCT Launcher {_launcherVersion}";
+            _tips.SetToolTip(_launcherButton, check.Feed.Problem ?? $"OpenSCCT Launcher {_launcherVersion}");
         }
     }
 
@@ -868,10 +867,9 @@ internal sealed partial class MainForm : Form
         SetOperation("Updating launcher");
         SetStatus($"Downloading launcher {launcher}...", Theme.Muted);
         await _service.StageLauncherAsync(latest, _swap, ProgressReporter(), cancel);
-        _launcherInfo.Text = $"Launcher {launcher} is ready. Restart the launcher to use it.";
+        _tips.SetToolTip(_launcherButton, $"Launcher {launcher} is ready. Restart the launcher to use it.");
         _launcherButton.Text = "Restart to finish";
         _launcherButton.Visible = true;
-        _launcherBanner.Visible = true;
         SetStatus(string.Empty, Theme.Muted);
     }
 

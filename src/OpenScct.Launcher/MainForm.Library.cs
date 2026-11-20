@@ -62,7 +62,7 @@ internal sealed partial class MainForm
         _settingsButton.Name = "SettingsNavigation";
         _gamesPage.Click += (_, _) => SelectPage(LibraryPage.Games);
         _modsPage.Click += (_, _) => SelectPage(LibraryPage.Mods);
-        FlowLayoutPanel pages = Theme.Flow(false, _gamesPage, _modsPage, _settingsButton);
+        FlowLayoutPanel pages = Theme.Flow(false, _gamesPage, _modsPage, _settingsButton, _launcherButton);
         pages.Anchor = AnchorStyles.Left;
         foreach (Button button in pages.Controls) button.Margin = new Padding(0, 0, 6, 0);
         SetGlyph(_gamesPage, "games");
@@ -161,14 +161,12 @@ internal sealed partial class MainForm
         body.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         body.Controls.Add(rail, 0, 0);
         body.Controls.Add(detailPane, 1, 0);
-        var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Margin = new Padding(0) };
+        var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Margin = new Padding(0) };
         shell.ColumnStyles.Add(Theme.Fill);
-        shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         shell.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         shell.Controls.Add(header, 0, 0);
-        shell.Controls.Add(_launcherBanner, 0, 1);
-        shell.Controls.Add(body, 0, 2);
+        shell.Controls.Add(body, 0, 1);
         _mainLayout = content;
         void AdaptWidth()
         {
@@ -179,6 +177,8 @@ internal sealed partial class MainForm
             rail.Visible = !compact;
             _compactPicker.Visible = compact;
             body.ColumnStyles[0].Width = compact ? 0 : (int)Math.Ceiling(Math.Clamp(shell.ClientSize.Width * .21f, 218 * scale, 298 * scale));
+            brand.Visible = !compact;
+            links.Visible = !compact;
             version.Visible = !compact;
             _brandLogo.Visible = !compact;
             _website.Visible = !compact;

@@ -31,7 +31,6 @@ internal sealed partial class MainWindow : Window
     private readonly TextBlock _status = Ui.Text(string.Empty, 13, Ui.Muted);
     private readonly TextBlock _notesTitle = Ui.Text("Latest release", 19);
     private readonly TextBlock _notes = Ui.Text("Check for updates to load the latest changes.", 14, Ui.Muted);
-    private readonly TextBlock _launcherText = Ui.Text(string.Empty, 14);
     private readonly ProgressBar _progress = new() { Minimum = 0, Maximum = 100, Height = 5, IsVisible = false };
     private readonly Button _main = Ui.Button("Install", primary: true);
     private readonly Button _rebuildSteam = Ui.Button("Rebuild from Steam");
@@ -42,7 +41,6 @@ internal sealed partial class MainWindow : Window
     private readonly Button _maps = Ui.Button("Maps");
     private readonly Button _settings = Ui.Button("Settings");
     private readonly Button _launcher = Ui.Button("Update launcher");
-    private readonly Border _launcherBanner;
     private readonly WrapPanel _godotSteps = new();
     private readonly Control _godotSourceNotice;
     private readonly Border _installActivity;
@@ -81,8 +79,7 @@ internal sealed partial class MainWindow : Window
         _playCurrent.FontSize = 12;
         _playCurrent.HorizontalAlignment = HorizontalAlignment.Right;
         _installActivity = Ui.Panel(Ui.Stack(_heading, _detail, _status, _progress, _playCurrent));
-        _launcherBanner = Ui.Panel(Ui.Columns(_launcherText, _launcher));
-        _launcher.Content = "Check launcher updates";
+        _launcher.Content = "Updates";
         var changelog = Ui.Button("Release notes");
         changelog.Click += async (_, _) => await ShowNotesAsync();
         var release = Ui.Panel(Ui.Stack(Ui.Columns(_notesTitle, changelog), _notes));
@@ -107,6 +104,7 @@ internal sealed partial class MainWindow : Window
         {
             if (model.LauncherStaged)
                 await model.RunAsync("Restarting launcher", _ => { model.RestartLauncher(); return Task.CompletedTask; });
+            else if (model.HasLauncherUpdate && !model.CanUpdateLauncher) OpenLink("https://github.com/OpenSCCT/OpenSCCT/releases/latest");
             else if (model.HasLauncherUpdate) await model.RunAsync("Updating launcher", model.StageLauncherAsync);
             else await model.RunAsync("Checking launcher updates", model.CheckAsync);
         };
@@ -255,12 +253,12 @@ internal sealed partial class MainWindow : Window
         bool hasLauncherUpdate = _model.HasLauncherUpdate;
         bool writableLauncher = hasLauncherUpdate && _model.CanUpdateLauncher;
         
-        _launcher.Content = _model.LauncherStaged ? "Restart to finish" : hasLauncherUpdate ? "Update launcher" : "Check launcher updates";
-        _launcher.IsEnabled = !_model.Busy && (!hasLauncherUpdate || writableLauncher);
-        _launcherText.Text = _model.LauncherStaged ? "A new launcher is ready. Restart when you are ready."
+        _launcher.Content = _model.LauncherStaged ? "Restart to finish" : hasLauncherUpdate ? (writableLauncher ? "Update launcher" : "Download update") : "Updates";
+        _launcher.IsEnabled = !_model.Busy;
+        ToolTip.SetTip(_launcher, _model.LauncherStaged ? "A new launcher is ready. Restart when you are ready."
             : !hasLauncherUpdate ? "OpenSCCT Launcher " + _model.LauncherVersion
             : writableLauncher ? "Launcher " + _model.Check?.LatestLauncher + " is available."
-            : "A launcher update is available. Download it from Releases; this folder is read only.";
+            : "A launcher update is available. Download it from Releases; this folder is read only.");
         if (_model.Check?.Latest is { } latest)
         {
             _notesTitle.Text = latest.Release.Name ?? "OpenSCCT " + latest.Version;

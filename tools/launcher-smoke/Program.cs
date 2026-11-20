@@ -849,6 +849,11 @@ internal static class Program
             picker.SelectedIndex = 0;
             Settle(form);
             Check(Selected(form) == "Ps2" && IsInClient(form, Field<Button>(form, "_main")), "Compact PS2 setup action fits");
+            var updateButton = Field<Button>(form, "_launcherButton");
+            var settingsButton = Field<Button>(form, "_settingsButton");
+            Check(updateButton.Parent == settingsButton.Parent && updateButton.Left >= settingsButton.Right
+                && updateButton.Top < settingsButton.Bottom && IsInClient(form, updateButton),
+                "Launcher updates fit directly beside Settings in the compact header");
             Save(form, output, "library-ps2-compact");
             Check(LauncherSettings.Load(fixture.Layout.Settings).SelectedProduct == "Ps2", "Edition is persisted");
             form.Hide();

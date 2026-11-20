@@ -69,7 +69,7 @@ internal sealed partial class MainWindow
             Background = Ui.Surface, Padding = new Thickness(6, 3), CornerRadius = new CornerRadius(4),
             VerticalAlignment = VerticalAlignment.Center,
         });
-        var nav = Ui.Row(6, Nav(_games, "Games", "games"), Nav(_mods, "Mods", "mods"), Nav(_settings, "Settings", "settings"));
+        var nav = Ui.Row(6, Nav(_games, "Games", "games"), Nav(_mods, "Mods", "mods"), Nav(_settings, "Settings", "settings"), _launcher);
         var web = IconButton(Link("Website", ProjectLinks.Website), "web", "OpenSCCT website");
         var help = IconButton(ActionButton("Help", ShowHelpAsync), "help", "Help and contributions");
         var utilities = Ui.Row(5, web, help);
@@ -119,16 +119,15 @@ internal sealed partial class MainWindow
             body.ColumnSpacing = compact ? 0 : 18;
             header.ColumnSpacing = width < 650 ? 8 : 22;
             utilities.IsVisible = width >= 650;
-            mark.IsVisible = width >= 650;
+            brand.IsVisible = width >= 780;
             header.Margin = new Thickness(width < 650 ? 12 : 20, 9);
         }
         SizeChanged += (_, e) => ResizeLibrary(e.NewSize.Width);
         ResizeLibrary(Width);
-        var shell = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,*") };
+        var shell = new Grid { RowDefinitions = new RowDefinitions("Auto,*") };
         shell.Children.Add(new Border { Child = header, BorderBrush = Ui.Edge, BorderThickness = new Thickness(0, 0, 0, 1),
             Background = Shade("#20291F", "#161C17") });
-        Grid.SetRow(_launcherBanner, 1); shell.Children.Add(_launcherBanner);
-        Grid.SetRow(body, 2); shell.Children.Add(body);
+        Grid.SetRow(body, 1); shell.Children.Add(body);
         Content = shell;
         ShowPage("Games", _edition);
     }
