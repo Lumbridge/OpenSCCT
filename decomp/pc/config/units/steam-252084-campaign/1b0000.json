@@ -64,6 +64,33 @@
     }
   },
   {
+    "id": "typed-array-destroy-1b1f10",
+    "size": 54,
+    "offset": 1777424,
+    "rebuilt_symbol": "@destroy_typed_r1b1f10@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r1b1840@12": {
+        "va": 279648320,
+        "basis": "The member range remover at RVA 0x1b1840 calls the rebuilt FArray::Remove at RVA 0x1ae0a0, with element size 112, from RVA 0x1b18df."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x1b1f10; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 112 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "28e51dd6c72e5c6497f8974f3d2ec7fd00568138ad822c20f80532597628fefe",
+      "inputs_sha256": "29f9f5ba23493813c9b6ad3f80454318c10ec04ccaca1a10631bfefe4ae57641"
+    }
+  },
+  {
     "id": "array-remove-1b5780",
     "size": 138,
     "offset": 1791872,
@@ -119,6 +146,33 @@
     "match": {
       "bytes_sha256": "8989fdb47aaa0dc42ac63d81bab3a7159586fa88d1fc71a404b191c7da406ed1",
       "inputs_sha256": "fd338725455baf6ab2f0d3960738ddbee4239e87252517109740e225e17bb971"
+    }
+  },
+  {
+    "id": "typed-array-destroy-1b63d0",
+    "size": 54,
+    "offset": 1795024,
+    "rebuilt_symbol": "@destroy_typed_r1b63d0@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r1b6350@12": {
+        "va": 279667536,
+        "basis": "The member range remover at RVA 0x1b6350 calls the rebuilt FArray::Remove at RVA 0x1b5780, with element size 12, from RVA 0x1b63bb."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x1b63d0; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 12 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "fbc533c3a852ee3d81db16db2403c91ea67824c27caa02d52345856c6a79b8e8",
+      "inputs_sha256": "8560741f9413ba7037384ff4aa3d16595297147a564bc428dbfb3ac6a7651eee"
     }
   },
   {

@@ -354,6 +354,33 @@
     }
   },
   {
+    "id": "typed-array-destroy-3c8540",
+    "size": 54,
+    "offset": 3966272,
+    "rebuilt_symbol": "@destroy_typed_r3c8540@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r3c8480@12": {
+        "va": 281838720,
+        "basis": "The member range remover at RVA 0x3c8480 calls the rebuilt FArray::Remove at RVA 0x3c7880, with element size 156, from RVA 0x3c84c1."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x3c8540; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 156 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "f8ce623b87d2f0741c3cbf241e5a6c4ee16dff602bcf6fabfda80545cae8256c",
+      "inputs_sha256": "8ad01736d9d16e641c194dd966b8fae75594bfcd44ce886f6018526e9a48678f"
+    }
+  },
+  {
     "id": "placement-uwinjoystickmgr",
     "offset": 3966864,
     "size": 14,
@@ -449,6 +476,33 @@
     }
   },
   {
+    "id": "typed-array-destroy-3caa90",
+    "size": 54,
+    "offset": 3975824,
+    "rebuilt_symbol": "@destroy_typed_r3caa90@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r3ca9d0@12": {
+        "va": 281848272,
+        "basis": "The member range remover at RVA 0x3ca9d0 calls the rebuilt FArray::Remove at RVA 0x3ca790, with element size 16, from RVA 0x3caa5e."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x3caa90; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 16 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "f8ce623b87d2f0741c3cbf241e5a6c4ee16dff602bcf6fabfda80545cae8256c",
+      "inputs_sha256": "8f5b6c4a2b9bed072bcfe4d007cd4be493f57799d557706a98ae30b994d3b8e8"
+    }
+  },
+  {
     "id": "array-remove-3cdef0",
     "size": 138,
     "offset": 3989232,
@@ -477,6 +531,33 @@
     "match": {
       "bytes_sha256": "94aa3243a07c9e2fd41813ec1266574e499c454923f966a5c0e0fedff6f0fef4",
       "inputs_sha256": "8442b44b49cd54a513d066d281437251e12a9d8b516774c0f1675422a5555201"
+    }
+  },
+  {
+    "id": "typed-array-destroy-3cf400",
+    "size": 54,
+    "offset": 3994624,
+    "rebuilt_symbol": "@destroy_typed_r3cf400@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r3cf360@12": {
+        "va": 281867104,
+        "basis": "The member range remover at RVA 0x3cf360 calls the rebuilt FArray::Remove at RVA 0x3cdef0, with element size 24, from RVA 0x3cf3ec."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x3cf400; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 24 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "b1c0cd2e310ef1df1fb4c0c0d9638ef3f04aa844798a261c89e71652c2107481",
+      "inputs_sha256": "0448006096036b66a4d28f0e350dd3934eed5652da41680f40910a5602ff519f"
     }
   }
 ]

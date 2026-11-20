@@ -2546,6 +2546,60 @@
     }
   },
   {
+    "id": "typed-array-destroy-12c610",
+    "size": 54,
+    "offset": 1230352,
+    "rebuilt_symbol": "@destroy_typed_r12c610@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r12c4f0@12": {
+        "va": 279102704,
+        "basis": "The member range remover at RVA 0x12c4f0 calls the rebuilt FArray::Remove at RVA 0x12b930, with element size 28, from RVA 0x12c5bd."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x12c610; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 28 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "1265734294566a684a99adcaeea680290808ac522f13a8defe955162d38e3d0e",
+      "inputs_sha256": "3be3db2a07c7d980dde03e2c9b67c96a51c84107b8af69c773deea2ac44a64ee"
+    }
+  },
+  {
+    "id": "typed-array-destroy-12c650",
+    "size": 54,
+    "offset": 1230416,
+    "rebuilt_symbol": "@destroy_typed_r12c650@4",
+    "inputs": [
+      "src/campaign_typed_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_typed_array_destroy.obj src/campaign_typed_array_destroy.c",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "The common campaign engine allocator releases the remaining storage through slot 2."
+      },
+      "@remove_typed_r12c4f0@12": {
+        "va": 279102704,
+        "basis": "The member range remover at RVA 0x12c4f0 calls the rebuilt FArray::Remove at RVA 0x12b930, with element size 28, from RVA 0x12c5bd."
+      }
+    },
+    "identification": "Complete array destructor at RVA 0x12c650; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 28 to the matched FArray::Remove.",
+    "match": {
+      "bytes_sha256": "e97c4bd47f48a7d15d298401941066ff74d41c46ffc822a8d9c9a434287496f3",
+      "inputs_sha256": "d87ee5e277d28803c5c0723a032c696f4a9676ed2b78966f95af4f2085347ade"
+    }
+  },
+  {
     "id": "delete-uubiaccountmanager",
     "offset": 1230528,
     "size": 54,
