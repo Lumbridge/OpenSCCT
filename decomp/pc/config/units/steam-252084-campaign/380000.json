@@ -439,6 +439,32 @@
     }
   },
   {
+    "id": "tree-heap-erase-385890",
+    "size": 58,
+    "offset": 3692688,
+    "inputs": [
+      "src/campaign_tree_heap_erase.c"
+    ],
+    "rebuilt_symbol": "@erase_nodes@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_heap_erase.obj src/campaign_tree_heap_erase.c",
+    "link_bindings": {
+      "@erase_nodes@8": {
+        "va": 281565328,
+        "basis": "Right subtree recursion."
+      },
+      "_heap": {
+        "va": 287082656,
+        "basis": "Global heap receiver for the virtual release call."
+      }
+    },
+    "identification": "Indexed recursive tree cleanup tests sentinel byte at offset 17 and releases nodes through heap slot two.",
+    "match": {
+      "bytes_sha256": "4aa9903d95df76b83baeecb35f8748d28cc7ba45c330709befb686715a75c08d",
+      "inputs_sha256": "a0c223bc0dccdb737fb29c643d875769a1ac7ac0ee97d9d4993221f88e5f888b"
+    }
+  },
+  {
     "id": "tree-next-380710-prefix-3858f0",
     "offset": 3692784,
     "size": 12,

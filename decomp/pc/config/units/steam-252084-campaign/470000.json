@@ -870,6 +870,98 @@
     }
   },
   {
+    "id": "registry-cleanup-47ea00",
+    "size": 80,
+    "offset": 4712960,
+    "inputs": [
+      "src/campaign_registry_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_47ea00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_cleanup.obj src/campaign_registry_cleanup.c",
+    "link_bindings": {
+      "_registry_a1b188": {
+        "va": 288469384,
+        "basis": "Registry passed as receiver."
+      },
+      "_object_methods_83c530": {
+        "va": 286508336,
+        "basis": "Method table installed before unregistering."
+      },
+      "@unregister_object_4ad480@8": {
+        "va": 282776704,
+        "basis": "Removes receiver from registry."
+      },
+      "_prepare_release_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the allocation for release."
+      },
+      "_release_prepared_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      },
+      "@cleanup_parent_4ad370@4": {
+        "va": 282776432,
+        "basis": "Parent destructor."
+      },
+      "_release_object_487b90": {
+        "va": 282622864,
+        "basis": "Optional final object deallocation."
+      }
+    },
+    "identification": "Indexed function unregisters itself, releases its allocation, calls parent cleanup and checks its deletion flag.",
+    "match": {
+      "bytes_sha256": "b904efafcb71dd373b0a2bfd228e9ab12c47866e0fa8a20f9ed7a952914eca03",
+      "inputs_sha256": "614e73a11b54d0942ad2fe5ee296fde3ce381d61508d4b6c9d9f78cdf09ab87b"
+    }
+  },
+  {
+    "id": "registry-cleanup-47ea50",
+    "size": 80,
+    "offset": 4713040,
+    "inputs": [
+      "src/campaign_registry_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_47ea50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registry_cleanup.obj src/campaign_registry_cleanup.c",
+    "link_bindings": {
+      "_registry_a1b188": {
+        "va": 288469384,
+        "basis": "Registry passed as receiver."
+      },
+      "_object_methods_83c548": {
+        "va": 286508360,
+        "basis": "Method table installed before unregistering."
+      },
+      "@unregister_object_4ad480@8": {
+        "va": 282776704,
+        "basis": "Removes receiver from registry."
+      },
+      "_prepare_release_48b460": {
+        "va": 282637408,
+        "basis": "Prepares the allocation for release."
+      },
+      "_release_prepared_48b550": {
+        "va": 282637648,
+        "basis": "Releases the prepared allocation."
+      },
+      "@cleanup_parent_4ad370@4": {
+        "va": 282776432,
+        "basis": "Parent destructor."
+      },
+      "_release_object_487b90": {
+        "va": 282622864,
+        "basis": "Optional final object deallocation."
+      }
+    },
+    "identification": "Indexed function unregisters itself, releases its allocation, calls parent cleanup and checks its deletion flag.",
+    "match": {
+      "bytes_sha256": "34940be5efb95dfe29485eab6285d4f048f5dd14931ddc739bc1c35e024cd53a",
+      "inputs_sha256": "d5c524b37bb191143325c9511fbdc44c591ce190f1666ed2bcef616270751121"
+    }
+  },
+  {
     "id": "delete-record-47fa80",
     "offset": 4717184,
     "size": 30,
