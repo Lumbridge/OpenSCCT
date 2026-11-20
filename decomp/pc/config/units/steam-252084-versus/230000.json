@@ -27,6 +27,22 @@
     }
   },
   {
+    "id": "tree-begin-235f00",
+    "offset": 2318080,
+    "size": 14,
+    "inputs": [
+      "src/versus_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_235f00@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_positions.obj src/versus_tree_positions.c",
+    "identification": "Tree routine at RVA 0x275920 calls this position accessor at RVA 0x275ceb and a tree operation at RVA 0x275e4a. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "c904320a6bc9fe1eca9d7fc40ebd99e737b4d726eaef470c41f1a98ebddf79a8"
+    }
+  },
+  {
     "id": "init-tree-head-235f20",
     "offset": 2318112,
     "size": 62,

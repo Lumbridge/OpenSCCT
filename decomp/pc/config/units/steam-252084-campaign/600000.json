@@ -23,6 +23,38 @@
     }
   },
   {
+    "id": "tree-begin-6041e0",
+    "offset": 6308320,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_6041e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x603a60 calls this position accessor at RVA 0x603aa0 and a tree operation at RVA 0x603acc. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "23972ab78a40ee349bcd2f556642b9c62552d77775fec1c5c5f76719acb2eb4e"
+    }
+  },
+  {
+    "id": "tree-begin-6042f0",
+    "offset": 6308592,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_6042f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x603e00 calls this position accessor at RVA 0x603e40 and a tree operation at RVA 0x603e6c. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "3e432a806e6f2d5520dca95f37bb3a92d211eaacad33f1125f6a6a6934488548"
+    }
+  },
+  {
     "id": "init-tree-head-604430",
     "offset": 6308912,
     "size": 62,

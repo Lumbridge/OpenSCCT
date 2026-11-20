@@ -1,0 +1,18 @@
+[
+  {
+    "id": "tree-begin-618fb0",
+    "offset": 6393776,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_618fb0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x618ac0 calls this position accessor at RVA 0x618dab and a tree operation at RVA 0x618f0c. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "e117ee9bb412d1447747bb39ca107b7f59df570b1a88e271a95df3ccac7d7483"
+    }
+  }
+]

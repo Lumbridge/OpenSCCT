@@ -1,5 +1,53 @@
 [
   {
+    "id": "tree-begin-620f70",
+    "offset": 6426480,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_620f70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x620a80 calls this position accessor at RVA 0x620d69 and a tree operation at RVA 0x620ec9. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "61212c8f47b13caf6f9aaa71e79de31caed139975a31d236c2be91027f837e1e"
+    }
+  },
+  {
+    "id": "tree-begin-626850",
+    "offset": 6449232,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_626850@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x626360 calls this position accessor at RVA 0x626649 and a tree operation at RVA 0x6267a9. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "1d107584a554f4948c1f569ff69a6aaef4be61418e4b0dc7aee52d6f02cd42a3"
+    }
+  },
+  {
+    "id": "tree-begin-628700",
+    "offset": 6457088,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_628700@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x628360 calls this position accessor at RVA 0x6283a0 and a tree operation at RVA 0x6283cc. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "f091bb22f6fe628321cf337061d4be0185fe5db9321e9200d02c15c2161db2b9"
+    }
+  },
+  {
     "id": "init-tree-head-628730",
     "offset": 6457136,
     "size": 62,
@@ -107,6 +155,38 @@
     "match": {
       "bytes_sha256": "00d5c18efa8cb1ea144a00e0904ae343f222bd813c061011299f10a06bb9f5fa",
       "inputs_sha256": "c3acf2e1c0b29078865815b7ff4b35753e0250dea3ab3129c070854cc226788f"
+    }
+  },
+  {
+    "id": "tree-begin-62eae0",
+    "offset": 6482656,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_62eae0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x62e730 calls this position accessor at RVA 0x62e770 and a tree operation at RVA 0x62e79c. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "224a49afffd58ccc19e8e47fe2d17ae6f8f6721cabbc03fbbb686e65f3257434"
+    }
+  },
+  {
+    "id": "tree-begin-62f070",
+    "offset": 6484080,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_62f070@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x62eb80 calls this position accessor at RVA 0x62ee69 and a tree operation at RVA 0x62efc9. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "17dd16798793c5bd60d1ea14f65a4a2b2b54f90677d431eb139eed0e63386cd9"
     }
   }
 ]

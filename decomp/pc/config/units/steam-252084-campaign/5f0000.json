@@ -23,6 +23,54 @@
     }
   },
   {
+    "id": "tree-begin-5f7bd0",
+    "offset": 6257616,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_5f7bd0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x5f7970 calls this position accessor at RVA 0x5f79b0 and a tree operation at RVA 0x5f79dc. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "824dc66594fe8e32a684a2e70f72ce7c9be6c70b36b364966b760f33af4c7bb7"
+    }
+  },
+  {
+    "id": "tree-begin-5f7c10",
+    "offset": 6257680,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_5f7c10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x5f58f0 calls this position accessor at RVA 0x5f5958 and a tree operation at RVA 0x5f5a62. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "282beb98ea811ec31d8c365de9800a1f03e2fd2609e49248b0fbdd425eaa0f25"
+    }
+  },
+  {
+    "id": "tree-begin-5f7c70",
+    "offset": 6257776,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_5f7c70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x5f7b00 calls this position accessor at RVA 0x5f7b40 and a tree operation at RVA 0x5f7b6c. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "e7bb0a7804ee21c942a2ad1b52866ac73122512a0eba89f811d3cf90d67f4d54"
+    }
+  },
+  {
     "id": "campaign-named-exception-message",
     "offset": 6258208,
     "size": 4,
@@ -36,6 +84,54 @@
     "match": {
       "bytes_sha256": "bf9a4d01d1b8c2260962ee739fe4b6a547d3450d9b40041673ef71f673ba9bf7",
       "inputs_sha256": "7ce6bad91e3fd1af2d0d60c933ab916286df0c09e92c271ae2d63aaec08f4660"
+    }
+  },
+  {
+    "id": "tree-begin-5f80c0",
+    "offset": 6258880,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_5f80c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x5f58f0 calls this position accessor at RVA 0x5f5a41 and a tree operation at RVA 0x5f5a62. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "a42e4379193ab916b7901d91804d5a021fae712dfa8bef637346d86f570884cf"
+    }
+  },
+  {
+    "id": "tree-begin-5f8db0",
+    "offset": 6262192,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_5f8db0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x5f87c0 calls this position accessor at RVA 0x5f8b8b and a tree operation at RVA 0x5f8cea. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "a06919c231b9a44c985bc2646c3ca35ecce36cf279895c7c30223dc3cb85ea52"
+    }
+  },
+  {
+    "id": "tree-begin-5f93f0",
+    "offset": 6263792,
+    "size": 14,
+    "inputs": [
+      "src/campaign_tree_positions.c"
+    ],
+    "rebuilt_symbol": "@tree_begin_5f93f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_positions.obj src/campaign_tree_positions.c",
+    "identification": "Tree routine at RVA 0x5f8e00 calls this position accessor at RVA 0x5f91cb and a tree operation at RVA 0x5f932a. Returns the leftmost node through the supplied iterator.",
+    "match": {
+      "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
+      "inputs_sha256": "5d3e894a999ce02f09158d0207d94ccc87e28c5e13a726543584745776d954e0"
     }
   }
 ]
