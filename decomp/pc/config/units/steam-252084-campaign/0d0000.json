@@ -4144,6 +4144,28 @@
     }
   },
   {
+    "id": "animation-find-clip",
+    "size": 152,
+    "offset": 896192,
+    "inputs": [
+      "src/campaign_mesh_clip_lookup.c"
+    ],
+    "rebuilt_symbol": "@find_clip@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_mesh_clip_lookup.obj src/campaign_mesh_clip_lookup.c",
+    "link_bindings": {
+      "@register_bank@8": {
+        "va": 278768688,
+        "basis": "Stock operand for @register bank@8."
+      }
+    },
+    "identification": "Mesh animation method pointer at RVA 0x7cfcb4. Registers the default animation bank if needed, scans the banks for a sequence name and returns its 72-byte record.",
+    "match": {
+      "bytes_sha256": "5eec5c476e433037c5c00e4bb7c14723e2b1d0ced6aa6c9cc6ad3b82b61a67b4",
+      "inputs_sha256": "c9e92f228560e6d5e66074715b853c68cc04456089eb2af9f95fe345c058a4d9"
+    }
+  },
+  {
     "id": "animation-has-sequence-group",
     "size": 43,
     "offset": 896352,
