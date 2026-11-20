@@ -1,0 +1,452 @@
+[
+  {
+    "id": "clear-record-4c2ab0",
+    "offset": 4991664,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c2ab0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c28b0@4": {
+        "va": 282863792,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c2ab0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "2ee58b18be5d3057434187afa2f45d73129f23bcdc2316a8f1a252c2eb538441",
+      "inputs_sha256": "1dc003df38ad26827367a0c88d215359343b4e7add6740199456b784a9b470e1"
+    }
+  },
+  {
+    "id": "clear-record-4c2d20",
+    "offset": 4992288,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c2d20@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c28b0@4": {
+        "va": 282863792,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c2d20. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "cdfeb09b2d544f04a47d628a62adf078c399688e1a337bb7142500aa577601f2",
+      "inputs_sha256": "0c9f815d66d0fdc89d372ffc45debea91080d94e718b9d0c97c975fbb6b96d75"
+    }
+  },
+  {
+    "id": "clear-record-4c2dd0",
+    "offset": 4992464,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c2dd0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c28b0@4": {
+        "va": 282863792,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c2dd0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "4a8c746e21b5a2e8fc1c5648e383fdee004950058ced907a0cc62cbb1ad16d7b",
+      "inputs_sha256": "c6e60ec75ae864dbbf6c84e6902dac556e719deb974c36e699ceb0510aa944f9"
+    }
+  },
+  {
+    "id": "clear-record-4c5b50",
+    "offset": 5004112,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c5b50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c57c0@4": {
+        "va": 282875840,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c5b50. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "e82d19929016dfb610a31bbab84da8c3245fef65f13057e2b28c0e6ad0dedc91",
+      "inputs_sha256": "e8d0d118d32582ca5b1ca8e3d04338401709452342f8120b1ecb5b8b92691a08"
+    }
+  },
+  {
+    "id": "clear-record-4c5c70",
+    "offset": 5004400,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c5c70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c57c0@4": {
+        "va": 282875840,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c5c70. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "8b53b13cafd69f84a8e253a4188a484636381692dec092b8667a4b29f9f6be80",
+      "inputs_sha256": "06b02d141aec80716a08567539976dd4b699034cac8b98f52db63f2c4ae65198"
+    }
+  },
+  {
+    "id": "clear-record-4c5cf0",
+    "offset": 5004528,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c5cf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c57c0@4": {
+        "va": 282875840,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c5cf0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "06d2209037165455e9732488910ce1ac9f0bc762756fe4e9befa610a02f5509a",
+      "inputs_sha256": "ad685289f68ef2c814eaef7d03afa58288474030413a8ea1c92de3cc84015a9c"
+    }
+  },
+  {
+    "id": "clear-record-4c6df0",
+    "offset": 5008880,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c6df0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c6c60@4": {
+        "va": 282881120,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c6df0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "c58ef233d7d392c575fd9321b7ed777ae1e03c463e741e14fd9e2e5db660ad25",
+      "inputs_sha256": "6fe4dd68685043e97f801abc48dd9f6b74cf921d567a85e537f2c1b22f75f31f"
+    }
+  },
+  {
+    "id": "clear-record-4c6ed0",
+    "offset": 5009104,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c6ed0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c6c60@4": {
+        "va": 282881120,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c6ed0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "6fe5e1bd757d25a44acf31c75ee564c706aa40cfd3e540c2df1d49379be4ef54",
+      "inputs_sha256": "57a86b6ea42953c72c37355f1f96805c70a44b452bce8c4c60eadc5c5aedc723"
+    }
+  },
+  {
+    "id": "clear-record-4c6f70",
+    "offset": 5009264,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4c6f70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4c6c60@4": {
+        "va": 282881120,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4c6f70. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "457e61aec2e92c143b3ce01c0ce2d236140b169c020a779b25970ac7d2c1029d",
+      "inputs_sha256": "90fdab2237da11dcea49717a740a4425063a902cf0a9d9bd81bb66f7072109d1"
+    }
+  },
+  {
+    "id": "clear-record-4cd310",
+    "offset": 5034768,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4cd310@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4cd100@4": {
+        "va": 282906880,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4cd310. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "8ae9d0c3313a436dad271b645a756ad58341d4dcab5dd38e5e8d6fd6821d786a",
+      "inputs_sha256": "03be9467ec53347c594a66ec8e58c6332b6d82bf9526f1450f7f5590e09000d6"
+    }
+  },
+  {
+    "id": "clear-record-4cd430",
+    "offset": 5035056,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4cd430@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4cd100@4": {
+        "va": 282906880,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4cd430. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "0aee06889050865692127f66463f24d7dc71c7e3f85235c88fb93c4e8f5b64a5",
+      "inputs_sha256": "a42eb85bbfae99f5e0e224fadf1ff21a39dffacf0d447d6a851b9b5885d7e548"
+    }
+  },
+  {
+    "id": "clear-record-4cd4b0",
+    "offset": 5035184,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4cd4b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4cd100@4": {
+        "va": 282906880,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4cd4b0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "f13a7617411463d1911a171c8ad2a96b9141838a3290213574f76ac88e463039",
+      "inputs_sha256": "3c5a2a94897ad58e603b169d3247f3f8a43517a45e4c7f34b6f779c94cdebd14"
+    }
+  },
+  {
+    "id": "clear-record-4cf6c0",
+    "offset": 5043904,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4cf6c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4cf350@4": {
+        "va": 282915664,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4cf6c0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "ad553154544b10695bbd9a8ded70aff981df695d24498cfe6565051df9544dad",
+      "inputs_sha256": "e35a72fa2b92fbdc7dae8ccbbd6132142eba4c88523218fb855a0857addc8289"
+    }
+  },
+  {
+    "id": "clear-record-4cfa10",
+    "offset": 5044752,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4cfa10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4cf350@4": {
+        "va": 282915664,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4cfa10. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "2f6f406c2a4501505eb6fed405d5e8189f644fcecc4b45b1d596ccc709adcef4",
+      "inputs_sha256": "c73b6fabfa66a261b34cf9e46599846aee81127b6ea6fee190c2aaa1b57482b8"
+    }
+  },
+  {
+    "id": "clear-record-4cfc70",
+    "offset": 5045360,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_4cfc70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_4cf350@4": {
+        "va": 282915664,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x4cfc70. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "3fa60b840f789bc59c85b281ec70ea0a0d2b664581f1fac688d77143d2aafbae",
+      "inputs_sha256": "5b40dae661ed665a225e50716f102ba80f971bd30143ec7272041e268baa44b8"
+    }
+  }
+]

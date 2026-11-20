@@ -46,6 +46,96 @@
     }
   },
   {
+    "id": "clear-record-73aca0",
+    "offset": 7580832,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_73aca0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_73ac60@4": {
+        "va": 285453408,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x73aca0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "d1f81767a3cc6ce3b94bec7ca8ee31348c1e280d632faffec811bfc276443789",
+      "inputs_sha256": "e235b2193d783c2f6b8f5f65415e4064516c00d8523fd5e5b269d99b3563aac3"
+    }
+  },
+  {
+    "id": "clear-record-73ad60",
+    "offset": 7581024,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_73ad60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_73ac60@4": {
+        "va": 285453408,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x73ad60. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "ef20401dd6721ef79d95cc31af2f6a530c61930cdb2f83ade7ed28766196ff90",
+      "inputs_sha256": "904b4f61f26847ada36fccb0bb7fb1ed614bdc08a3f51d481ca26d0832d9ebbf"
+    }
+  },
+  {
+    "id": "clear-record-73adf0",
+    "offset": 7581168,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_73adf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_73ac60@4": {
+        "va": 285453408,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x73adf0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "15d11e75e6d434829433be0a92db6dc7f8665325cb1e2e2c23f224536d23604d",
+      "inputs_sha256": "9378bbeab52386b137cf9b333891fc73285622d269f5679ac8507e049371982a"
+    }
+  },
+  {
     "id": "sound-free-aligned",
     "offset": 7587024,
     "size": 16,

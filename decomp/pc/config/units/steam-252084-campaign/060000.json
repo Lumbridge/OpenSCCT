@@ -1,5 +1,35 @@
 [
   {
+    "id": "clear-record-060870",
+    "offset": 395376,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_060870@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_060600@4": {
+        "va": 278267392,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x60870. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "c52e12550fd4c538ef1800a525ec3a94d2af5fbe0d815447f6943b66c7a36fb7",
+      "inputs_sha256": "cb7c9018a5f5df057f37c59e056ac336893d4c24c80aca63af5a88dc6bbce9f0"
+    }
+  },
+  {
     "id": "array-add-zeroed-0608b0",
     "offset": 395440,
     "size": 113,
@@ -249,6 +279,66 @@
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
       "inputs_sha256": "00f6dfee220b0bbb7bfe6b1e95070dfdcb3de0c640a83dbe4f29c2efd3fd4bd7"
+    }
+  },
+  {
+    "id": "clear-record-0617f0",
+    "offset": 399344,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_0617f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_060600@4": {
+        "va": 278267392,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x617f0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "e852c6e08a64ca663f3cb130ac2dbab7b5685a770181e1ef6d0bc5b97587be65",
+      "inputs_sha256": "e25a5ed94435cfdf078bd6e88a0f7153956fbb523551d299e289c461ee5505c0"
+    }
+  },
+  {
+    "id": "clear-record-061ed0",
+    "offset": 401104,
+    "size": 37,
+    "inputs": [
+      "src/campaign_member_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_record_061ed0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_member_storage.obj src/campaign_member_storage.c",
+    "link_bindings": {
+      "@clear_contents_060600@4": {
+        "va": 278267392,
+        "basis": "First member cleanup before releasing storage."
+      },
+      "_get_release_context": {
+        "va": 282637408,
+        "basis": "Same shared release-context getter independently identified in registered cleanup callbacks."
+      },
+      "_release_record_storage": {
+        "va": 282637648,
+        "basis": "Shared storage release routine used by registered cleanup callbacks."
+      }
+    },
+    "identification": "Independent code analysis marks the entire member function at RVA 0x61ed0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
+    "match": {
+      "bytes_sha256": "4b9a654919ad5b65ee9c60bcc1b1f7b8170849d30cb9e963e742955b421830cc",
+      "inputs_sha256": "aaaddc798e1c662d1c5a58642ba299ede0a6e056dbc253e25524e467ba4f8e49"
     }
   },
   {
