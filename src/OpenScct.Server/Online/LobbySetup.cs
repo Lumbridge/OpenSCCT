@@ -155,10 +155,10 @@ public sealed record LobbySetup
     public bool Rifles { get; init; } = true;
 
     /// <summary>Geometry-filling spy smoke. The host's choice applies to all players for the round.</summary>
-    public bool ResponsiveSmoke { get; init; } = true;
+    public bool ResponsiveSmoke { get; init; }
 
     /// <summary>Start a new player-hosted session with the standard rules, including when reusing an older saved setup.</summary>
-    public LobbySetup WithStandardFeatures() => this with { Sidearms = true, Rifles = true, ResponsiveSmoke = true };
+    public LobbySetup WithStandardFeatures() => this with { Sidearms = true, Rifles = true };
 
     /// <summary>A mode by its menu name or number.</summary>
     public static bool TryParseMode(string? text, out EGameMode mode)
@@ -408,7 +408,7 @@ public sealed record LobbySetup
         int respawn = Practice ? MinRespawn : RespawnSeconds;
         string practice = Practice ? ", practice" : string.Empty;
         return string.Create(CultureInfo.InvariantCulture,
-            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{(ResponsiveSmoke ? "" : ", original smoke")}{Alternate.Describe()}");
+            $"{Map} {ModeName(Mode)}{practice}, {time}, {rules}, respawn {respawn} s{series}{random}{bots}, voice {VoiceModeName(VoiceMode)}{(AutoBalance ? ", auto balance" : "")}{(ResponsiveSmoke ? ", responsive smoke" : "")}{Alternate.Describe()}");
     }
 
     private static string Lives(int lives) => lives <= 0 ? "unlimited" : lives.ToString(CultureInfo.InvariantCulture);

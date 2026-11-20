@@ -64,7 +64,7 @@ public partial class SGameInfo
     {
         _sidearmsEnabled = GetIntOption(Options, "SvmSidearms", 1) != 0;
         _riflesEnabled = GetIntOption(Options, "SvmRifles", 1) != 0;
-        _responsiveSmokeEnabled = GetIntOption(Options, "SvmResponsiveSmoke", 1) != 0;
+        _responsiveSmokeEnabled = GetIntOption(Options, "SvmResponsiveSmoke", 0) != 0;
         _matchPlayersOption = SvmMath.Clamp(GetIntOption(Options, "SvmMatchPlayers", 0), 0, Core.Match.MatchRuleSet.MostPlayers);
         MaxPlayers = SvmMath.Clamp(GetIntOption(Options, "MaxPlayers", MaxPlayers), 0, K.MaxPlayersCap);
         GameDifficulty = SvmMath.Max(0f, GetIntOption(Options, "Difficulty", (int)GameDifficulty));

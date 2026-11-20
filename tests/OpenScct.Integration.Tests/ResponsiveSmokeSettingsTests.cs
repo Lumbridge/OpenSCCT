@@ -66,12 +66,12 @@ public sealed class ResponsiveSmokeSettingsTests : IDisposable
     }
 
     [Fact]
-    public void SmokeRuleDefaultsOnAndRoundTripsThroughSavedLobbyAndLaunchOptions()
+    public void SmokeRuleDefaultsOffAndRoundTripsThroughSavedLobbyAndLaunchOptions()
     {
-        var enabled = new LobbySetup();
-        var disabled = new LobbySetup { ResponsiveSmoke = false };
+        var disabled = new LobbySetup();
+        var enabled = new LobbySetup { ResponsiveSmoke = true };
         Assert.True(enabled.ResponsiveSmoke);
-        Assert.True(LobbySetup.FromOptions("?MapName=ClubE").ResponsiveSmoke);
+        Assert.False(LobbySetup.FromOptions("?MapName=ClubE").ResponsiveSmoke);
         Assert.True(LobbySetup.FromOptions(enabled.ToOptions()).ResponsiveSmoke);
         Assert.True(LobbySetup.FromOptions("?TimeLimit=5", enabled).ResponsiveSmoke);
         Assert.False(LobbySetup.FromOptions("?SvmResponsiveSmoke=0", enabled).ResponsiveSmoke);
@@ -79,8 +79,8 @@ public sealed class ResponsiveSmokeSettingsTests : IDisposable
         Assert.False(LobbySetup.FromOptions(disabled.ToOptions()).ResponsiveSmoke);
         Assert.False(LobbySetup.FromOptions("?TimeLimit=5", disabled).ResponsiveSmoke);
         Assert.Contains("?SvmResponsiveSmoke=0", disabled.ToGameOptions(2));
-        Assert.DoesNotContain("smoke", enabled.Describe());
-        Assert.Contains("original smoke", disabled.Describe());
+        Assert.Contains("responsive smoke", enabled.Describe());
+        Assert.DoesNotContain("smoke", disabled.Describe());
     }
 
     [Fact]

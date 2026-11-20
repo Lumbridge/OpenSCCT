@@ -166,7 +166,7 @@ public static class ResponsiveSmokeRenderer
 
     public static void Prewarm(Level level)
     {
-        if (!ResponsiveSmokeWorld.IsEnabled(level) || DisplayServer.GetName() == "headless") return;
+        if (!SmokeRenderCache.UsesVolume(level) || DisplayServer.GetName() == "headless") return;
         EnsureGlobals();
         ResponsiveSmokeWorld.Warmup(level);
         ResponsiveSmokeVisualFlow.Prewarm();

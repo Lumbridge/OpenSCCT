@@ -87,7 +87,7 @@ public sealed record PlaySettings
     public bool Rifles { get; init; } = true;
 
     /// <summary>Use the shared responsive smoke field for this local match.</summary>
-    public bool ResponsiveSmoke { get; init; } = true;
+    public bool ResponsiveSmoke { get; init; }
 
     public PlayHostMode HostMode { get; init; } = PlayHostMode.Thread;
 

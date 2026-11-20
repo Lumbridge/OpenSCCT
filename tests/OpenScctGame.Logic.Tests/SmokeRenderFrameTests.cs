@@ -20,6 +20,22 @@ public sealed class SmokeRenderFrameTests
     }
 
     [Fact]
+    public void OriginalParticlesRemainVisibleWhenRemoteSmokeUsesAResponsiveField()
+    {
+        var (world, smoke, cloud, snapshot) = Fixture();
+        smoke.ApplySnapshot(cloud, snapshot);
+        world.Level.SetService(new SmokeRenderCache.Presentation(false));
+
+        Assert.True(ResponsiveSmokeWorld.IsEnabled(world.Level));
+        Assert.True(smoke.TryGet(cloud, out _));
+        Assert.False(SmokeRenderCache.UsesVolume(world.Level));
+        Assert.Same(SmokeRenderFrame.Disabled, SmokeRenderCache.Capture(world.Level));
+
+        world.Level.SetService(new SmokeRenderCache.Presentation(true));
+        Assert.Single(SmokeRenderCache.Capture(world.Level).Clouds);
+    }
+
+    [Fact]
     public void UnchangedCloudIsReusedWhileFrameTimeIsPublishedIndependently()
     {
         var (world, smoke, cloud, snapshot) = Fixture();

@@ -306,7 +306,7 @@ internal sealed record ServerConfig
     public bool Practice { get; init; }
 
     /// <summary>Use responsive spy smoke for the server rotation.</summary>
-    public bool ResponsiveSmoke { get; init; } = true;
+    public bool ResponsiveSmoke { get; init; }
 
     public ulong Seed { get; init; } = 1;
 

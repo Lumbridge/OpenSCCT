@@ -101,7 +101,7 @@ public partial class GameplayFxWarmup : SubViewport
     /// <summary>Exercise real smoke uploads, flow, view-volume and surface shader in this private loading world.</summary>
     public void PreloadResponsiveSmoke(Level level, RenderMap? map, Viewport target)
     {
-        if (!ResponsiveSmokeWorld.IsEnabled(level)) return;
+        if (!SmokeRenderCache.UsesVolume(level)) return;
         // Rules that arrive after the map was built switch its shaders here, so the surfaces below warm that variant.
         bool switching = !Materials.ResponsiveSmokeShaders.Enabled;
         Materials.ResponsiveSmokeShaders.Use(true);
@@ -129,7 +129,7 @@ public partial class GameplayFxWarmup : SubViewport
 
     private bool PrepareSmokeFrame()
     {
-        if (_smokeLevel is not { } level || !ResponsiveSmokeWorld.IsEnabled(level)) return true;
+        if (_smokeLevel is not { } level || !SmokeRenderCache.UsesVolume(level)) return true;
         if (_smokeNoise is not { IsCompleted: true }) return false;
         _smokeNoise.GetAwaiter().GetResult();
         if (_smokeView is null)

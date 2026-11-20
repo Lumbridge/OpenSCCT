@@ -266,7 +266,7 @@ public partial class PlayRoot : Node3D
                 AddChild(warmup);
                 warmup.PreloadMap(Map);
                 LoadTimer.Mark("ready.warmup-viewport");
-                if (Session is { } smokeSession && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(smokeSession.Client.World.Level))
+                if (Session is { } smokeSession && SmokeRenderCache.UsesVolume(smokeSession.Client.World.Level))
                 {
                     SetSmokeLoading(true);
                     View?.PreloadSmokeBackground();
@@ -386,7 +386,7 @@ public partial class PlayRoot : Node3D
     {
         // Headless clients simulate smoke, but have no GPU resources to prepare.
         if (!Config.Render || DisplayServer.GetName() == "headless"
-            || !OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
+            || !SmokeRenderCache.UsesVolume(session.Client.World.Level)
             || ResponsiveSmokeRenderer.IsPrepared) return false;
         if (!_smokePreparing)
         {
@@ -432,8 +432,6 @@ public partial class PlayRoot : Node3D
         // Local TestRange is a practice space. A supplied session belongs to an online host or demo and keeps
         // its own rules; do not infer client-side practice from that server's map name.
         PlaySettings settings = Config.CreateSession is null ? Config.Settings.ForLocalLaunch() : Config.Settings;
-        if (Config.Render && settings.ResponsiveSmoke && ResponsiveSmokeRenderer.UnsupportedReason is { } rendererError)
-            throw new InvalidOperationException(rendererError);
         IClock clock;
         if (Config.TicksPerFrame > 0)
         {
@@ -448,11 +446,14 @@ public partial class PlayRoot : Node3D
         var sessionLoad = Stopwatch.StartNew();
         Session = Config.CreateSession?.Invoke(clock) ?? new PlaySession(settings, clock,
             message => GD.Print($"SVM_PLAY load seconds={sessionLoad.Elapsed.TotalSeconds:F2} {message}"));
+        // A server chooses gas exposure rules. Remote players keep their local particle presentation by default.
+        bool drawResponsiveSmoke = Session.IsRemote ? App.From(this).Options.ResponsiveSmoke : settings.ResponsiveSmoke;
+        Session.Client.World.Level.SetService(new SmokeRenderCache.Presentation(drawResponsiveSmoke));
         LoadTimer.Mark("play.session");
         // Compile responsive smoke into this match's shaders only when its rules use it. Rules that arrive later
         // switch them (GameplayFxWarmup.PreloadResponsiveSmoke, ResponsiveSmokeRenderer).
-        OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Use(OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level));
-        if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(Session.Client.World.Level)
+        OpenScctGame.Render.Materials.ResponsiveSmokeShaders.Use(SmokeRenderCache.UsesVolume(Session.Client.World.Level));
+        if (Config.Render && SmokeRenderCache.UsesVolume(Session.Client.World.Level)
             && ResponsiveSmokeRenderer.UnsupportedReason is { } sessionRendererError)
         {
             Session.Dispose();
@@ -956,7 +957,7 @@ public partial class PlayRoot : Node3D
             return;
         }
 
-        if (Config.Render && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(session.Client.World.Level)
+        if (Config.Render && SmokeRenderCache.UsesVolume(session.Client.World.Level)
             && ResponsiveSmokeRenderer.UnsupportedReason is { } rendererError)
         {
             LoadError = rendererError;
