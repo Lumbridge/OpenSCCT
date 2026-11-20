@@ -49,10 +49,10 @@
           "label": "Steam 252084 · Campaign and co-op",
           "scope": "Main PC game executable, including campaign and cooperative play",
           "sha256": "54df25b238356024248085ca7fa6af9005b0be4ec40beef3c32faa8c06b6d4e5",
-          "matched_bytes": 3,
+          "matched_bytes": 107,
           "total_bytes": 8082506,
-          "matched_units": 1,
-          "percent": 3.7e-05,
+          "matched_units": 7,
+          "percent": 0.001324,
           "evidence": "decomp/pc/config/steam-252084-campaign.json"
         },
         {
@@ -60,10 +60,10 @@
           "label": "Steam 252084 · Versus",
           "scope": "Retail Versus game payload",
           "sha256": "e3da0a152a8152af0c912e42dac8ef5378279b2ceb4f335f4efab070d45c80f3",
-          "matched_bytes": 0,
+          "matched_bytes": 60,
           "total_bytes": 2991392,
-          "matched_units": 0,
-          "percent": 0.0,
+          "matched_units": 8,
+          "percent": 0.002006,
           "evidence": "decomp/pc/config/steam-252084-versus.json"
         }
       ]
