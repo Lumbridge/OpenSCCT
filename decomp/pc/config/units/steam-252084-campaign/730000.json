@@ -1,5 +1,32 @@
 [
   {
+    "id": "delete-through-heap-730090",
+    "size": 27,
+    "offset": 7536784,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_730090@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_7300b0@4": {
+        "va": 285409456,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x7300b0 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "0f7d93f03ae0b602a1721c519956d3bab086b02e98017e3784c0e43654034ca6",
+      "inputs_sha256": "a8e237dfff308cb1bc8bd598e239ec654db13d6a45edda75eee415eea6e558c4"
+    }
+  },
+  {
     "id": "set-methods-7300b0",
     "offset": 7536816,
     "size": 7,
@@ -23,6 +50,33 @@
     }
   },
   {
+    "id": "delete-through-heap-730d90",
+    "size": 27,
+    "offset": 7540112,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_730d90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_730db0@4": {
+        "va": 285412784,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x730db0 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "29ebe5b004603f4ddf6ff6d4760f30f178c81928873367ad83dad958b3e1e0e5",
+      "inputs_sha256": "d7a32afeeddbbd2597cb0e5c5aa7bda6addb68291b7c156631fd3fdfae223009"
+    }
+  },
+  {
     "id": "set-methods-730db0",
     "offset": 7540144,
     "size": 7,
@@ -43,6 +97,60 @@
     "match": {
       "bytes_sha256": "e34b46dac335fb2ee6126b92c17d0faca3a131719d0bd296e23cd58414a09db0",
       "inputs_sha256": "755b299cafe95027bdc9d3114cda8e6de53405078eb829858812c5933cc8efd9"
+    }
+  },
+  {
+    "id": "delete-through-heap-732440",
+    "size": 27,
+    "offset": 7545920,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_732440@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_732550@4": {
+        "va": 285418832,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x732550 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "ce329618972b90e6ac717b5a7ccac2b2e1067abfbf3b29f6e9f91d82eb894349",
+      "inputs_sha256": "8a6715204061af07522c74cefd3feb86dfba5ddda5368920ef3520e7c53ccdd3"
+    }
+  },
+  {
+    "id": "delete-through-heap-733b30",
+    "size": 27,
+    "offset": 7551792,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_733b30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_733b50@4": {
+        "va": 285424464,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x733b50 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "c288df992179d693c5932d14cec55ee2434c65891d8b057fc418f0de4735ecfb",
+      "inputs_sha256": "b904473003c50ac8a6ae8d67a220d2f01fb31baec1d7034146f0bb1720077e48"
     }
   },
   {
@@ -99,6 +207,106 @@
     "match": {
       "bytes_sha256": "06d314552f1d2cb07b9e5d4134d6aee0eb8adde7d1cd4b679772c5f6f20aa205",
       "inputs_sha256": "cc6f164f92519b5047e7a81bfe2e7efc468b473dba42d8b0fbefc34a2526ac04"
+    }
+  },
+  {
+    "id": "delete-through-heap-736010",
+    "size": 27,
+    "offset": 7561232,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_736010@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_736030@4": {
+        "va": 285433904,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x736030 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "74b10e4870c62f419fb9d645b2a874b6766ca8af88db9c670e049393063913fb",
+      "inputs_sha256": "cec3f0bf16e241a21fd3560c4bb80c68bc497717f2a860d0f2834a3a540594d2"
+    }
+  },
+  {
+    "id": "release-block-736410",
+    "size": 13,
+    "offset": 7562256,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@release_block_736410@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
+    "match": {
+      "bytes_sha256": "a7cb40104637a62e18c1e189c7837e3998d6d76b25854e1277cf78af1da5572e",
+      "inputs_sha256": "59ba16dc9895eb0adb545b645f201913b241ac56640980da8b2063cf77e1eb41"
+    }
+  },
+  {
+    "id": "delete-through-heap-736be0",
+    "size": 27,
+    "offset": 7564256,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_736be0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_7371a0@4": {
+        "va": 285438368,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x7371a0 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "68b087e7ba3de4ed6181a42b026a7039cf4afdfd557ddd4fd9ae9228562ef7a8",
+      "inputs_sha256": "50f8d4b624d1bfec2937f592d2057aa05f53da9fffa41952dc5afd4844fe80d4"
+    }
+  },
+  {
+    "id": "release-block-738e10",
+    "size": 13,
+    "offset": 7573008,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@release_block_738e10@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
+    "match": {
+      "bytes_sha256": "2a61d4280835607f8a9ed1a09d69aa478df4bd2d1cbb303931033ac352e670d6",
+      "inputs_sha256": "9b5605e28ca8b20dbfefdc9189c0ffadc630a2f91335e1e5976fea9436cb6f58"
     }
   },
   {

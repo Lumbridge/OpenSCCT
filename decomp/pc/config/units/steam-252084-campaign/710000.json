@@ -206,5 +206,59 @@
       "bytes_sha256": "e3dcd42908b3f07aa7b778f22c7dd49485472262a41a0051efa8fe85eac57cab",
       "inputs_sha256": "a15f522e57330ecde0b1b380551ccb7bc2b9832f599958fad2d42a2ee5fd3ce1"
     }
+  },
+  {
+    "id": "delete-through-heap-71f480",
+    "size": 27,
+    "offset": 7468160,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_71f480@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_71f760@4": {
+        "va": 285341536,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x71f760 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "0148c44d8500eda4eb57a546295c4385258e5be52827a0a5f6c2b82e14ddfe5f",
+      "inputs_sha256": "bde9ca041e14d4f4a78060dbbfd93a1d2479136c397106fb7e581b9a8d75ef76"
+    }
+  },
+  {
+    "id": "delete-through-heap-71f4d0",
+    "size": 27,
+    "offset": 7468240,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_71f4d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_739a40@4": {
+        "va": 285448768,
+        "basis": "Separately reproduced heap release wrapper heap-release-dispatch-739a40."
+      },
+      "@cleanup_722650@4": {
+        "va": 285353552,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x722650 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "9f0c1a35bd8e08eb90d42860cd35e8c4abc41f5c95db697b7b19e0205686fa32",
+      "inputs_sha256": "21a14ed53cf1f7119c427de66d17cdea5cfce70a5f7f679397735a56d839cc51"
+    }
   }
 ]

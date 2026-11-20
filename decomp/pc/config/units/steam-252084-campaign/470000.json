@@ -1,5 +1,59 @@
 [
   {
+    "id": "delete-through-heap-4725b0",
+    "size": 27,
+    "offset": 4662704,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_4725b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately reproduced heap release wrapper sound-free-allocation."
+      },
+      "@cleanup_4723d0@4": {
+        "va": 282534864,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x4723d0 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "6808b0d29902374b2d627660cdbe6cb12efae379d5bc04bcebbdb88c90d19f20",
+      "inputs_sha256": "d86244503b3434e154141c716d3fa6d240b3cd34a78f41403d25507e3c4a817f"
+    }
+  },
+  {
+    "id": "delete-through-heap-475810",
+    "size": 27,
+    "offset": 4675600,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_475810@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately reproduced heap release wrapper sound-free-allocation."
+      },
+      "@cleanup_47b460@4": {
+        "va": 282571872,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x47b460 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "a255d085467613927954b0498627420560bf22cee8cff1ec59901bfc8b072697",
+      "inputs_sha256": "badc416abba7ea1205cc0e712d7e400a5ce03dc4fdab21897cdfcd15dc002795"
+    }
+  },
+  {
     "id": "sound-list-pop-first-pointer-476870",
     "size": 53,
     "offset": 4679792,
@@ -113,6 +167,60 @@
     }
   },
   {
+    "id": "delete-through-heap-4789f0",
+    "size": 27,
+    "offset": 4688368,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_4789f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately reproduced heap release wrapper sound-free-allocation."
+      },
+      "@cleanup_478540@4": {
+        "va": 282559808,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x478540 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "5f921f4a128c24620cf341f1d8c3fc467c50cfb017fe03c5f0a03cb6097d07e6",
+      "inputs_sha256": "680552211ef10eb9b575574208ba2e7592607491b4533fbd09f83a08cd227df1"
+    }
+  },
+  {
+    "id": "delete-through-heap-478dc0",
+    "size": 27,
+    "offset": 4689344,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_478dc0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately reproduced heap release wrapper sound-free-allocation."
+      },
+      "@cleanup_478ce0@4": {
+        "va": 282561760,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x478ce0 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "9712d6da830aa42bd7a8d8346bc7da36d06e706960122efbb034bae570a04dfe",
+      "inputs_sha256": "1c1a2cecd1c28b3c2ac62c6c30a0e0f1f6d4b032e7184120464992c40fb64d48"
+    }
+  },
+  {
     "id": "sound-list-prepend-pointer-479f40",
     "size": 62,
     "offset": 4693824,
@@ -202,6 +310,33 @@
     "match": {
       "bytes_sha256": "4fdbd9d6855787ab594221eae1bf378166594482f52b30952dad2ebaaec6c62c",
       "inputs_sha256": "998e10c89818b0c26d99cb606cf1b4ea4610157c68c89c05b2dca020a0d3ef22"
+    }
+  },
+  {
+    "id": "delete-through-heap-47ac50",
+    "size": 27,
+    "offset": 4697168,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_47ac50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately reproduced heap release wrapper sound-free-allocation."
+      },
+      "@cleanup_47abd0@4": {
+        "va": 282569680,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x47abd0 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "767505cdd43d8462bc5828f6bad8e5d91b3e4346b0ebcf1838048a948214a6e8",
+      "inputs_sha256": "d1c608671259efea3dd99af16f898a88defb773fdf6d04ec1f03064fc532d7b3"
     }
   },
   {

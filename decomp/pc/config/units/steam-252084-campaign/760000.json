@@ -596,6 +596,33 @@
     }
   },
   {
+    "id": "delete-through-heap-76d920",
+    "size": 27,
+    "offset": 7788832,
+    "inputs": [
+      "src/campaign_dispatch_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_76d920@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_dispatch_cleanup.obj src/campaign_dispatch_cleanup.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460592,
+        "basis": "Separately reproduced heap release wrapper sound-free-allocation."
+      },
+      "@cleanup_76d800@4": {
+        "va": 285661184,
+        "basis": "Unconditional receiver cleanup before the deletion flag test."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x76d800 precedes the deletion flag test.",
+    "match": {
+      "bytes_sha256": "c0cc9d620f9eb7a12ecdf331eaf8ff12adae7a7d07dc84bb97973b391bbccf15",
+      "inputs_sha256": "d576eea46053bd806961d35d92325994cae7d9bd2ed09c7ecab41d4e48448039"
+    }
+  },
+  {
     "id": "copy-word-76f7c0",
     "offset": 7796672,
     "size": 13,
