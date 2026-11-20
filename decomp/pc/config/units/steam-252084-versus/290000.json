@@ -198,6 +198,29 @@
     }
   },
   {
+    "id": "mesh-select-traversal",
+    "size": 277,
+    "offset": 2732816,
+    "rebuilt_symbol": "_select_traversal@16",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_strip_traversal.obj src/versus_strip_traversal.c",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "inputs": [
+      "src/versus_strip_traversal.c"
+    ],
+    "link_bindings": {
+      "@shares_edge@12": {
+        "va": 280604912,
+        "basis": "Retail operand for @shares_edge@12."
+      }
+    },
+    "coff_alignment": 16,
+    "identification": "Complete indexed strip traversal selector at RVA 0x29b310. Follows the edge list at one endpoint, checks both neighboring faces and uses shared edges to determine the new direction.",
+    "match": {
+      "bytes_sha256": "cd65dd6e452d24ee9788c5cf83cac39b1db4fbf44aa649470bf61e7dce5d5918",
+      "inputs_sha256": "af06aae963a7b4ae374135fc18ba9d3113c4aac739a84412fcd1fa961635c220"
+    }
+  },
+  {
     "id": "same-winding-indexed-29b6f0",
     "size": 75,
     "offset": 2733808,
