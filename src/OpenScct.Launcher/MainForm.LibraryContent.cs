@@ -105,19 +105,21 @@ internal sealed partial class MainForm
         }
     }
 
+    private readonly ContextMenuStrip _editionActions = new() { ShowImageMargin = false };
+
     private void OpenEditionActions()
     {
-        var menu = new ContextMenuStrip { ShowImageMargin = false };
-        menu.Items.Add("Manage mods", null, (_, _) => SelectPage(LibraryPage.Mods));
-        menu.Items.Add("Edition settings", null, (_, _) => SelectPage(LibraryPage.Settings));
-        if (!IsOriginalEdition)
+        var menu = _editionActions;
+        if (menu.Items.Count == 0)
         {
+            menu.Items.Add("Manage mods", null, (_, _) => SelectPage(LibraryPage.Mods));
+            menu.Items.Add("Edition settings", null, (_, _) => SelectPage(LibraryPage.Settings));
             menu.Items.Add("Browse maps", null, (_, _) => OpenMaps());
             menu.Items.Add("Release notes", null, async (_, _) => await OpenChangelogAsync());
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("Check edition updates", null, async (_, _) => await RunAsync(CheckSelectedAsync));
         }
-        menu.Closed += (_, _) => menu.Dispose();
+        for (int i = 2; i < menu.Items.Count; i++) menu.Items[i].Available = !IsOriginalEdition;
         menu.Show(_moreActions, new Point(0, _moreActions.Height));
     }
 

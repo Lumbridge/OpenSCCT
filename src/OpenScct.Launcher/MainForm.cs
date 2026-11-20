@@ -1273,6 +1273,7 @@ internal sealed partial class MainForm : Form
     {
         if (disposing)
         {
+            _editionActions.Dispose();
             _pendingTimer.Dispose();
             _tips.Dispose();
             if (_brandLogo is { } logo)
