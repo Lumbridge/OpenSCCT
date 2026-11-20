@@ -68,6 +68,54 @@
     }
   },
   {
+    "id": "range-operation-4212a0",
+    "size": 22,
+    "offset": 4330144,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4212a0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "6eaf20e05f671ba0994df7c99cf11fa0f2811d81a26d59af23e8c586cd9f4b6a"
+    }
+  },
+  {
+    "id": "range-operation-4212d0",
+    "size": 22,
+    "offset": 4330192,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4212d0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "a6b6f4918402c6c9f4c3ff70b8da7977b3ec599560872926f38d477c4e2e7020"
+    }
+  },
+  {
+    "id": "range-operation-421330",
+    "size": 22,
+    "offset": 4330288,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x421330. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "3fe42ff156beb6a5ffc39ed1afaca57e29786d1dd7ddb09de51ab8e296bc29ca"
+    }
+  },
+  {
     "id": "rotate-left-421400",
     "size": 85,
     "offset": 4330496,
@@ -1937,6 +1985,22 @@
     }
   },
   {
+    "id": "range-operation-428e20",
+    "size": 22,
+    "offset": 4361760,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x428e20. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "803355911974db3bd2443aa2b6cb51e0cc07155af8003a656900952fe0e05e55"
+    }
+  },
+  {
     "id": "construct-range-428eb0",
     "size": 37,
     "offset": 4361904,
@@ -1978,6 +2042,38 @@
     "match": {
       "bytes_sha256": "09af02ba732965fb77d1e829455bbc1107b04366a5c533d9a0ae039965141483",
       "inputs_sha256": "29fedb0a1b911ac8e03a8d0cda1d2e6687ad35abd67e56a9759ffdabde43cf08"
+    }
+  },
+  {
+    "id": "range-operation-429530",
+    "size": 22,
+    "offset": 4363568,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x429530. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "2ec724d44a6dfcb39c3d8fe8c7a954c9b106952800b9a3a95a502968bcb053ab"
+    }
+  },
+  {
+    "id": "range-operation-4296f0",
+    "size": 22,
+    "offset": 4364016,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4296f0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "a765a3d6faedd3eebeb77e0ceabefc69763f8da19e83d8a8ed1438274504b6d2"
     }
   },
   {

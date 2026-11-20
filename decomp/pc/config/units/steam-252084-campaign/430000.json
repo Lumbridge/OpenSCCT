@@ -34,6 +34,22 @@
     }
   },
   {
+    "id": "range-operation-4303b0",
+    "size": 22,
+    "offset": 4391856,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4303b0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "fb11c2406e3a4af1a22e9ee2a6d8b7766f8f58ab4744d72d5889feaa34823cc9"
+    }
+  },
+  {
     "id": "vector-init-4-4303e0",
     "size": 76,
     "offset": 4391904,
@@ -1293,6 +1309,22 @@
     "match": {
       "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
       "inputs_sha256": "9541e00909b5efd54fc6cf823858bafd4528165783dbf7a12373af4bce0ca3f9"
+    }
+  },
+  {
+    "id": "range-operation-436080",
+    "size": 22,
+    "offset": 4415616,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x436080. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "458f6fdbe8db98d2eba834e47423a85a53f942a1197b606c40f52f12389941cf"
     }
   },
   {
@@ -2881,6 +2913,582 @@
     }
   },
   {
+    "id": "range-operation-43e030",
+    "size": 28,
+    "offset": 4448304,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e030. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "339d7b46e6e762fb5b86d2eced5a73fb5eac92b2bd86ba7d479506001db6182b"
+    }
+  },
+  {
+    "id": "range-operation-43e050",
+    "size": 28,
+    "offset": 4448336,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e050. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "fa3e02c314a23ba0b3b758638c46ee3fd52c2aa14549bb2e3dafa68692410b0c"
+    }
+  },
+  {
+    "id": "range-operation-43e070",
+    "size": 28,
+    "offset": 4448368,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e070. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "8b542045cfb45b92dbb346c67117e1f87e5d2e152c18cff43041ae9907ab2100"
+    }
+  },
+  {
+    "id": "range-operation-43e090",
+    "size": 28,
+    "offset": 4448400,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e090. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "8892d9b99784dd78e2598b0d530386ab693ec83af16aa03e13f0ecfc06b898f5"
+    }
+  },
+  {
+    "id": "range-operation-43e0b0",
+    "size": 28,
+    "offset": 4448432,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e0b0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "538a272bff1251f5f695f490491c23010cf6fcca6f39e4176434377467c241c1"
+    }
+  },
+  {
+    "id": "range-operation-43e0d0",
+    "size": 28,
+    "offset": 4448464,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e0d0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "98c6965570568785f241e7b39712afcc847072c33081ad9ba72017e9f70e08cb"
+    }
+  },
+  {
+    "id": "range-operation-43e0f0",
+    "size": 28,
+    "offset": 4448496,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e0f0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "1fb0ea080305d5c9d1eb75ff922f91e0acba304050e0481f2c0730c62cc1f4a0"
+    }
+  },
+  {
+    "id": "range-operation-43e110",
+    "size": 28,
+    "offset": 4448528,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e110. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "d3de9527602e204c81af149b312ff3d591508087632acc94f3b51d1e21a767a6"
+    }
+  },
+  {
+    "id": "range-operation-43e130",
+    "size": 28,
+    "offset": 4448560,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e130. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "be9417978b4c74277b013dbfee2da91ec5a91e383ef03e19c501b43fb9f61d28"
+    }
+  },
+  {
+    "id": "range-operation-43e150",
+    "size": 28,
+    "offset": 4448592,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e150. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "e1eb7d924356bf61e141244d558ebdd1e66fe4bdfb3915efa1ead560a1786af2"
+    }
+  },
+  {
+    "id": "range-operation-43e170",
+    "size": 28,
+    "offset": 4448624,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e170. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "74f724af33b1d3b78be6c08fbab75d00f064abcb7d1ecced73289fc64fcdb99d"
+    }
+  },
+  {
+    "id": "range-operation-43e190",
+    "size": 28,
+    "offset": 4448656,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e190. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "7c6e06d186ef7c019a3c6863ab78efb38a6427504d998c0c215445b7d90e4ad0"
+    }
+  },
+  {
+    "id": "range-operation-43e1b0",
+    "size": 28,
+    "offset": 4448688,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e1b0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "b692a18bf1a4474f2d056c09bb4a511b6f41d78e6f6c0b4081b40c6fd3e34f3a"
+    }
+  },
+  {
+    "id": "range-operation-43e1d0",
+    "size": 28,
+    "offset": 4448720,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e1d0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "f542d30000f6edb4ff997fd0a5aca7396eedccab9fdd0e889a1726365b1b5b5a"
+    }
+  },
+  {
+    "id": "range-operation-43e1f0",
+    "size": 28,
+    "offset": 4448752,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e1f0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "90fd80e0fa0e751b106829e11ca0c3c481163b5daac4296995659a8ea6bca389"
+    }
+  },
+  {
+    "id": "range-operation-43e210",
+    "size": 28,
+    "offset": 4448784,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e210. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "33b5e899d1e4b1f36cbe18aee14eafabd821b9ea9f7f7209aa7c9526a04f390a"
+    }
+  },
+  {
+    "id": "range-operation-43e230",
+    "size": 28,
+    "offset": 4448816,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e230. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "6085c2d907787812b0a4d272d1c9b4cfb1d139fa4cdbae1e57b9ff2a564f8f3b"
+    }
+  },
+  {
+    "id": "range-operation-43e250",
+    "size": 28,
+    "offset": 4448848,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e250. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "baa75913e5311741d0fa5fc16182468c3c16c6a9c354f3151c8a144105e4090a"
+    }
+  },
+  {
+    "id": "range-operation-43e270",
+    "size": 28,
+    "offset": 4448880,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e270. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "90c063ab4853899ffbc11d16fec644ae148b861410d7801bfa74ac50d8ab07a3"
+    }
+  },
+  {
+    "id": "range-operation-43e290",
+    "size": 28,
+    "offset": 4448912,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e290. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "def78737a078221facd951902dddc8aff1b743a23c301e462e6dbcae32ccc88b"
+    }
+  },
+  {
+    "id": "range-operation-43e2b0",
+    "size": 28,
+    "offset": 4448944,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e2b0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "e9254e025923c46c1ab0ccf9d1e4f39561979bdb881c87aae3b961d01d9597b6"
+    }
+  },
+  {
+    "id": "range-operation-43e2d0",
+    "size": 28,
+    "offset": 4448976,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e2d0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "bdc4e727251b12e0f85ecc3961fc6333d05a1e49ac79530bb6e36939b66c48e0"
+    }
+  },
+  {
+    "id": "range-operation-43e2f0",
+    "size": 28,
+    "offset": 4449008,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e2f0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "31e0c7b6744c0dfdc6bf579a1f7344bab3fed14db518d02b078d85ca1de95d18"
+    }
+  },
+  {
+    "id": "range-operation-43e310",
+    "size": 28,
+    "offset": 4449040,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e310. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "740544db9163b2cd410901d59b1a00dba1a0998fb9f28cee359243fd09c35cc5"
+    }
+  },
+  {
+    "id": "range-operation-43e330",
+    "size": 28,
+    "offset": 4449072,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e330. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "5043cca9c3a08ba35c2c385f57df94dfc44076083a9f44125c29cc4a165992ca"
+    }
+  },
+  {
+    "id": "range-operation-43e350",
+    "size": 28,
+    "offset": 4449104,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e350. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "775753e67a38d631f12d2152281b58942aaab1e085ef316e955630eb02abe931"
+    }
+  },
+  {
+    "id": "range-operation-43e370",
+    "size": 28,
+    "offset": 4449136,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e370. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "1b849da2d7ac5b9401b06cd24b6ea60b2c8b7b4c78f6d2f320c242e27aa1bf09"
+    }
+  },
+  {
+    "id": "range-operation-43e390",
+    "size": 28,
+    "offset": 4449168,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e390. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "c8d0ef13d00baf02d538ef48267e9067c6bd7a52e35f1e5dea845abd1eb29753"
+    }
+  },
+  {
+    "id": "range-operation-43e3b0",
+    "size": 28,
+    "offset": 4449200,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e3b0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "1c041fdbec8c784c88cb6ad92fbe0a50ebb8d12c948ad5bd86b0f229a604fc04"
+    }
+  },
+  {
+    "id": "range-operation-43e3d0",
+    "size": 28,
+    "offset": 4449232,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e3d0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "cfff07a8dc3649d20919501ca744beec50eec1144973ef3590f5b738bbdf7a3c"
+    }
+  },
+  {
+    "id": "range-operation-43e3f0",
+    "size": 28,
+    "offset": 4449264,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e3f0. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "12ed80aa3cf5f09f3d178354e1299aea34ea500281cff28d1d4b24591138b031"
+    }
+  },
+  {
+    "id": "range-operation-43e410",
+    "size": 28,
+    "offset": 4449296,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e410. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "b8f4de5fd65991b5a7a7f3d97f6c46a8597e5aefadfb3e54c8e107c5fec17f6f"
+    }
+  },
+  {
+    "id": "range-operation-43e430",
+    "size": 28,
+    "offset": 4449328,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e430. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "610ca36488f903d5a42231473a96c79b4ba362edd38afc72ea7c2e6727e46338"
+    }
+  },
+  {
+    "id": "range-operation-43e450",
+    "size": 28,
+    "offset": 4449360,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e450. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "08d9e7528ba3beb2318b390e094f9a4815f8c9dd35b6b1f8d99979267d149b72"
+    }
+  },
+  {
+    "id": "range-operation-43e470",
+    "size": 28,
+    "offset": 4449392,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e470. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "4182f7f0c9fbb91f5416d3c1d012a5114ea956a50c9ca65d8de698f25dc15a9d"
+    }
+  },
+  {
+    "id": "range-operation-43e490",
+    "size": 28,
+    "offset": 4449424,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@initialize_range@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43e490. Range-state initialization; saves the starting position in two fields, zeroes the count and saves the context.",
+    "match": {
+      "bytes_sha256": "a8e5f26e6c1884573c460aaf474eb5f467ef11baf59527860a70fcc153a1bd43",
+      "inputs_sha256": "dfe013597c46a7f786913312b16eb5f09576762f2ec9f1c023737799a6484f00"
+    }
+  },
+  {
     "id": "assign-range-43e4b0",
     "size": 56,
     "offset": 4449456,
@@ -4102,6 +4710,518 @@
     "match": {
       "bytes_sha256": "3864b18658b570fb17b2479cf1d4565592c3c46d62ad17d3c0edbafecc3f95fc",
       "inputs_sha256": "c2c42b3a1a29f573ba8db37cb944f1bd0614f3347f3386e1319e6f7a057a2c7c"
+    }
+  },
+  {
+    "id": "range-operation-43f8a0",
+    "size": 37,
+    "offset": 4454560,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43f8a0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "be6e3649494b3761eedc526a9b5a0983d3026aa2985d1f9008d52c8cd7fd31d1"
+    }
+  },
+  {
+    "id": "range-operation-43f8d0",
+    "size": 37,
+    "offset": 4454608,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43f8d0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "c660e16e4bb4bf82958cd20fb87192630dd5055617761f489671ac17fa01e2f9"
+    }
+  },
+  {
+    "id": "range-operation-43f910",
+    "size": 37,
+    "offset": 4454672,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43f910. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "6244915bdb1c1f9a29ab74534496cd212511451559c4580ef5fcc44b87bbf88d"
+    }
+  },
+  {
+    "id": "range-operation-43f950",
+    "size": 37,
+    "offset": 4454736,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43f950. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "ad9039fa1493dd170adf9fd9c3ea4fdc8b6c9e9850770f28432472f2cfa875d4"
+    }
+  },
+  {
+    "id": "range-operation-43f990",
+    "size": 37,
+    "offset": 4454800,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43f990. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "7732c7a3cdc85a13a023847688afe35214d69ec6288dc17411ff808f8cdd48bf"
+    }
+  },
+  {
+    "id": "range-operation-43f9d0",
+    "size": 37,
+    "offset": 4454864,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43f9d0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "140f2d992a82c210acdf85eef767c255a97d5412e6125b8802374ce8a1e7ea72"
+    }
+  },
+  {
+    "id": "range-operation-43fa10",
+    "size": 37,
+    "offset": 4454928,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fa10. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "26e28257bb1ce9f159f17715d31dc74cc78574d25291666986c59cc7fa8dfe8c"
+    }
+  },
+  {
+    "id": "range-operation-43fa50",
+    "size": 37,
+    "offset": 4454992,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fa50. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "d6e7931d8c3047e110b9cb60ff973ec297e1c1bb70245013d563a2e8c7c3ee3e"
+    }
+  },
+  {
+    "id": "range-operation-43fa90",
+    "size": 37,
+    "offset": 4455056,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fa90. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "eefed25203f691f64ad992fe5a15382796ceb4538964e06564c878546bbcfeb9"
+    }
+  },
+  {
+    "id": "range-operation-43fad0",
+    "size": 37,
+    "offset": 4455120,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fad0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "bccb21d07d8149b7697fde28d11aa2f89d6bb66f2e910740817df51f6d5bcae6"
+    }
+  },
+  {
+    "id": "range-operation-43fb10",
+    "size": 37,
+    "offset": 4455184,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fb10. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "aa2725da0edf79fb584fc3d4d4be56a90e0dc2ab1240ffbe44993c16d9e5e115"
+    }
+  },
+  {
+    "id": "range-operation-43fb50",
+    "size": 37,
+    "offset": 4455248,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fb50. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "c4a69af0dd828ce482e00f0d0a682287ad229fe065ce87ed2ee229c5634d670b"
+    }
+  },
+  {
+    "id": "range-operation-43fb90",
+    "size": 37,
+    "offset": 4455312,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fb90. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "ad5f2b6b7a0d8b058e9122d5ba5b850bd6b879785761055968ebdd2c7531502a"
+    }
+  },
+  {
+    "id": "range-operation-43fbd0",
+    "size": 37,
+    "offset": 4455376,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fbd0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "bdc35cc13cdfff73c1074a26a2205c03450b651b9f6c3295ed39548c95d75708"
+    }
+  },
+  {
+    "id": "range-operation-43fc10",
+    "size": 37,
+    "offset": 4455440,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fc10. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "b2f665313587f023dbde3f71ac566ae96c580231f97634817e5ca824ce1efc9f"
+    }
+  },
+  {
+    "id": "range-operation-43fc40",
+    "size": 37,
+    "offset": 4455488,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fc40. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "154819fed2bc226ce0680392a4cbd528787e26082fedad0d6d9b71593530cb05"
+    }
+  },
+  {
+    "id": "range-operation-43fc70",
+    "size": 37,
+    "offset": 4455536,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fc70. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "0841840cc9baaf216945ee3a8e2d0be748c7463723274f563ff7db1f1bdf4ca8"
+    }
+  },
+  {
+    "id": "range-operation-43fca0",
+    "size": 37,
+    "offset": 4455584,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fca0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "54de1dc42efe0efddf31f78f4714238c8dd52ea561ed6b10c9612c737286868c"
+    }
+  },
+  {
+    "id": "range-operation-43fce0",
+    "size": 37,
+    "offset": 4455648,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fce0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "e289162b804cc065b82c7373c7651a42592d7a2983eead0b05e1f6119247f46b"
+    }
+  },
+  {
+    "id": "range-operation-43fd20",
+    "size": 37,
+    "offset": 4455712,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fd20. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "09ec2a2430c856b5eed78bbe138edce1f00e6e4e9c3b8a6654334683c4eff040"
+    }
+  },
+  {
+    "id": "range-operation-43fd60",
+    "size": 37,
+    "offset": 4455776,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fd60. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "4fb67d336b82ede5d6fab61a091a629baefb3b1d6eae277937da96a4c859e34d"
+    }
+  },
+  {
+    "id": "range-operation-43fda0",
+    "size": 37,
+    "offset": 4455840,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fda0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "4a25db8c81e68d189e44bd8cfe5acabd1cbabc03b60a788703ae5f28e67badbd"
+    }
+  },
+  {
+    "id": "range-operation-43fde0",
+    "size": 37,
+    "offset": 4455904,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fde0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "6f9c46781b7709b2559c221b7393468ef67cd5cec4f00705395fd33d8640fc8c"
+    }
+  },
+  {
+    "id": "range-operation-43fe20",
+    "size": 37,
+    "offset": 4455968,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fe20. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "7f44d02b31bd51b581b4a9997cbc5a139b3660139d27495a6d89771ad8c5d5a9"
+    }
+  },
+  {
+    "id": "range-operation-43fe60",
+    "size": 37,
+    "offset": 4456032,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fe60. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "e0923be0d6eab10dd1d9de9f4bb68e8948e08dff90a2c1951264f1a85c18f703"
+    }
+  },
+  {
+    "id": "range-operation-43fea0",
+    "size": 37,
+    "offset": 4456096,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fea0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "227ebcefe9539c353885af18835ce6e65254ec8051bc4742beda016f95099ca3"
+    }
+  },
+  {
+    "id": "range-operation-43fed0",
+    "size": 37,
+    "offset": 4456144,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43fed0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "5a65234e9305c4a2b20c2ce7fdbc2f4f2248716721e5431c42341480a0a53323"
+    }
+  },
+  {
+    "id": "range-operation-43ff00",
+    "size": 37,
+    "offset": 4456192,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43ff00. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "12d409c0c6825e7e3511d25e28e5371aa09deb2192af079236e41a2c5c92682f"
+    }
+  },
+  {
+    "id": "range-operation-43ff40",
+    "size": 37,
+    "offset": 4456256,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43ff40. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "3fdb1b4b8c075b79b0478c0d5ef0fd9af5ca7c9137119bdaa249d6b3fbbef5bd"
+    }
+  },
+  {
+    "id": "range-operation-43ff70",
+    "size": 37,
+    "offset": 4456304,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43ff70. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "8961b09716c2f4a102d95ee1bd1a64bd2f10907b0f0103f53d8672a75d1b3653"
+    }
+  },
+  {
+    "id": "range-operation-43ffa0",
+    "size": 37,
+    "offset": 4456352,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43ffa0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "bb2bdf2f5149881f8b629f87a94f9022e6127b7b4879e0fa12cd593d289cf88d"
+    }
+  },
+  {
+    "id": "range-operation-43ffe0",
+    "size": 37,
+    "offset": 4456416,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x43ffe0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "85c0ec0364e84c9a0f6ac87b115d8a81c020deca116e514e6f7d134822d37ca4"
     }
   }
 ]

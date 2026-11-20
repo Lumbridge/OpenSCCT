@@ -365,6 +365,38 @@
     }
   },
   {
+    "id": "range-operation-4a1310",
+    "size": 22,
+    "offset": 4854544,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4a1310. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "0fcf5e464e1c4c304e99e464c754abe12bd2af0bfdb0f2862b17ce3831e6dcd3"
+    }
+  },
+  {
+    "id": "range-operation-4a1330",
+    "size": 22,
+    "offset": 4854576,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4a1330. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "79d2aeaf1af8d99ca4f9c78b13ab5bc94474f647b05b73a9723e44dc6535701d"
+    }
+  },
+  {
     "id": "managed-list-clear-4a14f0",
     "size": 63,
     "offset": 4855024,
@@ -970,6 +1002,22 @@
     "match": {
       "bytes_sha256": "5971358e279d6f61bf08d9c953c05059ffbb0d0ecc822600818bc1136f65e308",
       "inputs_sha256": "17a5a397ba6aed8ef05c8865f273951013cae982701843b8d5b78a28f667ca07"
+    }
+  },
+  {
+    "id": "range-operation-4a2ef0",
+    "size": 22,
+    "offset": 4861680,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4a2ef0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "3b7af6741267ae01367f88b1bb8406504e90b19b91682a034dfa5ec06cfc81ae"
     }
   },
   {
@@ -1894,6 +1942,22 @@
     "match": {
       "bytes_sha256": "d800c08453ed0ba28a5e1b099e5b5565115982d30221a9d5c13fedfd8233845e",
       "inputs_sha256": "16161722045058a9374fa1916f1e52678651361e389fdca98e44a41b93a2b1a6"
+    }
+  },
+  {
+    "id": "range-operation-4a5ac0",
+    "size": 22,
+    "offset": 4872896,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4a5ac0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "352413137eed4730e4c69ffc69d76b9df5b34a94db00fee4f2cbe34bbaeb2b7c"
     }
   },
   {
@@ -2823,6 +2887,22 @@
     }
   },
   {
+    "id": "range-operation-4abd60",
+    "size": 22,
+    "offset": 4898144,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4abd60. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "5fea2d86eb988fec5c8f23c88dbf83c83ec31ae4000500a0588dd987c3805343"
+    }
+  },
+  {
     "id": "tree-clear-managed-4abd90",
     "size": 43,
     "offset": 4898192,
@@ -3300,6 +3380,22 @@
     }
   },
   {
+    "id": "range-operation-4ae500",
+    "size": 22,
+    "offset": 4908288,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4ae500. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "2809758c1b54d69ddbcd9edbadc122935eecf88a7e7d5fd453d24a140ddc156d"
+    }
+  },
+  {
     "id": "tree-rightmost-4ae5b0",
     "size": 29,
     "offset": 4908464,
@@ -3417,6 +3513,22 @@
     "match": {
       "bytes_sha256": "8b839078e9ee3f923c456a0284acd9ecb2410a748c26a29c9b7825364d832d91",
       "inputs_sha256": "f8f31e774974416ab999c162df4600a13cb55ca9bd0811465cbfe4ca34d87faf"
+    }
+  },
+  {
+    "id": "range-operation-4ae8d0",
+    "size": 22,
+    "offset": 4909264,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4ae8d0. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "2413aba69c467fadedf849b70164f0d3af1b5c4576b61a26e9c57d2aaddfdc12"
     }
   },
   {

@@ -1,5 +1,69 @@
 [
   {
+    "id": "range-operation-440020",
+    "size": 37,
+    "offset": 4456480,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x440020. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "fb5b69d294362300b94b61352600ea15e1508e4de89c9fcf4db9a5761f481f65"
+    }
+  },
+  {
+    "id": "range-operation-440060",
+    "size": 37,
+    "offset": 4456544,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x440060. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "c1129468cd449c822f160e4c686c523fb29b1ce3bfac7fb2899a0803182b74ac"
+    }
+  },
+  {
+    "id": "range-operation-4400a0",
+    "size": 37,
+    "offset": 4456608,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4400a0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "397a4275ff16f1037300a298090e0bdba81f9cb359a50c1acc3dd2cc9338fccf"
+    }
+  },
+  {
+    "id": "range-operation-4400e0",
+    "size": 37,
+    "offset": 4456672,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "_construct_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x4400e0. Null-checked construction of a four-word record from a source record.",
+    "match": {
+      "bytes_sha256": "87a36aa7f113bd8b810a76ff56e4c70e1db75189a979ea35d2ada371e4c8c98c",
+      "inputs_sha256": "31193b0a60b7f66b0b9f3bb3507de3467924fcc2be663699ca9770d12d60b0ce"
+    }
+  },
+  {
     "id": "construct-range-440110",
     "size": 63,
     "offset": 4456720,
@@ -8928,6 +8992,22 @@
     "match": {
       "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
       "inputs_sha256": "2b5f7cd4f45dd6c44dc3e5559a56860c0c3d1e3d6877dcfc87adb9b6a67fc8cd"
+    }
+  },
+  {
+    "id": "range-operation-44fe80",
+    "size": 22,
+    "offset": 4521600,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x44fe80. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "02f65afe7e8cb944980cacd27819a6dc6c1a249e9e9904e8d4a4427d80de6021"
     }
   },
   {

@@ -1,5 +1,21 @@
 [
   {
+    "id": "range-operation-380670",
+    "size": 22,
+    "offset": 3671664,
+    "inputs": [
+      "src/campaign_range_and_cursor.c"
+    ],
+    "rebuilt_symbol": "@cursor_differs@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_and_cursor.obj src/campaign_range_and_cursor.c",
+    "identification": "Aligned complete Campaign routine at RVA 0x380670. Compares the stored positions of two cursors and returns a byte boolean.",
+    "match": {
+      "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
+      "inputs_sha256": "d00c4db4d5740c4434c9edc75c39d712279ae5526866e7499f711890b0c30241"
+    }
+  },
+  {
     "id": "init-tree-node-380690",
     "offset": 3671696,
     "size": 45,
