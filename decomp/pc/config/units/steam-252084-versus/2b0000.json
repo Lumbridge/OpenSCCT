@@ -1,5 +1,53 @@
 [
   {
+    "id": "child-event-2b0570",
+    "size": 40,
+    "offset": 2819440,
+    "inputs": [
+      "src/versus_child_events.c"
+    ],
+    "rebuilt_symbol": "@update_child@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_child_events.obj src/versus_child_events.c",
+    "link_bindings": {
+      "@evaluate_time@16": {
+        "va": 280691760,
+        "basis": "Indexed retail child processing helper."
+      }
+    },
+    "identification": "Complete indexed child event method at RVA 0x2b0570. Evaluates the child time and forwards it to handler slot 7.",
+    "match": {
+      "bytes_sha256": "30ee44705186c8d0996fad41beb290766454a3bf91143344bece98b1ada9240c",
+      "inputs_sha256": "1be2f464d3429742d137fe2cb98ba294fb9f118c639620a0fc4479d5d0f0ae46"
+    }
+  },
+  {
+    "id": "child-event-2b05d0",
+    "size": 129,
+    "offset": 2819536,
+    "inputs": [
+      "src/versus_child_events.c"
+    ],
+    "rebuilt_symbol": "@run_child@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_child_events.obj src/versus_child_events.c",
+    "link_bindings": {
+      "_ui_service": {
+        "va": 281501356,
+        "basis": "Shared UI service global."
+      },
+      "@prepare_child@8": {
+        "va": 280637136,
+        "basis": "Indexed retail child processing helper."
+      }
+    },
+    "identification": "Complete indexed child event method at RVA 0x2b05d0. Runs the handler between two reverse-order listener passes when the child is active.",
+    "match": {
+      "bytes_sha256": "c129fc301b3f6972cf1b751fe5a574aff609e9f60f5e9f8c39fe2becb21d1bac",
+      "inputs_sha256": "9adf24df1127b925699031a04a3e6701c6425b0dbcdd406e03d2e61b14cc264a"
+    }
+  },
+  {
     "id": "rotate-left-2b0d30",
     "size": 85,
     "offset": 2821424,
