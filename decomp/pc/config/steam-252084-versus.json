@@ -329,6 +329,74 @@
       }
     },
     {
+      "id": "vm-multiply-equal-byte-byte",
+      "offset": 276976,
+      "size": 141,
+      "rebuilt_symbol": "@execMultiplyEqual_ByteByte@16",
+      "identification": "The store at VA 0x1094b317 registers Core.Object.MultiplyEqual_ByteByte in Steam VM slot 113 with VA 0x109439f0. The first operand resolves through the VM property address. The handler then evaluates the second byte and writes its result to the property and the supplied result pointer.",
+      "inputs": [
+        "src/versus_vm_byte_assignment.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Oa /Gy /c /Folocal/versus_vm_byte_assignment.obj src/versus_vm_byte_assignment.c",
+      "link_bindings": {
+        "_property_address": {
+          "va": 281512860,
+          "basis": "VM output address reset before by-reference argument dispatch and read after the call."
+        },
+        "_property_descriptor": {
+          "va": 281512804,
+          "basis": "VM global passed to the property owner virtual method at slot 21."
+        },
+        "_property_owner": {
+          "va": 281512868,
+          "basis": "VM property owner tested after evaluating the reference operand."
+        },
+        "_native_table": {
+          "va": 281549272,
+          "basis": "Steam script-handler table indexed by each decoded expression byte."
+        }
+      },
+      "match": {
+        "bytes_sha256": "b696ef8784cce9362fdb289e7483b7324492c2470e4a42aafc66ea8dee95bed3",
+        "inputs_sha256": "632c83050d4f39be83206ddabb6b3655c78f459a5e5ea6201834a25c29ae5654"
+      }
+    },
+    {
+      "id": "vm-divide-equal-byte-byte",
+      "offset": 277120,
+      "size": 162,
+      "rebuilt_symbol": "@execDivideEqual_ByteByte@16",
+      "identification": "The store at VA 0x1094b34e registers Core.Object.DivideEqual_ByteByte in Steam VM slot 114 with VA 0x10943a80. The first operand resolves through the VM property address. The handler then evaluates the second byte and writes its result to the property and the supplied result pointer.",
+      "inputs": [
+        "src/versus_vm_byte_assignment.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Oa /Gy /c /Folocal/versus_vm_byte_assignment.obj src/versus_vm_byte_assignment.c",
+      "link_bindings": {
+        "_property_address": {
+          "va": 281512860,
+          "basis": "VM output address reset before by-reference argument dispatch and read after the call."
+        },
+        "_property_descriptor": {
+          "va": 281512804,
+          "basis": "VM global passed to the property owner virtual method at slot 21."
+        },
+        "_property_owner": {
+          "va": 281512868,
+          "basis": "VM property owner tested after evaluating the reference operand."
+        },
+        "_native_table": {
+          "va": 281549272,
+          "basis": "Steam script-handler table indexed by each decoded expression byte."
+        }
+      },
+      "match": {
+        "bytes_sha256": "6a28f2e6dc714e4bbee45e47298b1cc62bd9a7dd120bff57c6c51ea54fa9cca0",
+        "inputs_sha256": "b798a9c2c73e8f59370dfb80884fb716977b7a54b7bcdb44697abd43053be62a"
+      }
+    },
+    {
       "id": "vm-add-add-pre-byte",
       "offset": 277584,
       "size": 103,
@@ -1185,6 +1253,22 @@
       }
     },
     {
+      "id": "vm-rot-rand",
+      "offset": 290720,
+      "size": 139,
+      "rebuilt_symbol": "@execRotRand@16",
+      "identification": "The store at VA 0x1094c7ee registers Core.Object.RotRand in Steam VM slot 163 with VA 0x10946fa0. The registered handler returns a three-integer pitch/yaw/roll value. The full section includes the frame dispatch and each component evaluation.",
+      "inputs": [
+        "src/versus_vm_rotator_scale.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_rotator_scale.obj src/versus_vm_rotator_scale.c",
+      "match": {
+        "bytes_sha256": "786d2eddd910149b03597e371400f66fcfce67534303cd8e5b644fe2e6235257",
+        "inputs_sha256": "5aeaabe7a2d21bf2260ce851a97743f28674762a599cb529bb3001ceb89355be"
+      }
+    },
+    {
       "id": "vm-equal-equal-rotator-rotator",
       "offset": 291248,
       "size": 131,
@@ -1217,6 +1301,72 @@
       }
     },
     {
+      "id": "vm-multiply-rotator-float",
+      "offset": 291536,
+      "size": 139,
+      "rebuilt_symbol": "@execMultiply_RotatorFloat@16",
+      "identification": "The store at VA 0x1094c901 registers Core.Object.Multiply_RotatorFloat in Steam VM slot 252 with VA 0x109472d0. The registered handler returns a three-integer pitch/yaw/roll value. The full section includes the frame dispatch and each component evaluation.",
+      "inputs": [
+        "src/versus_vm_rotator_scale.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_rotator_scale.obj src/versus_vm_rotator_scale.c",
+      "link_bindings": {
+        "__ftol2": {
+          "va": 280509088,
+          "basis": "Stock signed truncation helper called for x87 real-to-integer coordinate conversion."
+        }
+      },
+      "match": {
+        "bytes_sha256": "46bc751f735ae4acf0d06961037a13ac811e01692532749eda744d33e2f12e34",
+        "inputs_sha256": "291135bfac9a9e0a84815e5066890366af2952e169976e024772c4782095bb3a"
+      }
+    },
+    {
+      "id": "vm-multiply-float-rotator",
+      "offset": 291680,
+      "size": 139,
+      "rebuilt_symbol": "@execMultiply_FloatRotator@16",
+      "identification": "The store at VA 0x1094c938 registers Core.Object.Multiply_FloatRotator in Steam VM slot 225 with VA 0x10947360. The registered handler returns a three-integer pitch/yaw/roll value. The full section includes the frame dispatch and each component evaluation.",
+      "inputs": [
+        "src/versus_vm_rotator_scale.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_rotator_scale.obj src/versus_vm_rotator_scale.c",
+      "link_bindings": {
+        "__ftol2": {
+          "va": 280509088,
+          "basis": "Stock signed truncation helper called for x87 real-to-integer coordinate conversion."
+        }
+      },
+      "match": {
+        "bytes_sha256": "789c33d7b8d98ca29ef4c8e8564094ac345f61e735c21fb0ddbb99edc9733d9c",
+        "inputs_sha256": "4f02df8e2d636c63d70495218baadd787e4dafe05112197a71b75a877df8438d"
+      }
+    },
+    {
+      "id": "vm-divide-rotator-float",
+      "offset": 291824,
+      "size": 145,
+      "rebuilt_symbol": "@execDivide_RotatorFloat@16",
+      "identification": "The store at VA 0x1094c96f registers Core.Object.Divide_RotatorFloat in Steam VM slot 226 with VA 0x109473f0. The registered handler returns a three-integer pitch/yaw/roll value. The full section includes the frame dispatch and each component evaluation.",
+      "inputs": [
+        "src/versus_vm_rotator_scale.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_rotator_scale.obj src/versus_vm_rotator_scale.c",
+      "link_bindings": {
+        "__ftol2": {
+          "va": 280509088,
+          "basis": "Stock signed truncation helper called for x87 real-to-integer coordinate conversion."
+        }
+      },
+      "match": {
+        "bytes_sha256": "9a0912e4e6645777d60f5edf486ab8df969f5aae2c0e0d64c1d911020ca548ce",
+        "inputs_sha256": "a4a934ff2dc774a2b9aa2cd602597c50532027f8be244a7a7a104fcf05d371eb"
+      }
+    },
+    {
       "id": "vm-add-rotator-rotator",
       "offset": 292400,
       "size": 116,
@@ -1246,6 +1396,38 @@
       "match": {
         "bytes_sha256": "7a85f11cc8dbe2a5e082a841306588fce2472c07b8d72530918f71c656e76875",
         "inputs_sha256": "fc59b4cede97748267284f40a04cba1aee22c1a883fc94e7795c67bfc83398f6"
+      }
+    },
+    {
+      "id": "vm-normalize",
+      "offset": 294128,
+      "size": 125,
+      "rebuilt_symbol": "@execNormalize@16",
+      "identification": "The store at VA 0x1094cbcc registers Core.Object.Normalize in Steam VM slot 165 with VA 0x10947cf0. The handler wraps signed angular values using the low sixteen bits of each input. The complete section, including each conditional branch and exit, compares equal to the source build.",
+      "inputs": [
+        "src/versus_vm_angle_wrap.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_angle_wrap.obj src/versus_vm_angle_wrap.c",
+      "match": {
+        "bytes_sha256": "9785ea92c6974bec8fc6d7bc52e0e3a280e42ca20bf8ecabd078183b3839f672",
+        "inputs_sha256": "e2e284c1e4ff20cf45f6e09d6804f4965376eee062d5d9146ef38c01969c0cc9"
+      }
+    },
+    {
+      "id": "vm-clockwise-from-int-int",
+      "offset": 294256,
+      "size": 151,
+      "rebuilt_symbol": "@execClockwiseFrom_IntInt@16",
+      "identification": "The store at VA 0x1094cc03 registers Core.Object.ClockwiseFrom_IntInt in Steam VM slot 166 with VA 0x10947d70. The handler wraps signed angular values using the low sixteen bits of each input. The complete section, including each conditional branch and exit, compares equal to the source build.",
+      "inputs": [
+        "src/versus_vm_angle_wrap.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_vm_angle_wrap.obj src/versus_vm_angle_wrap.c",
+      "match": {
+        "bytes_sha256": "6dc485309307c065d2a367473483212d71b0e8ca25e2098900437ebaf34cf970",
+        "inputs_sha256": "17c095039b1705cd5d08c9763f7a44b3fa951603cbc92733b4b3a9be80083ba3"
       }
     },
     {

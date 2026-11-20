@@ -32,6 +32,1162 @@
   },
   "units": [
     {
+      "id": "cast-uarrayproperty",
+      "offset": 93936,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UArrayProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UArrayProperty": {
+          "va": 288432936,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UArrayProperty": {
+          "va": 281987936,
+          "basis": "The constructor passes both the UTF-16 UArrayProperty allocation tag and ArrayProperty class name to the engine."
+        },
+        "_register_UArrayProperty": {
+          "va": 281984816,
+          "basis": "Direct registration call after initializing the singleton for UArrayProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x16ef0, directly called at RVA 0x16e35. Its class constructor at RVA 0x3ecb60 identifies UArrayProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "885b376737bfc77b11c777f8fd969493be91215fefbd445546fbb465e5739298",
+        "inputs_sha256": "10c369f510eccacacfc6bc8e5bf0e7d422c102c2667fc5bb487f5f8a73f89aef"
+      }
+    },
+    {
+      "id": "cast-uclassproperty",
+      "offset": 101408,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UClassProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UClassProperty": {
+          "va": 288432920,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UClassProperty": {
+          "va": 281986832,
+          "basis": "The constructor passes both the UTF-16 UClassProperty allocation tag and ClassProperty class name to the engine."
+        },
+        "_register_UClassProperty": {
+          "va": 281990704,
+          "basis": "Direct registration call after initializing the singleton for UClassProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x18c20, directly called at RVA 0x18a02. Its class constructor at RVA 0x3ec710 identifies UClassProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "920ca7a5043e822132a3f6d2fb2dd53a8d288fca057c016b041b005097cde9bd",
+        "inputs_sha256": "aebfece1576b7cf48bf0593a2e06f6741ef191a7388a9bbc7eaacac524fbcc82"
+      }
+    },
+    {
+      "id": "cast-uobjectproperty",
+      "offset": 106512,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UObjectProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UObjectProperty": {
+          "va": 288432916,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UObjectProperty": {
+          "va": 281986720,
+          "basis": "The constructor passes both the UTF-16 UObjectProperty allocation tag and ObjectProperty class name to the engine."
+        },
+        "_register_UObjectProperty": {
+          "va": 281983200,
+          "basis": "Direct registration call after initializing the singleton for UObjectProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1a010, directly called at RVA 0x19cef. Its class constructor at RVA 0x3ec6a0 identifies UObjectProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "725e1f3ba29383c6b904f0c12c9f4ec2627fdbaa1c85eb9400f482f9d92264ed",
+        "inputs_sha256": "c80bd60ac9e2517813eb5ee8094526cdad5dba55f8cc098ba21d7aea906b2247"
+      }
+    },
+    {
+      "id": "cast-ustructproperty",
+      "offset": 106608,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UStructProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UStructProperty": {
+          "va": 288432944,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UStructProperty": {
+          "va": 281989920,
+          "basis": "The constructor passes both the UTF-16 UStructProperty allocation tag and StructProperty class name to the engine."
+        },
+        "_register_UStructProperty": {
+          "va": 281985360,
+          "basis": "Direct registration call after initializing the singleton for UStructProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1a070, directly called at RVA 0x19da7. Its class constructor at RVA 0x3ed320 identifies UStructProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "56f01bdd475c85c8fd5e4ad59717d116f1c2a8576857e810a9bc721f9ac35b98",
+        "inputs_sha256": "929c52efab3042fc039f4a33c81d83ecef3484c95217027a135f3f1f337035b8"
+      }
+    },
+    {
+      "id": "cast-uboolproperty",
+      "offset": 109744,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UBoolProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UBoolProperty": {
+          "va": 288432908,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UBoolProperty": {
+          "va": 281986496,
+          "basis": "The constructor passes both the UTF-16 UBoolProperty allocation tag and BoolProperty class name to the engine."
+        },
+        "_register_UBoolProperty": {
+          "va": 281982048,
+          "basis": "Direct registration call after initializing the singleton for UBoolProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1acb0, directly called at RVA 0x1abc1. Its class constructor at RVA 0x3ec5c0 identifies UBoolProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "11a75953076742793b96a7a05d1834247a6609eb2731940efb2a1442011ab0ea",
+        "inputs_sha256": "b799bc82b12aeb6df61ceaf093bd883b22f12d8a2adc8f40732f6fe5e726edeb"
+      }
+    },
+    {
+      "id": "cast-ubyteproperty",
+      "offset": 126336,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UByteProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UByteProperty": {
+          "va": 288432900,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UByteProperty": {
+          "va": 281986272,
+          "basis": "The constructor passes both the UTF-16 UByteProperty allocation tag and ByteProperty class name to the engine."
+        },
+        "_register_UByteProperty": {
+          "va": 281981504,
+          "basis": "Direct registration call after initializing the singleton for UByteProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1ed80, directly called at RVA 0x1dcab. Its class constructor at RVA 0x3ec4e0 identifies UByteProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "ab3879492fca362de75d688c14eab5221d3862c706bdda31987f1fe54e1e1b51",
+        "inputs_sha256": "fe34d9f192395fcc25fc009661cca2aeccd3c0c8cc8c86b8746bad644f3fc37f"
+      }
+    },
+    {
+      "id": "cast-uskeletalmeshinstance",
+      "offset": 218096,
+      "size": 85,
+      "rebuilt_symbol": "_cast_USkeletalMeshInstance",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_USkeletalMeshInstance": {
+          "va": 287279852,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_USkeletalMeshInstance": {
+          "va": 278926944,
+          "basis": "The constructor passes both the UTF-16 USkeletalMeshInstance allocation tag and SkeletalMeshInstance class name to the engine."
+        },
+        "_register_USkeletalMeshInstance": {
+          "va": 278726464,
+          "basis": "Direct registration call after initializing the singleton for USkeletalMeshInstance."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x353f0, directly called at RVA 0x3bda0. Its class constructor at RVA 0x101660 identifies USkeletalMeshInstance; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "9a54d1405074c0a6c21191e11905e93e6a6ca5cfb1f843b88dda2584d56195bf",
+        "inputs_sha256": "03ab7ba33c1efa111968b933c26b71b11ff84d2d3324d2b3e5378bfcd150e715"
+      }
+    },
+    {
+      "id": "cast-utexture",
+      "offset": 441680,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UTexture",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UTexture": {
+          "va": 287268824,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UTexture": {
+          "va": 278380640,
+          "basis": "The constructor passes both the UTF-16 UTexture allocation tag and Texture class name to the engine."
+        },
+        "_register_UTexture": {
+          "va": 278353488,
+          "basis": "Direct registration call after initializing the singleton for UTexture."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x6bd50, directly called at RVA 0x6eaec. Its class constructor at RVA 0x7c060 identifies UTexture; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "dbd039d4488dab42886178fd264754c4c7685e5c2be7f12cc9175ef4ff556fee",
+        "inputs_sha256": "e821e700bea93958d6a630d3d59459ffdf18f017806de06d47f6ec726a80f92e"
+      }
+    },
+    {
+      "id": "cast-umodifier",
+      "offset": 449104,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UModifier",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UModifier": {
+          "va": 287268732,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UModifier": {
+          "va": 278316816,
+          "basis": "The constructor passes both the UTF-16 UModifier allocation tag and Modifier class name to the engine."
+        },
+        "_register_UModifier": {
+          "va": 278316928,
+          "basis": "Direct registration call after initializing the singleton for UModifier."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x6da50, directly called at RVA 0x6e9d6. Its class constructor at RVA 0x6c710 identifies UModifier; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "eb5dfaf3aade75168f4b2dc1787d6d3e0adc8527c02c37779d4a4a8042069c7a",
+        "inputs_sha256": "a728dfc09f8f1ea80b16bc79b35ae665e7c49b4ef5535ead8fcf6089e56b2208"
+      }
+    },
+    {
+      "id": "cast-ubitmapmaterial",
+      "offset": 452416,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UBitmapMaterial",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UBitmapMaterial": {
+          "va": 287268688,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UBitmapMaterial": {
+          "va": 278312896,
+          "basis": "The constructor passes both the UTF-16 UBitmapMaterial allocation tag and BitmapMaterial class name to the engine."
+        },
+        "_register_UBitmapMaterial": {
+          "va": 278318560,
+          "basis": "Direct registration call after initializing the singleton for UBitmapMaterial."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x6e740, directly called at RVA 0x6e8fa. Its class constructor at RVA 0x6b7c0 identifies UBitmapMaterial; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "3bba4b9fa9b381bf4ee3436ea07842cd19fb09fdf745efad0dbe121ef30f12d7",
+        "inputs_sha256": "cdcd3f838b2a019a5385491902fc7f52d546f2dc883c038dd1681c15ffecffea"
+      }
+    },
+    {
+      "id": "cast-ueglow",
+      "offset": 452576,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UEGlow",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UEGlow": {
+          "va": 287268768,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UEGlow": {
+          "va": 278318096,
+          "basis": "The constructor passes both the UTF-16 UEGlow allocation tag and EGlow class name to the engine."
+        },
+        "_register_UEGlow": {
+          "va": 278320848,
+          "basis": "Direct registration call after initializing the singleton for UEGlow."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x6e7e0, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x6cc10 identifies UEGlow; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "2eed57af520baff4528a9c9b3ece378dfbe20c702327b08679cbcfe27deae853",
+        "inputs_sha256": "3d46782c8312b1593e2430b8225b3ea2502c3b2c4c07e6ed4ec3238110456590"
+      }
+    },
+    {
+      "id": "cast-ushader",
+      "offset": 550848,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UShader",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UShader": {
+          "va": 287268708,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UShader": {
+          "va": 278315872,
+          "basis": "The constructor passes both the UTF-16 UShader allocation tag and Shader class name to the engine."
+        },
+        "_register_UShader": {
+          "va": 278319488,
+          "basis": "Direct registration call after initializing the singleton for UShader."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x867c0, directly called at RVA 0x88a25. Its class constructor at RVA 0x6c360 identifies UShader; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "5eb0f9fa16b5e3a921f30c3d507bcb66b0225fe435f4abb924577a376bb1eed0",
+        "inputs_sha256": "bb689476f99978a2c9d404fe5a557c5f851611b4984f0bbec352474623fcf3f7"
+      }
+    },
+    {
+      "id": "cast-aprojector",
+      "offset": 561024,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AProjector",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AProjector": {
+          "va": 287270952,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AProjector": {
+          "va": 278433552,
+          "basis": "The constructor passes both the UTF-16 AProjector allocation tag and Projector class name to the engine."
+        },
+        "_register_AProjector": {
+          "va": 278423168,
+          "basis": "Direct registration call after initializing the singleton for AProjector."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x88f80, directly called at RVA 0x88fe9. Its class constructor at RVA 0x88f10 identifies AProjector; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "fe601dffefc89b37151ae895b213f80285cb16707d5caa6422866c0aae645654",
+        "inputs_sha256": "e5794bd3053f30a2591548ba40423cace1e0070f0d69c5a5bf5a9a425f08d1e9"
+      }
+    },
+    {
+      "id": "cast-uehkrigidbody",
+      "offset": 569328,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UEHkRigidBody",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UEHkRigidBody": {
+          "va": 287282524,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UEHkRigidBody": {
+          "va": 278950400,
+          "basis": "The constructor passes both the UTF-16 UEHkRigidBody allocation tag and EHkRigidBody class name to the engine."
+        },
+        "_register_UEHkRigidBody": {
+          "va": 278950656,
+          "basis": "Direct registration call after initializing the singleton for UEHkRigidBody."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x8aff0, directly called at RVA 0x8b680. Its class constructor at RVA 0x107200 identifies UEHkRigidBody; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "8d7fdda1d31e8b2ecefc348e1cdc81d81b40987947393429aaa64d59a19840d1",
+        "inputs_sha256": "f26e48770e67df81b063f74c819abb5d9bc8f5246fc757f8cebd28968443b8bd"
+      }
+    },
+    {
+      "id": "cast-uviewport",
+      "offset": 592960,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UViewport",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UViewport": {
+          "va": 287286140,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UViewport": {
+          "va": 279205584,
+          "basis": "The constructor passes both the UTF-16 UViewport allocation tag and Viewport class name to the engine."
+        },
+        "_register_UViewport": {
+          "va": 279205696,
+          "basis": "Direct registration call after initializing the singleton for UViewport."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x90c40, directly called at RVA 0x9155f. Its class constructor at RVA 0x1456d0 identifies UViewport; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "edc2d73b3a7f2ad7300ee642336046b2b36ead3b783db58bc8459f2696ca68a9",
+        "inputs_sha256": "a9cb9c7f28e53fe0d3e96c4116439af522dc64b93a9efde312b6fc53a152fd69"
+      }
+    },
+    {
+      "id": "cast-aemitter",
+      "offset": 593056,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEmitter",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEmitter": {
+          "va": 287271320,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEmitter": {
+          "va": 278552800,
+          "basis": "The constructor passes both the UTF-16 AEmitter allocation tag and Emitter class name to the engine."
+        },
+        "_register_AEmitter": {
+          "va": 278546896,
+          "basis": "Direct registration call after initializing the singleton for AEmitter."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x90ca0, directly called at RVA 0x93821. Its class constructor at RVA 0xa60e0 identifies AEmitter; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "c56dc16e1dcdf021b497b3b80bc4095908c6bffff41db8841e55d7a2438d49df",
+        "inputs_sha256": "1e33a8daacdfea8feee7ee13de8aa8b8424b7884d55da5a978a83adcca89c987"
+      }
+    },
+    {
+      "id": "cast-uehkskeletalsystem",
+      "offset": 659312,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UEHkSkeletalSystem",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UEHkSkeletalSystem": {
+          "va": 287282528,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UEHkSkeletalSystem": {
+          "va": 278957376,
+          "basis": "The constructor passes both the UTF-16 UEHkSkeletalSystem allocation tag and EHkSkeletalSystem class name to the engine."
+        },
+        "_register_UEHkSkeletalSystem": {
+          "va": 278955248,
+          "basis": "Direct registration call after initializing the singleton for UEHkSkeletalSystem."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xa0f70, directly called at RVA 0xa123e. Its class constructor at RVA 0x108d40 identifies UEHkSkeletalSystem; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "00366c9ebe6ccf4207df4868c8922f43369e1a905797ffc76bf3987e9d4ba738",
+        "inputs_sha256": "21ed9f6b17116eabf41613a5573f93f132e40312b6f7763b912c50b2576f01b8"
+      }
+    },
+    {
+      "id": "cast-acubemapsampleinfo",
+      "offset": 695520,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ACubemapSampleInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ACubemapSampleInfo": {
+          "va": 287271340,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ACubemapSampleInfo": {
+          "va": 278568048,
+          "basis": "The constructor passes both the UTF-16 ACubemapSampleInfo allocation tag and CubemapSampleInfo class name to the engine."
+        },
+        "_register_ACubemapSampleInfo": {
+          "va": 278559632,
+          "basis": "Direct registration call after initializing the singleton for ACubemapSampleInfo."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xa9ce0, directly called at RVA 0xa9d87. Its class constructor at RVA 0xa9c70 identifies ACubemapSampleInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "926199b62ab2814e14a23e88cdcfcedf03e4e7e1a7b8ffacdb88968ed362129b",
+        "inputs_sha256": "c5b54547bd44b259ab2bf6066620a80268092f4da160b85e243515fa51bfd3a7"
+      }
+    },
+    {
+      "id": "cast-anavigationpoint",
+      "offset": 734096,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ANavigationPoint",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ANavigationPoint": {
+          "va": 287271100,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ANavigationPoint": {
+          "va": 278489568,
+          "basis": "The constructor passes both the UTF-16 ANavigationPoint allocation tag and NavigationPoint class name to the engine."
+        },
+        "_register_ANavigationPoint": {
+          "va": 278492528,
+          "basis": "Direct registration call after initializing the singleton for ANavigationPoint."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xb3390, directly called at RVA 0xb35c4. Its class constructor at RVA 0x969e0 identifies ANavigationPoint; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "c4a3684e546af86af965d3b96084df8e997bf79a487f33ebc4a9ce5139fa80bb",
+        "inputs_sha256": "9dcaba7d537efbe7364a196381395deb80b0c892495913af2725faa262983d6d"
+      }
+    },
+    {
+      "id": "cast-aphysicsvolume",
+      "offset": 734192,
+      "size": 85,
+      "rebuilt_symbol": "_cast_APhysicsVolume",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_APhysicsVolume": {
+          "va": 287271160,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_APhysicsVolume": {
+          "va": 278491136,
+          "basis": "The constructor passes both the UTF-16 APhysicsVolume allocation tag and PhysicsVolume class name to the engine."
+        },
+        "_register_APhysicsVolume": {
+          "va": 278499472,
+          "basis": "Direct registration call after initializing the singleton for APhysicsVolume."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xb33f0, directly called at RVA 0xb38dc. Its class constructor at RVA 0x97000 identifies APhysicsVolume; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "e51ca0f5f4ac7157bcc68635543ba4bc9fefb48ce8101cdb41cd434c544462de",
+        "inputs_sha256": "0a453fd20e53014ca31d17c21e5b56437a94b807b33ab203267b8cb824970aa0"
+      }
+    },
+    {
+      "id": "cast-ascout",
+      "offset": 734288,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AScout",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AScout": {
+          "va": 287271104,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AScout": {
+          "va": 278489680,
+          "basis": "The constructor passes both the UTF-16 AScout allocation tag and Scout class name to the engine."
+        },
+        "_register_AScout": {
+          "va": 278460096,
+          "basis": "Direct registration call after initializing the singleton for AScout."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xb3450, directly called at RVA 0xb42cf. Its class constructor at RVA 0x96a50 identifies AScout; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "58ea7eeddb0b47d5d1f9314c8749e473b6732e08ca13649cd3a011b1b17d000c",
+        "inputs_sha256": "8a6cfe1ae613903f4e6d9b8c40dc4b0a5d29226f253a648e303832b13802c76e"
+      }
+    },
+    {
+      "id": "cast-apawn",
+      "offset": 741968,
+      "size": 85,
+      "rebuilt_symbol": "_cast_APawn",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_APawn": {
+          "va": 287271404,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_APawn": {
+          "va": 278614496,
+          "basis": "The constructor passes both the UTF-16 APawn allocation tag and Pawn class name to the engine."
+        },
+        "_register_APawn": {
+          "va": 278595600,
+          "basis": "Direct registration call after initializing the singleton for APawn."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xb5250, directly called at RVA 0xb52fe. Its class constructor at RVA 0xb51e0 identifies APawn; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "b8a60ccb4149a108c756de22d30612831f403700dbb271bc5eda378bc2a20868",
+        "inputs_sha256": "9c5e4452836b1c9d7820b54f5c9a406f38d876d8feed7d7acb57eb89ae44005b"
+      }
+    },
+    {
+      "id": "cast-upackage",
+      "offset": 753840,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UPackage",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UPackage": {
+          "va": 288432236,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UPackage": {
+          "va": 281923328,
+          "basis": "The constructor passes both the UTF-16 UPackage allocation tag and Package class name to the engine."
+        },
+        "_register_UPackage": {
+          "va": 281909744,
+          "basis": "Direct registration call after initializing the singleton for UPackage."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0xb80b0, directly called at RVA 0xc13d0. Its class constructor at RVA 0x3dcf00 identifies UPackage; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "f5441c13be01fa25f16615828cbbcec3a5c30a34da251ebfce55700aeb05602d",
+        "inputs_sha256": "912ff6940a30bbb05148434ff04ccb9948073298457a26581e8ae261a7d95fc2"
+      }
+    },
+    {
+      "id": "cast-uskeletalmesh",
+      "offset": 1084096,
+      "size": 85,
+      "rebuilt_symbol": "_cast_USkeletalMesh",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_USkeletalMesh": {
+          "va": 287279848,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_USkeletalMesh": {
+          "va": 278933920,
+          "basis": "The constructor passes both the UTF-16 USkeletalMesh allocation tag and SkeletalMesh class name to the engine."
+        },
+        "_register_USkeletalMesh": {
+          "va": 278726192,
+          "basis": "Direct registration call after initializing the singleton for USkeletalMesh."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x108ac0, directly called at RVA 0x108e37. Its class constructor at RVA 0x1031a0 identifies USkeletalMesh; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "d586276de09e70ef7e77bf499763ad921bafaba199d608ff8e8d99a1de751cac",
+        "inputs_sha256": "de96a5d5352ae410336d9e3ff219eddfad0a51b1849e302d212c40eac4d372e1"
+      }
+    },
+    {
+      "id": "cast-uscx-particle-material",
+      "offset": 1201408,
+      "size": 85,
+      "rebuilt_symbol": "_cast_USCX_particle_material",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_USCX_particle_material": {
+          "va": 287283688,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_USCX_particle_material": {
+          "va": 279017664,
+          "basis": "The constructor passes both the UTF-16 USCX_particle_material allocation tag and SCX_particle_material class name to the engine."
+        },
+        "_register_USCX_particle_material": {
+          "va": 279008032,
+          "basis": "Direct registration call after initializing the singleton for USCX_particle_material."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x125500, directly called at RVA 0x12876f. Its class constructor at RVA 0x1178c0 identifies USCX_particle_material; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "cd5deba6645a5165c2a6881ab021176b409d4bcff95e183f1baefd1f657a4710",
+        "inputs_sha256": "634a1b4a7be751c8f2a642ca44fcb05bcf06f752afcc1789ac4bd8132dbcaa47"
+      }
+    },
+    {
+      "id": "cast-aplayercontroller",
+      "offset": 1248752,
+      "size": 85,
+      "rebuilt_symbol": "_cast_APlayerController",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_APlayerController": {
+          "va": 287271144,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_APlayerController": {
+          "va": 278490688,
+          "basis": "The constructor passes both the UTF-16 APlayerController allocation tag and PlayerController class name to the engine."
+        },
+        "_register_APlayerController": {
+          "va": 278497600,
+          "basis": "Direct registration call after initializing the singleton for APlayerController."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x130df0, directly called at RVA 0x133954. Its class constructor at RVA 0x96e40 identifies APlayerController; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "fe42970e0b1fdece8033b41932afc54dde134c5eff96abaa32e33074c8adccc2",
+        "inputs_sha256": "24a24ad23567a11ac8ebe2d514c13f805b52961a6203a5ebef5d4b95fb14593f"
+      }
+    },
+    {
+      "id": "cast-aactor",
+      "offset": 1248848,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AActor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AActor": {
+          "va": 287271032,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AActor": {
+          "va": 278488448,
+          "basis": "The constructor passes both the UTF-16 AActor allocation tag and Actor class name to the engine."
+        },
+        "_register_AActor": {
+          "va": 278458352,
+          "basis": "Direct registration call after initializing the singleton for AActor."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x130e50, directly called at RVA 0x1331de. Its class constructor at RVA 0x96580 identifies AActor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "7680af1b7793ecd26ee8000c917d4ea8d895678b471e48765654c0667941d7d5",
+        "inputs_sha256": "6b36b2a6afd4e91411baf4c69e551d837f2943572bb5de9da2d6b8c5206ad183"
+      }
+    },
+    {
+      "id": "cast-abrush",
+      "offset": 1248944,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ABrush",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ABrush": {
+          "va": 287271148,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ABrush": {
+          "va": 278490800,
+          "basis": "The constructor passes both the UTF-16 ABrush allocation tag and Brush class name to the engine."
+        },
+        "_register_ABrush": {
+          "va": 278494160,
+          "basis": "Direct registration call after initializing the singleton for ABrush."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x130eb0, directly called at RVA 0x133250. Its class constructor at RVA 0x96eb0 identifies ABrush; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "367e65d625e6821898e1d5d9d8acf238e3ad93c8a299c47341dd7fb272de1aef",
+        "inputs_sha256": "0e94cad91cb6cc0b7a7c83840168651e26b63c5972f6cd9cc891976a27513ab5"
+      }
+    },
+    {
+      "id": "cast-acamera",
+      "offset": 1249040,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ACamera",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ACamera": {
+          "va": 287271080,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ACamera": {
+          "va": 278489120,
+          "basis": "The constructor passes both the UTF-16 ACamera allocation tag and Camera class name to the engine."
+        },
+        "_register_ACamera": {
+          "va": 278498656,
+          "basis": "Direct registration call after initializing the singleton for ACamera."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x130f10, directly called at RVA 0x13e29a. Its class constructor at RVA 0x96820 identifies ACamera; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "bdf08880e4697ed4b2328a9621e7b868149690c08fd96f4d1d30fc4335f2e6c5",
+        "inputs_sha256": "321e50efed757f8395829c56c2ebb76247e613dbcfb3fe2a46a1430417615928"
+      }
+    },
+    {
+      "id": "cast-aterraininfo",
+      "offset": 1249136,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ATerrainInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ATerrainInfo": {
+          "va": 287286528,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ATerrainInfo": {
+          "va": 279383472,
+          "basis": "The constructor passes both the UTF-16 ATerrainInfo allocation tag and TerrainInfo class name to the engine."
+        },
+        "_register_ATerrainInfo": {
+          "va": 279373904,
+          "basis": "Direct registration call after initializing the singleton for ATerrainInfo."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x130f70, directly called at RVA 0x133589. Its class constructor at RVA 0x170db0 identifies ATerrainInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "d8c28bdcc4cb2798b75282a8842f06bc2d80230926cf226e8fc6755685dc6500",
+        "inputs_sha256": "72e4fca78891124accf09b67e2c119035f38a78d46a911d68a1fc26f8a57e3d5"
+      }
+    },
+    {
+      "id": "cast-askyzoneinfo",
+      "offset": 1249232,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ASkyZoneInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ASkyZoneInfo": {
+          "va": 287271088,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ASkyZoneInfo": {
+          "va": 278489344,
+          "basis": "The constructor passes both the UTF-16 ASkyZoneInfo allocation tag and SkyZoneInfo class name to the engine."
+        },
+        "_register_ASkyZoneInfo": {
+          "va": 278498928,
+          "basis": "Direct registration call after initializing the singleton for ASkyZoneInfo."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x130fd0, directly called at RVA 0x1336ea. Its class constructor at RVA 0x96900 identifies ASkyZoneInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "afe1e9dcac44f7784e9eac083c19af96c737a9a999ca215d1ad9c9fb9c1357d6",
+        "inputs_sha256": "d2fdbf675347f8dedc14b83892c14e547bd8069d2d211c277fd87b47e9d43a85"
+      }
+    },
+    {
+      "id": "cast-aeoceaninfo",
+      "offset": 1249328,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEOceanInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEOceanInfo": {
+          "va": 287286536,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEOceanInfo": {
+          "va": 279387120,
+          "basis": "The constructor passes both the UTF-16 AEOceanInfo allocation tag and EOceanInfo class name to the engine."
+        },
+        "_register_AEOceanInfo": {
+          "va": 279384288,
+          "basis": "Direct registration call after initializing the singleton for AEOceanInfo."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x131030, directly called at RVA 0x133770. Its class constructor at RVA 0x171bf0 identifies AEOceanInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "eae120ec2727b1df305402c02745749d0522c6f377b7fc02e981e2a77c2a2b5a",
+        "inputs_sha256": "7c30aa03f225de1d0dcd672cad2e4edb19a0712d7913b58a0938801795dd8e6b"
+      }
+    },
+    {
+      "id": "cast-aeoceanwaterinfo",
+      "offset": 1249424,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEOceanWaterInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEOceanWaterInfo": {
+          "va": 287271352,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEOceanWaterInfo": {
+          "va": 278589312,
+          "basis": "The constructor passes both the UTF-16 AEOceanWaterInfo allocation tag and EOceanWaterInfo class name to the engine."
+        },
+        "_register_AEOceanWaterInfo": {
+          "va": 278572976,
+          "basis": "Direct registration call after initializing the singleton for AEOceanWaterInfo."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x131090, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0xaef80 identifies AEOceanWaterInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "e45f57f45d32aaceec10af7e5cfc1af143f693f95132f03cb8825ddde0d3fcc3",
+        "inputs_sha256": "5ec1a7c136940e4bf27df91b7db12d85fe002c6f6e0fd07d969a286b5dc01378"
+      }
+    },
+    {
+      "id": "cast-ufloatproperty",
+      "offset": 1273600,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UFloatProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UFloatProperty": {
+          "va": 288432912,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UFloatProperty": {
+          "va": 281986608,
+          "basis": "The constructor passes both the UTF-16 UFloatProperty allocation tag and FloatProperty class name to the engine."
+        },
+        "_register_UFloatProperty": {
+          "va": 281982320,
+          "basis": "Direct registration call after initializing the singleton for UFloatProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x136f00, directly called at RVA 0x1374bc. Its class constructor at RVA 0x3ec630 identifies UFloatProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "f0c8f76604eb8baa3b6cc51d2af56f553fef17471d951926b7b43e70845d68e1",
+        "inputs_sha256": "fee727cf23e12dcf8be6c83f3629acdb0f331c74de1bd0f3d7e5db6cc47ba7df"
+      }
+    },
+    {
       "id": "game-load-menus",
       "offset": 1300176,
       "size": 113,
@@ -45,6 +1201,1196 @@
       "match": {
         "bytes_sha256": "446a278e1266dc2067d0d9e3e0d894f3343f2dccc899c8cca6cad631b788da7f",
         "inputs_sha256": "73f0a7de55187ea13e7b94cf3f4ddb78d5118529ea85265110447431f191c055"
+      }
+    },
+    {
+      "id": "cast-ainfo",
+      "offset": 1302272,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AInfo": {
+          "va": 287271128,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AInfo": {
+          "va": 278490352,
+          "basis": "The constructor passes both the UTF-16 AInfo allocation tag and Info class name to the engine."
+        },
+        "_register_AInfo": {
+          "va": 278493616,
+          "basis": "Direct registration call after initializing the singleton for AInfo."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x13df00, directly called at RVA 0x13e256. Its class constructor at RVA 0x96cf0 identifies AInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "89a2b78f2c112f18b45027ae34b9257b6c2ed535a26db3900d7a1d4f87a33b1e",
+        "inputs_sha256": "0f79d1e75665918878d80c999f596c12e6317005bb5533bec9c982fe3d00afbd"
+      }
+    },
+    {
+      "id": "cast-akeypoint",
+      "offset": 1302368,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AKeypoint",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AKeypoint": {
+          "va": 287271112,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AKeypoint": {
+          "va": 278489904,
+          "basis": "The constructor passes both the UTF-16 AKeypoint allocation tag and Keypoint class name to the engine."
+        },
+        "_register_AKeypoint": {
+          "va": 278492800,
+          "basis": "Direct registration call after initializing the singleton for AKeypoint."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x13df60, directly called at RVA 0x13e2a7. Its class constructor at RVA 0x96b30 identifies AKeypoint; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "70d4130002c35f1f79bf30ff75e7989de4ef0c932d161117755509b65c1c9e09",
+        "inputs_sha256": "f78a59a592be2ee44ffa8ef66ef0ebaf3277d4631dc18032202ed630932a8be8"
+      }
+    },
+    {
+      "id": "cast-avolume",
+      "offset": 1302544,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AVolume",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AVolume": {
+          "va": 287271152,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AVolume": {
+          "va": 278490912,
+          "basis": "The constructor passes both the UTF-16 AVolume allocation tag and Volume class name to the engine."
+        },
+        "_register_AVolume": {
+          "va": 278497872,
+          "basis": "Direct registration call after initializing the singleton for AVolume."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x13e010, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x96f20 identifies AVolume; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "bf812acf1cc7c8804710170eaadbfd30c382c30d9c78908a3fbd906ff49202e6",
+        "inputs_sha256": "e96660877fdb50d068e6e1a42e05737971ca2be51d6f98f19ff0284e0b5dcc29"
+      }
+    },
+    {
+      "id": "cast-aplayerstart",
+      "offset": 1302640,
+      "size": 85,
+      "rebuilt_symbol": "_cast_APlayerStart",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_APlayerStart": {
+          "va": 287271108,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_APlayerStart": {
+          "va": 278489792,
+          "basis": "The constructor passes both the UTF-16 APlayerStart allocation tag and PlayerStart class name to the engine."
+        },
+        "_register_APlayerStart": {
+          "va": 278496784,
+          "basis": "Direct registration call after initializing the singleton for APlayerStart."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x13e070, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x96ac0 identifies APlayerStart; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "d478b6bc66cb75ef68e000c52a0d977ae38c0fff7b50f80dbd81b760c78852e4",
+        "inputs_sha256": "9cd18d1a7d120e2892fb95c54e2a6caec2814d9ac61ea46f41a921b8d7bd7243"
+      }
+    },
+    {
+      "id": "cast-umaterial",
+      "offset": 1517344,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UMaterial",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UMaterial": {
+          "va": 287268684,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UMaterial": {
+          "va": 278312512,
+          "basis": "The constructor passes both the UTF-16 UMaterial allocation tag and Material class name to the engine."
+        },
+        "_register_UMaterial": {
+          "va": 278312624,
+          "basis": "Direct registration call after initializing the singleton for UMaterial."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x172720, directly called at RVA 0x174a4c. Its class constructor at RVA 0x6b640 identifies UMaterial; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "ba2338099827d7894dcb0bbfce7f9e490a9366dc21e6d8b2fca668be7c488a39",
+        "inputs_sha256": "5f3db00c38749db0097704291dfe41c903fecebadd533d8c3921de7513eb7ad6"
+      }
+    },
+    {
+      "id": "cast-ustaticmesh",
+      "offset": 1596240,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UStaticMesh",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UStaticMesh": {
+          "va": 287271412,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UStaticMesh": {
+          "va": 278677904,
+          "basis": "The constructor passes both the UTF-16 UStaticMesh allocation tag and StaticMesh class name to the engine."
+        },
+        "_register_UStaticMesh": {
+          "va": 278622736,
+          "basis": "Direct registration call after initializing the singleton for UStaticMesh."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x185b50, directly called at RVA 0x18609d. Its class constructor at RVA 0xc4990 identifies UStaticMesh; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "36583bae5aba3a7675a0082ef579e6594379b16cc7bfe9cc49eecfa0798e6e05",
+        "inputs_sha256": "3d3717f67a03c200eb3f1e0b9e167ae3fe2ba1ee31e9b9c8da14f8eb369613dc"
+      }
+    },
+    {
+      "id": "cast-alight",
+      "offset": 1657200,
+      "size": 85,
+      "rebuilt_symbol": "_cast_ALight",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_ALight": {
+          "va": 287271048,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_ALight": {
+          "va": 278491872,
+          "basis": "The constructor passes both the UTF-16 ALight allocation tag and Light class name to the engine."
+        },
+        "_register_ALight": {
+          "va": 278491984,
+          "basis": "Direct registration call after initializing the singleton for ALight."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x194970, directly called at RVA 0x194afb. Its class constructor at RVA 0x972e0 identifies ALight; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "36a586bbaa8e898a643d85d4b9326bab88cfa9c0e23a19be91967fcb5378f0e7",
+        "inputs_sha256": "988e1535e6d324920f757b3a245e01d8c9dd714ba79c33cf4bf6de45f72a45e0"
+      }
+    },
+    {
+      "id": "cast-uplayerinput",
+      "offset": 1657296,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UPlayerInput",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UPlayerInput": {
+          "va": 287282508,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UPlayerInput": {
+          "va": 278941920,
+          "basis": "The constructor passes both the UTF-16 UPlayerInput allocation tag and PlayerInput class name to the engine."
+        },
+        "_register_UPlayerInput": {
+          "va": 278935088,
+          "basis": "Direct registration call after initializing the singleton for UPlayerInput."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1949d0, directly called at RVA 0x194d28. Its class constructor at RVA 0x1050e0 identifies UPlayerInput; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "d4b81b92d6c6cab9d0602b3d11d4a2446b0bf699769cbc040aab5896713c387c",
+        "inputs_sha256": "92a8b4e053aa80200b793de79eff4e76e6de189b57efda829558168b17070615"
+      }
+    },
+    {
+      "id": "cast-aerainvolume",
+      "offset": 1832288,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AERainVolume",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AERainVolume": {
+          "va": 287286540,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AERainVolume": {
+          "va": 279400624,
+          "basis": "The constructor passes both the UTF-16 AERainVolume allocation tag and ERainVolume class name to the engine."
+        },
+        "_register_AERainVolume": {
+          "va": 279388592,
+          "basis": "Direct registration call after initializing the singleton for AERainVolume."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1bf560, directly called at RVA 0x1bff57. Its class constructor at RVA 0x1750b0 identifies AERainVolume; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "5ba474524c7fa492f447cc3e58de2f50457f4883d8ac809732a2311340309a7d",
+        "inputs_sha256": "9f07b0e6732e3d8c0964e2a19da741030ae2cb06b0a95ff27e79f539a825305f"
+      }
+    },
+    {
+      "id": "cast-aantiportalactor",
+      "offset": 1846368,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AAntiPortalActor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AAntiPortalActor": {
+          "va": 287271168,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AAntiPortalActor": {
+          "va": 278491360,
+          "basis": "The constructor passes both the UTF-16 AAntiPortalActor allocation tag and AntiPortalActor class name to the engine."
+        },
+        "_register_AAntiPortalActor": {
+          "va": 278494432,
+          "basis": "Direct registration call after initializing the singleton for AAntiPortalActor."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1c2c60, directly called at RVA 0x1c2aca. Its class constructor at RVA 0x970e0 identifies AAntiPortalActor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "4dfd1612cd25c5a5e85950cb7eaa0e33242eda5ec8504de15c704bd24ea99cd6",
+        "inputs_sha256": "bd7866e301f9c5102a3cd7f355829b2091c1e48037c46fbf6cdf731e7176719d"
+      }
+    },
+    {
+      "id": "cast-uscx-reflection-material",
+      "offset": 2042512,
+      "size": 85,
+      "rebuilt_symbol": "_cast_USCX_reflection_material",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_USCX_reflection_material": {
+          "va": 287283700,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_USCX_reflection_material": {
+          "va": 279018048,
+          "basis": "The constructor passes both the UTF-16 USCX_reflection_material allocation tag and SCX_reflection_material class name to the engine."
+        },
+        "_register_USCX_reflection_material": {
+          "va": 279009552,
+          "basis": "Direct registration call after initializing the singleton for USCX_reflection_material."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x1f2a90, directly called at RVA 0x1f573d. Its class constructor at RVA 0x117a40 identifies USCX_reflection_material; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "398c1403d43ae40df5b29374fbc02fdf7b2f98b6407ab8751c03f82c0ae96fe6",
+        "inputs_sha256": "f70db12683d5784218bf85a2a726d9e18dcad917d3684cac3144fad52798dddd"
+      }
+    },
+    {
+      "id": "cast-aecoopplayercontroller",
+      "offset": 2229280,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AECoopPlayerController",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AECoopPlayerController": {
+          "va": 287502000,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AECoopPlayerController": {
+          "va": 280844096,
+          "basis": "The constructor passes both the UTF-16 AECoopPlayerController allocation tag and ECoopPlayerController class name to the engine."
+        },
+        "_register_AECoopPlayerController": {
+          "va": 280833984,
+          "basis": "Direct registration call after initializing the singleton for AECoopPlayerController."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x220420, directly called at RVA 0x22056d. Its class constructor at RVA 0x2d5740 identifies AECoopPlayerController; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "ddd004fdbd5ae7b8685c9ca83bd75fc766cb3766e929507bd63b8a74c9b4d77f",
+        "inputs_sha256": "51ae0b0bc2c23d8d0438395e6891dea33bf4396ec208c5bc3f0edb54d3cede8a"
+      }
+    },
+    {
+      "id": "cast-aemaingun",
+      "offset": 2269952,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEMainGun",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEMainGun": {
+          "va": 287502264,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEMainGun": {
+          "va": 280985280,
+          "basis": "The constructor passes both the UTF-16 AEMainGun allocation tag and EMainGun class name to the engine."
+        },
+        "_register_AEMainGun": {
+          "va": 280979744,
+          "basis": "Direct registration call after initializing the singleton for AEMainGun."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x22a300, directly called at RVA 0x22ab2e. Its class constructor at RVA 0x2f7ec0 identifies AEMainGun; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "3d4c2260e28965ef4763b1686e8e1902dc9e474b812b08e8f595ecba19d72ab4",
+        "inputs_sha256": "0a8b059e01c9b8cb58896e1724daceea6ad95d5e15e0e01eec02a71fe69a9e94"
+      }
+    },
+    {
+      "id": "cast-aeweapon",
+      "offset": 2270048,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEWeapon",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEWeapon": {
+          "va": 287502284,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEWeapon": {
+          "va": 280993808,
+          "basis": "The constructor passes both the UTF-16 AEWeapon allocation tag and EWeapon class name to the engine."
+        },
+        "_register_AEWeapon": {
+          "va": 280985968,
+          "basis": "Direct registration call after initializing the singleton for AEWeapon."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x22a360, directly called at RVA 0x22ac94. Its class constructor at RVA 0x2fa010 identifies AEWeapon; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "e4965a9bee75da78b97b4017fe1a85b3303ecd74a2dba7fa5603255adcfb2646",
+        "inputs_sha256": "865492068a214a99ea924749495d26460b4e47c23fa26d5d72e841b093691245"
+      }
+    },
+    {
+      "id": "cast-ucomputeraccesscomponent",
+      "offset": 2280624,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UComputerAccessComponent",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UComputerAccessComponent": {
+          "va": 287504668,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UComputerAccessComponent": {
+          "va": 281282224,
+          "basis": "The constructor passes both the UTF-16 UComputerAccessComponent allocation tag and ComputerAccessComponent class name to the engine."
+        },
+        "_register_UComputerAccessComponent": {
+          "va": 281277984,
+          "basis": "Direct registration call after initializing the singleton for UComputerAccessComponent."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x22ccb0, directly called at RVA 0x2316d3. Its class constructor at RVA 0x3406b0 identifies UComputerAccessComponent; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "2470635e9424d4aaad963dbee119731a966ca7ecd81212f7caeae01d71ca25f3",
+        "inputs_sha256": "49b6c28fd462059ca0466b69405a766a4abde92cc1d95ce52da7560c773df4f7"
+      }
+    },
+    {
+      "id": "cast-ucomputeremail",
+      "offset": 2280720,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UComputerEmail",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UComputerEmail": {
+          "va": 287504672,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UComputerEmail": {
+          "va": 281282336,
+          "basis": "The constructor passes both the UTF-16 UComputerEmail allocation tag and ComputerEmail class name to the engine."
+        },
+        "_register_UComputerEmail": {
+          "va": 281284112,
+          "basis": "Direct registration call after initializing the singleton for UComputerEmail."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x22cd10, directly called at RVA 0x230658. Its class constructor at RVA 0x340720 identifies UComputerEmail; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "19fd57b56fc7af249bd602f7315ea2ca67ae89990af2d724765cc983197f03e4",
+        "inputs_sha256": "1e945bc8ea487e08ab61bc5efb181b90b575a8d3870f87a6fc1c04c945417645"
+      }
+    },
+    {
+      "id": "cast-ucomputerimage",
+      "offset": 2280816,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UComputerImage",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UComputerImage": {
+          "va": 287504676,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UComputerImage": {
+          "va": 281286784,
+          "basis": "The constructor passes both the UTF-16 UComputerImage allocation tag and ComputerImage class name to the engine."
+        },
+        "_register_UComputerImage": {
+          "va": 281284384,
+          "basis": "Direct registration call after initializing the singleton for UComputerImage."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x22cd70, directly called at RVA 0x23094e. Its class constructor at RVA 0x341880 identifies UComputerImage; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "6963d614bc985df14a2903e6a2d61a333bab3141f9dea7e66c9d1bec421de1d5",
+        "inputs_sha256": "70cb980271b684d5cc25d3530bfd4862dc6ff6e0d9e29311e5e7d2b2dbe37720"
+      }
+    },
+    {
+      "id": "cast-ucomputermusic",
+      "offset": 2280912,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UComputerMusic",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UComputerMusic": {
+          "va": 287504680,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UComputerMusic": {
+          "va": 281286896,
+          "basis": "The constructor passes both the UTF-16 UComputerMusic allocation tag and ComputerMusic class name to the engine."
+        },
+        "_register_UComputerMusic": {
+          "va": 281284656,
+          "basis": "Direct registration call after initializing the singleton for UComputerMusic."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x22cdd0, directly called at RVA 0x230a19. Its class constructor at RVA 0x3418f0 identifies UComputerMusic; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "9368bac6eb352e9787dd3d360613e63d0add9061ef73add8078fb335f4034c89",
+        "inputs_sha256": "94a46f0b8d5eebaf7de402d8d7b080b4b511c6eb31303a55f114376307c81e7f"
+      }
+    },
+    {
+      "id": "cast-aehandgun",
+      "offset": 2520432,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEHandGun",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEHandGun": {
+          "va": 287502312,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEHandGun": {
+          "va": 280998320,
+          "basis": "The constructor passes both the UTF-16 AEHandGun allocation tag and EHandGun class name to the engine."
+        },
+        "_register_AEHandGun": {
+          "va": 280995920,
+          "basis": "Direct registration call after initializing the singleton for AEHandGun."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x267570, directly called at RVA 0x269b56. Its class constructor at RVA 0x2fb1b0 identifies AEHandGun; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "b02d315483409933bdc3b0979a7a3a84d207469198d04ec66fd8b4570225431b",
+        "inputs_sha256": "bd73ad468f9350e6180d5a65bff428311f698471bd7512bc7fffb0765234501a"
+      }
+    },
+    {
+      "id": "cast-aestickycamera",
+      "offset": 2557280,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEStickyCamera",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEStickyCamera": {
+          "va": 287504968,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEStickyCamera": {
+          "va": 281360080,
+          "basis": "The constructor passes both the UTF-16 AEStickyCamera allocation tag and EStickyCamera class name to the engine."
+        },
+        "_register_AEStickyCamera": {
+          "va": 281353968,
+          "basis": "Direct registration call after initializing the singleton for AEStickyCamera."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x270560, directly called at RVA 0x27079f. Its class constructor at RVA 0x3536d0 identifies AEStickyCamera; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "7c9c6d4915a3ef1c17d1cd20fe31c5443f4b050c39bbad3857aa4bf5a5e31203",
+        "inputs_sha256": "d6e791bd68a0a6011b3d223bdb7186ee5bd6947865ec394d38edf80de7dbaec0"
+      }
+    },
+    {
+      "id": "cast-aeaccessory",
+      "offset": 2629440,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEAccessory",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEAccessory": {
+          "va": 287502180,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEAccessory": {
+          "va": 280950368,
+          "basis": "The constructor passes both the UTF-16 AEAccessory allocation tag and EAccessory class name to the engine."
+        },
+        "_register_AEAccessory": {
+          "va": 280949488,
+          "basis": "Direct registration call after initializing the singleton for AEAccessory."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x281f40, directly called at RVA 0x28ae1b. Its class constructor at RVA 0x2ef660 identifies AEAccessory; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "6f8002c7ac75fd206447f7d74c214344082ef568ba5b7b251893bdfb35bca496",
+        "inputs_sha256": "9a580822ceb26e855aab698f4d8b080ddc4a1928616a622fb70f6d1c1b2ef566"
+      }
+    },
+    {
+      "id": "cast-aeflashlight",
+      "offset": 2629536,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEFlashLight",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEFlashLight": {
+          "va": 287502224,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEFlashLight": {
+          "va": 280963216,
+          "basis": "The constructor passes both the UTF-16 AEFlashLight allocation tag and EFlashLight class name to the engine."
+        },
+        "_register_AEFlashLight": {
+          "va": 280960144,
+          "basis": "Direct registration call after initializing the singleton for AEFlashLight."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x281fa0, directly called at RVA 0x2876db. Its class constructor at RVA 0x2f2890 identifies AEFlashLight; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "cc0165dc3c2caf6e1ef734ff4a6984b2a3d0fd850a7089e7bff00355c273211b",
+        "inputs_sha256": "0e9d789bf1451d1c017761d9958e3f00a337e50e7cf5243a05cce14407bf1c45"
+      }
+    },
+    {
+      "id": "cast-aeaicontroller",
+      "offset": 2699520,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEAIController",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEAIController": {
+          "va": 287500892,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEAIController": {
+          "va": 280730592,
+          "basis": "The constructor passes both the UTF-16 AEAIController allocation tag and EAIController class name to the engine."
+        },
+        "_register_AEAIController": {
+          "va": 280616560,
+          "basis": "Direct registration call after initializing the singleton for AEAIController."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x293100, directly called at RVA 0x293e0b. Its class constructor at RVA 0x2b9be0 identifies AEAIController; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "377fbcfd947806d215033bc7e3fe0988627005fc3911c4019000d99853dbff86",
+        "inputs_sha256": "05da333eec00718f3e59700daa575bf1d48feaa319d9f472ca62fd8875de066f"
+      }
+    },
+    {
+      "id": "cast-aegameplayobject",
+      "offset": 2901744,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEGameplayObject",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEGameplayObject": {
+          "va": 287502160,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEGameplayObject": {
+          "va": 280947472,
+          "basis": "The constructor passes both the UTF-16 AEGameplayObject allocation tag and EGameplayObject class name to the engine."
+        },
+        "_register_AEGameplayObject": {
+          "va": 280928560,
+          "basis": "Direct registration call after initializing the singleton for AEGameplayObject."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2c46f0, directly called at RVA 0x2cc34b. Its class constructor at RVA 0x2eeb10 identifies AEGameplayObject; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "4c91bed9c448b6c2031aca74f4eb7c91d6461b1da35bef0c745a13ff2b48266e",
+        "inputs_sha256": "1a0a771b7d877c5ef0f83ceeaf2abe9a8ffca754d013dcdc8c37d8de3318638a"
+      }
+    },
+    {
+      "id": "cast-aebasedoor",
+      "offset": 3038464,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEBaseDoor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEBaseDoor": {
+          "va": 287502188,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEBaseDoor": {
+          "va": 280958336,
+          "basis": "The constructor passes both the UTF-16 AEBaseDoor allocation tag and EBaseDoor class name to the engine."
+        },
+        "_register_AEBaseDoor": {
+          "va": 280951248,
+          "basis": "Direct registration call after initializing the singleton for AEBaseDoor."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2e5d00, directly called at RVA 0x2f17cf. Its class constructor at RVA 0x2f1580 identifies AEBaseDoor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "69ff485734cf9fad269e5e5d75767d687ec7e65f10dfa59d91e60e1e34ad21e5",
+        "inputs_sha256": "86eadec8c5ee18f406c06958431afd02cd37991170176735dea526e47bff120c"
+      }
+    },
+    {
+      "id": "cast-aeambiancesplitter",
+      "offset": 3046288,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEAmbianceSplitter",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEAmbianceSplitter": {
+          "va": 287502096,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEAmbianceSplitter": {
+          "va": 280914016,
+          "basis": "The constructor passes both the UTF-16 AEAmbianceSplitter allocation tag and EAmbianceSplitter class name to the engine."
+        },
+        "_register_AEAmbianceSplitter": {
+          "va": 280908704,
+          "basis": "Direct registration call after initializing the singleton for AEAmbianceSplitter."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2e7b90, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x2e6860 identifies AEAmbianceSplitter; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "393358fdbf8c7b0d5995188688579311cee5a9ce8c442a6bc007323d0bfe8e63",
+        "inputs_sha256": "f29379b7e46df1c1d162f3f7ceedba47689ea2e04a1dd381f2645be2a7f272ef"
+      }
+    },
+    {
+      "id": "cast-aevolume",
+      "offset": 3061520,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEVolume",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEVolume": {
+          "va": 287500292,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEVolume": {
+          "va": 280475824,
+          "basis": "The constructor passes both the UTF-16 AEVolume allocation tag and EVolume class name to the engine."
+        },
+        "_register_AEVolume": {
+          "va": 280473056,
+          "basis": "Direct registration call after initializing the singleton for AEVolume."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2eb710, directly called at RVA 0x2ec765. Its class constructor at RVA 0x27b8b0 identifies AEVolume; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "8da6951c70e1ccbf91cf77a6c5295d7bb35429d923c2488d477907c359936a2b",
+        "inputs_sha256": "0a00c6ee8c38158fbb1a0d25e84c2c68a9b3fd9735251478d8f0cfc89a8ecf79"
+      }
+    },
+    {
+      "id": "cast-aedynamiclight",
+      "offset": 3089088,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEDynamicLight",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEDynamicLight": {
+          "va": 287503064,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEDynamicLight": {
+          "va": 281117392,
+          "basis": "The constructor passes both the UTF-16 AEDynamicLight allocation tag and EDynamicLight class name to the engine."
+        },
+        "_register_AEDynamicLight": {
+          "va": 281117504,
+          "basis": "Direct registration call after initializing the singleton for AEDynamicLight."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2f22c0, directly called at RVA 0x2f239d. Its class constructor at RVA 0x3182d0 identifies AEDynamicLight; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "151a1108439c9697fcd4a88e79e2de92a43a39a946006e057124d6d436e75649",
+        "inputs_sha256": "d5e3d27ad70aa4cbde61642fa8746d9bde9ab92086419c4b386c791f1d310314"
+      }
+    },
+    {
+      "id": "cast-aeweaponattachment",
+      "offset": 3109120,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEWeaponAttachment",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEWeaponAttachment": {
+          "va": 287502320,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEWeaponAttachment": {
+          "va": 281008592,
+          "basis": "The constructor passes both the UTF-16 AEWeaponAttachment allocation tag and EWeaponAttachment class name to the engine."
+        },
+        "_register_AEWeaponAttachment": {
+          "va": 281000176,
+          "basis": "Direct registration call after initializing the singleton for AEWeaponAttachment."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2f7100, directly called at RVA 0x2f73d8. Its class constructor at RVA 0x2fd9d0 identifies AEWeaponAttachment; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "7a69d284487421bc7a2f86be7d5dd8cd7a44b0aa884d84eff035fcd623e0019a",
+        "inputs_sha256": "c76a7c20ad38412c6b14e8d340194cde15ff1abb5997238ba2fb7fa6547329e7"
+      }
+    },
+    {
+      "id": "cast-aemuzzleflash",
+      "offset": 3115376,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEMuzzleFlash",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEMuzzleFlash": {
+          "va": 287502664,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEMuzzleFlash": {
+          "va": 281049168,
+          "basis": "The constructor passes both the UTF-16 AEMuzzleFlash allocation tag and EMuzzleFlash class name to the engine."
+        },
+        "_register_AEMuzzleFlash": {
+          "va": 281048736,
+          "basis": "Direct registration call after initializing the singleton for AEMuzzleFlash."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2f8970, directly called at RVA 0x2f8c39. Its class constructor at RVA 0x307850 identifies AEMuzzleFlash; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "5b18d6cbd73897802db8a7bf7a0912be17fec871ffa704afb02404830ab43844",
+        "inputs_sha256": "01ef253f39df070ab35bf6c57b3fcc8d155764e1edc1b6ba5401dec5015b07a3"
+      }
+    },
+    {
+      "id": "cast-aewallhit",
+      "offset": 3115472,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEWallHit",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEWallHit": {
+          "va": 287503016,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEWallHit": {
+          "va": 281085920,
+          "basis": "The constructor passes both the UTF-16 AEWallHit allocation tag and EWallHit class name to the engine."
+        },
+        "_register_AEWallHit": {
+          "va": 281083152,
+          "basis": "Direct registration call after initializing the singleton for AEWallHit."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2f89d0, directly called at RVA 0x2f8d5d. Its class constructor at RVA 0x3107e0 identifies AEWallHit; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "9f0d43b625eae9d290b6cd31cde18e909c279dd6f645282d5e60fe20a0610894",
+        "inputs_sha256": "043820cbe07b3a696d4452f8b1ed1ef172c12e863ca967c3ee9770903773d965"
+      }
+    },
+    {
+      "id": "cast-aeplayercontroller",
+      "offset": 3139328,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEPlayerController",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEPlayerController": {
+          "va": 287501576,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEPlayerController": {
+          "va": 280833744,
+          "basis": "The constructor passes both the UTF-16 AEPlayerController allocation tag and EPlayerController class name to the engine."
+        },
+        "_register_AEPlayerController": {
+          "va": 280745728,
+          "basis": "Direct registration call after initializing the singleton for AEPlayerController."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x2fe700, directly called at RVA 0x2fe770. Its class constructor at RVA 0x2d2ed0 identifies AEPlayerController; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "4d2490fc9c6f7ba1281a6b33c3c5aa5adcda50aa253fd0662bfa21ee479d8ec5",
+        "inputs_sha256": "1447c3fb220739f1a4fd6d36ef3c175546dd216a3d9b0e48aaa2c8d5b2ac6d6c"
+      }
+    },
+    {
+      "id": "cast-aepawn",
+      "offset": 3159200,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEPawn",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEPawn": {
+          "va": 287500308,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEPawn": {
+          "va": 280545056,
+          "basis": "The constructor passes both the UTF-16 AEPawn allocation tag and EPawn class name to the engine."
+        },
+        "_register_AEPawn": {
+          "va": 280485504,
+          "basis": "Direct registration call after initializing the singleton for AEPawn."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3034a0, directly called at RVA 0x30357f. Its class constructor at RVA 0x28c720 identifies AEPawn; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "4766bb94b5ef0f503a0b2df9d0c23dc34ce1f07e1bb1be9625311b14d6f875e3",
+        "inputs_sha256": "45cbb6a14b38b43fcca8ec6f59aa3f449f75c210e3aced646e687ae62300f16d"
+      }
+    },
+    {
+      "id": "cast-aeinventoryitem",
+      "offset": 3165104,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEInventoryItem",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEInventoryItem": {
+          "va": 287502260,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEInventoryItem": {
+          "va": 280978288,
+          "basis": "The constructor passes both the UTF-16 AEInventoryItem allocation tag and EInventoryItem class name to the engine."
+        },
+        "_register_AEInventoryItem": {
+          "va": 280977840,
+          "basis": "Direct registration call after initializing the singleton for AEInventoryItem."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x304bb0, directly called at RVA 0x304c17. Its class constructor at RVA 0x2f6370 identifies AEInventoryItem; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "622e9bdb1fa0d308895e6b5ba63fb5aa4947bd933f433258ef93d7152a90153a",
+        "inputs_sha256": "cd14ca10b462645eafbe89d2c14ebc0a08f94c4b38c44f0a0f5dd2d673c6cc20"
+      }
+    },
+    {
+      "id": "cast-aeaipawn",
+      "offset": 3175072,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEAIPawn",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEAIPawn": {
+          "va": 287503068,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEAIPawn": {
+          "va": 281141376,
+          "basis": "The constructor passes both the UTF-16 AEAIPawn allocation tag and EAIPawn class name to the engine."
+        },
+        "_register_AEAIPawn": {
+          "va": 281120112,
+          "basis": "Direct registration call after initializing the singleton for AEAIPawn."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3072a0, directly called at RVA 0x307341. Its class constructor at RVA 0x31e080 identifies AEAIPawn; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "b6aedd349e2fabaa837933ac0bed673e25500c8801b094b04c2c5b06918ec674",
+        "inputs_sha256": "6724fb5404ede22144dcac81be95ba5da1ed822cf12e92179b540597bd3db938"
       }
     },
     {
@@ -82,6 +2428,414 @@
       }
     },
     {
+      "id": "cast-aeocclusionzone",
+      "offset": 3216704,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEOcclusionZone",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEOcclusionZone": {
+          "va": 287502104,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEOcclusionZone": {
+          "va": 280914240,
+          "basis": "The constructor passes both the UTF-16 AEOcclusionZone allocation tag and EOcclusionZone class name to the engine."
+        },
+        "_register_AEOcclusionZone": {
+          "va": 280909248,
+          "basis": "Direct registration call after initializing the singleton for AEOcclusionZone."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x311540, directly called at RVA 0x311628. Its class constructor at RVA 0x2e6940 identifies AEOcclusionZone; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "8efe3f0cfb201509f23a602f16d8e0424577b5cf82495cbaea263a8cefb57a11",
+        "inputs_sha256": "a3ae52860cd4208e26813c8923f3fc2c1fb870eff4ea60c82d5b9f87549abc15"
+      }
+    },
+    {
+      "id": "cast-aepattern",
+      "offset": 3221616,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEPattern",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEPattern": {
+          "va": 287500664,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEPattern": {
+          "va": 280599984,
+          "basis": "The constructor passes both the UTF-16 AEPattern allocation tag and EPattern class name to the engine."
+        },
+        "_register_AEPattern": {
+          "va": 280552848,
+          "basis": "Direct registration call after initializing the singleton for AEPattern."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x312870, directly called at RVA 0x316442. Its class constructor at RVA 0x299db0 identifies AEPattern; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "1e79661ceae4aff030dd52c1897ce6d8194c7302cb1de95c3ca56e0a901de7c1",
+        "inputs_sha256": "3993297a2c7b182bdc45a3b4aeb004971b064fc154cbbce8ad08d6503cfd6786"
+      }
+    },
+    {
+      "id": "cast-aezoneinfo",
+      "offset": 3221712,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEZoneInfo",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEZoneInfo": {
+          "va": 287503028,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEZoneInfo": {
+          "va": 281090400,
+          "basis": "The constructor passes both the UTF-16 AEZoneInfo allocation tag and EZoneInfo class name to the engine."
+        },
+        "_register_AEZoneInfo": {
+          "va": 281088640,
+          "basis": "Direct registration call after initializing the singleton for AEZoneInfo."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3128d0, directly called at RVA 0x31475e. Its class constructor at RVA 0x311960 identifies AEZoneInfo; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "bffeb3b49027a0b99572ac55a0223c104361ea154835b33b3e5f04a70e54432e",
+        "inputs_sha256": "aceb3278e1450ad314a6ef17efe5b13a5d94c0c2645ffa27623be68579ad5630"
+      }
+    },
+    {
+      "id": "cast-aeswitchobject",
+      "offset": 3390720,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AESwitchObject",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AESwitchObject": {
+          "va": 287505100,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AESwitchObject": {
+          "va": 281401920,
+          "basis": "The constructor passes both the UTF-16 AESwitchObject allocation tag and ESwitchObject class name to the engine."
+        },
+        "_register_AESwitchObject": {
+          "va": 281400480,
+          "basis": "Direct registration call after initializing the singleton for AESwitchObject."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x33bd00, directly called at RVA 0x33be8e. Its class constructor at RVA 0x35da40 identifies AESwitchObject; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "e86808091009047667883d71a7f1f46f492366868398bb39941052cb6fc65e2d",
+        "inputs_sha256": "1e99db846e485902362a789ce1c1100eda9431a8200b3812724631655dd0ae33"
+      }
+    },
+    {
+      "id": "cast-aeelevatorpanel",
+      "offset": 3390816,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEElevatorPanel",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEElevatorPanel": {
+          "va": 287504844,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEElevatorPanel": {
+          "va": 281339696,
+          "basis": "The constructor passes both the UTF-16 AEElevatorPanel allocation tag and EElevatorPanel class name to the engine."
+        },
+        "_register_AEElevatorPanel": {
+          "va": 281331488,
+          "basis": "Direct registration call after initializing the singleton for AEElevatorPanel."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x33bd60, directly called at RVA 0x33be96. Its class constructor at RVA 0x34e730 identifies AEElevatorPanel; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "d9ebc9d71e6698a65d895b508fce7e8eb5288a2f1bd18eea3e253ed7f455a89e",
+        "inputs_sha256": "22bee6ddf20cef80c6450dd8645bcdb41d9ba3af77a5c38ea0df11810fc40e73"
+      }
+    },
+    {
+      "id": "cast-aedoorinteraction",
+      "offset": 3395568,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEDoorInteraction",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEDoorInteraction": {
+          "va": 287505376,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEDoorInteraction": {
+          "va": 281421376,
+          "basis": "The constructor passes both the UTF-16 AEDoorInteraction allocation tag and EDoorInteraction class name to the engine."
+        },
+        "_register_AEDoorInteraction": {
+          "va": 281414000,
+          "basis": "Direct registration call after initializing the singleton for AEDoorInteraction."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x33cff0, directly called at RVA 0x33d42b. Its class constructor at RVA 0x362640 identifies AEDoorInteraction; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "852032337fff99d87663ae64ae81fc37186c9d085ac60627f5c0f3dd49fb14bb",
+        "inputs_sha256": "560e150738a273c5d69ce6202beace2fdbc7f92faba3fabd06b96c6716562584"
+      }
+    },
+    {
+      "id": "cast-aecomputerinteraction",
+      "offset": 3406080,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEComputerInteraction",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEComputerInteraction": {
+          "va": 287505180,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEComputerInteraction": {
+          "va": 281410640,
+          "basis": "The constructor passes both the UTF-16 AEComputerInteraction allocation tag and EComputerInteraction class name to the engine."
+        },
+        "_register_AEComputerInteraction": {
+          "va": 281405920,
+          "basis": "Direct registration call after initializing the singleton for AEComputerInteraction."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x33f900, directly called at RVA 0x33fa2b. Its class constructor at RVA 0x35fc50 identifies AEComputerInteraction; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "e48d137e9d2b48f826a34cc8a79365f41cb08cfdbc5a10b3298abaeb5ea6d47c",
+        "inputs_sha256": "77e84a0f904aa0e8e1d26955e098002d796091dd447fb1bde2106f4f84949562"
+      }
+    },
+    {
+      "id": "cast-aekeypad",
+      "offset": 3426144,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEKeyPad",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEKeyPad": {
+          "va": 287504804,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEKeyPad": {
+          "va": 281326096,
+          "basis": "The constructor passes both the UTF-16 AEKeyPad allocation tag and EKeyPad class name to the engine."
+        },
+        "_register_AEKeyPad": {
+          "va": 281319376,
+          "basis": "Direct registration call after initializing the singleton for AEKeyPad."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x344760, directly called at RVA 0x344ddc. Its class constructor at RVA 0x34b210 identifies AEKeyPad; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "a75e1e6d5a18d34104cb03353737158355aa05ab6ae5f3fa9b9eff145b721530",
+        "inputs_sha256": "98feff28077c0b159f197e3f1243902792473b1cc163cd24ef8ce41c29b7d3f5"
+      }
+    },
+    {
+      "id": "cast-aemissileinteraction",
+      "offset": 3426240,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEMissileInteraction",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEMissileInteraction": {
+          "va": 287505840,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEMissileInteraction": {
+          "va": 281451632,
+          "basis": "The constructor passes both the UTF-16 AEMissileInteraction allocation tag and EMissileInteraction class name to the engine."
+        },
+        "_register_AEMissileInteraction": {
+          "va": 281449376,
+          "basis": "Direct registration call after initializing the singleton for AEMissileInteraction."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3447c0, directly called at RVA 0x344c53. Its class constructor at RVA 0x369c70 identifies AEMissileInteraction; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "75f1cdef6736252d0d4f7613bd56bc68b096d9221b435fb18396bf6458dbeef7",
+        "inputs_sha256": "dc1bef01f7e5ff461bceecbea867f2f3b33462eebf8d0c563bbabeb77f860786"
+      }
+    },
+    {
+      "id": "cast-aeswingingdoor",
+      "offset": 3448064,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AESwingingDoor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AESwingingDoor": {
+          "va": 287504616,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AESwingingDoor": {
+          "va": 281270576,
+          "basis": "The constructor passes both the UTF-16 AESwingingDoor allocation tag and ESwingingDoor class name to the engine."
+        },
+        "_register_AESwingingDoor": {
+          "va": 281266160,
+          "basis": "Direct registration call after initializing the singleton for AESwingingDoor."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x349d00, directly called at RVA 0x349f0c. Its class constructor at RVA 0x33d930 identifies AESwingingDoor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "4b0edf19c234015e22d4023757d71d173d97d89753bc482ddb32e2543df3c7e7",
+        "inputs_sha256": "98ef72b876788a820a7abdcbb5fe2a18cbbda90a4d82db057d6b02839f8c179e"
+      }
+    },
+    {
+      "id": "cast-aekeybutton",
+      "offset": 3453968,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEKeyButton",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEKeyButton": {
+          "va": 287504808,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEKeyButton": {
+          "va": 281326208,
+          "basis": "The constructor passes both the UTF-16 AEKeyButton allocation tag and EKeyButton class name to the engine."
+        },
+        "_register_AEKeyButton": {
+          "va": 281319648,
+          "basis": "Direct registration call after initializing the singleton for AEKeyButton."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x34b410, directly called at RVA 0x34b4f3. Its class constructor at RVA 0x34b280 identifies AEKeyButton; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "333eda49ae83b6e1c923d3be0fe73e5fc99b5e118810b2a56e1d87b944fbf1f2",
+        "inputs_sha256": "0a0d5689390c9a43f20a7c77d50b02c024924a6d8dbfaae7481c2c12324efdb3"
+      }
+    },
+    {
+      "id": "cast-aeelevatorinteraction",
+      "offset": 3460496,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEElevatorInteraction",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEElevatorInteraction": {
+          "va": 287505704,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEElevatorInteraction": {
+          "va": 281440352,
+          "basis": "The constructor passes both the UTF-16 AEElevatorInteraction allocation tag and EElevatorInteraction class name to the engine."
+        },
+        "_register_AEElevatorInteraction": {
+          "va": 281437840,
+          "basis": "Direct registration call after initializing the singleton for AEElevatorInteraction."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x34cd90, directly called at RVA 0x34ddcf. Its class constructor at RVA 0x367060 identifies AEElevatorInteraction; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "6a56310e97f1c37a99a3e9cd20f058efb7953256fd23a1fc213f63815e57f212",
+        "inputs_sha256": "35689ea02e4bc18ac4f21cc274da3ed618623f4d9cce1751dabba8752fa21a5f"
+      }
+    },
+    {
       "id": "generator-post-begin-play",
       "offset": 3471152,
       "size": 65,
@@ -105,6 +2859,1030 @@
       "match": {
         "bytes_sha256": "73a1be6f414557c0b551a0117cc2b286403c0d6da4edd53ddc33e4ec95bdd0af",
         "inputs_sha256": "f992f8f069a0b3c4bfb4b4a6b22f9028f965a11a12dc9b66b23a9466d16227e9"
+      }
+    },
+    {
+      "id": "cast-aefirevolume",
+      "offset": 3484384,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEFireVolume",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEFireVolume": {
+          "va": 287504592,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEFireVolume": {
+          "va": 281260512,
+          "basis": "The constructor passes both the UTF-16 AEFireVolume allocation tag and EFireVolume class name to the engine."
+        },
+        "_register_AEFireVolume": {
+          "va": 281255408,
+          "basis": "Direct registration call after initializing the singleton for AEFireVolume."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x352ae0, directly called at RVA 0x353aaa. Its class constructor at RVA 0x33b1e0 identifies AEFireVolume; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "a10881a4275712bf57448d9f30baf6a2ea6686358d3f1f4727a9ecde0908366c",
+        "inputs_sha256": "f61697a32dec483314668418394f76d42348414a08a4fa97ce328223437d8d1a"
+      }
+    },
+    {
+      "id": "cast-aevolumetrigger",
+      "offset": 3490624,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEVolumeTrigger",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEVolumeTrigger": {
+          "va": 287502176,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEVolumeTrigger": {
+          "va": 280947920,
+          "basis": "The constructor passes both the UTF-16 AEVolumeTrigger allocation tag and EVolumeTrigger class name to the engine."
+        },
+        "_register_AEVolumeTrigger": {
+          "va": 280929104,
+          "basis": "Direct registration call after initializing the singleton for AEVolumeTrigger."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x354340, directly called at RVA 0x35459e. Its class constructor at RVA 0x2eecd0 identifies AEVolumeTrigger; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "77ca9172e1edd868e061cc8afd1841428f77b31e8ad59a26112e4c15832f0776",
+        "inputs_sha256": "8a1d7b686c74f387850366664aad0bd9139d552f1f6a804943dc9b97c5fc8213"
+      }
+    },
+    {
+      "id": "cast-aepicklockinteraction",
+      "offset": 3494544,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEPickLockInteraction",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEPickLockInteraction": {
+          "va": 287505852,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEPickLockInteraction": {
+          "va": 281453232,
+          "basis": "The constructor passes both the UTF-16 AEPickLockInteraction allocation tag and EPickLockInteraction class name to the engine."
+        },
+        "_register_AEPickLockInteraction": {
+          "va": 281452064,
+          "basis": "Direct registration call after initializing the singleton for AEPickLockInteraction."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x355290, directly called at RVA 0x3555ee. Its class constructor at RVA 0x36a2b0 identifies AEPickLockInteraction; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "2baa0e4948f453597b26d739eefe9a31731c3895fd2e8b5514bcb2b9c89d95c7",
+        "inputs_sha256": "babdde4f2b202962ce6f77876883f971b2cef492cf27baa86a01175a7ce38dc3"
+      }
+    },
+    {
+      "id": "cast-aeplaceablecharge",
+      "offset": 3498512,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEPlaceableCharge",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEPlaceableCharge": {
+          "va": 287505020,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEPlaceableCharge": {
+          "va": 281371040,
+          "basis": "The constructor passes both the UTF-16 AEPlaceableCharge allocation tag and EPlaceableCharge class name to the engine."
+        },
+        "_register_AEPlaceableCharge": {
+          "va": 281369120,
+          "basis": "Direct registration call after initializing the singleton for AEPlaceableCharge."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x356210, directly called at RVA 0x356314. Its class constructor at RVA 0x3561a0 identifies AEPlaceableCharge; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "0d53deaf59f9dccd4c98495f148c142dc0fa2225f88f41cd4cbbad4b56a26dbb",
+        "inputs_sha256": "2c211853fe6e00beae9ae86e7970717773d4d7234b0a64cf72d34bbcbd52d7f3"
+      }
+    },
+    {
+      "id": "cast-aescalingactor",
+      "offset": 3524368,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEScalingActor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEScalingActor": {
+          "va": 287506056,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEScalingActor": {
+          "va": 281469088,
+          "basis": "The constructor passes both the UTF-16 AEScalingActor allocation tag and EScalingActor class name to the engine."
+        },
+        "_register_AEScalingActor": {
+          "va": 281468272,
+          "basis": "Direct registration call after initializing the singleton for AEScalingActor."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x35c710, directly called at RVA 0x35ca5b. Its class constructor at RVA 0x36e0a0 identifies AEScalingActor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "63a8c5f1800f3b6b9f3190ab8307235530c642fd30f06045065840999ffb8693",
+        "inputs_sha256": "396a309f7ac76fdcbba5fc5444cd9b801ae41bb0ab0913a99a7d4c5604a6c86a"
+      }
+    },
+    {
+      "id": "cast-aecomputersystem",
+      "offset": 3535168,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEComputerSystem",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEComputerSystem": {
+          "va": 287504664,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEComputerSystem": {
+          "va": 281287216,
+          "basis": "The constructor passes both the UTF-16 AEComputerSystem allocation tag and EComputerSystem class name to the engine."
+        },
+        "_register_AEComputerSystem": {
+          "va": 281277712,
+          "basis": "Direct registration call after initializing the singleton for AEComputerSystem."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x35f140, directly called at RVA 0x35f1af. Its class constructor at RVA 0x341a30 identifies AEComputerSystem; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "784141e126e4e95bca5f915b98a0260fdf42fe260b2e079655272d4a3f3c0550",
+        "inputs_sha256": "d34c9b56c51436b1934340535be23b0ae3d25a266062650220c47e70f57ce46a"
+      }
+    },
+    {
+      "id": "cast-aeretinalscanner",
+      "offset": 3539120,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AERetinalScanner",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AERetinalScanner": {
+          "va": 287504832,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AERetinalScanner": {
+          "va": 281329504,
+          "basis": "The constructor passes both the UTF-16 AERetinalScanner allocation tag and ERetinalScanner class name to the engine."
+        },
+        "_register_AERetinalScanner": {
+          "va": 281329056,
+          "basis": "Direct registration call after initializing the singleton for AERetinalScanner."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3600b0, directly called at RVA 0x360773. Its class constructor at RVA 0x34bf60 identifies AERetinalScanner; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "bdca5789acbec5347317e9191d3ad17b1deac1b7b980124cf6326bfd48b90769",
+        "inputs_sha256": "f3efa42b36fad77cf34e20dab4a28ea0ce68f5e76fa52b407c17f03791ddff13"
+      }
+    },
+    {
+      "id": "cast-aeslidingdoor",
+      "offset": 3541968,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AESlidingDoor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AESlidingDoor": {
+          "va": 287504612,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AESlidingDoor": {
+          "va": 281264576,
+          "basis": "The constructor passes both the UTF-16 AESlidingDoor allocation tag and ESlidingDoor class name to the engine."
+        },
+        "_register_AESlidingDoor": {
+          "va": 281263088,
+          "basis": "Direct registration call after initializing the singleton for AESlidingDoor."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x360bd0, directly called at RVA 0x36143f. Its class constructor at RVA 0x33c1c0 identifies AESlidingDoor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "c39b0a1beb0f99da6cfdad3f09e2814d6e06e6d4209fd7602cb29441d4530866",
+        "inputs_sha256": "99fe346e3377345dcbe6c157b24d348ca6dcf14c261a00e13d1e53a9475a33f6"
+      }
+    },
+    {
+      "id": "cast-aegenerator",
+      "offset": 3551040,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEGenerator",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEGenerator": {
+          "va": 287504876,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEGenerator": {
+          "va": 281344704,
+          "basis": "The constructor passes both the UTF-16 AEGenerator allocation tag and EGenerator class name to the engine."
+        },
+        "_register_AEGenerator": {
+          "va": 281343520,
+          "basis": "Direct registration call after initializing the singleton for AEGenerator."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x362f40, directly called at RVA 0x362fac. Its class constructor at RVA 0x34fac0 identifies AEGenerator; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "78e6f287acf74f4aacf18fa142c6d66d602550bab453e90cd16f038e4d8b9993",
+        "inputs_sha256": "3ba2036d89071d7453e3a2115e929503d119ce64b2a82cbda06cdfbed6c0847a"
+      }
+    },
+    {
+      "id": "cast-aemedkit",
+      "offset": 3553072,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEMedKit",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEMedKit": {
+          "va": 287505008,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEMedKit": {
+          "va": 281366448,
+          "basis": "The constructor passes both the UTF-16 AEMedKit allocation tag and EMedKit class name to the engine."
+        },
+        "_register_AEMedKit": {
+          "va": 281364592,
+          "basis": "Direct registration call after initializing the singleton for AEMedKit."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x363730, directly called at RVA 0x3637a4. Its class constructor at RVA 0x354fb0 identifies AEMedKit; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "6ff923851b4946da60e894e5504b5153e78d8139b2af7cc7d770826fc369716e",
+        "inputs_sha256": "0c13ecc0e9dc2bb9100d10d05fd0d26bbf2148fb77e29b677c48b9b8318e16e1"
+      }
+    },
+    {
+      "id": "cast-aecranecontroller",
+      "offset": 3559376,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AECraneController",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AECraneController": {
+          "va": 287504764,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AECraneController": {
+          "va": 281295744,
+          "basis": "The constructor passes both the UTF-16 AECraneController allocation tag and ECraneController class name to the engine."
+        },
+        "_register_AECraneController": {
+          "va": 281291888,
+          "basis": "Direct registration call after initializing the singleton for AECraneController."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x364fd0, directly called at RVA 0x365049. Its class constructor at RVA 0x343b80 identifies AECraneController; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "e0e0f4d02dff421a6d8a187e39ef3f833af76a13835317ac562612fc70528725",
+        "inputs_sha256": "20381e85de26119be2bc8740b2ebfa24c5ceeec0625ed8659b61f6d3149c29b6"
+      }
+    },
+    {
+      "id": "cast-aedetonator",
+      "offset": 3563200,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEDetonator",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEDetonator": {
+          "va": 287504792,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEDetonator": {
+          "va": 281318912,
+          "basis": "The constructor passes both the UTF-16 AEDetonator allocation tag and EDetonator class name to the engine."
+        },
+        "_register_AEDetonator": {
+          "va": 281314064,
+          "basis": "Direct registration call after initializing the singleton for AEDetonator."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x365ec0, directly called at RVA 0x365f2c. Its class constructor at RVA 0x349600 identifies AEDetonator; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "d816d21559f46e281068aad2fa8fed96fa1d21196c2aa3799d0dc1e8f76ded41",
+        "inputs_sha256": "131e0f7a4669ac161afd9511ca691ba85080fd571bcb415f47119dedf4394350"
+      }
+    },
+    {
+      "id": "cast-aehackinggameplay",
+      "offset": 3569536,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEHackingGameplay",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEHackingGameplay": {
+          "va": 287502248,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEHackingGameplay": {
+          "va": 280977600,
+          "basis": "The constructor passes both the UTF-16 AEHackingGameplay allocation tag and EHackingGameplay class name to the engine."
+        },
+        "_register_AEHackingGameplay": {
+          "va": 280967328,
+          "basis": "Direct registration call after initializing the singleton for AEHackingGameplay."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x367780, directly called at RVA 0x3677ec. Its class constructor at RVA 0x2f60c0 identifies AEHackingGameplay; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "8c03ffab8a41bdd857e0972b124aa3779119684f470eee9c4e0950b2020b5a2a",
+        "inputs_sha256": "f6face299096a59d1247c8a938dbbe4f47368778e4caa54ffdb29eaa2d35c19e"
+      }
+    },
+    {
+      "id": "cast-aepicklocksystem",
+      "offset": 3580304,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEPickLockSystem",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEPickLockSystem": {
+          "va": 287505012,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEPickLockSystem": {
+          "va": 281368576,
+          "basis": "The constructor passes both the UTF-16 AEPickLockSystem allocation tag and EPickLockSystem class name to the engine."
+        },
+        "_register_AEPickLockSystem": {
+          "va": 281366720,
+          "basis": "Direct registration call after initializing the singleton for AEPickLockSystem."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x36a190, directly called at RVA 0x36a1fc. Its class constructor at RVA 0x355800 identifies AEPickLockSystem; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "3866808fd2feea27884f65e0b285cd65bc2346eb56754f9d85198f78974f1a5e",
+        "inputs_sha256": "9f75603a7f290b6a6e5862bce13079a889d56f5f47a7c6ced1ed8358eae636fc"
+      }
+    },
+    {
+      "id": "cast-aeduallock",
+      "offset": 3584848,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AEDualLock",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AEDualLock": {
+          "va": 287504836,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AEDualLock": {
+          "va": 281330608,
+          "basis": "The constructor passes both the UTF-16 AEDualLock allocation tag and EDualLock class name to the engine."
+        },
+        "_register_AEDualLock": {
+          "va": 281329664,
+          "basis": "Direct registration call after initializing the singleton for AEDualLock."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x36b350, directly called at RVA 0x36b41c. Its class constructor at RVA 0x34c3b0 identifies AEDualLock; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "407cfed1c4684b1d8813190013cce19693c1afa138936630681c069ee1cc4652",
+        "inputs_sha256": "6fc85b01b328a7e9c18d7f8f056a55c0d8b24c47e52ea62bcc061a410575c06d"
+      }
+    },
+    {
+      "id": "cast-aetelemetricdevice",
+      "offset": 3584944,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AETelemetricDevice",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AETelemetricDevice": {
+          "va": 287504840,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AETelemetricDevice": {
+          "va": 281330720,
+          "basis": "The constructor passes both the UTF-16 AETelemetricDevice allocation tag and ETelemetricDevice class name to the engine."
+        },
+        "_register_AETelemetricDevice": {
+          "va": 281329936,
+          "basis": "Direct registration call after initializing the singleton for AETelemetricDevice."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x36b3b0, directly called at RVA 0x36b500. Its class constructor at RVA 0x34c420 identifies AETelemetricDevice; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "6101039179817d0c908a767acb8e9b2c74d1ef4e58178f1ba3bdb93c2a3a40f9",
+        "inputs_sha256": "6a2678e1ecf9f4a2a5890abc62afbfc8e2a7cf078ab02775825532746bae0656"
+      }
+    },
+    {
+      "id": "cast-aetrapmover",
+      "offset": 3587680,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AETrapMover",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AETrapMover": {
+          "va": 287502192,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AETrapMover": {
+          "va": 280958448,
+          "basis": "The constructor passes both the UTF-16 AETrapMover allocation tag and ETrapMover class name to the engine."
+        },
+        "_register_AETrapMover": {
+          "va": 280951520,
+          "basis": "Direct registration call after initializing the singleton for AETrapMover."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x36be60, directly called at RVA 0x36bf07. Its class constructor at RVA 0x2f15f0 identifies AETrapMover; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "a9c67dcaea4fc2dd9f75cacd9f0e072db8469162378313c44f3ee0e8ff39dbad",
+        "inputs_sha256": "a0769cda5a3eebc7049d3e76c6d53bb49f5a96b6db1194ca49ac0ea2f5da8cde"
+      }
+    },
+    {
+      "id": "cast-aeturretconsole",
+      "offset": 3590064,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AETurretConsole",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AETurretConsole": {
+          "va": 287505088,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AETurretConsole": {
+          "va": 281395376,
+          "basis": "The constructor passes both the UTF-16 AETurretConsole allocation tag and ETurretConsole class name to the engine."
+        },
+        "_register_AETurretConsole": {
+          "va": 281393008,
+          "basis": "Direct registration call after initializing the singleton for AETurretConsole."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x36c7b0, directly called at RVA 0x36c81c. Its class constructor at RVA 0x35c0b0 identifies AETurretConsole; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "5a35cee8fc8334a085bd8f2f0e67727e78631b0870b4ef2e38123e25dda945cb",
+        "inputs_sha256": "3c2d29da26d72b1d03be5bdf9dd37055f24d8cf07455d7a1f54cd911a0f3e422"
+      }
+    },
+    {
+      "id": "cast-uscx-basic-material",
+      "offset": 3910512,
+      "size": 85,
+      "rebuilt_symbol": "_cast_USCX_basic_material",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_USCX_basic_material": {
+          "va": 287283652,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_USCX_basic_material": {
+          "va": 279016592,
+          "basis": "The constructor passes both the UTF-16 USCX_basic_material allocation tag and SCX_basic_material class name to the engine."
+        },
+        "_register_USCX_basic_material": {
+          "va": 279003472,
+          "basis": "Direct registration call after initializing the singleton for USCX_basic_material."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3bab70, directly called at RVA 0x3bb069. Its class constructor at RVA 0x117490 identifies USCX_basic_material; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "a889a5ee6ed37e78bf07958d8837ba1e92c6e32bb2b4a26e38097621dfecc409",
+        "inputs_sha256": "b5ae4191086dee7f46cdc16b87eeb523c7212c3fc2437a0db9b6d137761cbaec"
+      }
+    },
+    {
+      "id": "cast-ufunction",
+      "offset": 4033040,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UFunction",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UFunction": {
+          "va": 288432368,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UFunction": {
+          "va": 281962032,
+          "basis": "The constructor passes both the UTF-16 UFunction allocation tag and Function class name to the engine."
+        },
+        "_register_UFunction": {
+          "va": 281966080,
+          "basis": "Direct registration call after initializing the singleton for UFunction."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3d8a10, directly called at RVA 0x3d92c0. Its class constructor at RVA 0x3e6630 identifies UFunction; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "47a55eeb3bed815672cea3eb7f81e1ae3ad55cfe36540c2664153ddeabc098d2",
+        "inputs_sha256": "9844a2bb393017c7a67d73b01958724e3f4502813cec9bf65521b6a2f980909f"
+      }
+    },
+    {
+      "id": "cast-ustate",
+      "offset": 4033136,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UState",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UState": {
+          "va": 288432360,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UState": {
+          "va": 281961808,
+          "basis": "The constructor passes both the UTF-16 UState allocation tag and State class name to the engine."
+        },
+        "_register_UState": {
+          "va": 281963424,
+          "basis": "Direct registration call after initializing the singleton for UState."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3d8a70, directly called at RVA 0x3d9326. Its class constructor at RVA 0x3e6550 identifies UState; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "08d0c6b847dc36f3ebc4d98de359741945ef16bb421a3623384d6460a83956b0",
+        "inputs_sha256": "c58f6ede2793f0f62f1d6d914b9ba79d19573bed39f9e2c4e213d456e53faeec"
+      }
+    },
+    {
+      "id": "cast-umapproperty",
+      "offset": 4033232,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UMapProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UMapProperty": {
+          "va": 288432940,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UMapProperty": {
+          "va": 281988048,
+          "basis": "The constructor passes both the UTF-16 UMapProperty allocation tag and MapProperty class name to the engine."
+        },
+        "_register_UMapProperty": {
+          "va": 281985088,
+          "basis": "Direct registration call after initializing the singleton for UMapProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3d8ad0, directly called at RVA 0x3dd8fe. Its class constructor at RVA 0x3ecbd0 identifies UMapProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "c420850eaab7377b58c980ded0f54dd3f45d0bc301b5e77455356386a9fb9fae",
+        "inputs_sha256": "8661696a47895cdc242ade9be9ed777c8983f80f51feb0fd1ee90a1ee8d28f3f"
+      }
+    },
+    {
+      "id": "cast-uclass",
+      "offset": 4033328,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UClass",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UClass": {
+          "va": 288432364,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UClass": {
+          "va": 281961920,
+          "basis": "The constructor passes both the UTF-16 UClass allocation tag and Class class name to the engine."
+        },
+        "_register_UClass": {
+          "va": 281963952,
+          "basis": "Direct registration call after initializing the singleton for UClass."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3d8b30, directly called at RVA 0x3e05a0. Its class constructor at RVA 0x3e65c0 identifies UClass; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "a83cdec7e69432867247bda2b87580830f6a98a757d2c5ff0fcc854b7fa18902",
+        "inputs_sha256": "743a8e2eadce5404e0e2cf72b39d28bd03c3c7054b848c46f84b2ec1b65ddb5a"
+      }
+    },
+    {
+      "id": "cast-uproperty",
+      "offset": 4082736,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UProperty",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UProperty": {
+          "va": 288432896,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UProperty": {
+          "va": 281977152,
+          "basis": "The constructor passes both the UTF-16 UProperty allocation tag and Property class name to the engine."
+        },
+        "_register_UProperty": {
+          "va": 281977264,
+          "basis": "Direct registration call after initializing the singleton for UProperty."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3e4c30, directly called at RVA 0x3e5aa0. Its class constructor at RVA 0x3ea140 identifies UProperty; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "a9265f6a54e3b5548d7744605b7b9d1e6c2985d5401660d1fd00fb62fe310989",
+        "inputs_sha256": "929bbb3b0bf665d5e7a124d7b0f58166aa6f70429e96a66b44e2e3042e6b6212"
+      }
+    },
+    {
+      "id": "cast-uenum",
+      "offset": 4148304,
+      "size": 85,
+      "rebuilt_symbol": "_cast_UEnum",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_UEnum": {
+          "va": 288432212,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_UEnum": {
+          "va": 281923104,
+          "basis": "The constructor passes both the UTF-16 UEnum allocation tag and Enum class name to the engine."
+        },
+        "_register_UEnum": {
+          "va": 281899184,
+          "basis": "Direct registration call after initializing the singleton for UEnum."
+        },
+        "_package_Core": {
+          "va": 285964628,
+          "basis": "Retail UTF-16 package name Core passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x3f4c50, directly called at RVA 0x3f5118. Its class constructor at RVA 0x3dce20 identifies UEnum; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "f18b87be93d625712f0b7a2387406746583f3d8afba6c01ea2b92507837a150d",
+        "inputs_sha256": "cf5a046b1f9e7a3e79dad258f3a0b82cd9e32b78fe99eb96f390126a03f2fded"
+      }
+    },
+    {
+      "id": "play-original-voices",
+      "offset": 4258304,
+      "size": 184,
+      "rebuilt_symbol": "@play_original_voices@12",
+      "inputs": [
+        "src/campaign_voice.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_voice.obj src/campaign_voice.c",
+      "link_bindings": {
+        "_original_voice_language": {
+          "va": 287087992,
+          "basis": "Global pointer read on the original-voices branch before passing the pointed-to text to the wide-to-ANSI converter."
+        },
+        "_game_language": {
+          "va": 281899600,
+          "basis": "Direct call on the normal-language branch. Its full callee returns the address of the wide game language buffer at VA 0x111c8dc8."
+        },
+        "_ansi_language": {
+          "va": 281857136,
+          "basis": "Direct call at RVA 0x40fa44. The callee converts a UTF-16 string into one of a ring of character buffers."
+        },
+        "_SND_fn_vSetCurrentLanguage@4": {
+          "va": 285502816,
+          "basis": "Steam campaign PE named export _SND_fn_vSetCurrentLanguage@4 at RVA 0x746d60."
+        },
+        "_voice_client": {
+          "va": 288454152,
+          "basis": "Global read by PlayOriginalVoices only when the caller requests a final refresh. Its +0x6c object receives the virtual notification."
+        }
+      },
+      "identification": "Named retail export ?PlayOriginalVoices@UDareAudioSubsystem@@UAEXHH@Z at RVA 0x40fa00; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "bb017771af09954e1948b69e30de81ae4ff38fe837ea7c7588feac50f939f82b",
+        "inputs_sha256": "1730a7d118c24c7c5a44124109fbe6e9cb50d0673709850bc6057a7b0e56c908"
+      }
+    },
+    {
+      "id": "cast-aesensor",
+      "offset": 4264336,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AESensor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AESensor": {
+          "va": 287505048,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AESensor": {
+          "va": 281380160,
+          "basis": "The constructor passes both the UTF-16 AESensor allocation tag and ESensor class name to the engine."
+        },
+        "_register_AESensor": {
+          "va": 281372816,
+          "basis": "Direct registration call after initializing the singleton for AESensor."
+        },
+        "_package_EchelonIngredient": {
+          "va": 285964980,
+          "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x411190, directly called at RVA 0x41166e. Its class constructor at RVA 0x358540 identifies AESensor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "9290b03aa8139e88279edb1cfbe7c63bf4990663c7b7c28aca9964443d7fde3f",
+        "inputs_sha256": "b874c9eff33a6034563bd20101202b7d42e5365054b6090c2e0efe503e96fc78"
+      }
+    },
+    {
+      "id": "cast-usound",
+      "offset": 4264432,
+      "size": 85,
+      "rebuilt_symbol": "_cast_USound",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_USound": {
+          "va": 287286508,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_USound": {
+          "va": 279370848,
+          "basis": "The constructor passes both the UTF-16 USound allocation tag and Sound class name to the engine."
+        },
+        "_register_USound": {
+          "va": 279369232,
+          "basis": "Direct registration call after initializing the singleton for USound."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x4111f0, directly called at RVA 0x417007. Its class constructor at RVA 0x16dc60 identifies USound; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "9aca2800bb2f910306a5b6278c105b8ba838ec05dd8d7f1f7337b00767bdf1dc",
+        "inputs_sha256": "aeb83cd6121788c2eb0883655d316fdac06501a8da65e357ad463fce4dc14f73"
+      }
+    },
+    {
+      "id": "cast-astaticmeshactor",
+      "offset": 4300064,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AStaticMeshActor",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AStaticMeshActor": {
+          "va": 287271420,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AStaticMeshActor": {
+          "va": 278678784,
+          "basis": "The constructor passes both the UTF-16 AStaticMeshActor allocation tag and StaticMeshActor class name to the engine."
+        },
+        "_register_AStaticMeshActor": {
+          "va": 278623280,
+          "basis": "Direct registration call after initializing the singleton for AStaticMeshActor."
+        },
+        "_package_Engine": {
+          "va": 285964612,
+          "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x419d20, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0xc4d00 identifies AStaticMeshActor; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "27233b1e087b052032f13894fe4613fe9af3494494b5aa089b4c4e5150667750",
+        "inputs_sha256": "b616ac8313827075f9d2dfad1ca8eaf27c6c3ce544775fc861f27250579f003a"
+      }
+    },
+    {
+      "id": "cast-aesoundvolume",
+      "offset": 4300224,
+      "size": 85,
+      "rebuilt_symbol": "_cast_AESoundVolume",
+      "inputs": [
+        "src/campaign_class_casts.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+      "link_bindings": {
+        "_class_AESoundVolume": {
+          "va": 287500312,
+          "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+        },
+        "_create_AESoundVolume": {
+          "va": 280545168,
+          "basis": "The constructor passes both the UTF-16 AESoundVolume allocation tag and ESoundVolume class name to the engine."
+        },
+        "_register_AESoundVolume": {
+          "va": 280485776,
+          "basis": "Direct registration call after initializing the singleton for AESoundVolume."
+        },
+        "_package_Echelon": {
+          "va": 285964944,
+          "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+        }
+      },
+      "identification": "Typed cast at campaign RVA 0x419dc0, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x28c790 identifies AESoundVolume; the complete object and null return paths precede alignment.",
+      "match": {
+        "bytes_sha256": "98d9760356714cf5eb22fbf2bb7ffce8a10ae1f4d5ff4cb9a04f1c9359244de8",
+        "inputs_sha256": "a63c8b7aec78976869b87a853405e39f4f082a89614c81190ca9ec3161379413"
       }
     },
     {
@@ -621,6 +4399,120 @@
       "match": {
         "bytes_sha256": "d416b7f25a99b31f9c55fdae14c2329234588389dc0c4f2705fa4a85c3a9831c",
         "inputs_sha256": "83cf7c248c2c3aecc9028d61b386d785870f1dbbc5209eb9ea32dc96dfe029af"
+      }
+    },
+    {
+      "id": "sound-local-event-by-editor-id",
+      "offset": 7591440,
+      "size": 183,
+      "rebuilt_symbol": "_sound_handle_by_editor_id_mode1",
+      "inputs": [
+        "src/sound_find_event.c",
+        "src/sound_bank_layout.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_find_event.obj src/sound_find_event.c",
+      "identification": "Direct mode-one call target of SND_fn_hGetSoundEventHandleFromEditorId at RVA 0x745e1d. Searches ordinary A/B event groups, then extra A/B groups when enabled. Matches editor IDs on 104-byte records. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+      "link_bindings": {
+        "_bank_a_events": {
+          "va": 288536716,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_bank_b_events": {
+          "va": 288536836,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_bank_a_extra_events": {
+          "va": 288536756,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_bank_b_extra_events": {
+          "va": 288536876,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        }
+      },
+      "match": {
+        "bytes_sha256": "5bb49e2c1d4b2221db2d82b24e6fdb64700ae1996b7ca869cdc026d8ae6c1f56",
+        "inputs_sha256": "f92a59541c398078847be897b794583b61b90579962a3776ade54b4519551a8c"
+      }
+    },
+    {
+      "id": "sound-local-resource-by-editor-id",
+      "offset": 7591968,
+      "size": 149,
+      "rebuilt_symbol": "_sound_resource_by_editor_id_mode1@4",
+      "inputs": [
+        "src/sound_find_local.c",
+        "src/sound_bank_layout.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_find_local.obj src/sound_find_local.c",
+      "identification": "Direct mode-one tail target of SND_fn_pstGetResFromEdIdSnd from RVA 0x745ffe. Scans each loaded bank in B-then-A order, testing its normal and extra 104-byte resource arrays. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+      "match": {
+        "bytes_sha256": "de292878774a5ab36a21f96a41fc2601c03b4a6e6d169e663447b6d6e6e9b8e5",
+        "inputs_sha256": "e785f6b9b423ec957ec0766160144dbb6c419772ab66cabab5610d3f63cff576"
+      }
+    },
+    {
+      "id": "sound-local-resource-at",
+      "offset": 7592128,
+      "size": 81,
+      "rebuilt_symbol": "_sound_bin_res_mode1@4",
+      "inputs": [
+        "src/sound_local_record_access.c",
+        "src/sound_bank_layout.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_local_record_access.obj src/sound_local_record_access.c",
+      "identification": "Direct mode-one tail target of SND_fn_pGetBinRes at RVA 0x745578. High bits select the bank and group, the low 16 bits index the 104-byte records; -2 returns null. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+      "link_bindings": {
+        "_bank_b": {
+          "va": 288536824,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_bank_a": {
+          "va": 288536704,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "12fdc05d47db00dd5c1b75ebe6efe9b62298ae309a5fa6d141d0f35d3ffd9573",
+        "inputs_sha256": "d76166603399a83f31ba4e3de3b6e1206ad6c980c527d99ac6f94b37792be39c"
+      }
+    },
+    {
+      "id": "sound-local-event-at",
+      "offset": 7592224,
+      "size": 75,
+      "rebuilt_symbol": "_sound_bin_event_mode1",
+      "inputs": [
+        "src/sound_local_record_access.c",
+        "src/sound_bank_layout.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_local_record_access.obj src/sound_local_record_access.c",
+      "identification": "Direct mode-one call target of SND_fn_pGetBinEvent at RVA 0x7455cd. Uses the same packed bank, group and record index to select an event. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+      "link_bindings": {
+        "_bank_b": {
+          "va": 288536824,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_bank_a": {
+          "va": 288536704,
+          "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "9b2861f388c9b653068c931326f13c1bb5b811a5eec61243308030251651cfb7",
+        "inputs_sha256": "a0c268b309904e0907f55fef65b799075377d3a5952a35e8c05cafee93c65779"
       }
     },
     {
@@ -2164,6 +6056,23 @@
       }
     },
     {
+      "id": "sound-bank-resource-by-editor-id",
+      "offset": 7658592,
+      "size": 86,
+      "rebuilt_symbol": "_sound_resource_by_editor_id_mode0@4",
+      "inputs": [
+        "src/sound_find_bank.c",
+        "src/sound_bank_layout.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_find_bank.obj src/sound_find_bank.c",
+      "identification": "Direct mode-zero tail target of SND_fn_pstGetResFromEdIdSnd from RVA 0x746003. Traverses active banks and returns the first resource matching the editor ID. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+      "match": {
+        "bytes_sha256": "9045c54857dbe90a72a84d48b1d0d875d509d8e0bb0939fc100da69b06528a0d",
+        "inputs_sha256": "56b260854986cd6e76130c57770123938f2f40a36615bdd8089c04568e8773e4"
+      }
+    },
+    {
       "id": "sound-binary-release-forward",
       "offset": 7665200,
       "size": 5,
@@ -2288,6 +6197,66 @@
       "match": {
         "bytes_sha256": "a42f0e593f098c266b22b13c2d248804360267725d3a8cf9366277a8afd728ce",
         "inputs_sha256": "4028f2a1ed5aa6ff370b8350ae9c6c31004724bdc75425b909b72be140274851"
+      }
+    },
+    {
+      "id": "sound-release-binary-backend",
+      "offset": 7705264,
+      "size": 122,
+      "rebuilt_symbol": "_sound_release_binary_backend",
+      "inputs": [
+        "src/sound_release_backend.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_release_backend.obj src/sound_release_backend.c",
+      "identification": "Tail target of the forwarding helper at RVA 0x74f630, reached from SND_fn_vUnLoadResBinarySnd. Dispatches by resource type under the tool lock, clearing relevant state and using the driver virtual method for type one. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+      "link_bindings": {
+        "_EnterCriticalSectionTool_@0": {
+          "va": 285504880,
+          "basis": "Named export _EnterCriticalSectionTool_@0 in the Steam campaign PE."
+        },
+        "_MouchardThreadTool@8": {
+          "va": 285505120,
+          "basis": "Named export _MouchardThreadTool@8 in the Steam campaign PE."
+        },
+        "_QuitCriticalSectionTool@0": {
+          "va": 285505088,
+          "basis": "Named export _QuitCriticalSectionTool@0 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "eb06ea156a5440a9e0e9229d44a493abfb3c763aeb0f29eeea219f8e8b845da3",
+        "inputs_sha256": "aef1b7d55930ffbe15891ddb924c669365d0a2c8bf07043e3ccdd067243ebdb1"
+      }
+    },
+    {
+      "id": "sound-sse-supported",
+      "offset": 7711104,
+      "size": 33,
+      "rebuilt_symbol": "_SND_Is_SSE_Supported@0",
+      "inputs": [
+        "src/sound_sse_query.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_sse_query.obj src/sound_sse_query.c",
+      "identification": "Steam PE export _SND_Is_SSE_Supported@0 at RVA 0x75a980. Short-circuits if either of the first two probes fails and normalizes the arithmetic probe result to zero or one. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_probe_cpu_sse": {
+          "va": 285583280,
+          "basis": "Direct target of a call from the named SND_Is_SSE_Supported retail export."
+        },
+        "_sound_probe_sse_state": {
+          "va": 285583440,
+          "basis": "Direct target of a call from the named SND_Is_SSE_Supported retail export."
+        },
+        "_sound_probe_sse_arithmetic": {
+          "va": 285583568,
+          "basis": "Direct target of a call from the named SND_Is_SSE_Supported retail export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "d524cab2d53921341920a3993fe28526021906b0c249a5be9794ac59c0ecf949",
+        "inputs_sha256": "8a98a6f1ecd97db9c8cb3b43af395ac253cc632a661759a3f6d5c4c9d1b8f8d7"
       }
     },
     {
@@ -2756,6 +6725,28 @@
       "match": {
         "bytes_sha256": "4d1ada4aae7132fb1bcec215d2de3d33db9804c95d7531de843c88fc708509c9",
         "inputs_sha256": "3b24ac9fb15245207910ec10093bbd7357f390b07ba0c66d311f8a69f0f79b01"
+      }
+    },
+    {
+      "id": "sound-stream-shutdown",
+      "offset": 7948304,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_vDesInitStreamAsyncSnd@0",
+      "inputs": [
+        "src/sound_stream_shutdown.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_shutdown.obj src/sound_stream_shutdown.c",
+      "identification": "Steam PE export _SND_fn_vDesInitStreamAsyncSnd@0 at RVA 0x794810. Single terminal jump to asynchronous file-service shutdown. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_shutdown_async_io": {
+          "va": 285824256,
+          "basis": "Direct tail jump at RVA 0x794810 in the named stream shutdown export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "ffeced9d36c2a89eafdbd53d41d269f78260d817da6ad45e29bd4be591aca658",
+        "inputs_sha256": "b1a9373bbe5de095aab07795a5733cdd1c7e6a00bb561b1b3e07706c075bf622"
       }
     },
     {
