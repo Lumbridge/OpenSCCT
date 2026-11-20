@@ -30,7 +30,7 @@
     "identification": "Typed cast at campaign RVA 0x90c40, directly called at RVA 0x9155f. Its class constructor at RVA 0x1456d0 identifies UViewport; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "edc2d73b3a7f2ad7300ee642336046b2b36ead3b783db58bc8459f2696ca68a9",
-      "inputs_sha256": "2e81689149d70e4092afe1aba013cdc2bae10b29be0ba47ccc7b50003354b8b2"
+      "inputs_sha256": "01f5a037ec4151adaf3bc0d810d0cb9f217887816090a5386a2a8489ef1b071b"
     }
   },
   {
@@ -64,7 +64,7 @@
     "identification": "Typed cast at campaign RVA 0x90ca0, directly called at RVA 0x93821. Its class constructor at RVA 0xa60e0 identifies AEmitter; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "c56dc16e1dcdf021b497b3b80bc4095908c6bffff41db8841e55d7a2438d49df",
-      "inputs_sha256": "ffa0bac67398098e7a3868eabecf85e2a030d3ff1f6b44f074aff81fc8c96ca7"
+      "inputs_sha256": "1d5a36c8ed64b1455b9b742d4feab34ee2aa37cf8a82c69c4d4643719b99affa"
     }
   },
   {
@@ -90,7 +90,7 @@
     "identification": "Placement callback passed to the UEchelonEnums class factory at RVA 0x91390. The callback at RVA 0x91020 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "87fcb652d30c5d9ec5504cb23244933e53970a17bfdb04cd3ce2bb42548090d7",
-      "inputs_sha256": "ec39207c61190724485d73f73fbfc4cd54be42a0a19567ada89378aef2659343"
+      "inputs_sha256": "1623ef1199f866062fce9afdc0db99ba124a7c7f9dde8ae3c5e8e4df413915c7"
     }
   },
   {
@@ -116,7 +116,7 @@
     "identification": "Placement callback passed to the UReachSpec class factory at RVA 0x914e0. The callback at RVA 0x91040 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "94b01d6c5d70714ac3be771c87b58dee2f8dbd3f29c75c0a736e4bf0d269827e",
-      "inputs_sha256": "1f37066c845021e0d919d4ca525eaf10f3c412c1b0cb0e92fdbfd0054ac4c56b"
+      "inputs_sha256": "42b4593615120f6448175395500c0d85bf094171cf63c0be935a4efd1db818b8"
     }
   },
   {
@@ -142,7 +142,7 @@
     "identification": "Placement callback passed to the UWindMaker class factory at RVA 0x91400. The callback at RVA 0x91060 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "60340fd4a18af36a155f4463352a359ac6598907100aef03cc9d3f24ddc73407",
-      "inputs_sha256": "51a545e6a5e8a80916f091121cbfcaf28af7f9fbc87402040ee0235bd0efcdcc"
+      "inputs_sha256": "0e05ff66b8af80e80dae4906a8a868c2aa4bd7ada1c91b94605c473232f3281b"
     }
   },
   {
@@ -184,7 +184,7 @@
     "identification": "Native class factory at RVA 0x91390; its allocation tag and reflected class name identify UEchelonEnums. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "6f7f8dbafced971398c304057374dec7423bdc52cd8056014dbf7c9a5080ccf0",
-      "inputs_sha256": "fee1e62d88dd151d520cdc2c6ee5150ba7a232f548fb197a6027eb780f86ae3f"
+      "inputs_sha256": "dc74ad2a258dacc779017ae06f7a78d3d4ac340bf8e2fee8241973265d280f0d"
     }
   },
   {
@@ -226,7 +226,7 @@
     "identification": "Native class factory at RVA 0x91400; its allocation tag and reflected class name identify UWindMaker. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "04652365554f140629062e3fe82952e5a7c48cd24d6af7ddb3a457a13579ebf2",
-      "inputs_sha256": "32512c7d010c9fcfcc9196ec8943001b7bf392505ba64255d5a021546d661a71"
+      "inputs_sha256": "9bd49527f1b794440c05b39dc21160a96d3afd41dff27104ecbbceb9f3a10956"
     }
   },
   {
@@ -268,7 +268,7 @@
     "identification": "Native class factory at RVA 0x914e0; its allocation tag and reflected class name identify UReachSpec. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "1265bb456983eed04048189273c385e5c9b98293722ad19062f9c66e454091a9",
-      "inputs_sha256": "28b29db686510f4ac5dd481aa4918569dce38c2e564b531196122d3c1a8428fb"
+      "inputs_sha256": "5c20e582ecbbd80d2905357dcbc65ad8c64b73fe15146f318ba03346bc954baa"
     }
   },
   {
@@ -299,7 +299,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91ae0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9263b, 0x9340b, 0x94c25. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "57fd13cdef7fd76322922c05a28b5eb4630b8589b83e8546609732ff442c72c3",
-      "inputs_sha256": "38b34c3005081a1caf888af65d1fef970295982384a4483f1e7062bc7b46c194"
+      "inputs_sha256": "12ece8ba981be05dfbda6183180287ca46f1c94107af53d9010e350e00fc11c6"
     }
   },
   {
@@ -330,7 +330,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91b70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9267b, 0x932cb, 0x945c4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "97212c70697e3759117fe3b11cfc2a8bd5c9f13184cac1d7d11246d08bda4aab",
-      "inputs_sha256": "5d357aa213cf5ff9dbadfe2b8a988918886699a3e8e55db91fb688206441c929"
+      "inputs_sha256": "860d7f2682b716f6d37e45277c597db699225cd19c9d4de7320411f8aac0e4a3"
     }
   },
   {
@@ -361,7 +361,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91c00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x926bb, 0x9334b, 0x94b1d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "142a4d7f32f0d572f6e52ad18bec38bc11eaab2014998c179e84064e031af84b",
-      "inputs_sha256": "22bf56a0044e12b05e78dd9188e84272df511b091b023684ce89e81923b6f048"
+      "inputs_sha256": "08b014a033dda58a6151e79725aad69a32bf46cde0018ebaaa7c9eccef00d150"
     }
   },
   {
@@ -392,7 +392,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91c90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x926fb, 0x9338b, 0x94d1a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "616ba0c263fc448b5a2f4a4e7bb9a0bd2037ad1e0a4494c7af453686c8bfe575",
-      "inputs_sha256": "ef76683f6678eaeb19515cc2e007d936c39abb181d78e79ca8f3256a93092130"
+      "inputs_sha256": "33ec807babdf851515f430b209f458b59db75dd443d6c60407ae35e17a91a1d7"
     }
   },
   {
@@ -423,7 +423,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91d20, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9273b, 0x933cb, 0x94ce9. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a699e33e80d4ac54783dd277d72968d62713bcf8a9da5723f5b0d999ef8c0a04",
-      "inputs_sha256": "3ded18f3ad183a63b43e53576ff2fc42bb3c2c3cecfa4bdc68610c8109c69232"
+      "inputs_sha256": "8416827c62ffc127f2320a2989c05ac841e96d4cbd15d1ac8e4d9961604412c4"
     }
   },
   {
@@ -454,7 +454,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91db0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9278b, 0x9344b, 0x95214. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0690702433e7df36e69e4c479668a2e7c713744784a74801191675660f1662a1",
-      "inputs_sha256": "ec4aa4c42f9ba502a7d55ce3d06ac2ac5f323c6f0e43e3f5082ca41b13f40dc5"
+      "inputs_sha256": "f3a3089aea62fd87ee1dfa97481c8304a4d9dbccb8ef8eb09a20a31113dcf7ba"
     }
   },
   {
@@ -485,7 +485,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91e40, including RET. Incoming transfer decoded within analyzed function code at RVA 0x928ed. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "e4acca7c8faf4cb49cc5f3f84c3d9211a5de387cf69940cbefd07b3115205954",
-      "inputs_sha256": "2ac62cd3dff7d389c4d7e06ccb82d8d3eb9708b8e7f47f458177a3d415576094"
+      "inputs_sha256": "6ae3f11b123416e8b787dc07534864c96550cd6a3a87aa8bf30b8a8f01284965"
     }
   },
   {
@@ -516,7 +516,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91ed0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x927cb, 0x9348b, 0x95002. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "f70d77b0981b3a3875588949c838975e4f7e8717e53661a78c07220e7a8ec6c9",
-      "inputs_sha256": "5fc6be5910476ca8acd7dbda3b0afafd79d45626d042715b75c2b636e6328a74"
+      "inputs_sha256": "d1f942f067cb09123730a4befc02d19ef27e2822ed4621e9bff011e2670e5d69"
     }
   },
   {
@@ -547,7 +547,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91f60, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9280e, 0x934ce, 0x95248. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "83426f2a73c427f7beadb6021ae251e8499b53bbf672e11b091e0fd72d4a4019",
-      "inputs_sha256": "e9345399c782e9e13dee4edb8cb0a42ca1a9a13df8ec9d086a609b7f49ab326c"
+      "inputs_sha256": "953e46f4bdf60c81222dd1b86b945a57e957af53ffa61be6229463b9511099d3"
     }
   },
   {
@@ -578,7 +578,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x91ff0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9284b, 0x9350b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "2f015a340a829371956d85261d33fdc803eff9eca880d4da3dbb2091d95249cb",
-      "inputs_sha256": "a8c9ccb3d7794fa3bfe8c42f91bb9cf6f6cd045d5f5f29206231f40c662a102e"
+      "inputs_sha256": "57042f96a6c89deb9324e1499178ccb77a4e8e48df64bafc5b8409311a1c0db1"
     }
   },
   {
@@ -604,7 +604,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "1f4ff45bca9ccaf04fd00247e26e0f9a367d5da9541ec92b13ac4a19a2e62586"
+      "inputs_sha256": "315fc2ff02a5a9ce44ab679475d1bffa2fe350572f0cb4cf53d2b5bc6ba6c600"
     }
   },
   {
@@ -630,7 +630,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "92b090f009020cff7aa4f8081d632a3638d443d45970a2ef6ad4673adef9196d"
+      "inputs_sha256": "a1885f63d52e68cf26e5427fc5a5d4321403fb78cdf3d1f2e257c02afa51488e"
     }
   },
   {
@@ -656,7 +656,7 @@
     "identification": "Placement callback passed to the UEAdInfoObject class factory at RVA 0x92960. The callback at RVA 0x925f0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "de1db76f67490a4c903cbd6f20ca997e2fdd5d7798dd76c87b7367eed374fc3c",
-      "inputs_sha256": "8e0e78e39d0a392b3e5abb2054999f9677ba945d4fcde4ccd9e4fee6763a5060"
+      "inputs_sha256": "a168db93cade410aa42c26ffc4f11f4e1c0d214845a36660fec4c533ddc49526"
     }
   },
   {
@@ -682,7 +682,7 @@
     "identification": "Placement callback passed to the ULevelSummary class factory at RVA 0x929d0. The callback at RVA 0x92610 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "2876abb58e6d10b1812a76304099fd3ada86d90e88f65cb63f69c796803dcf12",
-      "inputs_sha256": "6786b02cace7306d55688b4157949b129655e80c421af1bc29a4b1749a5dabbd"
+      "inputs_sha256": "67aff2948d1c545276902364fae49a8c8b86e88ec8e20c789cf8b126faaae060"
     }
   },
   {
@@ -709,7 +709,7 @@
     "identification": "Complete stock array destructor at RVA 0x926b0, called from decoded game code at RVA 0x334f11. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "74b838cf1c68bd56c5ab83921407e80a59da0c9ea2a001dfc4586cd6a5b2f264",
-      "inputs_sha256": "665cccdd7381ce1dfbdee2aa04520dad0e2ea7895bcff7483aceee344ec56313"
+      "inputs_sha256": "1ff3d2fc4272b92a4aa9ad7332927cd756dbdc3fa2633ab7032117030ff5b160"
     }
   },
   {
@@ -751,7 +751,7 @@
     "identification": "Native class factory at RVA 0x92960; its allocation tag and reflected class name identify UEAdInfoObject. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "0825eb885eac25ea477b71d08746b23c8e944eeb5d2d0ab42f0893a9c5d7d1eb",
-      "inputs_sha256": "a08fb334d19677f701509dce4f2accb95c48f2b9e9f7d585e96ad8ddff23f9e0"
+      "inputs_sha256": "49bcb8b4e8c150cc017bcbdd58af1552a224ab8c301869e65ba067de3d5c3ae3"
     }
   },
   {
@@ -793,7 +793,7 @@
     "identification": "Native class factory at RVA 0x929d0; its allocation tag and reflected class name identify ULevelSummary. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d5ba65375a4d85d9e03f2c850237b89b994f7938ac29de0fd86cfe3263280c56",
-      "inputs_sha256": "9152c12ae5ee4aa9c155c2efc3f2e469f19326936b9e576eff3a827d2ed69905"
+      "inputs_sha256": "95c5755a55addfbdad58d5dd6fe523f71dbaae0e6149dd2b085f7b3f2460637b"
     }
   },
   {
@@ -820,7 +820,7 @@
     "identification": "Complete stock array destructor at RVA 0x93400, called from decoded game code at RVA 0x307431, 0x340d11. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "88c9e945172e7e91bbf00bf92a412086ea93dfb842dc319ee0afa69e0368f042",
-      "inputs_sha256": "7af70dff994a427347f8fdc222cbc9ff102af20eed0e761d85a8b17c41d547c0"
+      "inputs_sha256": "6d5fa534060654001ba06dad9aa964b14c7c098be9f0bdc124b029251cd22119"
     }
   },
   {
@@ -847,7 +847,7 @@
     "identification": "Complete stock array destructor at RVA 0x93500, called from decoded game code at RVA 0x956d1. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "1b30bbae7ffee8becc863fa0e6a4b2420d2b89d3f2d2052a0323a3db245e5055",
-      "inputs_sha256": "2470ac553fbdd288f2c4438c0ffe855f580b307bbf8c76146a187867cb1be21e"
+      "inputs_sha256": "fd3055a111f8c398594352631ba8c1984b3b205d035d09f122d11704b6b79350"
     }
   },
   {
@@ -885,7 +885,7 @@
     },
     "match": {
       "bytes_sha256": "e475f93f2b76d907cdcc36d6bbb2e202e8da052ef95902481a38cdb419a8a262",
-      "inputs_sha256": "2d88a024e5e39d51d03e3fa4a8005e8f196c7d9dc0f59e2978ff6760d7d82f52"
+      "inputs_sha256": "95413a99f26bb8925517621e70fddb8579cc3e0aad9859e7f47424dff3ed6bb7"
     }
   },
   {
@@ -919,7 +919,7 @@
     },
     "match": {
       "bytes_sha256": "20bd6b1664c8126ad945d09669ec560da1c791d56df9b57bd6adcd215e201e5b",
-      "inputs_sha256": "f628cca97be5ebb1ec750082967321ec16a1a4faa012dedfc7414e412e777b6c"
+      "inputs_sha256": "4e83ee0b0fc06fa1d220303c2d0b158ca44978a8aec0c512927a6d73f66483c8"
     }
   },
   {
@@ -953,7 +953,7 @@
     },
     "match": {
       "bytes_sha256": "cc0acf04d2d366dcdab4424644ded2634f6daeba1b97262d598e6a8c74eb3868",
-      "inputs_sha256": "3bd324efa8dc975dbf014b454c26e31c182c93c54d87e66262db45cd7887eec3"
+      "inputs_sha256": "bc5d13e4d7efc67809b9b25e16cf8771746b3a63c34a3d98ebd2ed98788cbd4f"
     }
   },
   {
@@ -979,7 +979,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "9667c2befe79f4316d5ada960da7c5a2baaeb75c7e03d08a817bc43f454ceaf0"
+      "inputs_sha256": "69618e1f765c734784fd2f689cc7af717278e27e0dbc0a240c5818c6c1f0db41"
     }
   },
   {
@@ -1013,7 +1013,7 @@
     },
     "match": {
       "bytes_sha256": "9b9fdcaaacaaf55411c0c58a6b60ab81e358658f87ceb999a6343ea94d3993c9",
-      "inputs_sha256": "ceadb1cc4515240f94f17e06c4fd39f417aee3e13756a20fd7357855b3606f25"
+      "inputs_sha256": "829782dc68bd90643681b9e8cbfffeb31a8464e53b4cd5fc480e62cba6ae486c"
     }
   },
   {
@@ -1047,7 +1047,7 @@
     },
     "match": {
       "bytes_sha256": "04c6d10582934e88e44301edbb0f365b3a00cefc12b471fe08d2aba1ee7e7fcb",
-      "inputs_sha256": "e97591633dd10c6462f261c66c1e1caa3ab60882a9897ec7c38cffc6b0405aa0"
+      "inputs_sha256": "612c314c2da4cb629db32462738e5565e77d161b7a98d56f714937fc8e755777"
     }
   },
   {
@@ -1081,7 +1081,7 @@
     },
     "match": {
       "bytes_sha256": "a4846872d14b500120d1cf4a6f989272019a44143ed84f7b6fc6e35c4498dc03",
-      "inputs_sha256": "6e263a9ccee6adb71fd4b9b88e5fb5c8d43a11428abe3c7b01dfc1afbbd2a2e5"
+      "inputs_sha256": "def7ba6044aab7166778ebd0401456057436e9b972d527f97e4a11986119cae7"
     }
   },
   {
@@ -1115,7 +1115,7 @@
     },
     "match": {
       "bytes_sha256": "75b1860fdc17c6b71c7956ed1e20a0583bf6e7c16845fd6f68faff8e355f29b9",
-      "inputs_sha256": "7662a2c0fa56270f9d10aa64e91a96e85597e002facc89d671ea3696f5cd96e3"
+      "inputs_sha256": "3a24485f51b71fc80b0478110de889ec3ef0bfba29b66b4452469d470cacf8da"
     }
   },
   {
@@ -1153,7 +1153,7 @@
     },
     "match": {
       "bytes_sha256": "d224432cbaa22b94ea98f10928447b7bbf0b46f7d965b051dd7bec299a02868f",
-      "inputs_sha256": "665d690ca6709c3ed9901006e904893e053c13fc892eaa257b929bea286097ef"
+      "inputs_sha256": "187ba120c5e15264cafe266599769aa70e00682f47c76680f5711f71d7603106"
     }
   },
   {
@@ -1187,7 +1187,7 @@
     },
     "match": {
       "bytes_sha256": "36a345bd1d8df6ed9c09b67c157d823759e0c88242e9c7f67bf62564bc3f1e18",
-      "inputs_sha256": "bc5dcf672374f8ce9d352ab7438f098647766cde3e18b74f67ed64669fb4cb10"
+      "inputs_sha256": "479cdba25b34a10827c1a3a78f4715b2919600a715d8eb2bdfcd769ed4446eee"
     }
   },
   {
@@ -1213,7 +1213,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "6df4a504daa1210e700721e12b9cc2eb7f43f5bffd64677caab78a6ca21b2935"
+      "inputs_sha256": "408acb6bca6ce2ff9dba646498f361b91374073575830ae3b11028bcc890aa36"
     }
   },
   {
@@ -1247,7 +1247,7 @@
     },
     "match": {
       "bytes_sha256": "23f96c7d02fcf6a5f4b75b1b6ddad8dc92065169d88049a9075b18b5dd4b4c33",
-      "inputs_sha256": "bd7af37ec40220f766e499f655f02d81107b6b24f798f8c0e5ad28135f4402ee"
+      "inputs_sha256": "64f2f391a2a40d2f3d77060cb894069a74f94d5a06a2e46f5b0b9a380d5fb63f"
     }
   },
   {
@@ -1273,7 +1273,7 @@
     },
     "match": {
       "bytes_sha256": "7fd7edb3c59fb05c2376be57aea3cd31574ce6adbf5b2f60df8f32f3ace8e1ca",
-      "inputs_sha256": "5f47095f9388fbda918d7e4ff152ca1c4d122599ad0c77f7c31a2d818c8b48cf"
+      "inputs_sha256": "6a1c323c762b509de78361a7ad0748e8c1b7baf60781e2963a14cce0f854d2ef"
     }
   },
   {
@@ -1307,7 +1307,7 @@
     },
     "match": {
       "bytes_sha256": "832d4580369cd889da570814e1713dbaabf57c76f7e9fab5ffd404fec184ee5b",
-      "inputs_sha256": "e2a7b25f99139d811db9e3cbf8bd8c078960ce4e09775d241df4aa1fcc88bb78"
+      "inputs_sha256": "6b68d5a080a27b2301b573b3f0a94a007537f79c3fccd9faaeeb7b64d62d12f3"
     }
   },
   {
@@ -1341,7 +1341,7 @@
     },
     "match": {
       "bytes_sha256": "2de318caea824be9958d8b915c540bd5d2d56320113e27c05cfd4e3c65e4d42f",
-      "inputs_sha256": "6411cab58642f2a2a6f2a628f8860f02dc1cd645e70a99a1000f68be7bfa287f"
+      "inputs_sha256": "e4412f77d0a0f126735f7987fa4d40dd3d8472ec07c03cf04c1cf1329238f3a5"
     }
   },
   {
@@ -1367,7 +1367,7 @@
     },
     "match": {
       "bytes_sha256": "b1914d8e9cad033391572ec96484f29f5ce9277e570bf84b09068956220cf28b",
-      "inputs_sha256": "d7976a8b6aaca6d500de5893d8bcf38ee543167eacd4f160fd61cc70774294cb"
+      "inputs_sha256": "29072508f67062b9e9f1bcf9cbd2659084c7dec28d666db96e27f875ea202669"
     }
   },
   {
@@ -1401,7 +1401,7 @@
     },
     "match": {
       "bytes_sha256": "c55e703290cd774f5f5da454adcf293f57f2ba7862382c409a2087d317ad4a29",
-      "inputs_sha256": "78bd195a39469dab45c591f9f3c6959b2ce39ec43bf8b03070dbe989a56f327d"
+      "inputs_sha256": "fdc8df38928a0c1a31e88753e130fb8acba9250dfc70af6a4d7014edd9e50958"
     }
   },
   {
@@ -1435,7 +1435,7 @@
     },
     "match": {
       "bytes_sha256": "db38bb9ae03febdea64f1b225ea8f41a5ed3232d407d8d9c81d6d314aba784f5",
-      "inputs_sha256": "4f2a34b3267148630b8293ff0c8763a88a42f6e7833aedbdfff045c7bbe6434e"
+      "inputs_sha256": "e7160bd46526449817323470aa9673fd75eb320da06a349149ac681de7263208"
     }
   },
   {
@@ -1473,7 +1473,7 @@
     },
     "match": {
       "bytes_sha256": "57663ee26e56ebdabaf554af79786734ba9eeb77422b82411b89148f108b2df5",
-      "inputs_sha256": "6e12128608ac845cc0e173c3eb22e9b556de4f1ac255dc7f84b0b9edf1873156"
+      "inputs_sha256": "497c3588ea3bc3904aa9fc7353201e0bcb381432689486a222391e0a3d848216"
     }
   },
   {
@@ -1499,7 +1499,7 @@
     },
     "match": {
       "bytes_sha256": "7908ba88e6a862ce080b3eafc1374ef3e002aeb8890c8f43cd054742cfd7ae0b",
-      "inputs_sha256": "7de4fbfd6d2623ee93b0cae55e1e62a6c37bf2b8453875264028ced9ab93e965"
+      "inputs_sha256": "d9ec8b2cd6deec00a5ce9a880ff446af413ddd29e5df2ad7c9d6fe7537ab870f"
     }
   },
   {
@@ -1533,7 +1533,7 @@
     },
     "match": {
       "bytes_sha256": "f267abe4e919199bce87d3a35535801abf3ca3cc9bb5c5a28b199639693091a3",
-      "inputs_sha256": "e38ab49e73955501d31c73437fa59e1742cae25b00c87496a85031965ef58168"
+      "inputs_sha256": "d00b3a3b8240f078bd51eba9ed7120f750cc18a62bf456dfa595968bdb07f042"
     }
   },
   {
@@ -1567,7 +1567,7 @@
     },
     "match": {
       "bytes_sha256": "6d71fe4865b089381c3e1a7f80db8c624299248caf693ac0e07aa97e6fb1b7a1",
-      "inputs_sha256": "7140331a27ded3cbbb39f1194fe472cfa0498e87412efdbaa7ade8939ed7ce40"
+      "inputs_sha256": "d562d9a07c15ca8351cce65bafc290f0bb08296bc23c017480943f8da45c5498"
     }
   },
   {
@@ -1605,7 +1605,7 @@
     },
     "match": {
       "bytes_sha256": "b55d31a5ad1374516b8335b84d9392eeee8216a397843f087ddb7da6cdf38881",
-      "inputs_sha256": "643a456e0fa8a7ee14fdf9efd814834787eb79331a9c8936f5ed46b88dad8362"
+      "inputs_sha256": "3b4710f03258d3bc9cc4bd185faa8965ffcc2ef55a0116acce4257e1b3d7ff25"
     }
   },
   {
@@ -1643,7 +1643,7 @@
     },
     "match": {
       "bytes_sha256": "e33182b7534cb8b528cccb38fd5c750a15b691c2fc0364a9c14b76c433bd2bc4",
-      "inputs_sha256": "e2b945a91a3f495d44dbd66f3d636280b3628ed9ab9d487200e0ab786d1424ce"
+      "inputs_sha256": "3958fe82901f9da81664ef48c907df9185e300f92f648f56aa565c4ae98054f9"
     }
   },
   {
@@ -1669,7 +1669,7 @@
     "identification": "Placement callback referenced by the AActor class factory at RVA 0x96580, including both the null and initialized object paths.",
     "match": {
       "bytes_sha256": "c85b7c7c4370d902a5276ec7ec18d1bd6411b0fbc8a460373a893f8452d33f8a",
-      "inputs_sha256": "13a624faf3940809dc6df7037083f5c90a2cdfb6766058985c7ab639ed81d406"
+      "inputs_sha256": "2b00564788ae1fbb3731bba6cc0a5aea437db4075ecfaa29cf3d2013a34b6e9a"
     }
   },
   {
@@ -1695,7 +1695,7 @@
     "identification": "Placement callback passed to the AAntiPortalActor class factory at RVA 0x970e0. The callback at RVA 0x95d50 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "fa1e30518d54031d8b961f22b59a10cd9f18b0715dd5a9c6430ec2347c8cfb9f",
-      "inputs_sha256": "717e7779c25957b70f3b916d1603f52ad6bb54181b93efd7bd24a883441d4a61"
+      "inputs_sha256": "90a8f6aa072c5e8c443ba7908728405cb7d39b798141517e6e37f57050226b24"
     }
   },
   {
@@ -1721,7 +1721,7 @@
     "identification": "Placement callback passed to the ABrush class factory at RVA 0x96eb0. The callback at RVA 0x95d90 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5264655e6684dbb8933f12f789e53d0c4573ef9f6cb8f01abf4a5345e693f006",
-      "inputs_sha256": "5a5f89e25a28e9851fa687d0af48f05cd1ec6ae49bd40bd6996b0559aad6ba26"
+      "inputs_sha256": "fff9be94939e1a9badd2545ec972243c83761a3cf86aa71e1ed28e907e871cba"
     }
   },
   {
@@ -1747,7 +1747,7 @@
     "identification": "Placement callback passed to the AVolume class factory at RVA 0x96f20. The callback at RVA 0x95df0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "20e122ef4cf22ff8b81608a3f8a866da323641d30d5f8879108476e34a6bff93",
-      "inputs_sha256": "f43b2269cd5a0d1ec24cdfb0ae7002fc3b6a0b70dc24846502126fbfc4018170"
+      "inputs_sha256": "b641f82964369b7e50aeea0df63bebc6225e4be3f7b9c74a94dcd03f05f963da"
     }
   },
   {
@@ -1773,7 +1773,7 @@
     "identification": "Placement callback passed to the APhysicsVolume class factory at RVA 0x97000. The callback at RVA 0x95e30 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "a92333255de5129a5ab90bcbb5ed67eba4323b44415a3ef8747b06486bf06a35",
-      "inputs_sha256": "23b92f8bf51fc03f9f197d42aec9315e5caa498ca842c56ab0d17e5833b12890"
+      "inputs_sha256": "e0b883e8158362e9f76a2feb93407eac66f9c3fd3c84b7b3c3b7514ca7f1595e"
     }
   },
   {
@@ -1799,7 +1799,7 @@
     "identification": "Placement callback passed to the ADefaultPhysicsVolume class factory at RVA 0x97070. The callback at RVA 0x95e70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "1325d7413b5afd2242a6378547810a8de895a510d7a8ad4cdd6ebb988cf7d88d",
-      "inputs_sha256": "c4403d0bf7a47ce72ef73627d88c173c550d63252922987ef8c62471255c081a"
+      "inputs_sha256": "ee7f9f4867ef9b9cd607c264295a911a838267469d572aa94b609352f1450df0"
     }
   },
   {
@@ -1825,7 +1825,7 @@
     "identification": "Placement callback passed to the ASpecialVolume class factory at RVA 0x96f90. The callback at RVA 0x95eb0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "9f686a951b7f91eb76d27d4db47c6923fa2e467a1fe9c41bacdc80b43e1fe270",
-      "inputs_sha256": "2d4e8446e177b8f60025663d89319a940830a88bf895b973a1a1795d4c0feb2e"
+      "inputs_sha256": "3732bab70fbe2b42012a541d2560056bfb7c001f3b1358071ba8f97b15130d0c"
     }
   },
   {
@@ -1851,7 +1851,7 @@
     "identification": "Placement callback passed to the AController class factory at RVA 0x96d60. The callback at RVA 0x95ef0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "764d183a26fc6d72f14ed0a2eea22d033337446bcced0f2ba6eff9e02cb77560",
-      "inputs_sha256": "76c2c1be74f70bd3e4d30702055451638a8bf9ad529d24a836bb270507adc38f"
+      "inputs_sha256": "60f240cd99086dd45b0163fc03bb981aa86520b99673cd3657b54817ceb0ee6d"
     }
   },
   {
@@ -1877,7 +1877,7 @@
     "identification": "Placement callback passed to the AAIController class factory at RVA 0x96dd0. The callback at RVA 0x95f30 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "3cc887af02b5bd0bc04f5772061163d7cbe79881005db3d4ae2c11536b34a858",
-      "inputs_sha256": "384f953d5aa4d1ebb35de77b7aa7d1c8262afc85aaac9e5eee9768afbd77d515"
+      "inputs_sha256": "601c092923ebdc6e6275f838732422d05443e7456dbf7782e555d01d05cb209b"
     }
   },
   {
@@ -1903,7 +1903,7 @@
     "identification": "Placement callback passed to the APlayerController class factory at RVA 0x96e40. The callback at RVA 0x95f70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "b5a2ff7ee0e6b67b832c3a895a8fec09ec95b022015b2214b4a8d584737be56a",
-      "inputs_sha256": "51b4f418ddc4e0b557e88035589e73838cc5c4ceafd3a94c4c9a1db36ca04eb7"
+      "inputs_sha256": "0357d4da822d3bcf02ce29756854e706b64f43d386e4989a5d8a8022c6ae132d"
     }
   },
   {
@@ -1929,7 +1929,7 @@
     "identification": "Placement callback passed to the ACamera class factory at RVA 0x96820. The callback at RVA 0x95fb0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "f0937b8101b61cf62206b1e3557eddabf2c2fa47b377fe3d881a47d9a2f29d5b",
-      "inputs_sha256": "a561c763d44ed9fc1745d5281411f15e253ac6d6e750eced547b14c9e8340df4"
+      "inputs_sha256": "3f90fc94e3fddd7007027674b1bf35d3056afcc4555766741d77fe6676b4d82e"
     }
   },
   {
@@ -1955,7 +1955,7 @@
     "identification": "Placement callback passed to the AEVariable class factory at RVA 0x97150. The callback at RVA 0x95ff0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c78ff860d12f05dc464ebd091a4ee5560310633273e3a2abf44d8429450da8dd",
-      "inputs_sha256": "3295351f327d8def7f2f86dbfd702abaac66d22a632f7b09317baafaed7782e5"
+      "inputs_sha256": "0b056b50e980da5468ccc3764eee51d89a879bd7ad870549f124e8a4aebe3deb"
     }
   },
   {
@@ -1981,7 +1981,7 @@
     "identification": "Placement callback passed to the AHUD class factory at RVA 0x96c80. The callback at RVA 0x96030 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "07eff4f37f4759a2658be6fa76a05a0545ac57711139820df8ade76b5f60f6f4",
-      "inputs_sha256": "e97aa6f31e90a3be16615263ed17d744133ce326fe7ed2272c9016e94fe20a53"
+      "inputs_sha256": "b9251dfd2c8e88e0d6984e58a4e1f43c7ce55816bf30d2c8dafd26e53cb9e3a9"
     }
   },
   {
@@ -2007,7 +2007,7 @@
     "identification": "Placement callback passed to the AInfo class factory at RVA 0x96cf0. The callback at RVA 0x96070 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "7637e6ef3d03666f1bacfa2a16e3b5c701625e7e62e4d48c2a786e12dd46f36b",
-      "inputs_sha256": "2e8288ee0190cdaa722948afd985ded3571636227fbc789f436db1591b96398b"
+      "inputs_sha256": "58d0c0a0d0cad63426a17dc9b85bb8a509937676784ce0818f4bc917de95bc9f"
     }
   },
   {
@@ -2033,7 +2033,7 @@
     "identification": "Placement callback passed to the AGameInfo class factory at RVA 0x967b0. The callback at RVA 0x960b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "e00fa32700a134d9017f3f163a80d38d39c1acdbadc29e0e0f55f782e526f127",
-      "inputs_sha256": "fb0c52c89a9903c57db5154ad4a5b3cd9753695d9c32682b0fa7e85c422ae20e"
+      "inputs_sha256": "27c08351b55092daf536fb22ee9cec6f93ccf77c8e83c73593c330d8c67663a0"
     }
   },
   {
@@ -2059,7 +2059,7 @@
     "identification": "Placement callback passed to the AReflectionReferInfo class factory at RVA 0x96740. The callback at RVA 0x960f0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "a881ca70ecc04a664ff5e38f988e6992dd9c3675f31551c5323596409cc7abc2",
-      "inputs_sha256": "9c4bc68e572f81546b4e7b452d4fd43ef1c0293e309bdfa3b3228f0dc30661ef"
+      "inputs_sha256": "e70575664981ed7e7520472958da6ab85d04bb8b59a10fb1972d261998c0eef5"
     }
   },
   {
@@ -2085,7 +2085,7 @@
     "identification": "Placement callback passed to the AZoneInfo class factory at RVA 0x96890. The callback at RVA 0x96130 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "b75d48b6e3c203e18616831eb9ad26678a5beec0116de9e166eae5342255c28b",
-      "inputs_sha256": "21e31798012a861746b2003d2ed663ac5f8e5bce61c07006635053715df8c2d9"
+      "inputs_sha256": "178664f61b67e456b18f7f2e0e2d15ce80d5321e09d3bd9717edafaecdc143d8"
     }
   },
   {
@@ -2111,7 +2111,7 @@
     "identification": "Placement callback passed to the ASkyZoneInfo class factory at RVA 0x96900. The callback at RVA 0x96170 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "363e93b1bfb57dfda3c2ea417e769b92f2e0de4074c1a661f75af867f50a86d5",
-      "inputs_sha256": "0e3b3ba3b906b93839815082286611cd6ddde398d966e399f25d528fc7be60de"
+      "inputs_sha256": "5a1915acca962371450bb29a280da2b7776ccd1728b53663b7d9ba95c64fb55d"
     }
   },
   {
@@ -2137,7 +2137,7 @@
     "identification": "Placement callback passed to the AKeypoint class factory at RVA 0x96b30. The callback at RVA 0x961b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c8394b080aa4ee3adb28613c6acad5145c6bafda9124273f954146d162f26338",
-      "inputs_sha256": "cace52e98a5831c25624a3bee62feacd50de163903bab4394dd92358df23bac3"
+      "inputs_sha256": "d10ef38824dac511d6945e97103bc5177211abf6158a930d0b4958710879fee2"
     }
   },
   {
@@ -2163,7 +2163,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "8b15e876640c78d9a1c7a519eb192055535fb4f8b33175f750ea4eab4729286f"
+      "inputs_sha256": "94c856f2ab37ba05241400a6ccad5947dff0a042adf680c2aa56eeeadf4598da"
     }
   },
   {
@@ -2189,7 +2189,7 @@
     "identification": "Placement callback passed to the ANavigationPoint class factory at RVA 0x969e0. The callback at RVA 0x963a0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "baae1f960de61e8efcc7f17e76e427f22ebe4331de1d6dbf9176b460c4df0735",
-      "inputs_sha256": "e44967a1a6ce52f9e43b1813b280e22bbb7ba997e927fe9de8d1ca933047c812"
+      "inputs_sha256": "2fac9cc4f73a5187c75eb17c62cd23741a2baedca7d649e99ca0fafd1d2d620d"
     }
   },
   {
@@ -2215,7 +2215,7 @@
     "identification": "Placement callback passed to the APathNode class factory at RVA 0x96970. The callback at RVA 0x963e0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6762c5fa4807d72871016d94a4760111070670c14b5e3030589154fb4e66a9f1",
-      "inputs_sha256": "c7c324175902c1702e29b1622fa66c3f4542d2708d8dd2871eb2c8537f05bd06"
+      "inputs_sha256": "b792c707c4835c6012e3da6d64f19b8957af087be1d219a615ff496bfdcc9903"
     }
   },
   {
@@ -2241,7 +2241,7 @@
     "identification": "Placement callback passed to the APlayerStart class factory at RVA 0x96ac0. The callback at RVA 0x96420 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "16468972c94c98c1f64b23a9975d0bb9eb17c3e4c1537446f67e5b852eac4124",
-      "inputs_sha256": "36f78226a9674938c05ab65ec89ae10f629526292c9ec875589140d792a3d9e2"
+      "inputs_sha256": "42b6bf1aeb850b09ab6319a3dd8080c2e08fb0d2da4f7292c2ecc068bb26a1e4"
     }
   },
   {
@@ -2267,7 +2267,7 @@
     "identification": "Placement callback passed to the ANote class factory at RVA 0x966d0. The callback at RVA 0x96460 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "f8cd6fb936d2a6d56195b56b766b6bf153b0d4b9e69c501df94edba3aa939495",
-      "inputs_sha256": "04ce09350e9cbfa5f9f2b0bd8e7a71c98bf26d662c7e307d57892d1cc64204a8"
+      "inputs_sha256": "b46e99d6d94c733f47eb7c7274af03971beaf3e593f009f3e0f55599cab3aac8"
     }
   },
   {
@@ -2293,7 +2293,7 @@
     "identification": "Placement callback passed to the AScout class factory at RVA 0x96a50. The callback at RVA 0x964a0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "165a1d86d6d97021629eb1602d93b2c255fe330cb7263c012099881f1cb26786",
-      "inputs_sha256": "0dfa2dd98eaa83c42e40c6f84649226bc88b367a8dedf6bafde93334049debe6"
+      "inputs_sha256": "6be2239e7a7e18a159f8dd49ff554a573f980c89b2a671821a1c8a3c33fa984a"
     }
   },
   {
@@ -2319,7 +2319,7 @@
     "identification": "Placement callback passed to the ATriggers class factory at RVA 0x96ba0. The callback at RVA 0x964e0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "255de3076b242fb8a81d68478ec00fc439090cca2fa589608fc741df56df6a80",
-      "inputs_sha256": "9ca25c90d41b0b2ad9619d9965a42a3def3e183c3c9abd77424740a5c41a9f45"
+      "inputs_sha256": "73023d35edb2bf0a853f6e3c541480a7959ef3ded7321e5063e5880cda0c772e"
     }
   },
   {
@@ -2345,7 +2345,7 @@
     "identification": "Placement callback passed to the ATrigger class factory at RVA 0x96c10. The callback at RVA 0x96520 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6c4f2c895a85a0c91ee8a344cc7c68a58b5357a0c2081b0d55c349601d1d9666",
-      "inputs_sha256": "cdee413542c5e72147df8d1aaeb2e37d85b4860f6466d3ab083ea779870d603c"
+      "inputs_sha256": "2669bc4760019f77faf3c14b4cb0894a41fd0a9adaafc4be12d77b5e2f4e2661"
     }
   },
   {
@@ -2371,7 +2371,7 @@
     "identification": "Placement callback passed to the UDecalTextureCollection class factory at RVA 0x971c0. The callback at RVA 0x96560 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "12a2eac2c81bae712b21fb7a1e5f8ec1256b81bc1fd4bcd752c8ff92a8e20d8a",
-      "inputs_sha256": "e32a7a9fb5d450a97cfc0cc9d5503f759275dee7a0f86deec9afef780b19968d"
+      "inputs_sha256": "beaa5ebe76b6bc21364000477d375516572397eb37d02b3e63b2ae9f87a5d364"
     }
   },
   {
@@ -2413,7 +2413,7 @@
     "identification": "Native class factory at RVA 0x96580; its allocation tag and reflected class name identify AActor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "72a37f0d4806f456cd3333d7d8cd90c8b7677e9ee0780315819aa9f747ac690f",
-      "inputs_sha256": "fd8ee74e81b3a154d9c4f3486bb0672e0fe964f7c4d5f69e817a27e317447f8c"
+      "inputs_sha256": "66575d23b7f25a67500725000695d3a22c863f0f5a307de990f0042f74a8538d"
     }
   },
   {
@@ -2455,7 +2455,7 @@
     "identification": "Native class factory at RVA 0x966d0; its allocation tag and reflected class name identify ANote. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "90cf0c5c7f626981c9628a05332e001f1a3803a91d2fbd6ce6f8cca7da851909",
-      "inputs_sha256": "86d9c9e535f1c2b1d67ab08cd5785bfa8dd3180675f3a7a272c47bf102d39673"
+      "inputs_sha256": "f071680c7d14792df014ca410430d900637ed260e03b8d39aa37568f5a9c72f2"
     }
   },
   {
@@ -2497,7 +2497,7 @@
     "identification": "Native class factory at RVA 0x96740; its allocation tag and reflected class name identify AReflectionReferInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "1c53c776c39cfdbf3d3ab0bd238debac8fb81737c9bdedce72ab3f4760ca4a6f",
-      "inputs_sha256": "9dcb5540affca51477373686109a0cdb92c3968e4550bdfb68e78f28578e3001"
+      "inputs_sha256": "a45dd7816f16c7b096c2e85a211228eaeb58b80cfd4f76f939dc36f99be38767"
     }
   },
   {
@@ -2539,7 +2539,7 @@
     "identification": "Native class factory at RVA 0x967b0; its allocation tag and reflected class name identify AGameInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "4f73e8fbe758d51ce3a38243be7e57d7097c34e7acb0c8f139be9d3c61c9941b",
-      "inputs_sha256": "6ed422212c8948a5b2bcd40625a3ec29073347e2cefc7d6250e42499b26a5ca3"
+      "inputs_sha256": "3d814d3b3c5a00deb07b2ea48ac1a311173ddfe7761d9dd2c82d2535142dd824"
     }
   },
   {
@@ -2581,7 +2581,7 @@
     "identification": "Native class factory at RVA 0x96820; its allocation tag and reflected class name identify ACamera. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "280299f6d54df79e3c0cc0cba928fe8ea5a7327549cfeb111a8a01f0cfcabca9",
-      "inputs_sha256": "d635f373cb827e9ed58c6fd9ee025d38626e07485cd1654d66b4d5611843915a"
+      "inputs_sha256": "5a52eee3ae4a6e69a5ec081921e1821f91b315f97d6c84362f543331ed311fbe"
     }
   },
   {
@@ -2623,7 +2623,7 @@
     "identification": "Native class factory at RVA 0x96890; its allocation tag and reflected class name identify AZoneInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "519be11d8af45dbb20e7f31703d86fe119ca550910fe979ae952a3f08d1e1a19",
-      "inputs_sha256": "584a6f9a52d8f8f6211a65606f5c63ff6e3e4a9df7fe12c5258e1454801f21d9"
+      "inputs_sha256": "c929d686bce519e7fe4cb5e1ba4d88c442f62cfb851f87cd59fb60cb5be57d3f"
     }
   },
   {
@@ -2665,7 +2665,7 @@
     "identification": "Native class factory at RVA 0x96900; its allocation tag and reflected class name identify ASkyZoneInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "36a5f84881e6ff441c76aa470ed61b5ce0ce730d22653e1f80ed99c776141b9b",
-      "inputs_sha256": "a8eb96bad78f2bbce8e1c7b18060bf6bc654b3a4dfae6bc415ffb0db1d39b78c"
+      "inputs_sha256": "d4c401b74f0fbb120ba7094a065f1e2309e3e2d7d6aac88c4aa1059e901e46c3"
     }
   },
   {
@@ -2707,7 +2707,7 @@
     "identification": "Native class factory at RVA 0x96970; its allocation tag and reflected class name identify APathNode. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "f62f189f61910087db883c5ae2785c9eb3cdaa5fe509af00ae5585154ca10f2b",
-      "inputs_sha256": "84aa05937f0a015ed92788fb84dfb73f41b72d0d818561f15e5cbcd3d8454021"
+      "inputs_sha256": "db1116ad18efad9af88af9ef535fa753ff04f49c055974847736a588dcb5501f"
     }
   },
   {
@@ -2749,7 +2749,7 @@
     "identification": "Native class factory at RVA 0x969e0; its allocation tag and reflected class name identify ANavigationPoint. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "bd74601cfe2054a6f5ca72ddb835fc067805e04472fcbf83e36589865e3db80f",
-      "inputs_sha256": "da9066c11a1e27ae9b04afd143fd7ebbb973a810a52312053bdd142e101af8de"
+      "inputs_sha256": "f281feac044f21e71432d784188afe3251c78550fe51ff767b6e1256b7bdbce4"
     }
   },
   {
@@ -2791,7 +2791,7 @@
     "identification": "Native class factory at RVA 0x96a50; its allocation tag and reflected class name identify AScout. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "7aedd84fa2fa7d1b9c7c6c6e8501cbccb09a87c985a46fa525eef8c830b190f4",
-      "inputs_sha256": "c9b07e25725361d87503f1f514fa3018a86e9407bc593bcb78d528bfa7b2002d"
+      "inputs_sha256": "9fea84ca2e14cb8b3d1ba1e0565791dc99c9179f53b120f53baf25aaaba878d7"
     }
   },
   {
@@ -2833,7 +2833,7 @@
     "identification": "Native class factory at RVA 0x96ac0; its allocation tag and reflected class name identify APlayerStart. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "c5ddb598edf2068da8db0b7cb04385e61996b6caa5595d13070788c2c0de0fda",
-      "inputs_sha256": "2f1f53cf811fd375a9204af5ad835f0b510134ffecb72bb9c41cdfad644b1ba7"
+      "inputs_sha256": "ad03a1c13a74160821e581f89f37ef0ac3b57669f56c076fa39391ce2a92325d"
     }
   },
   {
@@ -2875,7 +2875,7 @@
     "identification": "Native class factory at RVA 0x96b30; its allocation tag and reflected class name identify AKeypoint. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3798fd7e5829337e40b17608d3cc0ab596a07ef778022523713a6989cb80aa0e",
-      "inputs_sha256": "467f0e56187970e89f66b2c4df0fe4e2415784b8128191e138bde4896a142a49"
+      "inputs_sha256": "fab3e2182c090173e24e1efe2d9e1b03ffe1f38b11f0f0fa0ba429336bfb00ff"
     }
   },
   {
@@ -2917,7 +2917,7 @@
     "identification": "Native class factory at RVA 0x96ba0; its allocation tag and reflected class name identify ATriggers. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "bbc6c1168ef03640000a18bcaeeec0fb1f1f3eeef1c1480d6f88211411bad724",
-      "inputs_sha256": "4ed7c59f2265e4427ed01908a823d5c3cc9aa297848abb86c20bec02fd098a5d"
+      "inputs_sha256": "950b07adfc95965da0c7e572b92aa11efa4c1d3e32d62766857051eceb888544"
     }
   },
   {
@@ -2959,7 +2959,7 @@
     "identification": "Native class factory at RVA 0x96c10; its allocation tag and reflected class name identify ATrigger. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "ab0cb15223ef6a56ec7db82d6fd5dfa8291ca91463ad68cc347e65d6c2d3fc2b",
-      "inputs_sha256": "f29f53ddbe4e96d5adc362023fe952bf2aac7d7357d72988195209d0950bee21"
+      "inputs_sha256": "f8c004961fecde5f3f8fd2c6cd652140240abdca6075fd783ce9ca89b13569fc"
     }
   },
   {
@@ -3001,7 +3001,7 @@
     "identification": "Native class factory at RVA 0x96c80; its allocation tag and reflected class name identify AHUD. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "98ab150723ed1318e0a26b62a3f8d181f61df85c48cde62fd8043c2bf0c2f96c",
-      "inputs_sha256": "e6d87cb80b6cb379dc2299aa92ab54951cb822ddb71ec91c14d356625eaa6245"
+      "inputs_sha256": "7aa093559f722a4c9453e89e7b6a469cca9504f828a1d69fceb4f4e67da6692a"
     }
   },
   {
@@ -3043,7 +3043,7 @@
     "identification": "Native class factory at RVA 0x96cf0; its allocation tag and reflected class name identify AInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "63fc640e7428293a8702d1cfee87c4fad913d62696bf39cd069d7a24b7b36a27",
-      "inputs_sha256": "fe737d018b298be4000a363ebeb916833db97a01669c84f3264e344f773591a4"
+      "inputs_sha256": "a252b141fd9592f96f6dd67d77a67acd8dcb6f8dad8489b9aef2bb7ead58c192"
     }
   },
   {
@@ -3085,7 +3085,7 @@
     "identification": "Native class factory at RVA 0x96d60; its allocation tag and reflected class name identify AController. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "6c82304930aa1610e042a34281c58c568a89e2b044b79d32730e00d802a037fc",
-      "inputs_sha256": "6da4bb7065b89d2491d006e7d901db1d03567f3eacd863f69de470cebb4e085a"
+      "inputs_sha256": "8c5f899a515682fe7874850887ae389ea99c4cc62c7d64ad9ee859063f86db5b"
     }
   },
   {
@@ -3127,7 +3127,7 @@
     "identification": "Native class factory at RVA 0x96dd0; its allocation tag and reflected class name identify AAIController. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "48faae34cef42705fc426f0d4936622f9edb1144ce35603c5fb6ee94ea7567ba",
-      "inputs_sha256": "df872a1b1a4c49cb95b43890ba617e3f5ebf123da0eb89b80f393d91d98ae0e6"
+      "inputs_sha256": "66d412f03b2f6aeb722965cd1ae5154ff4c3f68f67cd03dbcdf4261bc5ff5ff7"
     }
   },
   {
@@ -3169,7 +3169,7 @@
     "identification": "Native class factory at RVA 0x96e40; its allocation tag and reflected class name identify APlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "35415644b672c31d183ccc5a4d2b03251b64e50e9a9275e1d093a380ce4b4979",
-      "inputs_sha256": "82bc601534cb446bfdbcc912bad42df896717cea0488a6b3377000e4d39804f5"
+      "inputs_sha256": "f9549fdfaaf3391717cbe3fdd2c62682be47476dccf6c5fb01e97498d32ab1c9"
     }
   },
   {
@@ -3211,7 +3211,7 @@
     "identification": "Native class factory at RVA 0x96eb0; its allocation tag and reflected class name identify ABrush. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "1c9c59e774e82a64c324aa0558ab1d68644d429570b88ddb54531e333271d2d9",
-      "inputs_sha256": "0f0640fa62afa4178c9d6cc065147221b89807df5fa99d9de3ff464eff197e04"
+      "inputs_sha256": "df15c029e3cb3f0ecdf6209066fc84580a17a704d53078421bdda65a33ac1784"
     }
   },
   {
@@ -3253,7 +3253,7 @@
     "identification": "Native class factory at RVA 0x96f20; its allocation tag and reflected class name identify AVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "202445f82ffc093058dddd8f171d4341533440d71ed9641094c320eece85babb",
-      "inputs_sha256": "c5ffcfc472e34ae80339e76778e59ed852b47aa04592df6b587ed9858c8b0fd5"
+      "inputs_sha256": "dce40e3efd396f7fcdb3a3a2119443aa82c4ac9536d8c0594ffecc8209a4e77d"
     }
   },
   {
@@ -3295,7 +3295,7 @@
     "identification": "Native class factory at RVA 0x96f90; its allocation tag and reflected class name identify ASpecialVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "35782694a9a4be6aab73ee26b2a5f34cf6a0ca42af50aa42b3270aac8045d524",
-      "inputs_sha256": "f9fe4fbd75a0d2e7b2691ce37522542238df661630369e25047c544b5b64badb"
+      "inputs_sha256": "96c2f49be786c8f1b969612ddd80f1cf2396d5d6d9ef6ecb27479189438fc77d"
     }
   },
   {
@@ -3337,7 +3337,7 @@
     "identification": "Native class factory at RVA 0x97000; its allocation tag and reflected class name identify APhysicsVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "0cd3ebd74e4b00aae5511b26e6f2d86c046245826e6e72f79ad238afd437b4d8",
-      "inputs_sha256": "ef911c6323e491251bd8c37ce077155053be518c16e1507e96e3f60a811dc95a"
+      "inputs_sha256": "94237c6aa6b266ab010599c6af5992e9166262c6de589699b6efabd2d600cb31"
     }
   },
   {
@@ -3379,7 +3379,7 @@
     "identification": "Native class factory at RVA 0x97070; its allocation tag and reflected class name identify ADefaultPhysicsVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "8c61a48d405b707087493a5e7ad72664f60e74ac5938e3ed316b021dbf31d9fa",
-      "inputs_sha256": "e5e1b83c65886fbfca1e9da34797ffa8a6cfb4995779c563ecdb80b758747c9f"
+      "inputs_sha256": "b1bbfed28495d4d06f1870bc4f8ac2f4c468a9c1b1510bfffbb940b627063f46"
     }
   },
   {
@@ -3421,7 +3421,7 @@
     "identification": "Native class factory at RVA 0x970e0; its allocation tag and reflected class name identify AAntiPortalActor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "c70e623874bf18aa603f63f0688431beb574066c75df773cad3ac0f3101f5112",
-      "inputs_sha256": "c5aa1705dd50fd12cf358cd959dc0dc09a53930fc87f47db1e81c1892e9fdd71"
+      "inputs_sha256": "faa3e2864eccd00393e09728207ab29ca3d0b23b6aa3e23db01caa4a1caeea69"
     }
   },
   {
@@ -3463,7 +3463,7 @@
     "identification": "Native class factory at RVA 0x97150; its allocation tag and reflected class name identify AEVariable. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "1db9b9490f903579be7a7779798fb2738748a632ba9c7fba77fc650341188d35",
-      "inputs_sha256": "106ee69ea54ffe6c3f15bf4f2102c7ccf62e29680ac78e0f4fdbb43761818a35"
+      "inputs_sha256": "50980ba221512795d1f9aaf89887c9714f81858eb077c6db3b945d75dab9ada4"
     }
   },
   {
@@ -3505,7 +3505,7 @@
     "identification": "Native class factory at RVA 0x971c0; its allocation tag and reflected class name identify UDecalTextureCollection. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3b13be23c7d70842718367ff606307429cd1f10ad05ea2ebbff3a4fa9fc67a20",
-      "inputs_sha256": "46ed048ba8265507d8d83dbd65d0ae173e153c28cca2fdc82a3ba29120538f19"
+      "inputs_sha256": "f9b35ade2179f7bb814d7f137f766d5c929a5cc5d08590b6f8625ec8b56f31ac"
     }
   },
   {
@@ -3531,7 +3531,7 @@
     "identification": "Placement callback passed to the ALight class factory at RVA 0x972e0. The callback at RVA 0x972a0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "b77a693a89e09568075ce8b23bdc14f825b5182ad500fb4c5306d0479a35421e",
-      "inputs_sha256": "be79f20bb066e0519bd6d4f531f0d3c486478036f7bd468a6b6957196a40b97b"
+      "inputs_sha256": "fcd79fff79698760c3713689545c3dcb88ff65227f205802d927dd9d13f94c99"
     }
   },
   {
@@ -3573,7 +3573,7 @@
     "identification": "Native class factory at RVA 0x972e0; its allocation tag and reflected class name identify ALight. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "c78ff2ae30dce6d94404c8e8a07cb6be0c6bf2cf710f8e98f82cb586c34bb71d",
-      "inputs_sha256": "d3294a418da0e8b5638415a56b07d6d958fd13e3a5189dfd167b38ee7fcab6c7"
+      "inputs_sha256": "0bb825e4a5f85b06ae495b7890658d16142648471cc8b56d8d022a67c6e5fbb5"
     }
   },
   {
@@ -3644,7 +3644,7 @@
     "identification": "Class registration for ALight at RVA 0x97350, called immediately after the class factory at RVA 0x972e0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "636c57f587b87f15d7d94a71f1a9c91740b75d2fdc5972af20984db6336b7baa",
-      "inputs_sha256": "4d74678aa5c584df309c545eede3ca004af8747125cd5e0e0ca3da0bc90c119e"
+      "inputs_sha256": "ad9e216d0d43626b5acf8ff338b3d2800e784ab19a5d46697ad7347bc0ad2a6c"
     }
   },
   {
@@ -3715,7 +3715,7 @@
     "identification": "Class registration for ANote at RVA 0x97460, called immediately after the class factory at RVA 0x966d0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "dd471483665c7581cb05243f37599531b8f446f6bb888e2818c9dfa22d85090f",
-      "inputs_sha256": "e2fe579fffcad3f9f007b875eb92c60ba03ab87ce8f8fd31a8d675c0f5cd2450"
+      "inputs_sha256": "6b7716fc781946876bc65c0956451c1ccedbdc92de3f900fd3f164af4939b6a3"
     }
   },
   {
@@ -3786,7 +3786,7 @@
     "identification": "Class registration for ANavigationPoint at RVA 0x97570, called immediately after the class factory at RVA 0x969e0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c09af40f2ff74738ad4b5dee7fbcd68d8da415275f16ca6ce96110c4bd5d4189",
-      "inputs_sha256": "b3b7592e6729b3f2ffafef53903c148c8c18bd967822b7eb6a70477d4a4e3f44"
+      "inputs_sha256": "7fa02ace486dc6dff4dcf662e44b41ca67ec5b4ef50914b20c0195af5de47c69"
     }
   },
   {
@@ -3857,7 +3857,7 @@
     "identification": "Class registration for AKeypoint at RVA 0x97680, called immediately after the class factory at RVA 0x96b30 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "65e8dcb57f1755c8808afc6a183464d683427e2af32a19a7659953664a84e331",
-      "inputs_sha256": "68437392a80d3481d44f8a1b376094436087ca81c53a3df7b2b837640c04de3b"
+      "inputs_sha256": "44d32932122f8366171291b4b10224fee5b1078e56ed53b4e92b48b167887639"
     }
   },
   {
@@ -3928,7 +3928,7 @@
     "identification": "Class registration for ATriggers at RVA 0x97790, called immediately after the class factory at RVA 0x96ba0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "980da7c02b15e792ed92b4ba96fd8c72cdfb063655084845bc51579abbd7e402",
-      "inputs_sha256": "5586a38f54e4f0c07486ed57a2c9101646a94eb52dff230921c0ec56c44a03e8"
+      "inputs_sha256": "91eac1e601329460bebd978e5fa655c1530a1131d3adb30dcf2d626913a0a5e4"
     }
   },
   {
@@ -3999,7 +3999,7 @@
     "identification": "Class registration for AHUD at RVA 0x978a0, called immediately after the class factory at RVA 0x96c80 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "de409a79a12777903729920f0fd5eb217b68947f62574965f9bc8e077c2fdad9",
-      "inputs_sha256": "c329b0187c347b7cb524d0f17e2bb335eea9c55d44db08dfe8c16b3787d28294"
+      "inputs_sha256": "166f1f9506002d9ba402a10741149d30708eec2a29acd135fd72b30be4fb6819"
     }
   },
   {
@@ -4070,7 +4070,7 @@
     "identification": "Class registration for AInfo at RVA 0x979b0, called immediately after the class factory at RVA 0x96cf0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "1fb76c6673f3e28faabd07c5a239cddd18121088ccb19f6775dbe5844552eb8b",
-      "inputs_sha256": "360d3b9cdbae1b5a1d97f9e7e193e57d72a8764360f2cd880f8052a152bbd977"
+      "inputs_sha256": "c3d1bf8dc7735acbdf69c85b082f8b872060f42a5ebeaf7110cb025b565c06bb"
     }
   },
   {
@@ -4141,7 +4141,7 @@
     "identification": "Class registration for AController at RVA 0x97ac0, called immediately after the class factory at RVA 0x96d60 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "2c3f01eb62bd59076bf6400d96db8a3965c4b5d8311933cf3d182400b18e47d9",
-      "inputs_sha256": "d70bf8926e8611589e24a6f9da277d0d0512943913317dc08cf237e805f79535"
+      "inputs_sha256": "a40b2f7bc2f3900ac3aba16d9fde660662166e60c7c5e2c63de1ab4308e2669b"
     }
   },
   {
@@ -4212,7 +4212,7 @@
     "identification": "Class registration for ABrush at RVA 0x97bd0, called immediately after the class factory at RVA 0x96eb0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "86d3e05f19ad3ddde71c315ec94468fed1c4d5f09203ef9de7d5c4b8f02ccee7",
-      "inputs_sha256": "e69f03c4232185d5898e844ba7a6e878db8f817d63f3983a03a87fa8d0df9b47"
+      "inputs_sha256": "ce64f3ebb105ea6d2fb1b239342934455ff477aedb82884fa97b775c37ecc371"
     }
   },
   {
@@ -4283,7 +4283,7 @@
     "identification": "Class registration for AAntiPortalActor at RVA 0x97ce0, called immediately after the class factory at RVA 0x970e0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "81f4590820657c30dfc52f0f6edc8111e057ce7a8f96a3298171d13373ee0b54",
-      "inputs_sha256": "fbf21c0bb3ce38f268eacd167d24b2e78155624bbeb43fa9726421e9ff65e317"
+      "inputs_sha256": "d795e12ee0a366f5f13c1695b97b91688fc9e90628dc4ac654ea0d0da0676058"
     }
   },
   {
@@ -4354,7 +4354,7 @@
     "identification": "Class registration for AEVariable at RVA 0x97df0, called immediately after the class factory at RVA 0x97150 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "db562cb5545e16c5fa7e8cd8cd1b1458a99f72b16dbd32ef97afbe7325e8f7ef",
-      "inputs_sha256": "aba846c80c408e7473c28b9b25104d7d2e0b88ffd6167502bc852a6056fa9d3a"
+      "inputs_sha256": "427e46c4c0914f7d8b33151fc7ed36893d098e1052e95c0ff5bc4f273d806ad8"
     }
   },
   {
@@ -4425,7 +4425,7 @@
     "identification": "Class registration for AReflectionReferInfo at RVA 0x981d0, called immediately after the class factory at RVA 0x96740 in the singleton initialization path. Sets superclass AInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "a3b3c3477be3c6ad08b562c92b7defd132d487e8509d0c6c060374373e86dab7",
-      "inputs_sha256": "bcc285e7db6a1748f21f684ba5024c1e6335d3648a34a9efd823a78cc6fde142"
+      "inputs_sha256": "0e2e19a2fb31a204e8dc2140b07d1541470e873d29692943224b6657b11652f2"
     }
   },
   {
@@ -4496,7 +4496,7 @@
     "identification": "Class registration for AGameInfo at RVA 0x982e0, called immediately after the class factory at RVA 0x967b0 in the singleton initialization path. Sets superclass AInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "58dcbd9084968f9fd6dc82e186b394bfd6ce3059e55dfed7a8214ec9a3c43367",
-      "inputs_sha256": "2b77b867d9012a736d762c422e7a4927bfa4ae63ad1c288dfe2d6bc0c90d37eb"
+      "inputs_sha256": "30a981e8a3ab6a2a1d0e858ce1a6e99a619bc83b472d8f5cf7cc80d4b0a92aa0"
     }
   },
   {
@@ -4567,7 +4567,7 @@
     "identification": "Class registration for AZoneInfo at RVA 0x983f0, called immediately after the class factory at RVA 0x96890 in the singleton initialization path. Sets superclass AInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "97b297e163c69bfd08a09c3716c19fe94440248f80e740a4f9ec68759eb913a8",
-      "inputs_sha256": "af16328412257c5f6615ab352b48d4a0f66550d24d113afe012188ba790ba1de"
+      "inputs_sha256": "d0c40fd6ae9934d6f5d6877bc2fb36c91bf35eff3008cce19313317c04b21514"
     }
   },
   {
@@ -4638,7 +4638,7 @@
     "identification": "Class registration for APathNode at RVA 0x98500, called immediately after the class factory at RVA 0x96970 in the singleton initialization path. Sets superclass ANavigationPoint, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "a8fa11fc90b597bb2e3f9df1d2298eebb108940ece03970c7bd884ac93901d8d",
-      "inputs_sha256": "c67b3e631f870581f61960fe8354691664fd171e78208c77c1077dcc23ac76d4"
+      "inputs_sha256": "80dafe4b55c94ac5a04f64f0ae103e72d20a27683c2e79567ac529ddb242bd08"
     }
   },
   {
@@ -4709,7 +4709,7 @@
     "identification": "Class registration for APlayerStart at RVA 0x98610, called immediately after the class factory at RVA 0x96ac0 in the singleton initialization path. Sets superclass ANavigationPoint, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "cd71db2a26e33c2ee5ab044792d3f43149bd7b0c2ce5647c3c2d729b7ac48ed2",
-      "inputs_sha256": "0cf6e393e4ffbe1fc655a9b44ca447b2ac4941c32213ecc0b28dcb84ffea3356"
+      "inputs_sha256": "3c3a5a0f7e1fc062509592c090b9591b6dbd29186239db57e3b95cfea2f4520d"
     }
   },
   {
@@ -4780,7 +4780,7 @@
     "identification": "Class registration for ATrigger at RVA 0x98720, called immediately after the class factory at RVA 0x96c10 in the singleton initialization path. Sets superclass ATriggers, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "72837f545fbdfbffb284d6fe8b50c14094291330a1f1912e91dc7f64e40f4d19",
-      "inputs_sha256": "100eb220dd61a10f95229a9f0a575a35b9432d4e86ffdeb36feaa5432a4d53c8"
+      "inputs_sha256": "9721de2cbaf74b218694524e79faf22dfa2d0be1bb88acc140b8ec0f53806244"
     }
   },
   {
@@ -4851,7 +4851,7 @@
     "identification": "Class registration for AAIController at RVA 0x98830, called immediately after the class factory at RVA 0x96dd0 in the singleton initialization path. Sets superclass AController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "493c1230ecdd5fd6eb95f49523abdd39c668c14b087ac40d7d69bc79acd4638b",
-      "inputs_sha256": "bf7d45bdf9f2de777d460d67968ded319b8e32b6def6f21680dd084a1341043c"
+      "inputs_sha256": "72d8beec868850919a4eef7f5c605e3143b17c953cd8b9340aa441c1a6e672d7"
     }
   },
   {
@@ -4922,7 +4922,7 @@
     "identification": "Class registration for APlayerController at RVA 0x98940, called immediately after the class factory at RVA 0x96e40 in the singleton initialization path. Sets superclass AController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6f1158a94004f71f672a3b8aef040651e32f227a050eb122fabe14aa4c2d9deb",
-      "inputs_sha256": "153908ec2073c1e798b20bb3deef87a566ace2b929141aa3ec3da04c7532bc31"
+      "inputs_sha256": "886e4500edcf9e391315385d7817a878fb6f664d280cc8bb2f5ce150dd53ebc4"
     }
   },
   {
@@ -4993,7 +4993,7 @@
     "identification": "Class registration for AVolume at RVA 0x98a50, called immediately after the class factory at RVA 0x96f20 in the singleton initialization path. Sets superclass ABrush, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "e150a851f36607ec190d04b179f743b734352eb2583977ba059b93025a8cc690",
-      "inputs_sha256": "f70dc91f3f74e7d15c51150f6206909c6598b0b962d5e51cd8bc986e793bac55"
+      "inputs_sha256": "85dbaea3c783dea2a4d07d72206afb77cac14e48e8c26193cf4c0213d559559b"
     }
   },
   {
@@ -5064,7 +5064,7 @@
     "identification": "Class registration for ALevelInfo at RVA 0x98c50, called immediately after the class factory at RVA 0x8f430 in the singleton initialization path. Sets superclass AZoneInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "5665acfffa508c6decae9ff235829b93376ad82c836c39651d912c2009202133",
-      "inputs_sha256": "65812b2012e7969c7f2efd3a3ddcb4c9a1cb1077fff81c2e807459d1adefef82"
+      "inputs_sha256": "f52691e56fd4b1006515d688f01e69ba0ff0aefa70333f21a37a845fccc4297e"
     }
   },
   {
@@ -5135,7 +5135,7 @@
     "identification": "Class registration for ACamera at RVA 0x98d60, called immediately after the class factory at RVA 0x96820 in the singleton initialization path. Sets superclass APlayerController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "1330b3a5720235d82a7e90ee8cdd1772a280eaa7c8fb0b05dfb5b93942cdf67c",
-      "inputs_sha256": "9d3934d521f5f3a340c30b5e18446cd213e9ff5c7ff751b86de046d5be466074"
+      "inputs_sha256": "3ba2ab20d3260b87a397eb5754932e5695d81201ba8f47f67155613edfb28a13"
     }
   },
   {
@@ -5206,7 +5206,7 @@
     "identification": "Class registration for ASkyZoneInfo at RVA 0x98e70, called immediately after the class factory at RVA 0x96900 in the singleton initialization path. Sets superclass AZoneInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "7d8dbd34c93f0c14cb9fbd82fca07816704394c4cdfffe065c1906c2f5e8475b",
-      "inputs_sha256": "61072b9ba22e67ced8d9664d44a05f26977ed03861553fc52ff8230e684794ef"
+      "inputs_sha256": "8680fe72d3a5a4e46d91b5da975baa307b91f9be2697d35ea8d627f880488413"
     }
   },
   {
@@ -5277,7 +5277,7 @@
     "identification": "Class registration for ASpecialVolume at RVA 0x98f80, called immediately after the class factory at RVA 0x96f90 in the singleton initialization path. Sets superclass AVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "76d47cb1c21ed832cc8bce4eddddf77bb7117617695e7f15b858decbe5414e3c",
-      "inputs_sha256": "e1e7859d6efb9995b496bf8b62439513bc1938626cfe098484611c2fa02e20de"
+      "inputs_sha256": "80a29b562a2c427a8f313f0c760c4564e6f222c8eae3b96cdf5ae777116222db"
     }
   },
   {
@@ -5348,7 +5348,7 @@
     "identification": "Class registration for APhysicsVolume at RVA 0x99090, called immediately after the class factory at RVA 0x97000 in the singleton initialization path. Sets superclass AVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "fa97883d5b76cb53c328dc503a93e7f957e32980f55ab0d07e20fcbd3be4bd25",
-      "inputs_sha256": "b8fae3553275a255e285e10a97684cb199bbe201ff87af555c091ce846c1ece8"
+      "inputs_sha256": "02205fc9163f9b318214fde56a4d6a2e650511c63a5aef0793d0d6a3f07a3a7c"
     }
   },
   {
@@ -5419,7 +5419,7 @@
     "identification": "Class registration for ADefaultPhysicsVolume at RVA 0x993e0, called immediately after the class factory at RVA 0x97070 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9a850a613163e9d2f4898dd002e3f4f4e8cc203a5382dcba95de52ae3e8dd6f3",
-      "inputs_sha256": "e15e96a0cf022586d6a614794dd11d2a57a470ad31a74399e46a6e9971a45dd1"
+      "inputs_sha256": "e1a97a1a663b8b2295d566ae535382b26b8e1a218708e9d50685f140d82b9096"
     }
   },
   {
@@ -5490,7 +5490,7 @@
     "identification": "Class registration for AEAIVolume at RVA 0x995c0, called immediately after the class factory at RVA 0x99c80 in the singleton initialization path. Sets superclass APhysicsVolume, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9741c3f810411c26ec327662c1bacd77b3da085ece066437e2328100088ddcee",
-      "inputs_sha256": "9dd9758f6cb86d42d46072996a475b9cba2aa75b4e60358712de881b1bdde3d9"
+      "inputs_sha256": "f5b0b3a1610bdcec92c9826cf3d0e03b547c386d0d28c6bee9ee9cf733dc882e"
     }
   },
   {
@@ -5521,7 +5521,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x999b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x99a6b, 0x99b8b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "38051c350bf3e955d0b65bcceb79a2ea915682773a1e74b58bd101f78e825519",
-      "inputs_sha256": "5a656f9bb01a627a0ddae1489025a0528273515f81495878a32964fbc67636b0"
+      "inputs_sha256": "197d70eccb6f814fadb8289161b3bf0b9e82492eaa8f5036151997c23f66a078"
     }
   },
   {
@@ -5548,7 +5548,7 @@
     "identification": "Complete stock array destructor at RVA 0x99b80, called from decoded game code at RVA 0x99c14. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "12fe5f6f05c68fbcd0a96ae47260d912c7279823c1c73641411101586c6241c0",
-      "inputs_sha256": "9fef109bc0caf3fdff5ca4247c75c4c252ea79eed9442ed7ef187d1384c52ae1"
+      "inputs_sha256": "7bae3102559bc1a58c4fb632ce959092dcb8cf2681663ca5b31e5cb7c51ed50d"
     }
   },
   {
@@ -5586,7 +5586,7 @@
     },
     "match": {
       "bytes_sha256": "a66da1e0e4062d3ecfb6f80899e2c988d5b956656d5201182a4694710566931d",
-      "inputs_sha256": "99c3fdd8bee5f4a4c3dbd2d1aba0b45786a502126b85847f49e45c004492476a"
+      "inputs_sha256": "ccd79fa56d9b355da63d8472a375e8bca9a398ee351636563f27e6f6066e22bf"
     }
   },
   {
@@ -5612,7 +5612,7 @@
     "identification": "Placement callback passed to the AEAIVolume class factory at RVA 0x99c80. The callback at RVA 0x99c40 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "cdc63e9b91d0262b661c7a6632cf99c6abcc5b0777cefc48d7ca9ca1c3f558ec",
-      "inputs_sha256": "13657ab054a673dc4c9e3197f41b0abe3c83b310027f56cfb37a08989ad7b602"
+      "inputs_sha256": "bad231d9814c0ae50947bc22bc40917a6938650febca190bcf8b806fff7b51e4"
     }
   },
   {
@@ -5654,7 +5654,7 @@
     "identification": "Native class factory at RVA 0x99c80; its allocation tag and reflected class name identify AEAIVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "96b2cdfc01f5c74f20edb2e3784236c7ca3155ce5491a2a063a67faf58ea7b6c",
-      "inputs_sha256": "360e5989d4e808d3095351c0313c911358bb8817eb41ed694d9752c53468caa8"
+      "inputs_sha256": "b7ec48c7e2fa0d5da5dc25924eebdd31b23c57b2fe3f2512535cb3884db45e77"
     }
   },
   {
@@ -5725,7 +5725,7 @@
     "identification": "Class registration for AEAIZone at RVA 0x99f40, called immediately after the class factory at RVA 0x9cb90 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "3a33559dec7089349fc905905994b32bc771f39824237b229cbc52b7c13d4a2f",
-      "inputs_sha256": "5b4a7c3e930edac980def2614f2a65bf08749c3b3e70b39c5a9704298bed05cc"
+      "inputs_sha256": "08e98a4684d93d9bab68eab51d8e4cc2d614e229bd1c0e463a7f9d5d5a65b89f"
     }
   },
   {
@@ -5752,7 +5752,7 @@
     "identification": "Retail Trigger event wrapper at RVA 0x9a240, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Trigger at serial offset 0x185eb.",
     "match": {
       "bytes_sha256": "a69ebad7557dcad1265c90e7e8d35598b785a5958c03911f5a9bd9fcc9eb60a4",
-      "inputs_sha256": "528416cdba315ab4c19041c0f6d49ee3eaf3a30f1a357cccfdc897cf03bc41f6"
+      "inputs_sha256": "fcd996e01eb3b050c4b6eead9b4f1465f85ff5d93184585270a3a683bf1fed99"
     }
   },
   {
@@ -5783,7 +5783,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x9a6b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9ba3b, 0x9c3fb, 0x9c866. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "b22180b98658b328bca76e14853fd006e5f44eaa6b36a4b75aa5d60af836701e",
-      "inputs_sha256": "79a43fa59af647738dfe28041b93efbeedae5a8c7d729da7f0d8b5af42707d83"
+      "inputs_sha256": "8fd156ee431af8d97a9aeac729945bfaec55bfbd5d08a6e6f6dca7780df459b2"
     }
   },
   {
@@ -5814,7 +5814,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x9a740, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9ba7b, 0x9c33b, 0x9caf4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "ee0d61dbce2d533300c4feff0adc1a78460d4f196a8aeab3186ba188bf015570",
-      "inputs_sha256": "daa91976ca5c30f9e61174fb079f5168c445878c4ccfa84add205d1437df3180"
+      "inputs_sha256": "6d57d886d198b2bdbb94953e22e76b5613f6a61a6efb51dae17accf77e70ed23"
     }
   },
   {
@@ -5845,7 +5845,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x9a7d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9babb, 0x9bf81, 0x9c37b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a76b6ec92b46ad08fa7522f54cf8ad030d805ac869c0810c22c47e99e65b888b",
-      "inputs_sha256": "72c6540a327d181df73c1ee345cbb1dd768cce3d496f8c2dfffde352ed0cb98d"
+      "inputs_sha256": "d494e1e9d3a075ee61b8f7d6708795f2b6ba76f00cb6461856d29eace50813c7"
     }
   },
   {
@@ -5876,7 +5876,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x9a860, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9bafb, 0x9c3bb, 0x9c9b4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0742185bab499b864836714ac914fb50626f597c46a0960ccdcda99c05e4f703",
-      "inputs_sha256": "d0b07cd85beb86adc0d552bcdc836c06fe551941813cc0d3aee06fb987592326"
+      "inputs_sha256": "715680dce447698a67271605d27288747f2271cb844a12e1de80b83c5982c92c"
     }
   },
   {
@@ -5902,7 +5902,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "fbb4c973193f635f03d3d64a10b09b0e8d9de21383f0ac6e1c003966bfcdbe59"
+      "inputs_sha256": "9a2e64ffc3931ab2c1998b2f5f89d2b8b8225fdda2935e3f004a2fa94dece220"
     }
   },
   {
@@ -5928,7 +5928,7 @@
     "identification": "Placement callback passed to the AEAIZone class factory at RVA 0x9cb90. The callback at RVA 0x9cb50 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "7c36b6343098587f0bdebfe1a364c4c5ed7ed42bbd35c23dd9a317dc5849865a",
-      "inputs_sha256": "ea2c3ed5fba71e16194910f408b429027ca0212af9494b103ba098ee0583faa2"
+      "inputs_sha256": "9ef38b52c48ccfeb0454d08f58b354644adb1300fa83b1b12a56e2887534d294"
     }
   },
   {
@@ -5970,7 +5970,7 @@
     "identification": "Native class factory at RVA 0x9cb90; its allocation tag and reflected class name identify AEAIZone. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d8e1fd984d2b2528d7be9061ce34db68742990b547608af4beab4470cd76a37b",
-      "inputs_sha256": "f9b41fe5e7cb88baa63f68abd23e9e33ddb529173c039fe5eb2c4b1cda24112e"
+      "inputs_sha256": "9f76b17c702bead5269364d29c4759d41d16efae32dbd8e1f9e1de6cbf373ba9"
     }
   },
   {
@@ -5997,7 +5997,7 @@
     "identification": "Retail CanPerformCloseInteraction event wrapper at RVA 0x9cd20, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares s_PlayerWalking.CanPerformCloseInteraction with Bool ReturnValue at serial offset 0xa7ffd.",
     "match": {
       "bytes_sha256": "4e99077a57e3ac7a632735c1ae78de1b5a7f6e0e2e674f54d6fd8e8f9e33d9fc",
-      "inputs_sha256": "831d0f98de08d62cadcbceed016370abf14f6c6dbde521b99e1587c1711b96d8"
+      "inputs_sha256": "e1bc00498bbf0e6c2fe161c0007549471097eba43df8901af0ef9be8989c7814"
     }
   },
   {
@@ -6024,7 +6024,7 @@
     "identification": "Retail CanAddInteract event wrapper at RVA 0x9cd60, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares s_InteractWithObject.CanAddInteract with EInteractObject IntObj, Bool ReturnValue at serial offset 0x5e982.",
     "match": {
       "bytes_sha256": "c03eae2b48a088378917e7d6ff61447e0b7cb925bab2bb36ee1395ab57122289",
-      "inputs_sha256": "4cac98a2c3e4d0fd450e20c999679e4b03459aff0b3bcd080d261d5271954fa5"
+      "inputs_sha256": "29f499c92a1c4f601df5677c9263b57a2738e08bfee060ffd0495635ae97e05d"
     }
   },
   {
@@ -6051,7 +6051,7 @@
     "identification": "Retail FailedCoopTimedInteraction event wrapper at RVA 0x9cdf0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "af6b6154ac13a4b052d1ca40a3200f225297e7b141edc6e7edaae7f3e41d8b08",
-      "inputs_sha256": "8c979b83a3bf9874b7c68bacedddbb792419dbd55b0246e2a83da791da8f1884"
+      "inputs_sha256": "3105ec1546542efe1e4afe510d47a6661bc0f93f23d23c002ffb172d11a0e257"
     }
   },
   {
@@ -6085,7 +6085,7 @@
     },
     "match": {
       "bytes_sha256": "9154b8373a9c34ff626ffb03fda2371e6c93d4acc8b98411fe266f9e21af552b",
-      "inputs_sha256": "0202a15251e3f8d8c582813535ac3a7e76e2242c2465260a5d7f262c4d6cd20c"
+      "inputs_sha256": "b4416414eace3167057097f1026d8a3ea43f007ac9e2a6a7b2b284bf9594a4d4"
     }
   },
   {
@@ -6156,7 +6156,7 @@
     "identification": "Class registration for AEInteractObject at RVA 0x9cf40, called immediately after the class factory at RVA 0x9f990 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6f61eb541cf5aae2660620e28c5c0fb82e9c7c798cc9c6da3b2f7a56041ba2e8",
-      "inputs_sha256": "3a091048b884604b580e426c565ec7051381fc149f74377140dde4cbcc690f67"
+      "inputs_sha256": "e1389bbd291c271420b7ef5882c6ec6f0f6f8038331d67b94d411998f7065fa7"
     }
   },
   {
@@ -6227,7 +6227,7 @@
     "identification": "Class registration for AEGameplayColl at RVA 0x9d050, called immediately after the class factory at RVA 0x9fa00 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9e4b6d546074c43002b878c0af0c51832772848b5a93eea24a06230bcaf9aacb",
-      "inputs_sha256": "31fd6d1aa4ef04ecb0f8e2582df7305a8ea10736a289011d3124cfac3dee4101"
+      "inputs_sha256": "b45d522ea58cf60c6eafe32d4daf9102f85e4e2ee76e9b950be4a2f9edd8e417"
     }
   },
   {
@@ -6282,7 +6282,7 @@
     "identification": "Class registration for UEInteractionManager at RVA 0x9d450, called immediately after the class factory at RVA 0x9f820 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "d6278ff68e1a31bdc496c403c9c98b991763c4f2ac05be1f9c401ca3225dfc4f",
-      "inputs_sha256": "fcdf8a01e974395bc4aa5b23e205fe3fe5732e4711215d76dc16fdd897c60444"
+      "inputs_sha256": "0d61e725c78e05e56d7ecd296f9a14c1da95eef99eb2594b99ccac6e0a05a5f2"
     }
   },
   {
@@ -6324,7 +6324,7 @@
     "identification": "Native class factory at RVA 0x9d8e0; its allocation tag and reflected class name identify UGlobalInteractionManager. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "5512c26697e72e67ed4ba6cc1b052388d67ee33b8cba42ce8ea021ee93e172f3",
-      "inputs_sha256": "a1904a45f50d5a0a72c143701ca6ded0512dba7ca333a4aedb45a5c925130248"
+      "inputs_sha256": "9255765cb2759ba5a37311c05047185ed22be2fa9b28badee7c7ec520f19f818"
     }
   },
   {
@@ -6379,7 +6379,7 @@
     "identification": "Class registration for UGlobalInteractionManager at RVA 0x9d950, called immediately after the class factory at RVA 0x9d8e0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "ab9da2cc4a02ee0e7e92ccefc22855d0dd1c7cef50aa9cabceea35c32898ea39",
-      "inputs_sha256": "34d9c19de0fa10d784207c4353d71cd1112ad40506a8a15d9e4bdaf09d2cb1e8"
+      "inputs_sha256": "50ee358804156dbbdd3ab99d2559e13e06082a61c79c53811e301df243a51990"
     }
   },
   {
@@ -6410,7 +6410,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x9df90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x9e6bb, 0x9f1fb, 0x9f541. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "8b81bc6dca345a9e4e555616e47749f095228d3caeeb0bfdb09e3a130b646e82",
-      "inputs_sha256": "4b8a5cf9f459474bc1ef7151af4a3fd4ba90f70bcd19053c04ee2d5f08dad2d0"
+      "inputs_sha256": "f9ae15989660e3f98c3930bf7d3c1cd48ff2587b26b4c724dda74a157f7c4b70"
     }
   },
   {
@@ -6453,7 +6453,7 @@
     "identification": "Retail GetDescription event wrapper at RVA 0x9e610, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in Echelon.u, ECoopScaleBase.GetDescription, serial offset 0x6defb.",
     "match": {
       "bytes_sha256": "eecb4b0219e2f7945ea07309af7a7e6acd58daae94434b2a11a03c1c4aada625",
-      "inputs_sha256": "607eef2cfc6bfc07d11e160bd215aa8d8984cbda4310da8d0bb136f8872bb9e6"
+      "inputs_sha256": "208fa2c46c60f0b552e8da408b6d328daf7872d7518c03a95c7dc05239e39984"
     }
   },
   {
@@ -6480,7 +6480,7 @@
     "identification": "Complete stock array destructor at RVA 0x9f1f0, called from decoded game code at RVA 0x9f7f1. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "fa06a7f30fe19418d47f0b03e0d54ba3c99ef9fe9f9cbb39db7c2da63a7d2146",
-      "inputs_sha256": "ae140965d2896225425feb6e801c07b46df7d5017028618b0ced5d65272b47c6"
+      "inputs_sha256": "22da13283921695953aa06c1b159a4fbc6041728b33d0e644a0dd185987c9eeb"
     }
   },
   {
@@ -6514,7 +6514,7 @@
     },
     "match": {
       "bytes_sha256": "86b91d18b0875c7861650b9962f4dcedf4a9c57877663e3fd6299e8b42bc0384",
-      "inputs_sha256": "cb043a9583e93d005fe254a0b5ab3c3816eae57b4ac5216eb671f82686f08c16"
+      "inputs_sha256": "e1f94a0267c5e30f4b0ce39145c1b7ea82d582383cef1b9643cd37605f0e2e2f"
     }
   },
   {
@@ -6548,7 +6548,7 @@
     },
     "match": {
       "bytes_sha256": "1f2bb796d628d4bfeb490cf2c5ee92973ed4f52832e1df1489203e111e220c76",
-      "inputs_sha256": "c549dbb8709e72755bd04f4106519ecf2e0c05cb198b1f0b47fabccbc31f6e51"
+      "inputs_sha256": "2dabe4060732a3c8c691cb53193a1ec6e0b8ae42c9729c0f381de8b8e2bacd9c"
     }
   },
   {
@@ -6586,7 +6586,7 @@
     },
     "match": {
       "bytes_sha256": "8d45c8641f736863f6d2a26fb3d3fe7849771856947f0b75f34ef5d46c587ff1",
-      "inputs_sha256": "0ae12954e374fb1cbcc448f85875a3bec8c7fda4f29731d6c10c40850ec36544"
+      "inputs_sha256": "afe1f24205d8e0e6ce5331f631c4680a396fd2ea5f92b04c82867265aa16d34b"
     }
   },
   {
@@ -6628,7 +6628,7 @@
     "identification": "Native class factory at RVA 0x9f820; its allocation tag and reflected class name identify UEInteractionManager. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "aa249a60b07bd91c5b9f3545ef69355ff3f71e3d1082d7a665319427a33f43bf",
-      "inputs_sha256": "77d7dca38f46de6318c5a46570e4421f455109136911a32e3085052201e604f0"
+      "inputs_sha256": "ff5d2e953c3f8229fc76c56c3ace2d6529504fae46ccdbd93fb989a3611932c4"
     }
   },
   {
@@ -6654,7 +6654,7 @@
     "identification": "Placement callback passed to the AEGameplayColl class factory at RVA 0x9fa00. The callback at RVA 0x9f910 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "91ab70da65deb1ddaa8dcdcbed78c65f66af0e190f673a144f517c318c3248fa",
-      "inputs_sha256": "f3ee3a2fd58dcb8b36cdc95b091c11c64b1cb4add658352fccc678d58146c0cf"
+      "inputs_sha256": "9e62e4c3e04d34703aca15b91649b2aa187eacfe370571db2ed7a8f711b8b1df"
     }
   },
   {
@@ -6680,7 +6680,7 @@
     "identification": "Placement callback passed to the AEInteractObject class factory at RVA 0x9f990. The callback at RVA 0x9f950 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "8552c0ce27f3ebaa38c96f67f97cbdcf1b2f4feb13220910e2e97fba8d0b9fc2",
-      "inputs_sha256": "5a534f4805ce2e2f0be18fb697fcef28236796ea38e641dc153569423f132801"
+      "inputs_sha256": "8ece573e45323cc0f859fddcaae587c15a188bae0c221c3118e86902b85f57e9"
     }
   },
   {
@@ -6722,7 +6722,7 @@
     "identification": "Native class factory at RVA 0x9f990; its allocation tag and reflected class name identify AEInteractObject. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "84b9ffd98a106a56ccf354412f831131c3df4a5d03fd418832bd5d7fb67309f9",
-      "inputs_sha256": "04f9d2cced5968b60300a3a63e8788e45e4f94e1aa3aedcbeffb60ce2b72f9e4"
+      "inputs_sha256": "1b290dc07f17229f3f8ca60edc12870727a0f4e8bcfb57e2b4eb3bc63119d7c5"
     }
   },
   {
@@ -6764,7 +6764,7 @@
     "identification": "Native class factory at RVA 0x9fa00; its allocation tag and reflected class name identify AEGameplayColl. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "342e9f8ae44e81d4e93280c51eda32f3c85f5baec3e3ced91b6c34e6aa4086b2",
-      "inputs_sha256": "33c3b5edb1ed1816e07ab317f67149b0bfc4b0e78a982f2e164d1247f1e71cc2"
+      "inputs_sha256": "f3088ff2b1cbf99fe2a769f7690147be4042fdd24c540ddff07e800ae323f35a"
     }
   }
 ]

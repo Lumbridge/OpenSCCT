@@ -38,7 +38,7 @@
     "identification": "Native class factory at RVA 0x401200; its allocation tag and reflected class name identify UFactory. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "2078ffe2e05d4265b60a0c5c73d6c0ad64560a7d9105d38b86478f010e910c84",
-      "inputs_sha256": "8e04da18881791c16815d8d7b3995823c9dfd947fb3b1517faed90607f440798"
+      "inputs_sha256": "785eb52317ed05ebd549900e7ea9f6d6966f36d4bb563f729cc6db1dcafe4fb6"
     }
   },
   {
@@ -93,7 +93,7 @@
     "identification": "Class registration for UFactory at RVA 0x401270, called immediately after the class factory at RVA 0x401200 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "5a151cb4209366337d88fff8bf4ec91ce6b17675856d4a3e2f711a691036b5b2",
-      "inputs_sha256": "d9abd1a0494461a509d87366102bb60f4ecff2ce13e17da4a7e5c0ad7cb61197"
+      "inputs_sha256": "934da908a476770c9e393b00e52443e20c1cf091a00ad4e7901959f8d9fee5db"
     }
   },
   {
@@ -124,7 +124,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x401580, including RET. Incoming transfer decoded within analyzed function code at RVA 0x40168b, 0x401b8a, 0x401bf8. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "db9d57634ab7b48ebb267e94dab40d1bf91977912a2b5cfec384ddc827defd1f",
-      "inputs_sha256": "762eeec41d11caebe333c883b540e5098a4fe65ccb6aa36cf62ebd77a7aeb029"
+      "inputs_sha256": "7f69810a9bc3c2f051b3b89c8b8a679d9353d88fddf1777577857783e22f8558"
     }
   },
   {
@@ -179,7 +179,7 @@
     "identification": "Class registration for UWindowManager at RVA 0x405590, called immediately after the class factory at RVA 0x407650 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f1ed675aae9dd63c81c9dffef85f4e324a7c3a4dbc04e0fdc90335165a60fc37",
-      "inputs_sha256": "329e6b01f68deef72d65302e1875b5f9c404ee19d0d59f0934cb08b99e0efea3"
+      "inputs_sha256": "af1af826919c39a2cb4548804ae602103b9455a8de04aa76d0e1d47b90ecead4"
     }
   },
   {
@@ -201,7 +201,7 @@
     "identification": "Placement callback passed to the UWindowManager class factory at RVA 0x407650. The callback at RVA 0x407640 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "1b9ce9bb8a854365184b89de80a2c80ff8c917eaf904178263ec6b10e635e1d8",
-      "inputs_sha256": "de833e04b05574f5200f53f3645bed8a1e84e8aa17ef38ff8c2f78c323f321b3"
+      "inputs_sha256": "830f7e6f5afd164919f54cb0ce07f97568b99d7d278534a048c531dda32d1423"
     }
   },
   {
@@ -243,7 +243,7 @@
     "identification": "Native class factory at RVA 0x407650; its allocation tag and reflected class name identify UWindowManager. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3efe53e8a16397a65425bce311c0d4d5b8957cdf668906dc70147bca7c4085fc",
-      "inputs_sha256": "38036ff30dd192366d3169c6a87ed2bad9487a2e636bfd88a13ccc430936f535"
+      "inputs_sha256": "12de152351b0e5930c5c896bbbf6152554445c7ccc5cb67d075a9744d14a5629"
     }
   },
   {
@@ -277,7 +277,7 @@
     "identification": "Class singleton accessor at campaign RVA 0x407920, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x407650 names UWindowManager. Both branches end at the return before alignment.",
     "match": {
       "bytes_sha256": "530a879610559332d728b979398b5312c90f380ab7c107fca476f13fdb6ab05f",
-      "inputs_sha256": "7c17f25aa89288128009518e0a881fa4bd45ae30924b5a68f14ddb65f58653c9"
+      "inputs_sha256": "a77fd046ad0223ebc3af435ddd3aef38d863bc575b39a87f8c7912b56ab4c318"
     }
   },
   {
@@ -348,7 +348,7 @@
     "identification": "Class registration for UDareAudioSubsystem at RVA 0x40f430, called immediately after the class factory at RVA 0x416960 in the singleton initialization path. Sets superclass UAudioSubsystem, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0c0d6b78ede7fc8392d27dd896df29ac5e205acc18648da87ac81d88eda56eb7",
-      "inputs_sha256": "b07307613eb93a84c1e2c5a982f3f71569f921f3f911b883652b12bf0ec7f6da"
+      "inputs_sha256": "72b15028f1eb6eb29eb4ed1d67d65008e1ffd1e49ee50a190afc3eaef726e0eb"
     }
   },
   {
@@ -386,7 +386,7 @@
     "identification": "Named retail export ?PlayOriginalVoices@UDareAudioSubsystem@@UAEXHH@Z at RVA 0x40fa00; whole linked symbol including each return, before alignment or next entry.",
     "match": {
       "bytes_sha256": "bb017771af09954e1948b69e30de81ae4ff38fe837ea7c7588feac50f939f82b",
-      "inputs_sha256": "e045e0a9e6cfb4f7ba3d9fbc49e4019b90121c8214a59c14ac6adfeacf4ccc43"
+      "inputs_sha256": "a3bdc6c8bef95368dd2186ad2cbba038243f22427e453d2e2d247809c6b18216"
     }
   }
 ]

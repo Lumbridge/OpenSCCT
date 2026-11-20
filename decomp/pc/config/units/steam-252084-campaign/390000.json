@@ -27,7 +27,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x39b560, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3a322b, 0x3a3769. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9cbf06c69ea1bd54e2c73ca4a8990167860a440ec354b5c31789eec9009eff64",
-      "inputs_sha256": "d150f31562c899084e7153f1ab274529a98cd7a00c272d05f8c704bbde17dad1"
+      "inputs_sha256": "01255cf8900d7368a64a03704070e8506f4b7e3d03e0a06c4c7959fd2c24e449"
     }
   }
 ]

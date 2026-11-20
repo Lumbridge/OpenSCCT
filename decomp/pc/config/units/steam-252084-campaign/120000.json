@@ -27,7 +27,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x121790, including RET. Incoming transfer decoded within analyzed function code at RVA 0x121deb, 0x123150, 0x124fe8. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "3b104dd6efe0715ab39311f0231741e8a1f28b063d0c13ca0b4e5bf6f1481d7d",
-      "inputs_sha256": "85121f3d4d9ed07c085fb9635fdfcffd054d81fffee84a69d94d8fcdaa9815c2"
+      "inputs_sha256": "ac9bb9f94e4c83744df7b1eb4d2e5df8a79c5f04828f3c836e763047688ae19f"
     }
   },
   {
@@ -58,7 +58,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x121820, including RET. Incoming transfer decoded within analyzed function code at RVA 0x121f0b, 0x12272b, 0x1229b9. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "46c3e8be1baa6cb5115e93cdba02a1a4522ec051163be4bf07f7988acdc6626a",
-      "inputs_sha256": "a012ef882c4f63868ce904d3c2b0c2f4717c5de829ea1afd6fb997a4b73b2ac4"
+      "inputs_sha256": "947f82a947e7a8fe04dfcbef0ef283fd5f21c7cedfe41d041cfdef855d94169e"
     }
   },
   {
@@ -89,7 +89,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1218b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x121f4b, 0x12276b, 0x122957. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "29402acfd79c73ccf85633a0539d6eb42cdbb0989bb18c06285e338897add09a",
-      "inputs_sha256": "e803c7653ba3243377f483469bc7cf6e2243cca1567c2ee082cfb45fd2b6f916"
+      "inputs_sha256": "a5b34f4addff9acb67db8b9f949a877e2f280d8d07e564ee08ed95305cee61f9"
     }
   },
   {
@@ -120,7 +120,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x121940, including RET. Incoming transfer decoded within analyzed function code at RVA 0x121f8b, 0x1227ab, 0x122926. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "72710ffd3d6144b7a7a6cab3fe9727484966fc99db82a7780aaa60564360b8b3",
-      "inputs_sha256": "5456ce4d5499ac726f4872f74c2e24068147b818cbcbbe0c335a64b6b1047c31"
+      "inputs_sha256": "466501ac95587825b0dcb8aecb9fa8f9157fcece85a3708d7f1616bc073835df"
     }
   },
   {
@@ -146,7 +146,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "7dee61a706901b44cb48994b1f28600d6d9e128e2d41e4dfcd15684f1147ef0e"
+      "inputs_sha256": "09907370344e38a4020bfb49cd937ed5f1dbb4657452728982a59dc34c502a47"
     }
   },
   {
@@ -172,7 +172,7 @@
     "identification": "Placement callback passed to the UBeamEmitter class factory at RVA 0x1231a0. The callback at RVA 0x123180 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "46dbe6f46c405b83a24a61ab7bd3d47c45d8d4e099c50df551b56fdbc069fe89",
-      "inputs_sha256": "8fcbd4eb143d895fa243705a07fcfdb77affa98c5d7ae9eb84d43e9d352a7863"
+      "inputs_sha256": "e2aaadb30bdb256a948bd218fe50cbeb74f9f59108039114ce634552f0045831"
     }
   },
   {
@@ -214,7 +214,7 @@
     "identification": "Native class factory at RVA 0x1231a0; its allocation tag and reflected class name identify UBeamEmitter. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3a3fc6eab17af70c6a5cdc9d9bfcca86e252676ab8256c7e8c892c2879a84b17",
-      "inputs_sha256": "b66361e44f67daaa3e01ac34e2841331b6817e0045bcca54c5859105abbdc6db"
+      "inputs_sha256": "3dd2cd8a0577e57199b0a9ce332d6cb122fb99bd1e4367881e420600d920f982"
     }
   },
   {
@@ -285,7 +285,7 @@
     "identification": "Class registration for UMeshEmitter at RVA 0x123300, called immediately after the class factory at RVA 0x123ec0 in the singleton initialization path. Sets superclass UParticleEmitter, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "7aa848a0f31fd6498a439dce509f3be808fc5589c27ece5ab31b8e97570325a5",
-      "inputs_sha256": "d119d4543e9cd29be40deeb2f90e01a5d2c6f9af0367efa06801334a7145f52f"
+      "inputs_sha256": "3dfb248255e57061cea82c969022db035870edce5fa3eff4220f5bcaf600a2d9"
     }
   },
   {
@@ -319,7 +319,7 @@
     },
     "match": {
       "bytes_sha256": "e781b9b160190fe0556ea23924d45cae7d8c79b7eada52c03f48037788668877",
-      "inputs_sha256": "42cf53e3d7e0c71f6774f717cf62aeadf91e274039012443b59dbdc4a1d4ed95"
+      "inputs_sha256": "e5fe6a6f298d4a28e628d7684f1a5a4dc090a246fce075564be33f4f1b5a0986"
     }
   },
   {
@@ -345,7 +345,7 @@
     "identification": "Placement callback passed to the UMeshEmitter class factory at RVA 0x123ec0. The callback at RVA 0x123ea0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ebb3839891767ceee1867533a1c08bc08b6f8e01f17e338d86d74560cb8f72aa",
-      "inputs_sha256": "ccc9b9dd13acd218437f584a282b7bf03e38cd0e896e0f43010b05bc1a7d73e6"
+      "inputs_sha256": "dd295373fb4d881f2ec39ea17c2c7417c386ee0d8ab4a9dca56412395848a267"
     }
   },
   {
@@ -387,7 +387,7 @@
     "identification": "Native class factory at RVA 0x123ec0; its allocation tag and reflected class name identify UMeshEmitter. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "e29fabfd56c719e9fade9feb2c1feaedec4ee7b17da19c5eef6cd5d761569ef0",
-      "inputs_sha256": "d5e74bcff677219bc4af9069f9656627b66ee9f862860ec492700376af826e6f"
+      "inputs_sha256": "f9ee1b20ce1eb13bd1fecab2d3c9846f2a4403375853c712ea6257d8b5dba90f"
     }
   },
   {
@@ -458,7 +458,7 @@
     "identification": "Class registration for USparkEmitter at RVA 0x124030, called immediately after the class factory at RVA 0x1250a0 in the singleton initialization path. Sets superclass UParticleEmitter, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "ab69070325d005016733edb24bd180920167348b1182c216057b7af26f8fc296",
-      "inputs_sha256": "51510fe4cfdc2cf5dd52f1a22277e479b6fa37143f9558f045d27a1597c15664"
+      "inputs_sha256": "78cb21d4bb997a8e916583b656137f02c72dafca36e8dc83cdc674d0021e3e24"
     }
   },
   {
@@ -489,7 +489,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x124360, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1245cb, 0x12464b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "8b6788a0e541bb6470088926676e8ee616aad953c5c85992897799c177f35b7f",
-      "inputs_sha256": "d206418a0cd24d8f2acef447b5c5f427d69c9a9c04de428b71c0132022867082"
+      "inputs_sha256": "5e2504244616c5dbdd086d5e28956043da0cbf66ff72b3eded05dd5965470c17"
     }
   },
   {
@@ -516,7 +516,7 @@
     "identification": "Complete stock array destructor at RVA 0x124640, called from decoded game code at RVA 0x125054. Removes every element with stride 32 and releases remaining storage.",
     "match": {
       "bytes_sha256": "9ca13e82b849da153cd65bca8469101b40ba6065ae1c96c2771f998a0990ceb6",
-      "inputs_sha256": "94eb922de808ea7a01d87a274964d92fafd6a57a049c58a8fd6db9bdf9a6fbf0"
+      "inputs_sha256": "dcbf9a73be8f1de6215e17bf2ad0d2adf080da407a12b66c55fe8132753beaa5"
     }
   },
   {
@@ -554,7 +554,7 @@
     },
     "match": {
       "bytes_sha256": "042d458840a723c20b77b5482788f78d0aa07b2790c6aa9ebc1d8d05c748a40a",
-      "inputs_sha256": "f7b17c2d0f3edf4e004e1e79ef26c488711bd0367bcf14d80112f25ba6fff325"
+      "inputs_sha256": "e8a5910aafc7590a447c6a3868b72716ed72e5ca1dd7aadbc5bc14cd8b421279"
     }
   },
   {
@@ -580,7 +580,7 @@
     "identification": "Placement callback passed to the USparkEmitter class factory at RVA 0x1250a0. The callback at RVA 0x125080 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6bc408c9ca586c81377f839e47c01444208a6cef0f934c823b4fbb0ed50b9b41",
-      "inputs_sha256": "d2cb3aa6175961ed2f7e606faede26531be70977093663ba6f791e71372ec43b"
+      "inputs_sha256": "dcb6afbeb22b399e2c91870ff53678d9345c3fa9a5d4e54c93e2e1ff126f596b"
     }
   },
   {
@@ -622,7 +622,7 @@
     "identification": "Native class factory at RVA 0x1250a0; its allocation tag and reflected class name identify USparkEmitter. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3d3bdd0c32f5e66360a51a7d1c43006a9393dba8fa53fc984540401ff0107777",
-      "inputs_sha256": "81757250f90e3fcee2f2c673862e08b37c37a59c5aaaa32fba34637cf090b344"
+      "inputs_sha256": "358e557353a61d78adb4d31b7900f61627bf945109382d3a208a2451bc236e8d"
     }
   },
   {
@@ -693,7 +693,7 @@
     "identification": "Class registration for USpriteEmitter at RVA 0x125320, called immediately after the class factory at RVA 0x128210 in the singleton initialization path. Sets superclass UParticleEmitter, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "4ce1aba7d78e23446b5a472d847d8688521b65614e4e572c21c664b5153021a9",
-      "inputs_sha256": "e89869f37565c8c5ae5854913699253f61fadad0b4e8b1be9a14cd69cefa17e6"
+      "inputs_sha256": "576800d677ee496d82983fe6930e287b4914a85955be595869c8f680edf4dcce"
     }
   },
   {
@@ -727,7 +727,7 @@
     "identification": "Typed cast at campaign RVA 0x125500, directly called at RVA 0x12876f. Its class constructor at RVA 0x1178c0 identifies USCX_particle_material; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "cd5deba6645a5165c2a6881ab021176b409d4bcff95e183f1baefd1f657a4710",
-      "inputs_sha256": "c02c4021b3f35d108d7d80f535c9f526884931adc84d5f7303de23242117a197"
+      "inputs_sha256": "c251c87cdc1864f3d960c6769179ed5920623d59cad1b7bb8b87804b89cd50b1"
     }
   },
   {
@@ -758,7 +758,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1256a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12575b, 0x1281cb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d8c871c3d947fb72e042156989ac3fb29992f631a18b2ec922220922201b0286",
-      "inputs_sha256": "8c7bab898268d20f1d549a823c20e582e2f5acd0ebd4ae9b191804e5a7457d04"
+      "inputs_sha256": "b3d8a7f7ea3e2650866b1246609901090f06226859b3758e8ae37234de41b725"
     }
   },
   {
@@ -792,7 +792,7 @@
     },
     "match": {
       "bytes_sha256": "17b98430ab8e3790e4a0cbb8a59a2aefdc56b241425ba7b2ec7d4e4a174ce1f5",
-      "inputs_sha256": "1ca608e606658f6ce069a4fc394074ae04ecbeb729ddc7b3f7b2975538d372dc"
+      "inputs_sha256": "fc041e99c39b0df21185535a388963bc336c17a9e0ce0f4100e707eef7b414d9"
     }
   },
   {
@@ -818,7 +818,7 @@
     "identification": "Placement callback passed to the USpriteEmitter class factory at RVA 0x128210. The callback at RVA 0x1281f0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6cf027ac5ae24189c2c424155580e9e8c8ce5bb144910e83c20f84b1c9b072c3",
-      "inputs_sha256": "61c4dc70c7f44d9ff4e2b0fad675340cf959f918528eca3d8e92419843ef649a"
+      "inputs_sha256": "5c108d25a1156d1c51d3c7bf356311eab7ac5ee7086af712aac7c37b6575265d"
     }
   },
   {
@@ -860,7 +860,7 @@
     "identification": "Native class factory at RVA 0x128210; its allocation tag and reflected class name identify USpriteEmitter. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "804e0ca6bacf27d0b1c3978488a0b658433b6c208b84d7a517e7fe6631029e2c",
-      "inputs_sha256": "45a9276026639c7c26d4a4f173ebf4a946d3018daa11ab1b5784376225474fc1"
+      "inputs_sha256": "3b9f65abf2f5f9cd27523189b3ad6b36e0e7219e2e22000e1fc1f6929b863966"
     }
   },
   {
@@ -894,7 +894,7 @@
     },
     "match": {
       "bytes_sha256": "78c2545c59a50f429f8361256cdace8a160528de7915d69570a037e46b87fc1d",
-      "inputs_sha256": "05b87a396e511578f93b673ba8c6a751fa58d2318b9fa19e60b7d8d65d7f6892"
+      "inputs_sha256": "998332167a03a99b3990df9f1a4f4c9ab4d8749979f8758c2d84185a392c9b4c"
     }
   },
   {
@@ -949,7 +949,7 @@
     "identification": "Class registration for UProceduralShader at RVA 0x129060, called immediately after the class factory at RVA 0x129290 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "d1dcb757f0bdeb1f40ba923f8eb3592bd224c2d1ab3f9a1aaa9cb7f0154172fd",
-      "inputs_sha256": "96f7fd7fdc5b5e482bf6c64a880c3810e53a7416efdc2e6bc4d7080dc6a780a4"
+      "inputs_sha256": "69faf2729cc483a320e221fa0537f38d26fbdaac9711ecf9e7243be9ac3ea220"
     }
   },
   {
@@ -975,7 +975,7 @@
     "identification": "Placement callback passed to the UProceduralShader class factory at RVA 0x129290. The callback at RVA 0x1291b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "1990ace335eb7d2d276061c231cf119ce2d60a5640193f6048a68889d2268a4f",
-      "inputs_sha256": "9b2133b573a59344883d5ea29642221677f48b927076e780b59c39258e944aa6"
+      "inputs_sha256": "66b0dc02b39486555f741fd1401f7b3d9a96959397c482d471d87895178d8b87"
     }
   },
   {
@@ -1017,7 +1017,7 @@
     "identification": "Native class factory at RVA 0x129290; its allocation tag and reflected class name identify UProceduralShader. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "c2dd4ffed1c7db0ef7ca9051ad211e17505809b7105d66bc14476e2d22995d27",
-      "inputs_sha256": "c45ef2ad78c1208d020efe44a295bf60ce34257a55c962c16cc597643c9f58ee"
+      "inputs_sha256": "339ea61b1ecf8aa16061982ed4770b7d9fe06d182cdbbea4710efa7a17ebf29b"
     }
   },
   {
@@ -1048,7 +1048,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1293e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x129a5b, 0x129f7c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "40aa3aaddaf3f66efc25585a4629239465cbe914f6724d6fa02d0f2213511aa5",
-      "inputs_sha256": "e454022d91aff0f85257d8039893cf52af7bbda63b1a242474a71c512401ae96"
+      "inputs_sha256": "affb71c54f5ff3f6e370fd07b47ac60f38cc82ce49ff438c13ab3d63ae895017"
     }
   },
   {
@@ -1079,7 +1079,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x129470, including RET. Incoming transfer decoded within analyzed function code at RVA 0x129a9b, 0x12a55b, 0x12a6d9. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c4f06ca7909a0388ba6a7757826a7df98117f0f5ab8b948a08c5896e012892b4",
-      "inputs_sha256": "acd30cd8e44731ffd177878a8708e3e6a88e4495107a0a1b34757f07fa34fbf3"
+      "inputs_sha256": "88fa4e136c8995628b8f0176541eeaeaab0ae93d6621a28ae4008af972b4c2c2"
     }
   },
   {
@@ -1110,7 +1110,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x129500, including RET. Incoming transfer decoded within analyzed function code at RVA 0x129adb, 0x12a59b, 0x12a6ae. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "25b2b980b36b1e97e31d17a856fa957a7c9ffb50fa98e83cd35304707223bc5a",
-      "inputs_sha256": "0592fc09d41dbb8c5eaff267d089e77529117989f8019c5ad34c529d7ba9b16b"
+      "inputs_sha256": "c868ff35fb0e90335d89c3dff5668db9af6046da025247ed49ba8c6a7f9d2021"
     }
   },
   {
@@ -1141,7 +1141,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x129590, including RET. Incoming transfer decoded within analyzed function code at RVA 0x129b1b, 0x12a5db. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "28349b120a6532a119f1224f84a2e7b39e7b2fdc3c40adb47c984cd3c873aded",
-      "inputs_sha256": "d42838b4e532f12afe6e8968954d5501224c3451e924d416c1ad3ee948705ffd"
+      "inputs_sha256": "86262e9a0225f0b374f0abc31dbb343c4b968b611a3c605f76472d12212c8a06"
     }
   },
   {
@@ -1212,7 +1212,7 @@
     "identification": "Class registration for URainDropShader at RVA 0x129620, called immediately after the class factory at RVA 0x12a7b0 in the singleton initialization path. Sets superclass UProceduralShader, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "814af112fa28fd6b9587f3afa74eb997b8b7eae92ad09fcbf29133a0e1f3adb4",
-      "inputs_sha256": "4ec4e9ad6157737b73f713c7c9a1092b4418e27b532f33225d90433d4804b02e"
+      "inputs_sha256": "fd2806fc93e60e92b7d30282fbec4b6f77ae84f98d1062ade07655d5cca9011d"
     }
   },
   {
@@ -1283,7 +1283,7 @@
     "identification": "Class registration for UCleanerShader at RVA 0x129730, called immediately after the class factory at RVA 0x12a820 in the singleton initialization path. Sets superclass UProceduralShader, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "a5211823c20aaee10d503acdfe58014cb23050ee25f48ed40e0c0c547cb19903",
-      "inputs_sha256": "c7586138ac45650f1224db1bb2b4362c7f2c91557d2b9ecd2b2090ac08b48689"
+      "inputs_sha256": "7950fe693aa2b4b5ccf9b34d8322ae606ba770b1b7e6fcbe13024da387569f21"
     }
   },
   {
@@ -1310,7 +1310,7 @@
     "identification": "Complete stock array destructor at RVA 0x129a50, called from decoded game code at RVA 0x12a51e. Removes every element with stride 16 and releases remaining storage.",
     "match": {
       "bytes_sha256": "ba63eb975f8a45ac80e25dd69d6c8ac6120a0ab51581d009e40f771b81b30631",
-      "inputs_sha256": "55cc83a73ff05402fefd609b6f50139185182f86db144328fe1eae22bea6ce77"
+      "inputs_sha256": "9662766dd9e5b1a8df2c771f294efb58de4e4a779a91ed91f5a1ec9cd62f59b1"
     }
   },
   {
@@ -1337,7 +1337,7 @@
     "identification": "Complete stock array destructor at RVA 0x12a5d0, called from decoded game code at RVA 0x12a741. Removes every element with stride 20 and releases remaining storage.",
     "match": {
       "bytes_sha256": "e1bf0716c11c1c07ad8be4ef1f180021aa95ec60d610fcf75c15aac806a3bfef",
-      "inputs_sha256": "87732702b68b52093cf9cc744bfa8bf3efb34c75f273a9aebb6c8842ac0d0990"
+      "inputs_sha256": "524b1baf4a21a6043498b51437e8e47af493f0205ebbf296ab5dfac4b60b37f3"
     }
   },
   {
@@ -1363,7 +1363,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "38dae8fbaf41d6606c55dc9faf2127827edff25fadfa21e3597893cc3ffa4b1e"
+      "inputs_sha256": "9b966accaf8f4ed045ed3faa11c75e49d918ae380d3e7578af42aa2e98ca3dbe"
     }
   },
   {
@@ -1401,7 +1401,7 @@
     },
     "match": {
       "bytes_sha256": "5d6fc3506788927101ad647ac489f13270abec854d097e116a8e86014d67add2",
-      "inputs_sha256": "f837ef73a7acdaf07244689c3d88e41cb34062e6b1d7933248b2b7d4c13ddc43"
+      "inputs_sha256": "d6ea4a484c24343f4d9c2a34794d9859ab67ceeca1368cc17f8f2b03d805c06e"
     }
   },
   {
@@ -1427,7 +1427,7 @@
     "identification": "Placement callback passed to the UCleanerShader class factory at RVA 0x12a820. The callback at RVA 0x12a770 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "0c57eebe3f3a0069fe69ebe331c4108b1e12520ef1d06bc18106be39a6482428",
-      "inputs_sha256": "a2660635cc5a7c6a9369e0755716c2ed3623238234b3742d50985b8bfef04a1d"
+      "inputs_sha256": "e2663e3da14b8d6dfdaf4ce78a0153d9ba735f78bb8624ccd9283fb82b74e7d4"
     }
   },
   {
@@ -1453,7 +1453,7 @@
     "identification": "Placement callback passed to the URainDropShader class factory at RVA 0x12a7b0. The callback at RVA 0x12a790 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "8ba8f1db7ffaa22d33ee09b50b485e4f9022e7297cb1fa6166ceb8aeacbcfefd",
-      "inputs_sha256": "649e44257e551342f638b20238e3c191cf0e54b82acc8d96e5e19bf935fd2002"
+      "inputs_sha256": "2d7af5d510bf423874c3d9790817150ade4a3b5ee81bf3b2d381d0479b9a758b"
     }
   },
   {
@@ -1495,7 +1495,7 @@
     "identification": "Native class factory at RVA 0x12a7b0; its allocation tag and reflected class name identify URainDropShader. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "04a84269bd2a4d5ed59823bf2e9cdff7e6d405c2f274abf49d211f7b017878df",
-      "inputs_sha256": "5c0047f3e3764d8126f3f1c7da4d7d7f07014fdf9590ec2dc01eb44c12e36ba2"
+      "inputs_sha256": "72d2c510dd11338c9bbb77dd5599750453ff178b687f57de86722718665f06b5"
     }
   },
   {
@@ -1537,7 +1537,7 @@
     "identification": "Native class factory at RVA 0x12a820; its allocation tag and reflected class name identify UCleanerShader. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "9b6d4bc456ed5d92caf88e5e4f9e72611e26175199cefa8b12f2e2c28e5756f9",
-      "inputs_sha256": "48d7959ac3d7fe5aebe542f36cd64c39ddb1d8f1eedfa78b94a95ff2e336a212"
+      "inputs_sha256": "be34bcd665a786845823237d8aae5ced13a67d8a0a7ecf4fcbc1c2eb32b99128"
     }
   },
   {
@@ -1571,7 +1571,7 @@
     },
     "match": {
       "bytes_sha256": "41a45ebc2f256d35687915451a315e6f5ed35cd333e417eca1e154daa29e1d8a",
-      "inputs_sha256": "fbf7d3a4e894d0bdefe93e6db6214371c94886ffb2521a9c8a8a4b67d6b7120c"
+      "inputs_sha256": "ffa89e55cdcdf7f89ea83fb9693fb93a774257b017e82d946a2d01dda9849213"
     }
   },
   {
@@ -1626,7 +1626,7 @@
     "identification": "Class registration for URotationComponent at RVA 0x12a8f0, called immediately after the class factory at RVA 0x12aa20 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "a59e5a0c4d654d5a07ea49bc64e20709df7185058d36ad2d0022d47d123fd8f7",
-      "inputs_sha256": "4c9d5b5870b85ca32e672a1eda7959199f56ecf1f7b4a08615cc342ab3c98821"
+      "inputs_sha256": "71855fa15f130d07d1fc9ca83af995a5e52190601b32eab0f838e3de2512e940"
     }
   },
   {
@@ -1652,7 +1652,7 @@
     "identification": "Placement callback passed to the URotationComponent class factory at RVA 0x12aa20. The callback at RVA 0x12aa00 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "f25fac316e8896412c173fa5bbe202ecd3ce9f3491c01411e5021027fcb1c25b",
-      "inputs_sha256": "6f3691e451aeb991d74b49bdab447775d6ac7775c952ef63d13a92f13d3087d1"
+      "inputs_sha256": "a894d857336374ef5e2ff5fdc71d243f0ca35617784cbc9f89fea70beab554e7"
     }
   },
   {
@@ -1694,7 +1694,7 @@
     "identification": "Native class factory at RVA 0x12aa20; its allocation tag and reflected class name identify URotationComponent. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "ef9318a46511d2c14d94dc643bc238366f471f1c847b346217ffe101f9aadbf4",
-      "inputs_sha256": "ebd2d55590a1016bcc819ff1105c204d858824f2eacf413b0565c91df58c7360"
+      "inputs_sha256": "95ddee4ef8de9d892ab32765a8210c317b90589783e638e6afaf91a2767e624d"
     }
   },
   {
@@ -1728,7 +1728,7 @@
     },
     "match": {
       "bytes_sha256": "5dfb8358a96e7150e653c26d639235dc4040b6f761f266cf113993c3c8a7da48",
-      "inputs_sha256": "144a1a99992dc2f7b060af5082a61d0cf6550361c78b532bc2585b68b2d5d8be"
+      "inputs_sha256": "5f63b751b6b1d46c7e2e8b4189ecae24ebbb6cafafd51fab58e91a3bf6bf402e"
     }
   },
   {
@@ -1783,7 +1783,7 @@
     "identification": "Class registration for UTexTransform at RVA 0x12ac40, called immediately after the class factory at RVA 0x12afe0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0a7766e67da5480f37fdd50907e8d4a87cf65921eeb3647833fc20e47ced3eee",
-      "inputs_sha256": "4ff7cb96c924427bd09ec2cfcd3b6bed625812d08b98bac0baa76fc71a536c37"
+      "inputs_sha256": "02c1c22c9af09a52485a9e0e176fcd4ce716246c0589c6cccd6955f7a15d4ad7"
     }
   },
   {
@@ -1825,7 +1825,7 @@
     "identification": "Native class factory at RVA 0x12afe0; its allocation tag and reflected class name identify UTexTransform. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "09e6cd433e5c55863951a93982ab0d23faf5dcd68162f34043f8b7088efa4960",
-      "inputs_sha256": "debaac3bc3d6153167d485a2ad88b9009bc87bf285935220418e6ca184546484"
+      "inputs_sha256": "7cfc77d8f7fa53ab927fbe7ca40820ad31ad6851978552789a69addc572faa94"
     }
   },
   {
@@ -1867,7 +1867,7 @@
     "identification": "Native class factory at RVA 0x12b050; its allocation tag and reflected class name identify UTexTransformBasic. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "0203f7c1c0d5f7c30ccd73342ca359c25d7a805138028b174caae3a2d3e02614",
-      "inputs_sha256": "bfa009d9eaeeb10d4eac7b8c87a5d23028a939861d52450f2f2e46c6247d3d9d"
+      "inputs_sha256": "dbb8afb46029845f6a17ef3ed8f80739ef7db0e4f3859d047935a852d14ab1b5"
     }
   },
   {
@@ -1909,7 +1909,7 @@
     "identification": "Native class factory at RVA 0x12b0c0; its allocation tag and reflected class name identify UTexTransformOscillator. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "8a94b46d11c7939baad79061f3fdffe1b651db91a5d9ac93a46976099ab24281",
-      "inputs_sha256": "85e82ba343241e663976bdbb0326360f12e1c15e265062080c25cc49f8e5beb1"
+      "inputs_sha256": "99f4675f51ac25c0a227d7778175f8459de7c470c21fc7467cc6acee6c3d06a4"
     }
   },
   {
@@ -1980,7 +1980,7 @@
     "identification": "Class registration for UTexTransformBasic at RVA 0x12b130, called immediately after the class factory at RVA 0x12b050 in the singleton initialization path. Sets superclass UTexTransform, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "5571270667528714864af2eb4d97a734c5683b94aa58780666b61ecc570c3208",
-      "inputs_sha256": "0b88e502cacc9291aa89ff8aa23a7d127a732d2f09d32088f2feeb46d176ac31"
+      "inputs_sha256": "89d58419bb5596be7ba31014148b7bc69000e0ff4c6c761a36936fb64d4b0f3a"
     }
   },
   {
@@ -2051,7 +2051,7 @@
     "identification": "Class registration for UTexTransformOscillator at RVA 0x12b240, called immediately after the class factory at RVA 0x12b0c0 in the singleton initialization path. Sets superclass UTexTransform, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c9ab34b7f9ac79da8b6c0391dae8b1cab5df6b0e46e8fce19b63d68eb5eb2f9c",
-      "inputs_sha256": "9a936bf942ce61ce191313cc0e927d51641eae03894a0343a989aa7cb962048a"
+      "inputs_sha256": "d0fc8262930c97d4b3a821b89113e5406f42692a50b05b82a362267cfcd7157a"
     }
   },
   {
@@ -2106,7 +2106,7 @@
     "identification": "Class registration for UUbiAccountManager at RVA 0x12b440, called immediately after the class factory at RVA 0x12c720 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "095558f7722e2527d97ce0a0c57e548d6df3d13599ec47abc4184f985e3c6864",
-      "inputs_sha256": "c369e1a85d2aa6219098837dbbabba8fddd075c6e6ac738b71a5c3410c20e77e"
+      "inputs_sha256": "b8ffd30eb749f65b7173c1de3b0fa37d67051650c8ca20df282a583aef3a55e6"
     }
   },
   {
@@ -2137,7 +2137,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12b930, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12c5bd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "4089c7c4b4036f7fb2c012917cef64ed23c8da5bbbb075a4385498823daf7208",
-      "inputs_sha256": "75d04c5b9c6dc44eb5861bdc40e82e4ba1dbe51b75d523e2a89812a8d13744ae"
+      "inputs_sha256": "4b9dd5d31b998a76c7b21fd4f8883a0c109a24e23be9430d68ba328b6880d32c"
     }
   },
   {
@@ -2175,7 +2175,7 @@
     },
     "match": {
       "bytes_sha256": "78c6f64e217ca97936f1c8297a14f0c9670a3bafa516e2b44d17b7ce9d327015",
-      "inputs_sha256": "606fbbf84d33e4156085ba3c13ae49aab24fa73e7bd861a27940c23818f09097"
+      "inputs_sha256": "87c4cdaaf4058f8f228be79ce9650b340c9d751acc9ed59a2cb36b3bc752a4eb"
     }
   },
   {
@@ -2201,7 +2201,7 @@
     "identification": "Placement callback passed to the UUbiAccountManager class factory at RVA 0x12c720. The callback at RVA 0x12c700 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "b481edce14f5c07312220c68e602bd9cd76cef1c526939ae1c2bccbfa5cd0a8a",
-      "inputs_sha256": "5d4eb3cf8bf02c097696783a2156ba50ce74d04585a1f8c8392338c3286710ad"
+      "inputs_sha256": "3dddd827e116153a6bec2f701b82101bb63439d5ab06add9ac10782e75d54f6a"
     }
   },
   {
@@ -2243,7 +2243,7 @@
     "identification": "Native class factory at RVA 0x12c720; its allocation tag and reflected class name identify UUbiAccountManager. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "17df30c5db763708e34d675cff89dd0ae437083a94613e1c2246aae63f759459",
-      "inputs_sha256": "c2389a813375410ce339f04879f4d4cdf199b8a34315f6e640eb4deac1ffce17"
+      "inputs_sha256": "b9e6ba0ac75cbfa775c5a158dd5873914a3e371f2dd59c7c41cb638d655adc7c"
     }
   },
   {
@@ -2270,7 +2270,7 @@
     "identification": "Retail PlayWeatherAmbiance event wrapper at RVA 0x12c820, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "7593834f08d2e76a6808820ebdb30d5eca0065c137e722076adcddda1e9c7380",
-      "inputs_sha256": "1f31043ef9f72a31cdae826523d3ecd4d2a2c05a0ef54423e936f32890e64515"
+      "inputs_sha256": "ff1a53860fe0266ba79920e24b75ecf14dfa17f18f7bcfa11adec4ae2240117a"
     }
   },
   {
@@ -2325,7 +2325,7 @@
     "identification": "Class registration for UWeather at RVA 0x12ca20, called immediately after the class factory at RVA 0x12e6e0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "1af05a70ea05d74176ea8600e8000c6b251259d864c0a94064b99700d5933c63",
-      "inputs_sha256": "f4e2e77e14cf675d15109832165b7ae30a0f45eeec462fb5df5ee3faed24b426"
+      "inputs_sha256": "42f6c80cbbb3b8667014ae383a950402152a00f598aa44a058247016b0c80dd6"
     }
   },
   {
@@ -2356,7 +2356,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12d0c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12db1b, 0x12e12b, 0x12e484. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "8f3846d85964a133a5af22a6b2100e0d6ec1c1ba192f35c8a1c30fedc1c8a316",
-      "inputs_sha256": "4b57d255aaaa488845d625575033210461dbdd61b1f7f16d169db5f27f21921a"
+      "inputs_sha256": "bd787dc65c0a061be7faa5e2269d428b8670b12ff3452bf4d978e77cadc4eec6"
     }
   },
   {
@@ -2387,7 +2387,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12d150, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12db5b, 0x12e16b, 0x12e4e6. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "88070c17180f55a09f2d9a390243f0e96b74db85d645e2a29e6de7ce138c0f84",
-      "inputs_sha256": "540ba79a9ad2b0995e572df8174e8d96e9021645862b0cc5805f10ffd8054b49"
+      "inputs_sha256": "1ffd465afa6b01fcefcc48a0cbed31d3ff3813ec195dbbfdd1c776a7e1debf94"
     }
   },
   {
@@ -2418,7 +2418,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12d1e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12db9b, 0x12e1ab, 0x12e511. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "54e03fa460bd358e6c5706cf141ecc7f589ff07df273b6a34580c094f542d881",
-      "inputs_sha256": "42b9605515bb275c899067e871e1f343ab6328563aceb3cbabe61bb92d7fbe0a"
+      "inputs_sha256": "af37f2ef67b42437ab9916c112d54f45d9a595096e5ccb14aa9a7beba7d30117"
     }
   },
   {
@@ -2440,7 +2440,7 @@
     "identification": "Placement callback passed to the UWeather class factory at RVA 0x12e6e0. The callback at RVA 0x12e6d0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "46ae02a98f849d65cfb273608393199df2d20a80434cc36c94e9df3f2e5286f1",
-      "inputs_sha256": "272867d76714f5068fb580cccd3c10901908aa3c80b6e95b41ab02d7c7c7e640"
+      "inputs_sha256": "db4c914147abdf99be0e2ef0c4fac1e9228d94e38e4fff2809b97903a29c29ed"
     }
   },
   {
@@ -2482,7 +2482,7 @@
     "identification": "Native class factory at RVA 0x12e6e0; its allocation tag and reflected class name identify UWeather. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3fae4a7ff9412a02107c7f70227766ff0640a9b6d3cedc72406fcd72c4661c2f",
-      "inputs_sha256": "6cfe1451c513365b560ba65e0d3d045386a6dd90ad1f77fe08ecaeb3c6498ad8"
+      "inputs_sha256": "61374ff4f4c5b403d40d20debadbe28c075619c1e98ab8194bce397217a6ef23"
     }
   },
   {
@@ -2516,7 +2516,7 @@
     "identification": "Class singleton accessor at campaign RVA 0x12e750, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x1b0a80 names UTextureStreamer. Both branches end at the return before alignment.",
     "match": {
       "bytes_sha256": "a5aed1a35adf19e751a3cf17f137ddb7fa10eded46582f865f4c1957ac9f0f6b",
-      "inputs_sha256": "e10c2c9e9b86be68a014e843c4783597f95db52c60d8cb47d75cb1cf4aa41bd2"
+      "inputs_sha256": "ec8dc691ed0c5dbb0128cae2eed55297f660c0634a40ab6688cf33d429fc4b1c"
     }
   },
   {
@@ -2550,7 +2550,7 @@
     "identification": "Class singleton accessor at campaign RVA 0x12e7e0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x1c8000 names USMStreamer. Both branches end at the return before alignment.",
     "match": {
       "bytes_sha256": "44773687662e25357c86535cc2b2e8b403917af6ed74063d6779c42bbfc595bb",
-      "inputs_sha256": "0cd57bdfb8ce8183fafddc1dedaac0a748d29604435a6d7227c3c31e3cd87988"
+      "inputs_sha256": "2170afd1bb6131f67324c42cd4203c2261dc906b0d27ebf74d59d90391ee5a60"
     }
   },
   {
@@ -2605,7 +2605,7 @@
     "identification": "Class registration for UStreamer at RVA 0x12ed80, called immediately after the class factory at RVA 0x12fbf0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "fe26fc2d481ca0d770bcab73209fb4c7bd2e6e933ab9ea8277226845d1029fdb",
-      "inputs_sha256": "4aa1d45526f323870d7773989ed54bc74d9e9a745c0fcd301e5845267e809def"
+      "inputs_sha256": "e04e0ec20f2644caaeb1b7259b10408315ebc9afb468d9e93092f891cc882fbc"
     }
   },
   {
@@ -2636,7 +2636,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12eff0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12f3eb, 0x12f675. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "3cd359cf6fe1e8b60bf44e0f135d9255671be1d95ba090f776bfabed055ba5ab",
-      "inputs_sha256": "3faef0e43164cfcbbd57c83e46eda374b5a7695299b29ba69495a66d11d09497"
+      "inputs_sha256": "57d0250edd0af660979f8d62632ae873dbc577d453aa9d5be16c79e59bc2bd51"
     }
   },
   {
@@ -2667,7 +2667,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12f080, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12f42b, 0x12f5b4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "73967ddef094eaffdf3da208be1e62eb9c0eba281099605bbfd35f5f7efd90db",
-      "inputs_sha256": "c5c3d4fd24fff7655ca622994dcf3cf75d5dbba051b4c4c5ce9adde85b6ff1a7"
+      "inputs_sha256": "abcca4616513ed82a58ed202a704da65d1333f6edd5af47772a2ea5721fa8e3a"
     }
   },
   {
@@ -2698,7 +2698,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x12f110, including RET. Incoming transfer decoded within analyzed function code at RVA 0x12f46b, 0x12f8b4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "43578d9886aff9529bba2271db884d296646e2d57cc86f009053e36cfe8f9bc7",
-      "inputs_sha256": "cd9891c7867581ede771f55ff7317b168e8cb5e9c18fd2b3d7387d865c4c7c8b"
+      "inputs_sha256": "4617964853999cfdc54f8eeb21dd4007f482b6c9ff2a56272ae411a1c6304eca"
     }
   },
   {
@@ -2724,7 +2724,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "9dd51746a05ff8daa19b503b8bf0a7916b1e87d568e6700c16691a42e4e25452"
+      "inputs_sha256": "9ed02b1860a024e7685ec3d82dee5ba9641b7d6b3dbd6909562d8a9e4fc98a4a"
     }
   },
   {
@@ -2766,7 +2766,7 @@
     "identification": "Native class factory at RVA 0x12fbf0; its allocation tag and reflected class name identify UStreamer. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "91d9938a07b6c0845fb31cfbd854a55110970e261789893221ebc2b1a469d1ea",
-      "inputs_sha256": "5b730139c168b16893c74a2e995fd5d0b24f2a2805d4bb6592b325d5a3fa7685"
+      "inputs_sha256": "23ad670b03f50c89616aa54a50f229560b063b528217c83304f2e29aab8e144e"
     }
   }
 ]

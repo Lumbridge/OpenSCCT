@@ -30,7 +30,7 @@
     "identification": "Typed cast at campaign RVA 0x3bab70, directly called at RVA 0x3bb069. Its class constructor at RVA 0x117490 identifies USCX_basic_material; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "a889a5ee6ed37e78bf07958d8837ba1e92c6e32bb2b4a26e38097621dfecc409",
-      "inputs_sha256": "ae4ee846249407043cf496063d063048cce202bc51c25d2e7b0567c8e3656f40"
+      "inputs_sha256": "c55666461e93aa6d774f4c88734c40aae05d0e5f770a07739d367995d5601491"
     }
   }
 ]

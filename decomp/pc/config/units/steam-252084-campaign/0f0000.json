@@ -30,7 +30,7 @@
     "identification": "Class singleton accessor at campaign RVA 0xf2fc0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x16cb60 names ULodMeshInstance. Both branches end at the return before alignment.",
     "match": {
       "bytes_sha256": "dd6502972783fa92b5d7379cf084cbee714d901702ccf9f5417cc12a86862ea3",
-      "inputs_sha256": "2c8fe9ba16920fe7a8911b73d4dcdc85787edcab0455d051f287135f0e3568da"
+      "inputs_sha256": "b32a702ccad3e6d488b1f923109bda56cfc70d33c3d12588abefa155d54b36fd"
     }
   }
 ]

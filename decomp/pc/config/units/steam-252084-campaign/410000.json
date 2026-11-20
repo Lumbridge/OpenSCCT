@@ -30,7 +30,7 @@
     "identification": "Typed cast at campaign RVA 0x411190, directly called at RVA 0x41166e. Its class constructor at RVA 0x358540 identifies AESensor; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "9290b03aa8139e88279edb1cfbe7c63bf4990663c7b7c28aca9964443d7fde3f",
-      "inputs_sha256": "594057c3a769edd06dded64bed3c25b15b2e74534bbf13616183a032626a43f4"
+      "inputs_sha256": "9c0d1a56b3a825cb7361c68467911e1f9c5cdd0c6677dd160e2710bcbc6c6f37"
     }
   },
   {
@@ -64,7 +64,7 @@
     "identification": "Typed cast at campaign RVA 0x4111f0, directly called at RVA 0x417007. Its class constructor at RVA 0x16dc60 identifies USound; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "9aca2800bb2f910306a5b6278c105b8ba838ec05dd8d7f1f7337b00767bdf1dc",
-      "inputs_sha256": "3e1ed0fa3da53d8e7cae60761a2acc82bc842863d591c46d0e0f8658707045eb"
+      "inputs_sha256": "61fd8ff74ef69a9aa0d076194c9848bfc8581a0d219cc047061ee7772cf373bc"
     }
   },
   {
@@ -95,7 +95,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412310, including RET. Incoming transfer decoded within analyzed function code at RVA 0x4141bb, 0x41690d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c997a8e9fad92777f2f58a4e6f095c733d653a50656d5cb8400a9e6e0d9d3dfe",
-      "inputs_sha256": "e0b4dc3e14de040ffccfd5408e2c0e42a6e4d4e7b768a0644f6f30facd9120d6"
+      "inputs_sha256": "a4dd324cc0511758abfa5b34217f4041b8aa23e7b6b8a4670d044ebb0f511c44"
     }
   },
   {
@@ -126,7 +126,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4123a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x4141fb, 0x4168e2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "66411b78200dd00f116b35a1bdfbd5715c711e20c2f13cecacab96e776cdf397",
-      "inputs_sha256": "6226d3087eac3fec0a60a3736fd0fcd60d4f56d74773c6818053fd3aa7e3d496"
+      "inputs_sha256": "6a739763972e4fb50c1b22362cf0f901f5e4ba9e2ec96ff8b6356b285ef5f961"
     }
   },
   {
@@ -157,7 +157,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412430, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41423b, 0x4168b7. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "27ca42ef1fb16435b542926eecf18fcb44429f6f23e072578ae70f377c3c4960",
-      "inputs_sha256": "63470e62b807dc6b5f805ed6fbb2e8058227d63b1c455704c1fa6244bc52aaf6"
+      "inputs_sha256": "31b1fd908ac9711f71c99326b1e1f9986e690c0f29dbf953503c7d8a1d85d0de"
     }
   },
   {
@@ -188,7 +188,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4124c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41427b, 0x416861. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "654c23feaabb847b3b3ae43567aefdc660906af94aaaeaa88845782b8a7f23ff",
-      "inputs_sha256": "a6e7415c06caede51494744184c076b95c678fa853aeebf2e0a8440e89a2657a"
+      "inputs_sha256": "85a8556a1252da81a800217e99d1f16e7137c00bcb5c7802ab0cacc09e416e48"
     }
   },
   {
@@ -219,7 +219,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412550, including RET. Incoming transfer decoded within analyzed function code at RVA 0x4142bb, 0x41680b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "7c62837efe414cc8f694852ede0959e89e4f5ef758ce3e86522525b281f2b994",
-      "inputs_sha256": "f1aea4b0cc6f5b52c933209bf88c713a46cde114962b985e2e27752879dd21b0"
+      "inputs_sha256": "6e32d30f36ccac941bc06bc9a1a23df1ac7a6549f6840e162843a90603d4abbd"
     }
   },
   {
@@ -250,7 +250,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4125e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x4142fb, 0x4167e0. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "34174bb14fc1a6c7cc8aa62fdb41d32dbb947963d1c6b095f91d077656e9d7bf",
-      "inputs_sha256": "0e3a782fc691dc2650dd5d92b230a1ea4b2787072770e6ff9fb0dd8bc64525a3"
+      "inputs_sha256": "35017344ed0808b4250272d0566ba0cc290b4858844db82c08d2bfd6a9d1fe9c"
     }
   },
   {
@@ -281,7 +281,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412670, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41433b, 0x4167af. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "b1303e4c83df71cf91bb4c6238bbcdee687d2c9ee11ac7e36a77bd1fa3f1c03a",
-      "inputs_sha256": "773a3916f56ca55ec572dffe17101f026f4b245ecb11a98214d9b9f823ef403a"
+      "inputs_sha256": "c733c3be159bde7ab6ccf444b8dc0872f00a34bf60ec9f172fbab6fc766959ed"
     }
   },
   {
@@ -312,7 +312,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412700, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41437b, 0x41677e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "600a47f2f03a3c9d551f715fb1d292139bec399554265302efd49c9ac5b0ba43",
-      "inputs_sha256": "1be380c562d12e6ab5e70be00530d9aa41c54f282abea76785be1d61adcc03ae"
+      "inputs_sha256": "971b3c85e0e459097fde606cc86c3cf3fec6e9438b1210124cfc54da8f8093d6"
     }
   },
   {
@@ -343,7 +343,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412790, including RET. Incoming transfer decoded within analyzed function code at RVA 0x4143bb, 0x41674d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "786709639b6155a4bb34e13092473e0b94e0de457cf212eb9d786a7dd30bcb30",
-      "inputs_sha256": "3c6dc25e6671d8f6b6bf43a78d9f120be7c558f835a90e3ee9e1f6431ba63087"
+      "inputs_sha256": "d57d0ccf33597d06641effb207f227a222d4f40dda5160ee2e65db81de47bbd4"
     }
   },
   {
@@ -374,7 +374,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x412820, including RET. Incoming transfer decoded within analyzed function code at RVA 0x4143fb, 0x41671c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "59355ea4847b66f274b92a3ec7487dee3e4a3bd8151b5c183ccdcaf263eee2e9",
-      "inputs_sha256": "6600ca3cf295e803f87ca61231d87ada8df03caee72e1f3ebb4a9cf3f0da3480"
+      "inputs_sha256": "dddd0c33a1ce8f91ec2e6be444c60aa369b1cc2488bdafbfcf119b932e48257c"
     }
   },
   {
@@ -405,7 +405,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4128b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41443b, 0x4166eb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "b54e4aad24b2d57405f239245881397b9d03dfebc61f13184856720d6b99e2b2",
-      "inputs_sha256": "9d07d814472ee03e179d1b7d680de7c5190632f8af09b50f5cdd07d078cb5bec"
+      "inputs_sha256": "b23e0d319db8fabd450946d058a82b2cddb0ddc28ef87d2b34f5d2bd2a6abea4"
     }
   },
   {
@@ -427,7 +427,7 @@
     "identification": "Placement callback passed to the UDareAudioSubsystem class factory at RVA 0x416960. The callback at RVA 0x416680 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "63ba2db43213c71ae36f528103e5163cbaa5b2740fe8ffc905bf2a1e4a51fec5",
-      "inputs_sha256": "5d2c1a2153616cab55b45aa2334e4bb2eaa0768e072f9025c1dce6d589bcfb95"
+      "inputs_sha256": "6213ae266a8e5c2a598bf88cf8ac5d93fe6c737a812e1ce35875c279b982ca4e"
     }
   },
   {
@@ -469,7 +469,7 @@
     "identification": "Native class factory at RVA 0x416960; its allocation tag and reflected class name identify UDareAudioSubsystem. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "c4efa935b942e5c1a2e6e4c4e952375cb1d8d33aecb75e50d91bad4ab65af6b6",
-      "inputs_sha256": "24837338945f6349b6fa6fc0f0c67c49c624afcaf2ba8308ebb175681e37f01f"
+      "inputs_sha256": "38850532cabd896f468edaf45a48b29c8f40d0d7d61971a884a5b6657df76f0d"
     }
   },
   {
@@ -503,7 +503,7 @@
     "identification": "Typed cast at campaign RVA 0x419d20, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0xc4d00 identifies AStaticMeshActor; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "27233b1e087b052032f13894fe4613fe9af3494494b5aa089b4c4e5150667750",
-      "inputs_sha256": "833900ca2d8ca12656d2eda9f40b5357f8d6d79277ad1b4b8e0996d15d3840d5"
+      "inputs_sha256": "80932604a0d52e6aa6161711a506eb9b268cad88d72f6416d9c3941026407d31"
     }
   },
   {
@@ -537,7 +537,7 @@
     "identification": "Typed cast at campaign RVA 0x419dc0, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x28c790 identifies AESoundVolume; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "98d9760356714cf5eb22fbf2bb7ffce8a10ae1f4d5ff4cb9a04f1c9359244de8",
-      "inputs_sha256": "74a030ccf196c656d8db552a4b5d48527b39344d33a17400d8335cbb1a75c734"
+      "inputs_sha256": "e9664308e5e183ab2b2198f255d902f19144de8a18540ca2159aea6497740f2d"
     }
   },
   {
@@ -568,7 +568,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x41a430, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41afeb, 0x41ed32, 0x41ed49. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "5fe36305475105eced052f44c840e50db4f984ef9a3f2bf629302a8722c373fc",
-      "inputs_sha256": "1317612a569c7438ec94e79aa7dec6ed71b78ca9004055a4bad62dfce45c5fc8"
+      "inputs_sha256": "9bd3ae7554fbd6227a0bc7340d470fc1a26b67108e78d8893490bff8b53c9328"
     }
   },
   {
@@ -599,7 +599,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x41a5d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41b08b, 0x41fa4d, 0x42006a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "320026cb9cb772305118a3d8e28ba854b9310d2bf4d455a5e8405801fee74995",
-      "inputs_sha256": "aced6a9f56aa904c1e9669fae889dd39d7bf5eba955ca567924d5f79d1872276"
+      "inputs_sha256": "103b64ebed08d6935671ac0d3f5d899dfe36628c832ac634b3b09af171635f09"
     }
   },
   {
@@ -630,7 +630,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x41a870, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41b0cb, 0x4203f2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "2bf78477a2371a768066cf66d4467baf474d6870a6b7d000180fcb0244c1d05c",
-      "inputs_sha256": "f34bf779e84b52c12570c257c81777e21445bc94c66f6830779f6120275a5d2a"
+      "inputs_sha256": "5c132a1f6fb706888dcdbd375620088e0471af80a39c92122a6f29e2fd80180c"
     }
   },
   {
@@ -661,7 +661,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x41a950, including RET. Incoming transfer decoded within analyzed function code at RVA 0x41b17b, 0x4203c4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "f21ee5bba9d0d5962669fc0d7cb5058094d87446b2786ae6b6819ed9278e91ce",
-      "inputs_sha256": "3eb0196c309b3ef7395e00b1fdd4983561ab8b66f7670856ed64fc5b9c62abd4"
+      "inputs_sha256": "0bad5d217e10f181e3c7a45787cc0a7f43ff7e64f6bca27af373fdc8f9d371a7"
     }
   }
 ]

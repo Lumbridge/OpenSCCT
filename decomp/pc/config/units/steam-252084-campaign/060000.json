@@ -30,7 +30,7 @@
     "identification": "Class singleton accessor at campaign RVA 0x65fe0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x401200 names UFactory. Both branches end at the return before alignment.",
     "match": {
       "bytes_sha256": "f88c33df4963d912639508529f3e4789d2c900dfb2ad055a9a532dde157a2651",
-      "inputs_sha256": "13755ac9d52bcd77513888fb14ab0c3c8811bef8b9293ade3c6da4f42ad65e1e"
+      "inputs_sha256": "22b61d2f3c49a138ee9b433d9a19213bcf6b21a58741541d8f5f6bb3a8dd9ef1"
     }
   },
   {
@@ -61,7 +61,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x66210, including RET. Incoming transfer decoded within analyzed function code at RVA 0x670cb, 0x671c3, 0x675fb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a189ac43f1e2a94f4ea6741cbe8f83b3789241e0e7cde37e8173ff77ebb85dcb",
-      "inputs_sha256": "d1c5c3ef27a9a48dea1504c45b32248eed75fbff145bc718f8664cd5a8020afa"
+      "inputs_sha256": "610ffd4dfeba2bbedea244327c80fed783d703208fd0eb754478effe32eb4255"
     }
   },
   {
@@ -128,7 +128,7 @@
     "identification": "Class registration for UTextureFactory at RVA 0x66470, called immediately after the class factory at RVA 0x67d80 in the singleton initialization path. Sets superclass UFactory, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "05699523c3de6ecf052b1f20f0d2710aba0407981a9185ce7146a3ce5450499f",
-      "inputs_sha256": "b88ea7d00201544e4c74ed5f8d3b4f632a2165b159a0527942a94f370ada5880"
+      "inputs_sha256": "dc0f1fe9ee8274498195b662d820a465f3918f3d09349b9e907659178623d651"
     }
   },
   {
@@ -155,7 +155,7 @@
     "identification": "Complete stock array destructor at RVA 0x670c0, called from decoded game code at RVA 0x2cef2f. Removes every element with stride 1 and releases remaining storage.",
     "match": {
       "bytes_sha256": "8587daacd6b9cc7bc217d468fcab48ebe61b65065d79a3fa4a8421476bd23414",
-      "inputs_sha256": "7872dffc9d167ebfdb328a4511d10bba0967b8711d56530c09bbec0024b52f34"
+      "inputs_sha256": "af0e7380692e90b6a4e34c9ba6c325850ab2555e96eb22d8c5205cab9ad6a137"
     }
   },
   {
@@ -189,7 +189,7 @@
     },
     "match": {
       "bytes_sha256": "c538bc1dd9ace0932901e16a164c091177e208cac39be181c183fd8278faa2a1",
-      "inputs_sha256": "db85d42c861b4d5f0ce0687dfc094105c76e39eaa237a0bc6234077566aec014"
+      "inputs_sha256": "fe1e39f8631910654ad06463efe54eaedf897aa591dfc5b9cbe854ea1ed71df5"
     }
   },
   {
@@ -215,7 +215,7 @@
     "identification": "Placement callback passed to the UTextureFactory class factory at RVA 0x67d80. The callback at RVA 0x67d60 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "b3f474e114b49dea704caefa8b8a97c14bca932a0233ee906ff6713afbf9edd6",
-      "inputs_sha256": "ea2452510fbdd0772a19b338d35fdae82f88889a16d7d774180afa88b4c3a6f7"
+      "inputs_sha256": "40c0d5e3dbb15769670f3b6b6a733d6ab84a0b2ba3da246a611fc7a0faaa9421"
     }
   },
   {
@@ -257,7 +257,7 @@
     "identification": "Native class factory at RVA 0x67d80; its allocation tag and reflected class name identify UTextureFactory. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "9dcbf431daaf6f30125fad17e8a7e10108633c5ed71d22ce5cb11915a7f9818e",
-      "inputs_sha256": "df7a6955af31649ddedf5333822eaf28ba3938d4fb085ee115379799f1f8a2c4"
+      "inputs_sha256": "4435ac6a0b8deb091fd87b42ab3a5b375073423590436fc39fa58247e170d20d"
     }
   },
   {
@@ -279,7 +279,7 @@
     "identification": "Placement callback passed to the UObject class factory at RVA 0x3d9340. The callback at RVA 0x67e70 covers construction and the null-storage return. The same callback is shared by additional named descriptors.",
     "match": {
       "bytes_sha256": "19237782472ae7bd5a19d03a49115f53c4ae341d41c6d84f577205636ad6fa42",
-      "inputs_sha256": "b092b1f18c816715f6b98baa1962aaed6f0dac708e6b7ad3ff4e13778cb41c89"
+      "inputs_sha256": "7e6905d585880099ec229ed33da19a38a8a26e583d1a193ed97439f8e22c4980"
     }
   },
   {
@@ -321,7 +321,7 @@
     "identification": "Native class factory at RVA 0x68220; its allocation tag and reflected class name identify URenderResource. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "99b6db4bdd50ec2654b22bf87d249a1e42dd985033ed90b04baa6257b343bde0",
-      "inputs_sha256": "84b13f8a9cc5f3e323c2b328421d118bfb9f0e9b8993b3852d9a1abe6dbaf76f"
+      "inputs_sha256": "627a5affb3f5ec4b7b67770e5254b7354fbb74f942ef761d2198bd7167ace576"
     }
   },
   {
@@ -376,7 +376,7 @@
     "identification": "Class registration for URenderResource at RVA 0x68290, called immediately after the class factory at RVA 0x68220 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "24de4b1a5b3da673096c31b71b062fb36c0f2228bd22b6bac499f4a6c29de7fa",
-      "inputs_sha256": "5d27edc6ae76da5041e01d85bba1f3303e74f4da0df5a29a8d986b04cd31426a"
+      "inputs_sha256": "bbe95b926280737c719f9769cce238d00e266297c49fe5ccde180b12abd52ae9"
     }
   },
   {
@@ -418,7 +418,7 @@
     "identification": "Native class factory at RVA 0x683a0; its allocation tag and reflected class name identify UVertexStreamBase. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "6eee125fa9b88394aa3ca37e4b1146387d19c1613dff5be59ef09c7b6f7dab7e",
-      "inputs_sha256": "833aa7cae1171ff1071de9d70bb0a1736471793d24a02ce034deecfbab945a80"
+      "inputs_sha256": "9fb4e2d113a1cbfb04f254ccdcd44d48611dc6fa1f2adb50bb4f1ba42967d77c"
     }
   },
   {
@@ -449,7 +449,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x685d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x6927b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0e609f507f0db958ebe2e5575b33ede28b1323599e2fce4dbbcc7f1389bb1eca",
-      "inputs_sha256": "001945ac0a8d5899998fd91891eabaf2e0b6657d9b5c38e8031be7224e3519e0"
+      "inputs_sha256": "8d94bc5b644ad075694b64aa1ffe216b9b5cb9f087e4c3ba9a6daaea597ca802"
     }
   },
   {
@@ -480,7 +480,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x68660, including RET. Incoming transfer decoded within analyzed function code at RVA 0x692bb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "4eb899e0d72c42ca505fc66bb3d8fd66bd77186ada7300db87c96fc8585169d1",
-      "inputs_sha256": "de982d545712ebe2860bf051c24ff44d9e51edb89307612c10e07b257111ff77"
+      "inputs_sha256": "a5570f6c4aab57c7897b1bfb8c5858d4c2970c1287619738cedc47e1e3856750"
     }
   },
   {
@@ -511,7 +511,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x686f0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x692fb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "e0dd12be6a5f4211b519c89a2692d30e6d4077a50b1f450a0c5370db55d763b2",
-      "inputs_sha256": "0998462489b68756f4989fc88545c93d838c82a3fe3a38199d95096b5b28379d"
+      "inputs_sha256": "68394748dc6ab3cc30cab355b213790ef2a10eb6e0ef3d4fa5731b7700867e43"
     }
   },
   {
@@ -542,7 +542,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x68780, including RET. Incoming transfer decoded within analyzed function code at RVA 0x6933b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "7c3356d9b177181412217c6cc1d1719de03930da1bc897f9fec9fba77cccddec",
-      "inputs_sha256": "1de1e85a26f5f8afede659b0574d0b514ab8900f4a445278d294c3c31516136f"
+      "inputs_sha256": "9429532a7b5562662889241aa36bb5c9d2a96ab11540b6fcde667d4ad72222b3"
     }
   },
   {
@@ -613,7 +613,7 @@
     "identification": "Class registration for UVertexStreamBase at RVA 0x68810, called immediately after the class factory at RVA 0x683a0 in the singleton initialization path. Sets superclass URenderResource, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "532e4d07c25f0d804facbdd8af0e151cde144c5179e77de39bcadddec5f4416c",
-      "inputs_sha256": "3f480e691d9d98197820b5b894007b5ad05fbda5cbd0a44fe119d08ead894520"
+      "inputs_sha256": "943675a9d8749005c0e09b71c6e382ccda73d0082b3cc6a8009674f3841eb2a4"
     }
   },
   {
@@ -684,7 +684,7 @@
     "identification": "Class registration for UIndexBuffer at RVA 0x68920, called immediately after the class factory at RVA 0x69e60 in the singleton initialization path. Sets superclass URenderResource, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c86e0be4563d7c78488bf2ec4eeeaaddad0d069eb1773189671630384c18d7cf",
-      "inputs_sha256": "d6eb259d15cafd15c3c23a2ad813374c9e419535751b668de762d1525d5e8075"
+      "inputs_sha256": "e3dfc589a7daa9823a4010c3aa92816cc7b763f9a4f4ae55cecfe7802b84a205"
     }
   },
   {
@@ -755,7 +755,7 @@
     "identification": "Class registration for UVertexStreamVECTOR at RVA 0x68b20, called immediately after the class factory at RVA 0x69df0 in the singleton initialization path. Sets superclass UVertexStreamBase, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9d459cedf2f1ab7a42bc37849aace384d29efd8c52ff82830409e46904752686",
-      "inputs_sha256": "20d79d08f5af192cf8d8382d7761fcf97f6c99bd9e6896a592335248410ccc96"
+      "inputs_sha256": "95ef7d03beebeb79ea1ab621eaf74962495fbf3d785a57ea49871efb568f62ed"
     }
   },
   {
@@ -826,7 +826,7 @@
     "identification": "Class registration for UVertexStreamCOLOR at RVA 0x68c30, called immediately after the class factory at RVA 0x69fd0 in the singleton initialization path. Sets superclass UVertexStreamBase, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "273bd620ce779ea06aedebb01d93c565f7de19d88235be936dc40c88a7331b8d",
-      "inputs_sha256": "a676269f96d2da6f10621fb5966175240e99dc514db183dcb94d1802ab845e78"
+      "inputs_sha256": "0b2528c60ef2d7cf0b39542a70e7957f0fc7b87d1348af063739d349c999357e"
     }
   },
   {
@@ -897,7 +897,7 @@
     "identification": "Class registration for UVertexStreamUV at RVA 0x68d40, called immediately after the class factory at RVA 0x6a040 in the singleton initialization path. Sets superclass UVertexStreamBase, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f59779c2ea6691a116d4568be28b48312fd046a29f193fd3a3170341ac755a5c",
-      "inputs_sha256": "c6a68f7f3b7368d93f3c46035b0dae0185ae0ce7090374b44a755154e422d75d"
+      "inputs_sha256": "e943005f50b4f071591bb55b2aba0abd6cb26fc795336f19c032db23bce55e97"
     }
   },
   {
@@ -968,7 +968,7 @@
     "identification": "Class registration for UVertexStreamPosNormTex at RVA 0x68e50, called immediately after the class factory at RVA 0x6a0b0 in the singleton initialization path. Sets superclass UVertexStreamBase, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "434df31acaed8a2861505fb45fc9e48e9fc6ebba35693b34f6146d85d7aed050",
-      "inputs_sha256": "4023c75207759609b39cfa0d0b05d7a21b99f5ff1fac47317349bd9ce809c3d8"
+      "inputs_sha256": "146174bc3dcfbcca8e85b0a36f0766afc443fffec4247d8e85e635440645a92b"
     }
   },
   {
@@ -1039,7 +1039,7 @@
     "identification": "Class registration for UVertexBuffer at RVA 0x68f60, called immediately after the class factory at RVA 0x6a120 in the singleton initialization path. Sets superclass UVertexStreamBase, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "2b78b1981fc8d62c025622177c527ee11f6d9496f2a803be4744efcafe54ef7d",
-      "inputs_sha256": "adaac7e49d371bddf330f29fbb2066602159e4046375e283f913eacdfac2bad2"
+      "inputs_sha256": "84a84236d0a6a98468063c016782e2d3b096122d7373cddec5ad894a5a88f7f6"
     }
   },
   {
@@ -1077,7 +1077,7 @@
     },
     "match": {
       "bytes_sha256": "907eb2a3021c0eb069c8e6905182dfef03fd6b866a857a67cdc3f5d505fe9dbb",
-      "inputs_sha256": "2a7ee2e73b75c7c2436ba9e811807d63af98cc5f012958c553d0619eaca009a7"
+      "inputs_sha256": "0a3e87f8e714c3fa899f6784b495ed7e4a6f476a40d407acc1db1ed440f3d5e8"
     }
   },
   {
@@ -1115,7 +1115,7 @@
     },
     "match": {
       "bytes_sha256": "bddf0a22cb1063f3ecfa1aeb2114fef3104c677f8312629b41a8ef6aa23d6e73",
-      "inputs_sha256": "18af449943f2fb9e34e4c3b46634ab534bbf616eed2d593e25c023f8d27d16f3"
+      "inputs_sha256": "643ad218dfecffc468bc0c98da62a68e34aebc529864ec9992e188a7877e63b7"
     }
   },
   {
@@ -1142,7 +1142,7 @@
     "identification": "Complete stock array destructor at RVA 0x69270, called from decoded game code at RVA 0x69611. Removes every element with stride 44 and releases remaining storage.",
     "match": {
       "bytes_sha256": "0f6a5355228080e57d773b3356d4b93abf33e2416753263d525784580632096b",
-      "inputs_sha256": "63a626099f1078d95d2302e35dd2abcc2f839d3a0e7fa86e3e0181814fc3dbfe"
+      "inputs_sha256": "84fa5dc5cab5b91f097cc49a84b4471223f62d7925fde24d820225a12b05fbf1"
     }
   },
   {
@@ -1169,7 +1169,7 @@
     "identification": "Complete stock array destructor at RVA 0x692b0, called from decoded game code at RVA 0x698a1. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "c81ee961bdac384647756d5cd730a1ec0b720c5cf15391a52ac0b25e73f55fe9",
-      "inputs_sha256": "705ef12899ed6d9aca135177ebc7a192ff0519702af3d5de62a5a8762b1c339f"
+      "inputs_sha256": "4e4fea1d3b0b5611285f0d491d623eb2b7dfcf54950ddeaddfd77f2faa82be7b"
     }
   },
   {
@@ -1196,7 +1196,7 @@
     "identification": "Complete stock array destructor at RVA 0x692f0, called from decoded game code at RVA 0x69ad1. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "3cb057548785fa132f30b80faa4e691d46e69451e534710f16695662394381c8",
-      "inputs_sha256": "cbd3736e324d549075ab6a1ddcbb323c8dde3fe8510e287105077b9edc121cda"
+      "inputs_sha256": "3ac33d120f2d6937c943705ec0337bae24cc5bc914d9538103a81cbb41e7870d"
     }
   },
   {
@@ -1223,7 +1223,7 @@
     "identification": "Complete stock array destructor at RVA 0x69330, called from decoded game code at RVA 0x69d91. Removes every element with stride 40 and releases remaining storage.",
     "match": {
       "bytes_sha256": "56cb3bb2ac569b8bbc6440edfba43af89480fdf6189f25a1da19e5d25f2dd8c9",
-      "inputs_sha256": "2ec7745bff86131951546ea5630a39b25dd6d485cf94f98c73ba520de30a44d9"
+      "inputs_sha256": "4b55816488fe27648483e6320fce000a701ad84715b2529e6c74804bcaccd789"
     }
   },
   {
@@ -1261,7 +1261,7 @@
     },
     "match": {
       "bytes_sha256": "37de6eaa48f970ad208df7e16bb6817849dcce27f9ba25c9a2ce53054eee0c15",
-      "inputs_sha256": "c98071431d8381e03ae0aacebe07bfe22d1e1667872b370d361f79b417ce39fb"
+      "inputs_sha256": "1afd8eb41498e7c77ec375a1e3a8f1c30814a4f6df4d49aa41ae2de6cb9df1f7"
     }
   },
   {
@@ -1287,7 +1287,7 @@
     "identification": "Placement callback referenced by the UVertexStreamVECTOR class factory at RVA 0x69df0, including both the null and initialized object paths.",
     "match": {
       "bytes_sha256": "38a2de4baac896df97b2aa526dac517a58acf6860fd7c22126e2b165c288221d",
-      "inputs_sha256": "0b75a1603c34a42f0826e1e9ac33d5431578c7de4606f06c9f93d3ed748cf2d3"
+      "inputs_sha256": "6e903cef7bc41ef6a2e9380f5e984b06797a70048f229418e4da67fc0c734e62"
     }
   },
   {
@@ -1325,7 +1325,7 @@
     },
     "match": {
       "bytes_sha256": "99c3e5e861e715edf2751a89b909c8d328de49d3828970ce17f321343e41e5b1",
-      "inputs_sha256": "6ee47f26bab924d8de0d3adbe3c35acdd964251297178277f4cd730de524243c"
+      "inputs_sha256": "36a3e21e8d4eee622a3a2d5223c4ef0a9236dfebf62b24dee5f298deefbf4487"
     }
   },
   {
@@ -1363,7 +1363,7 @@
     },
     "match": {
       "bytes_sha256": "e41515d107664a034396429777ccac65e35005c01fad7e69e1264535fbc6099d",
-      "inputs_sha256": "6167ad97e86cfb8541f2c67566c35a9e82ab49f1145da72f9f27c188b830685b"
+      "inputs_sha256": "dd09c2234d0b679900134c54eaf3ffaad08791d4367cd9136caf6617f829090c"
     }
   },
   {
@@ -1401,7 +1401,7 @@
     },
     "match": {
       "bytes_sha256": "da44a4a5453243f391b672faf58779a6622921b8fdd209aabae7de14792c9627",
-      "inputs_sha256": "52fef4a9ff45a4765c2e7cae0898ab0fe4e98c36bc68dab02361b32a29a9e9c2"
+      "inputs_sha256": "791c082b577ccf7c352bd02533245d4c395c77aceef5c20ce1a6a7110945a707"
     }
   },
   {
@@ -1443,7 +1443,7 @@
     "identification": "Native class factory at RVA 0x69df0; its allocation tag and reflected class name identify UVertexStreamVECTOR. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "3a4b822e9f30d1307dd080b73f94a121dd01b62470a7f3174f8ce6a58430e615",
-      "inputs_sha256": "d68414baf48a0c6a35d31ea851828e4034baaebf490184197dca10fd51116b41"
+      "inputs_sha256": "b13dd9f34c6bdf0b2fac2db5478cba0af6ac19074a007abcca7f70ea87d0a25e"
     }
   },
   {
@@ -1485,7 +1485,7 @@
     "identification": "Native class factory at RVA 0x69e60; its allocation tag and reflected class name identify UIndexBuffer. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "431e5ff92a4895fe315021d1bf953251d697cc13a9166f67740d2ed54fe618ff",
-      "inputs_sha256": "8f0b44b696a1ea4c156652d19192180990960faca122a2edd605d2e804ee59b9"
+      "inputs_sha256": "93446561481f2030a856e0f58cfef34c59b4edc0c05dfb4e2e4d7746113d5be6"
     }
   },
   {
@@ -1511,7 +1511,7 @@
     "identification": "Placement callback referenced by the UVertexBuffer class factory at RVA 0x6a120, including both the null and initialized object paths.",
     "match": {
       "bytes_sha256": "c3c01018bdeb3f53680834cdfa31b69db93be46b111e379e12070f08f77b178d",
-      "inputs_sha256": "0f336faba8cc28aadd3bb77c6d85009f505df293bc424a6cf84b77b83d2c4ba3"
+      "inputs_sha256": "20101a0fd5fb607dd591cf119d71b7a1b9bbafe1c9639a358df949fa5f6a880a"
     }
   },
   {
@@ -1537,7 +1537,7 @@
     "identification": "Placement callback referenced by the UVertexStreamCOLOR class factory at RVA 0x69fd0, including both the null and initialized object paths.",
     "match": {
       "bytes_sha256": "3e8fa166c7650b5396bb3d0243621309a061c187cf70975650cc7249cf02df38",
-      "inputs_sha256": "5e9e6f20e00bc193835d1a919e20796b2d9b8c2298da602eb709be2cc1e238ff"
+      "inputs_sha256": "bb8bfd55de5d79e0131142acd59920e2f2a704834dc1304c3de580576b0b7167"
     }
   },
   {
@@ -1563,7 +1563,7 @@
     "identification": "Placement callback referenced by the UVertexStreamUV class factory at RVA 0x6a040, including both the null and initialized object paths.",
     "match": {
       "bytes_sha256": "a234209a0acf42d4f5bd7c913d2492743d1f06f98d856b04001e133853814d7f",
-      "inputs_sha256": "660bf50da32790a589422ca064ea633c497237f28bce1152907acde64cbb2685"
+      "inputs_sha256": "3ecd1201fd70fa860e64483f684b601e2c2f22a97f24ab05a847556db317dc26"
     }
   },
   {
@@ -1589,7 +1589,7 @@
     "identification": "Placement callback referenced by the UVertexStreamPosNormTex class factory at RVA 0x6a0b0, including both the null and initialized object paths.",
     "match": {
       "bytes_sha256": "f4c936fee1ba9bbc4426b7072cde9a203df07b3f445f623d198f88e90d792a1d",
-      "inputs_sha256": "a086ba221ff4ddd53a3290200d84a5e1dd35cbc3429b78e2e2f19a77847438c7"
+      "inputs_sha256": "bdefca20f23d665b4ce77b63d34f63ff36cada5df795d1623738265b529baed0"
     }
   },
   {
@@ -1631,7 +1631,7 @@
     "identification": "Native class factory at RVA 0x69fd0; its allocation tag and reflected class name identify UVertexStreamCOLOR. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "5e48521d819f40750a80661a9568302d6268c536cfc0eac9ec01bdb020d2307b",
-      "inputs_sha256": "a9d3702fdc0d7596d238e3e59c0bdf65dfd036ea554c2fe7583e600db1da6862"
+      "inputs_sha256": "10ce96328590ab0592683a228a39f538624755b29d92ccc44e14f3b16396eed5"
     }
   },
   {
@@ -1673,7 +1673,7 @@
     "identification": "Native class factory at RVA 0x6a040; its allocation tag and reflected class name identify UVertexStreamUV. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "8c544e177f5c193d441316c9c67f033f58d47e828431e4b6348983a9c3231f6b",
-      "inputs_sha256": "61350236e06e48cc8d6432b4fed4397b72aaea519eeb8264acabef3c23120a1c"
+      "inputs_sha256": "56c279cf02b744e2df325e84016dbd298029d7f0184c72760369ddd9c1ccb607"
     }
   },
   {
@@ -1715,7 +1715,7 @@
     "identification": "Native class factory at RVA 0x6a0b0; its allocation tag and reflected class name identify UVertexStreamPosNormTex. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "20dfaffcecab8908f0f23dbcf30e7bb453e43bf07b0c1d044d6872922fb081cb",
-      "inputs_sha256": "537b59ca9eef318a743683047a3e7fff57c575d5e7a4b4dda5b0c3c6bb733d8e"
+      "inputs_sha256": "47f8247733948a73c8047a92bb7b57c8867f4d92e32d876e897413b477142d76"
     }
   },
   {
@@ -1757,7 +1757,7 @@
     "identification": "Native class factory at RVA 0x6a120; its allocation tag and reflected class name identify UVertexBuffer. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "91ee567f9a32ab0b3cd0aa6390e40b5383198b9d2df8c73ad34541e4c33ba999",
-      "inputs_sha256": "43ba50c43a8a6129a41476c99b632fc6122d156f9c3709ae6f781c65678262c9"
+      "inputs_sha256": "43c0ba4e57899f2d1d3242db6810e4eac4d9a1df31d037316fd94ba5c999bd61"
     }
   },
   {
@@ -1791,7 +1791,7 @@
     },
     "match": {
       "bytes_sha256": "87d39fbae84dca1751b1535f4f3ac2431124dca5cc151095c97937ef187053a9",
-      "inputs_sha256": "64fba89bd0ae5d0a2b49709c283ecef8369bb4f2ce1eb98a108fcdd657464cc1"
+      "inputs_sha256": "77cfaa274480bee6cfbf66846abbbf4bff9b7b68ec7753a314e18fec5456cd81"
     }
   },
   {
@@ -1825,7 +1825,7 @@
     },
     "match": {
       "bytes_sha256": "5167650ba412c3f73c96d700ca0e176d9b4b8e13752f2171a18287c2d8bcbfc6",
-      "inputs_sha256": "b4dfeb82655eb39d1fb8706b74407614b4f9da3acb1dff8f44925dc7f7e023dd"
+      "inputs_sha256": "83edfa0e70da0e58281ccdeeca2a9639b20be46367f8b91fd8dc28a958148eb3"
     }
   },
   {
@@ -1859,7 +1859,7 @@
     },
     "match": {
       "bytes_sha256": "47ea06d4456317c2ae656d02e233dd3e80988d32e51f6f1953f0c5bcd90e7fc8",
-      "inputs_sha256": "cd4c9bef5dc461ccec952ef7d9f07316c3f912cd119ef7d904b9952597f78a1e"
+      "inputs_sha256": "c93426b256873fd5884df7628d2d564b30037fac25b96a6e92825e0f2abc9396"
     }
   },
   {
@@ -1893,7 +1893,7 @@
     },
     "match": {
       "bytes_sha256": "ac317167bf8b032d8af1cdc3156c8f5ca4f09af81926b26ff1c2c3d944b951a7",
-      "inputs_sha256": "a62c4570c2c08dcd7fe8d6d9a335a7844cf1a0a019510e1db304a3dffdd9b5fa"
+      "inputs_sha256": "74e1b28c6a01d13dc331da2a38d21ee2cedbf6d2d899c5d455d59b76185b0376"
     }
   },
   {
@@ -1927,7 +1927,7 @@
     },
     "match": {
       "bytes_sha256": "4b1301f798b8ffac2de2ec4f32216bd85c67d5fe56514b2e55d3651fa0a6b5b0",
-      "inputs_sha256": "67c386675a55a50cc83ce953f95b9a4982277a69eba5d1921fffabae407cb0fb"
+      "inputs_sha256": "bd3a6a2a492d7fcabf883de25c03e286a641863f88506ac1361c6962ad96609f"
     }
   },
   {
@@ -1961,7 +1961,7 @@
     },
     "match": {
       "bytes_sha256": "e0796a74f9f2f965273c0dbe06a43d5f9e50a6d76a634abe46aefd6605118878",
-      "inputs_sha256": "ee0bf0ba714103a0d949705ac789b2e0446a4c74a5375cef7272638013b2438e"
+      "inputs_sha256": "0cd826f8ffa688c1626baa647738a00a4ecd16fa0a28e92ddf348bae169334e9"
     }
   },
   {
@@ -1995,7 +1995,7 @@
     },
     "match": {
       "bytes_sha256": "118b3de2ad820a28d9215e126a7a52e2d79cbe28620b35be63132e41e89044d9",
-      "inputs_sha256": "c42539cc8881d161f126096d8afcb41579b3b6f0d1eca55a82efcd537289ca02"
+      "inputs_sha256": "1f6ac399da07ba52e737028b463d141ddca8f065f488dcb70bace6d45434a373"
     }
   },
   {
@@ -2029,7 +2029,7 @@
     },
     "match": {
       "bytes_sha256": "0bbd1496f48bed1f859e41a4ff871272af0806e81074e4771164b1ca6a7f8342",
-      "inputs_sha256": "74d5b3ac16687c8b9a61e2fc4cafb67af9784f09710c2e1c7eab264f0f6574bd"
+      "inputs_sha256": "a42eeef3106bd87da9f0ea39997d8bce2d4d66eb56e79ae3dd8fbe39bbcbc0d1"
     }
   },
   {
@@ -2063,7 +2063,7 @@
     },
     "match": {
       "bytes_sha256": "e64ed6b63225e2daa98beb4d69e551a1e62d967d937f8087d9492a8aadbdae0a",
-      "inputs_sha256": "d7cbbfdc6b42a7f35bdecd15d8969d9fe8811fd870c5ec84e0d2de2c50d8ceda"
+      "inputs_sha256": "79525d41ee1c0b9f6e5b3e1d0add4e5848973611914aff091a621ce8e8b7ca0b"
     }
   },
   {
@@ -2097,7 +2097,7 @@
     },
     "match": {
       "bytes_sha256": "9e7ca69153b9cbfc157b6f1f3a6d59a7c05cbbf6c635165755674b60d2544ee2",
-      "inputs_sha256": "fd16ccd1ea328b4ad53f0d8b7380347bfaae561a64d9ac291b8c93b9ba48d801"
+      "inputs_sha256": "135a2f8a323571f097c609e9df61ecb6812d10bde577feec5d831c46204db9eb"
     }
   },
   {
@@ -2131,7 +2131,7 @@
     },
     "match": {
       "bytes_sha256": "9aaeca8f70a30c80b8ad782cc59056482f28591b294853d198ef4fa644c803fa",
-      "inputs_sha256": "728cc6086dbada89ed721eaca57af5dfa98e7c3d720d8b558757c3a025ddb240"
+      "inputs_sha256": "4654ae5af627eb7d8cca6cf26f10b5df779845e9f99a39071c21d0ee3a455532"
     }
   },
   {
@@ -2165,7 +2165,7 @@
     },
     "match": {
       "bytes_sha256": "538419a4af3ce9143b7ad07dd44b2e8f4bb911b26f1c320d8e0e49dcf2d9e209",
-      "inputs_sha256": "37a2548083555e090ee392520a2691eb41b2e2c156e17436470e65567f2fb3a9"
+      "inputs_sha256": "a992d5823c46ee2a8e167870c59e366315f90e7fb62680cd239d3692c72d6f49"
     }
   },
   {
@@ -2199,7 +2199,7 @@
     },
     "match": {
       "bytes_sha256": "6401efba46e0b036dccdb52eae965f3c89d575a300d3176bd23e86c31fdf8355",
-      "inputs_sha256": "885c7078c551aab0add985473df0ef6599210aa196aacc01f8f7f8cadc3d621b"
+      "inputs_sha256": "fa6aaf6dc1789a4294dcd5ca6f3a56e1ddbb910cf54259a1bb9cd9af81918a63"
     }
   },
   {
@@ -2233,7 +2233,7 @@
     },
     "match": {
       "bytes_sha256": "400c97b8c1361a13edf85a9f70c50e0afefe2e9219df451cde5e8685b7c016ec",
-      "inputs_sha256": "a23b96c6f237e5568bb22995b6499b07e80eb244dfa3a8a929420d4aabd4a8f9"
+      "inputs_sha256": "6f2538e66426b1d3df180c79df09858aa51cf67f2e7f191422ed7cdee24f8a4b"
     }
   },
   {
@@ -2267,7 +2267,7 @@
     },
     "match": {
       "bytes_sha256": "96c473e77b20cb99bbdd94b49e6352771b92b6c8d3d7c5246a126dd887508e3a",
-      "inputs_sha256": "bb45128f26f1c8cd3af366b57d2e88aafd77d770834b7396c8cf1e346d73e3f4"
+      "inputs_sha256": "8d4bbd5dbb74e08ba4195ef5531be56bb03f4c3002e69108c7f07dc56703e62a"
     }
   },
   {
@@ -2301,7 +2301,7 @@
     },
     "match": {
       "bytes_sha256": "5f7dc3fc6f32101d61bc382a2dd4b839f3ae0b97a492ed760793e8743a180bd7",
-      "inputs_sha256": "41c0974fbd0c2c78385c91f8c7d66d72228f70bcfb1a15ed4bb016d575743e44"
+      "inputs_sha256": "e82500130a17393f14243d566113f04a451db5d587132ac521db5646750f6914"
     }
   },
   {
@@ -2335,7 +2335,7 @@
     },
     "match": {
       "bytes_sha256": "e756cccfbf3851289addb0edbd057afebe0d16ab57500a9afc833c9918aa7369",
-      "inputs_sha256": "f348da2d7d740b3902379d81a4929ea7373199601bf524a6ba48a48f66afc5e9"
+      "inputs_sha256": "2d7db21a268eaca7b8e8f11c43bb892f324aee7441d84afe750ac1269dff4b7c"
     }
   },
   {
@@ -2377,7 +2377,7 @@
     "identification": "Native class factory at RVA 0x6b640; its allocation tag and reflected class name identify UMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "46e8c562827591e168a9ebe66788486e976a7ff619f168907f349edb61b8fb40",
-      "inputs_sha256": "a8629868de530bab5b26a9736f9bd5721466ff2218359dd882f325e585e28939"
+      "inputs_sha256": "82b87995608d4f496a39300e9786520304573c7c1700c8b81d76cfdf60e8ffc2"
     }
   },
   {
@@ -2432,7 +2432,7 @@
     "identification": "Class registration for UMaterial at RVA 0x6b6b0, called immediately after the class factory at RVA 0x6b640 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9feab29c2b195d3a36871c009db8917670c3bd63790173f561653fce2a41b9c3",
-      "inputs_sha256": "d97fe8726d74ea242e89011d46365c498dce0619f21e640b2738b393dbee0d71"
+      "inputs_sha256": "4581845f4a41fe62b9b48d2ee88e8ed766c2239023d113276d8dd5376fe8a59e"
     }
   },
   {
@@ -2474,7 +2474,7 @@
     "identification": "Native class factory at RVA 0x6b7c0; its allocation tag and reflected class name identify UBitmapMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "88a12dcf94e7039517efcae320235dbe95f7037b25ed1b0fdd7a6188ef058d46",
-      "inputs_sha256": "e23a03111db4469cab623e04837477b70026ed2db7b8f8fc50fed7232afcce6e"
+      "inputs_sha256": "dbcd20408f789302d3115a67a08a95a4eae978705d7931de82e2be1a3fc33f3f"
     }
   },
   {
@@ -2516,7 +2516,7 @@
     "identification": "Native class factory at RVA 0x6b830; its allocation tag and reflected class name identify URenderedMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "890546ab8ba170f7c61cd3cf3e7ad07543b63bdb6cb61df0e33617f3bd394125",
-      "inputs_sha256": "f79173a4797deecab792a5789946089d2153858376dd196da313628cad6d079c"
+      "inputs_sha256": "d4b6aeb0fd9cb41e672206ba2ca726960aedd1097e19c64f92ca53aca6a3e74a"
     }
   },
   {
@@ -2550,7 +2550,7 @@
     "identification": "Typed cast at campaign RVA 0x6bd50, directly called at RVA 0x6eaec. Its class constructor at RVA 0x7c060 identifies UTexture; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "dbd039d4488dab42886178fd264754c4c7685e5c2be7f12cc9175ef4ff556fee",
-      "inputs_sha256": "8a92026a05e16d686f18b7f4a011dd79e8d7f0e604c2c0f7f92ad00f1766c513"
+      "inputs_sha256": "c3b75ba5dd2d7e7a626a730da0957b7f4594e94f753905d5b22dcaffacdf8169"
     }
   },
   {
@@ -2584,7 +2584,7 @@
     },
     "match": {
       "bytes_sha256": "a39c18c89143eda4c41a6f34d36c21048552a3c2297251d2deb84b4b62e5107e",
-      "inputs_sha256": "536ea086b19ada9fa7ac7bec335708b97c32102398f66e73dedf645ae4440536"
+      "inputs_sha256": "af3f267d3649c23cbd658e8691c223bc0c0a015f4ad0c0713ff8b9f369280b00"
     }
   },
   {
@@ -2610,7 +2610,7 @@
     "identification": "Placement callback passed to the UTexCoordMaterial class factory at RVA 0x6c280. The callback at RVA 0x6be70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "74826ccda7f60555997a9cfca3a9135e3cec5a30a7b63f61aa120456b2d7ec1d",
-      "inputs_sha256": "eb8e42c84da37ebc025bcc341da27349824f25e9db8623ec1cf07ba277792675"
+      "inputs_sha256": "48f9bbee62249ba9700d43f41fabe8213bd77e077a55a1be2f76fc0354e7de08"
     }
   },
   {
@@ -2636,7 +2636,7 @@
     "identification": "Placement callback passed to the UCombiner class factory at RVA 0x6c440. The callback at RVA 0x6be90 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "9ee8d3d3972888e2de238f7c49c9d2ff6ea25e54e8aee53ee0503f412f35479b",
-      "inputs_sha256": "38a19a23c9f1124237409bef988660ea42e39056555d10fd066481fe8d4c0952"
+      "inputs_sha256": "baa347fe910e6ae2288d98acdb4f0b5e047f6bd333b7ace62d7744c94654a354"
     }
   },
   {
@@ -2662,7 +2662,7 @@
     "identification": "Placement callback passed to the UModifier class factory at RVA 0x6c710. The callback at RVA 0x6bf30 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "90fa8e1a870dc3669d08cd0e507441fe920df250b5c6da91af7ccf691d72295a",
-      "inputs_sha256": "5290d9941e50e3b1eca0b5655a455b324fbbf0ed557990c4c3bae5ded59c9b89"
+      "inputs_sha256": "42bc5138dfbc4a3e816a86e5796a0fef18a03facee5910bd30692c869b1ceedf"
     }
   },
   {
@@ -2688,7 +2688,7 @@
     "identification": "Placement callback passed to the UColorModifier class factory at RVA 0x6c2f0. The callback at RVA 0x6bf50 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6a1fb53bf9064e6ad5f042ebb9a73542f47420487648019204e1d94a649d7e54",
-      "inputs_sha256": "dea54444bc8eec138d54e02a332b9a3f8a00abfb565fad7a797dfa8c4d221171"
+      "inputs_sha256": "5164dcc29f57d16d4486958ba58c4b25743167e1cc8c0dc18f3c407e150e10bf"
     }
   },
   {
@@ -2714,7 +2714,7 @@
     "identification": "Placement callback passed to the UEGlow class factory at RVA 0x6cc10. The callback at RVA 0x6bf70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "cda1a00f1e2b2f637ab3751d29492bdc59db7e3bf0c445f13d1c6668d4294e40",
-      "inputs_sha256": "f946e7bf696da9c19198736dc1e8147e212524dd7b3cdea5114d90b46bf8a63f"
+      "inputs_sha256": "3558e4fb8e72b480f39cf9100e4c667b6acbb8748fe104dce6a97349fc2a31e7"
     }
   },
   {
@@ -2740,7 +2740,7 @@
     "identification": "Placement callback passed to the UEPixelShader class factory at RVA 0x6cc80. The callback at RVA 0x6bf90 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "aadb9804a4c9fffa7ca1c3e6bdbc667f67409c4c61f86075bd081b36deb70eae",
-      "inputs_sha256": "91127e89f81204ded37eb4e95e4216673e9f74486bd1fa2fb2d884c808c83e9d"
+      "inputs_sha256": "1503d3106bbde2cd768e5d5597df25dd0f71359bad632cc86c0f33c0e7607729"
     }
   },
   {
@@ -2766,7 +2766,7 @@
     "identification": "Placement callback passed to the UFinalBlend class factory at RVA 0x6cba0. The callback at RVA 0x6bfb0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "77eabb87c9a2aaee502147c93dd90507735a38226d2b2c4609e1b259352024b9",
-      "inputs_sha256": "99c954c86b981720cfbbc589c192cee5b570f6b4dc10b63b38cce4edd5a20f0a"
+      "inputs_sha256": "5728b5ad1f87b46c8c08822ca2ec12d6edebf1c81a0f584cdf303848d99934ef"
     }
   },
   {
@@ -2792,7 +2792,7 @@
     "identification": "Placement callback passed to the UTexModifier class factory at RVA 0x6c890. The callback at RVA 0x6bfd0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "bf5b5ae4f762992d8d03d2876ad5870e9d39679e6138a1944989ceb05804f397",
-      "inputs_sha256": "3ff9c9a1918f24323a41f160eef5bdf2a0b85c712a458b0b39599cf87a66f54d"
+      "inputs_sha256": "3c3a1fc4f30c3cd54f020875effd635f5871a69214e359c9a4e55a112188447a"
     }
   },
   {
@@ -2818,7 +2818,7 @@
     "identification": "Placement callback passed to the UTexEnvMap class factory at RVA 0x6cac0. The callback at RVA 0x6bff0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "9cbe469646bc6fb4b936b8c44268d90216767df15102bfff4091a8d8b426a7a6",
-      "inputs_sha256": "0cd17936a239bfc1a569c151cc3946825e51602bdd88f822ca1238b228976b01"
+      "inputs_sha256": "7612795efbfe53a065936943f8ed87caeabc473a50bfca86807db9baf6f2a2c8"
     }
   },
   {
@@ -2844,7 +2844,7 @@
     "identification": "Placement callback passed to the UTexMatrix class factory at RVA 0x6cb30. The callback at RVA 0x6c010 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "aacd6a7ab0e85bdb9738b130ee944b101eb4c1488d028248c856e4cff0d6d0e2",
-      "inputs_sha256": "48598108b3f9a0a2650ee4c717e6d32ca0ea3574cc26086d3935338ffbd8600c"
+      "inputs_sha256": "60aa715e1df4abfbbf194d94a6ed90dbec4a0382c69772850aef9c98d996a39e"
     }
   },
   {
@@ -2870,7 +2870,7 @@
     "identification": "Placement callback passed to the UTexOscillator class factory at RVA 0x6ca50. The callback at RVA 0x6c030 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "99e2c891b9fd5a4c849bfa3313a560fa203b8d0d991bc15fde7b1873028c6a46",
-      "inputs_sha256": "494941858101a33a08e53d4d1102e77e079b9fd7530001584eeabed0a85c5155"
+      "inputs_sha256": "1916b1d6a5efb7fa37a4a7877d89239350ad4db167a188e11555a9a929f41c64"
     }
   },
   {
@@ -2896,7 +2896,7 @@
     "identification": "Placement callback passed to the UTexPanner class factory at RVA 0x6c900. The callback at RVA 0x6c050 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "568452cf5b567428d79087cb6a1a2d29dc904b955902b6b79ec0b853e28f378e",
-      "inputs_sha256": "e3a6a43551b924373ab949617773f5f49fdffd16475f8a11257bfc8cae7fe45c"
+      "inputs_sha256": "e5dc0b63555fdaf5bc8d4045b29bf44e13cc415b286c814c64ff2cdfffb3f318"
     }
   },
   {
@@ -2922,7 +2922,7 @@
     "identification": "Placement callback passed to the UTexRotator class factory at RVA 0x6c9e0. The callback at RVA 0x6c070 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "8a946a9acddada593a90243a212085743597d4484288c2ef5f42eff380b1d352",
-      "inputs_sha256": "f7f7ed072d2d08494ca13550401c301ea24fca744bbfb1275ffb55be96ba308f"
+      "inputs_sha256": "3ffa1fdd7da54d2f3ac2615f0f61576385671be2266402e7e77496ed07ad2b14"
     }
   },
   {
@@ -2948,7 +2948,7 @@
     "identification": "Placement callback passed to the UTexScaler class factory at RVA 0x6c970. The callback at RVA 0x6c090 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "91d29660932c847f0c292433d320d18be216883301a81c0125d8ad802094403e",
-      "inputs_sha256": "3d1e597c3a3d62ef1a977cadc7a4eedc11993f70b7cce29b8fc3a8b11d617815"
+      "inputs_sha256": "4d599ed56e5d99ee749b79e4a5a6607f50092784ecc3028cce817b9b3fa96ab9"
     }
   },
   {
@@ -2974,7 +2974,7 @@
     "identification": "Placement callback passed to the UConstantMaterial class factory at RVA 0x6c5c0. The callback at RVA 0x6c0b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "99d34ab72b6227986c20ee0cdb87064b1792bc2d26227506812e9497c1687a63",
-      "inputs_sha256": "dd5b17bdaad7c6557517197eb4115eea3382742631fcc01360609ff9989294f3"
+      "inputs_sha256": "4e9deece86612e99ebf07a77a718ec8a76c43404578923b012c2ae931bdd2f8b"
     }
   },
   {
@@ -3000,7 +3000,7 @@
     "identification": "Placement callback passed to the UConstantColor class factory at RVA 0x6c630. The callback at RVA 0x6c0d0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "301904fad0e02c4cd2169958ed5327bd898570fe2e5ecb76c1715c7fa7f028fa",
-      "inputs_sha256": "43f62d3ed13df9fb4087ac43e27b73a992f90ff90546cbfd55ed3bbfe6b27a4f"
+      "inputs_sha256": "8f6bee68a67855c766c6f665041fef790377e0d03253971b26ac21abf53161fd"
     }
   },
   {
@@ -3026,7 +3026,7 @@
     "identification": "Placement callback passed to the UFadeColor class factory at RVA 0x6c6a0. The callback at RVA 0x6c0f0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c03c9e91928ce40b57ce1cafde91afb4eec71a15c2c1f466f4c1288ad0007516",
-      "inputs_sha256": "4901489e868e189159a4a49451d9182b9147b7db8a0aa6f7b6d5459706d35fd4"
+      "inputs_sha256": "f2f710b621a41f8b3a83787f4a706e98f5276f209a3f42a5cadb62c4c19ac8b7"
     }
   },
   {
@@ -3052,7 +3052,7 @@
     "identification": "Placement callback passed to the UERainMaterial class factory at RVA 0x6ccf0. The callback at RVA 0x6c110 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "29b6f488d469808cb9f494ce70f2a5908bdd1cd62fe3a03bbd83d4e6af7c2049",
-      "inputs_sha256": "2ca81e3e46515bc692eeaecf29fc4328d4d2912d8afbd2db20e0561fb6eca3f3"
+      "inputs_sha256": "a6d5f7026dfe62b5203b735a5c17c5a198bd0c78841f7d7dc7275e9c07181a15"
     }
   },
   {
@@ -3078,7 +3078,7 @@
     "identification": "Placement callback passed to the UPixelShaderMaterial class factory at RVA 0x6c3d0. The callback at RVA 0x6c130 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "a3102c4c86b285ef1f6d56f540fb1f65dfd291482bfa67b0662144f75d6a581b",
-      "inputs_sha256": "cc69841843cbc8787da4ea40549f0853cb3a74c26b7c7b8868c99b63aa128f7c"
+      "inputs_sha256": "101129ff16d8f2192eb6562e59a1809aa8e5f629092bdc3b6cc6f6c37f179f13"
     }
   },
   {
@@ -3104,7 +3104,7 @@
     "identification": "Placement callback passed to the UShader class factory at RVA 0x6c360. The callback at RVA 0x6c150 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "46c40e8857c5ddead7fd33badb2efc6bbe214da2d8b1f5d7f27f2a279c86c884",
-      "inputs_sha256": "c348859a74cbf4ecd375d66a6059d2ea3ade6ac774a203b4665264a150929b82"
+      "inputs_sha256": "9c49a46b263619137383cf49df5b8b0e541691cbf453d7cf3a071c8524483e0b"
     }
   },
   {
@@ -3175,7 +3175,7 @@
     "identification": "Class registration for URenderedMaterial at RVA 0x6c170, called immediately after the class factory at RVA 0x6b830 in the singleton initialization path. Sets superclass UMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0df44a769f69126236e11b25c1312e59061ed01070d9266819159245efb021f6",
-      "inputs_sha256": "360f5d9b0e3989d0df7906078e5fa1588acaeb75c00a18e79f8f719e050a9cc2"
+      "inputs_sha256": "7c6d60fcc8541da587cc7769d1d5cd6b14cfa6c2417d81a96c2a33e617c2183d"
     }
   },
   {
@@ -3217,7 +3217,7 @@
     "identification": "Native class factory at RVA 0x6c280; its allocation tag and reflected class name identify UTexCoordMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "fd61f4f61ba8d44d2d9c38f956204855307c952d897f7be0b311528c7e184c0e",
-      "inputs_sha256": "d43b8ca7ee2db5f144920dae700710fe14ccfc8183e259a6dac4dbc40338b579"
+      "inputs_sha256": "ca68b7099e19190745091ea4b911c8908f6bf016a3948268a82e1585908b747d"
     }
   },
   {
@@ -3259,7 +3259,7 @@
     "identification": "Native class factory at RVA 0x6c2f0; its allocation tag and reflected class name identify UColorModifier. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "bbd2f1782e9f4d68c22e1d4c09f5ddd6151858320890b492597c09ba4751bdb2",
-      "inputs_sha256": "8f48e552c6fcd42618ebdb1ca2444477b74e5a5cafb6e645584bab29e6a51d5d"
+      "inputs_sha256": "2d422eb0a8c15c29f3758f415addd4481171aede676be512259f712550bbdc3e"
     }
   },
   {
@@ -3301,7 +3301,7 @@
     "identification": "Native class factory at RVA 0x6c360; its allocation tag and reflected class name identify UShader. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "96c98cc1083414dc7474faad03c12e05c69e2ef4b9ebec887f4d40a8b59dfacb",
-      "inputs_sha256": "7621cdaecb0742b79dbedff6a547db814ff03e0220fd185a66ea9b82c317e5af"
+      "inputs_sha256": "55fc10180baf0e834ce3d1a7cbf64f03a263a0d05446ea1275b5518e7e60e175"
     }
   },
   {
@@ -3343,7 +3343,7 @@
     "identification": "Native class factory at RVA 0x6c3d0; its allocation tag and reflected class name identify UPixelShaderMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "37106479e7ab79b3d41b8f720d778772ad298b5b790484261a0b4303d85fc2ad",
-      "inputs_sha256": "8baa652f85d2713a026e0ca87099fa4c9bdafa75329ca4e94f4b24956e0613b5"
+      "inputs_sha256": "97d3796dd41eead47e516a6bb8c9f19b2f87c48c4c9bde0a55935703ab1136f1"
     }
   },
   {
@@ -3385,7 +3385,7 @@
     "identification": "Native class factory at RVA 0x6c440; its allocation tag and reflected class name identify UCombiner. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "99c329ee35df6db356d5a7bc9dd43aedfc729eac5e355df2756a75309fd590b1",
-      "inputs_sha256": "32afe5fa6f1675b490c2254ee4ddbe04d2e234e155b97de3d41e312c7ca7666f"
+      "inputs_sha256": "68d471d910d309d863fc1dd029583952014693261384612a2a89a1a50bd16860"
     }
   },
   {
@@ -3456,7 +3456,7 @@
     "identification": "Class registration for UCombiner at RVA 0x6c4b0, called immediately after the class factory at RVA 0x6c440 in the singleton initialization path. Sets superclass UMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9848fc86c4304c5b411ada82bcc1306259f9b771c0bbbd247238e305183e2fe3",
-      "inputs_sha256": "5bc2d0a8349a25ac17353332708451d171612fdae08796780040005e93771e3c"
+      "inputs_sha256": "b3ca1362e885bea357ae4f38720a8e8e40cd1ab52eecbc43db4359f36c12d211"
     }
   },
   {
@@ -3498,7 +3498,7 @@
     "identification": "Native class factory at RVA 0x6c5c0; its allocation tag and reflected class name identify UConstantMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "335dc8b697822cc675dd06e06ec4e9ef7fd95acb3384fdf9a41cbc7e14702b64",
-      "inputs_sha256": "85f6a2b39ddc0774065cec2fd6607a490f3c8742203bd5ed499f7be56cf4efef"
+      "inputs_sha256": "10f93159ebb122386b00740198bebde9448a5b58b9b0897d6dddc18942b223ff"
     }
   },
   {
@@ -3540,7 +3540,7 @@
     "identification": "Native class factory at RVA 0x6c630; its allocation tag and reflected class name identify UConstantColor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "510222da2e6a8cac04f0770c86de6a074ddfdf9564b496599fca71a2ed22254d",
-      "inputs_sha256": "ceee1adb6d0c23ef00ed9612ae6df49490e9d9d9b131615b14115c74e3922103"
+      "inputs_sha256": "c46ff673559ac6b01a0a4aa88fe2b67728186a0306fe03a04bc3ef474e1b92ba"
     }
   },
   {
@@ -3582,7 +3582,7 @@
     "identification": "Native class factory at RVA 0x6c6a0; its allocation tag and reflected class name identify UFadeColor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "99d5e90e3f23278b1ed60a3e41c069054935eb2912d3617e6c2965e1c9eeb5a9",
-      "inputs_sha256": "f178b11570e2505541f26c0406403de7f7b2f1105313cf40c90b0d73f057c2eb"
+      "inputs_sha256": "03d1dee96facbaf2307414deab544b7de0e078761cb1b504f05421272380a3d8"
     }
   },
   {
@@ -3624,7 +3624,7 @@
     "identification": "Native class factory at RVA 0x6c710; its allocation tag and reflected class name identify UModifier. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "792cfbdbdf03be0146124a326b548850efbb4c7c2927737ea34fd4bee2ba4399",
-      "inputs_sha256": "7c063023d2a2e78d334d8b33218e8fe7940136bf66b6599f627fbc1de262af18"
+      "inputs_sha256": "be87fdc2865f22dd0883858eecfbd275fe5623cff8c5784ae8d84903059486df"
     }
   },
   {
@@ -3695,7 +3695,7 @@
     "identification": "Class registration for UModifier at RVA 0x6c780, called immediately after the class factory at RVA 0x6c710 in the singleton initialization path. Sets superclass UMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "fdf029a426de4aee72045cc8815a2ecb00844b9af59adcc4331cf7d182d3ac50",
-      "inputs_sha256": "f2dce23c0f5b23f1d1448a7df7c83fa9e665c1ec9aa048ba9048ed63e828f5a1"
+      "inputs_sha256": "de0677e7094287fe2417d97d6d9cc924ce3e75f225a133efb965c423847c9435"
     }
   },
   {
@@ -3737,7 +3737,7 @@
     "identification": "Native class factory at RVA 0x6c890; its allocation tag and reflected class name identify UTexModifier. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d46027cbaaee4cda6a4399febe9ceab0895ccd144b0f4d8ef31d2519c92dad60",
-      "inputs_sha256": "af89a017174347bfc811a35d8a97d10b78766066d7b7d079c10a79bdffc26b16"
+      "inputs_sha256": "26060b61ead4c1939b7120a1141343e50c40c7f25158be7a7034a843d1602dde"
     }
   },
   {
@@ -3779,7 +3779,7 @@
     "identification": "Native class factory at RVA 0x6c900; its allocation tag and reflected class name identify UTexPanner. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "e544a513312b8460f47d9bb9e6c3d9302134a4e4d76c624eba6195b01865934d",
-      "inputs_sha256": "d9383884be1106ead8a4e92b234e84cbe6d276c391d37354d142c7a3f1475d08"
+      "inputs_sha256": "3d5701ba5a4b02b4c999d9ac68033ddbcf326fe74b91495632963350c1732f07"
     }
   },
   {
@@ -3821,7 +3821,7 @@
     "identification": "Native class factory at RVA 0x6c970; its allocation tag and reflected class name identify UTexScaler. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "18fe02ea9fabc359b73460c1b924403c2d82d5bff614128150d7ac64a511dfb1",
-      "inputs_sha256": "55f0c5f7d42b1dd68144d5a4d406d2dac85bee58ed424c100a725f25934c2fa2"
+      "inputs_sha256": "77e8e089bf78b2bcfb6708fa9107948967d0ed08279c41b7d6cd01cc95311e83"
     }
   },
   {
@@ -3863,7 +3863,7 @@
     "identification": "Native class factory at RVA 0x6c9e0; its allocation tag and reflected class name identify UTexRotator. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "ae0d2ec3324bae693a3ff91fa57c7185eaa82ff64ebef4ecd87b1537e35139e1",
-      "inputs_sha256": "19f0471b051381c8314f9497fcb8217726674c8357f909538e9424018057f1b8"
+      "inputs_sha256": "b512a1c98382e662d909c48334667ee02e4f21d7872e4de048c3d55f33aa2631"
     }
   },
   {
@@ -3905,7 +3905,7 @@
     "identification": "Native class factory at RVA 0x6ca50; its allocation tag and reflected class name identify UTexOscillator. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "9b49d3c238675ab5a832caa706a76828d4515202c02e96e07a08dce217d88528",
-      "inputs_sha256": "a81bbbd2e4ebe324db16069f5eb1db1f735eae7bed806ddc6fe0a1412710b61b"
+      "inputs_sha256": "42a779d4e8503261ca838b19aadf00c52f296fb0b7832906e21209e171e4f5d3"
     }
   },
   {
@@ -3947,7 +3947,7 @@
     "identification": "Native class factory at RVA 0x6cac0; its allocation tag and reflected class name identify UTexEnvMap. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "b2fa5f633c92833a4b938c692a6d1ea9041f9282b6c0614cf71040a0c638192f",
-      "inputs_sha256": "e6ba34be7051becc66123f572eaf15cc35e9664d29f9c6691e8eb55ebb4a718e"
+      "inputs_sha256": "a55b1cce34311a20b50fdc97e5c20d3b8add13275bd0c70cb37c3b1f701b4312"
     }
   },
   {
@@ -3989,7 +3989,7 @@
     "identification": "Native class factory at RVA 0x6cb30; its allocation tag and reflected class name identify UTexMatrix. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "32c3ca67dd70350e934d6b0d99f4dbfb04c2fd2c14f305765395c32ae1d1e512",
-      "inputs_sha256": "d12302de943d492c23c72f949968380f2963cf6190479bcacc96e16389632b1f"
+      "inputs_sha256": "00c0f1926aeb76754d8f2cd4b5a0cc1250bfb93a4b42342eaa8ad7bbae3adc2e"
     }
   },
   {
@@ -4031,7 +4031,7 @@
     "identification": "Native class factory at RVA 0x6cba0; its allocation tag and reflected class name identify UFinalBlend. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "45672ef3ce44b6264e8721e4d178b366b273be6b4ecff9c5f6717e0b7dd61cf4",
-      "inputs_sha256": "80c9a2dc555658bda8b0d05b084d228c0ab2ac92136c54cdeb91084e433a92b2"
+      "inputs_sha256": "e15095cccc7b3c8b69be608ebb6b1a67377e75f4a0601381b21ca4a135626cef"
     }
   },
   {
@@ -4073,7 +4073,7 @@
     "identification": "Native class factory at RVA 0x6cc10; its allocation tag and reflected class name identify UEGlow. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "73e187160c13ae278a0d2f39927effa5e426ace0f277276e9f92d5deacfe2fca",
-      "inputs_sha256": "e947be6cc80811e217cc5ab1569ea0222dde1bfa09cfe0d138f162bdfa92f301"
+      "inputs_sha256": "54fa6bc66c91c5e189f7446dd81f35e49e2be8543b5004b124742087a1c058a6"
     }
   },
   {
@@ -4115,7 +4115,7 @@
     "identification": "Native class factory at RVA 0x6cc80; its allocation tag and reflected class name identify UEPixelShader. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "e01fc1193114f33a2e08f1169bd292881ddb6d4d77f66722fb499a3c08ab944b",
-      "inputs_sha256": "521c7cceabac16ccc44657cdd5c324810e644ced0d67a8b412b6ced0d953ad55"
+      "inputs_sha256": "ac173f100e528ccdb9ce73c6868a786cc3fccb0dace84fbb626267b18dc6efbe"
     }
   },
   {
@@ -4157,7 +4157,7 @@
     "identification": "Native class factory at RVA 0x6ccf0; its allocation tag and reflected class name identify UERainMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "902f79c3803ab7633ca56b3fab6b402e0a9b0d28e9319e6ff4a80df4446f2309",
-      "inputs_sha256": "89f2ef5799813e470ecdfd676b5dcb5d16edfdae00943404dbdcb504936fc625"
+      "inputs_sha256": "c028fab4cc757963cf7f7a7c45fd0778c91d6b3c128674153b85035cd6c8c610"
     }
   },
   {
@@ -4228,7 +4228,7 @@
     "identification": "Class registration for UBitmapMaterial at RVA 0x6cde0, called immediately after the class factory at RVA 0x6b7c0 in the singleton initialization path. Sets superclass URenderedMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6172ca90d72b68495d607bfc112f5204bb7794a79093b61291db5a300f6c5c19",
-      "inputs_sha256": "e1b4e24bb3fa580eb04f07967276377c4ab62d7e9271a6cfecf380eda8339736"
+      "inputs_sha256": "d6c1c49af3ea3983025ac4cbd5656e6b50afa3343a36ae4f5838835bad340381"
     }
   },
   {
@@ -4270,7 +4270,7 @@
     "identification": "Native class factory at RVA 0x6cef0; its allocation tag and reflected class name identify UProxyBitmapMaterial. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "a3a467c0ca880ef1666604ea186c6ee82317364e97bcaca07bca21b9bd1a0e54",
-      "inputs_sha256": "9f0a1e764b34e83a3373d33dec88089eb720fcafddc9b1d857cf244416ddea8f"
+      "inputs_sha256": "29336218c267442f1ab94afc6cd45982a1a2a4be6025f0f803eacafdfc3f2775"
     }
   },
   {
@@ -4341,7 +4341,7 @@
     "identification": "Class registration for UTexCoordMaterial at RVA 0x6cf60, called immediately after the class factory at RVA 0x6c280 in the singleton initialization path. Sets superclass URenderedMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "208a9a2db7ddccbdf681809ee075a4585001a1aa8c963a83620c88082c605b0b",
-      "inputs_sha256": "40b9af4b200c8cfa02dbed032b8195e877a16a7fec2e0d592a0eebfc70906ed2"
+      "inputs_sha256": "d52d1b676f5d5a9186ec2a146a55fc664d3af821bb37a2ae23e92e73b78679ff"
     }
   },
   {
@@ -4412,7 +4412,7 @@
     "identification": "Class registration for UColorModifier at RVA 0x6d070, called immediately after the class factory at RVA 0x6c2f0 in the singleton initialization path. Sets superclass UModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "36c47e0e0890d007bc71a069bd848b5a2eff061e6687528ef7f08ea3ae20688d",
-      "inputs_sha256": "0721ec949c04febc3d834a76ed0fd59959ee902639cb61977b7305fdb70a58a1"
+      "inputs_sha256": "1762f1c634d5e1752b40286a90f528e0052eaa76aec622631d5440858bcdba36"
     }
   },
   {
@@ -4483,7 +4483,7 @@
     "identification": "Class registration for UShader at RVA 0x6d180, called immediately after the class factory at RVA 0x6c360 in the singleton initialization path. Sets superclass URenderedMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "86a92d461a0efa5d855a5791ea09bc0f96dd8708c248bfaa2c4caf6c2ddf3d87",
-      "inputs_sha256": "9961b60315a49af7a677ddf9b9d3bb520eaab4469f0238a33be2f86f5310757b"
+      "inputs_sha256": "0ebaae84e85cdaf0e1965c19efc9f131973fc0e36cd15f6b2806790875e31061"
     }
   },
   {
@@ -4554,7 +4554,7 @@
     "identification": "Class registration for UPixelShaderMaterial at RVA 0x6d290, called immediately after the class factory at RVA 0x6c3d0 in the singleton initialization path. Sets superclass URenderedMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "68ba4d62522f61bcbc79dea103d5b07b4222647f80ed0393ebcd577f67bc3ae5",
-      "inputs_sha256": "1ff708de97712ea62505bff5bc08f44b6eab430bce729a8442a150ac7dc8bcaa"
+      "inputs_sha256": "618a5cf412fd6bbe1dba9f62a592b02e8f9050bcf3add90ae02bc0d3f128f2ec"
     }
   },
   {
@@ -4625,7 +4625,7 @@
     "identification": "Class registration for UConstantMaterial at RVA 0x6d3a0, called immediately after the class factory at RVA 0x6c5c0 in the singleton initialization path. Sets superclass URenderedMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "1c2b2daa5b084cd5782a2926ceea4caa63ba7fdac27dde4015b64ed80dcdfc4c",
-      "inputs_sha256": "4f084de13ecf62e4576516a7e863f4ae549d8feffb01e6582ec21dd4f97eac48"
+      "inputs_sha256": "3ce663895e8112a4b830a650feb4b905c1e6f8582ff48d58c9130a813e841ead"
     }
   },
   {
@@ -4696,7 +4696,7 @@
     "identification": "Class registration for UTexModifier at RVA 0x6d4b0, called immediately after the class factory at RVA 0x6c890 in the singleton initialization path. Sets superclass UModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "400ec68d72fde743fa75773ed2d5dfd72d74d38cb4b8f093be4977b417436184",
-      "inputs_sha256": "92123f900d2fc731fc94a3f992daa35117a3427ac65a668c7a472af71c776245"
+      "inputs_sha256": "4f5ce0ea6376c941b7aacd77720885c7b34c0b1df3466f92a695ef1d2d8cfec7"
     }
   },
   {
@@ -4767,7 +4767,7 @@
     "identification": "Class registration for UFinalBlend at RVA 0x6d5c0, called immediately after the class factory at RVA 0x6cba0 in the singleton initialization path. Sets superclass UModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "3d4ec2ede6966c3c9862e01b4f6850c48e9afb0e10f545296c746cc970269412",
-      "inputs_sha256": "e1f1099464fc857b3329085e89bd803bffe4139c0b658de53f392b4c954e3657"
+      "inputs_sha256": "fb31da381394afca7aff4a9f3674e152e76a0017ebe974b8b2e11841ca873530"
     }
   },
   {
@@ -4838,7 +4838,7 @@
     "identification": "Class registration for UEGlow at RVA 0x6d6d0, called immediately after the class factory at RVA 0x6cc10 in the singleton initialization path. Sets superclass UModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "28337d89a6c882751585bc59ff8b8ab1e595becbe683f9dc9e890a5240f58281",
-      "inputs_sha256": "044e96c91ee296966c0b99e7f1fa521f29418c3be2e2ab9066569b50cb0ec56f"
+      "inputs_sha256": "98a527684ac4d7ac319c466247c17022884f2d0f0215ea9bc4ec2b36849fb705"
     }
   },
   {
@@ -4909,7 +4909,7 @@
     "identification": "Class registration for UEPixelShader at RVA 0x6d7e0, called immediately after the class factory at RVA 0x6cc80 in the singleton initialization path. Sets superclass UModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "d995fd4639b8be4da331d8e53e785e335036d9dd655975875a13141b5c1ffe88",
-      "inputs_sha256": "91fc23e8b5d8b0ffedb5658566bf80190328f48c3df042a9de00de2abe326b41"
+      "inputs_sha256": "a5360eeff6844ee17f9e8a12af80fdc03a1fb7143db8c6df6269ad1081c6cd7e"
     }
   },
   {
@@ -4980,7 +4980,7 @@
     "identification": "Class registration for UERainMaterial at RVA 0x6d8f0, called immediately after the class factory at RVA 0x6ccf0 in the singleton initialization path. Sets superclass URenderedMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "b9b49cca633e046c9e67463190564763af634425ac516cbbaf0bf4d7f8d26d22",
-      "inputs_sha256": "cecceed18db9369bb618f306b637c0ae6198bcd853bcb5a426c047a2ccf8bb9a"
+      "inputs_sha256": "ce3305b2b2602bee2efe6c5bf263a4b093c54323c68176b892fdb36932a21415"
     }
   },
   {
@@ -5014,7 +5014,7 @@
     "identification": "Typed cast at campaign RVA 0x6da50, directly called at RVA 0x6e9d6. Its class constructor at RVA 0x6c710 identifies UModifier; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "eb5dfaf3aade75168f4b2dc1787d6d3e0adc8527c02c37779d4a4a8042069c7a",
-      "inputs_sha256": "1404a337340ed3d6b5a82345b85f2769842e7ad4f172ece5798cd9466d32a78f"
+      "inputs_sha256": "7ebe6ff59b64bbc5169bf891a03a05e80d59581b1ac495cf0299cdcfecfadc4c"
     }
   },
   {
@@ -5085,7 +5085,7 @@
     "identification": "Class registration for UProxyBitmapMaterial at RVA 0x6dab0, called immediately after the class factory at RVA 0x6cef0 in the singleton initialization path. Sets superclass UBitmapMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "b002c915b2bb0fc8c76b52d0e85c25f82e1c88952dbe13da9725eb7697453da3",
-      "inputs_sha256": "a919ed6b9e142e79f201c981a18f7320f08295be00a1885b0a6ff6c6823b07fc"
+      "inputs_sha256": "e3564f776c549c518490810aac0821c2807cab7211c47e419c47d94530b9feba"
     }
   },
   {
@@ -5156,7 +5156,7 @@
     "identification": "Class registration for UConstantColor at RVA 0x6de20, called immediately after the class factory at RVA 0x6c630 in the singleton initialization path. Sets superclass UConstantMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "4b0e520aafd73950e9cbbb06ddf80fcfe86e8e460e0cd5ad6e166f8f390fbd8d",
-      "inputs_sha256": "322c0c57b1b56e483b818ef30b637ed5bd46f86dd8f75e351d4e52e4dd025eb4"
+      "inputs_sha256": "cb708d979a77a3390b83dd9eb5cecac9c961bf62cca4eefbde82ef49dffa9c75"
     }
   },
   {
@@ -5227,7 +5227,7 @@
     "identification": "Class registration for UFadeColor at RVA 0x6df30, called immediately after the class factory at RVA 0x6c6a0 in the singleton initialization path. Sets superclass UConstantMaterial, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "dfc83c7b28e0f2c399ed2372b55bb45e9191f00f610f04e9368cd47efc24b599",
-      "inputs_sha256": "2a11a24123a6e17614295544f17302c602a57d19cfa1751dc53c72b555c9087e"
+      "inputs_sha256": "d2b6c2b94154ed890edcc7669d2b5b78360601fb87bf2d7d495d512b4bc23ba4"
     }
   },
   {
@@ -5298,7 +5298,7 @@
     "identification": "Class registration for UTexPanner at RVA 0x6e0e0, called immediately after the class factory at RVA 0x6c900 in the singleton initialization path. Sets superclass UTexModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "2773de16169229f1ade30d86335c1c37c265b6a458b3f2a6ce338a28cb177c3f",
-      "inputs_sha256": "9c8698e9350fc02d8f0c3017fa210b2e0d779e4b1b72efde59919510bc9b9125"
+      "inputs_sha256": "17d00b47c2c89d24ffbc8bdf26a53f64dcb114f87f6da050b1c6bc6e2f5eca3f"
     }
   },
   {
@@ -5369,7 +5369,7 @@
     "identification": "Class registration for UTexScaler at RVA 0x6e1f0, called immediately after the class factory at RVA 0x6c970 in the singleton initialization path. Sets superclass UTexModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "83426d512bbeb8a53b6584979728091e15947a3986c2871a22c6dbb8d33cfe61",
-      "inputs_sha256": "7c4101f67eefbae48ec17d83fb2354154d6582672bea2165db309429ef23ddb0"
+      "inputs_sha256": "4ef5efa17c4b0bb0dbebc922133b910f616efbdc168310cb592d32dab88d8784"
     }
   },
   {
@@ -5440,7 +5440,7 @@
     "identification": "Class registration for UTexRotator at RVA 0x6e300, called immediately after the class factory at RVA 0x6c9e0 in the singleton initialization path. Sets superclass UTexModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "b78be816e4a585ff91b1a04bcc45ea6582679208b1a2b670d9a843b1f5de53b1",
-      "inputs_sha256": "8a1656fe000091cd663d4d710efdc1cd7b6afadf339a1e7574c1eb508d9aa19b"
+      "inputs_sha256": "02b5a7bc72f8b46eb2836420f3c59b4dcf6e8a4c0d18a29f5cde09b288de67ae"
     }
   },
   {
@@ -5511,7 +5511,7 @@
     "identification": "Class registration for UTexOscillator at RVA 0x6e410, called immediately after the class factory at RVA 0x6ca50 in the singleton initialization path. Sets superclass UTexModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "3721280649f608ed622e8b5ddeec43f98a4715bb592f192fea8e24cd89e011b4",
-      "inputs_sha256": "27162d0022ded4ee466d9560da4bb1068ce45795a58e63ca1c409c0561c568b4"
+      "inputs_sha256": "cc42e475a21fe31eae1323c841c274e2a789ddfc6fcfff1ac141faee4f30f6f2"
     }
   },
   {
@@ -5582,7 +5582,7 @@
     "identification": "Class registration for UTexEnvMap at RVA 0x6e520, called immediately after the class factory at RVA 0x6cac0 in the singleton initialization path. Sets superclass UTexModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c160592c10c8b67c13772a3ce1845a7a5983f6f16bc480baee56981d633915cc",
-      "inputs_sha256": "7233a7ae5fb28fd786bd0c18c0031aa278df1f2de9d28c915a5b747b2c18b4d8"
+      "inputs_sha256": "13f72c52c9336773ca3239f2a91a4a475ce4337cc175a84b1949b08266e4cf9a"
     }
   },
   {
@@ -5653,7 +5653,7 @@
     "identification": "Class registration for UTexMatrix at RVA 0x6e630, called immediately after the class factory at RVA 0x6cb30 in the singleton initialization path. Sets superclass UTexModifier, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "69bda24c6fed7aed5a3ea701c4b6c95c232244986e6f495c59010abd8410dff8",
-      "inputs_sha256": "6c4cde6c4495fd54a0a2f4afc53c7b020a6f0f125bda9b9d89af05e640a5e7c9"
+      "inputs_sha256": "0047cb2f9ae90b67208cfdc23eda74932197b9e68cc6fa4153c297435f83ea40"
     }
   },
   {
@@ -5687,7 +5687,7 @@
     "identification": "Typed cast at campaign RVA 0x6e740, directly called at RVA 0x6e8fa. Its class constructor at RVA 0x6b7c0 identifies UBitmapMaterial; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "3bba4b9fa9b381bf4ee3436ea07842cd19fb09fdf745efad0dbe121ef30f12d7",
-      "inputs_sha256": "f2040afad064eb9d846079a34f491cef2b13eaa76d89104165baac49bbaee20c"
+      "inputs_sha256": "b2535a9c53a5d68690ec99d9fc8d8f664f8eeef7db17f635d218f75b3af42513"
     }
   },
   {
@@ -5721,7 +5721,7 @@
     "identification": "Typed cast at campaign RVA 0x6e7e0, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x6cc10 identifies UEGlow; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "2eed57af520baff4528a9c9b3ece378dfbe20c702327b08679cbcfe27deae853",
-      "inputs_sha256": "c7ed4bb137738b9a57cec50d44fbfcc657bceef51a470aaee74bf60ef2dd28d8"
+      "inputs_sha256": "bae9e8f8a69dd680ac819c9c2d430f7ab170cddd7df386753464e6e9b26f1ed6"
     }
   }
 ]

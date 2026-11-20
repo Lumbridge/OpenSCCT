@@ -23,7 +23,7 @@
     "identification": "Complete stock array destructor at RVA 0xc0be0, called from decoded game code at RVA 0x1c8eb3. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "50e704ea583c9d47d3dc47b46ecd6e1b655dea42228912567d3b1e4306b25fe1",
-      "inputs_sha256": "fd7d08187352624fdab22359e03a52c891f7d237d9ee17f17fe38829ed9622e4"
+      "inputs_sha256": "4195413eda0985d12a9640f1d208dd8c1af2ab3c2b8ba762d6b3d193facfeb5a"
     }
   },
   {
@@ -57,7 +57,7 @@
     },
     "match": {
       "bytes_sha256": "9d91fddebb33e79ffd327139d5460a433f4a50326bb1a962a6864564b1623012",
-      "inputs_sha256": "25f1c9b1fcd69cebd66982c012d83e879c66452e95cfd6f8e1869212262051fe"
+      "inputs_sha256": "870e70b039bce1952ce129704e41b61f69d1b0ed71be1e1b9b6c24185eca15c5"
     }
   },
   {
@@ -79,7 +79,7 @@
     "identification": "Placement callback passed to the UStaticMesh class factory at RVA 0xc4990. The callback at RVA 0xc42e0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ef74d133388d6a860be4d74f8f2923e9db16f2ae1dd9ce8eddf1f8c9ae6b421b",
-      "inputs_sha256": "9ef7e556f1b6cfd68c612d0466e5ce0447ee8de33cad737c97fe638d251b3198"
+      "inputs_sha256": "1145946c115e82abcfb24a40c3ca67935be485a228345ec380233f80d530f796"
     }
   },
   {
@@ -121,7 +121,7 @@
     "identification": "Native class factory at RVA 0xc4990; its allocation tag and reflected class name identify UStaticMesh. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "0b58b38214f2dce637b6caa88251575474cdd21068eab2559b6297b4e89b263b",
-      "inputs_sha256": "c44975a497ed1b90ea23e7b1442a5ca0b237c4378cfadb1722160743132c5db4"
+      "inputs_sha256": "04951af744cb0052bd33a0a54d0284916bda447159afb94a71a924a1019e612a"
     }
   },
   {
@@ -147,7 +147,7 @@
     "identification": "Placement callback passed to the AStaticMeshActor class factory at RVA 0xc4d00. The callback at RVA 0xc4a70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5cbad9fced3c480a0ad2ca2dca7f20fdf4c4af178360b8198d706472ffc5b4cd",
-      "inputs_sha256": "5162bd3ebca19cb4402a74aa2b44d78478d1f4ed95f3a561de0846582ecd39b7"
+      "inputs_sha256": "525e564f4c0a73206a2c03b65ef2390e61aec4053fd082822672b412c090e5e4"
     }
   },
   {
@@ -173,7 +173,7 @@
     "identification": "Placement callback passed to the ACollisionMeshActor class factory at RVA 0xc4d70. The callback at RVA 0xc4ab0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6dacd4043646fdb6641e073ecc72c7ca9676f0113ac1731d4ccf4b1932a6cf2a",
-      "inputs_sha256": "083af7f2e70a6daf4c7f2f8a85704f586083ccc8d723390745f3d9c859aa8a88"
+      "inputs_sha256": "5a8cafde7ec1cfc19bc0418148f35f4c5a90fb732bb5d24f08578b332c5b6659"
     }
   },
   {
@@ -215,7 +215,7 @@
     "identification": "Native class factory at RVA 0xc4d00; its allocation tag and reflected class name identify AStaticMeshActor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "70bca2e8f6ba8c552beed4cba263041406e1cf9a88fc4b57b13d8909f4b069d9",
-      "inputs_sha256": "9d10834861b7627416e000a6d4587cc387c73cda7a3a4c5502097cdbc2455ce0"
+      "inputs_sha256": "cab2e1ebb300207632ee2d30e160b7db1d86e7a459a53a468a8f6452f444bff3"
     }
   },
   {
@@ -257,7 +257,7 @@
     "identification": "Native class factory at RVA 0xc4d70; its allocation tag and reflected class name identify ACollisionMeshActor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "2c564ff1da4da333367f14ce3d23724c5568afe70598c9adeed7c59b4916262e",
-      "inputs_sha256": "1f5f9e068f2e4ca21f43e9049fb18a504a68582524618a11977352f7b6b2c9e6"
+      "inputs_sha256": "7b9197730ea0fdafe1623a83b272dba1163aed1770eee07c128a7a8e3c34b2d8"
     }
   },
   {
@@ -328,7 +328,7 @@
     "identification": "Class registration for ACollisionMeshActor at RVA 0xc6240, called immediately after the class factory at RVA 0xc4d70 in the singleton initialization path. Sets superclass AStaticMeshActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f6f385690b3c7489177a9b7a3be3469249545769899de31274d008eda17b57ab",
-      "inputs_sha256": "84767abe56ebe4f88909b862449243ea1884eb87c150562dc829cf23f1e63fdf"
+      "inputs_sha256": "c7ff99089dc5764b81f2617e0c04e6ecb06830b68cae8a64214994ae8b5ee75e"
     }
   },
   {
@@ -370,7 +370,7 @@
     "identification": "Native class factory at RVA 0xc65c0; its allocation tag and reflected class name identify UStaticMeshInstance. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d8390f9aee562e703d6e808a61494476c052e209f592a37aaacf6228a7a8beb6",
-      "inputs_sha256": "08518a8401b037723e0c6db5a8792832360b28fc3c4c317e759e4e43849a30ba"
+      "inputs_sha256": "552bacb5548e4380b57cbb61d3c547518ac5aafb27513a997f68519c7293b6e0"
     }
   },
   {
@@ -441,7 +441,7 @@
     "identification": "Class registration for ANavMeshActor at RVA 0xc6700, called immediately after the class factory at RVA 0xc7320 in the singleton initialization path. Sets superclass AStaticMeshActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "d629c48c0320106739338054c06f624176d146b24c66b07f93427d5488e8e9b2",
-      "inputs_sha256": "f769387de2307e47bd5f064a4626405e35ea8f7752411e7d0a740f18e48c6686"
+      "inputs_sha256": "fa7370174b6cb0b1c40b759448952f4937a5247250f6fe905da621fcee027508"
     }
   },
   {
@@ -472,7 +472,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0xc6a90, including RET. Incoming transfer decoded within analyzed function code at RVA 0xc73cb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d95277fb946274f6044243143000d3e762cd87f1a111a2d1eb346bf8e8e33f18",
-      "inputs_sha256": "ea8212b879bceefa85abda9921dd2602fb75c2a4c4510e441f652f4c3cae3225"
+      "inputs_sha256": "c16b0efbccec1d7a236b28539ef1129689ed2904a1de5b80a73966f2c3dfdcda"
     }
   },
   {
@@ -503,7 +503,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0xc6b20, including RET. Incoming transfer decoded within analyzed function code at RVA 0xc6dfb, 0xc707b, 0xc728b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "14b6987b5eb7f1cd9addd6cb3d10356f8277fd1c02a2e8df1d688ace1294db54",
-      "inputs_sha256": "a5559ef0ae5fcbc5d3801c829f83b4f95ba0fcb1392b4e31e0d9dccad5972fe9"
+      "inputs_sha256": "c60da0908009ad67eb5bc6e28a87dbe324c428cdc7bff771ecf33a93506e887d"
     }
   },
   {
@@ -541,7 +541,7 @@
     },
     "match": {
       "bytes_sha256": "fe9a2be59ab6df44c1f1bb4bc6a1211ab86d3edad1f42db61d38be148bd694f6",
-      "inputs_sha256": "570ad6017214eef1ded393e7f2e3748b31ddbcccbb4da03d39bb32ff4b98daed"
+      "inputs_sha256": "3111b5c0707b6b2e8c1258dfe7bba4916a80ff87bad9d9cd4fd99cad119a5d91"
     }
   },
   {
@@ -567,7 +567,7 @@
     "identification": "Placement callback passed to the ANavMeshActor class factory at RVA 0xc7320. The callback at RVA 0xc72b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ae89611a386e34478beff60d4914bd45c426e46d0508632ce6f4d676426c115e",
-      "inputs_sha256": "7cb63d86a12dcc17ee09d4b59bf0b5c4122a50568ddaf309cca8bec7718c7e5f"
+      "inputs_sha256": "e84c06f8139da2abf7baf86d7178a73e362aadc604a8e281a6e4a154f928cb08"
     }
   },
   {
@@ -609,7 +609,7 @@
     "identification": "Native class factory at RVA 0xc7320; its allocation tag and reflected class name identify ANavMeshActor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "aff7a6220c025f34ac423d4552a33631b240e5ca79843efe7227d6595ea5719f",
-      "inputs_sha256": "b0a748633018824e64e566cf1dca4215f353f2404c9c83995e72b567c2e27c9a"
+      "inputs_sha256": "d40db819dfd85de8a0c10620cb67a0a26222e55178ffc90bedf857f16a2df2ce"
     }
   },
   {
@@ -680,7 +680,7 @@
     "identification": "Class registration for AWindEmitter at RVA 0xc7580, called immediately after the class factory at RVA 0xc8170 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "8b8c974fa34044aae84a4778a9a8d94c4772f5c898a1f21c81a8ae1334cd1302",
-      "inputs_sha256": "446c9c739fba15e7c39cd52ec8a9dcbef5f640890b95079294a08bde2b0e6b84"
+      "inputs_sha256": "c8b2465fefbd715bbbbe62c71e01222eaf6a38321512d104d51be3b655847eab"
     }
   },
   {
@@ -711,7 +711,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0xc7b30, including RET. Incoming transfer decoded within analyzed function code at RVA 0xc7fbb, 0xc7ffb, 0xc8135. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "1e5e40dab4b2f57e92bf0d4b6a762737620c9b967dc94ec6dffa338ff1570bf3",
-      "inputs_sha256": "fb2cb13733a49596002559ebd2d86ecc5791723aaae95a459a35a1229a52a93d"
+      "inputs_sha256": "9638427945a8caa71dcb1bacd2123aa95ef6438f5d0d2b655315ad558e19ef64"
     }
   },
   {
@@ -733,7 +733,7 @@
     "identification": "Placement callback passed to the AWindEmitter class factory at RVA 0xc8170. The callback at RVA 0xc8160 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5239855c3dc1e5ee2d6c18f452053b4c59584917ffff67363f0d86b275fb51f0",
-      "inputs_sha256": "d5fb928bbf1f8c48ab649c8eadc788e4ae78c3df946c102293ee0fc0c5977813"
+      "inputs_sha256": "f5f6d4634d964353a48390aa8629c067429aa8c317ffabeb2f3862bc0547040e"
     }
   },
   {
@@ -775,7 +775,7 @@
     "identification": "Native class factory at RVA 0xc8170; its allocation tag and reflected class name identify AWindEmitter. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "4daabf80d70fe4255f5e5038feb57de026cac22baaf3c662ffafab6e2c211b1c",
-      "inputs_sha256": "185e7ecbc1d72b88f085a7542aa0c8e2e37d611cd297dd0fc45c34d06978ed4d"
+      "inputs_sha256": "d1cb64dfac7906be9b366a191d0d71f8c21e9c87ff2ec368bcc27d01d219825b"
     }
   },
   {
@@ -809,7 +809,7 @@
     "identification": "Class singleton accessor at campaign RVA 0xc8370, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3ea140 names UProperty. Both branches end at the return before alignment.",
     "match": {
       "bytes_sha256": "c062cb43b33a1d47259a35141f3b41a1ed9a15dd598370144d9bc9063cc8424d",
-      "inputs_sha256": "651474f80f05880cfb5b915271747eca23062178dd5ff86e624ec4580551aac8"
+      "inputs_sha256": "e676681cb9947e77d0b227bbf34ed499897285b37e29a97bc43a8a264900ddd8"
     }
   },
   {
@@ -864,7 +864,7 @@
     "identification": "Class registration for UAnimInfo at RVA 0xca4a0, called immediately after the class factory at RVA 0x1030f0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "d284e318cb49ac3b824e207787df356478cb3457dfc7682be768216e4859e3fc",
-      "inputs_sha256": "fe84ea1472f3168560a33f113e7bae3f197601c77d1edb92f22fe98ef4458d5f"
+      "inputs_sha256": "b2ec2e732887f044ed7efd67dff3b3e305a9867ba58d21736d731739b490fdcb"
     }
   },
   {
@@ -919,7 +919,7 @@
     "identification": "Class registration for UAnimNotify at RVA 0xca7c0, called immediately after the class factory at RVA 0xdc410 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0d906a02fbfe1399727c417d336e9fd01dc3de7027d823aac73f66c596f96109",
-      "inputs_sha256": "69988732b883c9aaa8df0c23ed86b3cb46cc0704df57bed756cd5a62b446da8e"
+      "inputs_sha256": "5808dfcfac94172b245088e4d2a46991366444511d6025a3c8654c196446c01a"
     }
   },
   {
@@ -946,7 +946,7 @@
     "identification": "Retail StepDampingFadeOut event wrapper at RVA 0xccbf0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares s_Targeting.StepDampingFadeOut with Float ReturnValue at serial offset 0xa54ee.",
     "match": {
       "bytes_sha256": "adb0279da60ca740516d36c5030a19ef9e8cf0edfb0010b7f71dbfba48bc0018",
-      "inputs_sha256": "75d586abddf099c3c8de8ec8a65e3f4d18466fd6acd1e20fcde7a5aaffc48924"
+      "inputs_sha256": "067eab87f1c424f64156f04827aaac7ce344f5dcc542e9e156a00f9ea5b38f58"
     }
   },
   {
@@ -980,7 +980,7 @@
     },
     "match": {
       "bytes_sha256": "a77e8f70f70d3c530163a8cc87461b216e523a340f4ab5c719bab1ce4a9d884a",
-      "inputs_sha256": "7faead00e58f536dce96276619a4965dbd1b8146f5c3b0e17eb89341bc8d6f3f"
+      "inputs_sha256": "649d255c39cdb27ef927aba602f88aaa7f42161eeaac3e96b87938ce95259908"
     }
   },
   {
@@ -1014,7 +1014,7 @@
     },
     "match": {
       "bytes_sha256": "a8d88d39c10088246a63bd98b3ec9404b1a2a498756a14ca14d3ea5b04e0d6a0",
-      "inputs_sha256": "1219fe0a5f9ef314168298a8449ecbdb269a6a25a958d5121ea073de678d9903"
+      "inputs_sha256": "0de49bfef65628f7c4159f30b2afff776d46b3764ee8a94f8934c8c25b2ce7bd"
     }
   },
   {
@@ -1048,7 +1048,7 @@
     },
     "match": {
       "bytes_sha256": "077749aa47085e0f7e377ad99a299ca37cf2571794d3df86dbff4bf8ce8aca7a",
-      "inputs_sha256": "46d693db00a5f2642d20707c8169756d7fc966dbe4b217b4f4a739cd95ecb66d"
+      "inputs_sha256": "438fc9ae49d1fa9afb0ceae5ad3b3ca2a7149e8f0ebae378523fc22105b671ad"
     }
   },
   {
@@ -1082,7 +1082,7 @@
     },
     "match": {
       "bytes_sha256": "c011aef07191c0a2a6cebff648f9d57113e9247a8866b453afc7047c103ea132",
-      "inputs_sha256": "39ffd09b2a333928ef7bf3c8d2e3472a3e812dfd187ed79d1d3399ecac9c745d"
+      "inputs_sha256": "b039d2af831feb04c43d3bed0d02e4b5d9855ca0a6fb021ef1ec2ecea7190196"
     }
   }
 ]

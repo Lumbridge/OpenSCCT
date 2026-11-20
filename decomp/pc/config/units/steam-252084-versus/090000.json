@@ -1,5 +1,27 @@
 [
   {
+    "id": "initialize-aactor",
+    "offset": 598272,
+    "size": 75,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_initialize_actor",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
+    "identification": "Stock AActor::PrivateStaticClass at RVA 0x3c52a8 is registered at RVA 0x9ed70. Its placement callback at RVA 0xae2f0 passes storage in EAX to base initializer RVA 0x92100. Installs the AActor vtable, sets members +0xc8 and +0xd4, clears four consecutive two-word records, and clears flag bit zero at +0x2e8. The full comparison includes the alignment gap before its four-iteration loop.",
+    "link_bindings": {
+      "_vtable_AActor": {
+        "va": 281066424,
+        "basis": "AActor vtable RVA 0x30bbb8 matches the independent reflected class table. The store at RVA 0x92100 installs it as the object vtable."
+      }
+    },
+    "match": {
+      "bytes_sha256": "452b9dc2bb8c79c76b2f39d820bd697695aa40e132f1811e7f7d583e9a00bc74",
+      "inputs_sha256": "db18fd38b73f12c357267230f1c083386cf5584cb230496edfb0b1ec2ce33c52"
+    }
+  },
+  {
     "id": "versus-actor-get-transform",
     "offset": 598464,
     "size": 57,
@@ -38,7 +60,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5809b36e436c9435952b623e4e84d4cf5fce35f21f55bbeb27cea33972ed5b77"
+      "inputs_sha256": "f7b712b9371a425d4aa77837798c6af613cf84d3865883018cef475b7afa4cf7"
     }
   },
   {
@@ -1157,7 +1179,7 @@
     },
     "match": {
       "bytes_sha256": "c75eee5a76695ee3195631d0d7f933237b005afe121e19cb92d4619e2d933553",
-      "inputs_sha256": "200a4c6ee9a4594a6e62a6603c8802db9d0e02f2e2738c7ac20b16ed7021073f"
+      "inputs_sha256": "dc78f6f41edbb00cd5131604ae99a1b45e33c6c46cd7cb18a23b789439ac3ec7"
     }
   },
   {
@@ -1183,7 +1205,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a56805723817b153785be5a0aec2ed88955af881a727600c23cceba7a37a846a"
+      "inputs_sha256": "dc5ef67faa4e686f85eb5dfc969782ea6351b2c2a334c5783f46e67437be0041"
     }
   },
   {
@@ -1209,7 +1231,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5031a69c7e724884af95047f993f9a8e2d62dad2d651248a35c1f6e2de7abb81"
+      "inputs_sha256": "61e589766b77ae6430e9c7ba2aea6106992c14bdcad7a3c9d6316d785c776c98"
     }
   },
   {
@@ -1235,7 +1257,7 @@
     "identification": "Steam UConstantColor vtable RVA 0x307d00, slot 22, points to RVA 0x097470. The retail Ghidra body is one contiguous 108-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "720e0a641617d57741fd561c7f9da48ff2171a2d6c55cda6f8d12b466ee89eeb",
-      "inputs_sha256": "b1d036a86a8f62b3ca78dc67b8ea139bf2d5f8f9f55ad52007162665414a8d9b"
+      "inputs_sha256": "f0b321cb894a77950562cfd213bb87d68f06505a96b6cac99d2ba2d0de0319f3"
     }
   },
   {
@@ -1257,7 +1279,7 @@
     "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 10, points to RVA 0x0974e0. The retail Ghidra body is one contiguous 17-byte range. The material serializer conditionally delegates to UObject.Serialize based on the engine flag word.",
     "match": {
       "bytes_sha256": "6106e40abf01888915f85ba39fa9f10b81d3ecb35dae9c569b8084f40ce6ba95",
-      "inputs_sha256": "625d81e548c524acdb04d13da3413c7f342032a513e7c2a55a215a573be2010f"
+      "inputs_sha256": "578953f197f89a7008c938e520db2027579249d5ad1cb0332ef00c23ec5dbb21"
     }
   },
   {
@@ -1303,7 +1325,7 @@
     "identification": "Steam UShader vtable RVA 0x307b50, slot 22, points to RVA 0x0975a0. The retail Ghidra body is one contiguous 192-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "e2270c0b19e47ade47a11e139f34990a6af080ead7f294aa5eb1b652a6c01245",
-      "inputs_sha256": "38897bb0d76823782d335c192b847bf7d24d22c76de58f594d2cf07b7d45f151"
+      "inputs_sha256": "fe91689aac6ad2eb9be04cb0d594adfaa04d9ee450869b66cc5a109913b34a5a"
     }
   },
   {
@@ -1445,7 +1467,7 @@
     "identification": "Steam ULitSpecularMaterial vtable RVA 0x307be0, slot 22, points to RVA 0x097950. The retail Ghidra body is one contiguous 124-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "08326815955ac3f5729caaaf3287bc74120c5eeaa6cdd1e0e73f023c433ee315",
-      "inputs_sha256": "28e4df5dc4b4ac8a0683c6e9537070bbdab8a73d79e9b643e2922bf5e3e67274"
+      "inputs_sha256": "9931f2a2b72d4dd54809d2741da5dc0db4a71e7d071ba19975da2df4466e7348"
     }
   },
   {
@@ -1587,7 +1609,7 @@
     "identification": "Steam UCombiner vtable RVA 0x307c70, slot 22, points to RVA 0x097b10. The retail Ghidra body is one contiguous 124-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "90d1a3856cd1ae13b93f1a8a8ffb634c7d3b4aef05f24b0e2e5fb6817a2e19e7",
-      "inputs_sha256": "ac120713423e5ba34f5475ac347f7d22f0cc7ff96878c42920af9c6a1623e862"
+      "inputs_sha256": "2bcd7f3413cecf57dd88f2a0f64d2b0a0544309bb054f54afa779e9c7950e2f4"
     }
   },
   {
@@ -1633,7 +1655,7 @@
     "identification": "Steam UColorModifier vtable RVA 0x307a30, slot 22, points to RVA 0x097d20. The retail Ghidra body is one contiguous 88-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "8c4ad41bb225e87fc8d0f896b1152edc2c1c0c94c0f7452b361ec2dae9096cc1",
-      "inputs_sha256": "a705a8093e4e82a50f503a6cd13e2d26efdb72412248df2af737020306941e35"
+      "inputs_sha256": "dd4b37643aa21aa85f71ace1c04c3af14653ae90002f041caece400cacf05404"
     }
   },
   {
@@ -1735,7 +1757,7 @@
     },
     "match": {
       "bytes_sha256": "0e1633730687bd9c08684e00e136808c6128af6bfd3cbdfd802cb7c31b7bfc0c",
-      "inputs_sha256": "a5869238cf9fc7518918859204971e1e11852c26463347dc04cbad28bbe30892"
+      "inputs_sha256": "9db7422a567020c02194fd3cb60befc41f447b345c101bb9e7c11f58f920b264"
     }
   },
   {
@@ -1773,7 +1795,7 @@
     },
     "match": {
       "bytes_sha256": "47f3b1ef2eaf3bd753308447d9679501495fc4a00d68d978a3ed4c1d21e5f933",
-      "inputs_sha256": "b782d6315d1f4c18b16ff954b02b88b00e483e675b585f55d25754f2afdbf3b9"
+      "inputs_sha256": "c64d308baecdf6fd0062847f286937af54cb4b1a2fbdf0ee26be306a7db11123"
     }
   },
   {
@@ -1811,7 +1833,7 @@
     },
     "match": {
       "bytes_sha256": "076de760f4eb246b35a295e2f1f66154f6717b4583dcb8a262797861dc7c99cd",
-      "inputs_sha256": "94a264c65bb65a0febe704cb7d5bb3ea7afc9b5648e4b147ef095ffb6b1f1174"
+      "inputs_sha256": "974e4d4fb6a6e77cb1c94924d696f23c21405c2f7cf2f434bdec2e07f7ce277c"
     }
   },
   {
@@ -1841,7 +1863,7 @@
     "identification": "Steam UMaterialSwitch vtable RVA 0x308600, slot 22, points to RVA 0x098c80. The retail Ghidra body is one contiguous 113-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "ed366f54ac1f7716654bb3e3e7040ccaa6afbb7d55f8d5f2e28c8550cd751317",
-      "inputs_sha256": "ad96a6c231322aa481f2898806d8b9f970e15849e6144964e533a6f8a64d15e1"
+      "inputs_sha256": "a1f24670fc37961532adee2d5f5b5cc698337f93771e065f9a92b4b2c5f05216"
     }
   },
   {
@@ -1863,7 +1885,7 @@
     },
     "match": {
       "bytes_sha256": "3ef942a126cce4f0e0667e38a855cca0792d30db2535115dc2ea79f48b66fd91",
-      "inputs_sha256": "246372e9fea3c1b3fbc61635537e72538457de5ea0bb8bc28f055657652651a7"
+      "inputs_sha256": "8c4075c0686cca901c1c36c0fa546f3d1e35726312d6d97c8a87412cb1e74a35"
     }
   },
   {
@@ -1885,7 +1907,7 @@
     },
     "match": {
       "bytes_sha256": "0838a7f75728123ee3c5cffdb48ac7852e4458e7adaff41788a567fe7468f32a",
-      "inputs_sha256": "924cb9abc8838bbebc1076c33b31228f60ca1fe97502fbd214e79b9a2ea26155"
+      "inputs_sha256": "179acb0216fda78fd94b8a47826d52f12bf3d2299b0d89b6f940d42da994be69"
     }
   },
   {
@@ -1907,7 +1929,7 @@
     "identification": "Steam UMaterialSequence vtable RVA 0x308690, slot 10, points to RVA 0x098d70. The retail Ghidra body is one contiguous 39-byte range. The material serializer conditionally delegates to UObject.Serialize based on the engine flag word.",
     "match": {
       "bytes_sha256": "464399b2110690340b3ed27252fcb4f3b8fe599cad4e0b6170d3f6c7c6d71680",
-      "inputs_sha256": "61372b7321e6f8763d0b8e7a4e49e38bf4ec791b19b1a34ebff6c11c8af7c94c"
+      "inputs_sha256": "c1e5075592c1c3107f5fc4e5588f64af29be1363f0f390844277e08d7f0fe0de"
     }
   },
   {
@@ -1937,7 +1959,7 @@
     "identification": "Steam UMaterialSequence vtable RVA 0x308690, slot 22, points to RVA 0x0990a0. The retail Ghidra body is one contiguous 132-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "888e7e9c036fa098bb8b9d3f2c5cb72fc6116ca83885268521b9c91b2c8e8ce6",
-      "inputs_sha256": "4647991215522a2f709099c016cd3fc6db41c60b1089ee8d95972ada398ebf43"
+      "inputs_sha256": "ebcb2704c84db6702cdba6b682fc10de4d5cbecdeae0dcf5a58acf85a8fab8bd"
     }
   },
   {
@@ -1999,7 +2021,7 @@
     "identification": "Steam UEMFChannelTextures vtable RVA 0x3088d0, slot 22, points to RVA 0x099190. The retail Ghidra body is one contiguous 113-byte range. CheckCircularReferences validates the path through the material inputs using a pointer array of visited materials.",
     "match": {
       "bytes_sha256": "bb9bc1bf36b44fee148b1d2a9f57555b020b29ad9c59109848220308c56cbb6c",
-      "inputs_sha256": "5c8387b4d115a92a5979bbbf15c192ec4d1577428fbea3519445aa7af426e2a1"
+      "inputs_sha256": "f36b623862ce6c4ed7498370603ee0c36e58f3c6911a9cde6a2b3184bce69458"
     }
   },
   {

@@ -30,7 +30,7 @@
     "identification": "Typed cast at campaign RVA 0x1c2c60, directly called at RVA 0x1c2aca. Its class constructor at RVA 0x970e0 identifies AAntiPortalActor; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "4dfd1612cd25c5a5e85950cb7eaa0e33242eda5ec8504de15c704bd24ea99cd6",
-      "inputs_sha256": "4f433566c3e6ca41190cce9572765c1bceecbf7fc4c97b8a441de58a5f19a183"
+      "inputs_sha256": "8d97b0ece85b6e5ba6cc252bd6d31f9c5ee20afd2beece3b01528b526513fab0"
     }
   },
   {
@@ -57,7 +57,7 @@
     "identification": "Retail SpecialCost event wrapper at RVA 0x1c4af0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares NavigationPoint.SpecialCost with Pawn Seeker, Int ReturnValue at serial offset 0x62d89.",
     "match": {
       "bytes_sha256": "419eb4385b3789a1d2de1ea26eeed01c742f64507f70baa35f433af30cb3b42f",
-      "inputs_sha256": "842520f5724ad1edcbcc20f70caf81e9a4d1e244d96da787109fce75cada9476"
+      "inputs_sha256": "57235d0bacdf240e985cbe69ad902abf262d6b468b18c3a7da7e9ee16eb0b403"
     }
   },
   {
@@ -112,7 +112,7 @@
     "identification": "Class registration for USMStreamer at RVA 0x1c61c0, called immediately after the class factory at RVA 0x1c8000 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c817015ca8f45730de8b6e87d2d0d4329f2f165cfb9407dc33d7e967f6fa8dfb",
-      "inputs_sha256": "1bbe87d5e7fa113277a6e036789c4a87c92e2059ae2de8168a2b64b77924ea42"
+      "inputs_sha256": "bd1f58ec81f0d38fb5e002f03997a7b8b7fc813cf4edc849f19ad4c6aab998ae"
     }
   },
   {
@@ -134,7 +134,7 @@
     "identification": "Placement callback passed to the USMStreamer class factory at RVA 0x1c8000. The callback at RVA 0x1c7ff0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "d7330e3a8f02e5bc054321636febec79ed2c215183164ec231efef1516300f9e",
-      "inputs_sha256": "3ac37146ba9c971cea03c3c1435ce64d930278c1e7ed6eedc56332317aec8a9d"
+      "inputs_sha256": "aa88953d9f81c9ffc0d3e15ffdda4a27f5161cb5d2f97ce522912d10eaada873"
     }
   },
   {
@@ -176,7 +176,7 @@
     "identification": "Native class factory at RVA 0x1c8000; its allocation tag and reflected class name identify USMStreamer. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "f0bc9c86677957d147e27ace51ebf958399769cee4468d66145c3b0f1258ecdc",
-      "inputs_sha256": "03acfbffab33d160802437c70be0a462090c690d70fc7414351ca55c08f76fd5"
+      "inputs_sha256": "eeffa04d822675796443fc33db31140b9f8bb3553c727447f85483b5a4e37cf5"
     }
   },
   {
@@ -207,7 +207,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1ccd30, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1cd30d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "239f12f3d5b40a135e8a260130cc1bf40388a98c70763a79b1c473eefa968d34",
-      "inputs_sha256": "224e73dc10911105ff1871892831163c94fc50d8ff6121eb3501a25ba2bcc3b6"
+      "inputs_sha256": "2c0be3470f50fcaf6cc9fb499a1c76f669ac59e4131d548e8cfb64a46f3937df"
     }
   },
   {
@@ -238,7 +238,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1ce9d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1cef2b, 0x1d0020, 0x1d006c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "271d9fe389083a45d7a3359044eda33e9ed7a05ed5479dfdb00ed25aae6ee31b",
-      "inputs_sha256": "fe5a963ef72e67683eb0240658113149a23ab31919297e385a89d7a50b73dcfb"
+      "inputs_sha256": "e3e288a96d358e2081646854242e03933fa6065b9eb37c0aa5fc5c5a2ab3ab12"
     }
   }
 ]

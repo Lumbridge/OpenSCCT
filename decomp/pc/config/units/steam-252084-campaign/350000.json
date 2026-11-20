@@ -67,7 +67,7 @@
     "identification": "Class registration for AEElectroChromaticGlass at RVA 0x350180, called immediately after the class factory at RVA 0x350c60 in the singleton initialization path. Sets superclass AEGlass, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "012f5c34af30e967b763474936d4a5eb3eaeb072eca5ce634d9b335b6892aaee",
-      "inputs_sha256": "42addda1b3d7b8bb3f62b2aeb4e343693bf7e2eb024c3cd3f2c9da1d26e09a11"
+      "inputs_sha256": "b3a8c7f40d0a300fc45ffb3d6bc2f848bdd441e19eac35e46b12ac92b159c3d3"
     }
   },
   {
@@ -138,7 +138,7 @@
     "identification": "Class registration for AEElectroChromaticTrigger at RVA 0x350290, called immediately after the class factory at RVA 0x350e90 in the singleton initialization path. Sets superclass AESwitchObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "edc60b7ec8ac2ed62edcfb30ea2256ac9145b0dd562c4a403df621fbef3c7a00",
-      "inputs_sha256": "3727fb63ec783a8956547ae81ac4b9899a02a02675601c9441606fa0da43ac37"
+      "inputs_sha256": "53443e1b612cc682dc200e171cf980bee881dbb92878d8da69a2e8fae127de83"
     }
   },
   {
@@ -169,7 +169,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x350890, including RET. Incoming transfer decoded within analyzed function code at RVA 0x350d3b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "ace14cb530e3735705f57bd5c128ee4496b5d15506695a01e09eaa8840abdd07",
-      "inputs_sha256": "2ff937fa4b00ee9202679144b07acf364379f388a53962bc2bf757e763b165f9"
+      "inputs_sha256": "7ae359e0fc68d9696ad3a8c04de3cad99e1dbe0729587f42ca9e2bb5d34e0541"
     }
   },
   {
@@ -200,7 +200,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x350920, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3509db, 0x350a1b, 0x350b9b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d7285a029b17510e8c0b9349e7d0f1cc1cfb284f6d6e1d68d90e91ab5bb0197f",
-      "inputs_sha256": "d7e2ffb0bc8567c096f7aece9bf5753d25769dfcf7408d1640b60f057ecf658b"
+      "inputs_sha256": "efdf881ab5b6247dd91865c70d8c4dbc2dcf8d9124cb07537b97cd23311d5b80"
     }
   },
   {
@@ -234,7 +234,7 @@
     },
     "match": {
       "bytes_sha256": "1270397e488eb2ce1f26b333b98b44e88834b7eecf27bc9820500ad771f2d53e",
-      "inputs_sha256": "7424f96960c6fde6134f06b36c099fbc4ca94844db9a087d6911978f175f34cd"
+      "inputs_sha256": "d503229052a67096c1a5f3e4a40d047c747d12a84ee88a51dbbc4b5716d33c3b"
     }
   },
   {
@@ -260,7 +260,7 @@
     },
     "match": {
       "bytes_sha256": "d72376ea541e6e1fd6d5d3b9a00170ce19ee718fc9ccb9e28e2bafc136ce0747",
-      "inputs_sha256": "2e7a11c028ce82102e6f870611d717c65ed4a79746134ba53ac3a8c5870fdf0d"
+      "inputs_sha256": "3de3ba213ede761d7517ec87e7d179821ecf1df3300c1c299b2f0e90e370cd8f"
     }
   },
   {
@@ -286,7 +286,7 @@
     "identification": "Placement callback passed to the AEElectroChromaticGlass class factory at RVA 0x350c60. The callback at RVA 0x350bd0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "39637ea0ccf4535b605e5a370f532d6ad4ac24cea9dbd1829a90589ef6318c10",
-      "inputs_sha256": "33b7a35a11bbe2bb21ee3b2cd1416314f99b8244085cc237a869b77fe870ba5f"
+      "inputs_sha256": "1632156cc4cde2a5354cc34c058a82520a0ea100bbafc6a15e5f401cca2a44df"
     }
   },
   {
@@ -328,7 +328,7 @@
     "identification": "Native class factory at RVA 0x350c60; its allocation tag and reflected class name identify AEElectroChromaticGlass. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "6b9fe85a1bf34ab7ed18336b6eac3a8aeb0668786c9f2c5223aa8e7d5a31e2c7",
-      "inputs_sha256": "18d7e5685b52d42f5fec17dd06beb790b562e360a51ddaef526266318b8d2e7b"
+      "inputs_sha256": "734191d6f7ef493d385650f4fbc1057f534405f488355cf49644752cfe015739"
     }
   },
   {
@@ -366,7 +366,7 @@
     },
     "match": {
       "bytes_sha256": "cb4a702db7d68dad9405e35739478d747da64b558a5ec64ddec177d6e827573e",
-      "inputs_sha256": "911c3a94ca3bb4f0568a4e7bc91d4725174887f5e8ab905fd024fc626423d356"
+      "inputs_sha256": "1aa00512950e8368cc60c42302033f9aaf6ace763827c6101230627ba154a56e"
     }
   },
   {
@@ -392,7 +392,7 @@
     "identification": "Placement callback passed to the AEElectroChromaticTrigger class factory at RVA 0x350e90. The callback at RVA 0x350e50 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "9bf428fc49752e9285ad5bd29ffadd7c20493a2a2301a4b9504a3a79b59aacdc",
-      "inputs_sha256": "e1eb809e85949560d321ce48dd2d6249ce088295f10efee0da31c47eb27ab042"
+      "inputs_sha256": "1901b6f3c512114f72b41967a1396d41cb2f3d7e426a626c79bd4b298666dae9"
     }
   },
   {
@@ -434,7 +434,7 @@
     "identification": "Native class factory at RVA 0x350e90; its allocation tag and reflected class name identify AEElectroChromaticTrigger. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "5b356ceb71e686b64915936b2666d878214bf1523bffb811ff7c2a81b423565c",
-      "inputs_sha256": "2ec27c6951d4041903f7c4bb84c4b01df91cf49f4c43ccb62eb624cf5e47739e"
+      "inputs_sha256": "1960d281f179eb3e6f1da3dea38b68c4f2c2fcf78400a2332bbefeafe8651e7f"
     }
   },
   {
@@ -505,7 +505,7 @@
     "identification": "Class registration for AEHandCuffsInteraction at RVA 0x350f60, called immediately after the class factory at RVA 0x3514c0 in the singleton initialization path. Sets superclass AEInteractObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "96c00c619f38f3e7da1c4b5f7d4d1a6f5ae7d0c4a2346266862889fe6149376f",
-      "inputs_sha256": "9810894ee8183057fa4f05c15984a9c127d577afb34aabaf59d276a60651e404"
+      "inputs_sha256": "a9e40102c143d51e119652dd11beed75ab8f370c523f396f1362dca8f5108eff"
     }
   },
   {
@@ -576,7 +576,7 @@
     "identification": "Class registration for AEHandCuffs at RVA 0x351070, called immediately after the class factory at RVA 0x351530 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "bad5843883cfaeb37e1da2e58f9499b3c9e6f605a135cecb2a04def0bd8f8f6e",
-      "inputs_sha256": "9d59b83dd43151fdd645c1d1742657e992ed673ee046d0ec372af64799a70f65"
+      "inputs_sha256": "90db0de810286d158e1badce1731068c42a1a9d25706a713664101225dfac3f5"
     }
   },
   {
@@ -610,7 +610,7 @@
     },
     "match": {
       "bytes_sha256": "bccb5f073eb9ad9cfc76c0784d1f580ce19a7a4b6514e65c3211abfdd7755340",
-      "inputs_sha256": "13caa887a5be90ff3dc6b070309db7f2ebfa18eb9ceab383c880d78b22c1c3c9"
+      "inputs_sha256": "e6cb2c6f43a7bbd99a32d0ac82f756be544ad9118d34530557a9a56578a5baf7"
     }
   },
   {
@@ -644,7 +644,7 @@
     },
     "match": {
       "bytes_sha256": "5f63044ad52aa0e9dc8be41a5db9ede95ab435cb450bad963b24ebbb5fe69b2e",
-      "inputs_sha256": "588031b7e967ca0ef1e0c1319328edd38e2fadab8732d99aca77dd14cb5255ea"
+      "inputs_sha256": "6044bd2a7b3eef3cf6be0b1259beb648b628ffc67450fce8ca2e0466f3076b74"
     }
   },
   {
@@ -670,7 +670,7 @@
     "identification": "Placement callback passed to the AEHandCuffs class factory at RVA 0x351530. The callback at RVA 0x351440 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "60852fbd2fe931583004ed63ad9f796bd79e998ab54575243515269b572d0d85",
-      "inputs_sha256": "acec0b810654f01ad96cd401890fbf7e3dad5645a20490129883ac482f26eca4"
+      "inputs_sha256": "0e2505e7f9f4bb0aa55293e00cf4e5d9b74882b07773e22706b7e0aca25507d9"
     }
   },
   {
@@ -696,7 +696,7 @@
     "identification": "Placement callback passed to the AEHandCuffsInteraction class factory at RVA 0x3514c0. The callback at RVA 0x351480 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "f90616367639df5b6eb685a4542120ed02c607c111629941c718fcb3f12ee998",
-      "inputs_sha256": "92c1fb01158cf228af184be17ecb61f2b225949d8bded1dd0516852823094be9"
+      "inputs_sha256": "c7d709de0940b16b1f6067d3a7b88f59f37b8abb82bcd5dad4c3f56540d7e158"
     }
   },
   {
@@ -738,7 +738,7 @@
     "identification": "Native class factory at RVA 0x3514c0; its allocation tag and reflected class name identify AEHandCuffsInteraction. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "5a23a8701d6c37f86a2809dd29ef9118a8c08fbfb8facb86c50238ed9a72e3de",
-      "inputs_sha256": "4a2cdb30c068995db5e12c2d0e00ac04240ca733e5a00dede9f2cc4a5f5fb79d"
+      "inputs_sha256": "449575d735b02d1350fb879997adb6ee785217bc121018bce8e9df821ed5f3c4"
     }
   },
   {
@@ -780,7 +780,7 @@
     "identification": "Native class factory at RVA 0x351530; its allocation tag and reflected class name identify AEHandCuffs. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "cedfda5c38bcdea96d642652f0cf365faad37b70eaf0dc60601ac471d5795847",
-      "inputs_sha256": "a469899e2ce56c9c04e00dec226ead78a50ea2d10d9ce65db5807a6a798a5801"
+      "inputs_sha256": "aec4b2c948c941f10c2118781b83bd1cc4c11f961360cf7e9d52d79180ecce83"
     }
   },
   {
@@ -851,7 +851,7 @@
     "identification": "Class registration for AEHelicopter at RVA 0x3516a0, called immediately after the class factory at RVA 0x351e10 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "44d2e5001dfa4037bf912e4e7ed3246f079528da1ef993e3b2a7e3669fe17e41",
-      "inputs_sha256": "7a4b55c38572359fde863afc173b61878d70aab3d20c61150c186058a8788529"
+      "inputs_sha256": "326b7adc232552c63a069a17e4ead5496a41e6555dc8f8f6d27b7efbd4fc5995"
     }
   },
   {
@@ -885,7 +885,7 @@
     },
     "match": {
       "bytes_sha256": "11d488e6fec01f01a60c16eea4741f590113faa6ac317a49b6cf343e4cba9290",
-      "inputs_sha256": "db2a0a631016c6798c9e9e2649b1ad396d21c054d97b16ff09b03dfc049b12f3"
+      "inputs_sha256": "f7983f3d9913d52c6340f25612fe0b0762db3c23704c6f51a2a699d24e13527f"
     }
   },
   {
@@ -911,7 +911,7 @@
     "identification": "Placement callback passed to the AEHelicopter class factory at RVA 0x351e10. The callback at RVA 0x351dd0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "3795899a43356daea83dfd06e3ad674179c286142686a74089e9f3b47dca5f27",
-      "inputs_sha256": "45fae148558d253da1207d419dd4d4ac3cd6a26eff3a4239a8d7cfe64ec22de9"
+      "inputs_sha256": "3f9dee4e66efe9f081a8f461ff81ec38c2edd0f160267dda82ee15a2c335b121"
     }
   },
   {
@@ -953,7 +953,7 @@
     "identification": "Native class factory at RVA 0x351e10; its allocation tag and reflected class name identify AEHelicopter. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "aa8816b003196d3b85a401e6461da1b64154c81259baea6d0c2441d01ce2ea5a",
-      "inputs_sha256": "c800e2a9d5c1eddf02c7c0c69bcbc4583a6872cbda243783ff1047d223b8a477"
+      "inputs_sha256": "e9977ee51fa3d09356a6913c95e8a2e5922b79db5e3848b0b00a084dcfbaf10c"
     }
   },
   {
@@ -1024,7 +1024,7 @@
     "identification": "Class registration for AEStickyCamera at RVA 0x351ef0, called immediately after the class factory at RVA 0x3536d0 in the singleton initialization path. Sets superclass AESecondaryAmmo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "ec933e68f7257d407c2d3316d4d88b4125ae9172f95a2010b2f7941d9326926c",
-      "inputs_sha256": "91e32392fcbec3f790048a6b432172269ecdfd1cbd253dba81cd9cbe31d7c688"
+      "inputs_sha256": "6482ad4219f9c571b71a4746bb47b5a3a34903137dfe9c6c8eff7245b0807c4e"
     }
   },
   {
@@ -1095,7 +1095,7 @@
     "identification": "Class registration for AEStickyShocker at RVA 0x352000, called immediately after the class factory at RVA 0x353740 in the singleton initialization path. Sets superclass AESecondaryAmmo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "e320b3c307b6c774e83da3e32d6f371f013f6c9928cf020c51b2543d85ae5b8d",
-      "inputs_sha256": "247ca8449a777ee1186e37d8d47e1344d6bc36d44bbc0bcd9b2388504bfe6ca4"
+      "inputs_sha256": "3ac53eac084ae6e29abdd10e5c32c5c0322233e44a1fe12fe6d4afd7df876f89"
     }
   },
   {
@@ -1166,7 +1166,7 @@
     "identification": "Class registration for AERingAirfoilRound at RVA 0x352110, called immediately after the class factory at RVA 0x3537b0 in the singleton initialization path. Sets superclass AESecondaryAmmo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "dca663072b14e9b8b713c7b1341c5e3c2936eb3c1e905c50bbcc12caf478cace",
-      "inputs_sha256": "66aca9f0d51b133cf13b4fea66312598ca9d9263bc91313931eb48b22063c095"
+      "inputs_sha256": "274c4cf70626dfcfad0860a821aab5cc8960b8ae27aff1cc0ee82a5227f3bd51"
     }
   },
   {
@@ -1237,7 +1237,7 @@
     "identification": "Class registration for AEFlashGrenade at RVA 0x352220, called immediately after the class factory at RVA 0x353820 in the singleton initialization path. Sets superclass AEInventoryItem, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "65b3b6de6beb88f1b6c41198f88a57f4fb23ce65631a872b97b9835a477dca14",
-      "inputs_sha256": "32c2704733230ef7b6a28c3ba1b388d5cb2b21cc589129bbc8b9c17878e7ab7e"
+      "inputs_sha256": "d092655ec68786b26bde96514ee0f3fa19a0a3d4bd885872a4cd605e8ed367fe"
     }
   },
   {
@@ -1308,7 +1308,7 @@
     "identification": "Class registration for AEFragGrenade at RVA 0x352330, called immediately after the class factory at RVA 0x353890 in the singleton initialization path. Sets superclass AEInventoryItem, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "5e7c9dd1316b230d6795c781e611eff6896a77d265282be51dfbf860be26606e",
-      "inputs_sha256": "7d2d401bb3117e89cb721cdd5d21cfacbb43c09f6784b709ee326ef66110e5ce"
+      "inputs_sha256": "517bf545a438d7e1db0ae6066e2a69c81eeaa54db515be6ffbc66f800a04ea66"
     }
   },
   {
@@ -1379,7 +1379,7 @@
     "identification": "Class registration for AEGazGrenade at RVA 0x352440, called immediately after the class factory at RVA 0x353900 in the singleton initialization path. Sets superclass AESecondaryAmmo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "eed16d69cccbdffbcdbafb5a0c0d77e3029e136c941eb5ffcb597a152803e497",
-      "inputs_sha256": "643a960fb8ea2828ca8da4e60b8c9df0b237145ac45207ea19f348fe5be06270"
+      "inputs_sha256": "578f2c0f4bac9673aa1db33272e0ccecda9b84de0fe0c71f76e0a86f1cd26ac0"
     }
   },
   {
@@ -1450,7 +1450,7 @@
     "identification": "Class registration for AESmokeGrenade at RVA 0x352550, called immediately after the class factory at RVA 0x353970 in the singleton initialization path. Sets superclass AEInventoryItem, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9fb7fda59bffe1797b17075869e0baeaebce0208e734aa10d931f75974faf2d8",
-      "inputs_sha256": "1784b22964b02bb3219db6b2eed55de692d366339f6697a12b2a0ad100d4c190"
+      "inputs_sha256": "4779037e7d5a4e9e2092129e586c19cadb150573d58d18a4fe520990b1a41a37"
     }
   },
   {
@@ -1484,7 +1484,7 @@
     "identification": "Typed cast at campaign RVA 0x352ae0, directly called at RVA 0x353aaa. Its class constructor at RVA 0x33b1e0 identifies AEFireVolume; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "a10881a4275712bf57448d9f30baf6a2ea6686358d3f1f4727a9ecde0908366c",
-      "inputs_sha256": "ce21a8cc098192cc8d460649c8d68d8078040a0d9bdb7b5396ab0efa0dbf2e33"
+      "inputs_sha256": "af42d93979d48c08f4b61995a59b64d2b20cd6abdbcb72ac79f423077e222d00"
     }
   },
   {
@@ -1518,7 +1518,7 @@
     },
     "match": {
       "bytes_sha256": "bf05d3a425341e7bea3eefd13b32510f7ac86173204a4ac449e7c820dbb9abb9",
-      "inputs_sha256": "a5fbbba665b382339312e1845e207d10fc64b74ef54d8163fab70fe69677caf8"
+      "inputs_sha256": "c5d97f7f8db0c0675fa29be252654e9c932e63bd4658d0531b244866acad4802"
     }
   },
   {
@@ -1552,7 +1552,7 @@
     },
     "match": {
       "bytes_sha256": "ef846bc80a936dc4738e60ad02d4d2134339656245f48cdf97cd253ad2b5d65c",
-      "inputs_sha256": "b6b4913ff66fd8b851e13ca5c4ba729595af521c825d04d2542ec6e9f56beac1"
+      "inputs_sha256": "a263522fa45a4e244548dc9bb9fb517c9b0df13fd7d7c738f7dc492aab185af1"
     }
   },
   {
@@ -1586,7 +1586,7 @@
     },
     "match": {
       "bytes_sha256": "46ccd3218f29813cd5c9d66347235a83c8306a04dd2c1facb6bc3b516c6cb387",
-      "inputs_sha256": "696b8bb17d9f03eceb31be4720c6dbaf5a2414f67ce9b67ace0ff79a2106cbcb"
+      "inputs_sha256": "d0def5cd12f591fa8bd68c86424d19001e3f7d3629fa40c0516feb71a18df8be"
     }
   },
   {
@@ -1620,7 +1620,7 @@
     },
     "match": {
       "bytes_sha256": "3ea25262f6c558f52d2292f75220389215b326a579798fcf98c30deb38775e38",
-      "inputs_sha256": "34af72013b4965a5b19a2318a88b3998857773fc5a935e9f313c8444abd319e0"
+      "inputs_sha256": "a40a23eb2fb51a8f7385c81e40097d55000e78e24056793a18f5ae6478f3f553"
     }
   },
   {
@@ -1654,7 +1654,7 @@
     },
     "match": {
       "bytes_sha256": "3a0ef7bb831b504df303d99993a2eddbb8337b439429309a2434f913d8508320",
-      "inputs_sha256": "59db664943fb1b56156e64fe114ef95aeaebae4e824d47ce498938d308b7a57c"
+      "inputs_sha256": "747b2415641bb19ae01323c1c2730bd6a8234be357056fc173bbbc826f7de726"
     }
   },
   {
@@ -1688,7 +1688,7 @@
     },
     "match": {
       "bytes_sha256": "149997b51de569354b2eb91ba068c0a7a937f287aad792a20270e91913035bf4",
-      "inputs_sha256": "29a7a877815acd5116271c9e7d8d524cdaf8e2a1ea9eb39f8bf62cbff9b222a7"
+      "inputs_sha256": "eba938ce58d0373e011d5d85e0ab2860780eb0f0352048f546e720ee75671a16"
     }
   },
   {
@@ -1722,7 +1722,7 @@
     },
     "match": {
       "bytes_sha256": "5bf69dec5ff3c99a9d2e152dd2fa3731711c3891215543e12300fd410011a392",
-      "inputs_sha256": "3e8215d173d72ff5e393aa503c4098555f07acd1f7212f9c3c4dbbf77b76ca97"
+      "inputs_sha256": "ce7339d141a62f3af192aecf689947994ab115aa85a1402eb1bbc4a3beb81ef3"
     }
   },
   {
@@ -1748,7 +1748,7 @@
     "identification": "Placement callback passed to the AEFlashGrenade class factory at RVA 0x353820. The callback at RVA 0x353510 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ec8a226a4e354ee0eecd77fd0733678a65d7d1478a8919c81a56c707ff33f256",
-      "inputs_sha256": "6e66d6c303e39cf5633797ade68c54bf37c33d490ce5d88a15f02a6671a7a9df"
+      "inputs_sha256": "45979e1dd9338e218a6dc502dd0bdecb18283f1b3762d8202ef61fbc92ead1f3"
     }
   },
   {
@@ -1774,7 +1774,7 @@
     "identification": "Placement callback passed to the AEFragGrenade class factory at RVA 0x353890. The callback at RVA 0x353550 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5caa09d28e20524758afd7b97ea00b3fe336d6cfce1d0e11ebbf8e7fab3288e4",
-      "inputs_sha256": "31ffa141d5de8f7d1d12afc7f801c75780eba0b7eb5be7678f52158a7500fd90"
+      "inputs_sha256": "3fa289081a142db4dcf71ce7820d283c0e827f76fb0554aed194c93f1a31712b"
     }
   },
   {
@@ -1800,7 +1800,7 @@
     "identification": "Placement callback passed to the AEGazGrenade class factory at RVA 0x353900. The callback at RVA 0x353590 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "322ca2f13a5b29f9f29d35a36d6dba1fe80f55696ddae558ae7d71533986db3c",
-      "inputs_sha256": "8fcae6057aa31ced45b81ca2d13b4b308bd568cecddacd5962762fe39663397c"
+      "inputs_sha256": "2988ca5fd4395d3284b8cdd79916777fb9fe9aef2db348e6e80348d3ed37fd34"
     }
   },
   {
@@ -1826,7 +1826,7 @@
     "identification": "Placement callback passed to the AERingAirfoilRound class factory at RVA 0x3537b0. The callback at RVA 0x3535d0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "75450f60a3ab1c38edf9655ee74385a2ca5cc85a63a2becc743cf034d45e906b",
-      "inputs_sha256": "8c6498fbd0e8176b1ee7e049458bc922e4f2ba20dfa75de661e96b787f538d63"
+      "inputs_sha256": "346f998a1efb347a5bdb48472ac2589421f0d2a5eabe06a229b97ff91fae1c23"
     }
   },
   {
@@ -1852,7 +1852,7 @@
     "identification": "Placement callback passed to the AEStickyCamera class factory at RVA 0x3536d0. The callback at RVA 0x353610 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "0186481307888b5d8fded807a2c017fda87a8ed31c862f92b36ea7880174ffc5",
-      "inputs_sha256": "a79caf977cd9f2f8c613bedf8b5961bc45a7c1c73f6eee0283c428dbf3fea0ac"
+      "inputs_sha256": "c2f19c7cfae11a06cb10c253a35c392f02fb007f8c6d66a4e6ad6672f5f33bd0"
     }
   },
   {
@@ -1878,7 +1878,7 @@
     "identification": "Placement callback passed to the AEStickyShocker class factory at RVA 0x353740. The callback at RVA 0x353650 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "67b4bd67852433b6a2580022a05732ca1320e0ea9e3630435d0dbc3fe0c2d0d5",
-      "inputs_sha256": "8f25ff8d6977813a0d7ea8336bdf7b8f50b115034131f6839e5d89e62f262f6b"
+      "inputs_sha256": "0826ca11411d65a7a565f4d4449bfb7f3c51b7ab734d0dcc61a14c0bdaeb673f"
     }
   },
   {
@@ -1904,7 +1904,7 @@
     "identification": "Placement callback passed to the AESmokeGrenade class factory at RVA 0x353970. The callback at RVA 0x353690 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "7370b734a196bf9d0344a8cbbed0f8b86028d7d9a152197a8fba36f20cfcfe89",
-      "inputs_sha256": "4a6b9e28ca4fcd4713614ac960c8eb2b153bac85390b4c9a83533eff13f6c5c9"
+      "inputs_sha256": "75713abead8f621d3eae3f732126846c08d007d308eb190ca44b0e9a752ea0b3"
     }
   },
   {
@@ -1946,7 +1946,7 @@
     "identification": "Native class factory at RVA 0x3536d0; its allocation tag and reflected class name identify AEStickyCamera. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "cc0181b50d5cbe6b457b821043a471cca2100741627259aab29698dbc24217e7",
-      "inputs_sha256": "02668c1eac1db32a510d4f228084e7fde913209794e0b19811a616193fbc8c04"
+      "inputs_sha256": "9c2500ee9a38c459957da7e6f7dda6d917f6135edfd60febe5fea85b1908539d"
     }
   },
   {
@@ -1988,7 +1988,7 @@
     "identification": "Native class factory at RVA 0x353740; its allocation tag and reflected class name identify AEStickyShocker. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "31da65035c2db683e68703ca2a3ce9795faeaae31790d9a1ed2131f568c8f6b7",
-      "inputs_sha256": "d18f454722546b62fe0271ba0cc8b824d9aa2f5fbb12c76923d8be229a69c489"
+      "inputs_sha256": "78b12feed8ec8c47385c8397a19dbd30876790f574440b9915e4f54d6e4dc1be"
     }
   },
   {
@@ -2030,7 +2030,7 @@
     "identification": "Native class factory at RVA 0x3537b0; its allocation tag and reflected class name identify AERingAirfoilRound. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "9d14f6e12de3ac7abbe09a249ddc75b1953215a01df93c745241be40a32a804f",
-      "inputs_sha256": "08330d18fd88a88a8e80284ef64c85f863b989c9a43b6151853d25202bdf47d4"
+      "inputs_sha256": "86655caaa8965c3d4fce7f8a6ed00dd78af7f6d8acc2bbc83de9933626d4e445"
     }
   },
   {
@@ -2072,7 +2072,7 @@
     "identification": "Native class factory at RVA 0x353820; its allocation tag and reflected class name identify AEFlashGrenade. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "fd716c97c6e2094520d964d3d54630279daeec00497b7f30fb49c7645e5c837c",
-      "inputs_sha256": "ae4d7148e4dfe018dc028d15d25b894258d6c06ff0356da59fdc30abaa983339"
+      "inputs_sha256": "250261acc90efdd81f560c214cd5b6c5dbe8fdbc3869b6b3c1cdf05139dfecec"
     }
   },
   {
@@ -2114,7 +2114,7 @@
     "identification": "Native class factory at RVA 0x353890; its allocation tag and reflected class name identify AEFragGrenade. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "111eb7840d507a9fb49e5b81f460612f2b0c7f3a0016e29fdd1a4ca8ce26b0b8",
-      "inputs_sha256": "813bc432342a4d0496fac329c441cead3412d7d413c885cffcf6dec5792d0375"
+      "inputs_sha256": "c56051e292fe0359924c4f8e0efebc4e1bdb7623a5806078380d63807fe94297"
     }
   },
   {
@@ -2156,7 +2156,7 @@
     "identification": "Native class factory at RVA 0x353900; its allocation tag and reflected class name identify AEGazGrenade. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "aba3c2f2fd260c9a9f27be93c2054ad6c996b5763fe25a6aa5157d2870586290",
-      "inputs_sha256": "9559d9ba656794058fe1c567f56fb5d587dc28b6e92e87613bf25a19ea2bd876"
+      "inputs_sha256": "e79ffe87248b12fa909390dbebecbe004267a9574db23865c8b9abec81b4040e"
     }
   },
   {
@@ -2198,7 +2198,7 @@
     "identification": "Native class factory at RVA 0x353970; its allocation tag and reflected class name identify AESmokeGrenade. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "e5e46db4a07a0ad0ce6301372f91d9698e9c70c3c1f5eff7bd4b7a90b7b0d064",
-      "inputs_sha256": "48cd62e571864bdc634dba025d26b390c3a7c3daecd8c501948655065bb26f1d"
+      "inputs_sha256": "d001a7f4940507cca79cedff056892be838d3674dc40c971a02befb448134286"
     }
   },
   {
@@ -2269,7 +2269,7 @@
     "identification": "Class registration for AEIRSensor at RVA 0x353db0, called immediately after the class factory at RVA 0x3547f0 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "58a41ba02ebd536f5b103af59d710f9c59f5b33b19a40e8c515868622c8a39a5",
-      "inputs_sha256": "90fad347822254730844f57728cf91e609e16a4561be7e7c0b2f7057d8864d5b"
+      "inputs_sha256": "36549d0e6a94d8da68d77eeb7966869ee92fb78267c4cc8cf756f06f6f32932e"
     }
   },
   {
@@ -2303,7 +2303,7 @@
     "identification": "Typed cast at campaign RVA 0x354340, directly called at RVA 0x35459e. Its class constructor at RVA 0x2eecd0 identifies AEVolumeTrigger; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "77ca9172e1edd868e061cc8afd1841428f77b31e8ad59a26112e4c15832f0776",
-      "inputs_sha256": "db0c5ec85f3e45fa8e5b04f1731ed293aaec8667176a7cdd1b8ffebe53f2db61"
+      "inputs_sha256": "b62fbb90b0f21ea756176ca210bb15536122e7d7936f30bd87c97221fc8fc22f"
     }
   },
   {
@@ -2341,7 +2341,7 @@
     },
     "match": {
       "bytes_sha256": "ac8fafc65a32cdaca2723ec85554a31f28463472a5af01827b9dd5330f768a42",
-      "inputs_sha256": "8067d4dc97f3d502c9ed63d5bc178c5d62b1a7e727de1ea81a50d515f72530fc"
+      "inputs_sha256": "d2ae6f470f9af238008722a2c2bdbb4200d6192f5ddd5de0ae3b4ef433b8a38e"
     }
   },
   {
@@ -2367,7 +2367,7 @@
     "identification": "Placement callback passed to the AEIRSensor class factory at RVA 0x3547f0. The callback at RVA 0x3547b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "cb39ce8f721b377c5b213dd6b376cf6251fb87bf1dc34e2030578ebcea1efb4a",
-      "inputs_sha256": "41bfbe71e2207e6c637aca6e7236ef40b68cd7d5470b2873e604a90d1f955d17"
+      "inputs_sha256": "f6ec043c74b1d1dc8ce1e46d3f2194e1106783d9a243c1f62c597f98ad0726fa"
     }
   },
   {
@@ -2409,7 +2409,7 @@
     "identification": "Native class factory at RVA 0x3547f0; its allocation tag and reflected class name identify AEIRSensor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "bbec814bfba614ce4bf346d735c11be6f023101336b5e388f694a1b0ff305905",
-      "inputs_sha256": "df7ffde8b70c5d45a79d5e97c616d95077d318a69068e63808e4a646b8829546"
+      "inputs_sha256": "7c6d0139598efb35026b9620cf542df6e8b56dd55cbd53bae56b505136675391"
     }
   },
   {
@@ -2480,7 +2480,7 @@
     "identification": "Class registration for AEMedKit at RVA 0x354870, called immediately after the class factory at RVA 0x354fb0 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "ae922dd2f77591d24ceb69b627b38b295c1d967878b2691dca16b4c29900427e",
-      "inputs_sha256": "5e01199b4da931e8799ff145b5d3bec590039cbcb9fbd57050a85f21017ddb70"
+      "inputs_sha256": "c32a611a68eece7f2b04e56185cafa0d6b8bdd320e892adf918e2f79da614028"
     }
   },
   {
@@ -2506,7 +2506,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "956f055d67e577469e1f0325bae2d3f428b1b7d7e44a0957c8b8bfc6307ae51f"
+      "inputs_sha256": "dc5790117ab2c9febf048b6a146422d2df63dd844e8f68f6ca26dbc9ca9d0dda"
     }
   },
   {
@@ -2532,7 +2532,7 @@
     "identification": "Placement callback passed to the AEMedKit class factory at RVA 0x354fb0. The callback at RVA 0x354f70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "029238f8fa9ff5180f3ebe39fb0240ccbd43cac1f5d0831ed419e14b12213006",
-      "inputs_sha256": "7faa768e6eb6f6adfef1dfdb508e2bf69d286e7d56a2ac3c404c7fb1c9ed65aa"
+      "inputs_sha256": "6c2163947a3e5d65608fba2aa74e5505ad32f6f932d92aff5c5fe1e0ce88c8b8"
     }
   },
   {
@@ -2574,7 +2574,7 @@
     "identification": "Native class factory at RVA 0x354fb0; its allocation tag and reflected class name identify AEMedKit. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "b44026175de0ebf48fb15ceb32aadd81f1db101c53d43d415c2a318448b75bda",
-      "inputs_sha256": "5b2b1dfc482705ba8a9fb54d839b02e70238e5f262571edb150ad070d1041124"
+      "inputs_sha256": "53e01de11259eaf43c3822c148b2e4ff233c39df1d46adc9fd7841b0b9c46134"
     }
   },
   {
@@ -2645,7 +2645,7 @@
     "identification": "Class registration for AEPickLockSystem at RVA 0x3550c0, called immediately after the class factory at RVA 0x355800 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6308429a3b1a12922a6fd8a6bec97727195ccb20083d9bc3b89cdde1d8576614",
-      "inputs_sha256": "b61c1c2dec7bab336d99b66df312fdd3e14a6a92dbd3a74e852648c8bd00e669"
+      "inputs_sha256": "c888dae92574b4107037e212c3141679fc3d7161f0353bee41ae7edd3e10db9c"
     }
   },
   {
@@ -2679,7 +2679,7 @@
     "identification": "Typed cast at campaign RVA 0x355290, directly called at RVA 0x3555ee. Its class constructor at RVA 0x36a2b0 identifies AEPickLockInteraction; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "2baa0e4948f453597b26d739eefe9a31731c3895fd2e8b5514bcb2b9c89d95c7",
-      "inputs_sha256": "689588597f52aecc7312d1005fc0dcf2c5fe662768a64bbb4cd6b014ff0419fe"
+      "inputs_sha256": "450d7ef3cf45f2b8c51262a854d3d5db28856f44fecfba0e8e467fd7658eca45"
     }
   },
   {
@@ -2710,7 +2710,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x355450, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3556cb, 0x35570b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "517d458af338f908b3dfa075dba2185efae6b8d034294e273b681ec3d4154754",
-      "inputs_sha256": "a4cd27cecc3900c389a8f9b92ce2a078fc17ac5d0caefceb299c9d27c89fa20a"
+      "inputs_sha256": "7cc5e20ddbcdba0d2c81212d391cadc646e2e7d6a08755e3830ea6c786822846"
     }
   },
   {
@@ -2737,7 +2737,7 @@
     "identification": "Complete stock array destructor at RVA 0x355700, called from decoded game code at RVA 0x355794. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "4e50534538c07c70466ae8a5d699c488e274c006d4651fb900a8af35c733ce87",
-      "inputs_sha256": "9fbe86c92b9a968270663e554216e6a127bded520da39c7f54308d8f9d02d9ff"
+      "inputs_sha256": "0c7b3538f34a691d138046835fcdf6e2861c99e8d29010bcd9376030ce698117"
     }
   },
   {
@@ -2775,7 +2775,7 @@
     },
     "match": {
       "bytes_sha256": "eb55c0ab8fd8a0b9a0d4fba91444381b9c39d392de67f98986e1651faaab91fd",
-      "inputs_sha256": "9946b9bf75521c627cd199eb9bf882c73f3f0efe16ba1b85d216c4e284c82d48"
+      "inputs_sha256": "e16e823b698328b155f73c1cba8dc5cab429c79a1a87258aff4a23e6c08236bc"
     }
   },
   {
@@ -2801,7 +2801,7 @@
     "identification": "Placement callback passed to the AEPickLockSystem class factory at RVA 0x355800. The callback at RVA 0x3557c0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "0a56a3d4c75078efab8f029a88cc4600543d24275947d710cdcae16c0595c4b1",
-      "inputs_sha256": "85f01b4c7b49bc1bb0ff9bedb546e47698f9b76027109bade2b5e659bb93d7c3"
+      "inputs_sha256": "495208ac6ad87577b1b9e0347d26951f090e29b55dfbd4007e74a6e02d8e4724"
     }
   },
   {
@@ -2843,7 +2843,7 @@
     "identification": "Native class factory at RVA 0x355800; its allocation tag and reflected class name identify AEPickLockSystem. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "eb2df7dc97c2afe135a34292242d67167980cd374473467439a5f440ea77a173",
-      "inputs_sha256": "acce3d13212015947140258a861bc9187e80d22ce7622d50fdd3040cb634cb1a"
+      "inputs_sha256": "ff556bb45640423ff5b00c6164a4ef6308c4356978c628c2d2fea0e8d8b7f639"
     }
   },
   {
@@ -2914,7 +2914,7 @@
     "identification": "Class registration for AEChargeInteraction at RVA 0x355910, called immediately after the class factory at RVA 0x356130 in the singleton initialization path. Sets superclass AEObjectiveInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c582017bc5812219b25ae397d1330d31a225c8abd1df0ff538ebef54f47a531b",
-      "inputs_sha256": "989c7f0409bbd0a83cbe00ee5fe0493c14ca6eb0421b42dd1ee03fee4f23dde8"
+      "inputs_sha256": "b13d83bb21521d032bbc4923ed917dc3a35998a03e97e41d8d3efba9091bdf58"
     }
   },
   {
@@ -2985,7 +2985,7 @@
     "identification": "Class registration for AEPlaceableCharge at RVA 0x355a20, called immediately after the class factory at RVA 0x3561a0 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c8750f2026741b3edfec86f9c05f12ac9a32d2837f87917a571e968023309263",
-      "inputs_sha256": "9dfa53418e818352f2034c96548c416d05f54d47dc03da8d4656a523e8d59647"
+      "inputs_sha256": "5e8b817fca7f80909d461027b2ea7d1c201fa09402e51a261ee0974edae0db49"
     }
   },
   {
@@ -3013,7 +3013,7 @@
     },
     "match": {
       "bytes_sha256": "b79d509c12a71a8c0bc9f3b0ce925ce77d625654c0d8dd98cca9f916b0eb5366",
-      "inputs_sha256": "6c75c696cc81a94c11356614e3572b874822b3df55f24a3e7890ef9b98a62595"
+      "inputs_sha256": "5c766fc73d9cbc3489a74e53ffe7ed7bead77950e866fedf53381efc8093cc44"
     }
   },
   {
@@ -3047,7 +3047,7 @@
     },
     "match": {
       "bytes_sha256": "ab884bbc8a55c9195a497b2ad164d2251eb024baab0593a43b67294ea09f8434",
-      "inputs_sha256": "32369f5568ce36d0627c416d79abba28a0cd6f3c54c6955b047e72d6200f53d1"
+      "inputs_sha256": "e8d2801c7e085e55ea5841fe880aa92d58fa55124c704df2caaaf2c41763ad5e"
     }
   },
   {
@@ -3081,7 +3081,7 @@
     },
     "match": {
       "bytes_sha256": "560ca4967df52c3674edb574263fa37882fbf330c307f8184619c5eabad648d8",
-      "inputs_sha256": "446d354eecc92e3beb7d2283e5b811f41801e53a61beb3abea5a5ff9d7776305"
+      "inputs_sha256": "0d8b9ad4df1b26f07f8e16422fb565d08f3aac402fca1422162a894fc4b9aa91"
     }
   },
   {
@@ -3107,7 +3107,7 @@
     "identification": "Placement callback passed to the AEPlaceableCharge class factory at RVA 0x3561a0. The callback at RVA 0x3560b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "146b46a58804f95c8d508360df0f7f6d3b9b6bbc93cfc2996fab54e52e2a0243",
-      "inputs_sha256": "f6ce569d857f80b979821b726d6a0eb8b87142a420ba219ac988162eb40392e0"
+      "inputs_sha256": "c7e17c1a710eb2b0904e6e1980a8393dfe594cfac21f033d61ee7e17409c9f38"
     }
   },
   {
@@ -3133,7 +3133,7 @@
     "identification": "Placement callback passed to the AEChargeInteraction class factory at RVA 0x356130. The callback at RVA 0x3560f0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "7615dfc587643edc9a9bf81afc75e4fb75bbe1b3fc8b285acaaa116aeb76c6f1",
-      "inputs_sha256": "9bc7e0f5f9cd507e6ff9b490358705b954983adcb643d8f565e8431004076ea1"
+      "inputs_sha256": "42146a015135db15139a572b644390380e86f3e50dbf3cf70b74401f4db20a11"
     }
   },
   {
@@ -3175,7 +3175,7 @@
     "identification": "Native class factory at RVA 0x356130; its allocation tag and reflected class name identify AEChargeInteraction. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "2d9a85ef3f52d8e667841861c6754bb74ca95b1954879461cf05330c3088fe3a",
-      "inputs_sha256": "70f9b065abfbbc45f0e4ed8e9f3a7aad63874f098fd108cf1e638f4c8ce83559"
+      "inputs_sha256": "e9b7631e2eefb2df53276d2ea0dce267ec592b17b86837c11ab0369c49b92f1d"
     }
   },
   {
@@ -3217,7 +3217,7 @@
     "identification": "Native class factory at RVA 0x3561a0; its allocation tag and reflected class name identify AEPlaceableCharge. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "22fc9d87d6523dcf143abfc51ef03d8701caa65735817134e9382715d95d319c",
-      "inputs_sha256": "260007dbea41ed8a4e9da72a8eea3074ea42a2c2a2b1d029ab1e5da5e39f6faf"
+      "inputs_sha256": "2c5f921e18fb777e0266785307ddaad9b92c04316e4c988db9dbf50bba0a2bad"
     }
   },
   {
@@ -3251,7 +3251,7 @@
     "identification": "Typed cast at campaign RVA 0x356210, directly called at RVA 0x356314. Its class constructor at RVA 0x3561a0 identifies AEPlaceableCharge; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "0d53deaf59f9dccd4c98495f148c142dc0fa2225f88f41cd4cbbad4b56a26dbb",
-      "inputs_sha256": "d0aa58d22d00fba1cab54526c43a552411705198538d939e7a3e1859a0870be8"
+      "inputs_sha256": "c760c53d2077a3dbedc4355d20129bd92d104961d4e5f465fb89a93d45776d8b"
     }
   },
   {
@@ -3278,7 +3278,7 @@
     "identification": "Retail GetHeightFactor event wrapper at RVA 0x3567d0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package EchelonIngredient.u declares ESensor.GetHeightFactor with Float ReturnValue at serial offset 0x141ef.",
     "match": {
       "bytes_sha256": "0fcaee46149efa1af514c36fadda0c673945c46639440d4971d46c70ea8c2848",
-      "inputs_sha256": "64852093375d9e51c74d49ca40b3b5bb3c8b46edfb3b4704e3e3a1bf11fc39ce"
+      "inputs_sha256": "181b95ae9d151754f8b375737c3d090f33d6f15025840c6b2db8eb2c0cca964a"
     }
   },
   {
@@ -3349,7 +3349,7 @@
     "identification": "Class registration for AESensor at RVA 0x356890, called immediately after the class factory at RVA 0x358540 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "99187ba98056e3cb2be04713e36eff8af93bf418c8e9b8b014a5f121c40dcbce",
-      "inputs_sha256": "c575ee977ad561e9ac974c971e5091f8e259ed8bc29a5848352b0f86a3b55872"
+      "inputs_sha256": "0bb051de2fb206058aeccbaadd6f5253ba5a968a6c932544a698c31fb760ddf5"
     }
   },
   {
@@ -3380,7 +3380,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x357610, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3577eb, 0x35819b, 0x358434. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "53bf79c14f14b4d1270d6778463e84c5c06ffe5b6abc4189519855de9e0622ea",
-      "inputs_sha256": "e249cc682bf82f01b4cea2573ace14cfe39cfa6dcb95971481bfabc77e5034b2"
+      "inputs_sha256": "d8afb86836a6cb6ab5258d5254ef2de6adcc1d5a7db5d63986f0a108e27d265a"
     }
   },
   {
@@ -3406,7 +3406,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "32aed4684d0bf78aa1ef219e9d171acf6426979fd8484298a4d1ff4bf44b513f"
+      "inputs_sha256": "87d71b8966075df85bfadc4c6895eb579c89193d8834c46645e0ab02db7a3430"
     }
   },
   {
@@ -3432,7 +3432,7 @@
     "identification": "Placement callback passed to the AESensor class factory at RVA 0x358540. The callback at RVA 0x358500 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ef2313168fc92acc4ed53a768dd9f08245d36f20c1592a321fa1b90a2e851b55",
-      "inputs_sha256": "684afbece68b6623253727169c158e4b4075b72ae2c47bd1ebd8797f061f57cd"
+      "inputs_sha256": "49b6dc7d65b77efd33578c80ad7d467ba8159eacad726745d0508831ade9b47b"
     }
   },
   {
@@ -3474,7 +3474,7 @@
     "identification": "Native class factory at RVA 0x358540; its allocation tag and reflected class name identify AESensor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "76c67fbed42da67bb7f6eb62dd7412a14665f1dba3b229ec355947665e13b0d6",
-      "inputs_sha256": "a10915d28beeeec2d6d2f16efbb45226241b21e0f549ba693ea60959dfcbf7b6"
+      "inputs_sha256": "4eea1a44a760240ac32e767186ea78799ae5f57941946e15f35ddd1c39d717d4"
     }
   },
   {
@@ -3545,7 +3545,7 @@
     "identification": "Class registration for AEBaseCam at RVA 0x3586d0, called immediately after the class factory at RVA 0x358c20 in the singleton initialization path. Sets superclass AESensor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "19dfc520e48d1f4f4bfe1f266ef12f3c0beb1b2dae98e51fbd0acd50492606db",
-      "inputs_sha256": "92dde4cab68514685b34fdaa9b4ba704e3c3fa11733dd1453559e5992000847f"
+      "inputs_sha256": "997a5f09290203f42dfab3a17d5a11ff52512a54ce9d8406cdf4b1a5a457dd84"
     }
   },
   {
@@ -3579,7 +3579,7 @@
     },
     "match": {
       "bytes_sha256": "5bd4d0d21d97551a18e512436c31b6c34f95f835a5762d1a1bd94cdb55029ad3",
-      "inputs_sha256": "de1b2e477b3b21d3ec1a74444fcd11ce9d17663aff8e952db251d8695afa8291"
+      "inputs_sha256": "307fa7be7563a26a68a54695b65750619383609d9e2ced73759437b7b7b00c30"
     }
   },
   {
@@ -3613,7 +3613,7 @@
     },
     "match": {
       "bytes_sha256": "57e6b5a930a121b59b8b212df5e8b9dd087ee361155e49ea322243ec6a297d7b",
-      "inputs_sha256": "4893b854829a5266fee9a7dcc230f2b86c73c73e845b18f0900ec1277cccc48a"
+      "inputs_sha256": "ef74825baeb4f2e2433b7119aaf1d357a0bf8f874a109cc8a709eea7e7df2b6c"
     }
   },
   {
@@ -3639,7 +3639,7 @@
     "identification": "Placement callback passed to the AEBaseCam class factory at RVA 0x358c20. The callback at RVA 0x358ba0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "dce2e033456ecafb4fb96e929fac776ddc133c87fbfb57a34a1cb3da579b4095",
-      "inputs_sha256": "1046eb0831e445058bc614a710d4a10323017ac1300c6480942811721f02192c"
+      "inputs_sha256": "5a68cccb72207f994e10213cc3904f53e4cdfadc9b8cc0bf1444dcb53dcc731d"
     }
   },
   {
@@ -3665,7 +3665,7 @@
     "identification": "Placement callback passed to the AECeilingCamera class factory at RVA 0x358c90. The callback at RVA 0x358be0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "7349edf69f0722ff5f01ea4352263e16e308d11987e13ab919b9512937628b22",
-      "inputs_sha256": "523dc9d79833aa6eb9dd87a058f572023937f404fe23461c309ab2285644dbf9"
+      "inputs_sha256": "7971bdcea1c8b291c699986a0d905d25521f678a8e576cca1caf1b6484e0bc89"
     }
   },
   {
@@ -3707,7 +3707,7 @@
     "identification": "Native class factory at RVA 0x358c20; its allocation tag and reflected class name identify AEBaseCam. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "aae99e9870a5b0628266e9778848462d5260c283e53ff03df85283a2bcaa09ad",
-      "inputs_sha256": "f0d03af1757abe6eb9c345e47382f0fcbe52c0e56620adb0aa60736d8e25ce72"
+      "inputs_sha256": "cf275909173706cd276ca2d7ac553cef4cfe999321756cbc9501c00083ebd571"
     }
   },
   {
@@ -3749,7 +3749,7 @@
     "identification": "Native class factory at RVA 0x358c90; its allocation tag and reflected class name identify AECeilingCamera. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "58e3c9ad1beebdf7afa7526070080795d528940352b5393662f59acc3226c3c0",
-      "inputs_sha256": "6fd3dd1ded6019882d8fe52f568807667958e473671ac5f5b7f2499624795c1e"
+      "inputs_sha256": "f8279c33b5601f21a53be2914accdd2e09878a891712748f4802c70eff6a28d4"
     }
   },
   {
@@ -3820,7 +3820,7 @@
     "identification": "Class registration for AECeilingCamera at RVA 0x358d00, called immediately after the class factory at RVA 0x358c90 in the singleton initialization path. Sets superclass AEBaseCam, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "5ad1514fd9016006464b5633041ee8804152b3d44094018ba1487b6f35ab8da6",
-      "inputs_sha256": "876e32a9f6046ca39347f0301b294a339d35cc200218ee9ae91ebc340146596a"
+      "inputs_sha256": "438938e568c08663da50cae7dee664552fe9f4004b2be99700a624bbd8f666e1"
     }
   },
   {
@@ -3847,7 +3847,7 @@
     "identification": "Retail Flash event wrapper at RVA 0x358e70, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EMuzzleFlash.Flash with Float duration at serial offset 0x87d31.",
     "match": {
       "bytes_sha256": "d29f195797dd9468f4aff908717cb037ea47bec1f424eb1f235c3945407614ac",
-      "inputs_sha256": "2f2e8015c697b2231b6cac2edf103f9f95d8edd769813b14774208cb440cd58f"
+      "inputs_sha256": "ca789597dc660a5b4e1d1b06defcdd6a98df50f1cb7531d775d0d4267f6feb3d"
     }
   },
   {
@@ -3918,7 +3918,7 @@
     "identification": "Class registration for AEBaseTurret at RVA 0x358eb0, called immediately after the class factory at RVA 0x359970 in the singleton initialization path. Sets superclass AESensor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "5384a3a0889fe686d4628c74a66a69d99a0b6f868cb68b65b12d481cf6451ea3",
-      "inputs_sha256": "e3441f50c0204ec6d2e2b223e89f240f67c02aa3b59d95d53c5a6aa7ef5c06c7"
+      "inputs_sha256": "ff602e699707a08d1b9097cb9646eea6e3ad84a40b3d5cba0d543e3138044ed9"
     }
   },
   {
@@ -3952,7 +3952,7 @@
     },
     "match": {
       "bytes_sha256": "53ed2b1f35230a9ee98720b2efbcfb8e10ac1dec22700c1ac6997bb14b6a870b",
-      "inputs_sha256": "0d7a0b59d3ba5b964e17dad18b7aa67f354a685c72321ae913b48c3ae9f8a739"
+      "inputs_sha256": "d5ace3fb72ec67a1632e861183b24b871887537f1c4b6266d4c92ba79e7df1d2"
     }
   },
   {
@@ -3978,7 +3978,7 @@
     "identification": "Placement callback passed to the AEBaseTurret class factory at RVA 0x359970. The callback at RVA 0x359930 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ad6cbf1131fc43f9c282ec951245a4d790889f89870d95503f4b6f2c4c2093be",
-      "inputs_sha256": "eb5806b723079bf8fceb1c7be29a017c6fb1c69176baa18d63d51cb9f61fc36e"
+      "inputs_sha256": "3c9943918f804afdd56b85babb4778c856050ec6d5d366dddcec57afef7bf789"
     }
   },
   {
@@ -4020,7 +4020,7 @@
     "identification": "Native class factory at RVA 0x359970; its allocation tag and reflected class name identify AEBaseTurret. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "13dfdd2c058d0cede94052667ac8a0e10b22b5fa125396e2da374649bcc92ed8",
-      "inputs_sha256": "340844df476a70fdbcf26ff8ac114a7ed35a829ddd243a7be21ff6ba157284d9"
+      "inputs_sha256": "3692f3f7f39e831029efa9e97b740473516969a059fc01b0469b938a94ae9165"
     }
   },
   {
@@ -4091,7 +4091,7 @@
     "identification": "Class registration for AEIFVTank at RVA 0x359b50, called immediately after the class factory at RVA 0x35b490 in the singleton initialization path. Sets superclass AEBaseTurret, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f884a0d75a3e0290cec5dd62b5d80677d7fe286b3b9ff6d4a61b1e04dab3a6fc",
-      "inputs_sha256": "fd717e9880949995b00c53aa039b87d0f3804b35ab133def33ca0b32cb305602"
+      "inputs_sha256": "0a08ccc392d7c5cb3791ec67614c6ac7272b45ae73ae9a69e18c991b9e85a03c"
     }
   },
   {
@@ -4125,7 +4125,7 @@
     },
     "match": {
       "bytes_sha256": "bec0f86807f21ef37275faaf74ca058a57075cd9ee760692af069f3d7fa0d492",
-      "inputs_sha256": "d0803f33141362d46277f57b22be9141a76a8646f5f3e4ab77c4ec04a0e419a5"
+      "inputs_sha256": "e6234dd42115f1dd8007f0529f5485239d0aa73490d287e5796e246b04369adf"
     }
   },
   {
@@ -4151,7 +4151,7 @@
     "identification": "Placement callback passed to the AEIFVTank class factory at RVA 0x35b490. The callback at RVA 0x35b450 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "40f08c11bd7b15f013dd88198ac472d4bf43f6ddb0a2fd4ceb63002fa5a77a93",
-      "inputs_sha256": "20f44cc2a6cf1db3aff05eaad8addecfc2e6455f4304f0978d36d50808421887"
+      "inputs_sha256": "1ca75672ca9adb1a2a989cb823549bf65b62de21d884b04d3035795f226edfa7"
     }
   },
   {
@@ -4193,7 +4193,7 @@
     "identification": "Native class factory at RVA 0x35b490; its allocation tag and reflected class name identify AEIFVTank. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "fa5ee8f7c3bb8552e6e8e9ba37a4c95bcf0ba82afbcc597a18c336c0cebbf16d",
-      "inputs_sha256": "fbaa983d8058f866155950082eaaa899f43171ff07d5631a53f8f4dc7b07010b"
+      "inputs_sha256": "5dfd5d6f9a5a2d865404fdfa91065d832597ef2bb27f6b4fb9a4e5125203980d"
     }
   },
   {
@@ -4264,7 +4264,7 @@
     "identification": "Class registration for AETurret at RVA 0x35b660, called immediately after the class factory at RVA 0x35c040 in the singleton initialization path. Sets superclass AEBaseTurret, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "aad355ba3d25d916132841d1721764ee62a179ac0451e28f1aa97ea628d17913",
-      "inputs_sha256": "645e056db5b6dd797d8195eae856232b1f18425ab1339037af2f4e2f087ecef2"
+      "inputs_sha256": "1caf558d41d432453279087b2f6026693d868424faa9cae5a9e48a31e8ddfde8"
     }
   },
   {
@@ -4335,7 +4335,7 @@
     "identification": "Class registration for AETurretConsole at RVA 0x35b770, called immediately after the class factory at RVA 0x35c0b0 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6e97910a43a88655441ee104a5b73a1445f6d8b42a12fc02557617edca7c983d",
-      "inputs_sha256": "5feacbb3bdb4a88c12df54818a2a8411611cfd7a8cee72c331c49f233d30070e"
+      "inputs_sha256": "3d7c214565e538d6acefea3fdf533e38ae65eb4629da5d967ae35c46251a52ef"
     }
   },
   {
@@ -4406,7 +4406,7 @@
     "identification": "Class registration for AEMobileTurret at RVA 0x35b880, called immediately after the class factory at RVA 0x35c120 in the singleton initialization path. Sets superclass AEBaseTurret, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9d485cfbf70ea43a6e20c6712400eb6a9f8c0e58e01c70101dba660807afc601",
-      "inputs_sha256": "96318c6709a6a4c5459200ca5fb435e343184fa4d624e63a06dc601420f70180"
+      "inputs_sha256": "f2c8ad99d3516c2c6cc02d2494387c6f7b45e1c59856237aef5711c96f02687e"
     }
   },
   {
@@ -4437,7 +4437,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x35bc00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x35bcbb, 0x35be0b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "4dea0a5c03db4bc9b2c4244aa0a5dee1a455400045ae49c2df155bf5c5514635",
-      "inputs_sha256": "15c7ab1a535b7b82b3c67ed1d8a73af0e56fe3f538659a489d035d4af7175e5b"
+      "inputs_sha256": "d090889aead2def641360c07018be17dc5872a1718eacb28b0dfeb121ed04527"
     }
   },
   {
@@ -4464,7 +4464,7 @@
     "identification": "Complete stock array destructor at RVA 0x35be00, called from decoded game code at RVA 0x35bef4. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "7f1b2d47efc8cdb49ba1a7558738839a119e16be636c136d26d8c39d031d62ae",
-      "inputs_sha256": "6bed36c6061d1baa25659fd0921cce773c97ec20353ea4ea215e3bfb6443c83a"
+      "inputs_sha256": "a457eba7599dc72968b61929fa19f7ca3975ce1d7c60e32538e51512b636e4f4"
     }
   },
   {
@@ -4498,7 +4498,7 @@
     },
     "match": {
       "bytes_sha256": "39bb08cb7316adc385af50497ac332811a6901973963d66065cb9a7c77bc5cf0",
-      "inputs_sha256": "45785eb35e347184a1318d894a846c1462ae3f07a48d8b25bfaf92b60d89b8ea"
+      "inputs_sha256": "cb3f90aaf5f7ebd519c1628a5ae7f70e2e5508d31f660a618639a8d5a643bb0f"
     }
   },
   {
@@ -4536,7 +4536,7 @@
     },
     "match": {
       "bytes_sha256": "9e2d05294f47a3dc5342a34ac4de5e4b1a931582973aad42308bf059b782a98f",
-      "inputs_sha256": "f077c70a85a085f5cc6fb85fdecc1c82cd95bf55e51527ec2e86974354d08a85"
+      "inputs_sha256": "a3b2c0306f469bf69580353d5c920e892409c610096f487ac26cefc29ddf39aa"
     }
   },
   {
@@ -4570,7 +4570,7 @@
     },
     "match": {
       "bytes_sha256": "79aca6c0aa194b13978f7eddde58689ac85407cf948042cffbe76f8d3f4f5e44",
-      "inputs_sha256": "227701be8ceba4373c3d5578d425ae7765016421e0f672a5ca04c1baceb743da"
+      "inputs_sha256": "32f86c1b1a14a10d252eec6b32fa967cc5e9ea925caf96546aa885857f47f71d"
     }
   },
   {
@@ -4596,7 +4596,7 @@
     "identification": "Placement callback passed to the AEMobileTurret class factory at RVA 0x35c120. The callback at RVA 0x35bf80 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "a8846b7a11b6d5aec9a1a9a8dd0e78a4f4461319f93ab9875f9cbe0f586f92d2",
-      "inputs_sha256": "2f393063dc15a6f3fe189298a95fb345f03f754c40a7d9afca0ffa47832cf5ad"
+      "inputs_sha256": "2ef3a39659c6b0dc50309c529251a5c41fb5aef22aa583d351fce42b15f494cc"
     }
   },
   {
@@ -4622,7 +4622,7 @@
     "identification": "Placement callback passed to the AETurret class factory at RVA 0x35c040. The callback at RVA 0x35bfc0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "1f9b1ff50930d3d5a52822e8a6ba5aedc2c6eef5ea030f7d8859d811c5a8f31b",
-      "inputs_sha256": "2a7de124b5871359d08aa72176500d87b33d934875c8d100e7a280db83439b9d"
+      "inputs_sha256": "3776dba06fd1ff7d8f1c6e6eed016827a39f3b8878358dc3a8308fac8d0bc73b"
     }
   },
   {
@@ -4648,7 +4648,7 @@
     "identification": "Placement callback passed to the AETurretConsole class factory at RVA 0x35c0b0. The callback at RVA 0x35c000 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "d9cf8c7707cd040d27d779f1fc695ad593f5c722954623a6b243d8893402a4ec",
-      "inputs_sha256": "3d47d86a94875fd6363b6ec7bc195dd388a438ad115ed802b05b3ca285a60861"
+      "inputs_sha256": "41079695a5196fd194224c87b6ffb98d54d521a08dbf974e58541299b0da4c74"
     }
   },
   {
@@ -4690,7 +4690,7 @@
     "identification": "Native class factory at RVA 0x35c040; its allocation tag and reflected class name identify AETurret. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "4816b5d316c26b942e4c88e04b294e323355dcbf222b3a5cfd7042a23158c04e",
-      "inputs_sha256": "f38076da388ae7dcf059f03dbcde4f1cc094f9731199759e4eeb91a0b0dabeee"
+      "inputs_sha256": "8f5ce3d4cac91e4789a39b5b277a31b9b20478edc3f8e346c43737dca22cfd77"
     }
   },
   {
@@ -4732,7 +4732,7 @@
     "identification": "Native class factory at RVA 0x35c0b0; its allocation tag and reflected class name identify AETurretConsole. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "528305b0f7f8a5b5799c3095718953aaf2c6236dc0b83161d7246f3a53e40e4b",
-      "inputs_sha256": "02641d2ee7c72c8361f0749828a331c6745bb0cf30ada21bd4a2dbded5f26dc3"
+      "inputs_sha256": "f54547caa180f62464754a97eeca2e3632952fc7a43c5736dfd5159638a100ed"
     }
   },
   {
@@ -4774,7 +4774,7 @@
     "identification": "Native class factory at RVA 0x35c120; its allocation tag and reflected class name identify AEMobileTurret. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "2d8fbb54b39fc9d490113b59c89815b0d99ea248fbee8eb970ba2ebbbc5831b6",
-      "inputs_sha256": "24c82623d30c20d19755222fb3490953709a382afa48349a42a908439bae18f8"
+      "inputs_sha256": "4695898613ec7a6383b04e0337aa3d06c4ed5a190d4dc0c6407f2e2bbed749f1"
     }
   },
   {
@@ -4845,7 +4845,7 @@
     "identification": "Class registration for AESprinkler at RVA 0x35c2d0, called immediately after the class factory at RVA 0x35d3a0 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "38ad72dc38f0c1a1b26b7b54f5ed60f36eeef6e5eb15cae031721a72469585a5",
-      "inputs_sha256": "17bbe23d81e7ec8051b057a2ec2c5fc70574692a7dcddf5224e041aa773759eb"
+      "inputs_sha256": "9b27eee87ad96ec1d9dbcf97c97bedb6e9e27b99b442ade5c90c8b2bc74dfd90"
     }
   },
   {
@@ -4879,7 +4879,7 @@
     "identification": "Typed cast at campaign RVA 0x35c710, directly called at RVA 0x35ca5b. Its class constructor at RVA 0x36e0a0 identifies AEScalingActor; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "63a8c5f1800f3b6b9f3190ab8307235530c642fd30f06045065840999ffb8693",
-      "inputs_sha256": "ae009cd2cc69125f04d49e7e890fd2121823467f33c5f5f1fcd6beb6376c62ce"
+      "inputs_sha256": "ab419658aab0eac19ee34c1d28699d1c0c7ab49312907e8bd256bc23f9eae2f3"
     }
   },
   {
@@ -4907,7 +4907,7 @@
     },
     "match": {
       "bytes_sha256": "f23a5dcbc1b5c7d3a534f466f62ca861030eb50621cf54b988ba58f711a7567d",
-      "inputs_sha256": "54080aadc032c85873415e6b883be45e7710e863c82bf5cea0c878025e53d26e"
+      "inputs_sha256": "0d1881087de3814b4db05ccc48702bdec4bbad9f450edfd4c68e6b8655b9f05c"
     }
   },
   {
@@ -4945,7 +4945,7 @@
     },
     "match": {
       "bytes_sha256": "ce74a37f126770fe4fb470c957fa86cada50640166eba1f8cf46b35701d0ac84",
-      "inputs_sha256": "e244747abe216508e4b2595efa780bc605f5f463a8847457244370cec899bc61"
+      "inputs_sha256": "bddb86ea66cf95c6da328aebc921576a96cf8ca63f6a02e520a982e7e94f0e0d"
     }
   },
   {
@@ -4971,7 +4971,7 @@
     "identification": "Placement callback passed to the AESprinkler class factory at RVA 0x35d3a0. The callback at RVA 0x35d360 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "cfda8b5462342788d4a97a445d2969c14bd51b23ef0cc6411213038fb3d10fad",
-      "inputs_sha256": "319ea0a6caba15761719e012990387755988223d80a0ee4ecb7c2994b71370db"
+      "inputs_sha256": "a9bf68ce342078c3eec782e7c8ddbcdc93db0ce87039c5227bc72345af3ab174"
     }
   },
   {
@@ -5013,7 +5013,7 @@
     "identification": "Native class factory at RVA 0x35d3a0; its allocation tag and reflected class name identify AESprinkler. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "e1dbb7815f9182212e61a44adf38f453a54fae4759aec89bba88a1d935869a12",
-      "inputs_sha256": "6082adebb30686ccaccfbf6ec048c0d05febdaa10751230b9289444eebf1cec5"
+      "inputs_sha256": "b0c860b429c3cb354559aaa7f8a2078f6a10cbfc389b5bc10f9eaaddd2ac80cd"
     }
   },
   {
@@ -5040,7 +5040,7 @@
     "identification": "Retail SendInMalfunction event wrapper at RVA 0x35d470, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "c6dc08d918769f0463223bad8b7217961fc7dc40742fd098c3c0f2b0a54cf1e1",
-      "inputs_sha256": "87a7d927016b39194c1f373c816c4f29c6f4000ecb0570267b4b1de3681c7eff"
+      "inputs_sha256": "1ee432bdbcda6e104108a12cc8296adb1be55e6849fb4063ae061a4341b50187"
     }
   },
   {
@@ -5111,7 +5111,7 @@
     "identification": "Class registration for AESwitchObject at RVA 0x35d4a0, called immediately after the class factory at RVA 0x35da40 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "59b73e2396862db8b7997c1b81fd28f06706ba1ba3d4bfb07f645a774c635bb5",
-      "inputs_sha256": "c55da5d8f6dc7a31398bd4f2432ffa06ec8c17500e00c7af1843a806bc8e03c1"
+      "inputs_sha256": "04e11629953c20ed866425fdc9dcd1060c10274878599731f56bf4881896c328"
     }
   },
   {
@@ -5135,7 +5135,7 @@
     },
     "match": {
       "bytes_sha256": "b0c37d5a0ba2490ed97db2005557da9a9f75ca73cf08ea4d3b1d4c3fa5dbcf99",
-      "inputs_sha256": "ae49b5eb99a370ab9cea233e73109e9a1f8c8c94c6b3d4dd322cb055b2290d4b"
+      "inputs_sha256": "a85319c8b00d1de03a3cc840c17d0ee8b70427b99807e8693dcb5b6dddac85bd"
     }
   },
   {
@@ -5159,7 +5159,7 @@
     },
     "match": {
       "bytes_sha256": "0cf36decfbac02ec2cf34caaa4b1b7dfe4ffe3012001ea2315668cf0a8e9fb25",
-      "inputs_sha256": "4829d44a6b463a6ec28c34e0f39a655504d12aee817ea21049019dadbd18d8bf"
+      "inputs_sha256": "caa7dcbb3b273e291b4bf6b012047bfeeca805d04249a9f7ecd072ad380933ec"
     }
   },
   {
@@ -5185,7 +5185,7 @@
     "identification": "Placement callback passed to the AESwitchObject class factory at RVA 0x35da40. The callback at RVA 0x35da00 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "cd0d2242d75dc11f632afdd1c96fc009be9c4758e7c4dbc5fa1eb96a99712dc4",
-      "inputs_sha256": "8006e7e798c30043e08182db1c5f24ba8d25fb183ddfe1ccae689263810ae69d"
+      "inputs_sha256": "31dcf8d00eeff4e38655672d2a6e3d224fb7c49a3b9f5eaece443dfc0d1debb0"
     }
   },
   {
@@ -5227,7 +5227,7 @@
     "identification": "Native class factory at RVA 0x35da40; its allocation tag and reflected class name identify AESwitchObject. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "68b2fe224c6a256f69e2bd2c4774b0f620966a91fedcd613b8afd56fb3370acf",
-      "inputs_sha256": "67eed35df78ccaf5295401ca01e4a92d67de641aa1ff60cb57080886b7b07d6f"
+      "inputs_sha256": "e41c36c8d06ea12c0293b08eabaa600b734d3b2d8480965124855ff8a52d41c7"
     }
   },
   {
@@ -5254,7 +5254,7 @@
     "identification": "Retail Detection event wrapper at RVA 0x35db50, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "af7d35e86c1a7c29367a5d2e48e09f852e8b3e1fc4a3b5269e46a447bde5f04f",
-      "inputs_sha256": "04a4ce550182a358cb40f8661e7b6c4d409f01b8351a36ce4e7e06c029f2e554"
+      "inputs_sha256": "6a0f3904580acd72e1bc4c451103ffd615750a2162295a9b855d81b2c511114b"
     }
   },
   {
@@ -5325,7 +5325,7 @@
     "identification": "Class registration for AEMotionSensor at RVA 0x35db80, called immediately after the class factory at RVA 0x35e060 in the singleton initialization path. Sets superclass AESwitchObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "522c6d3e7bb2ede288d0ab0c310a843c2780d1b7a92970cf2a3e4674c2366515",
-      "inputs_sha256": "5f762546a71a06ba26698ce7060ede84a85067eb395ab436e4fa99a02ca23a87"
+      "inputs_sha256": "2d85365a48fe031c74a1250494fcb46e2c250e745d126b71419d863b9fab0e98"
     }
   },
   {
@@ -5359,7 +5359,7 @@
     },
     "match": {
       "bytes_sha256": "4cd3073c920e8c270c10638c35a16b4d44e4973b27208a0e71c1304977bf9fbf",
-      "inputs_sha256": "1d5157ec5a092b7f8d687194faf6891aa2d2d050d2339c3ea41a6f95c3e802e7"
+      "inputs_sha256": "8b083934dd168b564e779d07a2c5f46ae49754be6c93e96a4ddd6e3dec78411d"
     }
   },
   {
@@ -5385,7 +5385,7 @@
     "identification": "Placement callback passed to the AEMotionSensor class factory at RVA 0x35e060. The callback at RVA 0x35e020 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "784d285d56a64d2bc55185ae7acea9c6398e81f821a7e660c624e270b599c569",
-      "inputs_sha256": "e4d86db0604d42d7dcb2a7e59a315f83d9328c9d47c48a2957e8a75b8e54526c"
+      "inputs_sha256": "9761d9a02aa51023a522eb1cd4e21d1a3c2fe821ba1e9b1a9540a845c85d21c9"
     }
   },
   {
@@ -5427,7 +5427,7 @@
     "identification": "Native class factory at RVA 0x35e060; its allocation tag and reflected class name identify AEMotionSensor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "772269d49257c5d3ec1ab117a6121ca2bd25193b0a736b9d0716d1f3c9b930cb",
-      "inputs_sha256": "caab0b0f1c2687860463447beec49e0cc4ba58b730d714836cef428347b90981"
+      "inputs_sha256": "2cd298a14f868765b4a5d70bae34a1c0af8dd67bcc2ee7176f890fa51eb71b89"
     }
   },
   {
@@ -5498,7 +5498,7 @@
     "identification": "Class registration for AEvent at RVA 0x35e0e0, called immediately after the class factory at RVA 0x35e320 in the singleton initialization path. Sets superclass AEGameplayObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c73d89a4f5162820a89e70b530b926160f20ad3d2fe17c00b77361b3dc7d9062",
-      "inputs_sha256": "03e725b0736c5f90588ad2f5a9a58a2ebf60505daf598e8d643b8089e2f8cebf"
+      "inputs_sha256": "117ab1a657d6f4e9f5a96b54a43f679bd8622b9f1bb4505d3e9972a603b247b4"
     }
   },
   {
@@ -5524,7 +5524,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "0105ad4edbe54a14b25fb0a484bfe4b82c35dbda6cb67703a8f9945dae5b0877"
+      "inputs_sha256": "b393dec7ea99cdc0254f0437643ac9ae67139ca0b1231b9c66fec6529c81a0ff"
     }
   },
   {
@@ -5550,7 +5550,7 @@
     "identification": "Placement callback passed to the AEvent class factory at RVA 0x35e320. The callback at RVA 0x35e2e0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ca51ad3acf57ee3aa9d511ce798eb019f9f97ce5b797d6db99297d6dc22ef536",
-      "inputs_sha256": "cba1ec7bb044974b08d569f1486ffd2268e6b1fe73eca69a283db6d8a35f0455"
+      "inputs_sha256": "da0f7fd0278897de03d3fd1623afab90b33b8d50e1f75515b4ae17068344d0bb"
     }
   },
   {
@@ -5592,7 +5592,7 @@
     "identification": "Native class factory at RVA 0x35e320; its allocation tag and reflected class name identify AEvent. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "b640caaffa4a0c4e96b4194b09b795ad0da44c59dc1fadf36adf2bbaafd74799",
-      "inputs_sha256": "3f4c136143bcacb6615dda857eba68bc9942b7f91a48d86b2657d6a8e03ae186"
+      "inputs_sha256": "a3aa06a89cbd07d5161de6f52e447481214d934bc5ae8647ec167046d6118a33"
     }
   },
   {
@@ -5619,7 +5619,7 @@
     "identification": "Retail PlayAltComMove event wrapper at RVA 0x35e410, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPlayerController.PlayAltComMove at serial offset 0x728fb.",
     "match": {
       "bytes_sha256": "66845ded1bebbe262e1a9e6fbeb90dd2874faaa2ce41f811db036d172bfad066",
-      "inputs_sha256": "238ab8f9296a560e6a5e494f5f7abc0d3870ad21e5aaab5c372f7d5beec1a00a"
+      "inputs_sha256": "08d3fc998c98c9aeb8477b7e776d3dfb5af8b3b80f66b0ff3eba5b9788858fea"
     }
   },
   {
@@ -5690,7 +5690,7 @@
     "identification": "Class registration for AECommInteraction at RVA 0x35e490, called immediately after the class factory at RVA 0x35e950 in the singleton initialization path. Sets superclass AEInteractObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "ba71be1d8ed7152bc7d395f1f446c4317ef47f395c53f1a91709cb9ecabf62f3",
-      "inputs_sha256": "71c7c5e4db901cb946c80f026f6316364d705e9bb749f23025a63e7f2e16fef6"
+      "inputs_sha256": "c5eaf8d0ce5d5cb9138405089d47286fb6d54ad0a4493c951f5f7fe94cdb82ed"
     }
   },
   {
@@ -5724,7 +5724,7 @@
     },
     "match": {
       "bytes_sha256": "2d19ceb326467ca6fef28a99168bc4f31651687992fb551eb990080c04117b10",
-      "inputs_sha256": "be4d0fd0e89fc4fc7f868cfd4e2de20b7ef3eb5f254d0e05c1d07cd024edfcb4"
+      "inputs_sha256": "cce554c8e152b756cc84b3bc2c873888a5e292d55363600e6a3b0a2c4e7e4092"
     }
   },
   {
@@ -5750,7 +5750,7 @@
     "identification": "Placement callback passed to the AECommInteraction class factory at RVA 0x35e950. The callback at RVA 0x35e910 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "6c191bc72462020fa0dcc90ae53091a34970a250fc8745dfba4d58c92ec7a6f0",
-      "inputs_sha256": "9f72f9a636f3663587dfd42a89e4a4453b6da0e3c342732032a7c55336261cc4"
+      "inputs_sha256": "7a97fee1f609c57b782c735a9a3e9cc56b4bd5cdf5b6afd5fcedbb282788325d"
     }
   },
   {
@@ -5792,7 +5792,7 @@
     "identification": "Native class factory at RVA 0x35e950; its allocation tag and reflected class name identify AECommInteraction. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "5f468d55e8233e1dec51dbdd6f1591d35014a4dc07d3e3e21cb8c6d31d68941d",
-      "inputs_sha256": "52006b441d7d30da0f15352c335b40580c0a6d45434b155bcf0994b900bae924"
+      "inputs_sha256": "11e799b301cea6731d25a7641cdda22cc3c268eab46bc22f0f8acde425a64ef2"
     }
   },
   {
@@ -5863,7 +5863,7 @@
     "identification": "Class registration for AEComputerInteraction at RVA 0x35e9e0, called immediately after the class factory at RVA 0x35fc50 in the singleton initialization path. Sets superclass AEInteractObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "778d9470965a407db2f4014b910be409ec249ba1800fbb09fce520b125529c6b",
-      "inputs_sha256": "1c16fc18daed495eceb56c7c1cb07642b4f8ef3d44f19c17f29bd5ef052a33ba"
+      "inputs_sha256": "aee7a87a21ca3842c186825a6198d907e84d6447edfd2600f34dd33f548cf7f6"
     }
   },
   {
@@ -5897,7 +5897,7 @@
     "identification": "Typed cast at campaign RVA 0x35f140, directly called at RVA 0x35f1af. Its class constructor at RVA 0x341a30 identifies AEComputerSystem; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "784141e126e4e95bca5f915b98a0260fdf42fe260b2e079655272d4a3f3c0550",
-      "inputs_sha256": "ab041b09e0341492b4e2098225ff6c6f6a11b04e876238b01bbb78140d144d00"
+      "inputs_sha256": "e1aa0488c03214257fa8e32732a0200d39d931664f5b47986381960d98b4b76f"
     }
   },
   {
@@ -5931,7 +5931,7 @@
     },
     "match": {
       "bytes_sha256": "a25a115450f8320575b5d31d9aa678a4fea2dca5580c3ee21709b0f5a52325d7",
-      "inputs_sha256": "dc72776b8ebfe85f116aebc0ba9920b6ff918eb74d7b8934ec1ab5020c42cbde"
+      "inputs_sha256": "bb59b3c2bf7a60e8d565ec198efb040a732e966cab7503918505863f2b56c464"
     }
   },
   {
@@ -5957,7 +5957,7 @@
     "identification": "Placement callback passed to the AEComputerInteraction class factory at RVA 0x35fc50. The callback at RVA 0x35fbd0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "12386d177892c4353ef082414c449fae83282759aa16905c2088698dcd23b959",
-      "inputs_sha256": "25490aaa5566e43c40bc2cdf053a9cb44fca4a7596d95d4f96895884eceabfbd"
+      "inputs_sha256": "bcdd34c5d7e18bad1f4d2f4f880707a1d63ea7ca7aac7e5f9678dbc2237ea195"
     }
   },
   {
@@ -5983,7 +5983,7 @@
     "identification": "Placement callback passed to the AEComputerIntHckCoop class factory at RVA 0x35fcc0. The callback at RVA 0x35fc10 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "08a223c67ffdb452dd24a273e0466a3f28aa5e0dccba8148f0e8729997a0c7de",
-      "inputs_sha256": "df9797932edd4f5a88304bfa0990f057473b1fa4a572382805530ecb359d7c41"
+      "inputs_sha256": "535ba5fa60656e1e22b9dc73ffa428ba8a7d0497b3daf4a53301562db4908620"
     }
   },
   {
@@ -6025,7 +6025,7 @@
     "identification": "Native class factory at RVA 0x35fc50; its allocation tag and reflected class name identify AEComputerInteraction. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "8b19443f4096045798de4bebcb5a1eed608444db52068515631bdee11be5f6b1",
-      "inputs_sha256": "7d2c96bfdaa44ce30b154307b1cfdf81cba794ab76dd95b89dd971aaa294bbdd"
+      "inputs_sha256": "ff8a026ca4b08eedf97db6a7ff612601fbdef21648d24f8c8b1cf7adeb0fe5a1"
     }
   },
   {
@@ -6067,7 +6067,7 @@
     "identification": "Native class factory at RVA 0x35fcc0; its allocation tag and reflected class name identify AEComputerIntHckCoop. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "a04386159c9327a99e1124d37f6d92b5fd9c328f6bf25693190bb30607127377",
-      "inputs_sha256": "9fc5c96297f978f9678384a3a5d83ac1e0cc1844d1b643c50b71d615db49903a"
+      "inputs_sha256": "0652993f63c967063db05e1b60df0db25cd13633dcf50262d0a121e2c019dbaa"
     }
   },
   {
@@ -6138,7 +6138,7 @@
     "identification": "Class registration for AEComputerIntHckCoop at RVA 0x35fd30, called immediately after the class factory at RVA 0x35fcc0 in the singleton initialization path. Sets superclass AEComputerInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "22f59688e30f11f1e3af4757252ca5a3e064716511732d4e6e2a0896df308e4c",
-      "inputs_sha256": "704bd1f146341376194b20b8afbfd293139daf9bce9210e6358dcfaf97330f5a"
+      "inputs_sha256": "78dfa0cb2f7ff2c16f6daed3f448f48e764bfcd85263cdb66649d98a418090d5"
     }
   },
   {
@@ -6165,7 +6165,7 @@
     "identification": "Retail IsGranted event wrapper at RVA 0x35fe70, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: EchelonIngredient.u declares ERetinalScanner.IsGranted at serial offset 0x1bcb7.",
     "match": {
       "bytes_sha256": "2fb8d77572ff0489db972c90b1aa4652cb8ac461c297e659d6aec4b3795c985e",
-      "inputs_sha256": "7d425b59a2bbb0d952e8389306f94cfa3fab3d27870aec330b5f1098570df191"
+      "inputs_sha256": "76929b04977b942add8a1e2238bd96872b68eec579a355103c550e49e853f5c1"
     }
   },
   {
@@ -6192,7 +6192,7 @@
     "identification": "Retail ValidateCoopUser event wrapper at RVA 0x35fec0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package EchelonIngredient.u declares ERetinalScanner.ValidateCoopUser with Pawn Scanned, Bool primary at serial offset 0x1d683.",
     "match": {
       "bytes_sha256": "9471b118f4318d70cd70f6a4dd75d5e7c0247cd1e06f200e76c53c03f887bb25",
-      "inputs_sha256": "102be0c6c7f28450f46c8e6189bfc36dcabcf6aca88a3e0cdf901d4fb4ad2d03"
+      "inputs_sha256": "0f13f9a62b81fab3813b290d0f585a185a9b261d3e0542b692e401ab55d07583"
     }
   },
   {
@@ -6263,7 +6263,7 @@
     "identification": "Class registration for AECoopRetinalScannerInt at RVA 0x35ff10, called immediately after the class factory at RVA 0x3606e0 in the singleton initialization path. Sets superclass AECoopInteractObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "a0420767892116d86bd218765e913f2cf6376d87bc14490170c76e9e0bf2bb4d",
-      "inputs_sha256": "b4a7a0a186d0e5a6f6fa3ad17f86692ba29931cbe43b98d0a6200d07f25fb335"
+      "inputs_sha256": "8ec6ed3caa80f7e13bfb67e7806bd4f74942f90297cc903c905c895afada630d"
     }
   }
 ]

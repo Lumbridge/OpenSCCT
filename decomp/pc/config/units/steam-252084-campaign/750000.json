@@ -22,7 +22,7 @@
     "identification": "Direct retail branch at VA 0x110524ba. Complete x86 compiler function at 0x110503c0 through 0x11050400 exclusive. Scans the resource item array, marks the first available item busy and returns it.",
     "match": {
       "bytes_sha256": "c6feda56c337e9b0fe958cb7011b6a7d551c4fd2eaa357512978312a003f5ffc",
-      "inputs_sha256": "0dae1055636214a0146b06aace18c4ef88df7cd651baa763049da442de570b31"
+      "inputs_sha256": "97963afac53d2f6c27417aaf7bdced31089d55a98d313010818f3b7c1cd18b79"
     }
   },
   {
@@ -44,7 +44,7 @@
     "identification": "Complete x86 compiler function at 0x11050400 through 0x11050411 exclusive. Takes a sound item by its resource key when the manager owns a cache.",
     "match": {
       "bytes_sha256": "ab97c51a0b0350c6a487955acaede4343e18b4d29dcf48f72e9ebd0deebabb13",
-      "inputs_sha256": "99fc456a4ef9070ca8622b4acef1d7029161fdd67102dfab6d9a9c2184640a26"
+      "inputs_sha256": "6a776ea7b53c2f2f553ea0acec645d7a1606b07be8b4c1a80b5477c6b7a2c4a8"
     }
   },
   {
@@ -106,7 +106,7 @@
     "identification": "Direct retail branch at VA 0x110524dc. Complete x86 compiler function at 0x11052420 through 0x11052487 exclusive. Allocates a 24-byte acquisition task, runs it while state 2 is reported and returns its sound item only in state 3, then frees task storage.",
     "match": {
       "bytes_sha256": "33a521cd1f4c061a365cf25a011e42a04db0aaf0b44810b5bd7be5b0aea46a8c",
-      "inputs_sha256": "bee2353fd280f2d48b8f34581bf6ccddc051d289d24c7ee9ed827284d850a8d3"
+      "inputs_sha256": "62a69a32dd64473c611dd35e35f80c7f7dda69f8c957349fba51c1772641dce6"
     }
   },
   {
@@ -132,7 +132,7 @@
     "identification": "Complete x86 compiler function at 0x11052490 through 0x110524ad exclusive. Destroys the two owned buffers and frees the item, skipping null.",
     "match": {
       "bytes_sha256": "a7e576f180134984e1c644698a0c7d0803ba95a46bdcda817af5ead1c09c91be",
-      "inputs_sha256": "bf100a8e51ea48e27751ccc7f7fac80d323bda4a058a83952229ac641d5a6f1e"
+      "inputs_sha256": "888f994e151ef4d7b2e86c103ff845febe6c9325e32f635539acf45d1f9a205f"
     }
   },
   {
@@ -174,7 +174,7 @@
     "identification": "Direct retail branch at VA 0x110538a8. Complete x86 compiler function at 0x110524b0 through 0x1105254f exclusive. Tries reusable items, then cache membership by key, then acquisition. Applies the requested spatial-mode flag to both supported buffers of the result.",
     "match": {
       "bytes_sha256": "c9f9f7e4f7e02107def92aeabb0acfbff20d019eb2e967698c3a772dec54b9a6",
-      "inputs_sha256": "afc472aa9fd884f6a60e3507c2ce51c6d80b67f3710e82adca7777dcc1a76d99"
+      "inputs_sha256": "75ee6fa2317b372969de87adfcde8c68edb304af03fad836fe3992c3d16ab69b"
     }
   },
   {
@@ -240,7 +240,7 @@
     "identification": "Direct retail branch at VA 0x110526aa. Complete x86 compiler function at 0x11052550 through 0x11052616 exclusive. Rewinds the two buffers. Reusable items become available again; eligible items evict least-priority cache entries until their size fits, get the current sort key and reenter the cache. Other items are destroyed.",
     "match": {
       "bytes_sha256": "c89f5529a4ff235dc98355b46150c7d9c8ced6e7859ed66ff2a07b50ba297580",
-      "inputs_sha256": "3c263032d390414882bb82b181b7552ae1583b12a1e1ef7eb5f0e07c22085a49"
+      "inputs_sha256": "dec5659b64353c306db82fc77a7651fd305e7264d53587ccf00271e3e4934b04"
     }
   },
   {
@@ -263,7 +263,7 @@
     },
     "match": {
       "bytes_sha256": "85907d665950aa9494974e5e33d4c5c84326471a2ee710647f519345e171b346",
-      "inputs_sha256": "2f80d52f0ecf1390d1dab04e6ae3b4d734257951847af2077abd272e25dd40f8"
+      "inputs_sha256": "5f3d5e9f8c212f29b824ade2d67b96cb6383c55f1d755535a2dd998e07ac3fd6"
     }
   },
   {
@@ -324,7 +324,7 @@
     },
     "match": {
       "bytes_sha256": "038240bc984f0d038b19527287b03af8c84412830971eebe6b141ae5f7fbca8f",
-      "inputs_sha256": "a6178c984fbf46d5d853eaffd2683916be92e47e1711e4b823238beab73626a8"
+      "inputs_sha256": "13b65775769ad5d692ad7e47619e83335d540c9fc87e36cb2c12433e644a0896"
     }
   },
   {
@@ -363,7 +363,7 @@
     "identification": "Retail named export _SND_fn_rPseudoNormeVectorSnd@4 begins at 0x11056760. The last return ends at 0x110567d0, followed by the exported vector dot product. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
     "match": {
       "bytes_sha256": "aa4210c7c47c4c4b990c44affa250194948d477b67a7a97f13819f5e96435f92",
-      "inputs_sha256": "073e0a7eb4e084758e8cc828e273301c962173636dea122c59f965d3586ee25f"
+      "inputs_sha256": "5c67d8f3aee4687a2c5d3adb1108b9d315f24fbd8999f7e429299366cca79f2e"
     }
   },
   {
@@ -385,7 +385,7 @@
     "identification": "Retail export _SND_fn_rScalaireVectorSnd@8 begins at VA 0x110567d0; the final return ends at 0x1105680c before INT3 alignment. Computes the sum of the three component products with fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
     "match": {
       "bytes_sha256": "a2304aa4e3688900519a25259b6a7471cc9aab8198e453bf4cf674e6208f288b",
-      "inputs_sha256": "1467692582be8a7f7fff0c16e397eb0c6f27bec4972307ae4a63e487c0f28eb7"
+      "inputs_sha256": "914cb4c4e38a753f11c2fc405415668ac4f6a3e1eb460459e30f26572a7dc4c6"
     }
   },
   {
@@ -407,7 +407,7 @@
     "identification": "Retail export _SND_fn_rPseudoScalaireNormeVectorSnd@8 begins at VA 0x11056810; the final return ends at 0x1105684c before INT3 alignment. Computes the same sum with the lower-precision fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
     "match": {
       "bytes_sha256": "36d1c9cc2217b1bd9261b7323e08cef5fd29bae72e8a1d8c85ca9e42a5d25bed",
-      "inputs_sha256": "7ec44468fe60f94534938940527174147f4fc121948a8dfaef171d466151c4eb"
+      "inputs_sha256": "ae71193569fd6e16f16225309893723373a504590625c79d16b77783e553ed94"
     }
   },
   {
@@ -429,7 +429,7 @@
     "identification": "Retail export _SND_fn_vProduitVectorSnd@12 begins at VA 0x11056850; the final return ends at 0x110568c5 before INT3 alignment. Writes the three differences of component products in cross-product order. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
     "match": {
       "bytes_sha256": "a42f0e593f098c266b22b13c2d248804360267725d3a8cf9366277a8afd728ce",
-      "inputs_sha256": "65ba74cfc2b3db4cc15c3d5fb7c7d2ade8b2f579d7a94cd9808f201829ff38f1"
+      "inputs_sha256": "fc8e6f8d060012186fd31d571a9d3ba534061ce35d6ed7e9ec361b7f8d884195"
     }
   },
   {
@@ -487,7 +487,7 @@
     "identification": "Direct retail branch at 0x1105929c. Complete isolated compiler contribution at 0x11058170 through 0x110581cf exclusive. Inside the sound lock, calls the driver release method in virtual slot 25, clears owned sample data when applicable and then clears the pointer.",
     "match": {
       "bytes_sha256": "1ceac8b824d21441137e5c3d5aded6a7fa2b099c247d45f43075771f4f25093d",
-      "inputs_sha256": "009e093f1cf2b10dbba3bf2d2ae4762bd4a3c3c6e369514b61786959b72b911f"
+      "inputs_sha256": "bbb5eb32677c8debd24b8fc25ac16d4b9e17ac07c30a6b629c6ce199f85754d0"
     }
   },
   {
@@ -509,7 +509,7 @@
     "identification": "Complete isolated compiler contribution at 0x110581d0 through 0x11058208 exclusive. The type-6 collection release code also appears inlined in the verified resource dispatcher at 0x11059230. The standalone function accepts a flag controlling release of owned data, clears the pointer and resets the resource kind.",
     "match": {
       "bytes_sha256": "c78b315a5f6d125bfd6cfd27915209a69df3b2e809773e307a369db9bd30e307",
-      "inputs_sha256": "2d989f87d36de488f8c942a939825e95cd378926e7dfca0485330e7fb4ae0bb4"
+      "inputs_sha256": "31cdde3b7098b7316dc2f9818cdd24268b8ff8ad39b2ac28121d4a4d0ea3691f"
     }
   },
   {
@@ -567,7 +567,7 @@
     "identification": "A direct retail branch at VA 0x1104fe20 identifies the entry. Full range 0x11059170..0x110591dc (exclusive), followed by alignment. Reads channel metadata for the three supported types while holding the audio critical section.",
     "match": {
       "bytes_sha256": "7596d0211827745a85e45855ddda6d2c46eb6ad219546816aa17216056cba9b8",
-      "inputs_sha256": "c4ae921945df3889b6d9af48b74a7a294757e087d8263e3a1f6cbc13bf0b1a6e"
+      "inputs_sha256": "c9cd3019d1d777167995e7c814dea2f8d08d0560acd78f0d0c806c857f970c9d"
     }
   },
   {
@@ -605,7 +605,7 @@
     "identification": "Direct retail branch at 0x1104f610. Complete isolated compiler contribution at 0x110591e0 through 0x1105922b exclusive. Locks the audio subsystem, computes the data address and size, then decodes the sample metadata and returns success.",
     "match": {
       "bytes_sha256": "a6d5decea07065a4ce7d2ae132ff18de7f1807a26955bef1e413cc80184f2ebe",
-      "inputs_sha256": "4e7a88e2d873ea990c43c12a4e505459de5f8a3c88ec88f00112c76ad4a1ebfb"
+      "inputs_sha256": "1b547f99b5a91df4f032fb9ba57b41018dceffaa7dfaf01fa30cb87f46714f05"
     }
   },
   {
@@ -647,7 +647,7 @@
     "identification": "Full range 0x11059230..0x110592ac (exclusive), followed by alignment. Internal audio resource disposal routine between aligned entries: checks null, enters the audio lock, releases type-1 resources through 0x11058170, selectively frees type-6 storage, and resets the type for kinds 6 and 8. Both return and tail-jump exits are inside the measured range.",
     "match": {
       "bytes_sha256": "ed086ffbe4524bf868e3d1f71fda64742213f86d71cbdff41b1e8ebf9751883d",
-      "inputs_sha256": "b03cf93c5eb2c90ea5cac4b8ffc8d8ea1e8c8a991ab1c680b5ec7e7268aa5675"
+      "inputs_sha256": "a7be78574eecf4b75995de90cc0c24c63d84addb80827cac5e2d29af1c2ece69"
     }
   },
   {
@@ -677,7 +677,7 @@
     },
     "match": {
       "bytes_sha256": "eb06ea156a5440a9e0e9229d44a493abfb3c763aeb0f29eeea219f8e8b845da3",
-      "inputs_sha256": "5401dff03777d6260c99d4157f0e78dbce5b7d3b8ef6a289877a95de8dd7d5b0"
+      "inputs_sha256": "d6cf3e34eb8241a85b9a23186be2e3b85282722608652f113f6ecc22037090bd"
     }
   },
   {
@@ -699,7 +699,7 @@
     "identification": "Complete isolated compiler contribution at 0x11059460 through 0x11059497 exclusive. Returns the first callback and its context through the caller-provided result, updates the linked queue and frees the node.",
     "match": {
       "bytes_sha256": "8db7c65f12841dc8cb274728c0a31b65a12c39460bb194235ce4fbdfaf289e17",
-      "inputs_sha256": "fdda7dfa56180ce0ee66548b78330a5be24f7a013baba8a9f7a0989671c3191e"
+      "inputs_sha256": "d05d969a668becda73563e96aa5076844f8548f2fbedb29ad43e53c1e1d119c6"
     }
   },
   {
@@ -721,7 +721,7 @@
     "identification": "Complete isolated compiler contribution at 0x110594a0 through 0x110594e7 exclusive. Allocates a 16-byte queue node, appends its callback/context pair, and repairs the empty-list head when needed.",
     "match": {
       "bytes_sha256": "2b47765fc7b25d83addd943e628f5e93e6a13d296ff58d0c75d5858ec4d8300f",
-      "inputs_sha256": "26e72a59a5d4d39e180a3cc0e0ee6ecaf5d6fb0fa82eb492f77488f777a420dc"
+      "inputs_sha256": "1c9ae68a77b6a1fcc7d66f33af1be41c7693da279e9922e30d05f5d9e5eddd58"
     }
   },
   {
@@ -743,7 +743,7 @@
     "identification": "Complete isolated compiler contribution at 0x110594f0 through 0x11059530 exclusive. Unlinks a supplied node from either end or the middle, frees it, and decrements the count. These three standalone methods have equivalent inlined operations in neighboring callback queue functions.",
     "match": {
       "bytes_sha256": "00095068394f81295f3a67608fb8a3343399c5d92e4313abc09c98f7f8905df1",
-      "inputs_sha256": "46b52fdec49be0ed187b52e51fff74813d6e121bcf2cf2349ca22fa4bdd79861"
+      "inputs_sha256": "64a89b8e2e455de99b363b159ba8b0856b7336934606d5963a1bc6ddb76a8f4a"
     }
   },
   {
@@ -765,7 +765,7 @@
     "identification": "Direct retail branch at 0x11059750. Complete isolated compiler contribution at 0x11059530 through 0x11059568 exclusive. Drains the queue by unlinking and freeing nodes without executing their callbacks.",
     "match": {
       "bytes_sha256": "802d8bfa38f52932d5b10a1b681210cea09165a1764c79ad4ed7ddfdfb33f0fa",
-      "inputs_sha256": "0ff3635c39b4b23149aeebc0145e4c16d9511e619135720f06c42ab29591e09b"
+      "inputs_sha256": "4cfc8e5ff84e5522d4dca443443ff17c024ef3d9cdc64434c37e6c8265e81d98"
     }
   },
   {
@@ -791,7 +791,7 @@
     "identification": "Direct retail branch at 0x110647b4. Complete isolated compiler contribution at 0x11059570 through 0x110595c1 exclusive. Appends the supplied callback and opaque context to the shared mixer queue.",
     "match": {
       "bytes_sha256": "d0ddfb34f72b664c51b31fd541d7ccf21fa43be9adb319803559a6df058b6df6",
-      "inputs_sha256": "b5b6a6096dce022ea67b67829bdabfa853bda3dce85f02327b898983e6cf2c38"
+      "inputs_sha256": "4b89b9b965430e3ea59a3502c586170613cfa6bdcbdde7fa45155a80d4a5ad7e"
     }
   },
   {
@@ -817,7 +817,7 @@
     "identification": "Direct retail branch at 0x11053ee6. Complete isolated compiler contribution at 0x110595d0 through 0x11059626 exclusive. Pops the head before invoking its stdcall callback with the saved context; continues while the live count is nonzero.",
     "match": {
       "bytes_sha256": "b6ed094ba8ec34ec6910dd23e4a35386b3054bc3dad31a7298a0e3209624ce0c",
-      "inputs_sha256": "678d12d5348bc86409225e2b4cc255bb7958852c912f3ff970b7ba9b79fcfcc1"
+      "inputs_sha256": "7292f2771a58c9ccdd291ead45c8519724cde3db06dfb29be1ed0e2889fd34ce"
     }
   },
   {
@@ -863,7 +863,7 @@
     "identification": "Direct retail branch at 0x1104fe30. Complete isolated compiler contribution at 0x110596a0 through 0x11059749 exclusive. Recursively takes the maximum requirement over the 20-byte child records of a type-5 resource. Types 1, 6 and 9 use the channel query and the one-argument requirement helper. The complete contribution includes the switch destination and case-index tables.",
     "match": {
       "bytes_sha256": "e6fed2c5c3676a0d4dd41be5944c75dbc7dcf7b64a7e5c889fba112c371332eb",
-      "inputs_sha256": "48e1522b5aff95cddb80c838f89d8ba109909d1f61eef0c57ba5621fbe3199d7"
+      "inputs_sha256": "9187145f63917d6ced2c776d2217763c943220e71d25eeb7f65571553495948c"
     }
   },
   {
@@ -893,7 +893,7 @@
     },
     "match": {
       "bytes_sha256": "d524cab2d53921341920a3993fe28526021906b0c249a5be9794ac59c0ecf949",
-      "inputs_sha256": "9cb31a14600d9e1170e9c499b78a2326e1f100bc3cbb6fe6a918e020294aaf90"
+      "inputs_sha256": "ae0b7b04d40020123e782a5d23ef3b4d1aea73d9e4d5c37f73991884f04ecafb"
     }
   },
   {
@@ -915,7 +915,7 @@
     },
     "match": {
       "bytes_sha256": "efae5a1262f89f1d50f9ecb399c9cf53e85d573e4da9d655f574061cc477350d",
-      "inputs_sha256": "35b09674c9bce6bec9d6f248da95c355d39df87c0d600a3b0ca6c1e14e3055d9"
+      "inputs_sha256": "b5ec3e93ee87da67225abc85f7666eb53accf32d3f185597d23e018e8a13c179"
     }
   },
   {
@@ -937,7 +937,7 @@
     },
     "match": {
       "bytes_sha256": "555d36296dcdbe2eb1cc6d24ac8ccb35f1b323fb9a4eaeb5f53803ce15e27838",
-      "inputs_sha256": "b35a6c817bcd419542a3ef8dc727436be8d8c526873accf189f56d1652c73b54"
+      "inputs_sha256": "694af1e393890ca04ed766aa9e5691c9d9e827629f5c69be7f25e11f284c292d"
     }
   },
   {
@@ -967,7 +967,7 @@
     "identification": "Named retail export _SND_fn_bTestSnd_WinMM@4 at RVA 0x75aa70; whole linked symbol including each return, before alignment or next entry.",
     "match": {
       "bytes_sha256": "21bed59b80dfc41d0bfac6cb2115aa3da133b9340d31b808408cc80a8417ae39",
-      "inputs_sha256": "15440e26d78ed656bef8e025962ba766cd2d45776dd0eed9d4c0ee0ebd012112"
+      "inputs_sha256": "cd0c15e75fff0c2666bd30f796368dddd119a38467c8ec6f472bf6e5a93fca25"
     }
   },
   {
@@ -1001,7 +1001,7 @@
     "identification": "Named retail export _SND_fn_bTestSnd_Win32@0 at RVA 0x75ab50; whole linked symbol including each return, before alignment or next entry.",
     "match": {
       "bytes_sha256": "e6b64b26ec005fd652a6a502a47e87ad64c162c1d13ecaf9c34a65802087a56b",
-      "inputs_sha256": "34b0fde722e042939313cbf799b4d259432bc339a022def11ce3cec4f5cea424"
+      "inputs_sha256": "4ada77e9d2c9351d7203d6eeddd2ba2ee5ed83cbd122fd0f8cdf4f8c0fd3454e"
     }
   },
   {
@@ -1035,7 +1035,7 @@
     "identification": "Named retail export _SND_fn_bTestSnd_WinNT4@0 at RVA 0x75abb0; whole linked symbol including each return, before alignment or next entry.",
     "match": {
       "bytes_sha256": "d07d390972a62f5aaeabde59fe84c953c5dcfb7572c36d3c0700c2e39aa02bae",
-      "inputs_sha256": "5f5e2f1dbfffa75f93628752882ab7bf836f0a7b3da817b0ffbebf028581b45a"
+      "inputs_sha256": "39e1589c59aae181fe6c3e4dd9f3b2ab6f6c5a04645c2bf9035086f723b84074"
     }
   },
   {
@@ -1117,7 +1117,7 @@
     "identification": "Direct retail call at 0x1105c719 to the full function at 0x1105c420. Its final return ends at 0x1105c5ae before alignment. Computes source displacement relative to the first sound receiver and projects it onto the two orientation axes. Handles axis-aligned cases directly and corrects the lookup angle for the other quadrants. Returns the angle in turns.",
     "match": {
       "bytes_sha256": "3c86a1bc9ab2376d4ec24b96fddfbfc7811405b0ea371cd5590c4371348bba67",
-      "inputs_sha256": "28fe28ccb99c471f9ab0e680df7d48ac446aa690794de5da8f8397a2ab3ba48f"
+      "inputs_sha256": "7a8fe0a58d35ea60a6e166615c93ed20519471b985d00ef0d53645176935639e"
     }
   },
   {
@@ -1147,7 +1147,7 @@
     "identification": "A direct retail branch at VA 0x1105cb28 identifies the entry. Full range 0x1105c5f0..0x1105c642 (exclusive), followed by alignment. The default mixer writes unity pitch and zero gain, reports the missing receiver once, and resets the mode-specific pan or angle.",
     "match": {
       "bytes_sha256": "236ed7b9997bb2dc6a8b734da2def25675f71e307c918692b1973b7bd2bff845",
-      "inputs_sha256": "afd1b8ae4dd939b441960093d32fd768df33230b43fd10d6b833566c6e4b189c"
+      "inputs_sha256": "c8f3247090e01188c19549edfdd84eeb6d453251e1a39c1707c679a3f0151cfc"
     }
   },
   {
@@ -1209,7 +1209,7 @@
     "identification": "Direct retail call at 0x1105cb33 to the full function at 0x1105c650. Its final return ends at 0x1105c7f1 before alignment. Combines source pitch and gain with per-receiver attenuation, stereo or Dolby panning or integer angle, and optional Doppler correction. Final gain has a floor of -96 in signed 16.16.",
     "match": {
       "bytes_sha256": "2c20838c62b35fae0c8e9932af7f47e444d59f3a4b082f88c427d5efdd4fba67",
-      "inputs_sha256": "96e6522764da97678adac21043a10adef40ee64d0bd892d47eab10784b762f3d"
+      "inputs_sha256": "fedce4f07e5350b2237d6bc8c8deb0e60a8703ab4ae3bc5b0427b11d0556212a"
     }
   },
   {
@@ -1247,7 +1247,7 @@
     "identification": "Named retail campaign export _SND_fn_rGetNormeSxd@4 at VA 0x1105c800. The final return ends at 0x1105c8df before alignment or the next named function. Computes the loudest attenuated level among enabled matching receivers in the linked list. Flag 1 returns zero; flag 4 selects the custom rolloff parameter view at offset 0x9c. The position, list links, binding stride and enabled fields are supported by retail loads.",
     "match": {
       "bytes_sha256": "e962ff80c0dcf525a90bd1f6959e7c4f801b8914d54da9fe2437a546f078ff3f",
-      "inputs_sha256": "9a10a54ecd503de90fffc600e373a74cd04214007ec70c64416ba65802e6505e"
+      "inputs_sha256": "036ea37987bfb142b5b7e194f0dfbba2740a90ced0cb02c2dccb36ec836dd54d"
     }
   },
   {
@@ -1273,7 +1273,7 @@
     "identification": "Direct call at retail VA 0x1104f436 targets this internal function at 0x1105c8f0. Its last return ends before INT3 alignment at 0x1105c90c. Resets both list endpoints and both counters, and returns success. Its caller passes one argument that the recovered function leaves unused.",
     "match": {
       "bytes_sha256": "0fb52139119f54be0009dcd39a9f1f1b6b25a989eb5263f2b2fbb9fa6940d21d",
-      "inputs_sha256": "29e81d1b760072abb4e31f10fc764efad65ebd077a354d2f4d64110084076e1a"
+      "inputs_sha256": "7acc4dd0c4d9cab5275914108a52ca42b071ddca9abaea626ca176338c8f16ad"
     }
   },
   {
@@ -1307,7 +1307,7 @@
     "identification": "Direct call at retail VA 0x1104f6c6 targets this internal function at 0x1105c910. Its last return ends before INT3 alignment at 0x1105c9bd. Creates a 68-byte doubly linked receiver node and optionally copies four pose vectors.",
     "match": {
       "bytes_sha256": "483eaee71251bd0f86de89ef16b39bae1800b57d739bdc35d6389be2f8eb39e1",
-      "inputs_sha256": "b752dcefccf250f4fc1d416af3ed7653bfe20d0bf95d3fcb68e106e27e85b813"
+      "inputs_sha256": "fdea69e2de706ffa19b25ef2a39930877f94ee8aab069aeaaabb0235e0a61510"
     }
   },
   {
@@ -1333,7 +1333,7 @@
     "identification": "Direct call at retail VA 0x1104f6ec targets this internal function at 0x1105c9f0. Its last return ends before INT3 alignment at 0x1105ca56. Looks up the target before enabling it and copying all four pose vectors.",
     "match": {
       "bytes_sha256": "2b56d395b6c118496231dbb30e56f41221b9712fde71c064aed4c080037e1659",
-      "inputs_sha256": "dca072a78b05f43411e6a68a05bab41906e434ddc14bb226376210377e56ed7b"
+      "inputs_sha256": "549d57b78aec93b4d0f735dec49f8a233724c341c7a5b75bfe53bba3f4a8268a"
     }
   },
   {
@@ -1359,7 +1359,7 @@
     "identification": "Direct call at retail VA 0x1104f716 targets this internal function at 0x1105ca60. Its last return ends before the next one-byte return routine at 0x1105cac0. Removes the node from both list directions, updates list endpoints and counts and frees it.",
     "match": {
       "bytes_sha256": "6f0d2fcf30e0f6a4922f6c6c9b4346aabfa65390882772280704371b4e91ddb4",
-      "inputs_sha256": "015ccad9c573c7696024eb3427fe511c8db4de5b5c7e0b42884c3be4c5051edf"
+      "inputs_sha256": "bd936ea9d9c5f619161786257f1333141216ff18caefbc5418e74b835611d7a4"
     }
   },
   {
@@ -1389,7 +1389,7 @@
     "identification": "Full range 0x1105cad0..0x1105cb3e (exclusive), followed by alignment. The named conversion export copies non-spatial values or chooses the spatial conversion based on the receiver count.",
     "match": {
       "bytes_sha256": "8cb31d0e93cc0ab298dcee00b2dde13fed42e295fbab335373f82e1c6fb0938b",
-      "inputs_sha256": "fb6b162607160beb055e729f055918e02e092b0356801114d93d375730b58d5e"
+      "inputs_sha256": "85b5a5a04aad6ac3974a5aab45c2e5ed7fff7711108c4cf59a1bb8d736aff446"
     }
   },
   {
@@ -1415,7 +1415,7 @@
     "identification": "Full range 0x1105cb40..0x1105cba7 (exclusive), followed by alignment. The named mode-selection export chooses a compatible conversion mode and centres unsupported multichannel output on the specified path.",
     "match": {
       "bytes_sha256": "39ece02a0432380959d77a7073a2345234416b403e8a25ee7912c1e144e5d5e8",
-      "inputs_sha256": "663be3853d575be2e3a83f1e8b1c4b390508cc172dff5590351b8c78501a97c6"
+      "inputs_sha256": "070237896dc86cb4f17c15a1df546301787fa7a7849ca149dd4cb4aa381ca79b"
     }
   },
   {
@@ -1438,7 +1438,7 @@
     "identification": "Direct retail branch at VA 0x1105257a. Complete x86 compiler function at 0x1105cbf0 through 0x1105cc15 exclusive. An enabled cache accepts individual items up to half its unsigned capacity.",
     "match": {
       "bytes_sha256": "4bc47a5865afeab2fd92a392de911ae1f18072ac31e6599dd7614b888d88d97b",
-      "inputs_sha256": "e6df2eb5222e189069501fd33274d7196349820b389af0ce6a2f27ba2ed37d7f"
+      "inputs_sha256": "d99d700071779e7bdcd1d4683bda8322fc4448cf9335590dddf34a8c6bf8553d"
     }
   },
   {
@@ -1478,7 +1478,7 @@
     "identification": "Complete x86 compiler function at 0x1105cc70 through 0x1105cc92 exclusive. Allocates a twelve-byte cache node, initializes both links and increments the count on successful allocation. This operation is also inlined by list insertion.",
     "match": {
       "bytes_sha256": "1c821a445d66dd74f883061f9f29ccf4db46d04d3c373a616b4f5659aa19573c",
-      "inputs_sha256": "3753892c23310737525c7698d36a3bb99e48df8698436ea1c0c93119e1829bd9"
+      "inputs_sha256": "f3d240f243ef2d0e2bdfdf29b1d485152688553541c0f935a40c33d60116ebcf"
     }
   },
   {
@@ -1501,7 +1501,7 @@
     "identification": "Complete x86 compiler function at 0x1105ccb0 through 0x1105ccee exclusive. Prepends a sound item, updates both endpoint pointers and records its list node. Same operation appears inlined in insert-before with a null position.",
     "match": {
       "bytes_sha256": "35f2ab189ed583fa7a9dcbfb22f78f6a71a9a1f70e68cd1007efa3042d03f4a9",
-      "inputs_sha256": "1d127bd9d8cb681f1505b09af8fdf38f8c9c037b653eaccd73d2983ca94207b8"
+      "inputs_sha256": "dbe5c5603db85979f2e12fa5ca77c04d353968f9d2e55a4498bf2c8ef3f651a9"
     }
   },
   {
@@ -1524,7 +1524,7 @@
     "identification": "Complete x86 compiler function at 0x1105ccf0 through 0x1105cd08 exclusive. Frees a non-null cache node and decrements the owning list count. This operation is also inlined by list removal.",
     "match": {
       "bytes_sha256": "9fc88136e5fe7546c84e14798c69549e4afcc67ca8bb5cc54db6e112228c1bdc",
-      "inputs_sha256": "0cd9b5b776f4739879bec257edd3b4d70bb98f87bc2ba3f3af0e719fd7ae579b"
+      "inputs_sha256": "f02f1bec370d1e5a49ab6516acab6c52fd3330f9fe1af5a52915cd4feede8f99"
     }
   },
   {
@@ -1547,7 +1547,7 @@
     "identification": "Complete x86 compiler function at 0x1105cd30 through 0x1105cd6c exclusive. Removes the tail node and returns its sound item. Also inlined in the cache eviction path.",
     "match": {
       "bytes_sha256": "ce1f3d66cab37085658f364b734bb1e544a7b96e7e9c7e01759fc08f9509fc59",
-      "inputs_sha256": "8749bca221ecfd7b343e3b9a3ce0117d989129ad222628665333ffe1a75eb544"
+      "inputs_sha256": "f3cca40d5b13b5dd2dbc6a91f8dc3277617f8e5fd797d48ab0552a304dcf3e78"
     }
   },
   {
@@ -1570,7 +1570,7 @@
     "identification": "Direct retail branch at VA 0x1105cf23. Complete x86 compiler function at 0x1105cd70 through 0x1105cdb0 exclusive. Appends the sound item, preserving the previous tail and updating the empty-list head.",
     "match": {
       "bytes_sha256": "37db8bab8d4a8407fe61da2acd413392c154f12bafe1523a4220128c1c0ec6c1",
-      "inputs_sha256": "47d49a1b6ffcfa71e13f024fb23fdec6279ff39f8d2a7286c441a664b188c771"
+      "inputs_sha256": "301495525fd6bacb841c9c648bf3ab23a9d4576ee62edc156624c19eceb81c88"
     }
   },
   {
@@ -1593,7 +1593,7 @@
     "identification": "Direct retail branch at VA 0x1105cf88. Complete x86 compiler function at 0x1105cdb0 through 0x1105cdf0 exclusive. Repairs both links or endpoints, releases the removed node and decrements the item count.",
     "match": {
       "bytes_sha256": "4048ec82f7d5126efa9b6e2d8d0f5e681bced8c74c11def97f496432b28214af",
-      "inputs_sha256": "b356bca3360fce700564a73bfc47bde9e42caee6028c36f46c1087416753542d"
+      "inputs_sha256": "f722dee9b92fcd175e14ef53a07abddf81e305ef357212672490009a970f4de5"
     }
   },
   {
@@ -1616,7 +1616,7 @@
     "identification": "Direct retail branch at VA 0x1105cf4c. Complete x86 compiler function at 0x1105cdf0 through 0x1105ce70 exclusive. Inserts before a supplied node, or prepends at the head when the position is null.",
     "match": {
       "bytes_sha256": "705c9698e4bd7fed8e853b3ab33cb0635e865dadffebe1d4ae143076bb9a58a0",
-      "inputs_sha256": "00c107baada1717b8e196ae35b8b74e7030e734440f240cb8a56096e5e237418"
+      "inputs_sha256": "1e2744bfced5a091e00ef9f7b60efe7921273f7b0e07307c83f254c582d46952"
     }
   },
   {
@@ -1656,7 +1656,7 @@
     "identification": "Complete x86 compiler function at 0x1105cea0 through 0x1105ced5 exclusive. Removes the head node and returns its sound item. The same unlink operation is inlined in clear-cache-list.",
     "match": {
       "bytes_sha256": "052c96ab34148a029c08cbb7ac20d20a037f5c3bdb587cd839e5b4b6189f3926",
-      "inputs_sha256": "58f1824f50f494e620e402c824644380486b2d9eb87a28b630b9a3c7fc68a3e6"
+      "inputs_sha256": "c25904d33e6b9550f36f7ea45803a8635c0555e89bd70768b66c67ff437de95f"
     }
   },
   {
@@ -1691,7 +1691,7 @@
     "identification": "Direct retail branch at VA 0x110525f2. Complete x86 compiler function at 0x1105cee0 through 0x1105cf55 exclusive. Inserts by descending signed key using a before-position or the list tail; adds the item size to usage. Equal keys are placed before the existing item.",
     "match": {
       "bytes_sha256": "2b548849b84205aed347214ab1ed91fb45d99d0d09217aa064c7ccd70bffeb18",
-      "inputs_sha256": "a16da9176b77cc2339e9c1d1c52f2f891fa551ba3e0cf3604fce6b6dd09ae0a9"
+      "inputs_sha256": "97ed87428397cd1234293f476738308de53fbc0798cff1b3ae26246c2e87e32b"
     }
   },
   {
@@ -1718,7 +1718,7 @@
     "identification": "Complete x86 compiler function at 0x1105cf60 through 0x1105cf9c exclusive. Searches the enabled cache for an item pointer, unlinks the node on a hit and subtracts the item size.",
     "match": {
       "bytes_sha256": "0b450f0532f4b5b65f3dc08e03460d68f8f1c188853ab4eca9641a806a73f1b5",
-      "inputs_sha256": "3b8f33a67c38d13257c080c8a77b9840d16577434f67649e10505a7c5cccbc3f"
+      "inputs_sha256": "eeb1e382c50161a0cbbe3051f78df7d6187796d6c8117a970866b39e9a5fc4b1"
     }
   },
   {
@@ -1745,7 +1745,7 @@
     "identification": "Direct retail branch at VA 0x110525a6. Complete x86 compiler function at 0x1105cfa0 through 0x1105cfec exclusive. Removes the last item of an enabled cache and subtracts its size when non-null. The caller uses this to evict entries until a new item fits.",
     "match": {
       "bytes_sha256": "7baf75bec70f1d69f386eff1e11ae1408b0c1abae87013d7b57de0ad9d3a4e15",
-      "inputs_sha256": "dc0b91d8a67f81940acab712857792f11552d0aeca030fd3fc2f3976077eb96a"
+      "inputs_sha256": "957ec984945a31e3e3db566b5bd029d54b4e2782c8afea2be8efe47aa630dae3"
     }
   },
   {
@@ -1776,7 +1776,7 @@
     "identification": "Direct retail branch at VA 0x110524cd. Complete x86 compiler function at 0x1105cff0 through 0x1105d057 exclusive. Searches by item identity, removes and returns the match, and adjusts usage. Disabled caches and misses return null.",
     "match": {
       "bytes_sha256": "3dd001c09df7bd29ae1330f7f566d8cf672f2ae6447c04ee55850678f5085a9c",
-      "inputs_sha256": "a6de7fcbb5a72527a4f29fc18bc7d45719f8a56257c7e682131424f5223464b5"
+      "inputs_sha256": "0170ff1dfe1e271112d55a2034c89fab04599c4d94041b38863c85816e187450"
     }
   },
   {
@@ -1799,7 +1799,7 @@
     "identification": "Direct retail branch at VA 0x1105d0d7. Complete x86 compiler function at 0x1105d060 through 0x1105d098 exclusive. Drains the nodes through front removal and leaves an empty list.",
     "match": {
       "bytes_sha256": "9445e204847ed03c4e0ef014de45c4678bebc179f227ef2c4f31fec2e2a9ebc3",
-      "inputs_sha256": "1d6cb077252182967f2b90967b75e6676bf049a00b644866793a2f4d623eb98a"
+      "inputs_sha256": "ab24f9f84e4b8fbbbca32efb9190a110dc39b4bca3a8bcb997baeb388fc48390"
     }
   },
   {
@@ -1822,7 +1822,7 @@
     "identification": "Direct retail branch at VA 0x110535dd. Complete x86 compiler function at 0x1105d0b0 through 0x1105d0e9 exclusive. Initializes endpoints and count, sets the supplied capacity, enables the cache and zeroes usage.",
     "match": {
       "bytes_sha256": "5d728c76111aeacc0725fa29b2aa1352f8ced68885c2bb69708849dbee9e0a1f",
-      "inputs_sha256": "a7b5aaeac30df2a9387c5ba99b495ee0308773e938b198479b18d450b2f33a32"
+      "inputs_sha256": "6683c0eb07565ba20d0d5f2807ece516b9d43396ab43892e2f664c3962f84cd1"
     }
   },
   {
@@ -1845,7 +1845,7 @@
     "identification": "Direct retail branch at VA 0x110502f3. Complete x86 compiler function at 0x1105d0f0 through 0x1105d0f8 exclusive. Tail-calls list cleanup on the embedded cache list.",
     "match": {
       "bytes_sha256": "4bf6a946b2d74e91f7e9e9b20612ac9656f0eb15057fc82bec285f0d120e7bde",
-      "inputs_sha256": "8d55dd6c0e81226cab18cf3c4a930e2f5a7a97923c3a9a91b5d86837d71c02c3"
+      "inputs_sha256": "034dc8475e75d71a9d6e6a2b5ff068b47566b899c09acb7584ace03b4c6b5faa"
     }
   },
   {
@@ -1996,7 +1996,7 @@
     "identification": "Direct retail branch at VA 0x1105255a. Complete x86 compiler function at 0x1105d1f0 through 0x1105d211 exclusive. Resets the play cursor of both non-null buffers to the start.",
     "match": {
       "bytes_sha256": "ccf5ea7568cc9ce16ae7431d77ecceb3a5ffcdf90a149e2dbdd8548685aa2adf",
-      "inputs_sha256": "cbb29959d222c0960a5da337f8adb039479433585e00f2e916dfd4ea6a9f258c"
+      "inputs_sha256": "760f62c5477e3cb4395709ed9878d23695da140f1ef28aa036fe6f2b2f9d762d"
     }
   },
   {
@@ -2018,7 +2018,7 @@
     "identification": "Direct retail branch at VA 0x1106091e. Complete x86 compiler function at 0x1105d220 through 0x1105d22b exclusive. Forwards the requested size to the named sound allocator.",
     "match": {
       "bytes_sha256": "7c904a556876c96b76159ed7249be715644ede7939d513157b3b6d6d40018723",
-      "inputs_sha256": "f92013432418530456412569c2c9af815c31cc58239232826812e2b9f8d3746a"
+      "inputs_sha256": "edb7b6f90f3347360caede2115b458ffae3c0d7f2d634ac2d12421786436e314"
     }
   },
   {
@@ -2040,7 +2040,7 @@
     "identification": "Direct retail branch at VA 0x11050450. Complete x86 compiler function at 0x1105d230 through 0x1105d23b exclusive. Frees cache item storage with the named sound deallocator.",
     "match": {
       "bytes_sha256": "3ba47ca2e82967b6a551f9e1f42d5a40a123b5df54aa03f7d3151d8eddfd28a0",
-      "inputs_sha256": "283b251faed55403150d5546f60d43d0c21f61585104139975502ad46b40e2a6"
+      "inputs_sha256": "56121eea0947ec8fea788836d1e8873cdb4bb8eb6b6e370b4715baa84be1c13b"
     }
   },
   {
@@ -2176,7 +2176,7 @@
     "identification": "Direct retail branch at VA 0x1105f73f. Complete x86 compiler function at 0x1105e000 through 0x1105e042 exclusive. Initializes the audio buffer wrapper, clears its three interface pointers and status fields, and sets the timer to the -2 sentinel.",
     "match": {
       "bytes_sha256": "85d2c89c530f5f34ddf6c246dcd2b9b12137d04389919cc00405606d18db3b48",
-      "inputs_sha256": "85b7ae6253ad7f2b132c9b0241c71f5de39e914e242d5a0460bcd23d21d15845"
+      "inputs_sha256": "1e437215322a0837d09af6a53a9113ad44d3ad8686d9688ec4b00880856b5c9f"
     }
   },
   {
@@ -2202,7 +2202,7 @@
     "identification": "Direct retail branch at VA 0x1105e4d3. Complete x86 compiler function at 0x1105e050 through 0x1105e0ac exclusive. Restores the wrapper method table, releases its three non-null COM interfaces in order, destroys the timer if present and clears the released members.",
     "match": {
       "bytes_sha256": "fa3bd36e036bc37dbd3d8381f8aa5d4172d09788201a41068f370da2860061f9",
-      "inputs_sha256": "4c3c36c152b3003cdb9c9cbfd145223a8cacd244308b336cbaf6585e6f1f30a7"
+      "inputs_sha256": "53fce755a31a154cefdd2e4b9c0498ef2bc52b8c912aac4631748798162bd7f3"
     }
   },
   {

@@ -38,7 +38,7 @@ def symbol_index(obj):
         symbols[index] = (name, value, section, kind, storage)
         if kind == 0x20 and 1 <= section <= sections:
             section_functions[section] += 1
-            if value == 0 and storage == 2:
+            if value == 0 and storage in (2, 3):
                 functions[name].append(section)
         index += 1 + aux
     if index != entries:
@@ -68,12 +68,24 @@ def link_function(obj, name, length, address, bindings, *, read_constant=None):
         symbol, value, sym_section, kind, storage = symbols[sym_index]
         local = (storage == 3 and kind == 0 and sym_section == section
                  and symbol.startswith(b"$L") and symbol[2:].isdigit())
+        private = storage == 3 and not local
         if local:
             if relocation != 6 or value >= size:
                 raise ValueError("invalid section-local switch label")
             dest = address + value
         else:
-            if value != 0 or storage != 2 or not 0 <= sym_section <= sections:
+            if private:
+                # MSVC may choose a register ABI for a static procedure within this translation unit.
+                if (relocation != 0x14 or sym_section == section or functions.get(symbol) != [sym_section]
+                        or section_functions[sym_section] != 1 or kind != 0x20 or value != 0):
+                    raise ValueError("expected a relative call or jump to one defined private function")
+                dest_header = 20 + (sym_section - 1) * 40
+                dest_size, dest_raw = struct.unpack_from("<II", obj, dest_header + 16)
+                dest_flags, = struct.unpack_from("<I", obj, dest_header + 36)
+                if not dest_size or dest_flags & 0x20000020 != 0x20000020:
+                    raise ValueError("private function must start an executable contribution")
+                region(obj, dest_raw, dest_size)
+            elif value != 0 or storage != 2 or not 0 <= sym_section <= sections:
                 raise ValueError("expected an external symbol at the start of its contribution")
             symbol = symbol.decode("ascii")
             if symbol not in bindings:
@@ -99,6 +111,8 @@ def link_function(obj, name, length, address, bindings, *, read_constant=None):
         addend, = struct.unpack_from("<I", body, position)
         if local and addend:
             raise ValueError("switch label relocation has a nonzero addend")
+        if private and addend:
+            raise ValueError("private function relocation has a nonzero addend")
         if relocation == 0x14:  # IMAGE_REL_I386_REL32
             dest -= address + position + 4
         elif relocation != 6:  # IMAGE_REL_I386_DIR32

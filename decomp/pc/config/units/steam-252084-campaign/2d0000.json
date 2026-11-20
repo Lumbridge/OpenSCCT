@@ -22,7 +22,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "fe9b563d8f0aff1cbbb98afcf8abe4328ca7ecc6e8d3f10f269e961289971106"
+      "inputs_sha256": "256f71dee100d3b9f2d4aee2dbf13749cfa749f8e8f8f6ac0c72be9b6462a2ca"
     }
   },
   {
@@ -48,7 +48,7 @@
     "identification": "Placement callback passed to the AEPlayerController class factory at RVA 0x2d2ed0. The callback at RVA 0x2d2e90 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "eaa96a3ac0bde345f94fd723fdbf8a714955a3bcd3d6c9026b3e61b2e06d8491",
-      "inputs_sha256": "5fdd70d98410d1d567d84df45c43e8c122386fb43f52b2f913b7145ea0f9d2dc"
+      "inputs_sha256": "e453ba85591108df4e2af14ede39ae977398c0c204e3ec9099b7627e4cdc0b9c"
     }
   },
   {
@@ -90,7 +90,7 @@
     "identification": "Native class factory at RVA 0x2d2ed0; its allocation tag and reflected class name identify AEPlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "9346973353b5f763f918be6113e3ad34e69d776646e65e605f295620bc0c61e1",
-      "inputs_sha256": "f0eea78f6f09d5793504b9c92b6a0ab7412f0656ecb2b2fffd3c56c1f0953524"
+      "inputs_sha256": "7f89a626d4177c5b0d7b9785c720577ed6912a1689881b10eb59a8c5e3421336"
     }
   },
   {
@@ -117,7 +117,7 @@
     "identification": "Retail PerformingCoopInteract event wrapper at RVA 0x2d2f60, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares ECoopPlayerController.PerformingCoopInteract at serial offset 0x75968.",
     "match": {
       "bytes_sha256": "011e96a15e3b6aeaea3de9ead6ddd4a618676151e8296d518226293a506457de",
-      "inputs_sha256": "3afa964abcac48cc9c979885e337f346b29ab89e404349bdb5786847c841afde"
+      "inputs_sha256": "fdee570ee5f503d1d123684c3886f952238b3f7767f793ce5e9b212de06018a7"
     }
   },
   {
@@ -188,7 +188,7 @@
     "identification": "Class registration for AECoopPlayerController at RVA 0x2d2fc0, called immediately after the class factory at RVA 0x2d5740 in the singleton initialization path. Sets superclass AEPlayerController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "fefab6044dcdceced41666e6d10363807adbdb6bff3093e180c25e2b1738d070",
-      "inputs_sha256": "443d3785cb59a4c67972806d7342857a73762406694e2476d25732d16734d148"
+      "inputs_sha256": "6eccf2fa95f7f7c8449ec88c59f63a06ca5db4335a500a327aa45b8f0d21a4b6"
     }
   },
   {
@@ -222,7 +222,7 @@
     },
     "match": {
       "bytes_sha256": "6348d7bb6af636fd301dd29654f0378cd28844e8b1a9bab106e877794013d948",
-      "inputs_sha256": "ee348cf698858c72d38596b901e6138d6ba7e0bb7d8466e863a16233da18fa7c"
+      "inputs_sha256": "bd333e938aff320cec004e8aa8b6b2183f7dc46fb2bddcf90860cdc8fc05f69a"
     }
   },
   {
@@ -248,7 +248,7 @@
     "identification": "Placement callback passed to the AECoopPlayerController class factory at RVA 0x2d5740. The callback at RVA 0x2d5700 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "70f6368a373bd77bb30b276f193f7647b1619e3cda86a744aa5095bbd7422b3f",
-      "inputs_sha256": "7c8068b4c6b6249acd2c3b80250ad63c4624c9485f3d7dd4ae409e7babff0120"
+      "inputs_sha256": "994aedf70713b22149fea0b665f72d2a5a70e354942b8abfca02555a38b8da68"
     }
   },
   {
@@ -290,7 +290,7 @@
     "identification": "Native class factory at RVA 0x2d5740; its allocation tag and reflected class name identify AECoopPlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "ee16547af449ede6cda67ba5888569d29f925eaa069a116b070bf8637c2587b3",
-      "inputs_sha256": "07426d5d5bb0392a6d8ed95e81e2f5d94f3eea0b71b152d0cab2b958efdd9e94"
+      "inputs_sha256": "90505238eaa31585c283070d158cedf4811b38be665e607d1879e23a4a539471"
     }
   },
   {
@@ -361,7 +361,7 @@
     "identification": "Class registration for AE3DMapSystem at RVA 0x2d5b60, called immediately after the class factory at RVA 0x2d85c0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0135d19883757fe50069fe93730400b48e6acc85e9c7ea1766430b2e12446d6b",
-      "inputs_sha256": "12fc460a6ba202c91f2bc686ceb20326edfcbdd1efadfa9dfc25dbbd78c9e41a"
+      "inputs_sha256": "e6e1a0b5d6ff7106beea1ccf303d174a243b62f37c194cb27a170f04421f8655"
     }
   },
   {
@@ -432,7 +432,7 @@
     "identification": "Class registration for AE3DCameraTarget at RVA 0x2d5c70, called immediately after the class factory at RVA 0x2d7f50 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "7d04b5b6f891a971ab8e26f6a98b47df48c17a4dd1ac434d9c4181c57e2b1a82",
-      "inputs_sha256": "1805fba5e6dd9916d61e708f4b05bf13ba004a2e338fc87b82a16eb424556f23"
+      "inputs_sha256": "c5b584c872059623a176065d6d095ae40963111d82fc69f7b9b3c0dac54f0e46"
     }
   },
   {
@@ -503,7 +503,7 @@
     "identification": "Class registration for AE3DBeacon at RVA 0x2d5d80, called immediately after the class factory at RVA 0x2d7fc0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "62c214f9b00da3e15d8431bfd4e3c5a16f5a131ed043ddfff94aebf93d29b429",
-      "inputs_sha256": "4d6ddfaf8e8755ee179b0fabf4f93c140c3ca8da60c266fa3fe0734aa3adbb59"
+      "inputs_sha256": "f8e1329bb877fde1a610c5996839b9b78ad53845880729f00a6746aadd1db7a6"
     }
   },
   {
@@ -530,7 +530,7 @@
     "identification": "Retail ActorGotoState event wrapper at RVA 0x2d62c0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPlayerController.ActorGotoState at serial offset 0x733d0.",
     "match": {
       "bytes_sha256": "450c3979f99d795a5a8c7a3f484bbb09e485b9651fa01e86f2bcb8d74dfed1cd",
-      "inputs_sha256": "65cc9e86f6d769c5ea944683197d52cf7a86f776a6557bdc736a6d7618e4588f"
+      "inputs_sha256": "621671c3d43dd39b55bd4c8f896f4d8660381bc9ebf9f38c48d2ee894a005c07"
     }
   },
   {
@@ -561,7 +561,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2d7270, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d76cb, 0x2d7b4b, 0x2d7c64. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d9dffeba8a6a07226447e9b58738caa86d2f1476ddc89295496bbc713db7e1e8",
-      "inputs_sha256": "3c7889208e7044ac9f29cc4ae3a776638bf6c384b0aa0641960014d547383bae"
+      "inputs_sha256": "35f30443a860db15d6e2d9b41262ae9a50c75b22ec7a4302e5ca59e66af617ba"
     }
   },
   {
@@ -592,7 +592,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2d7300, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d770b, 0x2d7b8b, 0x2d7c0e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d9ef4fb8ee8ae6905c0d4b502a250f2c76028ea0ca51730b561a6652aea0322a",
-      "inputs_sha256": "8c0cae9bccaf12e8ce7177c1175eadeb6e4867f9ee3317f64fd9a9a67bc0f0a2"
+      "inputs_sha256": "1710ed41e665c2fc89451a634cc3e72af0ecff8403b1523d711bf4588fb3b4c5"
     }
   },
   {
@@ -623,7 +623,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2d7390, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d7edb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "fcf574ee9b55d607957434ac265a80f6de466bf4872a9b68472ce3871a5861e0",
-      "inputs_sha256": "fef3d25030ff65a0d15cebcde27d62e97f6ee56218fabb7047f63e9d8e98e559"
+      "inputs_sha256": "9763d16417362e4219b4988d9c9fcd458eb78c998cbdb5dc4cb8623e5e355771"
     }
   },
   {
@@ -654,7 +654,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2d7420, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d839b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "830f489493c310f48353ba5cb5e65c80d33e0c88bccee6e2d6cd7e320d6c2e19",
-      "inputs_sha256": "7fbf0056dc6eaa5edfe1c8ac106c8863ce72d43a4512475884fc3497544b4d7e"
+      "inputs_sha256": "2df2385ab3dde739557a9885975a587e0a36294a51690fa377bea7ea94500445"
     }
   },
   {
@@ -685,7 +685,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2d74b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d813d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c8460557e8458c1ca06b507a04c476496d3e963ece08227709b6097d50746694",
-      "inputs_sha256": "a7f24a7e52b159adb1876962d87d3f0a9179d9a025772d857a131839fab6bd9a"
+      "inputs_sha256": "c078a837a37703d3befcf52483a1d0975c595b75c4ce31143d04e77d976b1509"
     }
   },
   {
@@ -716,7 +716,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2d7540, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2d774b, 0x2d7c9b, 0x2d7de1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "00021f200d4ae3980b28f62e53f6e4ac1fdd61e4ebf55c1c182e397d94852601",
-      "inputs_sha256": "1921bf28b33274f04613ce2fdb8a2a4ecdc267f75b4e7c6d6246fb9d409c56af"
+      "inputs_sha256": "96ce5add69144c04f982495e04e5dd346e32ee4e9b47fad73557f48fb0856dca"
     }
   },
   {
@@ -743,7 +743,7 @@
     "identification": "Complete stock array destructor at RVA 0x2d7b80, called from decoded game code at RVA 0x2e6584. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "6754778f1818a553be9cd84516eac083fea4293606d167326502a76699c7e1e7",
-      "inputs_sha256": "6723c9d7dea8b0215b1eb44b582233069d48cf0f499bd8e3d8fffe9855be4abe"
+      "inputs_sha256": "42ef9dbafc5e085aa769be52df57f5249d9d5151e392dc0b35a2a9f020b5ee50"
     }
   },
   {
@@ -777,7 +777,7 @@
     },
     "match": {
       "bytes_sha256": "0cf857b413ddd7a74c36e040ef417a497a763c3e1926290afa798abddd6ace36",
-      "inputs_sha256": "e012fdd0bd3c15065567ae0d4f94be2306c29ec120b7701077eb6e89a95231b0"
+      "inputs_sha256": "2d665e70bedc590a6136b30a79b0cc26c91906e51da5fdb22d95abbe528cd8e3"
     }
   },
   {
@@ -811,7 +811,7 @@
     },
     "match": {
       "bytes_sha256": "494c634b349623b70dc7cb10571c0092326d629379f85bd5161527a2328806ec",
-      "inputs_sha256": "a0db779ad9e41cd89bfc881948ed11ba10fceae7cf445907a750d3908ba90257"
+      "inputs_sha256": "db27a2e0bcba4cf2c6fd35d530d35d2b60b0970f4c655a4f0b6b2a9a232cfa94"
     }
   },
   {
@@ -837,7 +837,7 @@
     "identification": "Placement callback passed to the AE3DBeacon class factory at RVA 0x2d7fc0. The callback at RVA 0x2d7e20 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c4ac375127363934e443fe105e172929422141a20091f83b64f1ed4b08114df5",
-      "inputs_sha256": "d010fad21404ee48ffc35a562002a0884de4c843874275901c3a04640061f543"
+      "inputs_sha256": "cfeff6524b985ea1698a36187577ad00db10070704f58c9091b852c3f57de605"
     }
   },
   {
@@ -863,7 +863,7 @@
     "identification": "Placement callback passed to the AE3DCameraTarget class factory at RVA 0x2d7f50. The callback at RVA 0x2d7e60 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "0517c0b3ff4ef92ffd30b58a62c450b26c6fb7cb3e9cbd7784fe9d7be4530595",
-      "inputs_sha256": "dafb2d51721d35c5dd6b3537ce20432ffedc30ba77eac76258e3e5c08ca54c4b"
+      "inputs_sha256": "04eba0b548697809fbc882f30641a578df521b6a7b15a9a1caf8da33117fad3b"
     }
   },
   {
@@ -905,7 +905,7 @@
     "identification": "Native class factory at RVA 0x2d7f50; its allocation tag and reflected class name identify AE3DCameraTarget. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "8c706269003e782da592ccf33f74e6444c6f79fd134a066d079a9e1cd551dcfd",
-      "inputs_sha256": "f466f71364915350de4e607696da9fe46b8f595b10bbe29774201cb4d882d2a3"
+      "inputs_sha256": "d39e8b4533495255c8df3b56a97a7c2ccee7402e92101a5cdebf709982123ced"
     }
   },
   {
@@ -947,7 +947,7 @@
     "identification": "Native class factory at RVA 0x2d7fc0; its allocation tag and reflected class name identify AE3DBeacon. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "54dc3ac531183529f21dd4c2fbf7fdac4616746d9a12047dfa84b628f24a2fc8",
-      "inputs_sha256": "ad2675b070972a7cd521e329fa3bc51e535bb798a037305a79b7e7de8941716a"
+      "inputs_sha256": "bef2ed6f70aada089e9f01106990efecac6342112758c30c1285e9573a4ed4e4"
     }
   },
   {
@@ -973,7 +973,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "987d995bcc7e6863acde37fad12821956cceabe67e1bdbea32a5483b72c249e8"
+      "inputs_sha256": "b1926b6d9ad4911e65d3cdc4c22fac83ae21fd2240b93fe2129c8194bd37179c"
     }
   },
   {
@@ -999,7 +999,7 @@
     "identification": "Placement callback passed to the AE3DMapSystem class factory at RVA 0x2d85c0. The callback at RVA 0x2d8580 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "b42ef248b1a7a6d82930f13abb7ab631e49a6921e551b19e1d1da19d584aaa79",
-      "inputs_sha256": "0d81d1644e90e370c94e293417e895ab00871feef0f80142c2d279960a3aba02"
+      "inputs_sha256": "11b51502914d3273a69440a6f527c5a88f578cf5f0bb95058a3818ab02f0f14d"
     }
   },
   {
@@ -1041,7 +1041,7 @@
     "identification": "Native class factory at RVA 0x2d85c0; its allocation tag and reflected class name identify AE3DMapSystem. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "fc8944caa0189a0cc106f1be10a887f0bac5b0ca76593161b8e8222b41157f65",
-      "inputs_sha256": "37c745c0dbc9350de4b962592e6c779570efb48828f8fb869f67c23c9b3bc36b"
+      "inputs_sha256": "30e1ce75a1e6d53683e4b90e8555f82aa300e6c43fd894aae3752272d7aa76f9"
     }
   },
   {
@@ -1068,7 +1068,7 @@
     "identification": "Retail GetCurrent event wrapper at RVA 0x2d8e00, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EGoalList.GetCurrent with EGoal ReturnValue at serial offset 0xce82d.",
     "match": {
       "bytes_sha256": "12a47473eab5dffd1611f59656420ce6cb96abf49ad19d4346cc95241d6e4bd3",
-      "inputs_sha256": "4ec43291dc54c6694a393916e3c3a47a70810806c969a8d18da4af5eec88bc8a"
+      "inputs_sha256": "619f4f7c9334c544a390c5822f9ec1fadcc1eeeb351b4122a715f51bc42d4399"
     }
   },
   {
@@ -1139,7 +1139,7 @@
     "identification": "Class registration for AEAIManager at RVA 0x2d9230, called immediately after the class factory at RVA 0x2e4f00 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9a399b8695f549705669f97c50d9cdc228db4080e94d2c407df1af016dcccad6",
-      "inputs_sha256": "8ee01bda379adbf9f6ed47d40ec37206301d97717a3337d85560ba7aa1de4d2a"
+      "inputs_sha256": "006598541187c6d0f1fdbbfb41a13f7d89b17b24be1a2434aa5c05057a2c1968"
     }
   },
   {
@@ -1170,7 +1170,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2dadc0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dca6b, 0x2e0034, 0x2e012a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "31157e8e35359be9d889ce4fca19148551f6ef71f471a86872b29b9e840ef3d8",
-      "inputs_sha256": "567e6e39c775b237aaf5845c127f1375d44fe8c960e6f6ddb008769a91cb57a3"
+      "inputs_sha256": "d0dbb5ed9af6d68b55ce0a502727babdbaf0ac9f5330571ff4aa9376601e6654"
     }
   },
   {
@@ -1201,7 +1201,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2daea0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcaab, 0x2dffbb, 0x2e00d4. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c416f92b0f2eff6c632d237f3e54ec4b26a5457b4d187e16d1519dec009fad60",
-      "inputs_sha256": "0d50cd92bd93343207e4fbcedae75edb7416493654ca7a8369620f1477e3b820"
+      "inputs_sha256": "66ca40572cd044d8eac4dd66113a2a9b447329bcf1817779f6732460f3c3784d"
     }
   },
   {
@@ -1232,7 +1232,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2daf30, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcb4b, 0x2de923. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9b53563c585d9218e36b224b4f7b33c7b349c09ab3b6d0d726d275023ec8f67c",
-      "inputs_sha256": "5e6e328d808838dd4bf21a6dcff26bf882584aa23ef79e54884f18f4786139d5"
+      "inputs_sha256": "6f58f26c65cd32bbc6fb92409c0c0ef8a610358143f74d139b988edad276f6f4"
     }
   },
   {
@@ -1263,7 +1263,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db210, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2e2b0d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "60118e489322f4cf026ce2060c8f84d4e1db66e29b9ded0f78138152ce48e741",
-      "inputs_sha256": "82ab7f3ad72c12851e3e3ba9d63b3dceaf05df17fa1e893dd76fea52fe3e6aab"
+      "inputs_sha256": "ba7434c2d66cda9f3fb6115db546c811e8ec88cd747287c2a8854a830f6bc96e"
     }
   },
   {
@@ -1294,7 +1294,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db2a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2e339b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a9e01e15009bbe4eee4ee93d5386a55498012c927e0d622b7622bbac7f6f769e",
-      "inputs_sha256": "f82c8878e0fa515ab4b750509f02e190272c18c7e6e180991a06d628033dd065"
+      "inputs_sha256": "127e6993e504edb401702a5d720ef993582209ecf2cc797597fd506fbc0bc55d"
     }
   },
   {
@@ -1325,7 +1325,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db330, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dce9b, 0x2df36b, 0x2e4dc7. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "455870c49bf114b9611752cc112ed15f1b05bb63b92fd19457f0eed3c28f81b2",
-      "inputs_sha256": "8202a007c0c497f9fe75ae7b03435a099f719559e36b8270b18be6f516fe949d"
+      "inputs_sha256": "16023cc6d98b516b16e064e48a9061ad104073c2910c2d6414876ca8e1f746e1"
     }
   },
   {
@@ -1356,7 +1356,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db3c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2df46b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "777ab307807e7cbdfcdfdbae3e9f8eb2f5b2fd471114286b1f18cebcb0ffd49b",
-      "inputs_sha256": "e0bf2b6596bae13b80f71555853d9bf157a24d269cdea83b12984480d53c2819"
+      "inputs_sha256": "50df4380aba7be917ed31aaaf84a568076c8b612583b3865d29a9e6f2880a06e"
     }
   },
   {
@@ -1387,7 +1387,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db450, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcedb, 0x2df3ab, 0x2e4b95. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a7278c3b337673ec774a0f8f73c8a0136bd98a5fd8767278e5dd2277a17b6bfa",
-      "inputs_sha256": "c81fff4cabc3f0cd9ec32ecc8b06cbc3171c9ee3f44858484b35a0a36ffb3824"
+      "inputs_sha256": "4fff9b96ee77ece84de96a2abcdaa878acd54e31bdd510cea778e7849ca8d6c9"
     }
   },
   {
@@ -1418,7 +1418,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db4e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcf1b, 0x2dd4b2, 0x2dedd8. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d28b025788285dd3edf93066ef785308149fd1abf43cddaff81cf2f0ee1717f1",
-      "inputs_sha256": "d3e12d28fcdb87553016ad426f264e36ad22ba5ac4ebcc642bb14140d26f0c19"
+      "inputs_sha256": "52512191465374520453169940e839c69c7ba9a5471941c61929aad42822396c"
     }
   },
   {
@@ -1449,7 +1449,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db570, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2e2d9b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "6ebcfba3768267b707a429d5d798e206353f6276ae5b9a14b4dd800c96a15107",
-      "inputs_sha256": "e8948b03b15beedf527e85aa657e04a840cab832b4b6bedefd86dc6baca06b10"
+      "inputs_sha256": "bdade5b0b5469fc32d3c2dcd5ef4ab4b46c832f95a547682501db1e75e007198"
     }
   },
   {
@@ -1480,7 +1480,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db600, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcfab, 0x2df4cb, 0x2e306e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "dd6aaf04d88b61a934b05de4de250066a29062cb41154c29acdec4c1e422e0a8",
-      "inputs_sha256": "90d7ad7e2bfd5e592d40bd26523b06c7e47e8d791a0fb3da4f5208a4f87973da"
+      "inputs_sha256": "d67bce2aae9595e699ae419f86b22b6db995de38ccd15f9ff82c3e5af89b60ce"
     }
   },
   {
@@ -1511,7 +1511,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db690, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2dcfeb, 0x2df48b, 0x2e29a1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "e98357842092368c0c47baf6d24d9c3f70c782d0099ca1e84f241e3397ccadb6",
-      "inputs_sha256": "2a495151795a9cc98df4cc140997b440146b2590e3c66704705ae80f22937811"
+      "inputs_sha256": "39d8a44ea810a33fc97134843dc747ab81b3edf6aeb5efc31acbe3632809325f"
     }
   },
   {
@@ -1542,7 +1542,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2db720, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2df579. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "04e8db2fda258d6c96a4253c4db1c1aa79259870d1adf40d39d87aff3dc72280",
-      "inputs_sha256": "c2ca368bc00aeb297a44008fab61c222adf84b4ec07fdd7843ae4dacc72bd175"
+      "inputs_sha256": "a24c760a4e73d6195ffb419c49eb6de4f11d1937cd018864799c6889be4050d8"
     }
   },
   {
@@ -1569,7 +1569,7 @@
     "identification": "Complete stock array destructor at RVA 0x2dca60, called from decoded game code at RVA 0x2e00c1. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "f16a4e83a4254f4cdca14d88a09c514a4b09816fc2b1feb66bf4251ace1a85b5",
-      "inputs_sha256": "68e3bb9beb3d810b8cb2854f297e4a739eac029fdcbd9f2cca07aeddcef976fd"
+      "inputs_sha256": "2583c05756d8664a567bc70e63e993f285ef523a084cf72b9d68a22279143e27"
     }
   },
   {
@@ -1596,7 +1596,7 @@
     "identification": "Complete stock array destructor at RVA 0x2dcaa0, called from decoded game code at RVA 0x2e00af. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "7ed0b778cde46fe3c3e38f44f3733aaa745e4261050442b54f072c0cd65da6a5",
-      "inputs_sha256": "18152c7d7d4be2de1b83f8743269ce10b419f3c5a17e4f65f38be4aa406b1ce3"
+      "inputs_sha256": "ff88035a2dd0cedff9e2b01fbb781eba2fab37583063a12d266afc39fea18a99"
     }
   },
   {
@@ -1623,7 +1623,7 @@
     "identification": "Complete stock array destructor at RVA 0x2dcf10, called from decoded game code at RVA 0x2dec05, 0x2decff, 0x2ded63. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "00878b60dcbafb726b670d70caac6e3ff4bb2c3bbd155f5962cb48e99ebd4616",
-      "inputs_sha256": "8fccc67dc51ca9e9f9b7b325e9e55fc4dfd8f82bb7061885412ca3a2860b5bd7"
+      "inputs_sha256": "147f993932bdb6dd5ea0edaec40039b4ac611ecd59c2386714da81fecea4e718"
     }
   }
 ]

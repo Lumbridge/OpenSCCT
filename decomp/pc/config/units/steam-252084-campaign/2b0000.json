@@ -24,7 +24,7 @@
     },
     "match": {
       "bytes_sha256": "8717ac2ed9425ff0fdb01fc038a20ca0a360bd181f53b6f1b0feaef6e9a7c113",
-      "inputs_sha256": "3ee7d8f16dabe089c1fd32aec3481ad3057d980b5c94fba1d3dd2af8e756acda"
+      "inputs_sha256": "52d9b3e2527654f43cf199c56d690e7f20ba55088b605deb3af53df58c772eb0"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "Placement callback passed to the UETrainingData class factory at RVA 0x2b21a0. The callback at RVA 0x2b2040 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "3d814437d4482107b1d03b083a5aca2b6e329fe8fd59df934764e642507d6165",
-      "inputs_sha256": "acbe142b545282da4b3c65f934d1a49ac47ed95a3d3b204e2aadf5c80dc71746"
+      "inputs_sha256": "dae5a55fc23e75738d3da45584dd35853ce33fa458a286462ac54774c3211cdf"
     }
   },
   {
@@ -92,7 +92,7 @@
     "identification": "Native class factory at RVA 0x2b21a0; its allocation tag and reflected class name identify UETrainingData. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "e8799954c8d8063755286faf8fdd3ce5dffab4fb05fa6fb6c1b0e68fa5235d36",
-      "inputs_sha256": "4549755c7f77b72103d0534c9396fc400325f5a5df296f3837e1f80788740ea0"
+      "inputs_sha256": "6b3ca233d25217e6f3bd7284f3f6ef92c9d8cd31c2c48e62d1eef6975b5198cc"
     }
   },
   {
@@ -118,7 +118,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "a5bded5b933f1aaf2fd3d5b7d0f17553474b19bd33a4a7c435e8e339184fdd26"
+      "inputs_sha256": "4f6cb62e982f5a8c9a6ca5acc090bd958ba6b2125fedc356d0ed7622f7977ffa"
     }
   },
   {
@@ -144,7 +144,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "a4f2d6bbfc0cd1557ffe2d357374a48bdca464432e09e5ab205ecd9f063014ee"
+      "inputs_sha256": "18335599c6bc716bdbf9624b11579fc269339178afac315f1290cd6c5f2a9668"
     }
   },
   {
@@ -186,7 +186,7 @@
     "identification": "Native class factory at RVA 0x2b9be0; its allocation tag and reflected class name identify AEAIController. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "eb2a01a88e4cbf08fef51699d80818345027f8b605d24f06f5470c1fc82a3f42",
-      "inputs_sha256": "d3f96eb514fb5e807601f2190688954885fe975221b2ca20b699507f0c3f007c"
+      "inputs_sha256": "8fb094bffb7739c909beb00250930eb0d5f92dcb8b3a6fa894e883477535cd6b"
     }
   },
   {
@@ -210,7 +210,7 @@
     },
     "match": {
       "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
-      "inputs_sha256": "5ef1371f34e1fcd40bf2bed32950895269eb63cfca22f5cfea38938f32f4f5fe"
+      "inputs_sha256": "837cae163c9c4efdf81483d25eac11790433cb10af91bfc4d3f85a87d31d61f3"
     }
   },
   {
@@ -237,7 +237,7 @@
     "identification": "Retail PauseGame event wrapper at RVA 0x2bd310, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares PlayerController.PauseGame at serial offset 0x53748.",
     "match": {
       "bytes_sha256": "073ffb83ae275d6dedbe8e1deae32b81d7a77676303318e807f479225bb21790",
-      "inputs_sha256": "7439976ffc003bbe361b51c9d78e466dd94da5627190f24ff5abca8da5145510"
+      "inputs_sha256": "f991d4e45c629188cd8e40dfadc3be8b6dc1507458ed63a7fd9279d3669bf0f0"
     }
   },
   {
@@ -264,7 +264,7 @@
     "identification": "Retail Reset event wrapper at RVA 0x2bd360, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "51e4f405e6d8b98608bfcb1e4ebb23fae4ad9c7fd74be62394ca94708fa2fe4e",
-      "inputs_sha256": "4137485155c094e2f1c22eb8226b64b729fb3f943f558b68ba09fbc98290bd98"
+      "inputs_sha256": "ca4baa7da65917d4c379828780c375ab0bb6f5059a266384c29fcf82e2cd9ed2"
     }
   },
   {
@@ -291,7 +291,7 @@
     "identification": "Retail FinishDoorOpening event wrapper at RVA 0x2bd380, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.FinishDoorOpening with Int O, Bool ReturnValue at serial offset 0x6aae4.",
     "match": {
       "bytes_sha256": "95688284af9dc7666b9ec4305ce90961dbfd77a7057c06bf01f178e96e6214a4",
-      "inputs_sha256": "507cea1f158d36d8426ed2aa6a7408141725b1c73b57b0b7456fa281c955dece"
+      "inputs_sha256": "c267219c15dfd19465d7388da92e1b9d8957d56ee2953cd9238de9441366cfd9"
     }
   },
   {
@@ -318,7 +318,7 @@
     "identification": "Retail NoGE event wrapper at RVA 0x2bd3d0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "0fcd67f7c02de0c3213023c959bab828105451930d2be688dbd1b570c1765289",
-      "inputs_sha256": "197ad51541df0403a76173a18dbb52b134ce5848a39252517da954f210ec3fc2"
+      "inputs_sha256": "b67178398e102e6fcb7ee33d4b6221b98ca229bb5be4025967a3b42983989643"
     }
   },
   {
@@ -345,7 +345,7 @@
     "identification": "Retail AddMultiMapInformation event wrapper at RVA 0x2bd3f0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "46f94467821e1c40723b0389b513d849158ea95dd9fe513573f60106e33df3eb",
-      "inputs_sha256": "26e853877d8f8f3119822a79a8429e2cf1a8360dc83d5156366b8c6aa69c443c"
+      "inputs_sha256": "e3ea3bd3a3b110f1d5fc13d46d85ce5fe7ab5bfdf8fe467d2fcc75488e2f1f27"
     }
   },
   {
@@ -372,7 +372,7 @@
     "identification": "Retail CheckRepeatFire event wrapper at RVA 0x2bd410, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.CheckRepeatFire with Float fDeltaSeconds at serial offset 0x5c484.",
     "match": {
       "bytes_sha256": "8e9e4f957e30a7e275337fc0ef8ba537693e32b5ea36e9c632c907f528fed96c",
-      "inputs_sha256": "752da7c98e6938022f54162e34e332617cbf51d94d568d2adaa6a5a5f0b7dc72"
+      "inputs_sha256": "bf2225213ab0a5099e93e141154f6e28fa8e3f04dabf3635993d51d1b821dd49"
     }
   },
   {
@@ -399,7 +399,7 @@
     "identification": "Retail LedgeToLadder event wrapper at RVA 0x2bd440, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "bf68336226846eedfbefc2f856159dfb751c6388db3d7da14d4a77d981c1ec3b",
-      "inputs_sha256": "0e61c21ce23211003e9175f52a614b99add006cb33d4014b709cb4111aa04672"
+      "inputs_sha256": "f1e8bc40af149a64894d4d370b99290b53e4f0f3b0e45921e7d605d62acd99a4"
     }
   },
   {
@@ -426,7 +426,7 @@
     "identification": "Retail PipeHToPipeV event wrapper at RVA 0x2bd460, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "c04be6f2e7964771830789832142b3335372cc888cbc8bd12b22c3f4192c3457",
-      "inputs_sha256": "757be56163b40fbe610bc38df8b45206449425770f9615e8bdaa90440599f504"
+      "inputs_sha256": "f1be26e6ad96c0a3809469fc705400935b8daf912c5b59d77388e64ec6cd4409"
     }
   },
   {
@@ -453,7 +453,7 @@
     "identification": "Retail PipeVToPipeH event wrapper at RVA 0x2bd480, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.PipeVToPipeH with Float locationEndZ at serial offset 0x64fb3.",
     "match": {
       "bytes_sha256": "fd0fe83261a5ea5c5d394078bc092a0f87b40c43496639184dbbf9b35dbd3014",
-      "inputs_sha256": "8432f34b4ec7171fe5f12021f89b1a58b2b87f135492d90a887b936ae148cb3e"
+      "inputs_sha256": "c1df3425305622476765e5e93a154b8da8a46cd2cc58dd30484869ef3373ba99"
     }
   },
   {
@@ -524,7 +524,7 @@
     "identification": "Class registration for AEPlayerController at RVA 0x2bd700, called immediately after the class factory at RVA 0x2d2ed0 in the singleton initialization path. Sets superclass APlayerController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "ab2c6f4b95e525ec9f64511f9b064a261f2dd1e76634b86f5b493edd15d9a259",
-      "inputs_sha256": "e5351f28cf1513fdb965f0309df51615f70cd4092f29d01d66cacf92c7307c27"
+      "inputs_sha256": "336aba5d895ba6d68136d71a76d4d9f095cf89a9b166437e10e04a197e2a2120"
     }
   }
 ]

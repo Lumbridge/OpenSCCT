@@ -30,7 +30,7 @@
     "identification": "Typed cast at campaign RVA 0x293100, directly called at RVA 0x293e0b. Its class constructor at RVA 0x2b9be0 identifies AEAIController; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "377fbcfd947806d215033bc7e3fe0988627005fc3911c4019000d99853dbff86",
-      "inputs_sha256": "0f6a92ff4ba94ee3d4e603ead86b0b52b9f13f76e06935d8dac048aa9a39c2ea"
+      "inputs_sha256": "a892abebb571a38535af234b9c90c7679dd602eb3a4222466aa8ff5c0854a7ba"
     }
   },
   {
@@ -57,7 +57,7 @@
     "identification": "Retail TriggerEvent event wrapper at RVA 0x293160, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.TriggerEvent at serial offset 0x2d16e.",
     "match": {
       "bytes_sha256": "262cee85811f6afdf39af184bde4650165f60b8cc7fbbcff7f75fe8cf2ced011",
-      "inputs_sha256": "42063cb91f4841960c01c4e1cd363638ef117897d52c4141014b256281d37fe1"
+      "inputs_sha256": "f055ed93645b89d89c4fe77e5b06c526acdbfca870fe4db0964b664d41e4dec7"
     }
   },
   {
@@ -85,7 +85,7 @@
     },
     "match": {
       "bytes_sha256": "e15bc14dc5e3af4168f445832d0dcb92745650bda97b2106c9d9ae9bb966aafc",
-      "inputs_sha256": "d481ac7a8e7f3d2ca34e35f503867640f3748e28e205ef6822c7e94fae9cba6f"
+      "inputs_sha256": "9af27832d8c98076d6fca46618677f057b91e6d98609ee5e057c554a0aadecc1"
     }
   },
   {
@@ -116,7 +116,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2957b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2979eb, 0x297fe4, 0x29801a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0f172c331d6b7da037851face11b385eb57ac5514894826b7a8c69db3c2c2f65",
-      "inputs_sha256": "dff24b42c0aa75157a5485d390a9ca6538621b035977f267e8e7ddacab1bcb2e"
+      "inputs_sha256": "0c593f4c12288249aac1548923129cedf07da312626bdda806e3da184e20e822"
     }
   },
   {
@@ -144,7 +144,7 @@
     },
     "match": {
       "bytes_sha256": "05279a574ee8b54c6d8cc018ce123c2dd3690cbc0c5e546e5b78615b01491945",
-      "inputs_sha256": "818d704154296af962e61c1232534fae9723b7031d81b2bf511a118b3f143fd5"
+      "inputs_sha256": "2f6d85d9a982fce741392603bd89a722ef3be4ff39cb47e5365795bce1c37ce3"
     }
   },
   {
@@ -172,7 +172,7 @@
     },
     "match": {
       "bytes_sha256": "290f54e038f03f018e1ab542d09fd939428901f8398cca7a323709ccb2fba846",
-      "inputs_sha256": "7d5d838ceb1fdd2d301b31670852f23c196b0100019b3d51ee27447436f367e4"
+      "inputs_sha256": "d073119e6f97ef934c5893a05c4e2658fafaf2eab840fe934193a4a870a9d3f3"
     }
   },
   {
@@ -210,7 +210,7 @@
     },
     "match": {
       "bytes_sha256": "0f0b4e57d18752211502c024bf07434147b2782592db68710960f14cada2b1d5",
-      "inputs_sha256": "acfb44140bc99fd82050976945aa602da544010480c7f0d823af0ff716399be7"
+      "inputs_sha256": "3c605ea0733ebf523a0bad586a02f7fc902c4ff991b2709f7efd6213ffad7470"
     }
   },
   {
@@ -236,7 +236,7 @@
     "identification": "Placement callback passed to the AELaserMicVolume class factory at RVA 0x299e20. The callback at RVA 0x299d30 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5bc5438dce48f8b5ca99cbe13347e66dabca0018c47b959a394ebdc9bd981f17",
-      "inputs_sha256": "2090e9723b248690f92cf3b4bd2be377215ef8c5ea2f8a7bee8e3ef400dc23b9"
+      "inputs_sha256": "cd2a91047b5a38abb1e30d176f0c390d641fa463bc39ce3793bdb77cb71c678b"
     }
   },
   {
@@ -262,7 +262,7 @@
     "identification": "Placement callback passed to the AEPattern class factory at RVA 0x299db0. The callback at RVA 0x299d70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "8f5ad45e2d1c6f9adf5ac8f4a95eeb4cc3ea25e4d3cd1f06c5a68bc9d1bcc68a",
-      "inputs_sha256": "728a9d933ece89e9addbd6ecae12d45e250c0b9ee8fb834b0c36698004a5ea1b"
+      "inputs_sha256": "5058cab2f7fdfb33981d457bd183b51db26b05086efe93b2ea54dda7aef07d68"
     }
   },
   {
@@ -304,7 +304,7 @@
     "identification": "Native class factory at RVA 0x299db0; its allocation tag and reflected class name identify AEPattern. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "f30c06c7ce61a0038860ccf0498454932c76354bd02f19b980ee6c71ba541c8a",
-      "inputs_sha256": "c01169d398f7ae08f376a321c7f66f4d8fed1f14736a2b14ad33e9f49b89be91"
+      "inputs_sha256": "8dc8bde96b2ae82cdfc4012fc3d2810816c00330b27bde08db2d1dc92aff2ff2"
     }
   },
   {
@@ -346,7 +346,7 @@
     "identification": "Native class factory at RVA 0x299e20; its allocation tag and reflected class name identify AELaserMicVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "4766ea0b828b4ab09154d4449c2677b7065b080a3556bf143b4cedd7ff390185",
-      "inputs_sha256": "11b9514c8454c17c10d5dd6a61844a46625492464bf1b6bfaa713c169aa97ab1"
+      "inputs_sha256": "df9a816173f7a85f2539832cac3a3f78ac6c921db2f3bb732a314872b7b84846"
     }
   },
   {
@@ -374,7 +374,7 @@
     },
     "match": {
       "bytes_sha256": "d6315e4cc08bf0deb0629e147eface36a60934f0491c5ceb4a342436606334a5",
-      "inputs_sha256": "19e8fb4b3741d59651fe89a51640d8c25b0d530fb0e9a61fa8348c46a898ab49"
+      "inputs_sha256": "e043bfc8812bc9c18912ab41b20f5d32c7ada6a85b0329f7d31ea1b1b6f0105f"
     }
   },
   {
@@ -401,7 +401,7 @@
     "identification": "Retail CallEndEvent event wrapper at RVA 0x29d660, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "8867d6daabb7a99d9fb5bdddc93e81894613c2468a5998fbd7ea68df88a9450d",
-      "inputs_sha256": "2ef2d0abcc070510c3e39ceb06af0891ac057b3a99592be28f50dc2c400351af"
+      "inputs_sha256": "0084bf4fc716814a0189d67168d36d3561a0f4038cf75bdafd001190fddbdcb8"
     }
   },
   {
@@ -428,7 +428,7 @@
     "identification": "Retail CanUseOpenDoorType event wrapper at RVA 0x29d680, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares EInteractObject.CanUseOpenDoorType at serial offset 0x47e88.",
     "match": {
       "bytes_sha256": "847674cb4dc9dbab1e6172acb34f29890bf4e266c5657b25a07091906c0a6af2",
-      "inputs_sha256": "520cdade785973d7685298304f64463746d172006d96035a3e6544234d419349"
+      "inputs_sha256": "a9a68763fa44f5a09adcdac6c0a25c741627a139f31aa2f36dd3003366cb6d27"
     }
   },
   {
@@ -455,7 +455,7 @@
     "identification": "Retail GoConveyor event wrapper at RVA 0x29d6d0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "a89eb1cea6f4b08fb33db6cd5768104f2c4dd4d5a31144749e192d6bbbadecf6",
-      "inputs_sha256": "b836e0f867288292c06f5ff62fc51f2b84f695f79a6fbdadf72785b270d02205"
+      "inputs_sha256": "af6c8fccbab42bf476393f05073a511a7271ee4928d1e16b2843cea864645027"
     }
   },
   {
@@ -482,7 +482,7 @@
     "identification": "Retail SetDoorInteractionLocation event wrapper at RVA 0x29d6f0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EAIController.SetDoorInteractionLocation at serial offset 0x7f6ce.",
     "match": {
       "bytes_sha256": "aaf4cd467edb685d72a6bae22228b7a2a285cd22cef2a447f831a2272d1f9257",
-      "inputs_sha256": "07153e717130ea70a52d388199d892ddf1b527ca7ea3e66f87dbba86056591b8"
+      "inputs_sha256": "532fbe653d3e003d0ecb00397d3ddd9ac70d5e905d94a5f004084a40c9b01736"
     }
   },
   {
@@ -509,7 +509,7 @@
     "identification": "Retail GoOnLadder event wrapper at RVA 0x29d720, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GoOnLadder with Bool bGoUp at serial offset 0x74469.",
     "match": {
       "bytes_sha256": "cb59578daeb1c9c1f02b727a22753bd34abbac09e419d822b64730bddb623b14",
-      "inputs_sha256": "0490d8db1cbc071280851ab89df5cff262ec7c76188fac5c451550b96f86c450"
+      "inputs_sha256": "87769500672d5074ba6ecac37821d514bfec1272e69088231a32a9090d65f826"
     }
   },
   {
@@ -536,7 +536,7 @@
     "identification": "Retail GoOnBed event wrapper at RVA 0x29d750, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GoOnBed with Bool bGoIntoBed at serial offset 0x74430.",
     "match": {
       "bytes_sha256": "ea0a1b1491b309620cee7b5f49e7b32b0eb3ae714f9c36e35927658bb2af92ad",
-      "inputs_sha256": "c80278025a66ee8d2b95bbd004c37a51223a41576775280693931c54565d1fcc"
+      "inputs_sha256": "557e3b8ef2fa48b090cd75c482d44cf1371662dd9bbdc6c845586dff32a6b6f3"
     }
   },
   {
@@ -563,7 +563,7 @@
     "identification": "Retail GoOnChair event wrapper at RVA 0x29d780, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GoOnChair with Bool bGoIntoChair at serial offset 0x743cb.",
     "match": {
       "bytes_sha256": "55e31e5dadcbc09ef7a4769664807138f1768a34e1a920f5ad32d659fe7f0dce",
-      "inputs_sha256": "0e96eb4dacb51c30e21fda427ff1325a4fb11fb2db422bc10253f0bf75841249"
+      "inputs_sha256": "9ae44a6a6c6e09220df16251726676c07562559accd2f38961de15220741a323"
     }
   },
   {
@@ -590,7 +590,7 @@
     "identification": "Retail ThrowObject event wrapper at RVA 0x29d7b0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "dcda69662e61befa7f41eb3a5537bf88f7921a765a326ae78bc1bac078586931",
-      "inputs_sha256": "ef9ceba9d0e5e516d80f175c8b8f4a050cd528a6ba700c47458ae5c2f6dde2d7"
+      "inputs_sha256": "84fb7f1e996e2ece66c7a8b7b5b86ffa16b1cdb8d0233455aa8e0f8cbb592b85"
     }
   },
   {
@@ -617,7 +617,7 @@
     "identification": "Retail StoppedMoving event wrapper at RVA 0x29d7d0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "c90a0bf26739be19baadd8ad36b412bc068d2ddc602084826071e6417d7ccb42",
-      "inputs_sha256": "c065de2e5be48478d29d18f3c27b7bf745f92b2f29f97f5d6528e874793230b1"
+      "inputs_sha256": "55c77ee6bca2f391576377a2a4fa29bc019e4a2828a7d064c2ff42718fd0dfe2"
     }
   },
   {
@@ -644,7 +644,7 @@
     "identification": "Retail StartedMoving event wrapper at RVA 0x29d7f0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "81efcf4808c273c4f106a5b83e4f7df8a9408ef8305427f716326a49a8647c77",
-      "inputs_sha256": "d338deda3f629db7880a28821d05ff76f1b49a25d2501e509c7186949d756cb2"
+      "inputs_sha256": "861496dfbbfcce61dd8df6a48901f63a6bbb1ae3905e2abf431e70e7495db36e"
     }
   },
   {
@@ -671,7 +671,7 @@
     "identification": "Retail SetFeetIK event wrapper at RVA 0x29d810, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.SetFeetIK with Bool in_activate at serial offset 0x7ee48.",
     "match": {
       "bytes_sha256": "e0660331535fd653be0593620473b74bc4edaae65293567f03a62ddbe90c5ccc",
-      "inputs_sha256": "88df4a46e1fdbc44faf7bfdc9f0cfa05af4b74285d1cb46a80c16119ab0fb507"
+      "inputs_sha256": "7d569b3ecfe3c277e02245fdad9f757851052a19996d1e4624f13ec108ce209a"
     }
   },
   {
@@ -698,7 +698,7 @@
     "identification": "Retail GetAttenuationFactor event wrapper at RVA 0x29d890, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EGameplayObject.GetAttenuationFactor with Float ReturnValue at serial offset 0xb4f84.",
     "match": {
       "bytes_sha256": "ec91ba0505c41323d33d18bf1060c961f9334fd27e5784739a40886630abe663",
-      "inputs_sha256": "899b09fb133e02408b261ff0f7c34f6d4ef122a3006bbf5ebd611cc1e8e26fa2"
+      "inputs_sha256": "a4a772fbc6588367998a4786e1e5a3a32acdc3937a8e78d191c564597eaa0e37"
     }
   },
   {
@@ -725,7 +725,7 @@
     "identification": "Retail StayOpen event wrapper at RVA 0x29d8e0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "0c33ceb73e579ddc58f1af35e6b0b9faa7ef5bb25729a300c739ba3b2aa6edae",
-      "inputs_sha256": "13dc124cd5a38e6765975d646a7445604f852ec66fbd3385de86146a577d90ba"
+      "inputs_sha256": "2222787a5e297e4ed26c6e9595083b38a8ad1369f7467cf897227b7fdf67523a"
     }
   },
   {
@@ -752,7 +752,7 @@
     "identification": "Retail UseItem event wrapper at RVA 0x29d900, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "0afb5c275d784c543200a8adf9be9f96f465c264991aa41e2ca51a35d019656b",
-      "inputs_sha256": "1eab36510a225855206a46cb7281abda8ab8f9e1e633fc3c6eb4d9183f8570fb"
+      "inputs_sha256": "dc16fd94f3b06ce024b06af8ebf3ee2bbbf3476d5d601fd89c3ce09d665b7ef3"
     }
   },
   {
@@ -779,7 +779,7 @@
     "identification": "Retail Fire event wrapper at RVA 0x29d950, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "9cfca6de065938948e690ad5438dfd088a83f4ebcaa0571268dbe7ac2c311b0c",
-      "inputs_sha256": "3c3f8787d514ab158bde764ed86f404840b031ad55db8829766ac87d93df8e6c"
+      "inputs_sha256": "30917d7f0642606165b392e7e5b37bffcbe5993e868731be95e5fcab4e8ff47d"
     }
   },
   {
@@ -806,7 +806,7 @@
     "identification": "Retail SendThrownOject event wrapper at RVA 0x29d970, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPattern.SendThrownOject with Actor Obj at serial offset 0xc5a85.",
     "match": {
       "bytes_sha256": "1ff49deeba3dddc3789edea982ad2c9d9c86640da72acfdf78d8454631920e28",
-      "inputs_sha256": "6fbb50d19623fd2258ebf7e3e1da90b7c6eb86305bfb980abeae4769471cc37b"
+      "inputs_sha256": "7853522f78a2ea7ac4fb360599a4cefdb790491bbc20cbf0a1637260ce4af791"
     }
   },
   {
@@ -833,7 +833,7 @@
     "identification": "Retail PostSwitchTransition event wrapper at RVA 0x29d9a0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "8ffe3eca4d0833a6b6180c74d8a416aae9ea305257303b4789202d3fdeb94dcd",
-      "inputs_sha256": "eb623728d46c406dd470ce80d6f7fd6854a82256691a984b849017ebfc3a1ef8"
+      "inputs_sha256": "752439a0d1d6717aeadb21c53dac2e110aa6f3c193bd679920d86f69efaadfee"
     }
   },
   {
@@ -860,7 +860,7 @@
     "identification": "Retail NotifyEnterDoorRadius event wrapper at RVA 0x29d9c0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPattern.NotifyEnterDoorRadius at serial offset 0xc55e6.",
     "match": {
       "bytes_sha256": "1f8803bdccc922ebfd5d780f31a65a66dd29736cacde863d6cb196d8ea4177c6",
-      "inputs_sha256": "bca7dac2c748851547ad6c310802bb1b62de22a7ef69ad7bd8e848d9a0e92a1e"
+      "inputs_sha256": "6a6d8a06cccd44d2b90944c1e8337411d7c7dff7c31680fa0ba6f09533b07f76"
     }
   },
   {
@@ -887,7 +887,7 @@
     "identification": "Retail NotifyFlareLightOut event wrapper at RVA 0x29d9f0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "2c6d9565922203889580307fa6c0b6b18be93b03b3ad21db51bf906e564f1be7",
-      "inputs_sha256": "d7d94d1f0cbc37e4529771442054fc210c3a66a7a8e4e5673598335be359f5b2"
+      "inputs_sha256": "027418246cd42bcfae2ba6b7b0a870920c6988605285f02f2fcff5825175e54a"
     }
   },
   {
@@ -914,7 +914,7 @@
     "identification": "Retail IsSuspicious event wrapper at RVA 0x29da10, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPattern.IsSuspicious with Bool ReturnValue at serial offset 0xc552e.",
     "match": {
       "bytes_sha256": "3fc875219f9fe124f8826076f690f08cbcee627e503b58b857ef73842a5ec21a",
-      "inputs_sha256": "3fb9cdd0e2b21fb93cd1c04a20fa7cf92f495e6d665ff8015c1b6bac859cb56a"
+      "inputs_sha256": "0d8e8100e44ee13e6b77d0eb40cdd614bb297a6c6598f9e87399c60366104d54"
     }
   },
   {
@@ -941,7 +941,7 @@
     "identification": "Retail SelectWeapon event wrapper at RVA 0x29da60, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.SelectWeapon with Bool bSelectOneHanded at serial offset 0x96b4f.",
     "match": {
       "bytes_sha256": "91a95657ffce59246e02b1a5826c47b7bf2589840313d32e371bff74b8a2f5af",
-      "inputs_sha256": "dc8f84750aade36b98f13c8a117128503341ff793354879c4ce416b491986f90"
+      "inputs_sha256": "bbf2cc2d540bb94282ff615530abe53de7b69927fb442d1de6bb69548919fe75"
     }
   },
   {
@@ -968,7 +968,7 @@
     "identification": "Retail CheckForSettingOffFeetIK event wrapper at RVA 0x29da90, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.CheckForSettingOffFeetIK with Bool ReturnValue at serial offset 0x854ec.",
     "match": {
       "bytes_sha256": "5c999fd0d8042d32dc5e10e8fd92a12f2dbf832ea94d205df75592c2ae7364c8",
-      "inputs_sha256": "43f2264532b95ddaa0cd5f0834f97c08426897b4d134ff6a820875b577ddf8df"
+      "inputs_sha256": "1effb82eab16d7dc02c13778e2a2ed92b21b32039a14a167caec1d1ccec46a89"
     }
   },
   {
@@ -995,7 +995,7 @@
     "identification": "Retail Clear event wrapper at RVA 0x29daf0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "5db3e9a1f08b421f19e7d2607ff46b465e94afe4267792d8282f5a78da73d12c",
-      "inputs_sha256": "d5bdb9994a54fdb9be922815ecb896e166704786b5137b09c7cab7fc3fa4ea08"
+      "inputs_sha256": "efc4c3b331a0d5b14ca4a135f210719252291343ac49b4729be339111f047cb6"
     }
   },
   {
@@ -1066,7 +1066,7 @@
     "identification": "Class registration for AEAIController at RVA 0x29de70, called immediately after the class factory at RVA 0x2b9be0 in the singleton initialization path. Sets superclass AAIController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9cf456efd5b2df234c10a8d5f9b0c21fca158b2f52296d23aa8fda28f8271f81",
-      "inputs_sha256": "e3ec0b5a444a082c56213a82e0cc0dbf7ab635330d4fc782dd5403974b141ff4"
+      "inputs_sha256": "601fe7dcd6eafe2c93cb909b3733f618f15f894f6538019facdbc33f14bab367"
     }
   },
   {
@@ -1121,7 +1121,7 @@
     "identification": "Class registration for UETrainingData at RVA 0x29df80, called immediately after the class factory at RVA 0x2b21a0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "37e183aedd88a4390674c35f7195eb79a7b06804baee12d03ef23f1b3f5f1b91",
-      "inputs_sha256": "79da0fba16df159333954bfd6a662915567a89bd3caeb4a3ffa4654e629931f4"
+      "inputs_sha256": "1f5db7f4f0ac754ab79356c764bdb6a08a9a45413f8dfa5f0ab9eb57ddd949aa"
     }
   }
 ]

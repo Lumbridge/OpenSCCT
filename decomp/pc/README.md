@@ -57,11 +57,10 @@ The campaign experiment reproduced three retail bytes under two different compil
 
 From the repository root, pass the installed game directory to the verifier.
 Pass the x86 compiler paths for MSVC 19.44.35229.0 and Visual C++ Toolkit 2003
-13.10.3052, and the Clang 19.1.0 executable for the EAX-based Versus actor
-initializers. Each manifest records the compiler revision and target.
+13.10.3052. Each manifest records the compiler revision and target.
 
 ```powershell
-python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl --clang $clang19
+python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl
 ```
 
 The verifier checks each complete retail SHA-256 and each source receipt,

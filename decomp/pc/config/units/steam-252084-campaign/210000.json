@@ -27,7 +27,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2103b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x21097b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "ae8e5593c367f36f88e76376b437ccb82ecdc4b1213d5f03c26e5dc07eb6c083",
-      "inputs_sha256": "f9f5d46b648f429e89f71ba0f65b2d76777d92083a09eac04bb76ec2b74fad1b"
+      "inputs_sha256": "e5599ee123a488af0393dd4fd4151138c52e8e3e4d9e00a912fe14f16d5e278b"
     }
   },
   {
@@ -55,7 +55,7 @@
     },
     "match": {
       "bytes_sha256": "09fade72784b6ea4dd96480f6b029b75b4f8d92c1876f7ea436b60c5d8891b5e",
-      "inputs_sha256": "805d158830938b7d6ff18e324b32baa255ca31379265d63e91c6d091758cf0fe"
+      "inputs_sha256": "36f6f9d1d40fc75457ecb104177cd8b8dff2a4b1c2c3917f1e8f5ecd58a9f745"
     }
   },
   {
@@ -126,7 +126,7 @@
     "identification": "Class registration for USCMagmaInteractionMPGame at RVA 0x21fe40, called immediately after the class factory at RVA 0x2206f0 in the singleton initialization path. Sets superclass USCMagmaInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "8a1bbbd22e738c26606459c252f75a8a77813f44d131a442898a69750e38a21c",
-      "inputs_sha256": "e4e76da7b40c940bc9f53e4284fc400c49a8c5bab791cf4e26a2b6022893008a"
+      "inputs_sha256": "00756226a8b07157c6bb89f91d1b8d45113d4acb69eb6322b24c45a5d7c264dc"
     }
   }
 ]

@@ -18,7 +18,7 @@
     "identification": "Placement callback passed to the UTextureStreamer class factory at RVA 0x1b0a80. The callback at RVA 0x1b0a70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "7ca79960e4f6a316fa1f30dba7caf091e59c85a57d2b6b929168cff40f7990a1",
-      "inputs_sha256": "47918e484ea0769efe400c90c8f7baa31cbcd275e96ffd6f13ee8bb1fde533a6"
+      "inputs_sha256": "7c6910e9f5267baa2af476dad8b7664eccd791fbb7066a9d54429d4fdf6a884a"
     }
   },
   {
@@ -60,7 +60,7 @@
     "identification": "Native class factory at RVA 0x1b0a80; its allocation tag and reflected class name identify UTextureStreamer. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d82926cfb9c9e4e7f725d79483faa87c793b6e1c7a46af5e5807e1e78c3c8a5b",
-      "inputs_sha256": "9e18bbd21d55414dda7f00072ab12205c35a0dde8bd554382c0086d32c2eed92"
+      "inputs_sha256": "228dcc001403cf79354e7fc7d63bd59269deec29d05e5584ea2c8ab87d3d73de"
     }
   },
   {
@@ -91,7 +91,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1b5780, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1b63bb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0b7fe02c59e5cc541c5d44769ba380768ca6b498a9fe701b1917afe0dd6d65d4",
-      "inputs_sha256": "c669224c3f81f5805dfd4a5eb3450803d841730af7071caf2735a6de30cbf532"
+      "inputs_sha256": "7a116327229627062ff4a6b8bf7c7339454f0ce34bea0424b249c3378f667f03"
     }
   },
   {
@@ -122,7 +122,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1b6ad0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1b6c6b, 0x7b0d9f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d85833bc5799b7ebeca07abefac2a6738fef09f4bcb78ae8a6823d034967eead",
-      "inputs_sha256": "21a9ffb04a3abd15589a55e284d551aede9070d915a59f9024511febc76369e8"
+      "inputs_sha256": "9016293d4997e2e86327d9ba4f77f7bc5e37cd0842b6adb0eb6f0e8284f540b3"
     }
   },
   {
@@ -153,7 +153,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1b8e90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1b96ab. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "8f957773387e6b8e9510402d207a1bd98a7bd31d499b4a8ec0c80139d10f04eb",
-      "inputs_sha256": "bb1d3d516207adc4f8366ff69860cb212d944b22d3c60edd36a5ee16f88deb17"
+      "inputs_sha256": "eacf656bde44acdcf3687422f88c79fa77e4b9800b87b7b1f494266437e3776d"
     }
   },
   {
@@ -184,7 +184,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1b8f20, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1b96eb, 0x1bbcc0. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "28981c25c7e733eb2abaff815e4bd24fc38adb175b3eb5ae5d567b638146bea5",
-      "inputs_sha256": "357ffdaf055850c2f352ff0b04fb4fb46a62e4a03c4961d462480c50c10180c7"
+      "inputs_sha256": "12b9b81dc197f3fb8dfd544a1cbcc38d511b571b4c00116b205be86df6c736e0"
     }
   },
   {
@@ -215,7 +215,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1b8fb0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1b972b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9a86fb6da354b3cb7a5d75fda02e584f5528882c0798789aba096f3a0070b688",
-      "inputs_sha256": "4f9b693f2bf07c341303e69d71a0c2fe156195e66325f98277e8bc0667821a2e"
+      "inputs_sha256": "d98911087b89a3530c7a66d1f6a4a1d4ce305856d3f0d85e761fb21bf7ba62f8"
     }
   },
   {
@@ -249,7 +249,7 @@
     "identification": "Typed cast at campaign RVA 0x1bf560, directly called at RVA 0x1bff57. Its class constructor at RVA 0x1750b0 identifies AERainVolume; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "5ba474524c7fa492f447cc3e58de2f50457f4883d8ac809732a2311340309a7d",
-      "inputs_sha256": "9907b6fb40150a1cc67076c5fdc21a9358d8b46762a968d6ad9d3d3f8524d331"
+      "inputs_sha256": "1f7a804985c6f8a1f8b57b6605d65642a73d76b19a1fbe11324cad59644e8024"
     }
   }
 ]

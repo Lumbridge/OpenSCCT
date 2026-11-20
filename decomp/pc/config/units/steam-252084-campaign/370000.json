@@ -30,7 +30,7 @@
     },
     "match": {
       "bytes_sha256": "609d80dffe01e10801ffa15a16fda2eb2927853d36bc12aac6d9ef1e0d82b9aa",
-      "inputs_sha256": "b530651c8b689a37d9494ef51e61a5d8015dffe73f3add706501682be6aaab10"
+      "inputs_sha256": "e2925cd4c8ad435cce466259605aa11d9b2c1797c708c40907327305aaeb05f3"
     }
   },
   {
@@ -56,7 +56,7 @@
     "identification": "Placement callback passed to the AEUAVDrone class factory at RVA 0x370a10. The callback at RVA 0x3709d0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c2b03b6576b87da0298f241e82ca71f9b784aa9f076569e5f2aadf12b901cdd3",
-      "inputs_sha256": "afda40e530a85ee8709f5078fef819368e26e8fe0a7e4bdf75495c3d9c230285"
+      "inputs_sha256": "df56ad1f8ba65b8a82897778f53bd8dd93ddb7e6b24474817b5ee798a31ff51d"
     }
   },
   {
@@ -98,7 +98,7 @@
     "identification": "Native class factory at RVA 0x370a10; its allocation tag and reflected class name identify AEUAVDrone. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "976f7cde0158517241ca3ad17bc784349fae5ac3183cdde3c8783aac5cf0d8c7",
-      "inputs_sha256": "caf048ca6a6dafd3c4735203283342c35c3ac3892bb0932a722850f21ab09834"
+      "inputs_sha256": "7c9daf311af7ccc10f1c21a7b98a9b742722a8496debe1554315ec4113ada9f2"
     }
   },
   {
@@ -169,7 +169,7 @@
     "identification": "Class registration for UESBCustom at RVA 0x371540, called immediately after the class factory at RVA 0x3745f0 in the singleton initialization path. Sets superclass UESoftBody, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "feb2859e2b73d5e5a9a47e681e9f94983900fbd38bbfcee8d0f98fd9b519db55",
-      "inputs_sha256": "115dcdcdbb5492342878f5bc1aa61b57181710e61304f2867a2f9b615f72f0e9"
+      "inputs_sha256": "1954a4e84d81c778a7b794a9ed6c6f18a9b0162edae33ab65e742277e98b595b"
     }
   },
   {
@@ -200,7 +200,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x372380, including RET. Incoming transfer decoded within analyzed function code at RVA 0x37407b, 0x374446. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d7fc06c51432b9f55dec465416fd63eeda65b3c94952a09425c6902b01f1a07d",
-      "inputs_sha256": "cf48fb96b3fb2338103092a878d8dcaebff75beb14b7011592d2ca398424793c"
+      "inputs_sha256": "67a4105a3718450fbb96d8e2b5b7c47e825db57163a012cafd2e89847475d5c2"
     }
   },
   {
@@ -231,7 +231,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x372410, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3740bb, 0x374415. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "327dd45df3641d69c8ac81975b62056a172626fcbe0911fb857800f275f2d91c",
-      "inputs_sha256": "5897f304573ca9e8d14b8f475cc688b869faf3d7ef8a9e80c561fb069ef7fb10"
+      "inputs_sha256": "2fd60d9942b62da75bfde2ff896d6e9d5cd3f88203ec8beabb57896140ffe52b"
     }
   },
   {
@@ -262,7 +262,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x3724a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x373bbb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "6f7b3a71c151d10a0d92643ce7936f8a70809fd01d21f84eafb75157a5cedc64",
-      "inputs_sha256": "5c22f8e274a79c8ae3901749d2c13ee7c18d0cef294b2070e7ac45fc420a57e3"
+      "inputs_sha256": "8e717cb342cab84d864ee47bb0c1cc92d76eea0fac15c95b99df454205ed790f"
     }
   },
   {
@@ -293,7 +293,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x372530, including RET. Incoming transfer decoded within analyzed function code at RVA 0x37413b, 0x3743b5. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "668b1a71c1a28558a41e75de835e8a9ba455a8e33c772c4ef6fb92f02cd6cae9",
-      "inputs_sha256": "8cff09b7421f3bdbc3301b5f3d26a28c4d832f3888d81b55ec09a92acf766471"
+      "inputs_sha256": "928fdd2313c7c833a060bf62b14d5570426fa761b55b216fcb8c2fa0d46943ae"
     }
   },
   {
@@ -315,7 +315,7 @@
     "identification": "Placement callback passed to the UESBCustom class factory at RVA 0x3745f0. The callback at RVA 0x3745e0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "a5b4e3fa375de1ccf1d0437d1e0412a2627ecdcc511c5952eca004bc50a39f38",
-      "inputs_sha256": "fc7c12c8a21f107212be5f90f3df113d7576c74440b2db8f733e6917c0151e3f"
+      "inputs_sha256": "acf086de5cec8ca741c5d9802ce9d7a96c4c8a3e3535c87d3a7cfd0762067935"
     }
   },
   {
@@ -357,7 +357,7 @@
     "identification": "Native class factory at RVA 0x3745f0; its allocation tag and reflected class name identify UESBCustom. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "71f8f9df96282f1b98cdf52f93d2a6d29ca07c45d1908e0e0182b98773c8fc62",
-      "inputs_sha256": "0b18e0c5c50be7af1ad7887f7425512ab51edc589a134d844605fabc434922b7"
+      "inputs_sha256": "50c6f9fb482bba0007464f38c5fc4f6e0f0faf50e81e6a727f53566403c04fd5"
     }
   },
   {
@@ -428,7 +428,7 @@
     "identification": "Class registration for UESBPatch at RVA 0x374730, called immediately after the class factory at RVA 0x378880 in the singleton initialization path. Sets superclass UESoftBody, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "aa02f5b8e57273229e45e5268b9ac68770e077ee714da33a0e3866723bae7a0a",
-      "inputs_sha256": "0f8612469d5233708e8e032a6008b5b4beaa76012cda84013d87ffd900ac6b3c"
+      "inputs_sha256": "574f0f80f4b4b1110b96f9ad20e047c5f5fd842b84e450b9865e73fa05df0b98"
     }
   },
   {
@@ -450,7 +450,7 @@
     "identification": "Placement callback passed to the UESBPatch class factory at RVA 0x378880. The callback at RVA 0x378870 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "e387f1df9d779ddfac3337715bc898104d8dbddd9814995d007abe86fabbbf89",
-      "inputs_sha256": "a67f3214a0cff88ee62eb5964e98c3ce2a5e8e9be431fe70e38442b66103bb7c"
+      "inputs_sha256": "655a57e058cfe78eb3bbabc8115da076e7fd7f1d900e35e7b3df6682eea4e102"
     }
   },
   {
@@ -492,7 +492,7 @@
     "identification": "Native class factory at RVA 0x378880; its allocation tag and reflected class name identify UESBPatch. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "7c23b720ca45bde2fafcc409ad3a7cea856e6f5fb4f2fc1132e498e24e910d60",
-      "inputs_sha256": "ad60df0f338fb532c6e6c4904ccf755a13849b77c9cf08737051a080bbb2a052"
+      "inputs_sha256": "d395759fa94ba2dd68ba17e7879b0f446494f3fa524011075fb07e61756f69a4"
     }
   },
   {
@@ -563,7 +563,7 @@
     "identification": "Class registration for UESBStripDoor at RVA 0x378910, called immediately after the class factory at RVA 0x37aed0 in the singleton initialization path. Sets superclass UESBPatch, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6e8595e46bd0e4e1dd4dcfa52b1ce82663143c297a9ad598eac03e638d9e2784",
-      "inputs_sha256": "188f8801a34473c421d16481dcb525ec3b99561a11286d249a6790be9ae13f89"
+      "inputs_sha256": "8bfd8cb6450cae88315a72ccc4183ac52ea35045683ae940e723e3d01b1f61ef"
     }
   },
   {
@@ -597,7 +597,7 @@
     },
     "match": {
       "bytes_sha256": "34cf8f5f1fa660bf6554c56791ccabf47e87a0b1b337b232654847e69dbe7181",
-      "inputs_sha256": "4396073cbc8fe796ac9ac6a66b50adc414d1479357de806802035908694f1367"
+      "inputs_sha256": "fb10e919142e8d8763b4f44ab677ea0104fec9ec46e674cecbb40b42c056b67e"
     }
   },
   {
@@ -623,7 +623,7 @@
     "identification": "Placement callback passed to the UESBStripDoor class factory at RVA 0x37aed0. The callback at RVA 0x37aeb0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5f9d3b4c0af3283059fd259a909df84840eb55a8f719653ea49b65a20da4a09f",
-      "inputs_sha256": "05b98fef5ca4a268a641fa97f41839eb9b4b708b3847e759cd4aa388f8f5548b"
+      "inputs_sha256": "9a8f53ed8279d13800d142a54de8c4c6c90041dc7aa7ed04d2557d0cd828f3aa"
     }
   },
   {
@@ -665,7 +665,7 @@
     "identification": "Native class factory at RVA 0x37aed0; its allocation tag and reflected class name identify UESBStripDoor. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "b5b7c1e31a1c4407dca3753272ed19f02cca7be717a6e0191bad7c0113c91ab6",
-      "inputs_sha256": "e1f54e31a2ae3547eb9a55e90e847ed4370b449cdbb9387b92283a48d3d55094"
+      "inputs_sha256": "509c180bccd469946c791720acabc6124b90a68aec5a7ce3b88bef81b60d4c7f"
     }
   },
   {
@@ -736,7 +736,7 @@
     "identification": "Class registration for UESBRope at RVA 0x37b010, called immediately after the class factory at RVA 0x37d420 in the singleton initialization path. Sets superclass UESoftBody, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "45bb4b275cc4737e7995db8014194c1d081ea424c01670e865dd5fa60f59f52f",
-      "inputs_sha256": "ecc78aa2cefa184a9daec6903f7d777b1d9aded3f1939b89f72862944bdc99b8"
+      "inputs_sha256": "dfda77ed5185227009f2a900aabb6a4cb09358c33cccf20dc10b083668ca2704"
     }
   },
   {
@@ -758,7 +758,7 @@
     "identification": "Placement callback passed to the UESBRope class factory at RVA 0x37d420. The callback at RVA 0x37d410 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "e7e53374e13e520b5cbbd882018fbdf54e6486b9d4c99b487fb0d8d001ffc4a6",
-      "inputs_sha256": "1e7514b95b24a7ac360d81da6fec88f6cb73df7ff4be9420d3c02c5ce0831244"
+      "inputs_sha256": "50c64c95e8b820611b2e0d5a9b0e0d18f94bc5b457758eef90b3c6a825726333"
     }
   },
   {
@@ -800,7 +800,7 @@
     "identification": "Native class factory at RVA 0x37d420; its allocation tag and reflected class name identify UESBRope. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "32c896925e30a6d5037df0ef6557a31b2a9a5ee49059a8f496b272961a4b0f98",
-      "inputs_sha256": "0662a154794f7da11c9a76c3cdbee89d44a73ef03805e2110101ca2384a8f260"
+      "inputs_sha256": "c3f662203f146f6329a9c92f2673d298f1edf964c8191865b79adffa566fcd7e"
     }
   },
   {
@@ -871,7 +871,7 @@
     "identification": "Class registration for UESBRopeClimb at RVA 0x37d4b0, called immediately after the class factory at RVA 0x37e8e0 in the singleton initialization path. Sets superclass UESBRope, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "dc6b3722b2c45d494b0eb20eeacaba1ef959b389111dbb2b8b4747c16e591895",
-      "inputs_sha256": "ec9515e66229b6d9b121bf0cc726334acc336d100a3a7df01057ecd6d0a68495"
+      "inputs_sha256": "dd30395a78a6d38b0e943ae92101080f1d40a802c088f1ebfc2445f885087f10"
     }
   },
   {
@@ -905,7 +905,7 @@
     },
     "match": {
       "bytes_sha256": "93dbf2e63c3f848e2572c24e213bd9ff880b0c37ae35ff532eb5a68e51281b9c",
-      "inputs_sha256": "1680bef245f1bbe2ccb2e0b334655c4513e1ba013ccd52e9760838876f7856a5"
+      "inputs_sha256": "1fe2e39d4eefd2ede0e2b3e1c2fe1ab6e82bcb9cd2fefdde90610f3a773fd4b8"
     }
   },
   {
@@ -931,7 +931,7 @@
     "identification": "Placement callback passed to the UESBRopeClimb class factory at RVA 0x37e8e0. The callback at RVA 0x37e8c0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "32824e1319b7d64b84253bd446984e4840cbf3079a9fa7fe2b968c1dd0d51bc4",
-      "inputs_sha256": "d54300f864a44a45abba7dbb9f64ec8f2cc0b1bbd1417359caeee0c1a3917760"
+      "inputs_sha256": "3036e68dbd26c74e254a85ed32cc287e11342d2aa600f400a7346a24384cdc49"
     }
   },
   {
@@ -973,7 +973,7 @@
     "identification": "Native class factory at RVA 0x37e8e0; its allocation tag and reflected class name identify UESBRopeClimb. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d4622e3dfe9eeda13bb1dbe0dc483c6c5754c9bd4d84066f15a83dbebc8f1320",
-      "inputs_sha256": "7da75215a8623aefcb4dbf245d0a7d90baa286edae7df777ccfd61011ce6abe6"
+      "inputs_sha256": "906601811768316fb47cb741113e458bdce07b0d6c947bc43729d37300b0ffdf"
     }
   },
   {
@@ -1044,7 +1044,7 @@
     "identification": "Class registration for UESBChain at RVA 0x37e970, called immediately after the class factory at RVA 0x37f270 in the singleton initialization path. Sets superclass UESBRope, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "28dcd55d27f1f4d224296d0b880f883ec45b3e20033bcd9a0afe5703a8631f33",
-      "inputs_sha256": "1e8ad00ed5ab05263d5a8bd56dca06c764968e4c5a98851fc59bf80259601a48"
+      "inputs_sha256": "c44850e1855c0d363a05a32298cf00ce92d9be81fd1d6c148325247f38864147"
     }
   },
   {
@@ -1078,7 +1078,7 @@
     },
     "match": {
       "bytes_sha256": "ed05b10accdc660bc6e5f9ee795906e438ebc0f13ad6a5ff712aa743f79c30e6",
-      "inputs_sha256": "1bae68c586e01aa9a25bf985a69e7bed8296cb5f70d3e65dfde77b49f4ae45a9"
+      "inputs_sha256": "1c2c85416756951d6f0b6feb457b8f7605258d74bae9a29e34ddfe435a518673"
     }
   },
   {
@@ -1104,7 +1104,7 @@
     "identification": "Placement callback passed to the UESBChain class factory at RVA 0x37f270. The callback at RVA 0x37f250 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c3dd1edc3d724acda5707632e614caa6b3c58c1702420bdf2114dfaf5a3008fb",
-      "inputs_sha256": "4f69ce5bff17c5811f323e676ee1d5beaeb718610392253442500c84d6a4b28d"
+      "inputs_sha256": "27c2b7bf0766be4b20bc8771d775742c267f4938bd31b3c463eae229c8cba45d"
     }
   },
   {
@@ -1146,7 +1146,7 @@
     "identification": "Native class factory at RVA 0x37f270; its allocation tag and reflected class name identify UESBChain. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "36342ec2745c14194d59d0be6a22e70bbc92ab6de2ed58f285040bf17518cc14",
-      "inputs_sha256": "8f9bdaf2f6b22de2098166de0b9e7fd0f7af971dcf1d5f57834450a8eb08f8d2"
+      "inputs_sha256": "6eb6caf38eaff7415220602bba1cdf6666b565590745820eef9ca9cdbeafe301"
     }
   }
 ]

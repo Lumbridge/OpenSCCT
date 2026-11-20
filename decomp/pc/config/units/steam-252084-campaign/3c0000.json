@@ -67,7 +67,7 @@
     "identification": "Class registration for UWindowsClient at RVA 0x3c0a90, called immediately after the class factory at RVA 0x3c1460 in the singleton initialization path. Sets superclass UClient, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "d37ab2384080fa8881f9cb1002b6b7cf3318a4e5db2b714ca506e007e383449f",
-      "inputs_sha256": "4db1774bc69b0d7554664663666ca4db40142ef2902bc6dd8cf1edc6b829fc60"
+      "inputs_sha256": "9c1bdeef81b3691d826c9bd5002beaae39b1751f8d5c7f8ba22931eb2ee718eb"
     }
   },
   {
@@ -89,7 +89,7 @@
     "identification": "Placement callback passed to the UWindowsClient class factory at RVA 0x3c1460. The callback at RVA 0x3c1450 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c61d93e197ad1251363c7a4207a5cbb347878c590f3a7d3bbb046dc9f8384c14",
-      "inputs_sha256": "e1461574422b4a9c613c13de60a0fc524eabf7f6d540aabd6c2cd4b6a428f091"
+      "inputs_sha256": "53dcb83a3b52b023a075feda73bc31ba19c9eae50daffa292258094965c6eecc"
     }
   },
   {
@@ -131,7 +131,7 @@
     "identification": "Native class factory at RVA 0x3c1460; its allocation tag and reflected class name identify UWindowsClient. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "b25bc41a2cda18d6efb03ae32fdb307e165e69419428ff62b7e1484d333dd56c",
-      "inputs_sha256": "acd42609b94a9541cc0272e2dd9aa18988876f9cb8c11be1feacb675ea30b51a"
+      "inputs_sha256": "dfa91fae3ba3ae69c38595bae04c0dcddc1d7ac573e3b7e0455b19d49717620a"
     }
   },
   {
@@ -206,7 +206,7 @@
     "identification": "Class registration for UWindowsViewport at RVA 0x3c1e40, called immediately after the class factory at RVA 0x3c71d0 in the singleton initialization path. Sets superclass UViewport, within-class UWindowsClient, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0264053db0d09a7006ea4989069f7454af99a163138d3f431656304a79d2400f",
-      "inputs_sha256": "eac614cd9543e1ed7e03d7b245857640598ab129d2e2e8fa8345de19ebdf64bd"
+      "inputs_sha256": "86b884298c61556503c236e924723623f68746b25d5b97021065d7f47c397e46"
     }
   },
   {
@@ -248,7 +248,7 @@
     "identification": "Native class factory at RVA 0x3c71d0; its allocation tag and reflected class name identify UWindowsViewport. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "ec7be03539c81aefb4607efeeb4a63b78adffc700ded7cf819d2d0914778db6e",
-      "inputs_sha256": "b204ab1310534fa15204b6a48453a53d0dd3252fcc03cfcee42f609f3e0ed9ea"
+      "inputs_sha256": "4f897aa988130ef1aaa5470bb913dcdd6a11cd8856f02d8bf90f41ba81d5ce99"
     }
   },
   {
@@ -319,7 +319,7 @@
     "identification": "Class registration for UWinJoystickMgr at RVA 0x3c73c0, called immediately after the class factory at RVA 0x3c87e0 in the singleton initialization path. Sets superclass UObject, within-class UWindowsClient, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f6ce32a18bf970b69c5b3096631148a20f243e17a4832da7c9315b0de00d83a0",
-      "inputs_sha256": "6004cfa8fa6ee095df115949ab774ddda0101517bd291ea9818745895ffbdd2b"
+      "inputs_sha256": "5aed4018a6bbc89b282d28e98ce23d9a99872dd873df96164537e0a5e9028afd"
     }
   },
   {
@@ -350,7 +350,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x3c7880, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3c84c1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "5b4cf8f1d9b40258e1cc1ea1df79f5200397719b859d4047856bfddba6257ed5",
-      "inputs_sha256": "0093cd9385ff3858e13e992e96d1a01094955d0f7a36545ca784234be9e22b77"
+      "inputs_sha256": "e8183a38756ad05b718d0040c0ae258216c3ff0e6b02bac64f0f4247762b7ffe"
     }
   },
   {
@@ -372,7 +372,7 @@
     "identification": "Placement callback passed to the UWinJoystickMgr class factory at RVA 0x3c87e0. The callback at RVA 0x3c8790 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "e7e53374e13e520b5cbbd882018fbdf54e6486b9d4c99b487fb0d8d001ffc4a6",
-      "inputs_sha256": "860942ad348eb61ac0874edd72f55dceac4304abdaa04a1cd5a3492f36160286"
+      "inputs_sha256": "05edad63e3274bcb0173e50586b63ab7844ebdfb51f25dbbe7eafbdc7c220f1a"
     }
   },
   {
@@ -414,7 +414,7 @@
     "identification": "Native class factory at RVA 0x3c87e0; its allocation tag and reflected class name identify UWinJoystickMgr. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "31b1a296b86870a782d8dec0a7fba5104b29cf90190ce5ba1dcc7d57b87e5eb6",
-      "inputs_sha256": "dab639cebb850433fe175c49d1d41aa3360198c6b9bd2f1199f3b47163fa6cc2"
+      "inputs_sha256": "65c1811ce3505ae5b64e4a8e1147eb66d77980db034bd2abd23d273cd16ea455"
     }
   },
   {
@@ -445,7 +445,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x3ca790, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3caa5e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "ecab9fe36a03cd8fe59588df173904236954c1fd725c6b38d0535866a33ea353",
-      "inputs_sha256": "23e027348cec81f15ad6eff744b3bc36c87f2c7c7556fa9f20bb4da30c7f3070"
+      "inputs_sha256": "e2e000f36f193676ad1d71b0b627713232bc5cadfb185827b70fdb20486233b7"
     }
   },
   {
@@ -476,7 +476,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x3cdef0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3cf3ec. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "94aa3243a07c9e2fd41813ec1266574e499c454923f966a5c0e0fedff6f0fef4",
-      "inputs_sha256": "f1cdff1e2b312f443bf304215409a32318bfc12e0df2be6bf83fa64e1eefb012"
+      "inputs_sha256": "8442b44b49cd54a513d066d281437251e12a9d8b516774c0f1675422a5555201"
     }
   }
 ]

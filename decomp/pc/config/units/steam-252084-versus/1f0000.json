@@ -7,8 +7,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASRJ45Checker",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASRJ45Checker::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c460. The registry call at RVA 0x1ece1e passes its placement callback at RVA 0x1f0060 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb1f8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -22,7 +22,7 @@
     },
     "match": {
       "bytes_sha256": "710ffda6edc452e7d73dfc7b621f9b58120b2335a985e58ec3baab50b39f289d",
-      "inputs_sha256": "2ce6471cd3624c3c04aa35739a22228ba6d9ac6b74b57924d188b08675dedb14"
+      "inputs_sha256": "126848c073ffb3b976412d7ea8e1201f3882ef8cc4b9e49a9db31535112f590e"
     }
   },
   {
@@ -48,7 +48,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a3046a27c74f5567b0c1e3de24be9d9b421594ab9c5e073f4b9f996f88badfb0"
+      "inputs_sha256": "2330ca8f61dbcd3d648772efda78c47c492267ef57059289dd33c7fa03322ccf"
     }
   },
   {
@@ -59,8 +59,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjSmoke",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjSmoke::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a278. The registry call at RVA 0x1ecdc6 passes its placement callback at RVA 0x1f0120 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2faf68.",
     "link_bindings": {
       "_initialize_actor": {
@@ -74,7 +74,7 @@
     },
     "match": {
       "bytes_sha256": "a0781084f1637c9dd8f3bf31dd9236879fdff5060dbc32c7608023784c10c026",
-      "inputs_sha256": "7d34cd779b8e8b3d55d52364dda70bc2f77f100c2898abca94241539ea839fb3"
+      "inputs_sha256": "f6268978b19b276832aeed6a75093746ab2cad5f820c302bb5699045970b34d9"
     }
   },
   {
@@ -85,8 +85,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjPhospho",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjPhospho::PrivateStaticClass identifies the stock UClass instance at RVA 0x399f30. The registry call at RVA 0x1ecd6e passes its placement callback at RVA 0x1f0280 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fae20.",
     "link_bindings": {
       "_initialize_actor": {
@@ -100,7 +100,7 @@
     },
     "match": {
       "bytes_sha256": "2cbd86f48db0929760062325495b21de531c6b6ef10739c3dd3f744423961862",
-      "inputs_sha256": "829904856d283cc17839f1dbf7c3f530852c00d91f30c93a5c9509390aba7092"
+      "inputs_sha256": "f3e6e4f8d3c128cff4c1955bf1643e02482eee11e8d962c4d5e0b68f69d53c85"
     }
   },
   {
@@ -111,8 +111,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjMarqueurSpy",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjMarqueurSpy::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1440. The registry call at RVA 0x1ecd16 passes its placement callback at RVA 0x1f0340 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2face8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -126,7 +126,7 @@
     },
     "match": {
       "bytes_sha256": "1a4f5cfd4e635ef86df9f4c8a84a3c9a58a43c7194c5481a2e6e94bca16e36bc",
-      "inputs_sha256": "983798442ec197ec9f8ed8d383f074ed4c2918f166f032c8f78430e853a0133e"
+      "inputs_sha256": "1a53ec6a6f8f91cc7425aa4cedf82e8b9e7dec2a3f357413c24e5d555b6adfe6"
     }
   },
   {
@@ -137,8 +137,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjGrenade",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjGrenade::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c118. The registry call at RVA 0x1eccbe passes its placement callback at RVA 0x1f0410 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb0b0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -152,7 +152,7 @@
     },
     "match": {
       "bytes_sha256": "8f1e9f2d1c3fdc440161efa68160eac62daae0303bc72df694e3ab6c844fbf69",
-      "inputs_sha256": "dcb4833a393d48c322931d6a3209bc16c7cc74ff1a4d50f7a13e4d91c36132af"
+      "inputs_sha256": "270b886a6e2fdc73be0fff0c9b87a3b1685b6aee442bb2eabb14fc5999831d5c"
     }
   },
   {
@@ -163,8 +163,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjFrag",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjFrag::PrivateStaticClass identifies the stock UClass instance at RVA 0x39caf0. The registry call at RVA 0x1ecc62 passes its placement callback at RVA 0x1f0430 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2faba0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -178,7 +178,7 @@
     },
     "match": {
       "bytes_sha256": "0f929b38b4a16afcda07b7d0ab00487eefa11847b85de2f385710b2d196ed2a5",
-      "inputs_sha256": "d5edac059de04104ba29cb945ec1cb9a8b20e0bb1ad779e29b60895c57317f14"
+      "inputs_sha256": "5b5016cd98b56a30e0378d46fc68dae15f2a92604faa0aabbfa4499596317184"
     }
   },
   {
@@ -189,8 +189,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjFlashBang",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjFlashBang::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c230. The registry call at RVA 0x1ecc0a passes its placement callback at RVA 0x1f04f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2faa58.",
     "link_bindings": {
       "_initialize_actor": {
@@ -204,7 +204,7 @@
     },
     "match": {
       "bytes_sha256": "3502bcbd69487dc581946ac5a7b32a1ae6c43d49b90caabcbff0f3af89184343",
-      "inputs_sha256": "585b253ee36a108c7f198d9dd8a8a5e8532863673eaee643d7077082dfe6ba7e"
+      "inputs_sha256": "88f3449f36faf7ae337a517d50864665158841618aa3de01abb863417088af0e"
     }
   },
   {
@@ -215,8 +215,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjFlare",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjFlare::PrivateStaticClass identifies the stock UClass instance at RVA 0x399440. The registry call at RVA 0x1ecbb2 passes its placement callback at RVA 0x1f05b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa910.",
     "link_bindings": {
       "_initialize_actor": {
@@ -230,7 +230,7 @@
     },
     "match": {
       "bytes_sha256": "64ee36dcb736b91d3f121c85d684ef5786aa286f0ff131e3f67cc8971b9b9ec2",
-      "inputs_sha256": "79edbb8b001bf5d2c77850a810136fe76f9095e4a73be98f243768666bde610e"
+      "inputs_sha256": "28097326dc8b31238927afff2264461082e7457db55eb615f46e86d84af794da"
     }
   },
   {
@@ -241,8 +241,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASProjChaffe",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASProjChaffe::PrivateStaticClass identifies the stock UClass instance at RVA 0x39aa20. The registry call at RVA 0x1ecb5a passes its placement callback at RVA 0x1f0670 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa7c8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -256,7 +256,7 @@
     },
     "match": {
       "bytes_sha256": "6670d2e2333c14543b9805d401933a6f156d89f6e8d06e75983d3337ac055be3",
-      "inputs_sha256": "e73bdde9eea4c7975ed2ffa0fc2204ff086fbb11119408723f2f488b46e45dbf"
+      "inputs_sha256": "017f34a401557495111164c95a1e8286cb0eb0ac7caaa13dc5f714690b3c2bbb"
     }
   },
   {
@@ -282,7 +282,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "3cb2c8b670330beb61bce81a561682496fb7cb039c60792d67230d1810758922"
+      "inputs_sha256": "d7430c864d5e9d370bce0a250185e4bebb007f7e28ac0fcab7ccaf9b6cf7851d"
     }
   },
   {
@@ -293,8 +293,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASPlayerCam",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASPlayerCam::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e650. The registry call at RVA 0x1ecaa6 passes its placement callback at RVA 0x1f0990 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa540.",
     "link_bindings": {
       "_initialize_actor": {
@@ -308,7 +308,7 @@
     },
     "match": {
       "bytes_sha256": "2523dda21eeda91d2de1182940f2bda5ada78dea2309e19eebae3baf04951b6b",
-      "inputs_sha256": "0994690be0dd238c19fce4f166d5a87647a9be8eecaf44001fc9b87a92d74621"
+      "inputs_sha256": "d71e3d46f8d357b9ce6953da18b20fa8229fe5a901c7e8343332e7952cec438a"
     }
   },
   {
@@ -334,7 +334,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "27141634549ad66ad58f5d0a93f349004018a37a400d108b9e93e0e7c6352640"
+      "inputs_sha256": "398c77d3c89abf264c68288b20691e74a46f1c31e8830799d51e7ff2050c34b7"
     }
   },
   {
@@ -345,8 +345,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASPickupInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASPickupInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b628. The registry call at RVA 0x1eca4e passes its placement callback at RVA 0x1f0a50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa400.",
     "link_bindings": {
       "_initialize_actor": {
@@ -360,7 +360,7 @@
     },
     "match": {
       "bytes_sha256": "27cc48eaaf9a062ba77e720cc5d537e080368c6c045610550a53acec6a944cf1",
-      "inputs_sha256": "d8913c5783ef7d66c6f1d762ec8a31788f7124a4f5465e667340714224256f00"
+      "inputs_sha256": "afaf947053e5f1c5d641689caa0bc31686e3a508655316eb7135cd1fb3dfa72e"
     }
   },
   {
@@ -386,7 +386,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c96938f130a2f0c74d6b5eb8e90a05a05f4984ba03f63596f7381358154aa8f4"
+      "inputs_sha256": "e3f607af9e4e4fa1b5adf1b41ac6f41f73d92a5c63bb74e5c59d9b2a95d9d8e1"
     }
   },
   {
@@ -397,8 +397,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASPhosphoEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASPhosphoEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x399e18. The registry call at RVA 0x1ec9f2 passes its placement callback at RVA 0x1f0b10 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa2b8. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -412,7 +412,7 @@
     },
     "match": {
       "bytes_sha256": "fdd9d893efc62a3509233d79b8bd183ae9491ba574ac11c3052b262baf234716",
-      "inputs_sha256": "0010dc871171710ca5c03918eb8bbb669fc87d32756cf5ffc11a8cec5c23134e"
+      "inputs_sha256": "27e97f50db64fd9707ed4415de24b606688f5aaef50687d3dd21c836711a28f8"
     }
   },
   {
@@ -423,8 +423,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASPAWNDEFENSE",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASPAWNDEFENSE::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ab38. The registry call at RVA 0x1ec996 passes its placement callback at RVA 0x1f0be0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa018.",
     "link_bindings": {
       "_initialize_actor": {
@@ -438,7 +438,7 @@
     },
     "match": {
       "bytes_sha256": "22f17cee57deabbb0480e543fb15f3aeb65be6d83b58c3b26fa4b85c522ff4b4",
-      "inputs_sha256": "27a383b65a2f5e073200ca734d582e99da4efaeff8eadd68ebbe63995702a1d3"
+      "inputs_sha256": "d50d8e82ace94b2a8b60ad40cec86f0c5881b4eddc0cca53020ec976a5cc0bd0"
     }
   },
   {
@@ -449,8 +449,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASPawnAttaque",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASPawnAttaque::PrivateStaticClass identifies the stock UClass instance at RVA 0x398b80. The registry call at RVA 0x1ec93a passes its placement callback at RVA 0x1f0d50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9ec8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -464,7 +464,7 @@
     },
     "match": {
       "bytes_sha256": "86789be09595e25e42e5d94918d4e7201d1fcc510ad6bd6105d4ef10758dd5e0",
-      "inputs_sha256": "bb5fbe2f7953c251bacc04cc120131e3e726d83fbe2d5271e23ca628d0ac6599"
+      "inputs_sha256": "288d939460edc98aa40133cee653dcb437847c68750e5650c8989a35278b3ba3"
     }
   },
   {
@@ -490,7 +490,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d4a9f70a581567049dcecce2c0efdbb8f809950284d02d260c22645b99afab5b"
+      "inputs_sha256": "f46c19e3747464773d06ab005a93b01de6c6f232d4d98c0340e0fe60f507af5b"
     }
   },
   {
@@ -501,8 +501,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASOrientableObject",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASOrientableObject::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a10f8. The registry call at RVA 0x1ec8de passes its placement callback at RVA 0x1f0e10 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fce18.",
     "link_bindings": {
       "_initialize_actor": {
@@ -516,7 +516,7 @@
     },
     "match": {
       "bytes_sha256": "b8361b9717dc31cb5c187ccdbcd4ffb5450dca50a2b4af50504f1df30bc1003f",
-      "inputs_sha256": "976f245909a57e0e01573fb33f064a50b734b1552ad13b0e1bd2cc8a067bf45e"
+      "inputs_sha256": "31e90ad97792c2439388dfc056501766e428956ff87e99ba9557e48a5f8c1470"
     }
   },
   {
@@ -527,8 +527,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASObjectiveTrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASObjectiveTrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x399558. The registry call at RVA 0x1ec882 passes its placement callback at RVA 0x1f0e30 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd5d0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -542,7 +542,7 @@
     },
     "match": {
       "bytes_sha256": "356e5ce88a026dc7bd6bb3102506671f615cc18de5a189ca0821b931fb5508ad",
-      "inputs_sha256": "f7c14bd9bac807ba2b78a9304926b437cc7fadba98ab62b6df98cee7adb33e26"
+      "inputs_sha256": "91414552c66ebb0ab660c3c6925f1e1c7972219e5c7f86458d67186de753aae9"
     }
   },
   {
@@ -553,8 +553,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASObjective",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASObjective::PrivateStaticClass identifies the stock UClass instance at RVA 0x39db60. The registry call at RVA 0x1ec826 passes its placement callback at RVA 0x1f0e50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9d88.",
     "link_bindings": {
       "_initialize_actor": {
@@ -568,7 +568,7 @@
     },
     "match": {
       "bytes_sha256": "b40b7a99a0870e51fe391b22c4fa407f09d3012837c6f6ae522048fcb4f86c14",
-      "inputs_sha256": "a89b3afee49b7b7f44241550a5fc29d05762f97b2fd6c0c46247844948ae55bf"
+      "inputs_sha256": "ee5e4596e5439bab34719e67167e4eda11327491945a6f8dab2dccddc954ee56"
     }
   },
   {
@@ -594,7 +594,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "53a3b6f54164321a004ff785c402fce44ef842809786140bc537fba249464f94"
+      "inputs_sha256": "716a5cd36e361cca9d33a2ad45852f743f58e8c7cd8d9574f6d0eea19c9933c3"
     }
   },
   {
@@ -605,8 +605,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASNoiseEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASNoiseEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39fe60. The registry call at RVA 0x1ec7ca passes its placement callback at RVA 0x1f0f60 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9c50.",
     "link_bindings": {
       "_initialize_actor": {
@@ -620,7 +620,7 @@
     },
     "match": {
       "bytes_sha256": "91733dab683b78014ab9294948a90bc48765d25d7e906c311bc740d4e85d84f6",
-      "inputs_sha256": "9ffe915b7a346e91ae4eda222bbdf162e2175e50eaf2d2808a02f2e1613e253d"
+      "inputs_sha256": "103165cb09cdb12ce650c0d437c68cc297b93718f6805fd02a39f7de27313f28"
     }
   },
   {
@@ -631,8 +631,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMuzzleSticky",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMuzzleSticky::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0608. The registry call at RVA 0x1ec772 passes its placement callback at RVA 0x1f1020 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f99e0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -646,7 +646,7 @@
     },
     "match": {
       "bytes_sha256": "db98e79842d271d34ca4f8f9deb5ccba17655bf420f87be7e204cf4ae22257bf",
-      "inputs_sha256": "c2bce4bc312dcdbecb513b405620e133cf9ea2a92f1f268a1137d77fe2131098"
+      "inputs_sha256": "168683d4a3459ca58bc6927a0da0566dbd48440644ea48e6c93e200f3c77a239"
     }
   },
   {
@@ -657,8 +657,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMuzzleFlash",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMuzzleFlash::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1558. The registry call at RVA 0x1ec71a passes its placement callback at RVA 0x1f1180 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9b18.",
     "link_bindings": {
       "_initialize_actor": {
@@ -672,7 +672,7 @@
     },
     "match": {
       "bytes_sha256": "2b2a1a0d1704071d1e403f9cdc2d95c22b21888b4bd42137685078e53b2e7b85",
-      "inputs_sha256": "f29394b479252c0d546c5d71559eaa467c64e3e2f6dc1f9d303904f3df25c62b"
+      "inputs_sha256": "a87e68f6ec131f73a28aa63fdd14c05b18523a0a08d43bd3b4c083a96fb2e74b"
     }
   },
   {
@@ -683,8 +683,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMotionTrackingVision",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMotionTrackingVision::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a4a8. The registry call at RVA 0x1ec6c2 passes its placement callback at RVA 0x1f11a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f98a8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -698,7 +698,7 @@
     },
     "match": {
       "bytes_sha256": "a40ef4393e73ee03b161b9a6cb317155b4d3f2df7e010dcc7bc8f54e52bcb136",
-      "inputs_sha256": "71c0436b5556c226bdbe2b3c707d0e849e23389b99fb839de22ca4aa7a00a31c"
+      "inputs_sha256": "63a2159f70a3268d6613f0f0836dd0cd2a7884c2f60c79101c121c268aae998b"
     }
   },
   {
@@ -709,8 +709,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMission",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMission::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a5c0. The registry call at RVA 0x1ec669 passes its placement callback at RVA 0x1f1260 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9768.",
     "link_bindings": {
       "_initialize_actor": {
@@ -724,7 +724,7 @@
     },
     "match": {
       "bytes_sha256": "4791cc76067df1690a8ec9f84c5d6158408f781e6047fe52c7be731b79778cfd",
-      "inputs_sha256": "a34232d1ad1428311d0fcb05ed5c0e0bc82f8344f5e28f44835566172e7c7333"
+      "inputs_sha256": "43f8475aba7b272aeb5a0a739553fa80daea5afb1e5e8f515062370656f432d1"
     }
   },
   {
@@ -750,7 +750,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "25a1c97dbfcd3c7f6fb29776e09f5ca7310158de879c7d18f07cf70e36defebd"
+      "inputs_sha256": "2876c53490f21385dca77acf369cb086846b9d5a9b763d4d6b58f0fc541c21bd"
     }
   },
   {
@@ -761,8 +761,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMines",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMines::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f028. The registry call at RVA 0x1ec60d passes its placement callback at RVA 0x1f1330 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fdbf8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -776,7 +776,7 @@
     },
     "match": {
       "bytes_sha256": "eaab18005b6152bc8840a2e6a80199aed459bc4c8ecac86283320cb03e66c0fe",
-      "inputs_sha256": "764b5e1d7c2fab848d9ff304fa0abab9a0ff7a54f2f53ff76ee021dca67b82bf"
+      "inputs_sha256": "716278446e0eb2be1c8f601a688570aad80134c386d8c5572b7a7415a63b962f"
     }
   },
   {
@@ -787,8 +787,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMineProx",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMineProx::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a390. The registry call at RVA 0x1ec5b1 passes its placement callback at RVA 0x1f1350 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9630.",
     "link_bindings": {
       "_initialize_actor": {
@@ -802,7 +802,7 @@
     },
     "match": {
       "bytes_sha256": "a6e0cde9329d97a846a65f7629366829cd28243f91dc70b8f65d4e22cfe82828",
-      "inputs_sha256": "c0b1b02069bc4870a9a62c542a39045df748de93772114333a100cd0bff77935"
+      "inputs_sha256": "bc24323960a13d4bc5666cbbd671fa8e062aec8bc71a04389a1497f2897c47bc"
     }
   },
   {
@@ -813,8 +813,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMineLaser",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMineLaser::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e880. The registry call at RVA 0x1ec555 passes its placement callback at RVA 0x1f1410 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f94f8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -828,7 +828,7 @@
     },
     "match": {
       "bytes_sha256": "d2b667efd002614e3eeb371f59db6a36fe68a96d4b3b22ae305f2a336842d6d2",
-      "inputs_sha256": "4d5f109cc4240a700cac59aef705dd6704be989c9a288c4f700f53276b2c9c47"
+      "inputs_sha256": "d8404560ff4966e16de0df702da58a6d6a1e0ed8585dc2cd1d35f422b3bd3cfd"
     }
   },
   {
@@ -850,7 +850,7 @@
     },
     "match": {
       "bytes_sha256": "a8aff8f788f6635571b8a78d4eb5706a5f46185ddefdf22f062e3e508b6e089f",
-      "inputs_sha256": "4fc735e93604cbfca609bfcc1ffd7ba120756794c5cacdd327a2af1f8863299c"
+      "inputs_sha256": "0117d40affbc79eee35793aea5e8d8fd266fd2bbdd2d1bc1403c29997d8f83d2"
     }
   },
   {
@@ -876,7 +876,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "522bd14811fb57da84df70fe63042cd32bf6f5f8ab02369d451d94b200941f0f"
+      "inputs_sha256": "bba45728325832e5b40a8b327ff80bfc62a32f94ac1b322c51fe8c3571bcceba"
     }
   },
   {
@@ -887,8 +887,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASLeaveInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASLeaveInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x398720. The registry call at RVA 0x1ec4a1 passes its placement callback at RVA 0x1f1580 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9360.",
     "link_bindings": {
       "_initialize_actor": {
@@ -902,7 +902,7 @@
     },
     "match": {
       "bytes_sha256": "3dc67c1bf205a72bf546ba265920eb0a3ef4161f4e4561376732d4ccd9948009",
-      "inputs_sha256": "abd07a4fa17a3186d10e781cc69671b33708aff2e126deac84243c93960c7f21"
+      "inputs_sha256": "41c598158ee4b2c1b9c455ce02155a2c9e64350edf246b6c07b8d6f8ed70ad53"
     }
   },
   {
@@ -928,7 +928,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fe736e683cb2097239694b106b29d07fe762d7fcec1097763a4664ffa232a58b"
+      "inputs_sha256": "818fe06389049d61d563acc5e241037ac4a009390aea363f8889225f3a8db694"
     }
   },
   {
@@ -939,8 +939,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASLaserTrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASLaserTrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c7a8. The registry call at RVA 0x1ec449 passes its placement callback at RVA 0x1f1640 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f9228.",
     "link_bindings": {
       "_initialize_actor": {
@@ -954,7 +954,7 @@
     },
     "match": {
       "bytes_sha256": "0a2fe4105df834bd5654152db1932efae404997a3e44e7e5a038334ea477d208",
-      "inputs_sha256": "77934b8f0e7fc8e374944eb105cb0f7677f3639d2edc1926656aab60a16885bc"
+      "inputs_sha256": "169c74246431d24d5617a158501e87989fa4271c36d4b46b7eac1d8e695b65a8"
     }
   },
   {
@@ -980,7 +980,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6897e8b4916d8ed4a59b277e1f596a64547c3db5218c9364eb1448c5a0f6722e"
+      "inputs_sha256": "6135f52293aeb1b97245cef8f009482bf51d1484d50d0152a20f05f70e2397db"
     }
   },
   {
@@ -991,8 +991,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASLaserProjector",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASLaserProjector::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b740. The registry call at RVA 0x1ec3ed passes its placement callback at RVA 0x1f1700 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f90d8. The projector members at +0x444 and +0x450 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1006,7 +1006,7 @@
     },
     "match": {
       "bytes_sha256": "ce3036c523d0077e7608b581774eb91aff8c3d44476671b44fd9b13f842ed79b",
-      "inputs_sha256": "42d6dfa5f33793b8a9e3924d8c96c2c7ff8ed45ec8e73de3a11229a1b3b5d3f0"
+      "inputs_sha256": "99cd53eb6e50ac1fff59606e814b1cb579be6bbe7f367c117e0e5df15f65f9fb"
     }
   },
   {
@@ -1017,8 +1017,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASLaserBeam_MineLaser",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASLaserBeam_MineLaser::PrivateStaticClass identifies the stock UClass instance at RVA 0x39af98. The registry call at RVA 0x1ec395 passes its placement callback at RVA 0x1f17d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8e68.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1032,7 +1032,7 @@
     },
     "match": {
       "bytes_sha256": "7fc98cbe515289ef68da7d2533365d441cc33cb23c91eec9461df4b2c215b14f",
-      "inputs_sha256": "00f06695a2e345ff1dc9d42412aa2485ae17db9393dcb0bbf25542c8479922c8"
+      "inputs_sha256": "63be4756b71fa33914bcdd1aa5a65053e8f07b85b4bf1c41a63e715a046399ca"
     }
   },
   {
@@ -1058,7 +1058,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a61c90c2e7fab142c624cd43a16f67b3581a13a260ee9f8258c267f918479c39"
+      "inputs_sha256": "32b6e88d304293b810f7d5111151aa143cb4ab84701aa50d8caa8cf49fa38507"
     }
   },
   {
@@ -1069,8 +1069,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASLaserBeam",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASLaserBeam::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ae80. The registry call at RVA 0x1ec339 passes its placement callback at RVA 0x1f1930 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8fa0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1084,7 +1084,7 @@
     },
     "match": {
       "bytes_sha256": "a54074c9a1c7fd6b841ffde5be3c11230da68dcaf4481105c972564f3006a9c2",
-      "inputs_sha256": "786645be6da25fb6519f2ffb381a8a4859fb0d12f8e914cf1f90fae71889f237"
+      "inputs_sha256": "2ec4272970be52d1b767ef5ced3589a241173f453b57fd7fc8a7576272bfd4c5"
     }
   },
   {
@@ -1095,8 +1095,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASInterrupteur",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASInterrupteur::PrivateStaticClass identifies the stock UClass instance at RVA 0x398db0. The registry call at RVA 0x1ec22b passes its placement callback at RVA 0x1f1b60 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8ac0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1110,7 +1110,7 @@
     },
     "match": {
       "bytes_sha256": "22a58cd6836b8cceb917ba6387fae50d810c55fe73ef2ffc3d16d52e632b18cf",
-      "inputs_sha256": "77efb3b5a01ca30f0f86f3aae5dafbfdd50df57c8fb621f6db72099314ab2da4"
+      "inputs_sha256": "6dd7d63eb957f499c1308a63710b8720f9699fcbedf33e7b9938b1dd4c1d4211"
     }
   },
   {
@@ -1136,7 +1136,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5312217df95ee3ee906509abf43c30bd367e2ce6fae54080223dd29c34640567"
+      "inputs_sha256": "d3ae002e13b05ed4088da701ed4e7b55a29594e3be9a48b7f03d131462331a6d"
     }
   },
   {
@@ -1147,8 +1147,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASInteractObject",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASInteractObject::PrivateStaticClass identifies the stock UClass instance at RVA 0x398838. The registry call at RVA 0x1ec1cf passes its placement callback at RVA 0x1f1c30 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fdfa8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1162,7 +1162,7 @@
     },
     "match": {
       "bytes_sha256": "97fae10a4b26c2dc3835dfb164ff124d1daf9f0087d9bd4d359db10308cb86c7",
-      "inputs_sha256": "1fca9d6e46ab266ffd380ad4082da225bc59f381e4215908f0151cc46cacfe7e"
+      "inputs_sha256": "590eb02bd04c598dd6e84a063a650ce5c44edc85c011d155a7c30c3c1556704d"
     }
   },
   {
@@ -1173,8 +1173,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASInteractionManager",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASInteractionManager::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a908. The registry call at RVA 0x1ec173 passes its placement callback at RVA 0x1f1c50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8988.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1188,7 +1188,7 @@
     },
     "match": {
       "bytes_sha256": "d6a565fec7c345f79c9a7df81322eff6024fa798bacee9a40a218167fd59b22a",
-      "inputs_sha256": "271801fe8ab42d3416e955fe3d3a8756a0078f06d8616a782bf6b012b51c4a4b"
+      "inputs_sha256": "506ec5179318ea262fac134e317f1d674870ff2a814a01446ac7c6f2e65c7ef2"
     }
   },
   {
@@ -1214,7 +1214,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "042748c2801a8f0f2e4da8331642dd80bb6dcbfb32b3eb18b5214bc8c45ab407"
+      "inputs_sha256": "9ff81ed7b76efd8e1f509243b65630ae432f222d99d7f83b6088fd7801b1ff44"
     }
   },
   {
@@ -1240,7 +1240,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fa7c1f30f4961ce5882f2489649ecb42339f4f7b95a0e5e3291c5d2bacc9105e"
+      "inputs_sha256": "94475bf27fd54b122e87081fd11506e4e305c1cff9ff28792805b7477a750357"
     }
   },
   {
@@ -1251,8 +1251,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGrenadeExplosion",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGrenadeExplosion::PrivateStaticClass identifies the stock UClass instance at RVA 0x3998a0. The registry call at RVA 0x1ec0be passes its placement callback at RVA 0x1f2140 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8708. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1266,7 +1266,7 @@
     },
     "match": {
       "bytes_sha256": "e91f94f3a8f2ac30a0fa74ef642cf1cbb4c8314cb8d26db5bf9a9c4cbb64799f",
-      "inputs_sha256": "24695198feaa684d2dd820ad03635ffd8f14a9248852bb58e67881aa2428d78b"
+      "inputs_sha256": "4078b7dd052d60c9df44f9268602fa2419ab02e3bedab94d1cf310b42961ff98"
     }
   },
   {
@@ -1277,8 +1277,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGPOControl",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGPOControl::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f5a0. The registry call at RVA 0x1ec066 passes its placement callback at RVA 0x1f2210 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f85d0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1292,7 +1292,7 @@
     },
     "match": {
       "bytes_sha256": "40ffbff55c5a1909a7eb74ada44e39f5dadfee087cad8875fac2432e31d2e374",
-      "inputs_sha256": "5432618609fa7c30769bc825d6022600b6628c4bd4f8867dc5f257de2fff1300"
+      "inputs_sha256": "1bd9dcbb22eda635eb102b7f8283d36d939cd7f342958c2e718ee3b4b6eefdfb"
     }
   },
   {
@@ -1303,8 +1303,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGoggleBeam",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGoggleBeam::PrivateStaticClass identifies the stock UClass instance at RVA 0x39dfc0. The registry call at RVA 0x1ec00a passes its placement callback at RVA 0x1f22e0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8498.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1318,7 +1318,7 @@
     },
     "match": {
       "bytes_sha256": "71599d3cf9a8de19440a344441c32dd1f979b58966c5710a4cb1a4ebe6cabac8",
-      "inputs_sha256": "9791fce8cf100d6df60fc811ef2f81ceb4323e6106ab45451b1bc69a8607ea54"
+      "inputs_sha256": "4e8e3ce4f337abb0531302f9d82ab929c7393479070c9a20dbc4039238130393"
     }
   },
   {
@@ -1344,7 +1344,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "b37799a47497de6f869dff3e5ea62da32f29ea5c3db4875268b2acfa23d47832"
+      "inputs_sha256": "2d9e6d3dc461bdeb14b48ae672d37d524136d6fadc013844515b1785a19f660d"
     }
   },
   {
@@ -1355,8 +1355,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGamePlayObject",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGamePlayObject::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ef10. The registry call at RVA 0x1ebfae passes its placement callback at RVA 0x1f23a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd710.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1370,7 +1370,7 @@
     },
     "match": {
       "bytes_sha256": "08ec2eecc50e53ab537a60476e3c3754f57b6e15cc4a4abe54cd24622b6c1f6e",
-      "inputs_sha256": "e90e14ef359f2ca396ceff660671beef9b99242af551c0282338adea9bdb3d09"
+      "inputs_sha256": "e9ff7b43f3098ee05244f4cf93e6680ab52742b8e39f924fb2f9dc9b37c917d5"
     }
   },
   {
@@ -1381,8 +1381,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASBasicGamePlayObject",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASBasicGamePlayObject::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1ad0. The registry call at RVA 0x1ebf52 passes its placement callback at RVA 0x1f23c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fdd30.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1396,7 +1396,7 @@
     },
     "match": {
       "bytes_sha256": "61be16f24bfa279dc23b95b755b867e6bc38dcc185364e500aa7aab110f956ad",
-      "inputs_sha256": "5469e6cb54be6851578f276d778103191471df0876492e5dd35d936eaf890513"
+      "inputs_sha256": "5ff97e996888d4a1ac39296fa2c0630e601a8736a9bfa302a1572aa1c8ddcfc2"
     }
   },
   {
@@ -1407,8 +1407,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGameMessages",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGameMessages::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0c98. The registry call at RVA 0x1ebef6 passes its placement callback at RVA 0x1f23e0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f8360.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1422,7 +1422,7 @@
     },
     "match": {
       "bytes_sha256": "172414943a7cc276551a81a8aba0d466ced067672a2d929807d66137a1ca6163",
-      "inputs_sha256": "09c7faa7719750f857748f64338d58d869a9e2a424a7b37afc68f46546a041bc"
+      "inputs_sha256": "6802d29784a0369866524ca84fa16b5e0d3b21d98a8e17d8fdfd6f317215930f"
     }
   },
   {
@@ -1448,7 +1448,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "dbaa22cdb1bec74967e98eb203348946c7279350d586a904a99295246dbdf499"
+      "inputs_sha256": "cbc408026f23272e8bf3fc00a8040fd041496b48f0139398084c3c0316841a06"
     }
   },
   {
@@ -1459,8 +1459,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadTorcheLaser",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadTorcheLaser::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e308. The registry call at RVA 0x1ebe45 passes its placement callback at RVA 0x1f2890 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f80f0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1474,7 +1474,7 @@
     },
     "match": {
       "bytes_sha256": "6c45ea66e40f5e4235f2990e0330bfb63d39eea29bdb0447442cfa3f9f5e8092",
-      "inputs_sha256": "7f6ed9a18854c6b714fc56404882fe8818853b3d817630c2ea0a59cf62f0b44b"
+      "inputs_sha256": "ec6392e72c32ee0e532211f25b45f285fe053ce278569be971c145555b8b33dd"
     }
   },
   {
@@ -1485,8 +1485,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadTorche",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadTorche::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c690. The registry call at RVA 0x1ebde9 passes its placement callback at RVA 0x1f2970 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7fb8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1500,7 +1500,7 @@
     },
     "match": {
       "bytes_sha256": "4eeb1a19b2df3fbcaf8efaeeb748ea6b0360fb9c69686c6154f1c00326340ef0",
-      "inputs_sha256": "af90327541d7b7faf18ff8a05f8a16f448d909329290673f02540b019777dbe2"
+      "inputs_sha256": "194ddf1f4dba637e1108e2e53b107a73dd7b324abc500c2accbc1668fc5c647e"
     }
   },
   {
@@ -1511,8 +1511,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadTazerLauncher",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadTazerLauncher::PrivateStaticClass identifies the stock UClass instance at RVA 0x39da48. The registry call at RVA 0x1ebd8d passes its placement callback at RVA 0x1f2a50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7e80.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1526,7 +1526,7 @@
     },
     "match": {
       "bytes_sha256": "72e3d6d1001d268b00f3ec3b333d7d49faa52d76129981448b157915295f3351",
-      "inputs_sha256": "8ac3ed5eba3aab2c3a5d31d043a9a8cad13aa4d6a324ab7488ee309609f21411"
+      "inputs_sha256": "1c2053b7c09586ccde74ee7e3dfaef962e9f823ed7ad6e81a49728a98e0a0db5"
     }
   },
   {
@@ -1552,7 +1552,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "4f59ce6ae7e3c96468b13ef65c921454de924204b774e9b78ccb5cf1e7e9eb0b"
+      "inputs_sha256": "488756c3fb9fa91aed358e7083d03466ee00bf1a21b0542c773b47eb41bed4dd"
     }
   },
   {
@@ -1563,8 +1563,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadNoiseEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadNoiseEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d700. The registry call at RVA 0x1ebcdb passes its placement callback at RVA 0x1f2c70 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7c10.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1578,7 +1578,7 @@
     },
     "match": {
       "bytes_sha256": "c770b20e0d4e90d1e5d170891c27c8c1e572e4c17a5a309cf34ddb7dac523a70",
-      "inputs_sha256": "403ef13aa2eefede87d2c78b9dccd7b26c94483767986e9e98603aff84c37080"
+      "inputs_sha256": "3a0387d9cb6d7bf960cb975084a3d6625fca7333713316a05c409322ee54e144"
     }
   },
   {
@@ -1589,8 +1589,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadGrenLauncher",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadGrenLauncher::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d4d0. The registry call at RVA 0x1ebc26 passes its placement callback at RVA 0x1f2ef0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f79a0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1604,7 +1604,7 @@
     },
     "match": {
       "bytes_sha256": "3c0b37aeb6bb735cac8d112b451a95dff94ebf09684d03f4f45aa87c6334eb9c",
-      "inputs_sha256": "fad5eb1be3d76e7ce058e210d79adce65468be38adbf7e1e526afb392d68758e"
+      "inputs_sha256": "82b1923946003a2cab695325a2d29c743d7f72e4d764fb2a2c20dedab60178b9"
     }
   },
   {
@@ -1615,8 +1615,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadget",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadget::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d2a0. The registry call at RVA 0x1ebbcd passes its placement callback at RVA 0x1f2fb0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb830.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1630,7 +1630,7 @@
     },
     "match": {
       "bytes_sha256": "fdc3c311ccdb58d3b87aefd41ebcda70c3673fec0b83202bd575a36b90fb83c4",
-      "inputs_sha256": "513e5aa3c9c543d1e20893514ed6f8ebe8ef81ad3fa4df95da1c65287f1ce349"
+      "inputs_sha256": "595f90e5f0d5388e5742e522be605c2e08e0e6458d4b16a5768f40814fdeb798"
     }
   },
   {
@@ -1641,8 +1641,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadBomb",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadBomb::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d3b8. The registry call at RVA 0x1ebb71 passes its placement callback at RVA 0x1f2fd0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7868.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1656,7 +1656,7 @@
     },
     "match": {
       "bytes_sha256": "f455fdcbe059fb42a1b8369099ccb6c49fdbf6181b45cbe75d6cf02ecdbd17c7",
-      "inputs_sha256": "dc88f4fbfbec3de304e0546c4200dcc0367a1913254389e88526cc73a93d5346"
+      "inputs_sha256": "54a8d83e405b5bdf56da30aa225985fde4c4a90ba9e2992742d8e20a0b4696d0"
     }
   },
   {
@@ -1682,7 +1682,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9027c978d8c82bbd12d6e9bb7af5e94377d890c924ecc36374b9cb8be801fdde"
+      "inputs_sha256": "ee8b1b11914b44350aa296c711107e6629a48d03a69427ee0f87472c0252cc33"
     }
   },
   {
@@ -1693,8 +1693,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFragLaunchEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFragLaunchEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39dea8. The registry call at RVA 0x1ebb18 passes its placement callback at RVA 0x1f3090 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7720. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1708,7 +1708,7 @@
     },
     "match": {
       "bytes_sha256": "2d234fc463c7afff95f0049d4a51cd0a3273b6d78025164a26b999a75fe32dc3",
-      "inputs_sha256": "703bbf262c43a0855f645b5002f569e32d933c001e526a68e48d04602ec393f0"
+      "inputs_sha256": "4720d4ee769fa60bd7a4b014b385106222f92790086ac559354c79969b54b257"
     }
   },
   {
@@ -1719,8 +1719,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlashBang",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlashBang::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0950. The registry call at RVA 0x1ebac0 passes its placement callback at RVA 0x1f3160 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f75d8. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1734,7 +1734,7 @@
     },
     "match": {
       "bytes_sha256": "05f60c8d8e28dfdcefb2b845ec2a01f47ba391285133f2a927970d3b487600c2",
-      "inputs_sha256": "80e36ef233d28976431a08adf8db42bc3007163c5502376a84c5a0d156a9fe57"
+      "inputs_sha256": "3d29bf77ac7417d5d6034a360579ae277e4fea24d4c50d9cff3ba35dc78c4439"
     }
   },
   {
@@ -1745,8 +1745,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlagDropZone",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlagDropZone::PrivateStaticClass identifies the stock UClass instance at RVA 0x39fc30. The registry call at RVA 0x1eba68 passes its placement callback at RVA 0x1f3230 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7498.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1760,7 +1760,7 @@
     },
     "match": {
       "bytes_sha256": "a3b7a4146c9a451870aa5b5f302a4f645b2840befd04fbe34a8c32e3250168e5",
-      "inputs_sha256": "7b331a21e17ff805850fb64d180caaed3e21314bcb55fabde07b14dd88c19526"
+      "inputs_sha256": "efcd6066de8660f7e19495446c576933f7cfeb3b4c3d71bfe62bf05b4f91e997"
     }
   },
   {
@@ -1786,7 +1786,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1582fa6c9a1e60099319a7ec64ed84dec3c9b51b512d42e702b6f7aed0532cfc"
+      "inputs_sha256": "0c1e3397a07f43907a4488b70b3622fb46f68e4e6511dacaaba765e5f5686ebc"
     }
   },
   {
@@ -1797,8 +1797,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlag",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlag::PrivateStaticClass identifies the stock UClass instance at RVA 0x398fe0. The registry call at RVA 0x1eba0c passes its placement callback at RVA 0x1f32f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7358.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1812,7 +1812,7 @@
     },
     "match": {
       "bytes_sha256": "4d8b963ae54c30c9701a0f72d59a54f353165cd8c6389c8a137d2dbbcb205992",
-      "inputs_sha256": "58a21246d619b70815ea2eddc2f7e806480ced400154c273b4f1f7a9b0f2c419"
+      "inputs_sha256": "4427eddab96009fbb260361af187adee738e354b90a6ebd64cf8e4d71377b2d0"
     }
   },
   {
@@ -1838,7 +1838,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8b540cf084ea012ee219c2869a62a4f3fdc2de0c3317408ee6b8ae3247ced65b"
+      "inputs_sha256": "a1fe1938b2fa74f2ece8ce7c16924c30618ee04820d965634f33a203444d8d4e"
     }
   },
   {
@@ -1849,8 +1849,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFireTrace",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFireTrace::PrivateStaticClass identifies the stock UClass instance at RVA 0x399788. The registry call at RVA 0x1eb9b0 passes its placement callback at RVA 0x1f33b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f7220.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1864,7 +1864,7 @@
     },
     "match": {
       "bytes_sha256": "ca1401d2d547d0e4cdf362b245d589ae4ed526bae9007cdde96665f7cc55d508",
-      "inputs_sha256": "7dea51ae6008f68b6c2c2295e7d95ab197c461f83e0c6e323a407bebcb774cd4"
+      "inputs_sha256": "869bfcf4a28c1f5c405bd17a4ff7b2091eae9bee32fe0dbc15406f2371d7191d"
     }
   },
   {
@@ -1875,8 +1875,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASComputerObjectiveTrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASComputerObjectiveTrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ac50. The registry call at RVA 0x1eb954 passes its placement callback at RVA 0x1f3470 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f70e0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1890,7 +1890,7 @@
     },
     "match": {
       "bytes_sha256": "203b16bbdcad31c722ac1d2549424b26e2ae40330efe04ae4d0d804bec4c3cfa",
-      "inputs_sha256": "c5f37f30120397c6790698a8475846335706cb6fa9686bfce3d66dcadceafd8b"
+      "inputs_sha256": "e217452407188902055dd3a5e060bfed9be6fe5a9ca754f5bf514223f4f8269d"
     }
   },
   {
@@ -1916,7 +1916,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c51709059a7333620cfe845b8cbf12fac44e34c2324d466a1627ee70c585734d"
+      "inputs_sha256": "a9cc6e3730c1b9ef10d26428794dc54d124b4cfb9cd1703e7be2dea1a1fb399c"
     }
   },
   {
@@ -1927,8 +1927,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASComputerInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASComputerInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e1f0. The registry call at RVA 0x1eb8f8 passes its placement callback at RVA 0x1f3530 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6fa0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1942,7 +1942,7 @@
     },
     "match": {
       "bytes_sha256": "5ef7a08dda87ee44a60aed9b2b16c8dcce8820f5ba7d5a3a0f39d71e88fc0a2e",
-      "inputs_sha256": "150ed5e5494cbbe09e34bcf3fef0fab02dace4dc2d2208eb4ac518c191fcc3bf"
+      "inputs_sha256": "cd5680546c9c517fe508c635e7eef4695ad538bc81c328786efa56a83bd13ec0"
     }
   },
   {
@@ -1968,7 +1968,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fbd36e1ed0bcd50dbb64a39f9b1fb7f531a023571c8b2334c7993fab7f7b94a4"
+      "inputs_sha256": "8811821b0b7d8f12cbc6b57b27bc0529018d1ad8f689baebe670be81c5088086"
     }
   },
   {
@@ -1979,8 +1979,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASChaffeEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASChaffeEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d070. The registry call at RVA 0x1eb89c passes its placement callback at RVA 0x1f3600 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6e58. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1994,7 +1994,7 @@
     },
     "match": {
       "bytes_sha256": "a284a7930dda4fb49bc9a39d7ae1c8f4aaded1174f7178f63a15a47f993a43ca",
-      "inputs_sha256": "d11375739736f962d1ade4086b75be0ce75a8caae120ecbe4628fccca2b2fa58"
+      "inputs_sha256": "894cfb2fdea620c8fbaa5759bd2c2aab030c408ceafdeafd07f87b6f9d4e1e19"
     }
   },
   {
@@ -2005,8 +2005,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASCamera",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASCamera::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c8c0. The registry call at RVA 0x1eb844 passes its placement callback at RVA 0x1f36d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6d20.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2020,7 +2020,7 @@
     },
     "match": {
       "bytes_sha256": "720cf66f0d5c510ee6c4c00c646c2b84ec9d312ce73ff05713f3c52bc4d993f3",
-      "inputs_sha256": "63842931ec1b07d1c563b02226ef048856e40e2e193b4ed257f530a646cf2739"
+      "inputs_sha256": "82347081706e62718cdb813b23f27d3478a60c822d6cbac7b72aa942e4f49861"
     }
   },
   {
@@ -2031,8 +2031,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASBombTargetObjectiveTrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASBombTargetObjectiveTrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e420. The registry call at RVA 0x1eb7e8 passes its placement callback at RVA 0x1f3790 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6be0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2046,7 +2046,7 @@
     },
     "match": {
       "bytes_sha256": "16e216841eac4e6de01e112af3ef41d03fb581bc29d750ff21617b6b813ba981",
-      "inputs_sha256": "d984364fcbfd1c720c9988aa17efe27aad51b1774d81b78f0a79279cca76a753"
+      "inputs_sha256": "d20b897e40e676a54376e7b63128d815954228cc75429f366ac84619a8580800"
     }
   },
   {
@@ -2072,7 +2072,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2dbc0d3b4127f6a6d8a25968ae04e55d6809c0504ef11a44d6939e20f43c533d"
+      "inputs_sha256": "508c86b9960a04f0b3fdf8b4e5e076ef2774af06ab2a8fc717d9e73c505d15b7"
     }
   },
   {
@@ -2083,8 +2083,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASBloodSplat",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASBloodSplat::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1788. The registry call at RVA 0x1eb78c passes its placement callback at RVA 0x1f3850 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6a90. The projector members at +0x444 and +0x450 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2098,7 +2098,7 @@
     },
     "match": {
       "bytes_sha256": "2ef800e9b8b2454cf2fb1c3cc96b7a5d7a47a6cacc5c862c3432c2f2f8b75aca",
-      "inputs_sha256": "cbe29a7e0ee44b24d05ac4284dab0131dcbb3e7ccf69789c76eab6497262ede7"
+      "inputs_sha256": "8f7153fdccd7043fb39733e240dbe017ef51c8a67319fb3bb7afea6d4a7d5323"
     }
   },
   {
@@ -2109,8 +2109,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASBasePawn",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASBasePawn::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a048. The registry call at RVA 0x1eb730 passes its placement callback at RVA 0x1f3920 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fa168.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2124,7 +2124,7 @@
     },
     "match": {
       "bytes_sha256": "9bbff202ff34479f27b142bde19a1df82d7597885e8af25eccb883e030727bce",
-      "inputs_sha256": "6742513fb48eb4572853b3d09e1a2114dbeb0aecc32245912d76afd547b3fc53"
+      "inputs_sha256": "a7de19554c18f54098b28743c143c7ea8fae09f888f42b1c4663492d9f8f8e1d"
     }
   },
   {
@@ -2135,8 +2135,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASAmmoStock",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASAmmoStock::PrivateStaticClass identifies the stock UClass instance at RVA 0x39fd48. The registry call at RVA 0x1eb6d4 passes its placement callback at RVA 0x1f3940 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6958.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2150,7 +2150,7 @@
     },
     "match": {
       "bytes_sha256": "339a5476f5a6e2b93fbea2b7a86b3e8e226404ac9e5ec493a5226bfc99f03082",
-      "inputs_sha256": "9067252ebf78c9354071bd9478c588eafebd7dabb4b00d0a344a94b73c7e7810"
+      "inputs_sha256": "b82a43635d9ec2564744b6dce65d61a0a18611827aaa7aa395cbf0473693831e"
     }
   },
   {
@@ -2176,7 +2176,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1e54ebed5a1af90667ac33c7a44f7c023dbd52029c45a48c80afbf79fcf83a43"
+      "inputs_sha256": "b2e266620b2c717d9a8c0ccb7827afbbb8a457630f090fa91aae69b1f86ee715"
     }
   },
   {
@@ -2187,8 +2187,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASAmbientSoundTrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASAmbientSoundTrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x39eab0. The registry call at RVA 0x1eb678 passes its placement callback at RVA 0x1f3a00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6820.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2202,7 +2202,7 @@
     },
     "match": {
       "bytes_sha256": "aec9e728448b9d78b51f8f80d97e4f5799c9fcffd78724a0414e4e48ad6e787f",
-      "inputs_sha256": "72be81e5df00ba19d9a80536ad211d8b9fb27ba10e89ada85aa895a8b303864d"
+      "inputs_sha256": "5c6f06f16c4d5a1add018c9e00bfc089888818062bb51ef4f06382a473e09564"
     }
   },
   {
@@ -2228,7 +2228,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1a56cb5e9c623b03bc80a8aeb8d0d4658cbe0fa594852f4edec9e7ab125c68ad"
+      "inputs_sha256": "5de1f1d3d282d508ca12300785dd6938c3800a661eb1c675274f5268e158145c"
     }
   },
   {
@@ -2239,8 +2239,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASAlarm",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASAlarm::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a03d8. The registry call at RVA 0x1eb61c passes its placement callback at RVA 0x1f3ac0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f66e8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2254,7 +2254,7 @@
     },
     "match": {
       "bytes_sha256": "1934a9252f18641d964fe5b7f3bf7b4eb408ba31783cf203591d58a765fc4773",
-      "inputs_sha256": "1beb1ae7c1d98357b1c10b3929e6ca8fecb7ffaa62e83c745cffd170fceb4c2e"
+      "inputs_sha256": "0b76929ef1fde920e130ebdba97b49fb7baf182bea8c1ce16230aca0d69b5686"
     }
   },
   {
@@ -2280,7 +2280,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "19283c60ff4a495d957e116a87e617f990f2531dd8c0e7407f75d17b4926f95f"
+      "inputs_sha256": "dcf2699a2e9090e0402efd138be4d22549c675612347384e1f8b2ecc898f04a2"
     }
   },
   {
@@ -2291,8 +2291,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGoggle",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGoggle::PrivateStaticClass identifies the stock UClass instance at RVA 0x399210. The registry call at RVA 0x1eb5c0 passes its placement callback at RVA 0x1f3be0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f65b0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2306,7 +2306,7 @@
     },
     "match": {
       "bytes_sha256": "c74bafb5920490a6a90a7fac833d7045c4d8e6f07419cf7647a17e6ad6794bf5",
-      "inputs_sha256": "d383de7cc72c094e2449e49a6205067a3708583e06cf278d30ba2019d32a47f1"
+      "inputs_sha256": "d983e5e435aace004bcc65ae000faa68fbf3301c9f73fe0bd761585a1c43a99a"
     }
   },
   {
@@ -2332,7 +2332,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d2dad8a690824ff5214b49fdb863bd58a4637f7bdd2c942fbc89d8c610737941"
+      "inputs_sha256": "8071b7ad63b5f319d6b5f645200d46a760b6da7524da120513880f6bafdf53e9"
     }
   },
   {
@@ -2343,8 +2343,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlareEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlareEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1f30. The registry call at RVA 0x1eb568 passes its placement callback at RVA 0x1f3ce0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6468. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2358,7 +2358,7 @@
     },
     "match": {
       "bytes_sha256": "99065e691a999d220e7b2484b6971ebfc5eb42e5861d9bcb8e039a48c99097f4",
-      "inputs_sha256": "256eb1528dbd6f4bb83d807af2e53e026bdd346b7459d30620ee18bdd60c78c6"
+      "inputs_sha256": "8626b0743b237ac23efca0267f6e56a29670c04239cde231d994a6528457dee1"
     }
   },
   {
@@ -2369,8 +2369,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlareCourseEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlareCourseEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0db0. The registry call at RVA 0x1eb510 passes its placement callback at RVA 0x1f3db0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f6320. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2384,7 +2384,7 @@
     },
     "match": {
       "bytes_sha256": "cd3837827ffcf5c3ebf205c323bfd576d28b1db4f0bdf4d6f83bf6f681037c32",
-      "inputs_sha256": "75a5b7fe957cf606846d7caca3b44a2f90cc27467e84779b261d8d678da52e92"
+      "inputs_sha256": "691f9be90b76400a8cafe703c3252b10438bb891947f4c217123bd0fbe93a7a6"
     }
   },
   {
@@ -2395,8 +2395,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASExtincteurEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASExtincteurEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x398c98. The registry call at RVA 0x1eb4b8 passes its placement callback at RVA 0x1f3e80 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f61d8. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2410,7 +2410,7 @@
     },
     "match": {
       "bytes_sha256": "b34eb527c4de0ab13cac45fddce76297c5159b7c6e8446a82879a4cf673dda07",
-      "inputs_sha256": "a72b76e0f23b208986d5f53e839897bcc8d30ef1ce06004adbe487d10010ee08"
+      "inputs_sha256": "291a376143bdc86b4e3281e12437747f621cb9fb59c6fc2b1ec637c38d20b17d"
     }
   },
   {
@@ -2421,8 +2421,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlashLight",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlashLight::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1d00. The registry call at RVA 0x1eb460 passes its placement callback at RVA 0x1f3f50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f60a0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2436,7 +2436,7 @@
     },
     "match": {
       "bytes_sha256": "5b72726caad38c4c70f36c691adcfb69f8844099810921be2ab082091ca56bf4",
-      "inputs_sha256": "f66ee7241a30a5490ac196c91fb36567396ccb34432d3628244fb26f006f2858"
+      "inputs_sha256": "3249ebd116259914183031246975c205d0038904771f950c24bb484e23545c1c"
     }
   },
   {
@@ -2447,8 +2447,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASFlashLight_FragGrenade",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASFlashLight_FragGrenade::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b1c8. The registry call at RVA 0x1eb408 passes its placement callback at RVA 0x1f4010 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5f68.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2462,7 +2462,7 @@
     },
     "match": {
       "bytes_sha256": "6b36c23aef7a07a2ba7a9b613ab51227fbb00f01e943ce0950c3e87f83d98150",
-      "inputs_sha256": "82978b8198115062a251f00f5bd41031d5be6b102421309eb3f76e4cb1baec0f"
+      "inputs_sha256": "e57f4cb273e03ec856bd9a7d6de58620f0b531faadd62c041c492c0e3cdfe113"
     }
   },
   {
@@ -2473,8 +2473,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASDouilleEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASDouilleEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f6b8. The registry call at RVA 0x1eb3b0 passes its placement callback at RVA 0x1f40d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5e20. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2488,7 +2488,7 @@
     },
     "match": {
       "bytes_sha256": "391a65a0f9b3221291d36f1bad7c54c5748eb48c518b64296ccff4074c256e5b",
-      "inputs_sha256": "b130ad6d37aa0c43fd55044c690ee9fcb79aeffb9f3180905d3a53852d4c1690"
+      "inputs_sha256": "6c8fd798905664c9eb87db81471753afb2d24a7d05719397407e9d3153084b94"
     }
   },
   {
@@ -2499,8 +2499,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASTazerEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASTazerEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e768. The registry call at RVA 0x1eb358 passes its placement callback at RVA 0x1f41a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5ce8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2514,7 +2514,7 @@
     },
     "match": {
       "bytes_sha256": "8d39ab50e803cc720306e80e341a777bbf2fadd2e6324a9e1869599855d7683e",
-      "inputs_sha256": "ed1f74b194a775dca33e9af43aed9dde18a491495389294e3a7a7f110cf49327"
+      "inputs_sha256": "5cbf03d08c561eaf289f709a550be551228789f480cfc5ebc0e3fff2c2b15640"
     }
   },
   {
@@ -2525,8 +2525,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMinePiegeSpy",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMinePiegeSpy::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c9d8. The registry call at RVA 0x1eb2fc passes its placement callback at RVA 0x1f4260 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5bb0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2540,7 +2540,7 @@
     },
     "match": {
       "bytes_sha256": "922028fa90ae095329851b8aa765200015bf8e0bd572de411cc0bcecb04de769",
-      "inputs_sha256": "995dd12faeaa761efef52b5f382be23ce8382d87adef61cd7ed945d0bdaebf0d"
+      "inputs_sha256": "b364328c60c3232cc2d1121d4e4ae3d60f55d22163b142709c021880512002b3"
     }
   },
   {
@@ -2551,8 +2551,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASAmmoStockInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASAmmoStockInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f140. The registry call at RVA 0x1eb2a0 passes its placement callback at RVA 0x1f4320 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5a70.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2566,7 +2566,7 @@
     },
     "match": {
       "bytes_sha256": "2ae4f46054dc237e4f880dc9157ef7ad2c5b584b39013c38aa55e85c2a3d56c6",
-      "inputs_sha256": "b365b0546e5d5424821d7c45b081c7819f9193ca155b2448b4aac13a3149a9ab"
+      "inputs_sha256": "bfadd3a8143950dacebe571911df6739b005e45169555a01b9f997b59b5456f8"
     }
   },
   {
@@ -2592,7 +2592,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cf7009329c4d77938b6aded9ec69044df7059edc0a74e63dc02794cc3ce680cd"
+      "inputs_sha256": "6dacd3b2740b99113b20707f84cd95ca6da2c0f6438b8aa37f474639feb116be"
     }
   },
   {
@@ -2603,8 +2603,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMineProxInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMineProxInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x398a68. The registry call at RVA 0x1eb248 passes its placement callback at RVA 0x1f43e0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5930.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2618,7 +2618,7 @@
     },
     "match": {
       "bytes_sha256": "e9b299db22d3f9920611214bb67f557b218c921159b64de485a11a027bd9e941",
-      "inputs_sha256": "e3719eae8f547d0f91b8137a88caaab55e264fe4d22e07548a440a6b38b6bb5a"
+      "inputs_sha256": "88ed95dfe62263809aeae2ec17d97d90c710b462e0b38a73ead238a95ed03a86"
     }
   },
   {
@@ -2629,8 +2629,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASExtincteur",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASExtincteur::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ece0. The registry call at RVA 0x1eb1f0 passes its placement callback at RVA 0x1f44a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f57f8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2644,7 +2644,7 @@
     },
     "match": {
       "bytes_sha256": "846b502bdf516582fb4fd506475a844398e71abab95862d5e70d8b399daebebd",
-      "inputs_sha256": "08e6b315fb5f54bf28fe03ef079ba5250692ad4f7b8efa755406b4728cd637a4"
+      "inputs_sha256": "a0e2d125f8990524e0531a4c3c3b698a2b61aa4e59c44c2c2cd0a22a200a16d8"
     }
   },
   {
@@ -2655,8 +2655,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASShareObjectInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASShareObjectInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x399be8. The registry call at RVA 0x1eb194 passes its placement callback at RVA 0x1f4560 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f56b8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2670,7 +2670,7 @@
     },
     "match": {
       "bytes_sha256": "077017e6a5e6caaea933dac3694825fe6439197fdafbf5f53db20a03b5e6956d",
-      "inputs_sha256": "b4ce933cbeb86945e3469b96569c168a37b0917d9e3c8296b19967f48c76ff0c"
+      "inputs_sha256": "830d04fb94ab654716922c3b83f02800b31e968c01bf7c9df0eafe2dba04b1d5"
     }
   },
   {
@@ -2696,7 +2696,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "25312edb79bf3d6c21ce90bf5ab580b33e8a20e9f1f3cc9da19ddec235b9d40f"
+      "inputs_sha256": "5cbbd4a4a8f1dc6a2fd706aa5da135f18f9aa824b5e5c89ef2c196ff8a240d50"
     }
   },
   {
@@ -2707,8 +2707,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadSmokeGrenade",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadSmokeGrenade::PrivateStaticClass identifies the stock UClass instance at RVA 0x39fa00. The registry call at RVA 0x1eb13c passes its placement callback at RVA 0x1f4640 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5580.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2722,7 +2722,7 @@
     },
     "match": {
       "bytes_sha256": "0cd8f9d25c08e17dff0aaa61fbaeab58965ee19102013e921913f30beeeff85a",
-      "inputs_sha256": "686021bf5f9a7933395df9a0d20c01752a5182a865431a6a294c290ca7b6183a"
+      "inputs_sha256": "86a620a4137f05289b3c96edfe9db845d9fb77ce6636ccc0c5b22c437f560b7a"
     }
   },
   {
@@ -2748,7 +2748,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1753eaa9b9c01a5491450b11346e99fec26b14f3696975d31762fcf365d84669"
+      "inputs_sha256": "9a6eb1a09fb6854de793497607b1eeff8026ba694e2a39f6a284b650ee5b050f"
     }
   },
   {
@@ -2759,8 +2759,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadPhosphoLauncher",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadPhosphoLauncher::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0ec8. The registry call at RVA 0x1eb0e3 passes its placement callback at RVA 0x1f4700 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5448.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2774,7 +2774,7 @@
     },
     "match": {
       "bytes_sha256": "4b1043a07c2196206c89d7fc6afc1f1e8b0365d6691eacb714edb8bc0b6ccb99",
-      "inputs_sha256": "524b47c0375a9a0fab9e6378a098bee98e74615cc195c3da9b1ea729a389623e"
+      "inputs_sha256": "634ae440a43ac90665f578bbacbdf7d4183730db1745b16cee3c3a252a6b4fe8"
     }
   },
   {
@@ -2785,8 +2785,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadFragGrenade",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadFragGrenade::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a01a8. The registry call at RVA 0x1eb08a passes its placement callback at RVA 0x1f47c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f5310.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2800,7 +2800,7 @@
     },
     "match": {
       "bytes_sha256": "7a2973c3af5a87db2d32e8e2cb0d12bf51eb63b6d1c90367d5c4ae631e0d862d",
-      "inputs_sha256": "b9500f10bba9ca4b24f5d96b1fe0b22ebe8f9a17ff6afaacadcf9157e7e5db02"
+      "inputs_sha256": "13c924d6bff1ee5c014802bcc7f8e9fc70a26d2abed87479e54639f0152cd64c"
     }
   },
   {
@@ -2811,8 +2811,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadFlareLauncher",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadFlareLauncher::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1670. The registry call at RVA 0x1eb031 passes its placement callback at RVA 0x1f4880 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f51d8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2826,7 +2826,7 @@
     },
     "match": {
       "bytes_sha256": "f9c95bb5b283a58b426ef91fb2a23cbd34f39cc25c794cde98ab013d992d8971",
-      "inputs_sha256": "45adcd13908c54d929a38abf26d3d5428725c2c68bac62d15332987e01d93cfd"
+      "inputs_sha256": "4a0a3d40251743086359f351581a1de46a6b6724b1210c40975d26aa3a61efaf"
     }
   },
   {
@@ -2837,8 +2837,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadChaffeGrenade",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadChaffeGrenade::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0090. The registry call at RVA 0x1eafd8 passes its placement callback at RVA 0x1f4940 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f50a0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2852,7 +2852,7 @@
     },
     "match": {
       "bytes_sha256": "1957354a96a3da6f9e7e9e022b443f3006040b35b409b0461f9e4879be98b6fa",
-      "inputs_sha256": "aee82e70679c5a0e832bac91e69a9a31587f9dad55c0552347873f38e0a1128d"
+      "inputs_sha256": "513f0d749313abdfa55e045fc36bfff141bee2365ea9b25b3471d0ba8b782c6d"
     }
   },
   {
@@ -2878,7 +2878,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "407e3cb133cf10303fea0e687f0b91dae43958957b875c38a8bf59b5adb7e45d"
+      "inputs_sha256": "2f35920a69f64ddcd7c2d73177f7f0352cebafd5f1d83d0596844a2e50b47680"
     }
   },
   {
@@ -2889,8 +2889,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadFlashBang",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadFlashBang::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f8e8. The registry call at RVA 0x1eaf7f passes its placement callback at RVA 0x1f4a00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4f68.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2904,7 +2904,7 @@
     },
     "match": {
       "bytes_sha256": "705fc048aecc5b604df586374301aeed152e7a29fe22308375ec8a2ac5f24205",
-      "inputs_sha256": "14c1d4c5b2b6873ac828eba72e79b282376b121b2bebd26522bab884e7001cea"
+      "inputs_sha256": "98871e8a0361a84ad7bd533dd4906088a8c143dd1d032592bea03b853f9f7207"
     }
   },
   {
@@ -2915,8 +2915,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadCamNetwork",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadCamNetwork::PrivateStaticClass identifies the stock UClass instance at RVA 0x3990f8. The registry call at RVA 0x1eaf26 passes its placement callback at RVA 0x1f4ac0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4e30.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2930,7 +2930,7 @@
     },
     "match": {
       "bytes_sha256": "c0303c3f16ab588cdb4c26cf69b9eaa1a74c6eaea77772632a812d7e6858ef0a",
-      "inputs_sha256": "8fb7527dc9034b0b440e4b06b908dfa6c110bbbd071eaa868813d10377ad2867"
+      "inputs_sha256": "49b7603aa01311172ee929480f8af680ccfb6d984a7f6d1a321dc49b06978b5b"
     }
   },
   {
@@ -2941,8 +2941,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASCamNetwork",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASCamNetwork::PrivateStaticClass identifies the stock UClass instance at RVA 0x399328. The registry call at RVA 0x1eaecd passes its placement callback at RVA 0x1f4b80 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4bc0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -2956,7 +2956,7 @@
     },
     "match": {
       "bytes_sha256": "8cfd90d0507603ada276f462963f5716f6d2c7e629324dea10db3f82bfbe5218",
-      "inputs_sha256": "0a231365547fc42591c4353e056e1941ce8fc2fe2f8cd7012c71c52ece57001e"
+      "inputs_sha256": "f146f162ac6396453562c6edcc08f1006101e106361e0d6df6b59f1e77d83489"
     }
   },
   {
@@ -2982,7 +2982,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2fb241c3960f25f720a6e6f1caf2b88210d05de2c3a0acd2add3e3fc12c72de5"
+      "inputs_sha256": "7458cb59a3a8fa0fb5bb5baa2693b1f1d5b413ba23d5306432aca2fb6784a57b"
     }
   },
   {
@@ -2993,8 +2993,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASStickyCam",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASStickyCam::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a7f0. The registry call at RVA 0x1eae71 passes its placement callback at RVA 0x1f4d00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4cf8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3008,7 +3008,7 @@
     },
     "match": {
       "bytes_sha256": "95be565a12fcb059c8f38fded18a838f463fb02f19c3336249ee6ed7b40d47f5",
-      "inputs_sha256": "4d8f567552d4e8cb1bfc95e586aa5eac62a49af00c132d60d56e8431f9e31807"
+      "inputs_sha256": "c93360f3d1fdaf51deac1cf5b9c1891ca8ef21d2e1ab98a90923ceb7e843141f"
     }
   },
   {
@@ -3019,8 +3019,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASWeaponDefense_Shotgun",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASWeaponDefense_Shotgun::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b970. The registry call at RVA 0x1eae15 passes its placement callback at RVA 0x1f4d20 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4a88.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3034,7 +3034,7 @@
     },
     "match": {
       "bytes_sha256": "103a19a3d0b781eee309f0dbfc0084b7eccbdc818ec110f30646a645ed55aad5",
-      "inputs_sha256": "26e7b5f00cdb5c8d6bbebfb32dbd6471a80ecf918c23909dff702da813fc61d3"
+      "inputs_sha256": "44b1b97f4d713a11da0586789faaaf882bf53a43399828b41cd307b3ebc3f1eb"
     }
   },
   {
@@ -3045,8 +3045,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASImpactEffectShockerMetal",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASImpactEffectShockerMetal::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a19b8. The registry call at RVA 0x1eadbc passes its placement callback at RVA 0x1f4de0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4950.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3060,7 +3060,7 @@
     },
     "match": {
       "bytes_sha256": "35e64a69bdcea0b64e9099cadc554c8f7e896aeeb3649b8d7126ee18b3e8eb82",
-      "inputs_sha256": "64506c6d6bebd725ac03059a7c362640763fe238c5ee67a92c5666e534f58ab2"
+      "inputs_sha256": "53b60544a5171f6455229e26ab9058b1ab30e06d315edf8c9a2fe26d4bc20c25"
     }
   },
   {
@@ -3071,8 +3071,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASImpactEffectShocker",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASImpactEffectShocker::PrivateStaticClass identifies the stock UClass instance at RVA 0x39fb18. The registry call at RVA 0x1ead64 passes its placement callback at RVA 0x1f4ea0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4818.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3086,7 +3086,7 @@
     },
     "match": {
       "bytes_sha256": "74087fd03a6530dd885e5b57dcbff9f30429375a6168062361f4631d9de302b1",
-      "inputs_sha256": "b953129ea8a1359ac9df41d69aa3c8405b1f505b27a370f430cee302bae74cb3"
+      "inputs_sha256": "4514e8ac8c5502d95ecf82eb011773ccdee43c2dbc6705a6dd16d54ce096e452"
     }
   },
   {
@@ -3097,8 +3097,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMinePoison",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMinePoison::PrivateStaticClass identifies the stock UClass instance at RVA 0x39cc08. The registry call at RVA 0x1ead0c passes its placement callback at RVA 0x1f4f60 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f46e0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3112,7 +3112,7 @@
     },
     "match": {
       "bytes_sha256": "f9c8ef184db1f9ee97707fadb74777f61cae87be366723ee48955d6d7c670a91",
-      "inputs_sha256": "eb877ea6766dccaeab562ed9af13be37f271e41445f6ddbce4b2fc03292d005c"
+      "inputs_sha256": "779eac7ef1e2610c8bbd736c5c66d25dac0c462789d819661c527f13c76a3c84"
     }
   },
   {
@@ -3123,8 +3123,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadGasMask",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadGasMask::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0fe0. The registry call at RVA 0x1eacb4 passes its placement callback at RVA 0x1f5020 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f45a8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3138,7 +3138,7 @@
     },
     "match": {
       "bytes_sha256": "33cb893cd793fbd33df7f520a7d46bcbc4df16f9b8b030d3e99303eae880a5e2",
-      "inputs_sha256": "a2a541b12865e834130918feafda6f6db49e4e29cc88bfeb87dd2e5e1a8989cc"
+      "inputs_sha256": "3eafb170a999393025b4a04b69eea06d50bf6e6fc6efd1ce244c44e30b95095b"
     }
   },
   {
@@ -3149,8 +3149,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadBackPack",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadBackPack::PrivateStaticClass identifies the stock UClass instance at RVA 0x399d00. The registry call at RVA 0x1eac5b passes its placement callback at RVA 0x1f50f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4470.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3164,7 +3164,7 @@
     },
     "match": {
       "bytes_sha256": "320ed5aeb6c1ba5a134b49d7dd553c6f0e861187836eef91f70365bafdbff499",
-      "inputs_sha256": "080b04176191acd2c52df16dda77042eab31d16373532a402b93a6d50a13826f"
+      "inputs_sha256": "7f023dd726d7cb5a773f3dfac31eebdda492a86a2141e65ea80cf1c764096ad1"
     }
   },
   {
@@ -3175,8 +3175,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASMateInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASMateInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a160. The registry call at RVA 0x1eac02 passes its placement callback at RVA 0x1f51c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f4330.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3190,7 +3190,7 @@
     },
     "match": {
       "bytes_sha256": "643db63a5c61c9e930acee5da31cab5b4d9902a2a7f98801397c55d8091dc362",
-      "inputs_sha256": "ef8d85000f8131130d257ec280901e7379d7d1dee2d69b944ddece1f1f34129e"
+      "inputs_sha256": "7d177891f9d5dcd74c347f3d2fd45664f0cf4fb6d496d83494073813ab70bd04"
     }
   },
   {
@@ -3201,8 +3201,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASHealMateInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASHealMateInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39bcb8. The registry call at RVA 0x1eaba6 passes its placement callback at RVA 0x1f5280 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f41f0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3216,7 +3216,7 @@
     },
     "match": {
       "bytes_sha256": "0ebaa75568e9b2e9661bb40cb44931d591946a260723efe6941d8c964453b7da",
-      "inputs_sha256": "adfd4223fb37b0b53bd07e55005784b1577777414e2905676d0c45ba1ba67b2b"
+      "inputs_sha256": "7b70db4eed59bfb8293271c9cb7bc5de6a2f9b0be03a3513a836ca49bd8d60db"
     }
   },
   {
@@ -3242,7 +3242,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5c5876b7b02db25bf93e1ec27e24533f130819b2659f25b3837bea25efcc4177"
+      "inputs_sha256": "7153a468ebe93433afeed493540471b80f9aae3c2d665b728c1924b46fade994"
     }
   },
   {
@@ -3253,8 +3253,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASBackPackInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASBackPackInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b510. The registry call at RVA 0x1eab4e passes its placement callback at RVA 0x1f5340 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f40b0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3268,7 +3268,7 @@
     },
     "match": {
       "bytes_sha256": "81888ed2401c86237783b4538cd2c4a9d3feb2df3ac3d848be50127da54367ed",
-      "inputs_sha256": "367afb1a0f0b0714f829a40ae61e9ad49fb3665cdb37535cd964fea504839022"
+      "inputs_sha256": "8df44b1ecf698dd52933a2f2673839e17f61801872398021287e9b1468c49f1b"
     }
   },
   {
@@ -3294,7 +3294,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d2aee47ee4eb730805c243276699984eeebef8e6c456cbc288bcdc07ce2e92c5"
+      "inputs_sha256": "733a84e305888f894f0d90489c5a38e98b9a356d76798d371e0782023288f0ec"
     }
   },
   {
@@ -3305,8 +3305,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASRemoveSpyBulletInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASRemoveSpyBulletInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x3999b8. The registry call at RVA 0x1eaaf6 passes its placement callback at RVA 0x1f5400 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3f70.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3320,7 +3320,7 @@
     },
     "match": {
       "bytes_sha256": "2b30bba297b1547cd5e82a54119c63f09b7a81dd960df8d6bdba244d8307548c",
-      "inputs_sha256": "28192271e20b4ee43536b2bfe4ffc8e6b95013aeb7c226bc6cd98f3d62745f7a"
+      "inputs_sha256": "d2a79426aa31d97f9c098c7c4885ac3496f2ab3f52f07b6062f5cf626cb614a1"
     }
   },
   {
@@ -3346,7 +3346,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6be1930bb8e604a4a5c2f6a6277af9f9bfe701a36c78bd557e5472c6a8153c32"
+      "inputs_sha256": "29dd453d5a1b038a0ebf6dd903533d119ec7ef1b45d6871bd1082ada2ff71d21"
     }
   },
   {
@@ -3357,8 +3357,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASWeaponDefense_Uzi",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASWeaponDefense_Uzi::PrivateStaticClass identifies the stock UClass instance at RVA 0x39edf8. The registry call at RVA 0x1eaa9e passes its placement callback at RVA 0x1f54c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3e38.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3372,7 +3372,7 @@
     },
     "match": {
       "bytes_sha256": "cfc1a89aa8cf169f41c9327962fb8036b469049d85db7dac0fb6e39f7980880a",
-      "inputs_sha256": "5be1fb654d46a04acc6ad3fa6cab6fe500cd4d01e78758c96aaba5c69e78b114"
+      "inputs_sha256": "be66779b32e01c622c03ba18a122076a4f8494f2af00bd0df27e5e3ab948f610"
     }
   },
   {
@@ -3383,8 +3383,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASWeaponDefenseDummy_Shotgun",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASWeaponDefenseDummy_Shotgun::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ba88. The registry call at RVA 0x1eaa45 passes its placement callback at RVA 0x1f5580 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3d00.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3398,7 +3398,7 @@
     },
     "match": {
       "bytes_sha256": "86662dca1aefaacca0f631642002128fa9915aa821e5ff2633226eb13ed20595",
-      "inputs_sha256": "88039c1fb8b9b3cc063308c99dc7a3c1239e77298821890a9752f8517478e250"
+      "inputs_sha256": "0aea6613eef519f1ecd064596604d0513e18e597c61c0d327005bb66ffd015ee"
     }
   },
   {
@@ -3409,8 +3409,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASWeaponDefenseDummy_Uzi",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASWeaponDefenseDummy_Uzi::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1e18. The registry call at RVA 0x1ea9e9 passes its placement callback at RVA 0x1f5640 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3bc8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3424,7 +3424,7 @@
     },
     "match": {
       "bytes_sha256": "e68378f087b88606f3f8180ddd4133e88a4d97d8b2930ad842f39ec8ba33933b",
-      "inputs_sha256": "a20c612deee5772293b935c79c3b20bec6549d63f36d27f984172c1fc69aa484"
+      "inputs_sha256": "4a0915108e8d8c8c54058c337cf85c819d6377eaac459223146fc0879be6b9ef"
     }
   },
   {
@@ -3435,8 +3435,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASPoisonEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASPoisonEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f370. The registry call at RVA 0x1ea938 passes its placement callback at RVA 0x1f57f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3948. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3450,7 +3450,7 @@
     },
     "match": {
       "bytes_sha256": "8e3dacd7156b55b0759fcd63e323999bab08a14aaff517750bdc983d701924c5",
-      "inputs_sha256": "99aece0a1a41ec16679c5e396aabf66e04451cd453898f152315add2dc00e39c"
+      "inputs_sha256": "28bcd32e4d8b75ac10eb21dc3ed55337cb9ed1fb60dce8dab0a4265411a5845a"
     }
   },
   {
@@ -3461,8 +3461,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASGadHeartBeatSensor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASGadHeartBeatSensor::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b2e0. The registry call at RVA 0x1ea8e0 passes its placement callback at RVA 0x1f58c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3810.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3476,7 +3476,7 @@
     },
     "match": {
       "bytes_sha256": "ed49518f7bbd621b46d10882fa588b287e757c00e07101577da15526043031a0",
-      "inputs_sha256": "cc6e41530535da8b6582a3e7d593a7c5af2ec1d7e6ec542102f878417892a66a"
+      "inputs_sha256": "3ac35f05e74cb9ed798432190bffb87dd582cb7a69e587bb0f08a078d07d6887"
     }
   },
   {
@@ -3502,7 +3502,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "f38a28e64202a0bea77f0cb0be39fb1048c32db1dd9f64ebe7e942ee981c5ce5"
+      "inputs_sha256": "a90f0ca41bcf106ed030f944eb18961ef0e3cb6aa3cc39bfacd2dd39ea1c3fb3"
     }
   },
   {
@@ -3513,8 +3513,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASCoronaLight",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASCoronaLight::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1be8. The registry call at RVA 0x1ea887 passes its placement callback at RVA 0x1f5980 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f36d8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3528,7 +3528,7 @@
     },
     "match": {
       "bytes_sha256": "8d5e079230a72fc5f05c3df1d9d54cd46c4f0dcdaabd2059cd47bb471985afab",
-      "inputs_sha256": "a321ec93598e924938f542fdfa6e6d99a80edda80452f8a536e402dbd827a927"
+      "inputs_sha256": "e3efb7604ea33e05fe683de217a032195e08059e84e1a06f9f5d096c35e35202"
     }
   },
   {
@@ -3539,8 +3539,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASStickyCamInteraction",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASStickyCamInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f7d0. The registry call at RVA 0x1ea82f passes its placement callback at RVA 0x1f5a40 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3598.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3554,7 +3554,7 @@
     },
     "match": {
       "bytes_sha256": "dc67d5f160e1c37f462f5e80d21ca1e21124245e933378dc2ed621d14889403b",
-      "inputs_sha256": "4c993efc596680a8d14e717174e673e7c8320564fd33d2d4d721a3387aa36d33"
+      "inputs_sha256": "0186be0ddd8ce4e4357b9c15c81172f88289e5e58f4c11bf26960b898c40fa60"
     }
   },
   {
@@ -3565,8 +3565,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASVitre",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASVitre::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a04f0. The registry call at RVA 0x1ea7d7 passes its placement callback at RVA 0x1f5b00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3460.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3580,7 +3580,7 @@
     },
     "match": {
       "bytes_sha256": "ae1dd832a811895b0abbadebddfe6818555b46070e1fd182bbb545c6f4486d3c",
-      "inputs_sha256": "0671f0db3e0411e4440028419d0691d03928ca41fe2fd5984685cf9d75e7003e"
+      "inputs_sha256": "e51f1c8eb007aba21c4acbf882e45c9cb67638b04e3841fa7fb80c1f58436604"
     }
   },
   {
@@ -3606,7 +3606,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c6a15a49c3549cb5349b058c604a06cbdcdad88e0d2fae34d4f81e68d2bae93c"
+      "inputs_sha256": "4ee3519d900e644c75219558969a76c2d053442f6125b9c2801d21353e240005"
     }
   },
   {
@@ -3634,8 +3634,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AESBStripDoorActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AESBStripDoorActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x398090. The registry call at RVA 0x1fdf7f passes its placement callback at RVA 0x1fe1d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f30d0. The one-byte member at +0x2d9 receives 13.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3649,7 +3649,7 @@
     },
     "match": {
       "bytes_sha256": "901830928efe92b5ed45e5fdb28388e594ed8e7509ae1302fb5e2b48317e8f03",
-      "inputs_sha256": "ed07b16d05ab8d2fc7fbbc2457e72c11ce5c6f03a0a519e5f25bebcb0d2dd73f"
+      "inputs_sha256": "a09f4f021caa04e37cc13e7d69fbbb7f14da2b8d631e98c4d2d4f7da943d2265"
     }
   },
   {
@@ -3675,7 +3675,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "54e4865a95c213d37466ae08274b3c320ecae2b8c2f13188f139b46ccabdd60c"
+      "inputs_sha256": "c36ddb57037045dc89fb5c71750d4232cf523ecd55d1a3cd0c6db27abccbf4c7"
     }
   },
   {
@@ -3686,8 +3686,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AESBRopeActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AESBRopeActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x397e60. The registry call at RVA 0x1fdf27 passes its placement callback at RVA 0x1fe330 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f2f90. The one-byte member at +0x2d9 receives 13.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3701,7 +3701,7 @@
     },
     "match": {
       "bytes_sha256": "6af68d517fad238b67447900015259990a96f92969f499b25d10c8a9c2fbc4ba",
-      "inputs_sha256": "2f9e5ec9ea51e9b4efedc9d0ffcd1d87861b520ac29dd87fbf4821bef109c205"
+      "inputs_sha256": "69f976be35c3cb5980c8bc6c75cda528d72ccb3e2a8398312458cdfa6712b758"
     }
   },
   {
@@ -3712,8 +3712,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AESBPatchActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AESBPatchActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x3984f0. The registry call at RVA 0x1fdecf passes its placement callback at RVA 0x1fe3f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f3210. The one-byte member at +0x2d9 receives 13.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3727,7 +3727,7 @@
     },
     "match": {
       "bytes_sha256": "9a687827b886fc166d2ac60ee4691452392df3ed28a0806f976adcd604e6e7ae",
-      "inputs_sha256": "c2e0270153c57659276533054b33fe019fdb6712a2f47d3725ae96cf4b78d5f7"
+      "inputs_sha256": "ae81ee7e44114790d02d33022d8e2c1f4780412e72bfd435a69a506939117945"
     }
   },
   {
@@ -3738,8 +3738,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AESBChainActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AESBChainActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x3983d8. The registry call at RVA 0x1fde77 passes its placement callback at RVA 0x1fe410 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2f2e50. The one-byte member at +0x2d9 receives 13.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3753,7 +3753,7 @@
     },
     "match": {
       "bytes_sha256": "4db1acc29aae91c3a6b651355f7151999e783015ef56c3d7b6f5c26c511a5435",
-      "inputs_sha256": "8ed589c5316477e9b5e9e0ff7753996f5ea2cc095fe176998288df0365def4af"
+      "inputs_sha256": "274534bec0504d37f855e3b4ff4a103bf94b8aebf45937a1b833b6efd0e6ed64"
     }
   }
 ]

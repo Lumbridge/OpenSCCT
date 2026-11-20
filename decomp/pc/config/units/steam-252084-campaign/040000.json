@@ -24,7 +24,7 @@
     },
     "match": {
       "bytes_sha256": "75325a920fe7b1b5e704440e1e1d63ed742a46610907e9556e84e75611aa8985",
-      "inputs_sha256": "2db3a3e017cb8c032a01907b1b9a4d87fe57164100f75108d05df01016aa6cdb"
+      "inputs_sha256": "c964e36df831e2af8a9a7ec0a0543c289d38cc018230d4fb576a5ab512a2dc1a"
     }
   },
   {
@@ -52,7 +52,7 @@
     },
     "match": {
       "bytes_sha256": "1941b713559b1ba4a1ddd1c505c6916e54126dab809fc2c86fee373b6e834ca0",
-      "inputs_sha256": "944de1b2a037b4f9d26003a6d1e23e749c5030de12648357022a277da743978f"
+      "inputs_sha256": "87ca3daf26647d755fa90bcd97df1e21372adf401490812b874f9b37e3c5aca9"
     }
   },
   {
@@ -78,7 +78,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "9cc0e73146b0125c0b1c34ea3c49804e78b848127f006708da069cd7edba50cf"
+      "inputs_sha256": "82264ccad30d35d4845db2b65f14e617bfc3b46e79fb19b443afea5ef21da3d7"
     }
   },
   {
@@ -104,7 +104,7 @@
     "identification": "Placement callback passed to the ABaseCivilian class factory at RVA 0x42f90. The callback at RVA 0x42f70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "3ce4cf372e8a21670e5dc5f30124f5a459717caddee8bd7c696f2158e2c24bed",
-      "inputs_sha256": "0186ce04e6244f44cd680906b9a69e30d70c187dfd7790e37a6d244fedf1176e"
+      "inputs_sha256": "e19fb425f9b001d4e88f4a2c38fe045b360eae9995e4e6768c43762f37e5030b"
     }
   },
   {
@@ -146,7 +146,7 @@
     "identification": "Native class factory at RVA 0x42f90; its allocation tag and reflected class name identify ABaseCivilian. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "db8d14b3a72d8e415bf5d0fb82abaa2182293b77e57dd2367f3cee777b45749e",
-      "inputs_sha256": "7391fb6d622166d0a9bff7ec22c7f583867c81b8988df8ca8cf05952eb6f16f4"
+      "inputs_sha256": "a00f00b33898346037bc32fec43ba163ce2261e8f86e727f8951230b2cdd3f60"
     }
   },
   {
@@ -173,7 +173,7 @@
     "identification": "Retail GetMaximumAimAngle event wrapper at RVA 0x44770, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GetMaximumAimAngle with Float ReturnValue at serial offset 0xb1c74.",
     "match": {
       "bytes_sha256": "a959f07cb4714b3b5f7cdd886daf035b188e6309de1f8b3139f071f6fdb936ee",
-      "inputs_sha256": "56a3367ea21445b20dd8a94a763bfbfaf5917c47ebf9ff6b2812c43383b1aa9e"
+      "inputs_sha256": "1a3335f150c53d65e624e270b4901a8cc98ddfacafd086f1fa46858e9f4fc578"
     }
   },
   {
@@ -200,7 +200,7 @@
     "identification": "Retail LookForPlayer event wrapper at RVA 0x447c0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "8406dfc67958d59c1f47d7c869e614631ecf8091c4ab34f9946cc69ed3c8cf19",
-      "inputs_sha256": "0258184d164b494de336e8c503c8f8bce9bb0ae460d2d1d28e901e5acb28ef1f"
+      "inputs_sha256": "e0e20a8e06617f65ccbfb5df5943620e963ebb17b6e792bd66591ff9acdde6a9"
     }
   },
   {
@@ -271,7 +271,7 @@
     "identification": "Class registration for ABaseSoldier at RVA 0x449e0, called immediately after the class factory at RVA 0x59fe0 in the singleton initialization path. Sets superclass ABaseCivilian, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "fb4bca26a2a3bad0cd48b2a320488a569d7913a70c536f7be0355b46589282d8",
-      "inputs_sha256": "1435df3a941e465e0714a6428a7b58fdc29d25a659223b0a10f880192e7a00b9"
+      "inputs_sha256": "3e449910551b1f78c6a6ac5f0bcbe3ad81b4a538f0e19e8fd2682d5aca34537a"
     }
   },
   {
@@ -295,7 +295,7 @@
     },
     "match": {
       "bytes_sha256": "5d6ee1dc9a9ee302224a2c36ece0f4f7b5077bb4ba2bc92112520e8b10286e2a",
-      "inputs_sha256": "a45a0eb0dd2f31aff2def1f0845d1262f93204d584792e0abae8f218b1af85e6"
+      "inputs_sha256": "56394f867a1f5736293683ce490cdce61938194c716e90fa9a1b8599ace3c5de"
     }
   },
   {
@@ -322,7 +322,7 @@
     "identification": "Retail GetFireStart event wrapper at RVA 0x49070, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in Echelon.u, EPlayerController.GetFireStart, serial offset 0x82f31.",
     "match": {
       "bytes_sha256": "8c0b29113452d7db81e06e83096fb147f1a28efd048146db5ed4769f03d460e2",
-      "inputs_sha256": "73a9bc6b3e268683f0495e95f6402c49f91da1accbae168680018c8138ec8245"
+      "inputs_sha256": "72afc80458897a6146e1a58a37ac88e0509c0ff8bc92dfdaac0814e3e39a6151"
     }
   },
   {
@@ -353,7 +353,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4bd60, including RET. Incoming transfer decoded within analyzed function code at RVA 0x51cbb, 0x52659, 0x553bb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "4e4071a24042bea36a564d2d18fb88f203c034a39985399b02e1f9539995ff23",
-      "inputs_sha256": "1f5adef2fadc0cb44ee9197f6e15be57a21b9aad8b85f76cb8342f6ddb661a0c"
+      "inputs_sha256": "0b2340241a3aa0ef1f7553fa554fbcb26d93e23b941b1872696394dc82c3c960"
     }
   },
   {
@@ -384,7 +384,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4bdf0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x51d71. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "999c7b9b493b51ef2780e4e6819281fed8d27a8903e3f891b3a64c05b902e3c9",
-      "inputs_sha256": "ee487b9a6f15783066de31abf028f13c4d7aa70a65c4b5b6ffb16f6e2df33448"
+      "inputs_sha256": "4a6a9f0d598bfa17bf33794b28bcaa159c2acf066aa30c20d19c19b47a6e17f4"
     }
   },
   {
@@ -415,7 +415,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x4be80, including RET. Incoming transfer decoded within analyzed function code at RVA 0x51cfb, 0x5537b, 0x59f39. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "7ce0e35c8d3d6a153446082a56d1d357694207db5981b893e9c89bdf548d6f99",
-      "inputs_sha256": "bbfb74c07de2bf0de070d71ed642d5c619cd12a06838eb2209ac49c3670902b4"
+      "inputs_sha256": "25bf90e9be165a78a0311363b2b1b3e3b357cafda2758882b6e105ecc075b843"
     }
   }
 ]

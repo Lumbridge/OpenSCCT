@@ -23,7 +23,7 @@
     "identification": "Retail EncroachedBy event wrapper at RVA 0x1933a0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.EncroachedBy at serial offset 0x319d0.",
     "match": {
       "bytes_sha256": "2746874bb389796a078449dd24b9129dc0395ba8b857c2c102a60fba7d2d8f3f",
-      "inputs_sha256": "64b260633a60e5863d5a2a305be4d81df51841da38156a2e5b3413471688f455"
+      "inputs_sha256": "a0e8500828b97f45ec27daf51f7206547719ffcaf409cf70b4dc4b3b9c7dfd46"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "Retail Bump event wrapper at RVA 0x193450, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Bump at serial offset 0x1fce2.",
     "match": {
       "bytes_sha256": "1edb91793d3f5b288d3d2fe6c4de896a19c4517810e55ce109c34aaf87a4ae8c",
-      "inputs_sha256": "a22c7cf6ad3ee4b6bdefc758cd36abe85126d72b92badb22eff0420e0f84d444"
+      "inputs_sha256": "bb1dd8c76b29368e887a74c4befaa55aa06e91a6cc5bfb7fe3b62288d0f35d00"
     }
   },
   {
@@ -77,7 +77,7 @@
     "identification": "Retail PhysicsVolumeChange event wrapper at RVA 0x1934b0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.PhysicsVolumeChange at serial offset 0x318f1.",
     "match": {
       "bytes_sha256": "b5072a3dd8a0aba179d49990d944e27622a4e3425c2203f386e9c415752cea2e",
-      "inputs_sha256": "4af85619c9ee6a919cd6d78e8ad02625c5ce2fa9070d950109ebffc7dc37e095"
+      "inputs_sha256": "862b06112d242601f240a07facf32080ae069351d5f635e15e4b49b84fa58afe"
     }
   },
   {
@@ -104,7 +104,7 @@
     "identification": "Retail ZoneChange event wrapper at RVA 0x193500, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares Actor.ZoneChange with ZoneInfo NewZone at serial offset 0x318c6.",
     "match": {
       "bytes_sha256": "7aa39ef0aabf55cfc5fcd1f18a8ad6352280a81245089f79fb19e6351d9b76a2",
-      "inputs_sha256": "29613ca009a6380b2ceec3331f0ac3250656268494f413e1ca9e71817a4da941"
+      "inputs_sha256": "1a42f28a89eaa894f38d5fc4bb58fa8bec1dd7c93b06d02f425e26e754bdb5b6"
     }
   },
   {
@@ -131,7 +131,7 @@
     "identification": "Retail HitFakeBackDrop event wrapper at RVA 0x193530, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "9301b4e6962687a82db4485930c9f973b79113a8fb25c983265287b542339de3",
-      "inputs_sha256": "6f954c1dc55b2e61202fa15294f7807237b53ee816411880e299ec7cf4fec71b"
+      "inputs_sha256": "f3ce7367d34bf236635748c835485368d5a3295c6d20e0da3bad5a59a9688309"
     }
   },
   {
@@ -158,7 +158,7 @@
     "identification": "Retail Destroyed event wrapper at RVA 0x193550, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Destroyed at serial offset 0x1a06d.",
     "match": {
       "bytes_sha256": "09e291f1590e36bc10bdb74453fcd4d68bf8e81df0ccaa7128596b39b9ddd741",
-      "inputs_sha256": "bfae9eaa31f921de75f89c8b50a82e848c7515d567280d357784b14042c27a78"
+      "inputs_sha256": "2fc9f9599512a337098220770c4038146bdbcd861af7afd27964341fd20d477a"
     }
   },
   {
@@ -185,7 +185,7 @@
     "identification": "Retail PawnLeavingVolume event wrapper at RVA 0x1935a0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopBlockingVolume.PawnLeavingVolume with Pawn P at serial offset 0x82df0.",
     "match": {
       "bytes_sha256": "e0280f49d321fbd366d4eafb558e6efc390dd480185af1c293bf32ca6cd16a27",
-      "inputs_sha256": "0d7292d679ac6131014e7e1df5b966bc9603ffc70a6f193e551622247fdc33ea"
+      "inputs_sha256": "16fdd8d286a18519fed2b96666290518875b5d73263ef983691d73a3c1f12371"
     }
   },
   {
@@ -212,7 +212,7 @@
     "identification": "Retail PawnEnteredVolume event wrapper at RVA 0x1935d0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopBlockingVolume.PawnEnteredVolume with Pawn P at serial offset 0x82bf2.",
     "match": {
       "bytes_sha256": "08af29dfbd8473770ed211f84ad58a478339cc4a26243630f0b040a10061dbda",
-      "inputs_sha256": "7239e739481306fc1615359bed13ab480ad2a25a48965ad5c0ed1ba25ac43c97"
+      "inputs_sha256": "f8a418db9c6447bbd20937aa4e562fd3a6b0fd7d5aaabfae1532660d2c0476f4"
     }
   },
   {
@@ -239,7 +239,7 @@
     "identification": "Retail ActorLeavingVolume event wrapper at RVA 0x193600, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares PhysicsVolume.ActorLeavingVolume with Actor Other at serial offset 0x4b6ec.",
     "match": {
       "bytes_sha256": "3edc51e9e4c0ed3641a962e733104f2bdaf05b0a339ecf027bbe355b378f5b36",
-      "inputs_sha256": "489118fc74d398db686f19295dea80e4f68aa819a5e4d0fbd658a7a1aa8e86fe"
+      "inputs_sha256": "dd7539f6e5883cd67695a61346170c7ab578f30ac0b650863e72dd956471a176"
     }
   },
   {
@@ -266,7 +266,7 @@
     "identification": "Retail ActorEnteredVolume event wrapper at RVA 0x193630, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares PhysicsVolume.ActorEnteredVolume with Actor Other at serial offset 0x4b6c1.",
     "match": {
       "bytes_sha256": "048141452e41b4860820ad6187c9e922f7995d97b22754b173f4d6cb1c868afa",
-      "inputs_sha256": "5e1c2a0b37b28a79e0ddb4b88f4c551d8be53079f2d9a2dc924f98079142318a"
+      "inputs_sha256": "e744f7fbfd0a4f17b140635f032d888b4a2857cd7f0c037e6c8ce3d8df7ce622"
     }
   },
   {
@@ -293,7 +293,7 @@
     "identification": "Retail PlayerGiven event wrapper at RVA 0x193720, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "bd45d0a828f49420f526ef693926d9788885eea164285a6a884b760f05e71e41",
-      "inputs_sha256": "399611d9f013adea9524f470adc0e71aadb470d1ca79dc5efb9bef6d0b1a6c6f"
+      "inputs_sha256": "4af0759e2e25d8740f84be7a14e93b1127286d8edf0efa64042cd7482031882f"
     }
   },
   {
@@ -320,7 +320,7 @@
     "identification": "Retail ActorLeaving event wrapper at RVA 0x193740, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares ZoneInfo.ActorLeaving at serial offset 0x29f73.",
     "match": {
       "bytes_sha256": "11f23acfd95ce378a5d5e51d7d5c2b103b67acd5504438eea7258c8316509676",
-      "inputs_sha256": "0db4fb4b18db12516d2fecfb4451c7f1540cd92f580ab34bb477fa1ec93e6ab6"
+      "inputs_sha256": "265a6188caf1e5d1ac25449a0532d6cd67e374c86505828b2622fb60b2201d0c"
     }
   },
   {
@@ -347,7 +347,7 @@
     "identification": "Retail ActorEntered event wrapper at RVA 0x193790, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares ZoneInfo.ActorEntered at serial offset 0x29fef.",
     "match": {
       "bytes_sha256": "1b4276affe8bbd88ddaa13ae75307e99a2a2864dadcb63d7ee09c5eea0949a86",
-      "inputs_sha256": "2f05f005f763967e7e8caa8576f17b25adcbfbf2d881547fe13c669159a8f6ba"
+      "inputs_sha256": "3a3414089e1fb196463e621b1759aef6163fd0cbba1f1fefbe4a7d6e4c804cc2"
     }
   },
   {
@@ -374,7 +374,7 @@
     "identification": "Retail AISetPlayerAsEnemy event wrapper at RVA 0x1937e0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EchelonLevelInfo.AISetPlayerAsEnemy with PlayerController enemyController at serial offset 0x7f74b.",
     "match": {
       "bytes_sha256": "4136e1458ae6aa6ef6586f8e1ba03ab82436b67cd825cdd1ae769daf9918605b",
-      "inputs_sha256": "eeb60fcf8a93595aa965daa30cc3dde6d2d9ba728ec10cc236b9a6ed055a8601"
+      "inputs_sha256": "84ade4f1c531b863385fad372f7b1636800e968fcc53e05dc4ec1ba388a8685d"
     }
   },
   {
@@ -408,7 +408,7 @@
     "identification": "Typed cast at campaign RVA 0x194970, directly called at RVA 0x194afb. Its class constructor at RVA 0x972e0 identifies ALight; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "36a586bbaa8e898a643d85d4b9326bab88cfa9c0e23a19be91967fcb5378f0e7",
-      "inputs_sha256": "75292e16edefb92db87f1275bc83c28dc81336add653d6a702b6820888e35dd6"
+      "inputs_sha256": "e3917c56af1b9f9af78fc643edba6f370489f94027b33d17ebba2c2aea812b3b"
     }
   },
   {
@@ -442,7 +442,7 @@
     "identification": "Typed cast at campaign RVA 0x1949d0, directly called at RVA 0x194d28. Its class constructor at RVA 0x1050e0 identifies UPlayerInput; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "d4b81b92d6c6cab9d0602b3d11d4a2446b0bf699769cbc040aab5896713c387c",
-      "inputs_sha256": "e754b049473886070a1be7dbcf476e443e5a5bb51684c664760e7509ae2c7faa"
+      "inputs_sha256": "15777f070bd5aff94eb7f703d8258f0b395d52dcf5fded242d7864a971fc9378"
     }
   }
 ]

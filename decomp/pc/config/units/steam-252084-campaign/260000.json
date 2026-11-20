@@ -23,7 +23,7 @@
     "identification": "Retail IsValidContextualAction event wrapper at RVA 0x266730, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopPlayerController.IsValidContextualAction with Bool ReturnValue at serial offset 0xa9455.",
     "match": {
       "bytes_sha256": "624932edfd3cea5356eaa48ee15db2d27edc283790adced027cec67371142068",
-      "inputs_sha256": "c7600a55e6a515a469ea25d1a7b8f3a72dd2f1b411b96c0d11d2fb80637e860b"
+      "inputs_sha256": "eb8c4128970754779ed47c72716fa9a7e6c575a225fc0fc7cb819473f436aa4b"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "Retail IsPossibleContextualAction event wrapper at RVA 0x266770, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopPlayerController.IsPossibleContextualAction with Bool ReturnValue at serial offset 0x5ea0a.",
     "match": {
       "bytes_sha256": "0f9a941a8bfb563351fbc486d5a425bc8fa047a54dcfdf3831289c309e17fd7f",
-      "inputs_sha256": "126e935b4e5c53e40d190fc76355dc3c00fee7fa37381ceb58c67e9f4104afdd"
+      "inputs_sha256": "c4f33e21fa9d79793c374d1e664d6f2ab448ba66c0e4f0ee38b778de35f5fb58"
     }
   },
   {
@@ -84,7 +84,7 @@
     "identification": "Typed cast at campaign RVA 0x267570, directly called at RVA 0x269b56. Its class constructor at RVA 0x2fb1b0 identifies AEHandGun; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "b02d315483409933bdc3b0979a7a3a84d207469198d04ec66fd8b4570225431b",
-      "inputs_sha256": "a628104d8a940e8894da92ac450fc99fbdb3485191b9552645cd314505abbcac"
+      "inputs_sha256": "79a2cdb1aa0334b98a3c7a441981a5429ab17e78729a064cd070839d5f809beb"
     }
   },
   {
@@ -111,7 +111,7 @@
     "identification": "Retail QuitComputer event wrapper at RVA 0x26bf20, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "905e0f6145158b4684bbb8d17af763d416160b0986e0b91eaffc2d9046bddb5a",
-      "inputs_sha256": "85ad5268f3322eec9df7560b15959f16c6d313b732dbe1e8d1fa936433f0feef"
+      "inputs_sha256": "ad67fb608f168adc2ec10be02cbca8be3f86e6b3ee1a82d7253658036885072a"
     }
   },
   {
@@ -142,7 +142,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x26e590, including RET. Incoming transfer decoded within analyzed function code at RVA 0x26e96b, 0x26ec7f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c27369606847106680c78c6ffa28afa4128b3bda44c6502b434f3f5c0cfa841f",
-      "inputs_sha256": "e78a3cd8299591dfa524999b30b4f741ba87936b89839e338a801d1aab17f343"
+      "inputs_sha256": "59f98fc28c586cf1cf398a3148ee8532b648743c73f9d3e1ff4e2413e78fc97b"
     }
   },
   {
@@ -169,7 +169,7 @@
     "identification": "Retail GetCurrentZoomLevel event wrapper at RVA 0x26eef0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EMainGun.GetCurrentZoomLevel with Float ReturnValue at serial offset 0xb98a7.",
     "match": {
       "bytes_sha256": "ba72962ec914348b975f5f78aa610c9d8354f6f767d971cc32d999188e38cb43",
-      "inputs_sha256": "a38c9041cdecd620e7f991534dc790642ca3df94cb34d519473cc381e97382ef"
+      "inputs_sha256": "59e717b05fb890f97c0055f70341d7ff706a182eefee79da881032ae6b22d184"
     }
   },
   {
@@ -196,7 +196,7 @@
     "identification": "Retail GetScope event wrapper at RVA 0x26ef30, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EMainGun.GetScope with EScopeAttachment ReturnValue at serial offset 0xb9773.",
     "match": {
       "bytes_sha256": "7917f63d47bdffcc18ccdd5027c90c47f18455ff52713206f9418b98a49c2de6",
-      "inputs_sha256": "feed74a2627897ba5c0e8abe993fab918c07d080c0e01bae3e926bdc5a644496"
+      "inputs_sha256": "e06e3d01f5f393b76f68630d605639a2ec3e899fb446d40d407c09b2d553d637"
     }
   },
   {
@@ -223,7 +223,7 @@
     "identification": "Retail GetFatigueLevel event wrapper at RVA 0x26ef80, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EScopeAttachment.GetFatigueLevel with Float ReturnValue at serial offset 0xb7909.",
     "match": {
       "bytes_sha256": "11cff7b887b18f88c6c7f2f892f6a77bfc2729e35cf6bff1b17d983e8d3f7f2b",
-      "inputs_sha256": "d63fd109d94e8f72349c814a015812794e0917a24558db0a7754bf214a89c357"
+      "inputs_sha256": "2e71b87c23a772c53dab292c997adfc7d12a1b0fc6b46e0c3c5820b9ee3d3fb2"
     }
   },
   {
@@ -254,7 +254,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x26f460, including RET. Incoming transfer decoded within analyzed function code at RVA 0x26f64b, 0x26f7e3, 0x279ff5. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9ed11356970a55ced66854810fb3f4039afa276a787feb77208bb044c013b7be",
-      "inputs_sha256": "04e02ba8e77c405d7dbd0164a9efc059504dcaa00c250dfe79b305cd2e05048d"
+      "inputs_sha256": "fd64886592d2bae57f815f75bee0d0c094423919f5edf48a0936ca96f0c30eab"
     }
   }
 ]

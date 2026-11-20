@@ -25,8 +25,41 @@ struct soft_body_actor {
     unsigned char field_2d9;
 };
 
-extern struct actor_header *__attribute__((regparm(1)))
-    initialize_actor(struct actor_header *storage);
+struct actor_pair {
+    unsigned int component[2];
+};
+
+struct actor_base {
+    struct actor_header header;
+    unsigned char fields_before_c8[0xc8 - sizeof(struct actor_header)];
+    float field_c8;
+    unsigned char fields_before_d4[8];
+    unsigned int field_d4;
+    unsigned char fields_before_pairs[0x10c - 0xd8];
+    struct actor_pair pairs[4];
+    unsigned char fields_before_flags[0x2e8 - 0x12c];
+    unsigned int flags;
+};
+extern const void *const vtable_AActor[];
+static __declspec(noinline) struct actor_header *initialize_actor(struct actor_header *storage)
+{
+    struct actor_base *actor = (struct actor_base *)storage;
+    actor->header.methods = vtable_AActor;
+    actor->field_c8 = 1.0f;
+    actor->field_d4 = 0;
+    {
+        struct actor_pair *pair = actor->pairs;
+        unsigned int remaining = 4;
+        do {
+            unsigned int *end = pair->component + 2;
+            end[-2] = 0;
+            end[-1] = 0;
+            ++pair;
+        } while (--remaining);
+    }
+    actor->flags &= ~1u;
+    return storage;
+}
 
 #define PLACE_AS_ACTOR(type) \
     extern const void *const vtable_##type[]; \
@@ -254,3 +287,9 @@ PLACE_AS_ACTOR(ATrigger)
 PLACE_AS_ACTOR(ATriggers)
 PLACE_AS_ACTOR(AVolume)
 PLACE_AS_ACTOR(AZoneInfo)
+
+void place_AActor(struct actor_header *storage)
+{
+    if (storage)
+        initialize_actor(storage);
+}

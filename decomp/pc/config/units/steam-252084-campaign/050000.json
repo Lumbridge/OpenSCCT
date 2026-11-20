@@ -24,7 +24,7 @@
     },
     "match": {
       "bytes_sha256": "8c3fe0d19a60d8435678a361f90f088330b1224709f6833bf61760fecc1adc13",
-      "inputs_sha256": "642b8d96faf92e5054a019449b740ecdb11f651468704a7207bb29538a252786"
+      "inputs_sha256": "7c9fa8b16d273620e350e844d064abf5e327c67216b2b69d278477c2764d0d1f"
     }
   },
   {
@@ -50,7 +50,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "5f67611f1dfe08be04e8c4f2a766b3ff08fe86e684a2696f6289d42cdf532277"
+      "inputs_sha256": "bc897fc98a102a5a3d041f4f18e996c3fa4259a24fff020a785a227a107eddf6"
     }
   },
   {
@@ -76,7 +76,7 @@
     "identification": "Placement callback passed to the ABaseSoldier class factory at RVA 0x59fe0. The callback at RVA 0x59fc0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "1665677aedd0c6a7a4afb509e8c2bce0ebcfd0a5921a0d536c68b6f55c14f3a3",
-      "inputs_sha256": "8f07f0fc567f3fcf673dee7794bee60efc49e09be707227e56ff720dc2daed47"
+      "inputs_sha256": "fbbcd5a59e71de3058ef6847beb0c4a793f25b9d1626b8211b677a5588de5906"
     }
   },
   {
@@ -118,7 +118,7 @@
     "identification": "Native class factory at RVA 0x59fe0; its allocation tag and reflected class name identify ABaseSoldier. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d957c78a7dc1586c519760781f13555e8c9415d6ab41964dcc685f75a0f2a178",
-      "inputs_sha256": "e364e1c88de796b0017e807ebc9fec4159bc5cd0e03c59e7c2445c5343aa4e27"
+      "inputs_sha256": "9c4f93abf044a3c4678b0ea5f160bb2a06d88f7e3c1eaa8beee8111f0bdad84f"
     }
   },
   {
@@ -189,7 +189,7 @@
     "identification": "Class registration for ABaseUAV at RVA 0x5a080, called immediately after the class factory at RVA 0x5a450 in the singleton initialization path. Sets superclass ABasePattern, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "1cdc1f22177d39be0addf855808c9aa5d6711a032136ee14dfa015e330d487f1",
-      "inputs_sha256": "3ca04d13fc6c707833cb5cd15667c2007ee477a51721eb8882957b36c6284218"
+      "inputs_sha256": "be82a115487745fe1857c9bf509f4c13985afec3ed7c418f9abfa9f586206881"
     }
   },
   {
@@ -223,7 +223,7 @@
     },
     "match": {
       "bytes_sha256": "3b5cee54b8116dab8c3bcbcb7c9f703693dbdc6c87d8aca95d7acdc58bf11e0f",
-      "inputs_sha256": "f7e9ee5c4cce5e04d8394a1648e46af688518171177732cbf1501ab57f3e29f1"
+      "inputs_sha256": "d2d42e303958cffdd41baca2d5486d2a39f92fb53cd60cbc775ab76de9c48121"
     }
   },
   {
@@ -249,7 +249,7 @@
     "identification": "Placement callback passed to the ABaseUAV class factory at RVA 0x5a450. The callback at RVA 0x5a430 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "3c2fb60338e7f897bb0e35e99e4f1ff7fefd855790f70ac16f23d57da53a6c06",
-      "inputs_sha256": "7b7a18275b7cb837d85544c814955d7f124c5bcc2225f2553f4fb9cbd9108969"
+      "inputs_sha256": "2366dc540750841827cdef10a6a4204695905947ff7d5f50daccacd8607b3183"
     }
   },
   {
@@ -291,7 +291,7 @@
     "identification": "Native class factory at RVA 0x5a450; its allocation tag and reflected class name identify ABaseUAV. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "5b8357f62a5e943e1e71b0af9d3c646f0279263d53b1acb217481fd13b7f16b5",
-      "inputs_sha256": "7636715d16eea6f52ddf60b83a448185e80f1125ff5a658d5167f61aa3870bfb"
+      "inputs_sha256": "3b7cd8a6904cc615b5edaaa0b37b6df8effe81cebb91e1e30458234bf8c0d148"
     }
   },
   {
@@ -362,7 +362,7 @@
     "identification": "Class registration for AESRAElectrostatic at RVA 0x5a590, called immediately after the class factory at RVA 0x5a8f0 in the singleton initialization path. Sets superclass AESRA, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "91977ad7aafed362590e90d9e5de8b292bb6d619a416a03f961f427c6cbc0c69",
-      "inputs_sha256": "f853d96a5f64c22a1b999ae582c1ef3a6f484691970dc67d7264b8b35b3cd3d4"
+      "inputs_sha256": "800876ed8663bfdd62c5453358f382282a0ea95af668dac4653cf3c316a91379"
     }
   },
   {
@@ -396,7 +396,7 @@
     },
     "match": {
       "bytes_sha256": "02d8d07ab08563490e3829caf66deb9edd9db9602a933c3b2d41fcf0b77c0f32",
-      "inputs_sha256": "0172edc540d2d1863751c41729ad7b8d4b5d5541b012e477654611aa8a46c185"
+      "inputs_sha256": "a52f1c174d5c820959e4403982e23ea511e54a64bd1d2164ec411da1d1ec4a95"
     }
   },
   {
@@ -430,7 +430,7 @@
     },
     "match": {
       "bytes_sha256": "a7907c28b0c3d88683482fc143a605622d4d99adec07840787c3d918d441a55a",
-      "inputs_sha256": "044fe960e671edc972b7da98b0a18ff9d9419887327d121065d641e6c3692860"
+      "inputs_sha256": "2c645d8e56ce7be6a74c054bcb111cb67cfae71b86fd1cd3ac09610e4b692b81"
     }
   },
   {
@@ -456,7 +456,7 @@
     "identification": "Placement callback passed to the AESRAElectrostatic class factory at RVA 0x5a8f0. The callback at RVA 0x5a8b0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "2ee5c7050d7452558bb294596e1c387a3674a026fe0ed40408d9a4f016d3baad",
-      "inputs_sha256": "dc664464e9965f873f20735833c92413157b4d0d661034ea1178822b79f84ef6"
+      "inputs_sha256": "09e66b58717d12756ec1fd541f38881215bb367b65d43577c7006e53ab1b6c55"
     }
   },
   {
@@ -498,7 +498,7 @@
     "identification": "Native class factory at RVA 0x5a8f0; its allocation tag and reflected class name identify AESRAElectrostatic. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "4589d052a8fb692d08bd01cd5a3df682319aa0ef856117e5bb4eac5373384c8e",
-      "inputs_sha256": "865b99ab682c307dd905c04cd9f4df8e378d84dd78c3bd69d5b73bf009498a58"
+      "inputs_sha256": "873f163ef4a942a61db7624319588b59d55cba360d7989a971b7567c86df5708"
     }
   },
   {
@@ -569,7 +569,7 @@
     "identification": "Class registration for AESRAKickable at RVA 0x5aa20, called immediately after the class factory at RVA 0x5ae70 in the singleton initialization path. Sets superclass AESRA, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "b8d5c11abd28eb31ff61a0134d1117770ddccc6da708be45b8fa72e17d36c765",
-      "inputs_sha256": "ed5faf812040cdd2181e4f1756de1adc11ca7c4d2061cf7cc6dd0908a3e3f997"
+      "inputs_sha256": "553b2fe242f5b06e91b7b5fe15506f2e579b2ce5cb1a574da7b6efe276c7d184"
     }
   },
   {
@@ -603,7 +603,7 @@
     },
     "match": {
       "bytes_sha256": "eff41acb1d9100b5762b002ab97970db5ea43a8509e93e58dbb4828c454610a1",
-      "inputs_sha256": "c3e4ddf50cf9190b0b6b6f103334f21e23068f685ff09e35e622e0a686bdaa3d"
+      "inputs_sha256": "396c3b7b982adaf4a0e49421202d7cd7b300875ec7e79b2808ddd781cb14b5e6"
     }
   },
   {
@@ -629,7 +629,7 @@
     "identification": "Placement callback passed to the AESRAKickable class factory at RVA 0x5ae70. The callback at RVA 0x5ae30 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "aa7e305f97b2b4381f5c596ff34a2bed4b15eb80145a31484b7de42952b29172",
-      "inputs_sha256": "b2fff624b9732b0d6dbe042b9dc8eea1498884425615cca524a24ec4fc6c3553"
+      "inputs_sha256": "4e35509df24908408e52e4361f4285c84a7cf97238a5755cbe48bf75c1949fcd"
     }
   },
   {
@@ -671,7 +671,7 @@
     "identification": "Native class factory at RVA 0x5ae70; its allocation tag and reflected class name identify AESRAKickable. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "982b6ee6479abd36d5d7573b4a2767714d4f33b3653ded6fb1eb6f553dbbe6e9",
-      "inputs_sha256": "9e1406fe8502349302748acb27e747cdea810ef52972816d5199be946f35b5e8"
+      "inputs_sha256": "b0997287e2e2869f15b441aa0b11f266ce582d429206620cab08d04b5eb0e684"
     }
   },
   {
@@ -742,7 +742,7 @@
     "identification": "Class registration for AESRAPickable at RVA 0x5af60, called immediately after the class factory at RVA 0x5b380 in the singleton initialization path. Sets superclass AESRA, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9649442a86409075767273053e721c9adc53d31111d3355ffd04bfcd59bd6f8b",
-      "inputs_sha256": "61e1a85b90c690c359c35f95147efb6ad1679e834376f6976a2b48d7727d27c6"
+      "inputs_sha256": "a6b5c02fb71f70d2a4966dd7423333648ad5e14dc8020e7e64429eb5278370af"
     }
   },
   {
@@ -776,7 +776,7 @@
     },
     "match": {
       "bytes_sha256": "3f28d2258c6091eed714f0a229e2ce7498215f6ef030e4df8c5a6ed1a5f456be",
-      "inputs_sha256": "37c71c2062204970b569bac8ad4fd99c8a2b51bf6abcb53018889a214d1ed410"
+      "inputs_sha256": "1b9528e0519fc72cdd151dee8578069f54459fae3fc97f61a6829a1ddb2c9bf5"
     }
   },
   {
@@ -802,7 +802,7 @@
     "identification": "Placement callback passed to the AESRAPickable class factory at RVA 0x5b380. The callback at RVA 0x5b340 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "44216e200c775a61655c2f09e1fd0e5c66624701079ba3f1283863ab4c961bcf",
-      "inputs_sha256": "ba652609e5493f968e4616ce9d03beeaef9b7c1216b674703a84df1701264b75"
+      "inputs_sha256": "ef8c926c094d22c9d8bcfadfc8d4c41ae8e37b8f6224f0246a9fd4e09989f7c6"
     }
   },
   {
@@ -844,7 +844,7 @@
     "identification": "Native class factory at RVA 0x5b380; its allocation tag and reflected class name identify AESRAPickable. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d45ecad23f28c7b16cadc03825fde09c42a23aa3019bfa71edf808e8d4beb936",
-      "inputs_sha256": "2d43a46f1048ef8af3ea77fd08dfeb35761da6cb5a41036dcc344c1dbc86c0b8"
+      "inputs_sha256": "26a489d4ab0d32e54b048253eb502f34c4d9fceb363ee99f14278c4cf9852f1b"
     }
   },
   {
@@ -878,7 +878,7 @@
     },
     "match": {
       "bytes_sha256": "89f1e9c0116bde3401f407e01c42e748c83e462058726940574c1a45eb1f191b",
-      "inputs_sha256": "41098f6a9602dae48cb8d35559c0ae1ed7728e24a98273020b454696f8d31517"
+      "inputs_sha256": "32b40a01fe9d97b796bb52423bfd5fc1b555ea3d5666b170f5543a3d3d02f47e"
     }
   },
   {
@@ -933,7 +933,7 @@
     "identification": "Class registration for UnNetZ at RVA 0x5cca0, called immediately after the class factory at RVA 0x5eba0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f53f0061b7113eb25ec68b3bb76402db3b313491e4531047d16a3eab6cad07f2",
-      "inputs_sha256": "38bf650c80df2e843c50bde8f740844e815b05ae8c2b09ac278642717dbc61da"
+      "inputs_sha256": "200be5629a91d073ab0bd0d9a5cb043540433af98c1c7fa4fb5a91bf7f3ee89b"
     }
   },
   {
@@ -959,7 +959,7 @@
     "identification": "Placement callback passed to the UnNetZ class factory at RVA 0x5eba0. The callback at RVA 0x5eae0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "993f1e50eac30c3b6f4db39647525a0512adfb325079a7de03d658a7597ae6de",
-      "inputs_sha256": "7d76335b68891915eaf2488f17f5dee07a5a6951d0dad740a8e7c6e08d8de64d"
+      "inputs_sha256": "14b51e89d8c90b7788cfa0d61853fa147f362f973962718acbbb2b3635a73ed3"
     }
   },
   {
@@ -1001,7 +1001,7 @@
     "identification": "Native class factory at RVA 0x5eba0; its allocation tag and reflected class name identify UnNetZ. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "bbcb45f2fcf95ef732369d0c203cfbd56704253c07a055631a65eb0d8018cc01",
-      "inputs_sha256": "872d5a0b80270922a1fae442a9b15a1c0426196e353b1c8e49f8b2f74c9eacc1"
+      "inputs_sha256": "343c4a9c194f612c39928d5a9b2459ebf6d51c67269a3998aaf12eecdc06a948"
     }
   },
   {
@@ -1032,7 +1032,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x5f5c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x6148b, 0x24e3ce, 0x7b066f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9b7c8f86ac414febc76e24e2b9cc81b675b430a62d8ade35b98485e95f311e62",
-      "inputs_sha256": "12c13448970d128c6e55ae0b698ccc2e7936154bcec27483e8fd0b284932e670"
+      "inputs_sha256": "e4154ab7bff009c3fe014ad192eb9f74d735b0688c12cad3a2f62df6b3a991a6"
     }
   },
   {
@@ -1063,7 +1063,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x5f6a0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x6152b, 0x7b06bf. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "869749c9237fbcc2d8565b2f883c63d7f6e2b36d0416282d1a28b8734e239623",
-      "inputs_sha256": "9d7be045a1378fe6b0c4482c6133c60e203d488bdc3590f5025143155a6c5c08"
+      "inputs_sha256": "9cf39e574a9cdcc6fc206bc818444c1445f86739677cde7ca1d721f2f118f9d8"
     }
   },
   {
@@ -1094,7 +1094,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x5f7b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x6169b, 0x7b05cf. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "92249d477b8f03fbf627f7cb45f7d1dff6e127b8ad1649385c159bec9706a02d",
-      "inputs_sha256": "1294fe41e09b99a9149d4561a4475e78d4833eb37ca5593456deff10464a0312"
+      "inputs_sha256": "b73db996daed8afe2a5c301cdca3a9b038c2e1d4e5f579f8e6cda9fd27c80192"
     }
   },
   {
@@ -1125,7 +1125,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x5f890, including RET. Incoming transfer decoded within analyzed function code at RVA 0x6173b, 0x7b061f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "907b4e1e07c0021b2cb0329127233a4e464ed06b545ed5d5801f99b713900032",
-      "inputs_sha256": "0ae2f324a1f3f9d812d7719462fb1530228cf11236ccf902fb5df60bdf649b1b"
+      "inputs_sha256": "00e17ded0e378108853038b328c1f89b2988b42e752a6c2cf0375a4d212afa2f"
     }
   }
 ]

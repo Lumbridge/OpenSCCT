@@ -50,7 +50,14 @@ receipts. The campaign manifest records the per-member hashes. [CRT makefile](ht
 ## Versus actor placement
 
 The stock AActor placement callback at RVA `0xae2f0` transfers the object in
-EAX to the initializer at RVA `0x92100`. A C declaration with `regparm(1)`
+EAX to the initializer at RVA `0x92100`. With both bodies in one C translation
+unit, Microsoft C/C++ 13.10.3052 assigns EAX to the private initializer.
+The full 75-byte initializer and 178 registered placement callbacks reproduce
+4,037 Steam bytes using `/O2 /Gy`. The same compiler reproduced all 179 with
+`/Ox /Gy` and `/O2 /G6 /Gy`, 159 with `/O1 /Gy` and zero with `/Od /Gy`.
+The optimization switches used by Ubisoft remain undetermined.
+
+An independent C declaration with `regparm(1)`
 reproduces this convention using Clang 19.1.0, revision
 `2cfe42ea4a7fe364dcb197beca469af8edec0ad6`, for `i686-pc-windows-msvc`.
 With `-O2 -ffunction-sections`, 177 complete placement callbacks match in

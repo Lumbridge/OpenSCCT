@@ -18,7 +18,7 @@
     },
     "match": {
       "bytes_sha256": "1a91859191023dcd088efbcaaf5669d92bb38b0cd4fe29a68d9862960f3e021f",
-      "inputs_sha256": "e8a6e69bb8bbd24e02c75435df4f982ed6d823457818a8410328ebcf5b660dca"
+      "inputs_sha256": "9dd767317b7d2c6f1b571013c4f32ac4d26cf596fb2d50899d31a06185cc6b16"
     }
   },
   {
@@ -40,7 +40,7 @@
     },
     "match": {
       "bytes_sha256": "23f3b3d17676f4712c1d0c87f68965631a6de7ba15e6d13d375735fc41297256",
-      "inputs_sha256": "5091647eafa402c3c9fcbb2e649be8c323e863f0c9e5404bbba4bc3a862b4b55"
+      "inputs_sha256": "ee7ba1f77af1ff75c0159cbb764108f945c91b6b0729472779899640441c39d6"
     }
   },
   {
@@ -66,7 +66,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "4d2570f30e4374dfb4d366c4ca52f1a2e193d7705a676d334960d050799de9d1"
+      "inputs_sha256": "21dda934ca1f97782c740efe0a3eaa95da1261e8c379958c748b1748da71085a"
     }
   },
   {
@@ -92,7 +92,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a2cc058f77fab570cfb7f3f7eeffb842828f16b81ef45720411fef365bfe4401"
+      "inputs_sha256": "ca6ea0fffe2766ed2d9aa6066c83a71ba8ddae2b75f9a7e1f122f40118587976"
     }
   },
   {
@@ -114,7 +114,7 @@
     },
     "match": {
       "bytes_sha256": "f6508d4dcb34101a10f2a7456dc2887a472b8b7f77dd9d2c4082e2cd069926dd",
-      "inputs_sha256": "76247dcbf4e694f6f71767c7b07edaee6f4bc6d5a5cf6c62dd68ff64064a5d1f"
+      "inputs_sha256": "59bcee15f1b7e5583cc891797d16ef5a723e8d6428422f72a10de375fe76be80"
     }
   },
   {
@@ -140,7 +140,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "832873b24ea1933c7280623ff1845f8e757e208763e041ddcf3bb3eb516483f7"
+      "inputs_sha256": "7739056d2d234298037255e23a5c3ca66a86faee83bffd912a41aaceb39600f0"
     }
   },
   {
@@ -166,7 +166,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ef525b5a381505c1748509882815045d2065ff32baf2f6ba93b28b2ec05e512e"
+      "inputs_sha256": "cab16639d0f7d5cafea481fb9a4d0a76df4e90099a2d17ab3ba55963a781dbf9"
     }
   },
   {
@@ -188,7 +188,7 @@
     },
     "match": {
       "bytes_sha256": "879a2b6c54d48b371fa4924674a2fbfa2ae351b6078154edc452dd57ef2046d9",
-      "inputs_sha256": "240e2fc876bced9e4bdbe36eddd6f8e595c3de02791298d2d1bc375917c7e612"
+      "inputs_sha256": "fc0bcbf5917a3a935af0051f99e84e7e809a810dfb98745a4642ccb3b1fb0720"
     }
   },
   {
@@ -214,7 +214,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d0ca88e3bf905ba57902c83ba5c40adebe9fafe300de9f2bedc8b618b6d4c43b"
+      "inputs_sha256": "46069801daf8bb3dde9dd76307b86fa2d4056edaeb235e70a1a25a48630e2fdd"
     }
   },
   {
@@ -225,8 +225,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AInventory",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AInventory::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c76c0. The registry call at RVA 0xa24cf passes its placement callback at RVA 0xa3080 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30b1b0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -240,7 +240,7 @@
     },
     "match": {
       "bytes_sha256": "d039901a7c245b817fcbd79a13d8e241a7ab1cc7fbe53c57c41e07c3dfc4573e",
-      "inputs_sha256": "43cbc67079b07e587fa379a0fc07a2f267d84c1fcc8fdcf22a5e4d66a99bebda"
+      "inputs_sha256": "6c0b96e19c20916075cf8d6ffa4298d6b5aedcd892645e5b4220662f2b44f365"
     }
   },
   {
@@ -251,8 +251,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASLogManager",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASLogManager::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c75a8. The registry call at RVA 0xa2473 passes its placement callback at RVA 0xa3180 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30b078.",
     "link_bindings": {
       "_initialize_actor": {
@@ -266,7 +266,7 @@
     },
     "match": {
       "bytes_sha256": "63c3028cac135d22a19e83cead32f17217ade350da391f9a74eedaaf1cf9b74c",
-      "inputs_sha256": "9ceea399d3af01230f77a1cb98161190ee7d83d0029e7a33534864dd48f75087"
+      "inputs_sha256": "8e6b0bf23aed5bcb65b41e24309a7b419f7636f6a40e2f6b93ba55586773c799"
     }
   },
   {
@@ -277,8 +277,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AESoftBodyActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AESoftBodyActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x3bed90. The registry call at RVA 0xa23c2 passes its placement callback at RVA 0xa33a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30af38.",
     "link_bindings": {
       "_initialize_actor": {
@@ -292,7 +292,7 @@
     },
     "match": {
       "bytes_sha256": "4c576f41bdab5f1cef76b352a546c4ee47874570d0c6d95afe6a5ece1281a8a3",
-      "inputs_sha256": "dddc73a0fba38e19d10f318dd05cd1806008d4b57db1541186bfee4048becfab"
+      "inputs_sha256": "b85dac41732cc158ac7afbda746a4cdf2becd3367f516576d8c354f22d98b4ab"
     }
   },
   {
@@ -303,8 +303,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ADecoVolumeObject",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ADecoVolumeObject::PrivateStaticClass identifies the stock UClass instance at RVA 0x3bf538. The registry call at RVA 0xa236a passes its placement callback at RVA 0xa34b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30ae00.",
     "link_bindings": {
       "_initialize_actor": {
@@ -318,7 +318,7 @@
     },
     "match": {
       "bytes_sha256": "c52b3bcc070744b220bafbebc850ff9cf08a00df5f12749c0f14744bed7aac96",
-      "inputs_sha256": "fdc6863cb3a1f63805b803b16b788b9fbbfedf036bf86afdb2dc3de39838a225"
+      "inputs_sha256": "aafc4a398701ce463b7949a9bda04edd143bb2f12f300aa614a0c4abcd1604c3"
     }
   },
   {
@@ -329,8 +329,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ADecorationList",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ADecorationList::PrivateStaticClass identifies the stock UClass instance at RVA 0x3bf420. The registry call at RVA 0xa2312 passes its placement callback at RVA 0xa3570 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30ab90.",
     "link_bindings": {
       "_initialize_actor": {
@@ -344,7 +344,7 @@
     },
     "match": {
       "bytes_sha256": "4841501a4bfdfd71c896b204bc22c85f9647930a2a9faa5c685f55f090dfdd82",
-      "inputs_sha256": "04bf5bba53835e014510615aecabcee6aaeb860cd292c7898c0098b7d26dc86c"
+      "inputs_sha256": "1cb1ad00fed668375dc38613591b8365cdb0ebd82fb7d5989ff3b84ab60a192d"
     }
   },
   {
@@ -370,7 +370,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "639d6c007bf8de313605202766921d5c11a279f562e54366f4f951f00f95be47"
+      "inputs_sha256": "772d9ee0582cff2a9f83a8856f003a4653a11bda61088618209cd3a34b56f223"
     }
   },
   {
@@ -408,7 +408,7 @@
     },
     "match": {
       "bytes_sha256": "f2b3f7634cb9c797c6f6cc528016cfbf3c0d0dc0bd240c775a24b08172a98aa2",
-      "inputs_sha256": "633abc738262433eb3e38941b25797b94a263b0f52193d2588ac453d6a4dff43"
+      "inputs_sha256": "cae7dc6b362a98d5fb275852392b2f77d85e61c3c8f402c0028d26060811fedc"
     }
   },
   {
@@ -419,8 +419,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AStaticMeshActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AStaticMeshActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x3bfc38. The registry call at RVA 0xa20aa passes its placement callback at RVA 0xa4500 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30a4f8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -434,7 +434,7 @@
     },
     "match": {
       "bytes_sha256": "06acf1bccc46aaf370fb26a6391800ac337e3f043862b219c5e1913419cabf5d",
-      "inputs_sha256": "2b983ee0199fb175afaa73f901fe928caaea1dedb1514652f94603fb5288020c"
+      "inputs_sha256": "e79f7931f3155d79638f8b3fffca587a5469dcda88d914c3ee6ae0a682c649fd"
     }
   },
   {
@@ -460,7 +460,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cb7cd8ef232add4f5c0ea3b5b6cde35ea5294d3e615511c74fb6ec9f23c36072"
+      "inputs_sha256": "48dcbde7f93a1674d85f9a89a6a5ca7a1df3a1b25c028b2f040e379746db126a"
     }
   },
   {
@@ -486,7 +486,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "0b8b6b099bb46f6b99e21976b66ee31c5b426926abf8dfc52eef6236c3c1a27f"
+      "inputs_sha256": "714d1edc27ff0f6e6bdc209aeb28d9f3df2f23fbfbbba94a27878bf2ba17deba"
     }
   },
   {
@@ -508,7 +508,7 @@
     },
     "match": {
       "bytes_sha256": "7e34257e8b6b5241a33dad4564c195177eab04b055401b66b1be89f495f8acb2",
-      "inputs_sha256": "4b0d4bdff72c63b78a45903ca01ec246dc4fc201d7c842384a75447e2a32fec7"
+      "inputs_sha256": "3f460dd3c0019f7caee103a216e641f88cec676cc31dc97ee5f443a124b3df8f"
     }
   },
   {
@@ -530,7 +530,7 @@
     },
     "match": {
       "bytes_sha256": "68f1a21a33bceb6ab4803788c5d2a02db69c14bbf15cbc0067567d1f5996f490",
-      "inputs_sha256": "d9b3041f4f11860f17070193a9720131e7a1b26566e11a876da6abf5b6bcc91f"
+      "inputs_sha256": "0c33de1572f514fa0eee8925f47cc33c09023c6359111225913c6ac07079af40"
     }
   },
   {
@@ -552,7 +552,7 @@
     },
     "match": {
       "bytes_sha256": "0937a2b41a06b5813634aceb8b95534f8f5dd50059f4ae54f56371a6e2312dc0",
-      "inputs_sha256": "18b32d4464dec8a653925fe365f73f1025b40975e3a6bb76752825777b56fc8c"
+      "inputs_sha256": "2edbd26aad5dbfc9af0d4cb61201402b3b455538de1fa759e2e25256242b50c4"
     }
   },
   {
@@ -578,7 +578,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8cc73c4d5ef9ab904f4c07fbe401afba91878324505285a82b87d249d7d5c6ac"
+      "inputs_sha256": "24ac27cdced1b6731eaf4207c0b6f001d921748654ce11e30cc6a68a87524944"
     }
   },
   {
@@ -600,7 +600,7 @@
     },
     "match": {
       "bytes_sha256": "f1cb1a5208b68f81b6c1077c066b0c009ba67cb3d183dcff2c77e7758aa651b3",
-      "inputs_sha256": "db43709da7a7b572c08477b85e9fb44774f663d914e42534534ba77e8c24b563"
+      "inputs_sha256": "7821f0ec50e3f4c98d530d17e1eb98edab0272f2a51ad9cd51b3c5e16309e6f5"
     }
   },
   {
@@ -626,7 +626,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "07856e677fa2af578fcbfa4898438306cd236af4ced4b33bba1e8edc5a4d2a00"
+      "inputs_sha256": "9e6d5ce7394ba1be7ef7c466c7696d38ecb9af1239ec72a387b829e6676b8c60"
     }
   },
   {
@@ -648,7 +648,7 @@
     },
     "match": {
       "bytes_sha256": "f03427a62b8b3a80dea11bae03c2fdb4afeae533022f172dc0681e2fb3321925",
-      "inputs_sha256": "ec15c46dcb2b95ed311a451579185aeb5bee314ea94f4c9538a5f655ae7bc76a"
+      "inputs_sha256": "7640b3b869349d15193d709c0a8a999a1cdae1b067d3a01a62333db0623e7cb3"
     }
   },
   {
@@ -674,7 +674,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "85d16e7afc0f167cad9e52067d1bcd893f52e32f5f1f9721f5fe6fb10ddacd69"
+      "inputs_sha256": "c3baf898fc7d0c0b2dd45fd90bf4827f3a4b568d0587bfedf39176ee199aaa50"
     }
   },
   {
@@ -696,7 +696,7 @@
     },
     "match": {
       "bytes_sha256": "fbe6c193edc2e9e324cfecf8072f0bc5c99009f111b28d244bac80d571323e88",
-      "inputs_sha256": "5017008fa0df637acc96e1889134d6bccb8adf8903b19250915edfb7157b57a1"
+      "inputs_sha256": "f3f02fdd84ca263bb82264521c13a1102af05689b832a0f98c367635567ee8aa"
     }
   },
   {
@@ -722,7 +722,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "34c11a19f8298ace3fc556f3ee0e480ef22ede4b2fc98d2f2821b877b03730e3"
+      "inputs_sha256": "a7ac77fcaff9cac4f650b2a2dda8b78a9b4ce76373723cf53b9aed4a273df767"
     }
   },
   {
@@ -744,7 +744,7 @@
     },
     "match": {
       "bytes_sha256": "197fdde60bbbb1b1913d9078df20053a03574bb21dce51e6555d7f596be7d85b",
-      "inputs_sha256": "7810c14b0e72bfab8e6fe6611aa47d52386f79c94344c675167bebaf01068b6e"
+      "inputs_sha256": "61ab76e339c4c9b3db3fd6d84bde53d0fa3cbd77272405998be242e6ff69ad87"
     }
   },
   {
@@ -766,7 +766,7 @@
     },
     "match": {
       "bytes_sha256": "ce0e747727982b27f0ce3b1cddd2e17b70f2721132121c8e144623dc85da28a9",
-      "inputs_sha256": "c0c9db750ae36afa1918b7cf0612ca6bdcc487cd79a9ae8d1951cbf99d97dd79"
+      "inputs_sha256": "f992e0ab708d6da1e72a25f08cbbdaff602b1a3efc38e6e2155079b4649cb21a"
     }
   },
   {
@@ -788,7 +788,7 @@
     },
     "match": {
       "bytes_sha256": "fc4f4f29f361e60d7623c4333c754c6eadd16a7b0f9107b1140951f853e3bece",
-      "inputs_sha256": "e59a22750fb161e4b9360467cce9330ad05f4114c43460c960789b852f5b4dd6"
+      "inputs_sha256": "962794ff0c79c50bae9d31cdec7dd9671231053883ecea7a9432a4b0872a8bba"
     }
   },
   {
@@ -814,7 +814,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "344b9702804f759322da93df8101a44cd3d751836df967435b787eda02b2e96d"
+      "inputs_sha256": "7f13e7967faf662289f9b9eafeea227cb618ebed9d4474e0a002d400513ea2e8"
     }
   },
   {
@@ -840,7 +840,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d0d1de0fdf0bb2f9097e661650c5fa56392ee0d072c2b242218e9122a4bc3dbb"
+      "inputs_sha256": "1d81ce075c16a0d0a773a59cbee1c549111df5b3b2a27fe08af198069056dc7c"
     }
   },
   {
@@ -862,7 +862,7 @@
     },
     "match": {
       "bytes_sha256": "54c31c7fb1cd1bd738b6ffba6276057be9cf4a5215e0d817fa373c9e8f61320e",
-      "inputs_sha256": "bd530ba5665a6f689ac18ce6a557c70c6644ffd297065588a4f3255c136809dc"
+      "inputs_sha256": "90443dbe7f80ac1dfe4b863349e1dbe882ba910296a8e5e4a9f7cac3e926e343"
     }
   },
   {
@@ -884,7 +884,7 @@
     },
     "match": {
       "bytes_sha256": "64bbad844e37e33fa4b6277bd9e3a92b55144f37ca8db23b42aa506d09e6ba92",
-      "inputs_sha256": "8303e8b9b1a8852fc443ba648b0d625f82e7bc5d81f602e3baa1aff7d07487f4"
+      "inputs_sha256": "3dee49364946f313ee36617fa82957de8cbfb5d46209772be7a11c99a689beb1"
     }
   },
   {
@@ -906,7 +906,7 @@
     },
     "match": {
       "bytes_sha256": "abc4cf9d3554033af7fb3210f0a1674923b0a3e0b43bb77cb66da56b881eb99c",
-      "inputs_sha256": "f241719f2b613ad1b251c44338c58734da1bfcd77c3adac80ffe36cce8cdcee6"
+      "inputs_sha256": "033cc25ef69a211ee11889ce49a0dc435ec07614cf8bc6ddb8d0a8914ada1d1d"
     }
   },
   {
@@ -948,7 +948,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "04c4460c440e494cbb8f8d6b6594589115fd171c728ffb81e7c9614b858f4d7d"
+      "inputs_sha256": "7f060498047c704a2cb036895a9507607b24247d9015fbd699d8ecd2a054c085"
     }
   },
   {
@@ -974,7 +974,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "abeb88697457a784ad9d94da6aab6f06c7096d4ad54a56e1b5a9bad278674387"
+      "inputs_sha256": "b03d622a1e32a313fc90c0baa61f1e7e32accb0a4cc4356fd8d3b07b15a8f1ba"
     }
   },
   {
@@ -1000,7 +1000,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d89feac096927b95b9b3ab37db790035a7c2eedf0aa5760dc26449680b840bde"
+      "inputs_sha256": "45f3e77d778c107c6688af8b696e8d27178558d80538eb4c8a555ef3e02d6048"
     }
   },
   {
@@ -1022,7 +1022,7 @@
     },
     "match": {
       "bytes_sha256": "1560811c6a67c2d4fa0ddb42a4446af580191ba14e75e016f948aa3020cc72be",
-      "inputs_sha256": "6cf35245551293fa4d4136fc855c6de120f6c515ee69181caa926d0b2505a69e"
+      "inputs_sha256": "f75be6697d4092ba19ed81bd11b5bef4c55e503b397f59318618c1633f05181e"
     }
   },
   {
@@ -1044,7 +1044,7 @@
     },
     "match": {
       "bytes_sha256": "686e791da920ec3e34117b82e3e73ce2e1975f6516d4a3832023eea118b40a6d",
-      "inputs_sha256": "e3d98a6d69af817a74a0f65513b199b1df2b1b4e13adb3c117034e822cf30e64"
+      "inputs_sha256": "ddc76cb763f01fc2f0ff8eab955ead8f56886b26ca11c14697ba12cc12e1511e"
     }
   },
   {
@@ -1066,7 +1066,7 @@
     },
     "match": {
       "bytes_sha256": "ae96f97a65f4a8485395e695f12c613efb72269d1ccaf7aee417a154079c78a6",
-      "inputs_sha256": "e9f4972f37703da71d1139f72a9135ea44e2fad44b5eb4bdbeaf884280bc46a6"
+      "inputs_sha256": "1fbc9500cae230dd5859742b65e6c1af77f8ed89b758066fd27a5fb952e572a5"
     }
   },
   {
@@ -1088,7 +1088,7 @@
     },
     "match": {
       "bytes_sha256": "c2e76b0eae681990bc5aae61a69342bf60c2fb22a805ed43296a529778b1019e",
-      "inputs_sha256": "b8d8eca1a65b77a51ce86ef08444276844b6cffaca76628c0bc91d10169923c8"
+      "inputs_sha256": "eb288229b7d76f3a96736b2267e73773ed8609498c78b90240d473cdd07d2ab2"
     }
   },
   {
@@ -1110,7 +1110,7 @@
     },
     "match": {
       "bytes_sha256": "770180b9a43beed034159028ce7700b4954818ea3f9cf66130e948e99d9cb106",
-      "inputs_sha256": "1b09e0c78becf1e698d1fd0005844555f3cc675f2a1edda2648659492c790364"
+      "inputs_sha256": "3ce1c9a9a6a190d8fcd420f32a8594d49a0d120169cae81733dcc79c8bf87e13"
     }
   },
   {
@@ -1132,7 +1132,7 @@
     },
     "match": {
       "bytes_sha256": "f6dda231b2a6f8622fe299fad07d40ef86ad7094aceffce82013682c5aeba20f",
-      "inputs_sha256": "d9b26f0d3046541bcd1c65dda84040d95aa3e201e5cdf13bebfeb017caab72d3"
+      "inputs_sha256": "80bcbdca10a5ec5861816dde8425ef202acfe208f0c67dd423f47bed86a837a8"
     }
   },
   {
@@ -1154,7 +1154,7 @@
     },
     "match": {
       "bytes_sha256": "c20f9786d5ef276b6f87c32b2277410a8410c087af63d7a22e9e470d66b176fd",
-      "inputs_sha256": "07cc839a2f2c053dada9b63aff04e1d5cb2d462de08fe0383ddbafab2923721d"
+      "inputs_sha256": "19139b8bdfb4f6aa9da3c874a4cf8de72a571f92c13f5a59ac9d6f2241b771c0"
     }
   },
   {
@@ -1176,7 +1176,7 @@
     },
     "match": {
       "bytes_sha256": "08a26a61b36a65ee80c408d6a97879d44931f432ecf175d7c193e572cd8489f6",
-      "inputs_sha256": "1bef15b8d3d233982a353cc6e7f7d8f6944f1986347feb574d3745f44316a098"
+      "inputs_sha256": "1d4768bb999558cde9063ed5b078ee9b0dbec65212eed6a85496397dabcc54d7"
     }
   },
   {
@@ -1198,7 +1198,7 @@
     },
     "match": {
       "bytes_sha256": "cba531c3c4bee45c2847e71f67ec3ab97dc6f5f2ad59b60be1652ae0dab3ac15",
-      "inputs_sha256": "f25bfedf1aec22f7755abfd4734be48e9cd88afaf31133df8f8b1330daf729e1"
+      "inputs_sha256": "02a512b39e5913abaf4b4bc5876d82d3994490646a56f8135805775201991eb7"
     }
   },
   {
@@ -1220,7 +1220,7 @@
     },
     "match": {
       "bytes_sha256": "d8055ba91524aae74049916a753894b0093f545ea629e3195466719f69cd5be5",
-      "inputs_sha256": "b355b2386b86aaf9c4255496dcae3422bcb9492a2f3fe69900e083fbdde44440"
+      "inputs_sha256": "73580c52362a5c5b0bab5e817d29fc9fdcdb8929f680a18f6147b8d3ee3fd11c"
     }
   },
   {
@@ -1246,7 +1246,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9eab1ea2a4f19b71f85a78c9a40bacb1ce96cfad0ec691376d58378ae8cf0c43"
+      "inputs_sha256": "cc42126b1c100913e9a3a532ba4d45367ae2036f9ac21fa26cfd87926a4ce27c"
     }
   },
   {
@@ -1257,8 +1257,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AShadowProjector",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AShadowProjector::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c0500. The registry call at RVA 0xa168c passes its placement callback at RVA 0xa77d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x309398. The projector members at +0x444 and +0x450 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1272,7 +1272,7 @@
     },
     "match": {
       "bytes_sha256": "57900a28ceda075b985b061b5866c278f62556e6cfc6abb17b581eb27fd7087d",
-      "inputs_sha256": "b54bc0f2d044e680b68977fdacd7bf4ada58dcaaa3301b9ef75ce4618ee4d552"
+      "inputs_sha256": "4ef7505e5e62861edf2f019a050477b1ac68efdb9d9564087767da3259b4bc76"
     }
   },
   {
@@ -1298,7 +1298,7 @@
     },
     "match": {
       "bytes_sha256": "773a0058e9cb29234863ebd3c4ac05f5bca7447f38f12172c7277c3a43851e63",
-      "inputs_sha256": "e11fdf32d19611b349f1a669d379d7f2eb28582e77113530f1c6c30602e313d2"
+      "inputs_sha256": "3d9d5035f063208d2f142cc20c04875768915c66912d52c707e07d7537444f3e"
     }
   },
   {
@@ -1324,7 +1324,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6052a0ebc3a83f86c98f8c8bcb41f4c121d12fb71ad44722e45b488816833c39"
+      "inputs_sha256": "e82e62508ad2cedd633164bde3e17df4bd6c7e4c0fd7f447c5eb7600798590d5"
     }
   },
   {
@@ -1335,8 +1335,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AProjector",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AProjector::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c03e8. The registry call at RVA 0xa1634 passes its placement callback at RVA 0xa7a20 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3094e8. The projector members at +0x444 and +0x450 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1350,7 +1350,7 @@
     },
     "match": {
       "bytes_sha256": "11fa51f285cbbcc05adb3cdff934165642a9d28d71f75c101c694899909cee05",
-      "inputs_sha256": "b6954b862e6ee4606d739b8ec18ec0ce865d447ab754cbdcc667b9b3bec59961"
+      "inputs_sha256": "bff99409dd232ef0ae05c0887133e39b1dee2ea943d5e30edbcbb8ff7a88a86a"
     }
   },
   {
@@ -1384,7 +1384,7 @@
     },
     "match": {
       "bytes_sha256": "bd9317cb739b5865bb60a395cb30036677ea2f4c2e603f90027af91eb6bcc7ee",
-      "inputs_sha256": "dd1275a3cd976b65cde019192c2ab55ff78a2fe4a38d9aaace3e2a66aeecb77d"
+      "inputs_sha256": "a228c80584d9b20f2b7b0c34f8433ba5e9a75cb2592645f44d72b0cf708fd047"
     }
   },
   {
@@ -1410,7 +1410,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6fd0f654a59ebfb8e08fd2eb2c5c41566db14179dccffd1979d887156ce1f63f"
+      "inputs_sha256": "ab9e9b814917576a3567b2df28124858b81d860480e7c8aa6915f8d262951778"
     }
   },
   {
@@ -1440,7 +1440,7 @@
     },
     "match": {
       "bytes_sha256": "e7841efe921c00e3386275465335d58f0842c6b9eef6161bee08afaff5e9a2d8",
-      "inputs_sha256": "0f76912064c3340d94e438876eb7198131a10fc70097f10d5cb50b91d793f937"
+      "inputs_sha256": "165514888a18d2a3357199f4cc77561ceb712da4378106498f1c6db39df47b3d"
     }
   },
   {
@@ -1451,8 +1451,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_APawn",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for APawn::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c1568. The registry call at RVA 0xa1426 passes its placement callback at RVA 0xa80b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x309058.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1466,7 +1466,7 @@
     },
     "match": {
       "bytes_sha256": "4761b6520eb7bde1e7a9b522b32f916be9992db6959b13b3809005ed51283d26",
-      "inputs_sha256": "ca1ee8ef335d3f2a871e09f20773b328e58134739e15cc957107f324d15a3230"
+      "inputs_sha256": "4fa988a9999b2eed36f3fcea5159644fa52a09b2db708a4096ebb31d3b9da5a2"
     }
   },
   {
@@ -1488,7 +1488,7 @@
     },
     "match": {
       "bytes_sha256": "0830e8b150e518377f433942784991d806ef92a2986fd08eba57f84710a6acbc",
-      "inputs_sha256": "aa7094eeeec48e6209e0bde06d322d1234c9d0986c7c5b80c254387411d8c95f"
+      "inputs_sha256": "9893e7dbdaaf2157b2d0537b606648e19267017261aebe4b5e71d0762d070968"
     }
   },
   {
@@ -1514,7 +1514,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "b8429cad10a4c2ae3b677696a248caba21cf07cc63c9791b85c3dd98cb0bdc7d"
+      "inputs_sha256": "6d4d10b4afd5b94fcaa675a5ad056a3497a55be6d4c0895b438883c51b6f90c7"
     }
   },
   {
@@ -1525,8 +1525,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AEmitter",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c1ae0. The registry call at RVA 0xa1372 passes its placement callback at RVA 0xa8270 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x308e80. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1540,7 +1540,7 @@
     },
     "match": {
       "bytes_sha256": "bc380431d1e339a67b63f383c508a96df499349ac0cf73d27d207b05190c79c9",
-      "inputs_sha256": "b23fbd1d92d662b40e4b0a9ec9b89230c3835575dd02d5e0af3054fe36ca310a"
+      "inputs_sha256": "77f04ebd1638158145bbb7c5a03c21bba34018a87e006d1b5d2a1914d726825c"
     }
   },
   {
@@ -1566,7 +1566,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "49315a3af0546ef2e5b5f5bb43f84ebaceb3bd33063a51dda185a26ad9ff9e03"
+      "inputs_sha256": "3992f90b4cc21ac0dc9cc6ba221bcfedfb30bf28a4ee32203efa2918e0ea4dc9"
     }
   },
   {
@@ -1588,7 +1588,7 @@
     },
     "match": {
       "bytes_sha256": "2c22940b49be80ff14e35beb61cd40db728be7e21397605ff58fc6d50d0a1d29",
-      "inputs_sha256": "f4873567d26c64df9f3b8d4cb31be2fd88315ca11af77a395a5dc882dab9a357"
+      "inputs_sha256": "a571c358e95ecec22b60c72da1582fec268cf14f5c3dffbcc2a9ef9091af19c6"
     }
   },
   {
@@ -1599,8 +1599,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AMoverRotating",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AMoverRotating::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7c38. The registry call at RVA 0xa1213 passes its placement callback at RVA 0xa8470 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x308b80.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1614,7 +1614,7 @@
     },
     "match": {
       "bytes_sha256": "76063bc0e82a866b7accfe5acc48170191d39a43b3ec083f319aef1c4ef6e79f",
-      "inputs_sha256": "db129a8b246f56a0ce6c06bc53765e7d8f62b554fb4256bc60b278b58e155eec"
+      "inputs_sha256": "0040fa3e699838ec8dd9a84a6331b0e72850bb1d150d14c69afebcb1d43fa67c"
     }
   },
   {
@@ -1640,7 +1640,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "3a8e5c29168ccdfb0798da26ee5d118f52e7658e9e4e4ca907586a5a1a0fd1ab"
+      "inputs_sha256": "c6ca18499f4a4f3c669879eb8406d367b425958dd7a486ee3e7dd04372e8c55e"
     }
   },
   {
@@ -1651,8 +1651,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AMover",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AMover::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c1680. The registry call at RVA 0xa11b7 passes its placement callback at RVA 0xa8610 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x308cc0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -1666,7 +1666,7 @@
     },
     "match": {
       "bytes_sha256": "4d2f7d5bc621fddf2c8575aeb4d09aad9cd04b8f5868d354e6ed11b7e94079df",
-      "inputs_sha256": "a0617cb52b104c91e6f1b859c7403b3638500a34ea11b56fe8b30833b2a22af3"
+      "inputs_sha256": "fb5b2d4f46ba7d323a4e84a2ae63b923b6000cb90dfecc33c1f79cbc4e274907"
     }
   },
   {
@@ -1692,7 +1692,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "796bf1211c736b0890e444cfc034b8fcdd460719877c59fdebb0efcb59ff29ee"
+      "inputs_sha256": "c6f5ff7f3c23bbbcabb2fedbabf4ee04748b6cef39c4e1a5a27db320ef4a6b4d"
     }
   },
   {
@@ -1714,7 +1714,7 @@
     },
     "match": {
       "bytes_sha256": "79bf7beb300f12482300432010d8af157eaab9529c2d9b7698ec087a04b7a450",
-      "inputs_sha256": "f7dbe6e00bcb7f5868b373dac0824c0ccbf0d981bea70abff54ac32f46775011"
+      "inputs_sha256": "aa6f48b9f614a2a1b48ab68faa6b035b2c21e8bac6a45436d390f367efd8c5c6"
     }
   },
   {
@@ -1740,7 +1740,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cbe338e360da918c5a3388ce692cf21e37c286a1325a9b75ee56d6ebdc0aedab"
+      "inputs_sha256": "5baa572f10dbfae93a92d48e390acddd7311d8921efd6fe8c18f48fbc802bc0d"
     }
   },
   {
@@ -1774,7 +1774,7 @@
     },
     "match": {
       "bytes_sha256": "4930688739d198e627a1f0663b01e983eae486a6706f924e973fff94c7f2d767",
-      "inputs_sha256": "03e846d0daef3d6f92185add60ea1dbddd9c203c1a0e4aad1d24bb349422e70a"
+      "inputs_sha256": "ff6270f066e58f5bc11972382ad0df35fc93c120566194b799d4d219eea140bb"
     }
   },
   {
@@ -1796,7 +1796,7 @@
     },
     "match": {
       "bytes_sha256": "b6444968eca9c9b78fc5d5e4381bcdeeded23eee96af299d5c19462e537ae6f2",
-      "inputs_sha256": "b0ddabb331ecdb44c362aa60767f00eb2802318ef95b9e57b0f4aa3a651c015b"
+      "inputs_sha256": "4b1bd1f6ebc45e428502314478f3dab031f9cc1974c7b864be1dbe55490e1047"
     }
   },
   {
@@ -1850,7 +1850,7 @@
     },
     "match": {
       "bytes_sha256": "ea90ce151b6ee3e53e510ae6c0d22e198adafdd663504414f1ab44064b8d3f21",
-      "inputs_sha256": "3f4f31a1349bbbb7a1f02e141ffa6ec3cccfb9f36f9e18d426fcc8a7d4b74996"
+      "inputs_sha256": "8a9483ebabdb9d31e01d92a70304f4e2966f11abefd34ce2f1e2cd7bb32f5190"
     }
   },
   {
@@ -1872,7 +1872,7 @@
     },
     "match": {
       "bytes_sha256": "bae07989ef77c56076174b1dbdd184a6836097ea762c33ed7ad64048a2324626",
-      "inputs_sha256": "8d384469f7646926fb1b3ac555bb66a770c6eb4418e86bae439bcc3fc732ab40"
+      "inputs_sha256": "825691eafee25fff13049cddd9aaa7706e04b9ab2e8915ea30b3479c553d3154"
     }
   },
   {
@@ -1898,7 +1898,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1c04531ce65ef46c792aebec0baa381666811fc8608deba3144dda842317e61a"
+      "inputs_sha256": "4a8c4e427565beed3b80fd2183fcb757516436b946a0bfc4e7ffaaabc3462a2c"
     }
   },
   {
@@ -1920,7 +1920,7 @@
     },
     "match": {
       "bytes_sha256": "022112fb08ba995fb6a5b8e64497ebb75689c7210496e96cdb31074a5c7bc544",
-      "inputs_sha256": "cce4b52aaca303804537e0f09440c1fda669c4c48f12c0040edd00087e97d90d"
+      "inputs_sha256": "2a9733d162820ba5618368d3415eae323fef8dc18e82f81cf862bf87a76025ff"
     }
   },
   {
@@ -1946,7 +1946,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "df24ff92a73cf098e3b8df92441c9d671030fdb998f0168755803ac2907bd3b3"
+      "inputs_sha256": "c1c34a42f5abf11c89c5e10944936edcd14504293f7346322949097dc3cc9b88"
     }
   },
   {
@@ -1968,7 +1968,7 @@
     },
     "match": {
       "bytes_sha256": "cb9bd8986cdf3f64d15198166533fe154fa99d50151233e898234221d2e68511",
-      "inputs_sha256": "fe47f2c3eb8c0c077e79d3eac3431732232110347a5a2986a26bdb0ec353e4ba"
+      "inputs_sha256": "cc195ad7a29ab66a435296dd81a01acee6f0f7fda9034572cadafb875b5833de"
     }
   },
   {
@@ -1994,7 +1994,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7990f835873a59c9fcd5ed548c851ed968f22afd6d3293656a9cede2290f42f4"
+      "inputs_sha256": "709250cd67ebe2b978b294682e04338411c0d85fc5c98d7ca0ebaced584a3cd5"
     }
   },
   {
@@ -2016,7 +2016,7 @@
     },
     "match": {
       "bytes_sha256": "55af6cb9e93df43778655ae4e8e3ddc0c98d3f0b4b88014ec894713ed8224615",
-      "inputs_sha256": "3e31ed788fc0c132fd9e954a2fc3b1086662469a30e4e591f9f07c8ceed69bd0"
+      "inputs_sha256": "9bd7032e571f2c11752ee59e29f192b42f1a26f29e5f68e83f4a9332adf95fe1"
     }
   },
   {
@@ -2042,7 +2042,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "166258fe77818f1f3395c23f2d377786ac6ce1dcfa747c546a49d2e3b9c61793"
+      "inputs_sha256": "741b2dd12e1985b6b1136166b68de6896c2bfb312130c617fd126702836070da"
     }
   },
   {
@@ -2064,7 +2064,7 @@
     },
     "match": {
       "bytes_sha256": "cd360a782047d518efcaf51dacbb0618ef6e8e95278f434180a973b2c0c02432",
-      "inputs_sha256": "22b34d079e70c3716975a8a2cac47cb7eabef5dc34a4419a47723c3c8b945e22"
+      "inputs_sha256": "75dd287324985b55da6b07fb8f6d7d5bfb874f31ad0f5b6d5e522126bea04f9a"
     }
   },
   {
@@ -2086,7 +2086,7 @@
     },
     "match": {
       "bytes_sha256": "7ab9310924186ee9c3ac5387e56aabcbea0ef3ecb32add89990865acd93980b2",
-      "inputs_sha256": "dc0ef442569091e6ea6d1dbff29c7a9f6a97bb2c794e63bb5e4f12409cf31256"
+      "inputs_sha256": "5635c112e7962cfe500b86b07bb5d9369d645bba1706da83143f94a83ea2d534"
     }
   },
   {
@@ -2112,7 +2112,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "980b8ed0e47a9f59f91603e5ac8907016d0195b2cd5223a9aa0fb6764676296e"
+      "inputs_sha256": "9b439e5a85648e52f890644b0c3299e9217aeb9ece11ae311269af8471a5c446"
     }
   },
   {
@@ -2134,7 +2134,7 @@
     },
     "match": {
       "bytes_sha256": "b71f7bbd58dbadb25a1ac249d79993028b0605e21f8576b001cdfd34550312b0",
-      "inputs_sha256": "a00284f3a1bd409058f6669ea7881d482ff7f5f7cbb2ad817e4ad5225e9719a3"
+      "inputs_sha256": "a160e1f481d7bce7e2c4b2cf7328eaf41531e090a1842b7d0dbdfa390951beb9"
     }
   },
   {
@@ -2156,7 +2156,7 @@
     },
     "match": {
       "bytes_sha256": "7537e8d135d1b94dcd4cf9eb565b7de24d414e5b5e5e4bf9622d08400fd58a98",
-      "inputs_sha256": "897e7ff329a998fceae7e42fb76f08560d7828b8ec915c2d871b35af8a71bd12"
+      "inputs_sha256": "cd26926f375968858e6d02b2f2903786cfbedf08f0baa31c9c386bdc7bb24b88"
     }
   },
   {
@@ -2178,7 +2178,7 @@
     },
     "match": {
       "bytes_sha256": "4dc90caae6e8a64c89dae382809c3f0ae8e85a672b8d98e2920a02f837450776",
-      "inputs_sha256": "3fe990757a338d09eca72ed8c0e87798216d25a45a986fea357790673c043d5f"
+      "inputs_sha256": "39d66833730bf2c2b23006b89c9563ed93b39f10136e1e67f707d48b75e9f09c"
     }
   },
   {
@@ -2200,7 +2200,7 @@
     },
     "match": {
       "bytes_sha256": "8bb1a746eaaa103acfc18399794228377dc74ee67ddc2034233e274177723d86",
-      "inputs_sha256": "9d17d5ec067bccb0853fdc896fb0a602c3192c5d17bce084e06ae0c18456ce8b"
+      "inputs_sha256": "79d8f1f29524a6726f0000650739c36226095c11b76355e5f03172959b71d240"
     }
   },
   {
@@ -2226,7 +2226,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "34b2056a1fb14dd8a00e7e5d540610d43d1e128f08db5c735417258b7b595b8c"
+      "inputs_sha256": "1e30576f31dbbf56c244523be33c790901fa443d6e6319d9e1bea62115bc6267"
     }
   },
   {
@@ -2248,7 +2248,7 @@
     },
     "match": {
       "bytes_sha256": "f936b8965cc126218fa87658f85366f7e8513b83531da73b60aee003d006ae81",
-      "inputs_sha256": "aceba299f35dd3faee64cae77ec27670d1852d7e406418ab9915f926d6c3497f"
+      "inputs_sha256": "83a6a4250c8ec3b461bec235e36163a099bc9dc1092bed30d8e219e2d42497be"
     }
   },
   {
@@ -2274,7 +2274,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ae749c18b3b98d59d84a2391ce97816b4fda7e6c6795ba2c7c55b7702ea33cf8"
+      "inputs_sha256": "f3937aadd3fc8f2bbb63963d1129d706ae235fe6dca0c717ed06af85c821fb59"
     }
   },
   {
@@ -2296,7 +2296,7 @@
     },
     "match": {
       "bytes_sha256": "b5d7f94000aad3705bd657390368ab6527bf29c75617b02b3990ef0b521e6597",
-      "inputs_sha256": "1aafa75aa190265725878abb2e88e4cedeb4224bb19519474b922fe07559cf0f"
+      "inputs_sha256": "5550c8af543c4024d35b34c5b996fdcdb5334b25963e6ff05bb92e8d5e1398c4"
     }
   },
   {
@@ -2318,7 +2318,7 @@
     },
     "match": {
       "bytes_sha256": "26e263a266d7f1c79866c5a29a3a724502cb7372d83c7a37bb74942baef58f93",
-      "inputs_sha256": "e754ea99b95ec3e3b401005fd9e43a7f74bb8e2537f6f45b3775d473af97ce12"
+      "inputs_sha256": "513bd13da68333966c8d52c3c4c3fb712a51dc4aa6d7b4cf63f0e9de00da981c"
     }
   },
   {
@@ -2344,7 +2344,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ef9ac69eebf71c01d9f723c2d8859e7afa7909bc0d66aadfc8fd4ba16775dac7"
+      "inputs_sha256": "41d5aed743d7d1c8499036b60703ed7f8e118589a0a10870cded0c9ea7874b91"
     }
   },
   {
@@ -2366,7 +2366,7 @@
     },
     "match": {
       "bytes_sha256": "fc451828350938cc650da4f743ca5546b3b4b2cefcf4b18193f74d4843b4dab4",
-      "inputs_sha256": "dc439241d09478daa86480b1baaf9b5e01cfe244362d4034e75adf186885bd64"
+      "inputs_sha256": "bf72da8b5aa6251ded7f800b6b14b655eab4cb12a67bc0c8dd25c835ce179d0a"
     }
   },
   {
@@ -2392,7 +2392,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c55ed5e42681563fcca064855c1dbab92575ada9fa2154b58a87ae5aedb6bc84"
+      "inputs_sha256": "57a325fed8b727d223f702f1c8e951ff07efef144def5684553b4b9a313133a2"
     }
   },
   {
@@ -2414,7 +2414,7 @@
     },
     "match": {
       "bytes_sha256": "29cf1d9238d08359887c9a5608abaf9e15a83dd4c46038f2852d269ca0d522e5",
-      "inputs_sha256": "f0d6ff79732bbadf8059d461c606e1db7a2ce898f63cb25d8b86d280fd8eb182"
+      "inputs_sha256": "5809ef31fbea649817dc4ce370732199799071707b1eb46cd974f7cb846b7946"
     }
   },
   {
@@ -2440,7 +2440,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d54217824c599cbd8f7b60b89a39a8fe2e9479a24e6662b9881619cad8a3c826"
+      "inputs_sha256": "8d7de4c128638c0283ee2c4b787de4db988d5c69ef9e533c69c3056f20eb0890"
     }
   },
   {
@@ -2462,7 +2462,7 @@
     },
     "match": {
       "bytes_sha256": "58d5d44a2590c7bc15643b53ee36a5db3f93052d3b5bfcd6a8f4afba10ad33ec",
-      "inputs_sha256": "b466e3be4aef2463ec782158cc13e69ca8541d12f57b9938c15dabe24d8c4d15"
+      "inputs_sha256": "1bd9f14b08fa58ad81eb5ac7890b0a845fc638077f339456215ff3b8b143d794"
     }
   },
   {
@@ -2488,7 +2488,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "b952ac3b84de257e5d8c0dc84be831a5c1bbe5a0343a50fc0cad4b807b6523f1"
+      "inputs_sha256": "481e45d9b1bfee2932ae8b232122fadcb91ccb4eba8f033c82c134eb51942d67"
     }
   },
   {
@@ -2510,7 +2510,7 @@
     },
     "match": {
       "bytes_sha256": "867a321d465548fd6b222ff8c2f563629e0aeba0809d17832b7b729fadd2de35",
-      "inputs_sha256": "e19ae057516a66989a07c145c35eacabc9138834125846a1755877d07d63f97a"
+      "inputs_sha256": "247f5282383c18259d4c713c54b719fd89c5292c039b689901cc8569893a0b1c"
     }
   },
   {
@@ -2532,7 +2532,7 @@
     },
     "match": {
       "bytes_sha256": "6a5875231e03d1eb84ec158554cd68ef0dc574d52c9250313a9b3b99a226dc63",
-      "inputs_sha256": "78505e4d5fe87e216d201f2924bbc70e27626cc3e68c8de1dd1ea11f150510e4"
+      "inputs_sha256": "4bf1de364010f48be0334af8cea2c35af7bb49da37a346c3767e74cfa2bec568"
     }
   },
   {
@@ -2554,7 +2554,7 @@
     },
     "match": {
       "bytes_sha256": "41c7bd6a3459c7e32fa87ed2acac002bf13b4f9d17e638d927987b03e7bc8785",
-      "inputs_sha256": "8928b4b609e3406e7a3a29258c4549c71e4be9ff98b930daf4c0fc2a774581e8"
+      "inputs_sha256": "75acdfa548d6fb73bd07dc768c4f372a478356f3bed920242f1734a0d4a2b696"
     }
   },
   {
@@ -2576,7 +2576,7 @@
     },
     "match": {
       "bytes_sha256": "59b5957b84c300c307e2fccb6570072703ac86bf323fbd0fcc748d33f97867f4",
-      "inputs_sha256": "08b4ccb41379a943924c202ef8d6bebabbebda5465d70620aa266426b3728415"
+      "inputs_sha256": "7ffd60f02a702fb476ee364e7f0fe752d09130aeba6657f5db3414939bd7d65b"
     }
   },
   {
@@ -2598,7 +2598,7 @@
     },
     "match": {
       "bytes_sha256": "1a415fc08573f8378d85c024467833bc44d637bd9d71d7b98d41ea2cac8d7704",
-      "inputs_sha256": "b1951d27ec68345312afcbea119daf53e6a0c8dcb77d25dcf41ead647b3d689e"
+      "inputs_sha256": "3f30ba21048c602a884bba9a544fbd9f7724357341efe42d9b9df67c2bc7e683"
     }
   },
   {
@@ -2624,7 +2624,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "57503698de637d3554f4add5711cac6f357d98c4528893d434400f9057dbf62b"
+      "inputs_sha256": "172a99290e303eee5ef937e0027ab7c6b8ad13b266c4e9652a90a1220267a10c"
     }
   },
   {
@@ -2662,7 +2662,7 @@
     },
     "match": {
       "bytes_sha256": "159c48384ed868c94b562d87ba3d98d6e952ffd44d1529635a4788f4e38c4a41",
-      "inputs_sha256": "f27f3dd65d4e9f4b61c8941cde110506a428b6d611de302d77bd4793b5dde31a"
+      "inputs_sha256": "a376f5a3dfc9121d9319bfddc5b45530db98a31a48582011d4372f93308bb459"
     }
   },
   {
@@ -2684,7 +2684,7 @@
     },
     "match": {
       "bytes_sha256": "4bf78503791d3a836cc80fde4dee994557456aeaaed05e2fb955b903b33059db",
-      "inputs_sha256": "29bcbe12a9ac7d969dd07d82165e0205a447cba63cc75763f6907fb631ff0bc6"
+      "inputs_sha256": "5c518d77abd550ba0ddceddc8e470c45f72b45f4a677b77d03ffc2546515cd3d"
     }
   },
   {
@@ -2710,7 +2710,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fe406a9d0c6fbf9a67ba2fbd927ebd20d88e3c22def188d2570a38212940580d"
+      "inputs_sha256": "84c5bf85c13db16424ae9efdf28acafe8e832ddab8968972c0d52392ed44e84e"
     }
   },
   {
@@ -2780,7 +2780,7 @@
     },
     "match": {
       "bytes_sha256": "124bbf4a591763e2ca56b79fd25878927e6a99e9252c26d546b984d30e827954",
-      "inputs_sha256": "a7526b94ae3a88983ac293babc4e90da10983bbdc3e5a640b952b963f53c6340"
+      "inputs_sha256": "a695a7d34ce35bbcfbb2c5d37390362eff750a96cc707f0f92631a0a9139a69a"
     }
   },
   {
@@ -2806,7 +2806,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1f6a8338e93326947182d92bb5fad3a7314524095c6cdaa04dfaa35895652fd9"
+      "inputs_sha256": "efcbb5a0444b329560cf32a87734d47387e0bf63da09e956e3003f74f813975d"
     }
   },
   {
@@ -2828,7 +2828,7 @@
     },
     "match": {
       "bytes_sha256": "fcb278dc43548647be5178753164c23128e6464af711d9e85029ddc573e0708c",
-      "inputs_sha256": "85c612ac19c5de75eed869e3734714717d7e6341136c61f1b07de3b0ba8826e2"
+      "inputs_sha256": "7144381edf6f54af0bed8934d3ef8c49bb530dafc7ac372f295850d1a024555c"
     }
   },
   {
@@ -2854,7 +2854,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e55f4e9095d20955179975a998af743c97ce40dda34eb54cfed3b1bb7483fb37"
+      "inputs_sha256": "d02d4f31e7e0c8366d324107f3480e79dbe430c8d0b411235a8a7bfb6a91bedb"
     }
   },
   {
@@ -2876,7 +2876,7 @@
     },
     "match": {
       "bytes_sha256": "79022f2a7d97b6daf43bfba66adae2a7bdc4578abdecfffe7caa141f28e6bcb1",
-      "inputs_sha256": "f032dfd91b70f4f80bfb1e2e25b1f256ae5e885fcc213a393fe07b5fa4266741"
+      "inputs_sha256": "79a91845ad57955d3bd51bc637f6be324c75a075c6ab01c4316c27c0610e28f7"
     }
   },
   {
@@ -2902,7 +2902,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "bbd6c06eb25fec0f8e276366636b7f279d20fdbd3c467dcb333cd9e7849abc01"
+      "inputs_sha256": "9af3d4d154eff41b3a275211397b5dc538fcf7a5bf5b6b0409e3632a0e1a3f12"
     }
   },
   {
@@ -2924,7 +2924,7 @@
     },
     "match": {
       "bytes_sha256": "163af0604efa716f5922da291eac4e49b7a4f075d0de9db3455f4cec2f6d9c93",
-      "inputs_sha256": "552f0b32299412bd61efecd3792741131d33e5015878f645d8950bc20ef188cc"
+      "inputs_sha256": "5a1b83f02bb4ed4481b1159326a006eb161daa3fd740e9a907f3b8867090319d"
     }
   },
   {
@@ -2950,7 +2950,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "95f06cd23df076b19556c6833b2814c2064e2953dca48c597626fe1d7936953a"
+      "inputs_sha256": "cd95b5e2a5549ccb944f7c6e7802a27bfc69d29f6438b13373bd16cc8fc7908d"
     }
   },
   {
@@ -2972,7 +2972,7 @@
     },
     "match": {
       "bytes_sha256": "e5959206a7622c0900fded6d34fa3ffdd599d0a7a9895a8eb0176215c7edaaea",
-      "inputs_sha256": "87b9cf30d624e5f343ead9afbc512963500f4fd8edf7aeef16f5a648bb0847bf"
+      "inputs_sha256": "25ee479d287c799e19f29bedfe8e3c3bd8c52d3fe03488060ee3dc9c6edae722"
     }
   },
   {
@@ -2994,7 +2994,7 @@
     },
     "match": {
       "bytes_sha256": "80ca547738f8e5a55936533aada5b4d04e980ae952cd0c5c2e50b94d9be2e389",
-      "inputs_sha256": "a36ca58f02dd7dd4af9f631b51d2836b84747eb0b48b1c5aa223eb5622f6b501"
+      "inputs_sha256": "724a3c5d50c2cfe07df1024a87c91495e2da7eddcce69fac4b4ade2c699cd4ee"
     }
   },
   {
@@ -3020,7 +3020,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cb9cf214b2ab1880c89403aa97ec6469f4180243527f8b426caee7d78a465f35"
+      "inputs_sha256": "a0a789eb88e61eebd6e20a999a9b552997a78775b10a763fa7c7f4bbcf0dd110"
     }
   },
   {
@@ -3070,7 +3070,7 @@
     },
     "match": {
       "bytes_sha256": "a70437dd2bea07f07f1c3a8e2e0a0ee8b9e0fa546bdf513aa6f3eb2baba8ab1e",
-      "inputs_sha256": "51b45bb622ebf39144a3884d218ae51fc6fcc33269fcca4f8edd950e0556eb6a"
+      "inputs_sha256": "cee13ce546d887c8ee0c345fabf8c10311c7178b2a0e1d89e5b118ba2cb986e5"
     }
   },
   {
@@ -3096,7 +3096,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cb08cc2e51559ebdd666a1055b3a3a7af92530680d124488b90f4d89db200643"
+      "inputs_sha256": "a12ef9999a08bb6278b9e3e8ce71f1bbc24b8d6c9bfa5579ba7d9dc523551aa3"
     }
   },
   {
@@ -3118,7 +3118,7 @@
     },
     "match": {
       "bytes_sha256": "5016ac3b1ba0a6e728246a978f891f7a1e15c213b4ebc485b101a2f44dd459bf",
-      "inputs_sha256": "cf2749084852dba31dc996676c2c8fcc7a5937c56e1e61a08fd3e8f04f0dacd6"
+      "inputs_sha256": "c1f03b3685f189d20e1873c66d30f2610a3fcd3ef37d656d2af76df3ed264007"
     }
   },
   {
@@ -3144,7 +3144,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1cb8b2e1e9814792a464e0d146423ce1dba262c705373af780b3650b0e2d88dd"
+      "inputs_sha256": "7e43f02f38cda2e13b395f7dfefea1d9a51d4228a6ecd5c37ed53e3d3e5e547f"
     }
   },
   {
@@ -3166,7 +3166,7 @@
     },
     "match": {
       "bytes_sha256": "8e90f1f4dda37139fe88e29df750d488387ac328426230551e79037900e5e468",
-      "inputs_sha256": "58d868f2fe55ec4d241b85aa347ba12df971d72113cfc47046ada307ae9b8dec"
+      "inputs_sha256": "6e2aa071e9e5015fb2553c3549595e4984038bd80e59eb5e6cc89d0968fb7442"
     }
   },
   {
@@ -3192,7 +3192,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8445236401ad42a3c8dd4a6429d177052c49b28398e3821aec596ba4a52d914c"
+      "inputs_sha256": "8c1dda5e18947a12e3a99cd20971b95e60309d3bbda33a0c8123b22500aa875a"
     }
   },
   {
@@ -3214,7 +3214,7 @@
     },
     "match": {
       "bytes_sha256": "8cc33215409d345d5dc6ee9e71f370e1c25599f7f095436462d74eb09907360a",
-      "inputs_sha256": "8ca0733b67bd2505397c4e4e8b6f54b26ae7fde74d93cd5e5b2a788650941849"
+      "inputs_sha256": "a24d939762900e417c530d337221c4f2dfdb9119b83bc4cde224681be9caf1cd"
     }
   },
   {
@@ -3240,7 +3240,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "32fc87aa1c3e6d72fda4d07f53de98fd26452c95172c75211439eeccc097ca56"
+      "inputs_sha256": "ebb63ce41982b4eaba8e971bd7289d8d8b9a3ffb356100c384188cefd3a0d23c"
     }
   },
   {
@@ -3262,7 +3262,7 @@
     },
     "match": {
       "bytes_sha256": "0f29553f265a3ef2935ca55d66392a0f154bca3ef4b9a4e75882d5397032332e",
-      "inputs_sha256": "6fc3f5899360b3cecb697c9bc3a2818bc47a4703a669d106a844f6fcb6fa0d5b"
+      "inputs_sha256": "7be454632c23c28c4972cc54d13125a1fa68c21330d28e3d8738b12fb48ff227"
     }
   },
   {
@@ -3288,7 +3288,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "4d0848c7ec35f588b228d9cfb829007b8bb2edb0fc879f1118d5992f5c4ee5c5"
+      "inputs_sha256": "b3e6cb11409fe0fca4bb2d4cd9948580f912274f116e61ca2d8949019cdfd0d9"
     }
   },
   {
@@ -3310,7 +3310,7 @@
     },
     "match": {
       "bytes_sha256": "cd3cb4226c332db658abf399fafd2ca00437e6c09e727bc99ae1e0a42bce0229",
-      "inputs_sha256": "037d8e17df3947a3306aadb94adf2c04e396f24ba7b593af2f4327b7690888bd"
+      "inputs_sha256": "4e9590e68f2428e376f86842f930b73374d5a71167a635a4bcf3d992cdca3f02"
     }
   },
   {
@@ -3336,7 +3336,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fcfac31d43dfe9274d0104dd8fc36d53a030bda68f82008190e2c10cc4a13ac7"
+      "inputs_sha256": "3b71e27ca4ffc2db53a415be04b3638342866ff25b99178edd93bd880e4edb1f"
     }
   },
   {
@@ -3358,7 +3358,7 @@
     },
     "match": {
       "bytes_sha256": "eea89b794ee2643d670fb71b95acfa520b65c83d1706c048b0dc339d717a1d64",
-      "inputs_sha256": "aac1b89235ed1d9417f0b2e1063bc1310dbaf0a236841fb03037fd56eb64501f"
+      "inputs_sha256": "844f5d627845c3dab086a5ad754b41d0b2dd917b5215885b8866744e3c083be7"
     }
   },
   {
@@ -3384,7 +3384,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "46692ad1aee450a1ff1d586ff4fd5d3862864d223f31e85339ab6d8b4707373f"
+      "inputs_sha256": "70fbe38dc2c1cd1016a98a5e264e5062b8761036f57d274f436cb93c181a6d8f"
     }
   },
   {
@@ -3406,7 +3406,7 @@
     },
     "match": {
       "bytes_sha256": "0592ce913a67c7b36f9e6e44e2ab2598afb56492422838427297bdc9c6cbcb86",
-      "inputs_sha256": "2c89c8f5cd875baba1a5fc84a935bcf404334bd387fe68b66a36bba2ed480082"
+      "inputs_sha256": "3525d96ab54c3a48c194f8199ff9e106080ddda81ecb6fef2c02d8ee8e206af9"
     }
   },
   {
@@ -3428,7 +3428,7 @@
     },
     "match": {
       "bytes_sha256": "d48fe31563dcaf9fb47503868bb5af00763e28a2ebe4098fafbbcc7ca2c2a969",
-      "inputs_sha256": "06de361d7dcddf51596f9fce1a2989eb87c0409105d6d98aedd3c4e88983d66f"
+      "inputs_sha256": "c18916b22ceae81865b0de4a65d6efd0ec1b5be9dde233f08774af0e42ea7a87"
     }
   },
   {
@@ -3454,7 +3454,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a52dfd7436ffac08e836d04e9a30325321d0fc3eff7b8d6119c0cb609074ede0"
+      "inputs_sha256": "252cf9303f1ea073df69643bb44b77781656d3b6335cb50af5e517cb6d3bccc9"
     }
   },
   {
@@ -3480,7 +3480,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2ee00faf310978dac1090d6add72dff9905165dfb95a9b2f0237e3a32d63e9f0"
+      "inputs_sha256": "ee9c33ca1f0012fb171cd0597bb88de154d3da306890168f19f4ecda42ac5380"
     }
   },
   {
@@ -3491,8 +3491,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ACarriedObject",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ACarriedObject::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7490. The registry call at RVA 0x9f951 passes its placement callback at RVA 0xac2e0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x307318.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3506,7 +3506,7 @@
     },
     "match": {
       "bytes_sha256": "2103ba115d9b6164a7272d37cf688a4f7caf1edf2aa742fc07321e86bccca9ed",
-      "inputs_sha256": "8cbcac524c64b09b55749cc892640223388dd15726f158f84cee5417fe6eca31"
+      "inputs_sha256": "e35ec74421d2c3e7e5bc755d5d3302e9fcd7c5f4f15fcbfc3209ba15ad8f9b99"
     }
   },
   {
@@ -3517,8 +3517,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AAntiPortalActor",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AAntiPortalActor::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7378. The registry call at RVA 0x9f8f5 passes its placement callback at RVA 0xac3a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3071e0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3532,7 +3532,7 @@
     },
     "match": {
       "bytes_sha256": "5c2f13bd8d4738ae36555a6f4142f4d84c49fe2dcb7f5effd758a996b260808e",
-      "inputs_sha256": "5447afcce9e9d3d1c1e4ecdaafe555006c4f8c5e6478a8b66ab1ad3b28a2f1b0"
+      "inputs_sha256": "0e96cba36b97ec65ad7dea6f097be36a5a2a91874c1100146565d736b897ccde"
     }
   },
   {
@@ -3543,8 +3543,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ATeamInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ATeamInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7260. The registry call at RVA 0x9f89d passes its placement callback at RVA 0xac460 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306f70.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3558,7 +3558,7 @@
     },
     "match": {
       "bytes_sha256": "59ffa745f291d23f32436c2d9ed9ad386a739f358a863ebb87f3a7ea92dd9820",
-      "inputs_sha256": "8ac1994a0fcc415d5a1f7d2daaf5f9dac125a6284982bddefa749da1650ef9c5"
+      "inputs_sha256": "e943d73ee62360cce437d608b9ebaf99ae1c867feba420e693a6bd431fa3887a"
     }
   },
   {
@@ -3569,8 +3569,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ABlockingVolume",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ABlockingVolume::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7148. The registry call at RVA 0x9f841 passes its placement callback at RVA 0xac5d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306bc8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3584,7 +3584,7 @@
     },
     "match": {
       "bytes_sha256": "53c49138cd25c48168b56188a74663904de61bd03fabc4f71638c0346fa49368",
-      "inputs_sha256": "9ceeece4891c054e0d267d27ce5c2efaf470ca0cd9a111fa07fc3dbac2068dd3"
+      "inputs_sha256": "c204f739134632aa0bad2110ca7bf2f731fdd7a6429445ec6c20c31c01262f0f"
     }
   },
   {
@@ -3610,7 +3610,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7411056a678cfe34c1b6664e566d310ef9af5ba78f9da03952dfbd997343de20"
+      "inputs_sha256": "01e8c05f74cbebc67b16f8bc534735456c5157a481f258daabe0bedfabaa8209"
     }
   },
   {
@@ -3636,7 +3636,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9a0deb5264857543f1face67316b1a049eb0fa890995c48ccb90f1bbdcd5a711"
+      "inputs_sha256": "6b5ea273906e5a48ca79556e2ca75c7fe327decc63c37dc7c964f047c5fd77e8"
     }
   },
   {
@@ -3647,8 +3647,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AVolume",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AVolume::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7030. The registry call at RVA 0x9f7e9 passes its placement callback at RVA 0xac8d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306d00.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3662,7 +3662,7 @@
     },
     "match": {
       "bytes_sha256": "13ede7dafa4d17aca835b36f4e7f771e9e1a025a932fd7d7fa3c7461c51514b0",
-      "inputs_sha256": "ed458ab342450e2772289d86476eb9835234b42bb63c5cd13cdb83af410a74be"
+      "inputs_sha256": "76a03c8cbdf395e4aad2bc691c6b0d1181d1a402d0807621e82b24fc873fe6de"
     }
   },
   {
@@ -3673,8 +3673,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ALineOfSightTrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ALineOfSightTrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6f18. The registry call at RVA 0x9f791 passes its placement callback at RVA 0xac8f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306958.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3688,7 +3688,7 @@
     },
     "match": {
       "bytes_sha256": "09f9c528643177589632e8e799a1818eb0dcba1bee70a043ee7c2d1d873cf520",
-      "inputs_sha256": "ba7f6669e6791ac0358a5692dd0cca5052d102d9ca7d48c86608a712449105f9"
+      "inputs_sha256": "41ee04e74731be32b593548e399da64128bb7154a8e3ca8bfc4c4f49b4bbc015"
     }
   },
   {
@@ -3714,7 +3714,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "97b00f8cd9ad122e9db05d1b8482c111f112dab5671b13d484deb808a1cabe1d"
+      "inputs_sha256": "4b9a15de0c285c92f87b461809cd5357a6be797661e287209a4de870cc3e4b07"
     }
   },
   {
@@ -3725,8 +3725,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ABrush",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ABrush::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6e00. The registry call at RVA 0x9f739 passes its placement callback at RVA 0xaca50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306e38.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3740,7 +3740,7 @@
     },
     "match": {
       "bytes_sha256": "14267c7e9eefb7193b39d587289c8721e7734dfa90625d7765db8bf6875e06cb",
-      "inputs_sha256": "742d143a6025ee24667539ed9e8da9781e027cae970486c56e3968d4604c3bb5"
+      "inputs_sha256": "792cebad0e288a0886f23bb0cf7e5032bce89d77db25caa2ae82d793213ece2b"
     }
   },
   {
@@ -3751,8 +3751,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AController",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AController::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6bd0. The registry call at RVA 0x9f685 passes its placement callback at RVA 0xaccc0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306808.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3766,7 +3766,7 @@
     },
     "match": {
       "bytes_sha256": "728da4ebf167fbbd22b773007ac0ae27d491a8e2ab6f4c3cffdd9b12b6c5324f",
-      "inputs_sha256": "791a28f29ea5b6ddac0913c0c8d62c0b6de11592ac54eb2893097643c889d60a"
+      "inputs_sha256": "d6151b570b2c9a03e22c5383dfaf468c60dfb0a24aa0609040cf76e2eff578c7"
     }
   },
   {
@@ -3788,7 +3788,7 @@
     },
     "match": {
       "bytes_sha256": "b82c23597b9bffa6d4a5ac2df5e4db76f1ddb848aa420c624129c241bd8c313f",
-      "inputs_sha256": "1d00f870f3162b2472fa28653ae54997f543d686dbd6456634b94d0a25566dca"
+      "inputs_sha256": "6b5444e1003066d8ce16baf3e3ab06396fc08447e4d1b867ff719da390a4496e"
     }
   },
   {
@@ -3814,7 +3814,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c29875907344dcaa12b00a7ce8f4d3a114f8c9ff8894b5733aa0f98e9e6917b5"
+      "inputs_sha256": "377f508cad590a46e030d2481ef170e88954afb9251150556ecac57cd6840f6f"
     }
   },
   {
@@ -3825,8 +3825,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AGameReplicationInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AGameReplicationInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c69a0. The registry call at RVA 0x9f5d4 passes its placement callback at RVA 0xacdc0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306528.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3840,7 +3840,7 @@
     },
     "match": {
       "bytes_sha256": "0a2085da1eb72f4266ea79a43e1a960a0a2613fb4dd71ce131869e2b223b9db5",
-      "inputs_sha256": "a84a5a7b0c26e6ec219470d8ef0c660d00b453b633e657768397ec78dd70ccbb"
+      "inputs_sha256": "60e188f2716591584cf88c4adbdc17a1b113c949735ea2a60067b7d04463d4e5"
     }
   },
   {
@@ -3866,7 +3866,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "657ad2b7beb0683ecaae1aa960e59cd33b34b65922194a855973e39ddb5c9ed0"
+      "inputs_sha256": "9f718a11ce9244519a54cdedfe6ac86d340e14492802acb0ef6c0c8c88da34de"
     }
   },
   {
@@ -3877,8 +3877,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AInternetInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AInternetInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6888. The registry call at RVA 0x9f578 passes its placement callback at RVA 0xacef0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3063f0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3892,7 +3892,7 @@
     },
     "match": {
       "bytes_sha256": "4976f5544083cd11fc189166af2c931fd97e3e116552dcdbf23fc16e726ed52f",
-      "inputs_sha256": "dfa32f759f27e00478637cbfaed8ff975913293426330b39dee52354cac7ebe3"
+      "inputs_sha256": "68260276e82927d4b8e17753a10b82802c3a3b6719dd618f3fb132b328605e20"
     }
   },
   {
@@ -3903,8 +3903,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_APlayerReplicationInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for APlayerReplicationInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6770. The registry call at RVA 0x9f51f passes its placement callback at RVA 0xacfb0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3062b8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3918,7 +3918,7 @@
     },
     "match": {
       "bytes_sha256": "d12713c960b1b01774d458dfeea5b2d66d36f6dfc3871b2f44eedcd5a14af4a4",
-      "inputs_sha256": "e0865c27cec1a75a5eaf69a7f7f69f80a06b85ca120d0ce2bbce8d820b543615"
+      "inputs_sha256": "1649a5de157e9b25637370625264dc1e7604ef24bec4e90ad7447e688c72031b"
     }
   },
   {
@@ -3944,7 +3944,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "cbe5d1656a9a407c261c48b38c706594da5f1b95f2078f7716ac09a58c89de5e"
+      "inputs_sha256": "2f294e0577ee11e4f885d55ea07ca34f6d5ee19913ea6f42539ab38661bb1237"
     }
   },
   {
@@ -3955,8 +3955,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AReplicationInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AReplicationInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6540. The registry call at RVA 0x9f4c3 passes its placement callback at RVA 0xad180 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3070a8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3970,7 +3970,7 @@
     },
     "match": {
       "bytes_sha256": "d3bc978d3f25aa1fb61909f5e37c8aefd39638533618fbeed7028afddcbbcee5",
-      "inputs_sha256": "1a943637f371b604c86b705e24a17bd005725b3ca593dd53e267e0655014ae5a"
+      "inputs_sha256": "78682d5fbe1a79afd361e230e1509562fd7c8bae68db217cc59173abae6adc0d"
     }
   },
   {
@@ -3981,8 +3981,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AMotionTrackingVision",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AMotionTrackingVision::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6658. The registry call at RVA 0x9f46b passes its placement callback at RVA 0xad1a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306180.",
     "link_bindings": {
       "_initialize_actor": {
@@ -3996,7 +3996,7 @@
     },
     "match": {
       "bytes_sha256": "1401c4fbcb7183f6b4c44244ff13c182125c65d6e50976864db2a574a52cb2ab",
-      "inputs_sha256": "9a4159c880e8af33101880712d9edf18459764c82e6454601da878565669a904"
+      "inputs_sha256": "975973df93a4835677fa745ce7acd4ada4c896056c03f4621f1660baf3e32b95"
     }
   },
   {
@@ -4007,8 +4007,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ALocalMessage",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ALocalMessage::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6428. The registry call at RVA 0x9f412 passes its placement callback at RVA 0xad290 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306048.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4022,7 +4022,7 @@
     },
     "match": {
       "bytes_sha256": "1c314da1553cc4cbee2d68b853b9440401ad71c2701f7015a3d6e5925e5dc9e4",
-      "inputs_sha256": "04edff8b3ca6671543a92399fa0ad90ec6edb9e2cc19223ae3f6d38bb419413e"
+      "inputs_sha256": "f0c30dbadb8000c9103f4dfea8450746e87e432e6dd0e1863556bedc43705a0d"
     }
   },
   {
@@ -4033,8 +4033,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c6310. The registry call at RVA 0x9f3ba passes its placement callback at RVA 0xad350 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x309c30.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4048,7 +4048,7 @@
     },
     "match": {
       "bytes_sha256": "6b76aa237bfa53633faa0f400ee6dce05212f30ee2595b969c040453e50bef29",
-      "inputs_sha256": "157d21c4b90f1015edbd40acfee49566858bae18a8ccd565122d4dce0c9b2649"
+      "inputs_sha256": "b6358bc425c04b9bc7b64722486527c8b1c5f77f792c9ef7a922edb898ece4c9"
     }
   },
   {
@@ -4074,7 +4074,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "3340bc4c4a444fe7352c1a15a43d32a49f52bdb00b0772ba0e55e4eeed721b9e"
+      "inputs_sha256": "910c73e0f8894fcc2cfc5f99b73ab5d4fddf6544a71e05b4a7123d35f1deb5c4"
     }
   },
   {
@@ -4085,8 +4085,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ATrigger",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ATrigger::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c60e0. The registry call at RVA 0x9f309 passes its placement callback at RVA 0xad4e0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305dd8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4100,7 +4100,7 @@
     },
     "match": {
       "bytes_sha256": "ef7e79c34bf05359c2dc1ed757a3540ca7c11f5656c86d41e1a47d1800d7502e",
-      "inputs_sha256": "cf5a9905c4b2358d0e00abf1a6a2ad786f84aecc5e84a3f569fc680581dd8066"
+      "inputs_sha256": "9168f60ce721589721a22eaa2b319b935051e65392eea2ff115461aa896bb47c"
     }
   },
   {
@@ -4126,7 +4126,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "f1a8e50ae9010fe4ce22d92f1c4e73541c36a1d1af82f0e5193a75109dd1bcd8"
+      "inputs_sha256": "774ad56fcb0157a0b4cfbe434aea27f75d041692cfa2f2f5ee7c6ba993386cc1"
     }
   },
   {
@@ -4137,8 +4137,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ATriggers",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ATriggers::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5fc8. The registry call at RVA 0x9f2b1 passes its placement callback at RVA 0xad5b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x306a90.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4152,7 +4152,7 @@
     },
     "match": {
       "bytes_sha256": "93c8a77ab9bac368694f8c665752085f5788cac770de4f8bbe671bf77f3f31dd",
-      "inputs_sha256": "3cdf2cf2c81c7ce9cd5d2634e6c40fd1279c1bd7a1e7cd6068aaf6359ffd68d2"
+      "inputs_sha256": "78258496833bd1e360f7d47ffad596cb7012e808e10b85b835b743276c2fcdc0"
     }
   },
   {
@@ -4163,8 +4163,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AKeypoint",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AKeypoint::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5eb0. The registry call at RVA 0x9f259 passes its placement callback at RVA 0xad5d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x30acc8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4178,7 +4178,7 @@
     },
     "match": {
       "bytes_sha256": "65cf121596e8fb931b9fb2434d7053be138c450f372e36375814a20616986a38",
-      "inputs_sha256": "9fd8cd27704fcfff77c066ecac5b4808d5e2d0f1e2b4c78762dd6218caea69dc"
+      "inputs_sha256": "6ead43b2892d2a7edcee91a555c809ad2552545eb139f7bfac44614aab587a8c"
     }
   },
   {
@@ -4189,8 +4189,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_APlayerStart",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for APlayerStart::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5d98. The registry call at RVA 0x9f201 passes its placement callback at RVA 0xad5f0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305ca0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4204,7 +4204,7 @@
     },
     "match": {
       "bytes_sha256": "a99cf34c439365e42c929f1be31acc0529dde72ffd1e978aaf12c575a1245bc8",
-      "inputs_sha256": "dafaef28d0871709fd87bb0004e0895b807d326acdeb9a89c3d9a302ab4869ce"
+      "inputs_sha256": "0ec4d4fbfadcd50bf3028ed5accf96350eab73bd91761e5b4efc4e4564e398fe"
     }
   },
   {
@@ -4230,7 +4230,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "0fcd617e813616c0ffbb6cb41ee18ab671fcae9c8b0d6bca6dc7eff9a7d314e0"
+      "inputs_sha256": "0f88a9970204e983e94718f50edeb5ff0d8e405c7745ff15d9efde788cc432c2"
     }
   },
   {
@@ -4241,8 +4241,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASBulletImpact",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASBulletImpact::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c7a08. The registry call at RVA 0x9f1a9 passes its placement callback at RVA 0xad6b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305b50. The projector members at +0x444 and +0x450 receive 1.0 and zero.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4256,7 +4256,7 @@
     },
     "match": {
       "bytes_sha256": "f3ccf96ac6ddc750d81f0f12e4744e413f0c0d8b8d660f469d6d249b20c299b5",
-      "inputs_sha256": "f287027b01a211d23456991f1a5527564ad72edc60c64d1660bc2b9e7feaa543"
+      "inputs_sha256": "8fd13f01ab62361f5db190c37460a03b3bf939390e3236bace194f848a3fe981"
     }
   },
   {
@@ -4282,7 +4282,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "dab73e9a24b7f85dd89e463232817109d992bf096b284d6c0753aac798644487"
+      "inputs_sha256": "8efb5ff5d99b144338ce72ac53a34bef55aa92e75b45f09ee6959f4ea1835ca1"
     }
   },
   {
@@ -4293,8 +4293,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASImpactEffectBase",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASImpactEffectBase::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c78f0. The registry call at RVA 0x9f14d passes its placement callback at RVA 0xad780 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305a18.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4308,7 +4308,7 @@
     },
     "match": {
       "bytes_sha256": "df7c987195dc377111cf75e4c3683c53f214dda52f540f445e1c3627cc9f4224",
-      "inputs_sha256": "692eba4c18ceea8720d4e1c0553996edebd04005b180deb3968a5c5507bacdb8"
+      "inputs_sha256": "89b2efd1d9c8e525e15aa4f24b809820a934d55cef50cd16d5dd66911a074ce7"
     }
   },
   {
@@ -4334,7 +4334,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "681e2bbd1dfc4b373d206c7b1bd3fdf75659c20cba4c0e89008ff93f7eb50ad4"
+      "inputs_sha256": "e59454d9431fb4990b9adef80c9c6a1750b03e77056cadf76e9a3d6a78a420d2"
     }
   },
   {
@@ -4345,8 +4345,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AEffects",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AEffects::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c77d8. The registry call at RVA 0x9f0f1 passes its placement callback at RVA 0xad840 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3058e0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4360,7 +4360,7 @@
     },
     "match": {
       "bytes_sha256": "6bccc0fe70d243bf57efed27ccf2d061f71606582532d20becaa21296bb7086d",
-      "inputs_sha256": "598611bc51f638d8b5cfac795ae1d7b768d15786a029111c9476b0c4e27cfd31"
+      "inputs_sha256": "8e28e79e0013e89015771f53806e5914729a51bed6e171e894f60f6330c87115"
     }
   },
   {
@@ -4371,8 +4371,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AProjectile",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AProjectile::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5c80. The registry call at RVA 0x9f095 passes its placement callback at RVA 0xad900 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3057a0.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4386,7 +4386,7 @@
     },
     "match": {
       "bytes_sha256": "0ffd7adb3249f93943e6a93bcbe43232640a21b9d386487d6377110f1b9ca2fc",
-      "inputs_sha256": "b9a128f4952e5c12b93b641d1c998d02ca1f6e8482bd7f509c3e9c95cc8ae640"
+      "inputs_sha256": "2c14709e648464481a1a91e384952063cd58260c8de0548bec362b7c94f7b3e4"
     }
   },
   {
@@ -4397,8 +4397,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ADecoration",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ADecoration::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5b68. The registry call at RVA 0x9f03d passes its placement callback at RVA 0xad9c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305668.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4412,7 +4412,7 @@
     },
     "match": {
       "bytes_sha256": "f46edbe103cbb887140b16c6be322118791b05e130e325f6a507b3757dc482b1",
-      "inputs_sha256": "863f5a3e0e983bc83b7a7d2d36b647d14d62f43df6f4b396b9af33d6f5ee066c"
+      "inputs_sha256": "d5bf13b9b0a7c21b1d0ae6e030d6f25b9faef84482edb74dd983d52d27567d3c"
     }
   },
   {
@@ -4423,8 +4423,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASkyZoneInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASkyZoneInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5a50. The registry call at RVA 0x9efe5 passes its placement callback at RVA 0xada80 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x3053f8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4438,7 +4438,7 @@
     },
     "match": {
       "bytes_sha256": "66ebfd6336ab0471652e4fa05850849fa6faa00903d9192118ee641ac18f2ac3",
-      "inputs_sha256": "e5d314ecbb4c10591d695d09d3945d977ac7fcf088711f8243b27d08c5135313"
+      "inputs_sha256": "819dea2304d69eec5f9bca956cbd38911366e6d18f1df5f6756f8bb13ec96122"
     }
   },
   {
@@ -4464,7 +4464,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d461fa473b40327aade1cee690c5c0999516b004a86877a8346f55bd8351a106"
+      "inputs_sha256": "5500e74d9f422fc80dae1a2e9377408180d9828c30d6b70faf89f5961e789a80"
     }
   },
   {
@@ -4475,8 +4475,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AZoneInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AZoneInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5938. The registry call at RVA 0x9ef8d passes its placement callback at RVA 0xadc00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305530.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4490,7 +4490,7 @@
     },
     "match": {
       "bytes_sha256": "d2d203371a9e12dc78fa5ca1ac676d44b9486f4357b3d4f8a3878c97ae35d643",
-      "inputs_sha256": "605f344e8b75edece78f9334bf9b5bbf9ec3d2a29f36c85cbc4f9f77410bc16e"
+      "inputs_sha256": "c8cb70bf90185dcdc50e98964824bfa609907d98c925b4f82dd3571fdc4077e9"
     }
   },
   {
@@ -4501,8 +4501,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ALevelInfo",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ALevelInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c55f0. The registry call at RVA 0x9ee80 passes its placement callback at RVA 0xadfa0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x305038.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4516,7 +4516,7 @@
     },
     "match": {
       "bytes_sha256": "084ba0133a7164b9f9f6bc367faf313a0ebf7f22dff1520014a781fd9dbbc53e",
-      "inputs_sha256": "997f5be40cdab268feb09a033657d34bce3e1ac52ba18a1309002073a79f7ee7"
+      "inputs_sha256": "d459a9bf2f0aa6da5fe19a2d6ceb0c7557cfa60c01577d120dc103dd1c12d6ba"
     }
   },
   {
@@ -4542,7 +4542,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2e35be037cbce444a9103e86326585eb90f60ef9f0b4f410cc61d48d54f59bb3"
+      "inputs_sha256": "6f3c4984d42476c328cb6a5da2a28ae338636369c89572a0125d159757008bab"
     }
   },
   {
@@ -4553,8 +4553,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ANote",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ANote::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c54d8. The registry call at RVA 0x9ee24 passes its placement callback at RVA 0xae160 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x304f00.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4568,7 +4568,7 @@
     },
     "match": {
       "bytes_sha256": "d9f863b5023939bc2699e12e1b51d2517d52e2a00cbb8f908024dc8f0d780788",
-      "inputs_sha256": "df7e3fc658840de4a6ff476500aceb103906ee561c37d6e29ea8cb688f3bee17"
+      "inputs_sha256": "e837e8ffd3f13a5ec3187127f163b422dc87cfc4fa5d47d4f8236dff124dd4e6"
     }
   },
   {
@@ -4579,8 +4579,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ALight",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ALight::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c53c0. The registry call at RVA 0x9edcc passes its placement callback at RVA 0xae230 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x304dc8.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4594,7 +4594,7 @@
     },
     "match": {
       "bytes_sha256": "0da10c9475d1ee3fbb992ee846a98415bfebf4c188a90269fa42f90f63d7f0fb",
-      "inputs_sha256": "bb2818f6c6666f1b9a2d68f5f609a570a9448b49695a22aa96fcc5327a81ec3b"
+      "inputs_sha256": "9a84737f288ab80ae320de831213994106f0554bb4d01092e34fd2717f7f89be"
     }
   },
   {
@@ -4620,7 +4620,29 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2aebebbb6d16f4197c63a707463c0813cd23e0e7d9f0206681fd9c43084b0b96"
+      "inputs_sha256": "b2c0143448334a1398332b3c994ca94900672cbea75111f2504a78844de1c852"
+    }
+  },
+  {
+    "id": "place-aactor",
+    "offset": 713456,
+    "size": 14,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_AActor",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
+    "identification": "Stock AActor::PrivateStaticClass at RVA 0x3c52a8 is registered at RVA 0x9ed70. Its placement callback at RVA 0xae2f0 passes storage in EAX to base initializer RVA 0x92100. The conditional return checks for null storage before the tail transfer.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5e45a64772a60f46160641c5fa8cd282d444704e95b2cdc26d0ea80612207482",
+      "inputs_sha256": "bcbacc8d7933384cbd00e92b7f25e5b08582081407f488f310d75af8d9a546f7"
     }
   },
   {
@@ -4631,8 +4653,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AGameStats",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AGameStats::PrivateStaticClass identifies the stock UClass instance at RVA 0x3bdc10. The registry call at RVA 0x9ecbb passes its placement callback at RVA 0xae300 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x304c90.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4646,7 +4668,7 @@
     },
     "match": {
       "bytes_sha256": "c477c788b1e3288b42763206e7afe91a9a516718431861e0ab822d8a3224319f",
-      "inputs_sha256": "40fc035a02a293e38b0808bf6eb6ddfe48043d5d0cfd604e440ff83eebcb7c6d"
+      "inputs_sha256": "7b01f4d7be5e7f925c414414134ea0762e9f612775a766c884cbeb9cf5d0f88e"
     }
   },
   {
@@ -4657,8 +4679,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_AFileLog",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for AFileLog::PrivateStaticClass identifies the stock UClass instance at RVA 0x3bdf58. The registry call at RVA 0x9ec63 passes its placement callback at RVA 0xae3c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x304b58.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4672,7 +4694,7 @@
     },
     "match": {
       "bytes_sha256": "c5dc4e88b38920287ef6f7f37aba723eb67684470540d62510b758c8a7d30d41",
-      "inputs_sha256": "a7258f2850851ac63891c8b5c2a271a256526524447f4e1372ed949e54fed8ca"
+      "inputs_sha256": "18af1a56c0c51b639277cdd08b9c66cfd11f33151ce2e54498cbd750ca4d2f5e"
     }
   },
   {
@@ -4683,8 +4705,8 @@
       "src/versus_actor_placement.c"
     ],
     "rebuilt_symbol": "_place_ASImpactManager",
-    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
-    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_actor_placement.obj src/versus_actor_placement.c",
     "identification": "The reflection annotation for ASImpactManager::PrivateStaticClass identifies the stock UClass instance at RVA 0x3c5190. The registry call at RVA 0x9ec0b passes its placement callback at RVA 0xae490 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x304a20.",
     "link_bindings": {
       "_initialize_actor": {
@@ -4698,7 +4720,7 @@
     },
     "match": {
       "bytes_sha256": "905ca0d891328be751a13873395927713f715f6b00f9e852a6c99b0582120652",
-      "inputs_sha256": "1c783a339b22700028112b82167f8896d180673ea183c7015474953a0de7f08c"
+      "inputs_sha256": "16709c5e5ce658f9a8bbe1fafe76fa57793a260fd2b925deb73200611e2c93fd"
     }
   },
   {
@@ -4724,7 +4746,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "06a2bc500e261a71f84f9425d721a85541b78f3265f19309b5a158fd3fd7aba5"
+      "inputs_sha256": "a22ca34593f406d54392df46afe2fa296a5bafe2fe68f2063060fe6bb345b872"
     }
   },
   {

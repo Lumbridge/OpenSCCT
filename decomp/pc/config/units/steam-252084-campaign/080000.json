@@ -27,7 +27,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x802d0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x8269b, 0x83cb1, 0x845d1. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "703a937c4c8c5808573d979c31e145d8d37692f5ffdccd80e0bda823e4d40895",
-      "inputs_sha256": "91f1d0fca63001d011af9091f22128697d786f8246760b8c9c4944fd09cd8d08"
+      "inputs_sha256": "69a510a48cbed7a22d89e616477d8fbdc91417dc590774dca7daba93ee2346de"
     }
   },
   {
@@ -58,7 +58,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81450, including RET. Incoming transfer decoded within analyzed function code at RVA 0x83b8c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d4de752d4e2eab87b64658429fa7379be363596fd62ce0e3613b18f233c89fa4",
-      "inputs_sha256": "5a774f4d001908d4d301d2b01a4b7bdb18ced496015ba075ddc38b204fedfe6a"
+      "inputs_sha256": "31bafe6ffb16e4c8d329f91d8b60fa988f516913ea17bda6240c68f17163fd4b"
     }
   },
   {
@@ -89,7 +89,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x814e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x84ff0. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "4e8337271d843ccef2c1fafab1b7a59cbced1ca02b66073f4102113a9c637820",
-      "inputs_sha256": "1a91b19a17a28c0779e16eeba8c43585810a423f8b51cf206225d35c31fc54ef"
+      "inputs_sha256": "cf1027801468aad6ea588b63c170d20d3731210884aac7c2756120751e388421"
     }
   },
   {
@@ -120,7 +120,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x815b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x839eb, 0x8463b, 0x8593e. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c5b455237ea131430d2896b2af6c301bccac60bc432344d99a9aa3b06308477d",
-      "inputs_sha256": "cca99bb379e98621c53b2687a4014c4276ac4c51e115846132eef4e3cc6f7f1f"
+      "inputs_sha256": "da8bd1ee8ed44141b3c308906b7a1e7b0d389ba59c42451277041d5e20bd8519"
     }
   },
   {
@@ -151,7 +151,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81680, including RET. Incoming transfer decoded within analyzed function code at RVA 0x83c0f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "6b339b397f7b017fc50d01be331e8c001607aee6403a3bbcd3720f4fd7d9422e",
-      "inputs_sha256": "7e54f8819b66a69d96b3793eb6e14273415ad6546b3e9ef2571517937c797c78"
+      "inputs_sha256": "8c84e78802de58434b1be1894a357d3ea185fed95f7c8670b70c9cb02b36ce41"
     }
   },
   {
@@ -182,7 +182,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81750, including RET. Incoming transfer decoded within analyzed function code at RVA 0x83a2e, 0x85888. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "b0a88827479cca18c3581b0085813daea9a7b1077c1ab50785fa95c17775e0fc",
-      "inputs_sha256": "8feee7d39722aaa2b63e8e9a5c6a7113c3520587ebe5dbd37660af9a18012494"
+      "inputs_sha256": "cc20f88c6fa232ba429f018cb68245e17884193dca64eeb172080a4431b567b5"
     }
   },
   {
@@ -213,7 +213,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x817e0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x82900. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c86a23af3034d62dc538e3de56d6a07fbe30af0f85a529bcfb02b3929e2abfd7",
-      "inputs_sha256": "f817c1be394ea6521694056362bf7116b3903fc5027e4fc70816b6901d808047"
+      "inputs_sha256": "01ee0e71534c216f2d846e1b629ea462f5d81295d459cf2cd2bcfd3ff9983017"
     }
   },
   {
@@ -244,7 +244,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81870, including RET. Incoming transfer decoded within analyzed function code at RVA 0x83aab, 0x85825. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "e98cc58f5037da8fbd1c16b2c745d73cf34893388cb160735d57b4367bdf0a8d",
-      "inputs_sha256": "7f744c46667137c26b02756c72acbf11e3d1a883d1aaea0377660ee2ef6e531c"
+      "inputs_sha256": "977d69e36b9c1fc91a5cc8418c1730901aac587e72052fce130229a1758a607a"
     }
   },
   {
@@ -275,7 +275,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81900, including RET. Incoming transfer decoded within analyzed function code at RVA 0x83aeb, 0x857c3. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "854b579e06523cdf01cddaf46968835f94e8418082b5e5c37ebdb1367d1b1ad7",
-      "inputs_sha256": "95c6919e2ab90f4152b64dfef0f8e6c79c7d3f1cbc86c5d6aab1a3a0b7f2f9fd"
+      "inputs_sha256": "e5274b1026385d6e1a7b2a2ff38612a4b7a2172dd183154496529b35ff4cd2ae"
     }
   },
   {
@@ -306,7 +306,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81990, including RET. Incoming transfer decoded within analyzed function code at RVA 0x847dd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "70f9e3fa6c549eb631a830647e23a434ea1c742af2eddc9ef078a0ece6ceeecd",
-      "inputs_sha256": "62a6d5f859c92b9b876223a9b5332a4e1e7a3af540393cabde07e90ab22b5424"
+      "inputs_sha256": "841d331712ac2b13f4d56905479cf8a86401b24451a08232466b951bb02d7719"
     }
   },
   {
@@ -337,7 +337,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x81a20, including RET. Incoming transfer decoded within analyzed function code at RVA 0x83c8c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a4ccaf7a64f1595b01a362305ea95ffc30d975ce217469cc3c06350db07845b4",
-      "inputs_sha256": "7f62dc4eb3c41201639a24fa78a9625a991022d5fc93286801f5908a1d442780"
+      "inputs_sha256": "971d9fa628e8a823a5afe8ee1049269e3a4c24f9c40bc7f0b2af5f49c0c7687b"
     }
   },
   {
@@ -359,7 +359,7 @@
     "identification": "Placement callback passed to the UModel class factory at RVA 0x859b0. The callback at RVA 0x859a0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "451f6761f9572e60bfeedcc25578e154f6ca9bfa6f1df006b78c9e8bad877a5e",
-      "inputs_sha256": "d40b233615413f496fb618a9282a0a6113e41592eb37161474a581c4b5f8d545"
+      "inputs_sha256": "bdd99976bc3b00f4c359ebfc7ed8e1a1c2e7008f13229d3380f84ebc35414557"
     }
   },
   {
@@ -401,7 +401,7 @@
     "identification": "Native class factory at RVA 0x859b0; its allocation tag and reflected class name identify UModel. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "472949315ca8b0f8d37d830b1e7f78851361a938e7cfae10da710bad650ebaf8",
-      "inputs_sha256": "80547fdeb4d3ae65cd0b8627e3e83aa1e6ab4a44c1a2f21a404468a319fea060"
+      "inputs_sha256": "248a430858b966fe7544478c88a65dd505476b9dca6acaab5ffbbd34006b0735"
     }
   },
   {
@@ -435,7 +435,7 @@
     },
     "match": {
       "bytes_sha256": "2d1f0a15e01eff8e22ada6a22a4f13545bb5e0052281ac0cd9eaf5827cce5bb5",
-      "inputs_sha256": "3a185e266705c31f88ab3273eff12b89cd51eec719acbc53cbed861f3f45f15f"
+      "inputs_sha256": "df5e7bb1a088b2799575a773c313403da23cd3474fdb538326bff8d12d93bdea"
     }
   },
   {
@@ -506,7 +506,7 @@
     "identification": "Class registration for UProjectorPrimitive at RVA 0x85e30, called immediately after the class factory at RVA 0x880d0 in the singleton initialization path. Sets superclass UPrimitive, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "8453ec011d7393624edce4f17bd00fff9b4d93eaff53df3ee74cba2aec2983c7",
-      "inputs_sha256": "090afd1de40efd90d14197903987f013e800e0534ea4cd52824e99a723580349"
+      "inputs_sha256": "9eee4c6a9eab7e71521dc106dde2bf58107774a8b25c047e428f4842d7bb4d3a"
     }
   },
   {
@@ -561,7 +561,7 @@
     "identification": "Class registration for UProjectorRenderInfo at RVA 0x85f40, called immediately after the class factory at RVA 0x869d0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "038fdd04b6a64ca52db9b916ad234ea275dc473149e44a52a954f77213666182",
-      "inputs_sha256": "98e7018244131dd2420f9672daacad4b8432555bda4453bc5da04ef5bed144ef"
+      "inputs_sha256": "66b00b2f551e8deb22c6a79f0bbb9e78b93cd8d9f082b50673d5ac7d890224cf"
     }
   },
   {
@@ -585,7 +585,7 @@
     },
     "match": {
       "bytes_sha256": "e3ab13c72a6d07a2911a6e8bcc6a97f1297c5d9c7e8dd8160983f97f840945a2",
-      "inputs_sha256": "d51a97b630dfa1ed31b2db7fb6a11f6c33a255b0a5e4ed54d3a87aff6f4cac12"
+      "inputs_sha256": "35a6cad0dfce08245817000768325943e10f776444b9018e4ad7e60b2135d604"
     }
   },
   {
@@ -656,7 +656,7 @@
     "identification": "Class registration for AProjector at RVA 0x86680, called immediately after the class factory at RVA 0x88f10 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9c308a0fef0f35aeae6ba5036bdd2b6e12b75a2a599fb279d6da273ef2108e8d",
-      "inputs_sha256": "25826936f6162a07cccc2234ee299313d3b3c1ffa973a06bdac571a290ca0006"
+      "inputs_sha256": "cae92eef1cb0ac8efdeaa8b32300a055d10c43eff4999535f32367a472fa3c91"
     }
   },
   {
@@ -690,7 +690,7 @@
     "identification": "Typed cast at campaign RVA 0x867c0, directly called at RVA 0x88a25. Its class constructor at RVA 0x6c360 identifies UShader; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "5eb0f9fa16b5e3a921f30c3d507bcb66b0225fe435f4abb924577a376bb1eed0",
-      "inputs_sha256": "6af08c1380febeb43efa0085b4b4b7746c542ffe12acc2cf953e5bc8b3a8fe31"
+      "inputs_sha256": "3e7800860022069678971a4a611d7e081323c13840559611accb8b60ecb1a1e8"
     }
   },
   {
@@ -716,7 +716,7 @@
     "identification": "Placement callback passed to the UProjectorRenderInfo class factory at RVA 0x869d0. The callback at RVA 0x86820 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c0999a14ae031471adfbc78790ebb0cc6958747d48b3d16eab998dda17b4fe64",
-      "inputs_sha256": "72120d43fa26b27284519114134e14422a23fa13be4743e61c9b994ae6111f0e"
+      "inputs_sha256": "bc84897bdd20b632757f443989ce3d2c180914a73bde42557a0564e0ebd3d287"
     }
   },
   {
@@ -750,7 +750,7 @@
     },
     "match": {
       "bytes_sha256": "bb6fd6f4e7d852c9d1d227032c3f9ba655c4c395ae0f6c8c51b123727b483934",
-      "inputs_sha256": "748b5cb22e7c56429f5b2c5727cf66163dba0ad23e19a0ea1122b5b07590b8b0"
+      "inputs_sha256": "c50246201b7d25d2dae7ea88a75b8956e9aa0f3c9b0057ccd5b8d62e9b7e62f8"
     }
   },
   {
@@ -792,7 +792,7 @@
     "identification": "Native class factory at RVA 0x869d0; its allocation tag and reflected class name identify UProjectorRenderInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "167e8168b43553084d1d96bf53da329b833841a6bfc93afca9ae6f6af2594f3f",
-      "inputs_sha256": "259c90079252359954c90f11d47d25b35722b68a5302b80f3e6d917671fbfb2b"
+      "inputs_sha256": "0dbfdb9c25e4910e0f654d6009fe719f763c9673f56e2b6c03287b7c0b1358e9"
     }
   },
   {
@@ -818,7 +818,7 @@
     "identification": "Placement callback passed to the UProjectorPrimitive class factory at RVA 0x880d0. The callback at RVA 0x88060 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "09d7902ff13d47661317ed92c9762778000777e5e5fe940c96e38c3ba55bafa5",
-      "inputs_sha256": "102857aaf74929055f7edf07ba2e18422f174f140e1e5fd95b9c5a77cf3e0eed"
+      "inputs_sha256": "771718e7fbe98271283d47a412322e60c14f0dfaab10865d0f937b1673b5eba8"
     }
   },
   {
@@ -860,7 +860,7 @@
     "identification": "Native class factory at RVA 0x880d0; its allocation tag and reflected class name identify UProjectorPrimitive. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "750b20b7c762cf10c77d62b5f3c64475d8f67703f4cd889ea04a787af666a85e",
-      "inputs_sha256": "c0a4fcf74adc03fa6ccd50ee5f4f2da78b1ace714488383c0d0438d2d26f6f1c"
+      "inputs_sha256": "6a2709a24b5fba0e38fb502b1f693549373a2eb5b53ea5fec01228b9c7d070b8"
     }
   },
   {
@@ -894,7 +894,7 @@
     },
     "match": {
       "bytes_sha256": "0a67cf305d555734c68f2e633a2237259c5412f70198f4f6797705758a49e487",
-      "inputs_sha256": "9930e8ed23416844aa6dba90a6bd9b8d44183fb2c652dda5dca6731bc4cccdf8"
+      "inputs_sha256": "d964ec3c2828ff36b36412602ba3fa916c7168fc3d00b72b912ce6798004b0fe"
     }
   },
   {
@@ -920,7 +920,7 @@
     "identification": "Placement callback passed to the AProjector class factory at RVA 0x88f10. The callback at RVA 0x88ed0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "f05058da8f78d225ef6147ddc23e01d53936a7bd1c1d063ace47d0fdc070453e",
-      "inputs_sha256": "0b5cec9ca1ce370b6bb08dd40aee24a5819867e973444d1b4424e5b26fbd5b54"
+      "inputs_sha256": "6b99293d99bfefe88dfeeda4e35584af27295a3efa037b6c7ee1b6df6fb93dae"
     }
   },
   {
@@ -962,7 +962,7 @@
     "identification": "Native class factory at RVA 0x88f10; its allocation tag and reflected class name identify AProjector. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "915ceb425e5c2a64bd7759adfaf71c0bfc4f3e651a91801aa5425e9894dd7908",
-      "inputs_sha256": "f7918ea8902c2f01002d805b4d96a39f3852cf2cf425591454298e29103b9ea9"
+      "inputs_sha256": "035fcbbf216f1a66cc39c7f1df09339aac78d38ea5e6274ef4ed0107fd778bba"
     }
   },
   {
@@ -996,7 +996,7 @@
     "identification": "Typed cast at campaign RVA 0x88f80, directly called at RVA 0x88fe9. Its class constructor at RVA 0x88f10 identifies AProjector; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "fe601dffefc89b37151ae895b213f80285cb16707d5caa6422866c0aae645654",
-      "inputs_sha256": "54bd1821b48bb40c51e13003eab34086672af28c7ac87295eaeae47df4b094fe"
+      "inputs_sha256": "717c28de0e66d10bea5f8abc9cebecac96981c7a8d09b384aefea5a89e8761ff"
     }
   },
   {
@@ -1051,7 +1051,7 @@
     "identification": "Class registration for UHkLevelData at RVA 0x8abf0, called immediately after the class factory at RVA 0x8d920 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "f5e0ce257a8aa2601e18b725ab063b93ceaed64fb34ffdd290ef142c05984a69",
-      "inputs_sha256": "0d018fcebbb96f70e23ea65c229641433aa9f6b62a697b35a82464339c396dc8"
+      "inputs_sha256": "2c2e4cbcd6f7a495c55dc83d239805d4593ef88e97fe0662b06242a430ba98f5"
     }
   },
   {
@@ -1085,7 +1085,7 @@
     "identification": "Typed cast at campaign RVA 0x8aff0, directly called at RVA 0x8b680. Its class constructor at RVA 0x107200 identifies UEHkRigidBody; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "8d7fdda1d31e8b2ecefc348e1cdc81d81b40987947393429aaa64d59a19840d1",
-      "inputs_sha256": "5efd0dac3b07d9f3e1729f34ded891e8b5299fc3cae1953ce5a5a997a759dac5"
+      "inputs_sha256": "734ba4a7484020091279f9781aaa2ae7ee0c2b0fa0c922d9cbd61275d72eea35"
     }
   },
   {
@@ -1116,7 +1116,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x8b2c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x8c88f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a65fc3976121b2f02f1cfe57aee28725b09c8712e06c4996d4adc87e3a0ddf14",
-      "inputs_sha256": "b00c2ff9502c8b4e6ce305bff6ee6809c567031265cda6229a75fc16e00cac7c"
+      "inputs_sha256": "a246bd9ef2d8a312358c2de0eb3496dd458c3afcf16a3e45ad181e391344f51c"
     }
   },
   {
@@ -1147,7 +1147,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x8bd10, including RET. Incoming transfer decoded within analyzed function code at RVA 0x8d5eb. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "d7005ed421abf6928bab9162f19d44ccafde679339c3c618fadcc91b6a654459",
-      "inputs_sha256": "c459c274b78f2ac1b92a715c79b751b16c054ca72ca25223b8d53ca69f1ada7f"
+      "inputs_sha256": "e09f23118ce6274fdcc05fbf09abc51eb8b7bcf61c22ac9d9701af3e90014431"
     }
   },
   {
@@ -1169,7 +1169,7 @@
     "identification": "Placement callback passed to the UHkLevelData class factory at RVA 0x8d920. The callback at RVA 0x8d810 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "a9d4b333133339a9b609ed6cf9a8d82c2efed95a06b2cb3c5711611bafabe466",
-      "inputs_sha256": "fb15c44589bd74f4ac8d1a52da40a286e6a34946bed1132d9f52bdb412bc8718"
+      "inputs_sha256": "0b8ec0fae185198650daea49e904d67795b9cd30d3aceb1b8ecaadd7242f4cd5"
     }
   },
   {
@@ -1211,7 +1211,7 @@
     "identification": "Native class factory at RVA 0x8d920; its allocation tag and reflected class name identify UHkLevelData. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "a5dc7e85e5b5fa8e01067e4a256c0ab78ba066c16196708fc6670d001ecf9e75",
-      "inputs_sha256": "4fe24b7b2da4fec35478d18b9d3f80ff275ec2c5f547883b29015ce3109f5550"
+      "inputs_sha256": "3d2e901286cfe92845e0328023ca5f2e8b97df3d42c2df6539dbf0aa79e2abb3"
     }
   },
   {
@@ -1238,7 +1238,7 @@
     "identification": "Retail SetDefaults event wrapper at RVA 0x8e380, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "ace1f5394333bbd1f93b2458cead25d331a2bd1cdd9e9224a0708e97c4a12392",
-      "inputs_sha256": "ea2a2745ee5d9deceb3dbe80c75efcc2576948cae419723c46742d1c5982d08d"
+      "inputs_sha256": "970c8991cdfc5567d1d1feaa16a681de85ad092500ecc2b561845b6e6ba3fd8f"
     }
   },
   {
@@ -1265,7 +1265,7 @@
     "identification": "Retail Detach event wrapper at RVA 0x8e3a0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Detach at serial offset 0x22da4.",
     "match": {
       "bytes_sha256": "b7cfd7d1e3e9416b302fcb68c20b4b02c5dacc57762283141170e4311f0aa5bf",
-      "inputs_sha256": "841a0cb47a7ae5a7668463390ec88788db85c4ab78835ea657be9ed4ea2b2f4d"
+      "inputs_sha256": "0ee34bb6669bf4b69c0e9971094ba14c6e54d4dfa0581e5fbe51a651a56af0a7"
     }
   },
   {
@@ -1292,7 +1292,7 @@
     "identification": "Retail Attach event wrapper at RVA 0x8e3f0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Attach at serial offset 0x1f563.",
     "match": {
       "bytes_sha256": "46dc8163a7d5bd19b005c4bb1627986f7687be3480fa857e88d41749978e546b",
-      "inputs_sha256": "1b344a4f94cd471be0c25c02a6ca8a75987222aabf7fc748c699dd51a395b7c1"
+      "inputs_sha256": "add58324217a7433bb41854c868719a819da69e605fd562319dc2ed3351c1beb"
     }
   },
   {
@@ -1319,7 +1319,7 @@
     "identification": "Retail BaseChange event wrapper at RVA 0x8e440, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.BaseChange at serial offset 0x1fe36.",
     "match": {
       "bytes_sha256": "440d85d1b8712d078da098da942939d2a4ae756e1a724bbcb406c0f2e5250678",
-      "inputs_sha256": "9773b1e5ddd6e6b316a146dcbe763c459e7f06482a267f1bd29634d90a3306d1"
+      "inputs_sha256": "c77c7fa372bb36174129c3e614f00337d11b43d42ab7a9b7d88a579132373241"
     }
   },
   {
@@ -1346,7 +1346,7 @@
     "identification": "Retail UnTouch event wrapper at RVA 0x8e480, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.UnTouch at serial offset 0x1af10.",
     "match": {
       "bytes_sha256": "1a1872f784d6a4a7adc7956e682180e7cf9862f6208e91b4be1979d3e254e37a",
-      "inputs_sha256": "2309ec0a7bf8602d0e6d7c1ef4e9b8932b450f6511f81e558b9813016876e0ce"
+      "inputs_sha256": "108512e0bf29a9ae927a3a863225a78de078be3d2d50b65a19a3d62a74fbfeef"
     }
   },
   {
@@ -1373,7 +1373,7 @@
     "identification": "Retail Touch event wrapper at RVA 0x8e4d0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Touch at serial offset 0x1966b.",
     "match": {
       "bytes_sha256": "3b703ec20e9fe003aa24b1751522b676e10171e6915954aea5c0c8638d7d5b77",
-      "inputs_sha256": "a9d79c777e928fca1dcaf4460cf7cb63b333fc1c677c18ec8efe4ea799ede10d"
+      "inputs_sha256": "99c2bccbe292e3e7f15ba1a16ba09e3ab34a1ff4c51b317a3664c255cfbea76e"
     }
   },
   {
@@ -1400,7 +1400,7 @@
     "identification": "Retail LostChild event wrapper at RVA 0x8e520, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.LostChild at serial offset 0x3177d.",
     "match": {
       "bytes_sha256": "6c1aec16161a21822c7a6938f92a4a0a169c3161a717a9a32305892cff8eb1a5",
-      "inputs_sha256": "a462eb66a649648db5394302c92a38a2c41ead76b7fc9d3b12e305210602ebe5"
+      "inputs_sha256": "7ca5149736e8ac86101e89778ca0897ce692b9a50124ff7077845ec57b821063"
     }
   },
   {
@@ -1427,7 +1427,7 @@
     "identification": "Retail GainedChild event wrapper at RVA 0x8e570, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.GainedChild at serial offset 0x31752.",
     "match": {
       "bytes_sha256": "9a1345e2d6b8617c9f329957f1ed0836c53765bb4405ce2706be82cd5292d1d6",
-      "inputs_sha256": "69f70efeb7bed230908addeffb3186955a8c0ecbfd1f1493fe13ab7b98bb2a35"
+      "inputs_sha256": "1e949d23eca29069b7a1174630d0f867753a7295447b50bbd7fcc95b4783f104"
     }
   },
   {
@@ -1454,7 +1454,7 @@
     "identification": "Retail AnimEnd event wrapper at RVA 0x8e5c0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.AnimEnd at serial offset 0x31308.",
     "match": {
       "bytes_sha256": "b00d75674fb28e38ced9cd873533ed1931ac05f41fad321518221246c2d1147f",
-      "inputs_sha256": "bef3fad27a6e99f116b84f20929f723302b3162d4eabc750c076d90187726b27"
+      "inputs_sha256": "5eff9b59b73d8b794d574a83fd5912bbe9195b620c62aefa79e1d3294bf9ba64"
     }
   },
   {
@@ -1481,7 +1481,7 @@
     "identification": "Retail InitInputSystem event wrapper at RVA 0x8e710, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "268cef39a46c3dd746a374095acd316bf4d325d08ced02d352265b96591d1f23",
-      "inputs_sha256": "cafa006f0bd23580febc6cee47e8fcaaf470758f8888a1dc5436f017a73c9357"
+      "inputs_sha256": "b704eaae144c4ccce7c3f995daac2f7fe6535a0a48cbf999107ed9ba354434b6"
     }
   },
   {
@@ -1503,7 +1503,7 @@
     "identification": "Placement callback passed to the ALevelInfo class factory at RVA 0x8f430. The callback at RVA 0x8e7c0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "c47d962f0e29041f34d7db97c51f444a098d1d841460fe15a723887e0ddb2c52",
-      "inputs_sha256": "728a609f21c29f35bc8ebcdafda56cd393c622be41eb0add2c3530f2012345d4"
+      "inputs_sha256": "3fb12c1c9b4970f95e35da59ffcafa367a2ce91d3e85ad335263063091c86d56"
     }
   },
   {
@@ -1530,7 +1530,7 @@
     "identification": "Retail PlayOneShot event wrapper at RVA 0x8e8e0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares WindEmitter.PlayOneShot with Actor Act at serial offset 0x24f91.",
     "match": {
       "bytes_sha256": "329941425d246c60807a60501e79748658aebc6e616569d1383eb9758e6846ef",
-      "inputs_sha256": "3ba209797096bade48309d25d5f84e1b68794b7bde732d11a914ae70cb9ae12a"
+      "inputs_sha256": "4bcd21595b27e4df6e1df88a30a18bd80a1f126f89face931698572ae740ee6c"
     }
   },
   {
@@ -1564,7 +1564,7 @@
     },
     "match": {
       "bytes_sha256": "247783808ad9591ab73bcff51cc2f559def13a790990763a3c9ef7aa3a232f27",
-      "inputs_sha256": "30f02bd64ec46051aa77658302dcb7a580e9f646d4d31a0e502fd9f781cae40e"
+      "inputs_sha256": "30c3f9ab4683800a2e1ee8440a0820a974709fcaf3e59fbcd0f0aea1d5214c44"
     }
   },
   {
@@ -1598,7 +1598,7 @@
     },
     "match": {
       "bytes_sha256": "8af213fd8432fe9395d9e2227d99fb11503ffb0b6476faf1b66aab61d49cff09",
-      "inputs_sha256": "18ea93d8337954636c6ed64f4130b5487d662f7353d65382da7be718074698b9"
+      "inputs_sha256": "713656c1ab40ba07b1396795dc8e8b1fa79728b94f66f634070cd9094f14971f"
     }
   },
   {
@@ -1632,7 +1632,7 @@
     },
     "match": {
       "bytes_sha256": "2a6b93c8af7975059a975106f60e110cc103926e90a6fcaf8e6d612e21d5f8bc",
-      "inputs_sha256": "ffebfc5cb2fac30c4e405201494f940a08345316cf03703e5e53200ce78a522d"
+      "inputs_sha256": "9d212224f4c3b31a6660ddb7a3a9d8f4b2f2d8e2aba423f8a427eacf0fdfa720"
     }
   },
   {
@@ -1687,7 +1687,7 @@
     "identification": "Class registration for AActor at RVA 0x8eff0, called immediately after the class factory at RVA 0x96580 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "0766cd2f79603185176b92cf37c0df8032354e91742e6d2728a8f2c458a0c4c7",
-      "inputs_sha256": "a2ed53a6180e6fa67b899f2699a7f851daaeb3944bb3fb8e664ef3552de97eda"
+      "inputs_sha256": "1426515524f7c6a815d6babfe85029388dcf107c6e991da92ecd6a651035cbb9"
     }
   },
   {
@@ -1742,7 +1742,7 @@
     "identification": "Class registration for UEchelonEnums at RVA 0x8f100, called immediately after the class factory at RVA 0x91390 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "8b02620bf6b2e41e6811b011c7e6ac1dff16be03852aa61ad431a671fefab87a",
-      "inputs_sha256": "c640e4e210751ff77b254c89b79725f1ecbb9fd94b94a77171b1124fd8193e86"
+      "inputs_sha256": "a0fdd03dce78bf3282f8cf559fe3d0a044f5160ba1576e87a5f0add20e56e10f"
     }
   },
   {
@@ -1797,7 +1797,7 @@
     "identification": "Class registration for UWindMaker at RVA 0x8f210, called immediately after the class factory at RVA 0x91400 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "78e755b459f963fdd6d7e814a99b599e09df109c9912bed9af3b5784113f53be",
-      "inputs_sha256": "cee1d2d28731cd58929dcb3bc462a08dd0f402dd2561c16ebca739d873c48b7f"
+      "inputs_sha256": "521ee28194229c16194be7d6bafc0fc10344d805d1b8373a99c6772f3c017f40"
     }
   },
   {
@@ -1852,7 +1852,7 @@
     "identification": "Class registration for UEAdInfoObject at RVA 0x8f320, called immediately after the class factory at RVA 0x92960 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "95a67faeeb284a3625e4a924d743e89cadf2f401dd0093e7efde313dc8a8705c",
-      "inputs_sha256": "21055d0e3ed384224a444466c8b99a3e391b31820b627bedba250996adac27fd"
+      "inputs_sha256": "39ec08a27ca5db0ac30d19d3673774f372c1ecaa9255d28656f6e904ec9b2c89"
     }
   },
   {
@@ -1894,7 +1894,7 @@
     "identification": "Native class factory at RVA 0x8f430; its allocation tag and reflected class name identify ALevelInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "d01307469364705a957f1359eb8501a8a2e31f1b6a7bc5a7830da7b5ea0526e4",
-      "inputs_sha256": "56cda0acb40d00bc65cc4a85643386b227be781559ac3b28fb76e4b6fda823fe"
+      "inputs_sha256": "e276f679e77e9a2b5fce1ca7dd0012b36737cd080b9e5bf7462208e5a5f030c4"
     }
   },
   {
@@ -1949,7 +1949,7 @@
     "identification": "Class registration for UReachSpec at RVA 0x8f5b0, called immediately after the class factory at RVA 0x914e0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "261a43bb01f317bf7d9e5e551c0482d04de2323c7416d33a2a7463be3854a99b",
-      "inputs_sha256": "c7c898ab0a7b5662070e6879906c94093f7b9ee73bf07c25355e17fa36d527d4"
+      "inputs_sha256": "45051b5d05ad9033ff06536deae11f564dcb732d50846a4d382371ea70d631a0"
     }
   },
   {
@@ -2020,7 +2020,7 @@
     "identification": "Class registration for AScout at RVA 0x8f6c0, called immediately after the class factory at RVA 0x96a50 in the singleton initialization path. Sets superclass APawn, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "71368a0427a5ea61b4e48c7e5a4632860560b8688f2a9117c4c937c2e70b10d7",
-      "inputs_sha256": "dcd5e7de928f696cd52e93bca3471bdf0f5bbee3da7a588e445f91aca633faf9"
+      "inputs_sha256": "62abb702cd908797d242987f47b6ed6ff8e271525d4e95df8206c2eabf63407d"
     }
   },
   {
@@ -2075,7 +2075,7 @@
     "identification": "Class registration for ULevelSummary at RVA 0x8f7d0, called immediately after the class factory at RVA 0x929d0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "7d82e15ef5d753937acc9abb4da28cc890e025146176f35c230b44e3ba6c3142",
-      "inputs_sha256": "440d34d8460e4cc57a009c7bbc974731298420b528502ee796e668865fc6042c"
+      "inputs_sha256": "97fa38a6b086a1017320768556df6c9fdcfef62354b137663af68b668f14b9c9"
     }
   },
   {
@@ -2130,7 +2130,7 @@
     "identification": "Class registration for UDecalTextureCollection at RVA 0x8f8e0, called immediately after the class factory at RVA 0x971c0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6c4f03f8eef93ecda865c4ed5e4e8f7c3b72cf43694539cec59808a4e9d9a7fe",
-      "inputs_sha256": "6f1d2c4ad1d053319ae68ad30026008af89160ba7c20c49f10c48e502fdc74cc"
+      "inputs_sha256": "22a31e85274893bb38820d638d09ff61846e712b05aba69d4b2f3630f7880d0d"
     }
   }
 ]
