@@ -729,6 +729,32 @@
     }
   },
   {
+    "id": "physics-object-factory-1b6f50",
+    "size": 37,
+    "offset": 1797968,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_1b6f50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_1bc710@8": {
+        "va": 279693072,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 156 bytes with category 34, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "2df2412d61fca1c87b120cf38d22ce8299bd24a4d7676997f1f0d6387ad84042",
+      "inputs_sha256": "aebc34246a51ed37b2664ac65868244848674b4673e69128e2dfadc3bd6de74e"
+    }
+  },
+  {
     "id": "array-release-1b70a0",
     "size": 43,
     "offset": 1798304,

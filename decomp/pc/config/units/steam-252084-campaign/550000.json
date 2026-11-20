@@ -3884,6 +3884,32 @@
     }
   },
   {
+    "id": "physics-object-factory-55ada0",
+    "size": 37,
+    "offset": 5615008,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55ada0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55a680@8": {
+        "va": 283485824,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84c1a0. Allocates 160 bytes with category 40, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "1e8b13415eddfcc468510850aa99c74acbcac442138b1fd93ed1941c13b3d7df",
+      "inputs_sha256": "922780f0ff4a8c471c5ccc9c64219dcdc2c20143df1aa2cea85f8d69aa523059"
+    }
+  },
+  {
     "id": "array-block-cleanup-55aec0",
     "size": 61,
     "offset": 5615296,
@@ -3903,6 +3929,58 @@
     "match": {
       "bytes_sha256": "bb30b300ff5ec4e64526e5f7c0f9e9fe4eed0e10cb8dd3d1b25ebc9d43478c80",
       "inputs_sha256": "9ee139cdd750f191426763dd376741b4c44a1ca61ee2b545ad6d8467dd9e9e0e"
+    }
+  },
+  {
+    "id": "physics-object-factory-55b0f0",
+    "size": 34,
+    "offset": 5615856,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55b0f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55b940@8": {
+        "va": 283490624,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84c9c8. Allocates 52 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "7824943803eef55d662cd25643642efcad529f6daa689c92a1a686d3198c8a89",
+      "inputs_sha256": "80b7fea9abab1f5095a65541b9f066b56a398d8476e0bf57667142b1e0db6531"
+    }
+  },
+  {
+    "id": "physics-object-factory-55b1c0",
+    "size": 34,
+    "offset": 5616064,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55b1c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55b580@8": {
+        "va": 283489664,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84ca6c. Allocates 44 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "fda1bd54f0b682cd3c1a5dfa08986ef3279a4874f1a99f3769a8e4f168a53176",
+      "inputs_sha256": "16865ade7a2be954d863d50fe98ddf7c7f0ee9ddfbc37ef3e9ed5920f1668b28"
     }
   },
   {
@@ -4084,6 +4162,110 @@
     }
   },
   {
+    "id": "physics-object-factory-55bdd0",
+    "size": 34,
+    "offset": 5619152,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55bdd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55bc60@8": {
+        "va": 283491424,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84cbf4. Allocates 96 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "1e2e92086e41f3d4a99fe36e191295f1ce36a19a130a25970bd5f1538d399fb3",
+      "inputs_sha256": "d1ee55c5e91bca768294c3a45fb83633d5602723a3c91a63e7cb8eb3bb0ae529"
+    }
+  },
+  {
+    "id": "physics-object-factory-55be90",
+    "size": 34,
+    "offset": 5619344,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55be90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55c130@8": {
+        "va": 283492656,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84cc60. Allocates 16 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "76898830d9fa1fa2a5e8c39480c67e383a2bedbe21f0817934218011da66509c",
+      "inputs_sha256": "367b3aaad7327ab36eba9dfee8a77433dab66c7986ee2311e9f80fe730803cd6"
+    }
+  },
+  {
+    "id": "physics-object-factory-55bf40",
+    "size": 34,
+    "offset": 5619520,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55bf40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55c400@8": {
+        "va": 283493376,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84ccc4. Allocates 16 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "3e9751a9fea9454a987c7735e70ba7203c6d9a2ab411ffd0539896196b8d7974",
+      "inputs_sha256": "543d85e8871a7fdef6a6b3bffedc6bbf31f91efec3a73566ad5c69c27ab3084b"
+    }
+  },
+  {
+    "id": "physics-object-factory-55bff0",
+    "size": 34,
+    "offset": 5619696,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55bff0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55c530@8": {
+        "va": 283493680,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84cd40. Allocates 24 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "5f473c92b2343844ec3257dd44bf822d07131b8acc8e24b0c135af05340d320e",
+      "inputs_sha256": "21f578dc4f84e34d92f9141cc94f87f89e72f1ada43fc9464c0ff9ad9483f492"
+    }
+  },
+  {
     "id": "delete-pool-55c150",
     "size": 40,
     "offset": 5620048,
@@ -4133,6 +4315,32 @@
     "match": {
       "bytes_sha256": "853a60954b185f2878cff61cfa434783b59949db82cfbc5d735fb4aa9dcdfd22",
       "inputs_sha256": "20c6298f1269c87988be6c5181ab53db2875063a569605f4bef070e86efb087d"
+    }
+  },
+  {
+    "id": "physics-object-factory-55c340",
+    "size": 34,
+    "offset": 5620544,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55c340",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55c240@8": {
+        "va": 283492928,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84ce08. Allocates 24 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "968399c4d0c1cc6e0623fd86e2adfe7db9298156b5c9d22bea0f517480ae4d3e",
+      "inputs_sha256": "3edbb6c89410cd68114137daa650f2648af3c5da769c7c71b9df29f9a1ffdde7"
     }
   },
   {
@@ -4222,6 +4430,32 @@
     }
   },
   {
+    "id": "physics-object-factory-55d1b0",
+    "size": 37,
+    "offset": 5624240,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55d1b0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55c720@8": {
+        "va": 283494176,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84ced4. Allocates 240 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "190c9ef98869998e41cf5e411a74d3601fc9465679c812b8ff7297e9688bec47",
+      "inputs_sha256": "a00bbfe19cb9d2f491abeffa6b32cab148f228b10bf30998f5ca4390a15a0883"
+    }
+  },
+  {
     "id": "delete-pool-55d650",
     "size": 40,
     "offset": 5625424,
@@ -4248,6 +4482,32 @@
     }
   },
   {
+    "id": "physics-object-factory-55dc90",
+    "size": 37,
+    "offset": 5627024,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55dc90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55d5d0@8": {
+        "va": 283497936,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84d000. Allocates 240 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "0a29345d47c3255d942b5aef2e91f7017bdee65cdc75c2773631d39f08103bd0",
+      "inputs_sha256": "b78631273b77f6313865c28ee703fe43976fdbc2754d9f6877db45575ea008b5"
+    }
+  },
+  {
     "id": "delete-pool-55df80",
     "size": 40,
     "offset": 5627776,
@@ -4271,6 +4531,32 @@
     "match": {
       "bytes_sha256": "c4dd745081f41162d0230aa4852968bdeec0806c3982bede31064d632b735159",
       "inputs_sha256": "d514e556f8ef57c9a69ffbcf8f407e286c4f6311624d0e96a1f3c87612de6a80"
+    }
+  },
+  {
+    "id": "physics-object-factory-55e070",
+    "size": 34,
+    "offset": 5628016,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55e070",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55df10@8": {
+        "va": 283500304,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84d108. Allocates 80 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "831801bb28cb78a3f54648f9531524fe5ca222745bc40fc237fe79e0c17c002f",
+      "inputs_sha256": "fca816e82f76e64f7d6a1030670e43f830d44a8bedf92ae2a14dda5dd52cee5a"
     }
   },
   {
@@ -4374,6 +4660,32 @@
     }
   },
   {
+    "id": "physics-object-factory-55f3e0",
+    "size": 37,
+    "offset": 5632992,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55f3e0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55f2b0@8": {
+        "va": 283505328,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84d230. Allocates 288 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "c9b89620351d2e35a768cb622799446f5f9ab642442117cac888d76ea95a7de5",
+      "inputs_sha256": "f87f7444ca775610f2066b2b8f91e76c43247f1157c4285860e34a12d9b40fb6"
+    }
+  },
+  {
     "id": "delete-pool-55f940",
     "size": 40,
     "offset": 5634368,
@@ -4397,6 +4709,32 @@
     "match": {
       "bytes_sha256": "be8925d6eb2116364821e956a797cf6778342e261409f61a491ca92b5fe36a01",
       "inputs_sha256": "86c72f42eb98c1d5392fe7b44a5ccdb13eb1b0b28ed0afd2546af0bc40db29c4"
+    }
+  },
+  {
+    "id": "physics-object-factory-55ffd0",
+    "size": 37,
+    "offset": 5636048,
+    "inputs": [
+      "src/campaign_physics_object_factories.c"
+    ],
+    "rebuilt_symbol": "_create_55ffd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_object_factories.obj src/campaign_physics_object_factories.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Global physics allocation manager."
+      },
+      "@construct_55f8c0@8": {
+        "va": 283506880,
+        "basis": "Indexed constructor called on the allocated object."
+      }
+    },
+    "identification": "Read-only entry pointer at RVA 0x84d3b0. Allocates 224 bytes with category 39, stores the size in the object and invokes its constructor.",
+    "match": {
+      "bytes_sha256": "e8c171461dcaa7d082fc82017bea4db7495b978abe21c7dfd9fc991bf4203ef9",
+      "inputs_sha256": "611d98cdc4b5527d67a1532fc072e40237951c52b4e2d86de30f355c3354abc5"
     }
   }
 ]
