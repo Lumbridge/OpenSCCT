@@ -40,6 +40,9 @@ internal sealed partial class PlayerPortal
         context.Response.OnCompleted(() => { DownloadSlots.Release(); return Task.CompletedTask; });
         return Results.Stream(async output =>
         {
+            // ZipArchive writes entry descriptors synchronously even after async payload copies.
+            var bodyControl = context.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpBodyControlFeature>();
+            if (bodyControl is not null) bodyControl.AllowSynchronousIO = true;
             var cancel = context.RequestAborted;
             try
             {
