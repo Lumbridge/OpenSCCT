@@ -928,6 +928,32 @@
     }
   },
   {
+    "id": "destroy-engine-lock",
+    "size": 12,
+    "offset": 8066144,
+    "inputs": [
+      "src/campaign_win32_exit.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_win32_exit.obj src/campaign_win32_exit.c",
+    "rebuilt_symbol": "_destroy_engine_lock",
+    "link_bindings": {
+      "__imp__DeleteCriticalSection@4": {
+        "va": 285963140,
+        "basis": "Named Win32 import in the original executable."
+      },
+      "_engine_lock": {
+        "va": 287455396,
+        "basis": "Writable static object referenced by the callback."
+      }
+    },
+    "identification": "Exit registration at RVA 0x7a60db pushes this callback before calling atexit. The callback invokes the named DeleteCriticalSection import.",
+    "match": {
+      "bytes_sha256": "758b880c4814bcc9e2cb7548488a39c64a0d864728eddf462be169bb73ecfa63",
+      "inputs_sha256": "084e9355ec86d455e15c77b25076520c2ec61212ea8cf1310f392b85db525521"
+    }
+  },
+  {
     "id": "cleanup-range-7b1510",
     "inputs": [
       "src/campaign_static_range.c"
@@ -7828,6 +7854,32 @@
     "match": {
       "bytes_sha256": "7ea7adee9c118e6544c51d3c49e9e53c4fd34bf0aaf15385734e11c8ce6edc59",
       "inputs_sha256": "7238b7dbf3d4167999236ef843b17fc4a16207f354aa9fefc1f278bd1277b00b"
+    }
+  },
+  {
+    "id": "end-timer-period",
+    "size": 13,
+    "offset": 8074736,
+    "inputs": [
+      "src/campaign_win32_exit.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_win32_exit.obj src/campaign_win32_exit.c",
+    "rebuilt_symbol": "_end_timer_period",
+    "link_bindings": {
+      "__imp__timeEndPeriod@4": {
+        "va": 285963848,
+        "basis": "Named Win32 import in the original executable."
+      },
+      "_timer_period": {
+        "va": 288194456,
+        "basis": "Writable static object referenced by the callback."
+      }
+    },
+    "identification": "Exit registration at RVA 0x3d2657 pushes this callback before calling atexit. The callback invokes the named timeEndPeriod import.",
+    "match": {
+      "bytes_sha256": "88fa4c3825f96e932b7aa54f75cf088051bbe8043a74c3a7071a6bda0644ed3f",
+      "inputs_sha256": "098c296617c07c7ec6e7d1982468f509e148614f1eda7fcd950f3fa550a1a0e4"
     }
   },
   {
