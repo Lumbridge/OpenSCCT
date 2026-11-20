@@ -111,7 +111,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends flatpak curl unzip python3 python3-pip ripgrep git build-essential ninja-build libxcursor1 libxinerama1 libxi6 libxrandr2 libgl1 libasound2 libpulse0
-          python3 -m pip install --user 'cmake==3.31.6'
+          python3 -m pip install --user 'pip==25.1.1' 'cmake==3.31.6'
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - uses: actions/download-artifact@v7
         with:
