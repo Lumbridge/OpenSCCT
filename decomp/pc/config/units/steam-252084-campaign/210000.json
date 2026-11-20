@@ -733,6 +733,116 @@
     }
   },
   {
+    "id": "construct-n-21d8d0",
+    "offset": 2218192,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_range_wrappers.c"
+    ],
+    "rebuilt_symbol": "@construct_n_r21d8d0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_range_wrappers.obj src/campaign_construct_range_wrappers.c",
+    "link_bindings": {
+      "_construct_copies_21d410": {
+        "va": 280089616,
+        "basis": "The called function decrements its element count and advances the destination by 16 bytes per iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls counted construction helper RVA 0x21d410 then returns the destination advanced by the count of 16-byte records.",
+    "match": {
+      "bytes_sha256": "5aa72d86e9fece7ec5bdacbb9e09978518c6cd06c061c3f3164c0e3bacbddc60",
+      "inputs_sha256": "e82a3381891289a281e19fd9479c7cb204ee316ad4ade062e52bbfc4253d71bc"
+    }
+  },
+  {
+    "id": "construct-n-21d900",
+    "offset": 2218240,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_range_wrappers.c"
+    ],
+    "rebuilt_symbol": "@construct_n_r21d900@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_range_wrappers.obj src/campaign_construct_range_wrappers.c",
+    "link_bindings": {
+      "_construct_copies_21d480": {
+        "va": 280089728,
+        "basis": "The called function decrements its element count and advances the destination by 16 bytes per iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls counted construction helper RVA 0x21d480 then returns the destination advanced by the count of 16-byte records.",
+    "match": {
+      "bytes_sha256": "fc2c85f0bea818c24a0a3df7822f1754320074857c831b2d0374c16efdc9c033",
+      "inputs_sha256": "becaa9594856c413d59bf61ffc0d331df231594d0174c7d3481809fde8030ab5"
+    }
+  },
+  {
+    "id": "construct-n-21d930",
+    "offset": 2218288,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_range_wrappers.c"
+    ],
+    "rebuilt_symbol": "@construct_n_r21d930@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_range_wrappers.obj src/campaign_construct_range_wrappers.c",
+    "link_bindings": {
+      "_construct_copies_21d4f0": {
+        "va": 280089840,
+        "basis": "The called function decrements its element count and advances the destination by 16 bytes per iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls counted construction helper RVA 0x21d4f0 then returns the destination advanced by the count of 16-byte records.",
+    "match": {
+      "bytes_sha256": "5200a959d33f3f5fb6446a913f9e59ebdef942a30e067cab57207946b045962a",
+      "inputs_sha256": "4201f38e15e44bb42db52efc9e8fc61cc69a1880092f484a162cb27945f73b1f"
+    }
+  },
+  {
+    "id": "construct-n-21d960",
+    "offset": 2218336,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_range_wrappers.c"
+    ],
+    "rebuilt_symbol": "@construct_n_r21d960@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_range_wrappers.obj src/campaign_construct_range_wrappers.c",
+    "link_bindings": {
+      "_construct_copies_21d560": {
+        "va": 280089952,
+        "basis": "The called function decrements its element count and advances the destination by 16 bytes per iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls counted construction helper RVA 0x21d560 then returns the destination advanced by the count of 16-byte records.",
+    "match": {
+      "bytes_sha256": "8543962cf094b61e5b1e6366e621656369f8cf1bbc74744d6d05dfa8ba42f92e",
+      "inputs_sha256": "ea82d3b74fd0c65856419b2321d80bbb004d6022e786109a7a6e7628def05d64"
+    }
+  },
+  {
+    "id": "construct-n-21d990",
+    "offset": 2218384,
+    "size": 43,
+    "inputs": [
+      "src/campaign_construct_range_wrappers.c"
+    ],
+    "rebuilt_symbol": "@construct_n_r21d990@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_construct_range_wrappers.obj src/campaign_construct_range_wrappers.c",
+    "link_bindings": {
+      "_construct_copies_21d5d0": {
+        "va": 280090064,
+        "basis": "The called function decrements its element count and advances the destination by 16 bytes per iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls counted construction helper RVA 0x21d5d0 then returns the destination advanced by the count of 16-byte records.",
+    "match": {
+      "bytes_sha256": "9fd32fc1a434618b82e4b6da5b54b977929d368ad262eec75811f71b0997c521",
+      "inputs_sha256": "4a93817db51841e975eb224c18f45d05419b35cdda74d37e4228e201af097fc7"
+    }
+  },
+  {
     "id": "clear-owned-storage-21f490",
     "size": 42,
     "offset": 2225296,
