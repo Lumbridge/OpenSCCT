@@ -56,11 +56,12 @@ The campaign experiment reproduced three retail bytes under two different compil
 ## Verify the complete Steam pass
 
 From the repository root, pass the installed game directory to the verifier.
-Pass the x86 compiler paths for MSVC 19.44.35229.0 and Visual C++ Toolkit 2003
-13.10.3052. Each manifest records the compiler revision and target.
+Pass the x86 compiler paths for MSVC 19.44.35229.0, Visual C++ Toolkit 2003
+13.10.3052, VC6 12.00.8804, and Clang 19.1.0. The [toolchain notes](TOOLCHAIN.md)
+identify the VC6 frontend and backend and the Clang revision used for these builds.
 
 ```powershell
-python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl
+python decomp/pc/verify_build.py $game --cl $modernCl --cl $toolkit2003Cl --cl $vc6Cl --clang $clang
 ```
 
 The verifier checks each complete retail SHA-256 and each source receipt,
@@ -91,7 +92,7 @@ RVA and file offset coincide in the campaign's measured code section.
 | --- | ---: | ---: | --- |
 | `SND_fn_lGetSoundTextureCount` | `0x748e10` | 3 | Returns zero. |
 | `SND_fn_lGetSoundTextureIdArray` | `0x748e20` | 5 | Returns zero and leaves the output untouched. |
-| `SND_fn_lGetSoundTextureId` | `0x748e30` | 8 | Returns −2 for every input. |
+| `SND_fn_lGetSoundTextureId` | `0x748e30` | 8 | Returns âˆ’2 for every input. |
 | `SND_fn_lGetSoundTextureName` | `0x748e40` | 5 | Returns zero and leaves the output untouched. |
 | `SND_fn_rMulRealRealQuickSnd` | `0x74b1d0` | 20 | Multiplies two signed 16.16 values after discarding eight low bits from each. |
 | `SND_fn_fGetDolbyLtCoef` | `0x74b350` | 33 | Looks up the left coefficient and negates it for the second half of the angle range. |

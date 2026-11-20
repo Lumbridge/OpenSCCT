@@ -28,10 +28,9 @@ def compiler_identity(cl, env, *, clang=False):
         if not build or f"Target: {CLANG_X86_TARGET}" not in version:
             raise ValueError(f"cannot identify revision and x86 target of Clang at {cl}")
         return f"Clang {build[1]} ({build[2]}) for {CLANG_X86_TARGET}"
-    # The Visual C++ Toolkit 2003 predates /Bv. Its banner includes the
-    # full tool build and calls the x86 target "80x86".
+    # VC6 and the Visual C++ Toolkit 2003 report their x86 builds in the banner.
     banner = subprocess.run([cl], env=env, capture_output=True, text=True, errors="replace")
-    legacy = re.search(r"Microsoft .*Compiler Version (13\.\d+\.\d+) for 80x86\b", banner.stderr + banner.stdout)
+    legacy = re.search(r"Microsoft .*Compiler Version ((?:12|13)\.\d+\.\d+) for 80x86\b", banner.stderr + banner.stdout)
     if legacy:
         return f"Microsoft C/C++ {legacy[1]} for x86"
     result = subprocess.run([cl, "/Bv", "/?"], env=env, stdout=subprocess.PIPE,
