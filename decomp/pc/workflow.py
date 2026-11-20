@@ -2,7 +2,6 @@
 
 import argparse
 import hashlib
-import json
 import struct
 import subprocess
 import sys
@@ -12,10 +11,11 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "tools"))
 from images import inspect, span
 from progress import built_unit_bytes
+from manifests import load_target
 
 
 def read_image(game, target):
-    manifest = json.loads((HERE / "config" / (target + ".json")).read_text(encoding="utf-8"))
+    manifest = load_target(HERE / "config" / (target + ".json"))
     data = (game / manifest["file"]).read_bytes()
     if inspect(data) != manifest["image"]:
         raise ValueError(f"{manifest['file']} differs from the locked Steam build")

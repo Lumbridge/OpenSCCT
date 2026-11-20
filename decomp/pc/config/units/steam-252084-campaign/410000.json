@@ -1,0 +1,202 @@
+[
+  {
+    "id": "cast-aesensor",
+    "offset": 4264336,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AESensor",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AESensor": {
+        "va": 287505048,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AESensor": {
+        "va": 281380160,
+        "basis": "The constructor passes both the UTF-16 AESensor allocation tag and ESensor class name to the engine."
+      },
+      "_register_AESensor": {
+        "va": 281372816,
+        "basis": "Direct registration call after initializing the singleton for AESensor."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 package name EchelonIngredient passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x411190, directly called at RVA 0x41166e. Its class constructor at RVA 0x358540 identifies AESensor; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "9290b03aa8139e88279edb1cfbe7c63bf4990663c7b7c28aca9964443d7fde3f",
+      "inputs_sha256": "594057c3a769edd06dded64bed3c25b15b2e74534bbf13616183a032626a43f4"
+    }
+  },
+  {
+    "id": "cast-usound",
+    "offset": 4264432,
+    "size": 85,
+    "rebuilt_symbol": "_cast_USound",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_USound": {
+        "va": 287286508,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_USound": {
+        "va": 279370848,
+        "basis": "The constructor passes both the UTF-16 USound allocation tag and Sound class name to the engine."
+      },
+      "_register_USound": {
+        "va": 279369232,
+        "basis": "Direct registration call after initializing the singleton for USound."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x4111f0, directly called at RVA 0x417007. Its class constructor at RVA 0x16dc60 identifies USound; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "9aca2800bb2f910306a5b6278c105b8ba838ec05dd8d7f1f7337b00767bdf1dc",
+      "inputs_sha256": "3e1ed0fa3da53d8e7cae60761a2acc82bc842863d591c46d0e0f8658707045eb"
+    }
+  },
+  {
+    "id": "placement-udareaudiosubsystem",
+    "offset": 4286080,
+    "size": 14,
+    "rebuilt_symbol": "_place_UDareAudioSubsystem",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UDareAudioSubsystem@4": {
+        "va": 282150000,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UDareAudioSubsystem class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UDareAudioSubsystem class factory at RVA 0x416960. The callback at RVA 0x416680 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "63ba2db43213c71ae36f528103e5163cbaa5b2740fe8ffc905bf2a1e4a51fec5",
+      "inputs_sha256": "5d2c1a2153616cab55b45aa2334e4bb2eaa0768e072f9025c1dce6d589bcfb95"
+    }
+  },
+  {
+    "id": "class-factory-udareaudiosubsystem",
+    "offset": 4286816,
+    "size": 109,
+    "rebuilt_symbol": "_create_UDareAudioSubsystem",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UDareAudioSubsystem": {
+        "va": 286498900,
+        "basis": "Retail UTF-16 UDareAudioSubsystem allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UDareAudioSubsystem": {
+        "va": 282158720,
+        "basis": "Placement callback passed to the native descriptor constructor for UDareAudioSubsystem."
+      },
+      "@static_init_UDareAudioSubsystem@4": {
+        "va": 282125680,
+        "basis": "Static class callback passed together with the placement callback for UDareAudioSubsystem."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x416960; its allocation tag and reflected class name identify UDareAudioSubsystem. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "c4efa935b942e5c1a2e6e4c4e952375cb1d8d33aecb75e50d91bad4ab65af6b6",
+      "inputs_sha256": "24837338945f6349b6fa6fc0f0c67c49c624afcaf2ba8308ebb175681e37f01f"
+    }
+  },
+  {
+    "id": "cast-astaticmeshactor",
+    "offset": 4300064,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AStaticMeshActor",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AStaticMeshActor": {
+        "va": 287271420,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AStaticMeshActor": {
+        "va": 278678784,
+        "basis": "The constructor passes both the UTF-16 AStaticMeshActor allocation tag and StaticMeshActor class name to the engine."
+      },
+      "_register_AStaticMeshActor": {
+        "va": 278623280,
+        "basis": "Direct registration call after initializing the singleton for AStaticMeshActor."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x419d20, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0xc4d00 identifies AStaticMeshActor; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "27233b1e087b052032f13894fe4613fe9af3494494b5aa089b4c4e5150667750",
+      "inputs_sha256": "833900ca2d8ca12656d2eda9f40b5357f8d6d79277ad1b4b8e0996d15d3840d5"
+    }
+  },
+  {
+    "id": "cast-aesoundvolume",
+    "offset": 4300224,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AESoundVolume",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AESoundVolume": {
+        "va": 287500312,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AESoundVolume": {
+        "va": 280545168,
+        "basis": "The constructor passes both the UTF-16 AESoundVolume allocation tag and ESoundVolume class name to the engine."
+      },
+      "_register_AESoundVolume": {
+        "va": 280485776,
+        "basis": "Direct registration call after initializing the singleton for AESoundVolume."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x419dc0, bounded by retail INT3 alignment before and after this function. Its class constructor at RVA 0x28c790 identifies AESoundVolume; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "98d9760356714cf5eb22fbf2bb7ffce8a10ae1f4d5ff4cb9a04f1c9359244de8",
+      "inputs_sha256": "74a030ccf196c656d8db552a4b5d48527b39344d33a17400d8335cbb1a75c734"
+    }
+  }
+]

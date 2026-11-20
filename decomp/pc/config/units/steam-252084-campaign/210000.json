@@ -1,0 +1,73 @@
+[
+  {
+    "id": "class-registration-uscmagmainteractionmpgame",
+    "offset": 2227776,
+    "size": 264,
+    "rebuilt_symbol": "_register_USCMagmaInteractionMPGame",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_USCMagmaInteractionMPGame": {
+        "va": 287495164,
+        "basis": "The USCMagmaInteractionMPGame class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_USCMagmaInteraction": {
+        "va": 287283640,
+        "basis": "The USCMagmaInteraction class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_USCMagmaInteraction": {
+        "va": 278984896,
+        "basis": "The constructor names USCMagmaInteraction using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_USCMagmaInteraction": {
+        "va": 278978832,
+        "basis": "Registration target reached after the USCMagmaInteraction constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USCMagmaInteractionMPGame at RVA 0x21fe40, called immediately after the class factory at RVA 0x2206f0 in the singleton initialization path. Sets superclass USCMagmaInteraction, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "8a1bbbd22e738c26606459c252f75a8a77813f44d131a442898a69750e38a21c",
+      "inputs_sha256": "e4e76da7b40c940bc9f53e4284fc400c49a8c5bab791cf4e26a2b6022893008a"
+    }
+  }
+]

@@ -1,0 +1,55 @@
+[
+  {
+    "id": "script-parameters-gotostatesafe",
+    "offset": 2774848,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_GotoStateSafe_1122f4f0_ScriptEventName@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GotoStateSafe_slot_1122f4f0": {
+        "va": 287503600,
+        "basis": "FName initialized with retail UTF-16 GotoStateSafe (VA 0x110d562c). The FName constructor call at RVA 0x33582c precedes the store to this slot at RVA 0x33583e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GotoStateSafe event wrapper at RVA 0x2a5740, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares s_CoopInteract.GotoStateSafe with Name State at serial offset 0x614ea.",
+    "match": {
+      "bytes_sha256": "842b2942163f71b0996a54c84350455fba541c91e94ee207fc331420df580158",
+      "inputs_sha256": "68acd46782b4a84010c01219b6b2587b9dafb4b5b4350791182a5cdbe7ebc5a4"
+    }
+  },
+  {
+    "id": "delete-uetrainingdata",
+    "offset": 2815200,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UETrainingData@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock UETrainingData vtable at RVA 0x7e9d98, slot 3, points to entry RVA 0x2af4e0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2b21a0 references the placement constructor at RVA 0x2b2040, which installs this vtable at RVA 0x2b2050.",
+    "link_bindings": {
+      "@destroy_UETrainingData@4": {
+        "va": 280687888,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2af510."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "0a3eee41a462029676b0dec147112eb0c606071ed885750d60f4fe35fc6854fc"
+    }
+  }
+]

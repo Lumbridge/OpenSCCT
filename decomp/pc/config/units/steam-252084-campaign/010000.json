@@ -1,0 +1,206 @@
+[
+  {
+    "id": "cast-uarrayproperty",
+    "offset": 93936,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UArrayProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UArrayProperty": {
+        "va": 288432936,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UArrayProperty": {
+        "va": 281987936,
+        "basis": "The constructor passes both the UTF-16 UArrayProperty allocation tag and ArrayProperty class name to the engine."
+      },
+      "_register_UArrayProperty": {
+        "va": 281984816,
+        "basis": "Direct registration call after initializing the singleton for UArrayProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x16ef0, directly called at RVA 0x16e35. Its class constructor at RVA 0x3ecb60 identifies UArrayProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "885b376737bfc77b11c777f8fd969493be91215fefbd445546fbb465e5739298",
+      "inputs_sha256": "58c31452ea862c3ba4115f564e478253fd35c68b5d9c80aa558a5dc10f00b6f7"
+    }
+  },
+  {
+    "id": "cast-uclassproperty",
+    "offset": 101408,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UClassProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UClassProperty": {
+        "va": 288432920,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UClassProperty": {
+        "va": 281986832,
+        "basis": "The constructor passes both the UTF-16 UClassProperty allocation tag and ClassProperty class name to the engine."
+      },
+      "_register_UClassProperty": {
+        "va": 281990704,
+        "basis": "Direct registration call after initializing the singleton for UClassProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x18c20, directly called at RVA 0x18a02. Its class constructor at RVA 0x3ec710 identifies UClassProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "920ca7a5043e822132a3f6d2fb2dd53a8d288fca057c016b041b005097cde9bd",
+      "inputs_sha256": "54503f4be4a5d5c0a306c567c4ab65d345bd28fa1eda519101be565ee2909f2e"
+    }
+  },
+  {
+    "id": "cast-uobjectproperty",
+    "offset": 106512,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UObjectProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UObjectProperty": {
+        "va": 288432916,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UObjectProperty": {
+        "va": 281986720,
+        "basis": "The constructor passes both the UTF-16 UObjectProperty allocation tag and ObjectProperty class name to the engine."
+      },
+      "_register_UObjectProperty": {
+        "va": 281983200,
+        "basis": "Direct registration call after initializing the singleton for UObjectProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1a010, directly called at RVA 0x19cef. Its class constructor at RVA 0x3ec6a0 identifies UObjectProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "725e1f3ba29383c6b904f0c12c9f4ec2627fdbaa1c85eb9400f482f9d92264ed",
+      "inputs_sha256": "6839cb3c2d366c2855d02afbd987be8a405d0a2f6ada6a6e52c7bc59bcd80420"
+    }
+  },
+  {
+    "id": "cast-ustructproperty",
+    "offset": 106608,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UStructProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UStructProperty": {
+        "va": 288432944,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UStructProperty": {
+        "va": 281989920,
+        "basis": "The constructor passes both the UTF-16 UStructProperty allocation tag and StructProperty class name to the engine."
+      },
+      "_register_UStructProperty": {
+        "va": 281985360,
+        "basis": "Direct registration call after initializing the singleton for UStructProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1a070, directly called at RVA 0x19da7. Its class constructor at RVA 0x3ed320 identifies UStructProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "56f01bdd475c85c8fd5e4ad59717d116f1c2a8576857e810a9bc721f9ac35b98",
+      "inputs_sha256": "e696c25a1fef6f5e0180e0d742460d1bbf96ac1be5b45e34304d499c4c421486"
+    }
+  },
+  {
+    "id": "cast-uboolproperty",
+    "offset": 109744,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UBoolProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UBoolProperty": {
+        "va": 288432908,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UBoolProperty": {
+        "va": 281986496,
+        "basis": "The constructor passes both the UTF-16 UBoolProperty allocation tag and BoolProperty class name to the engine."
+      },
+      "_register_UBoolProperty": {
+        "va": 281982048,
+        "basis": "Direct registration call after initializing the singleton for UBoolProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1acb0, directly called at RVA 0x1abc1. Its class constructor at RVA 0x3ec5c0 identifies UBoolProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "11a75953076742793b96a7a05d1834247a6609eb2731940efb2a1442011ab0ea",
+      "inputs_sha256": "5edea15f5a3b5b78c56ac284fe53027a8b762797ec89acd69352cde4b7671b9e"
+    }
+  },
+  {
+    "id": "cast-ubyteproperty",
+    "offset": 126336,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UByteProperty",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UByteProperty": {
+        "va": 288432900,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UByteProperty": {
+        "va": 281986272,
+        "basis": "The constructor passes both the UTF-16 UByteProperty allocation tag and ByteProperty class name to the engine."
+      },
+      "_register_UByteProperty": {
+        "va": 281981504,
+        "basis": "Direct registration call after initializing the singleton for UByteProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1ed80, directly called at RVA 0x1dcab. Its class constructor at RVA 0x3ec4e0 identifies UByteProperty; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "ab3879492fca362de75d688c14eab5221d3862c706bdda31987f1fe54e1e1b51",
+      "inputs_sha256": "7dc9dd3246f8fa7db851d906888a3be04d993736039648fe2073e2612bd331bb"
+    }
+  }
+]

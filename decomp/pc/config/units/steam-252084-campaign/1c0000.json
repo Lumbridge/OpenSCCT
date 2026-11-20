@@ -1,0 +1,182 @@
+[
+  {
+    "id": "cast-aantiportalactor",
+    "offset": 1846368,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AAntiPortalActor",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AAntiPortalActor": {
+        "va": 287271168,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AAntiPortalActor": {
+        "va": 278491360,
+        "basis": "The constructor passes both the UTF-16 AAntiPortalActor allocation tag and AntiPortalActor class name to the engine."
+      },
+      "_register_AAntiPortalActor": {
+        "va": 278494432,
+        "basis": "Direct registration call after initializing the singleton for AAntiPortalActor."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x1c2c60, directly called at RVA 0x1c2aca. Its class constructor at RVA 0x970e0 identifies AAntiPortalActor; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "4dfd1612cd25c5a5e85950cb7eaa0e33242eda5ec8504de15c704bd24ea99cd6",
+      "inputs_sha256": "4f433566c3e6ca41190cce9572765c1bceecbf7fc4c97b8a441de58a5f19a183"
+    }
+  },
+  {
+    "id": "script-parameters-specialcost",
+    "offset": 1854192,
+    "size": 66,
+    "rebuilt_symbol": "@script_call_SpecialCost@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_SpecialCost": {
+        "va": 287285568,
+        "basis": "FName initialized with retail UTF-16 SpecialCost (VA 0x110d4f7c). The FName constructor call at RVA 0x13c213 precedes the store to this slot at RVA 0x13c225."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail SpecialCost event wrapper at RVA 0x1c4af0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares NavigationPoint.SpecialCost with Pawn Seeker, Int ReturnValue at serial offset 0x62d89.",
+    "match": {
+      "bytes_sha256": "419eb4385b3789a1d2de1ea26eeed01c742f64507f70baa35f433af30cb3b42f",
+      "inputs_sha256": "842520f5724ad1edcbcc20f70caf81e9a4d1e244d96da787109fce75cada9476"
+    }
+  },
+  {
+    "id": "class-registration-usmstreamer",
+    "offset": 1860032,
+    "size": 264,
+    "rebuilt_symbol": "_register_USMStreamer",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_USMStreamer": {
+        "va": 287353264,
+        "basis": "The USMStreamer class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for USMStreamer at RVA 0x1c61c0, called immediately after the class factory at RVA 0x1c8000 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "c817015ca8f45730de8b6e87d2d0d4329f2f165cfb9407dc33d7e967f6fa8dfb",
+      "inputs_sha256": "1bbe87d5e7fa113277a6e036789c4a87c92e2059ae2de8168a2b64b77924ea42"
+    }
+  },
+  {
+    "id": "placement-usmstreamer",
+    "offset": 1867760,
+    "size": 14,
+    "rebuilt_symbol": "_place_USMStreamer",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_USMStreamer@4": {
+        "va": 279738816,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named USMStreamer class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the USMStreamer class factory at RVA 0x1c8000. The callback at RVA 0x1c7ff0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "d7330e3a8f02e5bc054321636febec79ed2c215183164ec231efef1516300f9e",
+      "inputs_sha256": "3ac37146ba9c971cea03c3c1435ce64d930278c1e7ed6eedc56332317aec8a9d"
+    }
+  },
+  {
+    "id": "class-factory-usmstreamer",
+    "offset": 1867776,
+    "size": 105,
+    "rebuilt_symbol": "_create_USMStreamer",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_USMStreamer": {
+        "va": 286059424,
+        "basis": "Retail UTF-16 USMStreamer allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_USMStreamer": {
+        "va": 279740400,
+        "basis": "Placement callback passed to the native descriptor constructor for USMStreamer."
+      },
+      "@static_init_USMStreamer@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for USMStreamer."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x1c8000; its allocation tag and reflected class name identify USMStreamer. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "f0bc9c86677957d147e27ace51ebf958399769cee4468d66145c3b0f1258ecdc",
+      "inputs_sha256": "03acfbffab33d160802437c70be0a462090c690d70fc7414351ca55c08f76fd5"
+    }
+  }
+]

@@ -1,10 +1,10 @@
 """Export strict, source-backed matching totals using objdiff's v2 report format."""
 
 import argparse
-import json
 from pathlib import Path
 
 from progress import EDITIONS, ROOT, summary, write
+from manifests import load_target
 
 
 def byte_measures(total, matched):
@@ -46,6 +46,6 @@ if __name__ == "__main__":
     inputs = {path.stem: path for path in (folder / "config").glob("*.json")}
     if args.target not in inputs:
         parser.error("unknown target")
-    result = build_report(folder, json.loads(inputs[args.target].read_text(encoding="utf-8")))
+    result = build_report(folder, load_target(inputs[args.target]))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     write(args.output, result)

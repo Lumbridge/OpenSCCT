@@ -1,0 +1,968 @@
+[
+  {
+    "id": "delete-astaticmeshactor",
+    "offset": 803248,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AStaticMeshActor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AStaticMeshActor UClass factory at RVA 0xc4d00 references the named placement constructor at RVA 0xc4a70. That constructor installs the vtable at RVA 0x7ce3a8, whose slot 3 points to this deleting destructor at RVA 0xc41b0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AStaticMeshActor": {
+        "va": 286057384,
+        "basis": "The placement constructor at RVA 0xc4a70 installs this same vtable at RVA 0xc4aa8."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AStaticMeshActor@4": {
+        "va": 278048032,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9d91fddebb33e79ffd327139d5460a433f4a50326bb1a962a6864564b1623012",
+      "inputs_sha256": "25f1c9b1fcd69cebd66982c012d83e879c66452e95cfd6f8e1869212262051fe"
+    }
+  },
+  {
+    "id": "placement-ustaticmesh",
+    "offset": 803552,
+    "size": 14,
+    "rebuilt_symbol": "_place_UStaticMesh",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UStaticMesh@4": {
+        "va": 278667280,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UStaticMesh class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UStaticMesh class factory at RVA 0xc4990. The callback at RVA 0xc42e0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "ef74d133388d6a860be4d74f8f2923e9db16f2ae1dd9ce8eddf1f8c9ae6b421b",
+      "inputs_sha256": "9ef7e556f1b6cfd68c612d0466e5ce0447ee8de33cad737c97fe638d251b3198"
+    }
+  },
+  {
+    "id": "class-factory-ustaticmesh",
+    "offset": 805264,
+    "size": 109,
+    "rebuilt_symbol": "_create_UStaticMesh",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UStaticMesh": {
+        "va": 286059400,
+        "basis": "Retail UTF-16 UStaticMesh allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UStaticMesh": {
+        "va": 278676192,
+        "basis": "Placement callback passed to the native descriptor constructor for UStaticMesh."
+      },
+      "@static_init_UStaticMesh@4": {
+        "va": 278628736,
+        "basis": "Static class callback passed together with the placement callback for UStaticMesh."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0xc4990; its allocation tag and reflected class name identify UStaticMesh. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "0b58b38214f2dce637b6caa88251575474cdd21068eab2559b6297b4e89b263b",
+      "inputs_sha256": "c44975a497ed1b90ea23e7b1442a5ca0b237c4378cfadb1722160743132c5db4"
+    }
+  },
+  {
+    "id": "placement-astaticmeshactor",
+    "offset": 805488,
+    "size": 64,
+    "rebuilt_symbol": "_place_AStaticMeshActor",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AStaticMeshActor class descriptor."
+      },
+      "_vtable_AStaticMeshActor": {
+        "va": 286057384,
+        "basis": "Class-specific table installed after base initialization in the named AStaticMeshActor descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AStaticMeshActor class factory at RVA 0xc4d00. The callback at RVA 0xc4a70 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "5cbad9fced3c480a0ad2ca2dca7f20fdf4c4af178360b8198d706472ffc5b4cd",
+      "inputs_sha256": "5162bd3ebca19cb4402a74aa2b44d78478d1f4ed95f3a561de0846582ecd39b7"
+    }
+  },
+  {
+    "id": "placement-acollisionmeshactor",
+    "offset": 805552,
+    "size": 64,
+    "rebuilt_symbol": "_place_ACollisionMeshActor",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ACollisionMeshActor class descriptor."
+      },
+      "_vtable_ACollisionMeshActor": {
+        "va": 286058048,
+        "basis": "Class-specific table installed after base initialization in the named ACollisionMeshActor descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the ACollisionMeshActor class factory at RVA 0xc4d70. The callback at RVA 0xc4ab0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "6dacd4043646fdb6641e073ecc72c7ca9676f0113ac1731d4ccf4b1932a6cf2a",
+      "inputs_sha256": "083af7f2e70a6daf4c7f2f8a85704f586083ccc8d723390745f3d9c859aa8a88"
+    }
+  },
+  {
+    "id": "class-factory-astaticmeshactor",
+    "offset": 806144,
+    "size": 105,
+    "rebuilt_symbol": "_create_AStaticMeshActor",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AStaticMeshActor": {
+        "va": 286059448,
+        "basis": "Retail UTF-16 AStaticMeshActor allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AStaticMeshActor": {
+        "va": 278678128,
+        "basis": "Placement callback passed to the native descriptor constructor for AStaticMeshActor."
+      },
+      "@static_init_AStaticMeshActor@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AStaticMeshActor."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0xc4d00; its allocation tag and reflected class name identify AStaticMeshActor. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "70bca2e8f6ba8c552beed4cba263041406e1cf9a88fc4b57b13d8909f4b069d9",
+      "inputs_sha256": "9d10834861b7627416e000a6d4587cc387c73cda7a3a4c5502097cdbc2455ce0"
+    }
+  },
+  {
+    "id": "class-factory-acollisionmeshactor",
+    "offset": 806256,
+    "size": 105,
+    "rebuilt_symbol": "_create_ACollisionMeshActor",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_ACollisionMeshActor": {
+        "va": 286059484,
+        "basis": "Retail UTF-16 ACollisionMeshActor allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_ACollisionMeshActor": {
+        "va": 278678192,
+        "basis": "Placement callback passed to the native descriptor constructor for ACollisionMeshActor."
+      },
+      "@static_init_ACollisionMeshActor@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for ACollisionMeshActor."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0xc4d70; its allocation tag and reflected class name identify ACollisionMeshActor. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "2c564ff1da4da333367f14ce3d23724c5568afe70598c9adeed7c59b4916262e",
+      "inputs_sha256": "1f5f9e068f2e4ca21f43e9049fb18a504a68582524618a11977352f7b6b2c9e6"
+    }
+  },
+  {
+    "id": "class-registration-acollisionmeshactor",
+    "offset": 811584,
+    "size": 264,
+    "rebuilt_symbol": "_register_ACollisionMeshActor",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_ACollisionMeshActor": {
+        "va": 287271424,
+        "basis": "The ACollisionMeshActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AStaticMeshActor": {
+        "va": 287271420,
+        "basis": "The AStaticMeshActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AStaticMeshActor": {
+        "va": 278678784,
+        "basis": "The constructor names AStaticMeshActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AStaticMeshActor": {
+        "va": 278623280,
+        "basis": "Registration target reached after the AStaticMeshActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ACollisionMeshActor at RVA 0xc6240, called immediately after the class factory at RVA 0xc4d70 in the singleton initialization path. Sets superclass AStaticMeshActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "f6f385690b3c7489177a9b7a3be3469249545769899de31274d008eda17b57ab",
+      "inputs_sha256": "84767abe56ebe4f88909b862449243ea1884eb87c150562dc829cf23f1e63fdf"
+    }
+  },
+  {
+    "id": "class-factory-ustaticmeshinstance",
+    "offset": 812480,
+    "size": 106,
+    "rebuilt_symbol": "_create_UStaticMeshInstance",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UStaticMeshInstance": {
+        "va": 286059688,
+        "basis": "Retail UTF-16 UStaticMeshInstance allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UStaticMeshInstance": {
+        "va": 278685056,
+        "basis": "Placement callback passed to the native descriptor constructor for UStaticMeshInstance."
+      },
+      "@static_init_UStaticMeshInstance@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UStaticMeshInstance."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0xc65c0; its allocation tag and reflected class name identify UStaticMeshInstance. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "d8390f9aee562e703d6e808a61494476c052e209f592a37aaacf6228a7a8beb6",
+      "inputs_sha256": "08518a8401b037723e0c6db5a8792832360b28fc3c4c317e759e4e43849a30ba"
+    }
+  },
+  {
+    "id": "class-registration-anavmeshactor",
+    "offset": 812800,
+    "size": 264,
+    "rebuilt_symbol": "_register_ANavMeshActor",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_ANavMeshActor": {
+        "va": 287279752,
+        "basis": "The ANavMeshActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AStaticMeshActor": {
+        "va": 287271420,
+        "basis": "The AStaticMeshActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AStaticMeshActor": {
+        "va": 278678784,
+        "basis": "The constructor names AStaticMeshActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AStaticMeshActor": {
+        "va": 278623280,
+        "basis": "Registration target reached after the AStaticMeshActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ANavMeshActor at RVA 0xc6700, called immediately after the class factory at RVA 0xc7320 in the singleton initialization path. Sets superclass AStaticMeshActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "d629c48c0320106739338054c06f624176d146b24c66b07f93427d5488e8e9b2",
+      "inputs_sha256": "f769387de2307e47bd5f064a4626405e35ea8f7752411e7d0a740f18e48c6686"
+    }
+  },
+  {
+    "id": "delete-anavmeshactor",
+    "offset": 815328,
+    "size": 57,
+    "inputs": [
+      "src/campaign_member_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_ANavMeshActor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_member_destruction.obj src/campaign_member_destruction.c",
+    "identification": "Stock ANavMeshActor UClass factory at RVA 0xc7320 references the placement constructor at RVA 0xc72b0. Its vtable at RVA 0x7cedf8 points to this complete function in slot 3. The function destroys the member at offset 0x340, then the base, and conditionally frees the whole object.",
+    "link_bindings": {
+      "_vtable_ANavMeshActor": {
+        "va": 286060024,
+        "basis": "The placement constructor at RVA 0xc72b0 installs this vtable at RVA 0xc72e8."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_member_ANavMeshActor@4": {
+        "va": 278047584,
+        "basis": "Direct call with this pointing to the embedded member at offset 0x340."
+      },
+      "@destroy_base_ANavMeshActor@4": {
+        "va": 278675408,
+        "basis": "The next direct destruction call restores the original receiver before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator on the conditional release path. Its slot 2 receives the original object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fe9a2be59ab6df44c1f1bb4bc6a1211ab86d3edad1f42db61d38be148bd694f6",
+      "inputs_sha256": "570ad6017214eef1ded393e7f2e3748b31ddbcccbb4da03d39bb32ff4b98daed"
+    }
+  },
+  {
+    "id": "placement-anavmeshactor",
+    "offset": 815792,
+    "size": 64,
+    "rebuilt_symbol": "_place_ANavMeshActor",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ANavMeshActor class descriptor."
+      },
+      "_vtable_ANavMeshActor": {
+        "va": 286060024,
+        "basis": "Class-specific table installed after base initialization in the named ANavMeshActor descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the ANavMeshActor class factory at RVA 0xc7320. The callback at RVA 0xc72b0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "ae89611a386e34478beff60d4914bd45c426e46d0508632ce6f4d676426c115e",
+      "inputs_sha256": "7cb63d86a12dcc17ee09d4b59bf0b5c4122a50568ddaf309cca8bec7718c7e5f"
+    }
+  },
+  {
+    "id": "class-factory-anavmeshactor",
+    "offset": 815904,
+    "size": 105,
+    "rebuilt_symbol": "_create_ANavMeshActor",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_ANavMeshActor": {
+        "va": 286060688,
+        "basis": "Retail UTF-16 ANavMeshActor allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_ANavMeshActor": {
+        "va": 278688432,
+        "basis": "Placement callback passed to the native descriptor constructor for ANavMeshActor."
+      },
+      "@static_init_ANavMeshActor@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for ANavMeshActor."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0xc7320; its allocation tag and reflected class name identify ANavMeshActor. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "aff7a6220c025f34ac423d4552a33631b240e5ca79843efe7227d6595ea5719f",
+      "inputs_sha256": "b0a748633018824e64e566cf1dca4215f353f2404c9c83995e72b567c2e27c9a"
+    }
+  },
+  {
+    "id": "class-registration-awindemitter",
+    "offset": 816512,
+    "size": 264,
+    "rebuilt_symbol": "_register_AWindEmitter",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AWindEmitter": {
+        "va": 287279836,
+        "basis": "The AWindEmitter class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AWindEmitter at RVA 0xc7580, called immediately after the class factory at RVA 0xc8170 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "8b8c974fa34044aae84a4778a9a8d94c4772f5c898a1f21c81a8ae1334cd1302",
+      "inputs_sha256": "446c9c739fba15e7c39cd52ec8a9dcbef5f640890b95079294a08bde2b0e6b84"
+    }
+  },
+  {
+    "id": "placement-awindemitter",
+    "offset": 819552,
+    "size": 14,
+    "rebuilt_symbol": "_place_AWindEmitter",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_AWindEmitter@4": {
+        "va": 278691904,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AWindEmitter class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the AWindEmitter class factory at RVA 0xc8170. The callback at RVA 0xc8160 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "5239855c3dc1e5ee2d6c18f452053b4c59584917ffff67363f0d86b275fb51f0",
+      "inputs_sha256": "d5fb928bbf1f8c48ab649c8eadc788e4ae78c3df946c102293ee0fc0c5977813"
+    }
+  },
+  {
+    "id": "class-factory-awindemitter",
+    "offset": 819568,
+    "size": 105,
+    "rebuilt_symbol": "_create_AWindEmitter",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AWindEmitter": {
+        "va": 286061392,
+        "basis": "Retail UTF-16 AWindEmitter allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AWindEmitter": {
+        "va": 278692192,
+        "basis": "Placement callback passed to the native descriptor constructor for AWindEmitter."
+      },
+      "@static_init_AWindEmitter@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AWindEmitter."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0xc8170; its allocation tag and reflected class name identify AWindEmitter. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "4daabf80d70fe4255f5e5038feb57de026cac22baaf3c662ffafab6e2c211b1c",
+      "inputs_sha256": "185e7ecbc1d72b88f085a7542aa0c8e2e37d611cd297dd0fc45c34d06978ed4d"
+    }
+  },
+  {
+    "id": "class-singleton-uproperty",
+    "offset": 820080,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UProperty",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UProperty": {
+        "va": 288432896,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UProperty": {
+        "va": 281977152,
+        "basis": "The constructor passes both the UTF-16 UProperty allocation tag and Property class name to the engine."
+      },
+      "_register_UProperty": {
+        "va": 281977264,
+        "basis": "Direct registration call after initializing the singleton for UProperty."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0xc8370, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3ea140 names UProperty. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "c062cb43b33a1d47259a35141f3b41a1ed9a15dd598370144d9bc9063cc8424d",
+      "inputs_sha256": "651474f80f05880cfb5b915271747eca23062178dd5ff86e624ec4580551aac8"
+    }
+  },
+  {
+    "id": "class-registration-uaniminfo",
+    "offset": 828576,
+    "size": 264,
+    "rebuilt_symbol": "_register_UAnimInfo",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UAnimInfo": {
+        "va": 287279868,
+        "basis": "The UAnimInfo class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UAnimInfo at RVA 0xca4a0, called immediately after the class factory at RVA 0x1030f0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "d284e318cb49ac3b824e207787df356478cb3457dfc7682be768216e4859e3fc",
+      "inputs_sha256": "fe84ea1472f3168560a33f113e7bae3f197601c77d1edb92f22fe98ef4458d5f"
+    }
+  },
+  {
+    "id": "class-registration-uanimnotify",
+    "offset": 829376,
+    "size": 264,
+    "rebuilt_symbol": "_register_UAnimNotify",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UAnimNotify": {
+        "va": 287279872,
+        "basis": "The UAnimNotify class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UAnimNotify at RVA 0xca7c0, called immediately after the class factory at RVA 0xdc410 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "0d906a02fbfe1399727c417d336e9fd01dc3de7027d823aac73f66c596f96109",
+      "inputs_sha256": "69988732b883c9aaa8df0c23ed86b3cb46cc0704df57bed756cd5a62b446da8e"
+    }
+  },
+  {
+    "id": "script-parameters-stepdampingfadeout",
+    "offset": 838640,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_StepDampingFadeOut@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_StepDampingFadeOut": {
+        "va": 287285580,
+        "basis": "FName initialized with retail UTF-16 StepDampingFadeOut (VA 0x110d4f14). The FName constructor call at RVA 0x13c25a precedes the store to this slot at RVA 0x13c263."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail StepDampingFadeOut event wrapper at RVA 0xccbf0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares s_Targeting.StepDampingFadeOut with Float ReturnValue at serial offset 0xa54ee.",
+    "match": {
+      "bytes_sha256": "adb0279da60ca740516d36c5030a19ef9e8cf0edfb0010b7f71dbfba48bc0018",
+      "inputs_sha256": "75d586abddf099c3c8de8ec8a65e3f4d18466fd6acd1e20fcde7a5aaffc48924"
+    }
+  },
+  {
+    "id": "delete-uanimnotify",
+    "offset": 838864,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UAnimNotify@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UAnimNotify UClass factory at RVA 0xdc410 references the named placement constructor at RVA 0xd8a70. That constructor installs the vtable at RVA 0x7cf3a0, whose slot 3 points to this deleting destructor at RVA 0xcccd0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UAnimNotify": {
+        "va": 286061472,
+        "basis": "The placement constructor at RVA 0xd8a70 installs this same vtable at RVA 0xd8a80."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UAnimNotify@4": {
+        "va": 281920608,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a77e8f70f70d3c530163a8cc87461b216e523a340f4ab5c719bab1ce4a9d884a",
+      "inputs_sha256": "7faead00e58f536dce96276619a4965dbd1b8146f5c3b0e17eb89341bc8d6f3f"
+    }
+  },
+  {
+    "id": "delete-uanimnotify-script",
+    "offset": 839152,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UAnimNotify_Script@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UAnimNotify_Script UClass factory at RVA 0xdc480 references the named placement constructor at RVA 0xd8a90. That constructor installs the vtable at RVA 0x7cf410, whose slot 3 points to this deleting destructor at RVA 0xccdf0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UAnimNotify_Script": {
+        "va": 286061584,
+        "basis": "The placement constructor at RVA 0xd8a90 installs this same vtable at RVA 0xd8aa0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UAnimNotify_Script@4": {
+        "va": 278711360,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a8d88d39c10088246a63bd98b3ec9404b1a2a498756a14ca14d3ea5b04e0d6a0",
+      "inputs_sha256": "1219fe0a5f9ef314168298a8449ecbdb269a6a25a958d5121ea073de678d9903"
+    }
+  },
+  {
+    "id": "delete-uanimnotify-sound",
+    "offset": 839440,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UAnimNotify_Sound@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UAnimNotify_Sound UClass factory at RVA 0xdc4f0 references the named placement constructor at RVA 0xd8ab0. That constructor installs the vtable at RVA 0x7cf488, whose slot 3 points to this deleting destructor at RVA 0xccf10. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UAnimNotify_Sound": {
+        "va": 286061704,
+        "basis": "The placement constructor at RVA 0xd8ab0 installs this same vtable at RVA 0xd8ac0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UAnimNotify_Sound@4": {
+        "va": 278711360,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "077749aa47085e0f7e377ad99a299ca37cf2571794d3df86dbff4bf8ce8aca7a",
+      "inputs_sha256": "46d693db00a5f2642d20707c8169756d7fc966dbe4b217b4f4a739cd95ecb66d"
+    }
+  },
+  {
+    "id": "delete-uanimation",
+    "offset": 846048,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UAnimation@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UAnimation UClass factory at RVA 0xda960 references the named placement constructor at RVA 0xd8c20. That constructor installs the vtable at RVA 0x7cf858, whose slot 3 points to this deleting destructor at RVA 0xce8e0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UAnimation": {
+        "va": 286062680,
+        "basis": "The placement constructor at RVA 0xd8c20 installs this same vtable at RVA 0xd8c30."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UAnimation@4": {
+        "va": 281920608,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c011aef07191c0a2a6cebff648f9d57113e9247a8866b453afc7047c103ea132",
+      "inputs_sha256": "39ffd09b2a333928ef7bf3c8d2e3472a3e812dfd187ed79d1d3399ecac9c745d"
+    }
+  }
+]

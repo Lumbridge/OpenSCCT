@@ -1,0 +1,111 @@
+[
+  {
+    "id": "script-parameters-rumblevibrate",
+    "offset": 1736336,
+    "size": 70,
+    "rebuilt_symbol": "@script_call_RumbleVibrate@16",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_RumbleVibrate": {
+        "va": 287285528,
+        "basis": "FName initialized with retail UTF-16 RumbleVibrate (VA 0x110d5064). The FName constructor call at RVA 0x13c126 precedes the store to this slot at RVA 0x13c12f."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail RumbleVibrate event wrapper at RVA 0x1a7e90, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.RumbleVibrate with Float duration, Float Strenth, Float Buildup at serial offset 0x730e9.",
+    "match": {
+      "bytes_sha256": "f57ddd2ea3bf8e03cfc2874a2f05a0c5c61ef1370666ec9a3a92d905395590da",
+      "inputs_sha256": "b7a730e6fe201f61d25fee6db2b59d7b0b172451ae9ddaebdcea61273e714490"
+    }
+  },
+  {
+    "id": "script-parameters-rumbleshake",
+    "offset": 1736416,
+    "size": 70,
+    "rebuilt_symbol": "@script_call_RumbleShake@16",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_RumbleShake": {
+        "va": 287285524,
+        "basis": "FName initialized with retail UTF-16 RumbleShake (VA 0x110d5080). The FName constructor call at RVA 0x13c10f precedes the store to this slot at RVA 0x13c121."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail RumbleShake event wrapper at RVA 0x1a7ee0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.RumbleShake with Float duration, Float Strenth, Float Buildup at serial offset 0x73145.",
+    "match": {
+      "bytes_sha256": "c881f65bf9a25f14c8ec7a59f7d958b699dc3edefb3dcf89baaa5beb09af33c5",
+      "inputs_sha256": "76c3f40a0fe8b9bb075cf9a646d31a84f690fb6668f7053e8803e05f8db117db"
+    }
+  },
+  {
+    "id": "class-registration-utexturestreamer",
+    "offset": 1757744,
+    "size": 264,
+    "rebuilt_symbol": "_register_UTextureStreamer",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UTextureStreamer": {
+        "va": 287287272,
+        "basis": "The UTextureStreamer class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UTextureStreamer at RVA 0x1ad230, called immediately after the class factory at RVA 0x1b0a80 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "b5e3f9142934a446ab9e47451973b5bea6f7358695b6de0535c33e16060dac59",
+      "inputs_sha256": "f2ba729c825e0de7a175b1a2816d7ec83f735d75199ee679da2b1d516b92a227"
+    }
+  }
+]

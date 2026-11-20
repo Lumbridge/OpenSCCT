@@ -1,0 +1,171 @@
+[
+  {
+    "id": "class-registration-ud3drenderdevice",
+    "offset": 3675008,
+    "size": 264,
+    "rebuilt_symbol": "_register_UD3DRenderDevice",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UD3DRenderDevice": {
+        "va": 287506304,
+        "basis": "The UD3DRenderDevice class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_URenderDevice": {
+        "va": 287285084,
+        "basis": "The URenderDevice class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_URenderDevice": {
+        "va": 279159664,
+        "basis": "The constructor names URenderDevice using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_URenderDevice": {
+        "va": 279159776,
+        "basis": "Registration target reached after the URenderDevice constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UD3DRenderDevice at RVA 0x381380, called immediately after the class factory at RVA 0x3897e0 in the singleton initialization path. Sets superclass URenderDevice, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "92c8cc57b62599e17d39bdca5862423fa7f2fc2d0385649c87b3ea0df0f8b129",
+      "inputs_sha256": "bb2fa8449e717f9ed3cee5b723e12c9940d810ad8989273c1156076efc6abe93"
+    }
+  },
+  {
+    "id": "placement-ud3drenderdevice",
+    "offset": 3708880,
+    "size": 14,
+    "rebuilt_symbol": "_place_UD3DRenderDevice",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UD3DRenderDevice@4": {
+        "va": 281578016,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UD3DRenderDevice class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UD3DRenderDevice class factory at RVA 0x3897e0. The callback at RVA 0x3897d0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "dd041bc4e5586b90ecc635427106d0dd33f39c11657d6fae1bd4a82f0b3e9e6f",
+      "inputs_sha256": "907d3a1b34bedafce5616810bfab0cdff75723ad7607c13d4def12965153c0a8"
+    }
+  },
+  {
+    "id": "class-factory-ud3drenderdevice",
+    "offset": 3708896,
+    "size": 109,
+    "rebuilt_symbol": "_create_UD3DRenderDevice",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UD3DRenderDevice": {
+        "va": 286329804,
+        "basis": "Retail UTF-16 UD3DRenderDevice allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UD3DRenderDevice": {
+        "va": 281581520,
+        "basis": "Placement callback passed to the native descriptor constructor for UD3DRenderDevice."
+      },
+      "@static_init_UD3DRenderDevice@4": {
+        "va": 281540448,
+        "basis": "Static class callback passed together with the placement callback for UD3DRenderDevice."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3897e0; its allocation tag and reflected class name identify UD3DRenderDevice. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "4e752b4a5136e796bf1e17deb6bbcf92630946d74201ca5ce21984b9dacee9f8",
+      "inputs_sha256": "f1b609b058b2ca5f24bd686556dfb32fb0e0ae7f5ec24367fe2bca2e2873c186"
+    }
+  },
+  {
+    "id": "class-singleton-uscx-decal-material",
+    "offset": 3726544,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_USCX_decal_material",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_USCX_decal_material": {
+        "va": 287283668,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_USCX_decal_material": {
+        "va": 279017136,
+        "basis": "The constructor passes both the UTF-16 USCX_decal_material allocation tag and SCX_decal_material class name to the engine."
+      },
+      "_register_USCX_decal_material": {
+        "va": 279005472,
+        "basis": "Direct registration call after initializing the singleton for USCX_decal_material."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x38dcd0, directly called at RVA 0x3a34bc. The constructor at RVA 0x1176b0 names USCX_decal_material. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "e6d42f708301c4de2396f88e30e5a9bfbcd10c62a6e7b1396866c00a6bf537c3",
+      "inputs_sha256": "f174848b2ca67a8df03db8021767057f2ee6e1fd3895b4889674a048d2dc0564"
+    }
+  }
+]

@@ -1,0 +1,451 @@
+[
+  {
+    "id": "sound-file-read",
+    "offset": 7947696,
+    "size": 60,
+    "rebuilt_symbol": "_SND_fn_ulReadFileSnd@12",
+    "inputs": [
+      "src/sound_file_io.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_io.obj src/sound_file_io.c",
+    "identification": "Steam PE export _SND_fn_ulReadFileSnd@12 at RVA 0x7945b0. Passes file, buffer and count to the named ReadFile import. Both success and failure branches return a byte count, with GetLastError called before returning zero on failure. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "f9acbd2cf825496be0c60f1e154de8686db858d2a3861e028dd230e0f2e4efc1",
+      "inputs_sha256": "af7db26ee9634a88662601de6e55e49f8c623d511f9d16aad3ba7d6fefbe05c4"
+    }
+  },
+  {
+    "id": "sound-file-seek",
+    "offset": 7947760,
+    "size": 80,
+    "rebuilt_symbol": "_SND_fn_ulSeekFileSnd@12",
+    "inputs": [
+      "src/sound_file_range.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_range.obj src/sound_file_range.c",
+    "identification": "Steam PE export _SND_fn_ulSeekFileSnd@12 at RVA 0x7945f0. Accepts start, current or end origins; unknown origins report error 13 and use start. Sets the Win32 file pointer, mapping -1 and 131 to -1. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_SND_fn_vDisplayError@8": {
+        "va": 285460432,
+        "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "15b47c42b5e55441c928377f7a98685d7e09b2bf5bacb1908cc40b8e853f86cb",
+      "inputs_sha256": "1e189c8e108ff72efcb91ec16045265de4a6658b762b55be0215e8d0c40b3e24"
+    }
+  },
+  {
+    "id": "sound-close-file",
+    "offset": 7947840,
+    "size": 6,
+    "rebuilt_symbol": "_SND_fn_vCloseFileSnd@4",
+    "inputs": [
+      "src/sound_file_handles.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_file_handles.obj src/sound_file_handles.c",
+    "identification": "The named export is a single terminal indirect jump through the KERNEL32 CloseHandle import at VA 0x110b738c. The next bytes are alignment. The caller already supplied the handle on the stack.",
+    "match": {
+      "bytes_sha256": "130bca5d2a3c2ca69c636b7ee88752f201f4be9977500395b60faff6d61f8672",
+      "inputs_sha256": "3f7ee11b9dfb397dfa6a490ff06fff4e1c2496c9c8c84f6c13a141b79ded0111"
+    }
+  },
+  {
+    "id": "sound-directory-separator",
+    "offset": 7947856,
+    "size": 3,
+    "rebuilt_symbol": "_SND_fn_cGetDirectorySeparator@0",
+    "inputs": [
+      "src/sound_directory_queries.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /Gy /c /O2 /Folocal/sound_directory_queries.obj src/sound_directory_queries.c",
+    "identification": "The retail export table names _SND_fn_cGetDirectorySeparator@0 at RVA 0x794650. Its return immediately precedes alignment.",
+    "match": {
+      "bytes_sha256": "843316f2067c905c3f17a526081c3028022d685a1a6652709f90bedbae6c3cd0",
+      "inputs_sha256": "fad4352d60430b56a153d75602fc8a8fea1cfb486cc849e9999ae97e262190d3"
+    }
+  },
+  {
+    "id": "sound-file-exists",
+    "offset": 7947872,
+    "size": 97,
+    "rebuilt_symbol": "_SND_fn_bTestFileExistSnd@4",
+    "inputs": [
+      "src/sound_file_exists.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /GS /Gy /c /Folocal/sound_file_exists.obj src/sound_file_exists.c",
+    "identification": "Steam PE export _SND_fn_bTestFileExistSnd@4 at RVA 0x794660. Tests for a successful FindFirstFileA and closes the valid enumeration handle. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "___security_cookie": {
+        "va": 287127248,
+        "basis": "Image cookie loaded by the stack protector at the start of the named Sound file-existence export."
+      },
+      "@__security_check_cookie@4": {
+        "va": 284363865,
+        "basis": "Both returns in the named Sound file-existence export call this guard with the saved cookie in ECX."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9af0e15ffedd09803f22ca0c9e71b482dd9f7d49f35715d2e925ed0322fae980",
+      "inputs_sha256": "9e497f0a7bbfcce7b2a8ae2e57d27ddb55bfe96600670f85ab613cccea5890b1"
+    }
+  },
+  {
+    "id": "sound-file-write",
+    "offset": 7948032,
+    "size": 60,
+    "rebuilt_symbol": "_SND_fn_ulWriteFileSnd@12",
+    "inputs": [
+      "src/sound_file_io.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_io.obj src/sound_file_io.c",
+    "identification": "Steam PE export _SND_fn_ulWriteFileSnd@12 at RVA 0x794700. Passes file, buffer and count to the named WriteFile import. The success path returns the written count and the failure path calls GetLastError before returning zero. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "e416902619fd4b8615916bc6a29b60ecd923be2414a89c228b15ebd712bad00a",
+      "inputs_sha256": "aba11709b6104af739d423b6e8a35ce6176568a670d5b1e07c3ee71a45e85c4a"
+    }
+  },
+  {
+    "id": "sound-file-size",
+    "offset": 7948096,
+    "size": 16,
+    "rebuilt_symbol": "_SND_fn_ulGetFileSize@4",
+    "inputs": [
+      "src/sound_file_io.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_io.obj src/sound_file_io.c",
+    "identification": "Steam PE export _SND_fn_ulGetFileSize@4 at RVA 0x794740. Calls the named GetFileSize import with the file handle and a null high-word output. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "b9e62b4613836259d794a02c6fa15785fef069c21ce34002379b0168ad8ac4eb",
+      "inputs_sha256": "53c7b5282d6f19310ca0d0c006f5585eea47395644ed7322d5872233fe21ba79"
+    }
+  },
+  {
+    "id": "sound-delete-file",
+    "offset": 7948112,
+    "size": 6,
+    "rebuilt_symbol": "_SND_fn_bDeleteFile@4",
+    "inputs": [
+      "src/sound_file_handles.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_file_handles.obj src/sound_file_handles.c",
+    "identification": "The named export is a single terminal indirect jump through KERNEL32 DeleteFileA at VA 0x110b7378. Alignment follows the jump. The single path argument is forwarded on the stack.",
+    "match": {
+      "bytes_sha256": "4d1ada4aae7132fb1bcec215d2de3d33db9804c95d7531de843c88fc708509c9",
+      "inputs_sha256": "3b24ac9fb15245207910ec10093bbd7357f390b07ba0c66d311f8a69f0f79b01"
+    }
+  },
+  {
+    "id": "sound-async-service-init",
+    "offset": 7948144,
+    "size": 152,
+    "rebuilt_symbol": "_SND_fn_bInitStreamAsyncSnd@8",
+    "inputs": [
+      "src/sound_io_begin.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /GS /Gy /c /Folocal/sound_io_begin.obj src/sound_io_begin.c",
+    "identification": "Steam PE export _SND_fn_bInitStreamAsyncSnd@8 at RVA 0x794770. Stores the requested stream count. Reports a warning if the aggregate stream budget exceeds the supplied limit, then calls the worker initialization helper regardless. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "___security_cookie": {
+        "va": 287127248,
+        "basis": "Retail stack guard storage."
+      },
+      "_stream_count": {
+        "va": 287255796,
+        "basis": "Global storing requested stream count."
+      },
+      "__real@4f800000": {
+        "va": 285991696,
+        "basis": "Retail constant 2^32 used by unsigned integer-to-float conversion."
+      },
+      "_stream_budget": {
+        "va": 287255792,
+        "basis": "Per-stream timing budget in the retail float slot."
+      },
+      "_sound_format_message": {
+        "va": 284369247,
+        "basis": "The variadic CRT formatting target given a stack buffer and two floating arguments."
+      },
+      "_SND_fn_vDisplayError@8": {
+        "va": 285460432,
+        "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+      },
+      "_sound_init_async_workers": {
+        "va": 285823856,
+        "basis": "The final call in the named async initialization export."
+      },
+      "@__security_check_cookie@4": {
+        "va": 284363865,
+        "basis": "Retail stack guard validation routine."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9f9db1f88d6e3bddce24866706421eb3f715c57cc98b1ae1d7b1eaa7ef62a12c",
+      "inputs_sha256": "6da6949946d4ed32ba97bae4f1fee003b24d72725a63149ff99db6f50da67f1a"
+    }
+  },
+  {
+    "id": "sound-stream-shutdown",
+    "offset": 7948304,
+    "size": 5,
+    "rebuilt_symbol": "_SND_fn_vDesInitStreamAsyncSnd@0",
+    "inputs": [
+      "src/sound_stream_shutdown.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_shutdown.obj src/sound_stream_shutdown.c",
+    "identification": "Steam PE export _SND_fn_vDesInitStreamAsyncSnd@0 at RVA 0x794810. Single terminal jump to asynchronous file-service shutdown. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_shutdown_async_io": {
+        "va": 285824256,
+        "basis": "Direct tail jump at RVA 0x794810 in the named stream shutdown export."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffeced9d36c2a89eafdbd53d41d269f78260d817da6ad45e29bd4be591aca658",
+      "inputs_sha256": "caa677fc15630341007699354d7fcc97df0efb49b6574bd8861bd6f5ae20102c"
+    }
+  },
+  {
+    "id": "sound-async-abort",
+    "offset": 7948624,
+    "size": 41,
+    "rebuilt_symbol": "_SND_fn_vAbortLastStreamAsyncSnd@4",
+    "inputs": [
+      "src/sound_stream_requests.c",
+      "src/sound_stream_request.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_requests.obj src/sound_stream_requests.c",
+    "identification": "Steam PE export _SND_fn_vAbortLastStreamAsyncSnd@4 at RVA 0x794950. A valid stream clears eight request fields. A null handle or -1 returns immediately. File and buffer ownership fields survive the reset. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "5f03f48086bf0e67ea068314dcdfe5d5fc8b1be1e80d015dfc144232e15dbc3f",
+      "inputs_sha256": "3506329aec27f5a963d0fccbfad782251cdcbf3d517d8283cccf2c9dd6d47854"
+    }
+  },
+  {
+    "id": "sound-async-is-done",
+    "offset": 7948672,
+    "size": 33,
+    "rebuilt_symbol": "_SND_fn_bIsLastStreamAsyncDoneSnd@4",
+    "inputs": [
+      "src/sound_stream_requests.c",
+      "src/sound_stream_request.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_requests.obj src/sound_stream_requests.c",
+    "identification": "Steam PE export _SND_fn_bIsLastStreamAsyncDoneSnd@4 at RVA 0x794980. Null and -1 return false; for a valid pointer, state 2 signals completion. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "7064f383ff0fe2c208d27ffde78be9f2a322c5df767a21786bc8b65c1653cf75",
+      "inputs_sha256": "6d1c3c489cb1911bd2cb6810c6f781039f2b407f75b54a190df93df434010878"
+    }
+  },
+  {
+    "id": "sound-stream-destroy",
+    "offset": 7948720,
+    "size": 78,
+    "rebuilt_symbol": "_SND_fn_vDestroyStreamAsyncSnd@4",
+    "inputs": [
+      "src/sound_stream_lifecycle.c",
+      "src/sound_stream_request.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_lifecycle.obj src/sound_stream_lifecycle.c",
+    "identification": "Steam PE export _SND_fn_vDestroyStreamAsyncSnd@4 at RVA 0x7949b0. Clears request state, closes the async file, releases the 32-byte-aligned buffer and releases the stream. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_close_stream_file": {
+        "va": 285825312,
+        "basis": "Direct callee of SND_fn_vDestroyStreamAsyncSnd that releases the async file object."
+      },
+      "_SND_fn_vFreeSndAligned@8": {
+        "va": 285459664,
+        "basis": "Named export _SND_fn_vFreeSndAligned@8 in the Steam campaign PE."
+      },
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9f3b99aef32a4e51a7c5e49812d4ec4877898d81951a850e4ba446d7f317e107",
+      "inputs_sha256": "78d649e5353ba8910f445023b354ecca2de93ed1b2467bd264dbc213c4da0d37"
+    }
+  },
+  {
+    "id": "sound-stream-submit-read",
+    "offset": 7948800,
+    "size": 43,
+    "rebuilt_symbol": "_sound_submit_stream_read",
+    "inputs": [
+      "src/sound_stream_lifecycle.c",
+      "src/sound_stream_request.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_lifecycle.obj src/sound_stream_lifecycle.c",
+    "identification": "The exported start routine calls RVA 0x794a00 with the stream, size/start and buffer. On success the helper records the queued byte count and returns the original result. Locally assigned C name; ends at its return before alignment.",
+    "link_bindings": {
+      "_sound_submit_file_read": {
+        "va": 285824672,
+        "basis": "Direct callee of the stream request submit helper, taking a file handle, byte count, request start and target buffer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7ab198f58ce8d4c81f0567b8b8ddd122df26266f689be59510462b7517ed80a4",
+      "inputs_sha256": "ac235ad487a8b98ca95df27859a408620c146ebb5f8b694f5dfe92682148b16f"
+    }
+  },
+  {
+    "id": "sound-stream-start",
+    "offset": 7948880,
+    "size": 104,
+    "rebuilt_symbol": "_SND_fn_vStartStreamAsyncSnd@12",
+    "inputs": [
+      "src/sound_stream_lifecycle.c",
+      "src/sound_stream_request.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_lifecycle.obj src/sound_stream_lifecycle.c",
+    "identification": "Steam PE export _SND_fn_vStartStreamAsyncSnd@12 at RVA 0x794a50. Starts an accepted request for a nonempty size in an idle or completed stream; the initial chunk fits the buffer. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_submit_stream_read": {
+        "va": 285821440,
+        "basis": "Direct call at RVA 0x794aa1 in exported SND_fn_vStartStreamAsyncSnd targets RVA 0x794a00; the locally named helper has its own whole-function comparison."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2ae002cf6fc74f84aca8a7722b448175a88bf89c787dc69bb13341d6e649d8c0",
+      "inputs_sha256": "cd82626b4d5daac7346f7576fb94b000a26e71facfbe598bf6ac0810af9ecb82"
+    }
+  },
+  {
+    "id": "sound-stream-allocate-request",
+    "offset": 7949840,
+    "size": 78,
+    "rebuilt_symbol": "_sound_alloc_stream_request",
+    "inputs": [
+      "src/sound_async_allocation.c",
+      "src/sound_async_worker.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_async_allocation.obj src/sound_async_allocation.c",
+    "identification": "Direct call at RVA 0x795701 allocates a 296-byte request, its mutex, and a buffer of the requested length. All failure paths clean up previously acquired resources. Locally assigned C name; all terminal exits included and trailing alignment excluded.",
+    "link_bindings": {
+      "_SND_fn_pvMallocSnd@4": {
+        "va": 285460528,
+        "basis": "Named export _SND_fn_pvMallocSnd@4 in the Steam campaign PE."
+      },
+      "__imp__CreateMutexA@12": {
+        "va": 285962492,
+        "basis": "Named ANSI mutex-creation import."
+      },
+      "__imp__CloseHandle@4": {
+        "va": 285963148,
+        "basis": "Named handle-close import."
+      },
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "cb6eff573ccfed9d6711e0a8abf43f3acc394fa42405d93bb46fdc9d6d88899f",
+      "inputs_sha256": "74b395d05dec04c034ae18f66edd5fd62f28f3a6e25ee87ffafd4e7e3899145f"
+    }
+  },
+  {
+    "id": "sound-stream-dispose-request",
+    "offset": 7949920,
+    "size": 44,
+    "rebuilt_symbol": "_sound_dispose_stream_request",
+    "inputs": [
+      "src/sound_async_allocation.c",
+      "src/sound_async_worker.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_async_allocation.obj src/sound_async_allocation.c",
+    "identification": "Completion handler calls this routine at RVA 0x7958ac. Frees and clears the buffer, closes the mutex, then frees the request. Locally assigned C name; all terminal exits included and trailing alignment excluded.",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+      },
+      "__imp__CloseHandle@4": {
+        "va": 285963148,
+        "basis": "Named handle-close import."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5bcfdf0772f3ddd0b92af2a9e182b4bdf211ef25a3d02e70afe96e4aefd91a6c",
+      "inputs_sha256": "07ad0cdea0b1bfacc18f0d96cbe613d02864a97407ef44eb8935f9f1b48d2606"
+    }
+  },
+  {
+    "id": "sound-reset-file-cache",
+    "offset": 7950000,
+    "size": 67,
+    "rebuilt_symbol": "_sound_reset_file_cache",
+    "inputs": [
+      "src/sound_file_cache.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_cache.obj src/sound_file_cache.c",
+    "identification": "Called by the cache initialization and teardown routines at RVAs 0x794ffb and 0x795049. Under a critical section, clears four 260-byte path buffers and marks each handle invalid. Locally assigned C name; all terminal exits included and trailing alignment excluded.",
+    "link_bindings": {
+      "_cache_lock": {
+        "va": 288549760,
+        "basis": "Critical section guarding the file cache."
+      },
+      "__imp__EnterCriticalSection@4": {
+        "va": 285963180,
+        "basis": "Named KERNEL32 import."
+      },
+      "_cache_entries": {
+        "va": 288549784,
+        "basis": "Four path/handle pairs in the async file cache."
+      },
+      "_SND_fn_vMemsetSnd@12": {
+        "va": 285460048,
+        "basis": "Named export _SND_fn_vMemsetSnd@12 in the Steam campaign PE."
+      },
+      "__imp__LeaveCriticalSection@4": {
+        "va": 285963164,
+        "basis": "Named KERNEL32 import."
+      }
+    },
+    "match": {
+      "bytes_sha256": "36d0cc63fbdfda2f7a7ec36b08d5ab7069e588461991322760b5892b23d252f3",
+      "inputs_sha256": "67ef50c7f8718702b177747d8485ffeadcee02fb6a8ac4f5febd0383b25ae347"
+    }
+  },
+  {
+    "id": "sound-unlink-file-requests",
+    "offset": 7952608,
+    "size": 62,
+    "rebuilt_symbol": "_sound_unlink_file_requests",
+    "inputs": [
+      "src/sound_request_list.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_request_list.obj src/sound_request_list.c",
+    "identification": "Called by async file close at RVA 0x795986. Removes every link referring to the given request, freeing removed nodes and preserving the remaining order. Locally assigned C name; all terminal exits included and trailing alignment excluded.",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3117d9c4e28c473ee180a78ade4ecb2c98a86e07d7fd7aa1c7694c529962641b",
+      "inputs_sha256": "34cabb59f1e0998d29cfb9b5662030d75f1dc103c86506044c20d242254e53e3"
+    }
+  }
+]

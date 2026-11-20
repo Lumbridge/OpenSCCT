@@ -1,0 +1,2491 @@
+[
+  {
+    "id": "delete-uguimenuoption",
+    "offset": 1466896,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIMenuOption@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIMenuOption vtable at RVA 0x302fb0, slot 3, points to entry RVA 0x166210. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIMenuOption@4": {
+        "va": 279339584,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x166240."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "66a397a02757f80cbb3fbb738b9750a54ad56f9da6a32f3e0ff70c3d6178c2ad"
+    }
+  },
+  {
+    "id": "delete-umolisteditbox",
+    "offset": 1467264,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UmoListEditBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UmoListEditBox vtable at RVA 0x302e50, slot 3, points to entry RVA 0x166380. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UmoListEditBox@4": {
+        "va": 279339952,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1663b0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "4d9fa7b5f94143724c16b7769a0ada3086f737794c1e624ad152e99b68a78e05"
+    }
+  },
+  {
+    "id": "place-umolisteditbox",
+    "offset": 1467584,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UmoListEditBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UmoListEditBox::PrivateStaticClass identifies the UClass object at RVA 0x3a6df0. Its stock registration call at RVA 0x165f62 passes callback RVA 0x1664c0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302e50.",
+    "link_bindings": {
+      "_vtable_UmoListEditBox": {
+        "va": 281030224,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1664c8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e3192bb6003b53857174420b5c260c4ed83a469c0f43cbb7508a089675dbc6e6",
+      "inputs_sha256": "d4a9b7d008badf51cfe0c3a05e0efcb89483d98d702958b47bfc84960fc52855"
+    }
+  },
+  {
+    "id": "place-umoeditbox",
+    "offset": 1467600,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UmoEditBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UmoEditBox::PrivateStaticClass identifies the UClass object at RVA 0x3a6cd8. Its stock registration call at RVA 0x165f0a passes callback RVA 0x1664d0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302f00.",
+    "link_bindings": {
+      "_vtable_UmoEditBox": {
+        "va": 281030400,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1664d8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ab18604caf0c6fdcd8109d8b96b8c736debf6e1753443ff9a752146184d89162",
+      "inputs_sha256": "4a562329f9d2885020a5f8e117a8c66cbc7e62be0b8c7e8bf3551ff6f56e91aa"
+    }
+  },
+  {
+    "id": "place-ustrategicmap",
+    "offset": 1467616,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UStrategicMap",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UStrategicMap::PrivateStaticClass identifies the UClass object at RVA 0x3a6bc0. Its stock registration call at RVA 0x165eb2 passes callback RVA 0x1664e0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302b90.",
+    "link_bindings": {
+      "_vtable_UStrategicMap": {
+        "va": 281029520,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1664e8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1f8d53245ba0300461fac8c208a2aa97975bbbc046dead92a99eeaa891e31f76",
+      "inputs_sha256": "cf6487f60c8b5239b2fc745150ce21826c2b4c0f9534958709fa66c0d2ede0a2"
+    }
+  },
+  {
+    "id": "place-uguipagewaitlaunch",
+    "offset": 1468224,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIPageWaitLaunch",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIPageWaitLaunch::PrivateStaticClass identifies the UClass object at RVA 0x3a6aa8. Its stock registration call at RVA 0x165e5a passes callback RVA 0x166740. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302c40.",
+    "link_bindings": {
+      "_vtable_UGUIPageWaitLaunch": {
+        "va": 281029696,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x166748. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "61db118d2e9efec46deab10051a7c66a3514d38afdc75b0bcac9cc587acc4fd8",
+      "inputs_sha256": "9deb1e3f473d383a28620928b934ed896db4006a920dde3c55fa93f3ae828d97"
+    }
+  },
+  {
+    "id": "delete-uguimulticolumnlist",
+    "offset": 1468976,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIMultiColumnList@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIMultiColumnList vtable at RVA 0x302968, slot 3, points to entry RVA 0x166a30. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIMultiColumnList@4": {
+        "va": 279341872,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x166b30."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "764513225610f6fdc2ff1135cd7a350210bfeb2fafbe6835f66cc14c772d23a0",
+      "inputs_sha256": "e799d1194a5ee5635fd56d92d8c8a3231fea5465aba263abfc5de147fc57d3c1"
+    }
+  },
+  {
+    "id": "place-uguichatbox",
+    "offset": 1469824,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIChatBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIChatBox::PrivateStaticClass identifies the UClass object at RVA 0x3a6878. Its stock registration call at RVA 0x165daa passes callback RVA 0x166d80. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302800.",
+    "link_bindings": {
+      "_vtable_UGUIChatBox": {
+        "va": 281028608,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x166d88. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5d66d7ce404e6459724430afe329cc729b1ab7d70987ad5470fc194cb5a965aa",
+      "inputs_sha256": "00dd3a7bb8a41bc0a24a95c327836fc07e18f514afc349bf5d6f9cb26207a920"
+    }
+  },
+  {
+    "id": "delete-uguichatbox",
+    "offset": 1469840,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIChatBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIChatBox vtable at RVA 0x302800, slot 3, points to entry RVA 0x166d90. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIChatBox@4": {
+        "va": 279342528,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x166dc0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "71d23a54087e0abb06629919a723a4de5fd0fa4e6f8f056a04117e2a3aa2b49d"
+    }
+  },
+  {
+    "id": "place-uguimultipagelabel",
+    "offset": 1470080,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMultiPageLabel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMultiPageLabel::PrivateStaticClass identifies the UClass object at RVA 0x3a6760. Its stock registration call at RVA 0x165d52 passes callback RVA 0x166e80. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302750.",
+    "link_bindings": {
+      "_vtable_UGUIMultiPageLabel": {
+        "va": 281028432,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x166e88. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c1f0c0c9e89d0c856d19eabe614fde3cc8d5abc9d9e56eb98cb579404e3a56b7",
+      "inputs_sha256": "edcc0819235334ffa6260a3d8c79b5cccc620db38fdc566272bc89c066b8c40c"
+    }
+  },
+  {
+    "id": "delete-uguimultipagelabel",
+    "offset": 1470096,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIMultiPageLabel@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIMultiPageLabel vtable at RVA 0x302750, slot 3, points to entry RVA 0x166e90. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIMultiPageLabel@4": {
+        "va": 279342784,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x166ec0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "f39ac9d9640a4dff02c69f516d0c2d66494cda59fa1a8885be7ced8ac501475b"
+    }
+  },
+  {
+    "id": "place-uguivertscrollbarlabel",
+    "offset": 1470288,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIVertScrollBarLabel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIVertScrollBarLabel::PrivateStaticClass identifies the UClass object at RVA 0x3a6648. Its stock registration call at RVA 0x165cfa passes callback RVA 0x166f50. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3025f0.",
+    "link_bindings": {
+      "_vtable_UGUIVertScrollBarLabel": {
+        "va": 281028080,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x166f58. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "697db3f80f883b49b272e8c33f0baa03c591b604dcdec0ce9b996bd3de815c89",
+      "inputs_sha256": "f4e3424b9093467701a6edd39b217aa12fe05d8ce64526137ca238ce95b00445"
+    }
+  },
+  {
+    "id": "delete-uguivertscrollbarlabel",
+    "offset": 1470464,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIVertScrollBarLabel@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIVertScrollBarLabel vtable at RVA 0x3025f0, slot 3, points to entry RVA 0x167000. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIVertScrollBarLabel@4": {
+        "va": 279343152,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x167030."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ff41bafef2dc48a8405afad3682312665161aa74a6810060ba720d7f63c0ebeb"
+    }
+  },
+  {
+    "id": "place-uguimultipagelabelbox",
+    "offset": 1470624,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMultiPageLabelBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMultiPageLabelBox::PrivateStaticClass identifies the UClass object at RVA 0x3a6530. Its stock registration call at RVA 0x165ca2 passes callback RVA 0x1670a0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302540.",
+    "link_bindings": {
+      "_vtable_UGUIMultiPageLabelBox": {
+        "va": 281027904,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1670a8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "eb8984c706827d135165066697f27dd06028e11ea893fefee21219e3417575c9",
+      "inputs_sha256": "3b713ea15aa6ab8109e00c5017299146231a7fb9fc6f2021d53c53327134895a"
+    }
+  },
+  {
+    "id": "delete-uguimultipagelabelbox",
+    "offset": 1470640,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIMultiPageLabelBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIMultiPageLabelBox vtable at RVA 0x302540, slot 3, points to entry RVA 0x1670b0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIMultiPageLabelBox@4": {
+        "va": 279343328,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1670e0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "557d4f53dbfa19eb7ed331bd78cedcf3cf0180eed7971bbcef810c5f7bb2fcfe"
+    }
+  },
+  {
+    "id": "place-uguimotdinfobox",
+    "offset": 1470800,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMOTDInfoBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMOTDInfoBox::PrivateStaticClass identifies the UClass object at RVA 0x3a6418. Its stock registration call at RVA 0x165c4a passes callback RVA 0x167150. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302490.",
+    "link_bindings": {
+      "_vtable_UGUIMOTDInfoBox": {
+        "va": 281027728,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167158. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e62e43c34e4b3173e8047dc08d88fa880efe58465a847b7beceadaec2151bd72",
+      "inputs_sha256": "67b67bbab12b047a6f00ef9bee61b7555a39fe4371ed5e20bb30565827a7d800"
+    }
+  },
+  {
+    "id": "place-uguisessioninfobox",
+    "offset": 1470976,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUISessionInfoBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUISessionInfoBox::PrivateStaticClass identifies the UClass object at RVA 0x3a6300. Its stock registration call at RVA 0x165bf2 passes callback RVA 0x167200. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3023e0.",
+    "link_bindings": {
+      "_vtable_UGUISessionInfoBox": {
+        "va": 281027552,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167208. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "26f5d7120c1098186c400956f4b59ab0e2bfa5ed72cc645bc5eb851f36d7430f",
+      "inputs_sha256": "3431deeb3a64fdb4bb9b38c7355c8c48e96cd7ec03d631543d304766e4766571"
+    }
+  },
+  {
+    "id": "place-uguisearchfilterbox",
+    "offset": 1471152,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUISearchFilterBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUISearchFilterBox::PrivateStaticClass identifies the UClass object at RVA 0x3a61e8. Its stock registration call at RVA 0x165b9a passes callback RVA 0x1672b0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302330.",
+    "link_bindings": {
+      "_vtable_UGUISearchFilterBox": {
+        "va": 281027376,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1672b8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a134583104a6431651e8e2db2076eb64f75291963dd4cdcd55521585e2079f1d",
+      "inputs_sha256": "f17f9947c7d5764d3fafaa593ed262974454443900ae3aecbd18495961326c8c"
+    }
+  },
+  {
+    "id": "place-uguicadre",
+    "offset": 1471328,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUICadre",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUICadre::PrivateStaticClass identifies the UClass object at RVA 0x3a60d0. Its stock registration call at RVA 0x165b42 passes callback RVA 0x167360. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302280.",
+    "link_bindings": {
+      "_vtable_UGUICadre": {
+        "va": 281027200,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167368. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "051d73aec727bcc18e795a88e099bda06d90230069ae7e1e824027a299ff1b39",
+      "inputs_sha256": "b2ce33a0bda4e2e574e5331f638530743ae3aef95ef12dbbc528a2dbe3ad3d40"
+    }
+  },
+  {
+    "id": "delete-uguicadre",
+    "offset": 1471344,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUICadre@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUICadre vtable at RVA 0x302280, slot 3, points to entry RVA 0x167370. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUICadre@4": {
+        "va": 279344032,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1673a0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "f8e16849d8d041f234fc381712960c36b0b5ad49bb7c2aee68e9fc683c56087f"
+    }
+  },
+  {
+    "id": "place-umoimagelistmap",
+    "offset": 1471504,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UmoImageListMap",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UmoImageListMap::PrivateStaticClass identifies the UClass object at RVA 0x3a5fb8. Its stock registration call at RVA 0x165aea passes callback RVA 0x167410. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3021d0.",
+    "link_bindings": {
+      "_vtable_UmoImageListMap": {
+        "va": 281027024,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167418. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "31ce780fd7609112245be1b583e870d064f59f0c5fca30bc6212eca5e6b577e3",
+      "inputs_sha256": "20e753258347d5b154cf0590a362b615889e370233200af0f1d979ed17d1108b"
+    }
+  },
+  {
+    "id": "place-uguiprogressbar",
+    "offset": 1471680,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIProgressBar",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIProgressBar::PrivateStaticClass identifies the UClass object at RVA 0x3a2a20. Its stock registration call at RVA 0x165a92 passes callback RVA 0x1674c0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302120.",
+    "link_bindings": {
+      "_vtable_UGUIProgressBar": {
+        "va": 281026848,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1674c8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d1ebcfb087b72047a4614c2ae709182e96406e99b3f53de80a417ff7bdc4cb0c",
+      "inputs_sha256": "5553c5bf081b3210328ab21eb27f0b4fd0c4f1497bb3d61518be4ebe7ba04aef"
+    }
+  },
+  {
+    "id": "place-uguiscrolltextbox",
+    "offset": 1471904,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIScrollTextBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIScrollTextBox::PrivateStaticClass identifies the UClass object at RVA 0x3a5ea0. Its stock registration call at RVA 0x165a3a passes callback RVA 0x1675a0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301fc0.",
+    "link_bindings": {
+      "_vtable_UGUIScrollTextBox": {
+        "va": 281026496,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1675a8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "23e4c8fac9c9402bcb1aaf85c040b42c1c701f6daaa25f8b7b548d557234f874",
+      "inputs_sha256": "928001c069585b0ed247832c4e5a88a18128f51e7324c6af3f15d8610c6bd991"
+    }
+  },
+  {
+    "id": "place-uguiscrolltext",
+    "offset": 1472240,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIScrollText",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIScrollText::PrivateStaticClass identifies the UClass object at RVA 0x3a5d88. Its stock registration call at RVA 0x1659e2 passes callback RVA 0x1676f0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301e50.",
+    "link_bindings": {
+      "_vtable_UGUIScrollText": {
+        "va": 281026128,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1676f8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0fbf76d195222fb4d073f77efc87e069d8ef46b61f1fc9c1dc317bda4bb6885d",
+      "inputs_sha256": "384c7c82166e5481a386a773bb2f954267907ef38fd71fcd1ac26dfe541e554c"
+    }
+  },
+  {
+    "id": "delete-uguilist",
+    "offset": 1472256,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIList@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIList vtable at RVA 0x301f08, slot 3, points to entry RVA 0x167700. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIList@4": {
+        "va": 279345072,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1677b0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "19d7759889b4b8d344a9fafebf677baf996ba624bbed1a68866b3b32157f39fc",
+      "inputs_sha256": "52e5b496342d9891068c086a56885b43df96a1541dd8d4bdd8ade77a11cb360e"
+    }
+  },
+  {
+    "id": "delete-uguiscrolltext",
+    "offset": 1472560,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIScrollText@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIScrollText vtable at RVA 0x301e50, slot 3, points to entry RVA 0x167830. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIScrollText@4": {
+        "va": 279345248,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x167860."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "17bc5dda4dbdef91346482a4c6c3d2299632d22affb57d34b2fc068995ef0ed0"
+    }
+  },
+  {
+    "id": "place-uguicircularlist",
+    "offset": 1472768,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUICircularList",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUICircularList::PrivateStaticClass identifies the UClass object at RVA 0x3a5c70. Its stock registration call at RVA 0x16598a passes callback RVA 0x167900. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301d98.",
+    "link_bindings": {
+      "_vtable_UGUICircularList": {
+        "va": 281025944,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167908. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4d4fcff49242f7d0d817445bec07900ab24c0eccbb82663a5364364871d348f5",
+      "inputs_sha256": "19a117861b1a6ad94ccd017d246bdcd242de0582d37c0d26717cb6c434f823f3"
+    }
+  },
+  {
+    "id": "place-uguihorzlist",
+    "offset": 1472944,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIHorzList",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIHorzList::PrivateStaticClass identifies the UClass object at RVA 0x3a5b58. Its stock registration call at RVA 0x165932 passes callback RVA 0x1679b0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301ce0.",
+    "link_bindings": {
+      "_vtable_UGUIHorzList": {
+        "va": 281025760,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1679b8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "32c544f723534c5c98234341ef657a6b34a007c78a697f13ad297ea71ae7bdaa",
+      "inputs_sha256": "ab4cee1595c360a2956c08e820384beeaee70f6b3f8fb1d894c93d3b2bf55751"
+    }
+  },
+  {
+    "id": "place-uguivertlist",
+    "offset": 1473120,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIVertList",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIVertList::PrivateStaticClass identifies the UClass object at RVA 0x3a5a40. Its stock registration call at RVA 0x1658da passes callback RVA 0x167a60. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302a20.",
+    "link_bindings": {
+      "_vtable_UGUIVertList": {
+        "va": 281029152,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167a68. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9f556dafb18b6d3272374145146e936e6b26a167184dc259e72b8188ab76566c",
+      "inputs_sha256": "6df49cc1973b3dea77e2863b5dde1711799790bd22ce7a25b5cf3ce6e76b37d4"
+    }
+  },
+  {
+    "id": "place-uguislider",
+    "offset": 1473136,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUISlider",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUISlider::PrivateStaticClass identifies the UClass object at RVA 0x3a5928. Its stock registration call at RVA 0x165882 passes callback RVA 0x167a70. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301c30.",
+    "link_bindings": {
+      "_vtable_UGUISlider": {
+        "va": 281025584,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167a78. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ab28d8d9a76870a225efde2147e1f3b98b6ebe519226db575dd678c4744130ac",
+      "inputs_sha256": "749e585e92e204e25a690e034caace44ff0d5bad942e42621590d0841b754ee8"
+    }
+  },
+  {
+    "id": "place-uguisplitter",
+    "offset": 1473328,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUISplitter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUISplitter::PrivateStaticClass identifies the UClass object at RVA 0x3a5810. Its stock registration call at RVA 0x16582a passes callback RVA 0x167b30. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301ad0.",
+    "link_bindings": {
+      "_vtable_UGUISplitter": {
+        "va": 281025232,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167b38. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b18dd89a2c8c174729626ebd173fdc233b6be145d916bfc3231ed8c569253765",
+      "inputs_sha256": "7c54471798f222594eeefe4a5e8b36904478676ed557c0f6523595fbd61e6cc9"
+    }
+  },
+  {
+    "id": "place-uguititlebar",
+    "offset": 1473664,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUITitleBar",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUITitleBar::PrivateStaticClass identifies the UClass object at RVA 0x3a56f8. Its stock registration call at RVA 0x1657d2 passes callback RVA 0x167c80. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301a20.",
+    "link_bindings": {
+      "_vtable_UGUITitleBar": {
+        "va": 281025056,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167c88. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7cab986b7e1cd565c95690a760eae5b8902bd3d4bd52e66c12254f3f0d390bd6",
+      "inputs_sha256": "10c91ef4a53ac08e0099a9fce03d1074be775b76617f8690f8010645b2badb7e"
+    }
+  },
+  {
+    "id": "place-uguimenuoption",
+    "offset": 1473856,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMenuOption",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMenuOption::PrivateStaticClass identifies the UClass object at RVA 0x3a55e0. Its stock registration call at RVA 0x16577a passes callback RVA 0x167d40. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302fb0.",
+    "link_bindings": {
+      "_vtable_UGUIMenuOption": {
+        "va": 281030576,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167d48. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "434a2f8cce54eaa85a6327b129f5d4a2e53acd4f742042cde5a3dc6ea3dbc4a4",
+      "inputs_sha256": "21d1b9a78881acdbe1185dc3b319c26b47ba27c271da1e1a7345665061adf693"
+    }
+  },
+  {
+    "id": "place-uguicombobox",
+    "offset": 1473872,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIComboBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIComboBox::PrivateStaticClass identifies the UClass object at RVA 0x3a54c8. Its stock registration call at RVA 0x165722 passes callback RVA 0x167d50. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301970.",
+    "link_bindings": {
+      "_vtable_UGUIComboBox": {
+        "va": 281024880,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167d58. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "944321b61be1956fc72606b7898912bac15d4b14ea4224277517dc39ddc89b29",
+      "inputs_sha256": "7dc2ddad88925438667923dab980d28e71df3e04399f935958fe652a6d2edcc2"
+    }
+  },
+  {
+    "id": "place-uguitabpanel",
+    "offset": 1474064,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUITabPanel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUITabPanel::PrivateStaticClass identifies the UClass object at RVA 0x3a53b0. Its stock registration call at RVA 0x1656ca passes callback RVA 0x167e10. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3018c0.",
+    "link_bindings": {
+      "_vtable_UGUITabPanel": {
+        "va": 281024704,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167e18. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ff57c2de0a9e10c21610cc060e16966cbc5c4ea89963d0f53416691d75b395a6",
+      "inputs_sha256": "1f09f31694c7e4414b4beda021960c8419a3d065f5f5cbef34d148f309910de7"
+    }
+  },
+  {
+    "id": "place-uguitabbutton",
+    "offset": 1474240,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUITabButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUITabButton::PrivateStaticClass identifies the UClass object at RVA 0x3a5298. Its stock registration call at RVA 0x165672 passes callback RVA 0x167ec0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301760.",
+    "link_bindings": {
+      "_vtable_UGUITabButton": {
+        "va": 281024352,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x167ec8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d0785908e756ce956c8c498f656f13e2bb871fc85535074a1631a660c9fde258",
+      "inputs_sha256": "79980b1382f4f75b20180a8f9f21ed0ed9fea9bcf2eeaf4d0385af9962439d90"
+    }
+  },
+  {
+    "id": "delete-uguibutton",
+    "offset": 1474256,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIButton@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIButton vtable at RVA 0x301810, slot 3, points to entry RVA 0x167ed0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIButton@4": {
+        "va": 279346944,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x167f00."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "8d5e22a3a03d959bc418e1fdf7ac961fc20635176f080de755bd524bca660cb2"
+    }
+  },
+  {
+    "id": "place-uguitabcontrol",
+    "offset": 1474592,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUITabControl",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUITabControl::PrivateStaticClass identifies the UClass object at RVA 0x3a5180. Its stock registration call at RVA 0x16561a passes callback RVA 0x168020. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3016b0.",
+    "link_bindings": {
+      "_vtable_UGUITabControl": {
+        "va": 281024176,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168028. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "99ba64736ac470a1eda796b996493ee6c72bb0d54455583038bb76c654b02b4b",
+      "inputs_sha256": "488b81bfdb74c86de87e9576402c6b20eda1b0c4a822bf6276b061e56106f986"
+    }
+  },
+  {
+    "id": "delete-uguistyles",
+    "offset": 1474960,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIStyles@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIStyles vtable at RVA 0x301658, slot 3, points to entry RVA 0x168190. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIStyles@4": {
+        "va": 279347648,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1681c0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "e179bba1e4be9e60d30642f861b697d6e3e6f854ec2567c0827edf4188c3da34"
+    }
+  },
+  {
+    "id": "place-uguimulticolumnlistheader",
+    "offset": 1475168,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMultiColumnListHeader",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMultiColumnListHeader::PrivateStaticClass identifies the UClass object at RVA 0x3a4f50. Its stock registration call at RVA 0x16556a passes callback RVA 0x168260. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3015a8.",
+    "link_bindings": {
+      "_vtable_UGUIMultiColumnListHeader": {
+        "va": 281023912,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168268. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "bdb40cff9287b84602817c04cfd3471fce4dd8d7e4dc840bc6edf00d618737d1",
+      "inputs_sha256": "2410033765432ef3f789e6fad66c49959ce2a22b2888055297832c80904ab969"
+    }
+  },
+  {
+    "id": "delete-uguimulticolumnlistheader",
+    "offset": 1475184,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIMultiColumnListHeader@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIMultiColumnListHeader vtable at RVA 0x3015a8, slot 3, points to entry RVA 0x168270. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIMultiColumnListHeader@4": {
+        "va": 279347872,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1682a0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "8a4b0858e2b78f21074d916bf6c7b5cd9f9872b56a6b7195804f064d0d6f957e"
+    }
+  },
+  {
+    "id": "place-uguilistfriends",
+    "offset": 1475408,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIListFriends",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIListFriends::PrivateStaticClass identifies the UClass object at RVA 0x3a4d20. Its stock registration call at RVA 0x1654ba passes callback RVA 0x168350. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3014f0.",
+    "link_bindings": {
+      "_vtable_UGUIListFriends": {
+        "va": 281023728,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168358. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e8eaeaf4c5cf13542f01e67d96c783665acd6909f13f3907ef2975ffa573a429",
+      "inputs_sha256": "7231bf74e00a0df5c0caad38b78f6c1a76844bfc3baadae7e362868f52cc21f9"
+    }
+  },
+  {
+    "id": "place-uguilist",
+    "offset": 1475584,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIList",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIList::PrivateStaticClass identifies the UClass object at RVA 0x3a4c08. Its stock registration call at RVA 0x165462 passes callback RVA 0x168400. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301f08.",
+    "link_bindings": {
+      "_vtable_UGUIList": {
+        "va": 281026312,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168408. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "8fa6fe3d4332a82a6c14ca63fc69c28b60c3ba4de200b062a59599b572637006",
+      "inputs_sha256": "1bb1185b5055d566b92052dbe0ab34f54935f89a659fea6c2975cf3a73953d52"
+    }
+  },
+  {
+    "id": "place-uguilistbase",
+    "offset": 1475600,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIListBase",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIListBase::PrivateStaticClass identifies the UClass object at RVA 0x3a4af0. Its stock registration call at RVA 0x16540a passes callback RVA 0x168410. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302ad8.",
+    "link_bindings": {
+      "_vtable_UGUIListBase": {
+        "va": 281029336,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168418. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a832b228c15d8e93cb5f70b288e2bdfe8448901cf033acc6a7fcc94e9b548200",
+      "inputs_sha256": "91b21ff8a109140872b44cf382d45cb4a7b9ff6ee77ccbe7ac522e49302be6cf"
+    }
+  },
+  {
+    "id": "place-uguipanel",
+    "offset": 1475616,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIPanel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIPanel::PrivateStaticClass identifies the UClass object at RVA 0x3a49d8. Its stock registration call at RVA 0x1653b2 passes callback RVA 0x168420. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301b80.",
+    "link_bindings": {
+      "_vtable_UGUIPanel": {
+        "va": 281025408,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168428. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "98699a3c16944ad41594fb509d34015daae1f3630e10270f210383b5fa985171",
+      "inputs_sha256": "ab9d6e20544fb68211c470200c76d15ab5d8984ec241061468fbcdcd06154296"
+    }
+  },
+  {
+    "id": "place-uguimulticolumnlistbox",
+    "offset": 1475632,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMultiColumnListBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMultiColumnListBox::PrivateStaticClass identifies the UClass object at RVA 0x3a48c0. Its stock registration call at RVA 0x16535a passes callback RVA 0x168430. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301440.",
+    "link_bindings": {
+      "_vtable_UGUIMultiColumnListBox": {
+        "va": 281023552,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168438. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "38586d46faf0400e25b1630093655fa78b11ca4bf4658ca0941b70fa20dca6e5",
+      "inputs_sha256": "87cf277c9c27b48e62a0e331eb2831a557ee88fccfde63d7af9ad7f4f6741d06"
+    }
+  },
+  {
+    "id": "delete-uguimulticolumnlistbox",
+    "offset": 1475648,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIMultiColumnListBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIMultiColumnListBox vtable at RVA 0x301440, slot 3, points to entry RVA 0x168440. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIMultiColumnListBox@4": {
+        "va": 279348336,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168470."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "9218896082132fbc1d97cc508dcd51fe178fde7a376cd0e4f30f48f02559d84d"
+    }
+  },
+  {
+    "id": "place-uguilistbox",
+    "offset": 1475808,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIListBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIListBox::PrivateStaticClass identifies the UClass object at RVA 0x3a47a8. Its stock registration call at RVA 0x165302 passes callback RVA 0x1684e0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301390.",
+    "link_bindings": {
+      "_vtable_UGUIListBox": {
+        "va": 281023376,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1684e8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f6555ad6a4fce99c84ddbcd845f4c0d01e5e75ec50f28133f168e4a759834091",
+      "inputs_sha256": "40cfddd3716f99ddd74cac380331e52c65e78b473901cf469b1f5c4a179b920f"
+    }
+  },
+  {
+    "id": "delete-uguilistbox",
+    "offset": 1475824,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIListBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIListBox vtable at RVA 0x301390, slot 3, points to entry RVA 0x1684f0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIListBox@4": {
+        "va": 279348512,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168520."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "cf88f69c161e63a33b48cc47554a52338d13b4293f93e9ee05fce05576729d49"
+    }
+  },
+  {
+    "id": "place-uguilistboxbase",
+    "offset": 1475984,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIListBoxBase",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIListBoxBase::PrivateStaticClass identifies the UClass object at RVA 0x3a4690. Its stock registration call at RVA 0x1652aa passes callback RVA 0x168590. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302070.",
+    "link_bindings": {
+      "_vtable_UGUIListBoxBase": {
+        "va": 281026672,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168598. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "399ed84278aedacf774f58e606ec66f5d088845812020f00fee428daf9cd5677",
+      "inputs_sha256": "f763fdc140f07db924ebec12eeeecf5f9faf75e50ff098b6aab98a28926c828e"
+    }
+  },
+  {
+    "id": "place-uguihorzscrollbar",
+    "offset": 1476000,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIHorzScrollBar",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIHorzScrollBar::PrivateStaticClass identifies the UClass object at RVA 0x3a4578. Its stock registration call at RVA 0x165252 passes callback RVA 0x1685a0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3012e0.",
+    "link_bindings": {
+      "_vtable_UGUIHorzScrollBar": {
+        "va": 281023200,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1685a8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "33f2932cef54913cc5177f08301234e5ef97fe508806ef6af6afce3f8ceec1cb",
+      "inputs_sha256": "578acfdc2be7779e935254ed2052c9fb248e465f3273fd2d2b7729e770083331"
+    }
+  },
+  {
+    "id": "place-uguihorzgripbutton",
+    "offset": 1476176,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIHorzGripButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIHorzGripButton::PrivateStaticClass identifies the UClass object at RVA 0x3a4460. Its stock registration call at RVA 0x1651fa passes callback RVA 0x168650. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301180.",
+    "link_bindings": {
+      "_vtable_UGUIHorzGripButton": {
+        "va": 281022848,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168658. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c695ba1c73b921b6927c72ccfca1492800cb4eb45c0482c9d94949ff2903338b",
+      "inputs_sha256": "43e3010c4c7a8e15a028cb730604c3da8b577d5f807826c5577fd80c4d200c3a"
+    }
+  },
+  {
+    "id": "delete-uguihorzgripbutton",
+    "offset": 1476352,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIHorzGripButton@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIHorzGripButton vtable at RVA 0x301180, slot 3, points to entry RVA 0x168700. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIHorzGripButton@4": {
+        "va": 279349040,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168730."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "1a27eacbe02807b6e5e9f83f20f046ee8261deedc0e50220c68c423e29da0017"
+    }
+  },
+  {
+    "id": "place-uguihorzscrollbutton",
+    "offset": 1476512,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIHorzScrollButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIHorzScrollButton::PrivateStaticClass identifies the UClass object at RVA 0x3a4348. Its stock registration call at RVA 0x1651a2 passes callback RVA 0x1687a0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3010d0.",
+    "link_bindings": {
+      "_vtable_UGUIHorzScrollButton": {
+        "va": 281022672,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1687a8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "8520f30fa129b7df1491657828f223d942b3082fa60a9a1a18c55e59f57079e6",
+      "inputs_sha256": "bf203fdf50d7b9042ab887249b28ab267044d26da960e1fe683f1b876bbdcf8d"
+    }
+  },
+  {
+    "id": "delete-uguihorzscrollbutton",
+    "offset": 1476528,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIHorzScrollButton@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIHorzScrollButton vtable at RVA 0x3010d0, slot 3, points to entry RVA 0x1687b0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIHorzScrollButton@4": {
+        "va": 279349216,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1687e0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "001f687a9cdd070d2fc554e3d6ab6e70b1b173ec77821f7ecb21b1098518d4ec"
+    }
+  },
+  {
+    "id": "place-uguihorzscrollzone",
+    "offset": 1476688,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIHorzScrollZone",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIHorzScrollZone::PrivateStaticClass identifies the UClass object at RVA 0x3a4230. Its stock registration call at RVA 0x16514a passes callback RVA 0x168850. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301020.",
+    "link_bindings": {
+      "_vtable_UGUIHorzScrollZone": {
+        "va": 281022496,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168858. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5aead2a8104a9767dde7bb9bd4b7ac2de02d8966628326e31685d87bc8741d1e",
+      "inputs_sha256": "e9dc7441528edcc0f7762edfd32440aa41910d4a07761da9f83ef8d49f3db2e0"
+    }
+  },
+  {
+    "id": "delete-uguihorzscrollzone",
+    "offset": 1476704,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIHorzScrollZone@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIHorzScrollZone vtable at RVA 0x301020, slot 3, points to entry RVA 0x168860. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIHorzScrollZone@4": {
+        "va": 279349392,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168890."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "dc47a35e4be6444246928544f73279a1a2d7d1d6e3ff4d8608a99b678e657e75"
+    }
+  },
+  {
+    "id": "place-uguivertscrollbar",
+    "offset": 1476864,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIVertScrollBar",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIVertScrollBar::PrivateStaticClass identifies the UClass object at RVA 0x3a4118. Its stock registration call at RVA 0x1650f2 passes callback RVA 0x168900. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300f70.",
+    "link_bindings": {
+      "_vtable_UGUIVertScrollBar": {
+        "va": 281022320,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168908. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "25d3b89dfe5e27ebaab85125653f0a1622b9af30cbfa97a462e8ca80bc9177c0",
+      "inputs_sha256": "95352297edb985cd49157d288da2a39629472687bdb830f50a8d26b1f073a590"
+    }
+  },
+  {
+    "id": "delete-uguivertscrollbar",
+    "offset": 1476880,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIVertScrollBar@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIVertScrollBar vtable at RVA 0x300f70, slot 3, points to entry RVA 0x168910. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIVertScrollBar@4": {
+        "va": 279349568,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168940."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "0a6af4533d25a78725c66ac45680737d7e629a113ff9a1bce68ea5fb3f7c32f9"
+    }
+  },
+  {
+    "id": "place-uguivertgripbutton",
+    "offset": 1477040,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIVertGripButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIVertGripButton::PrivateStaticClass identifies the UClass object at RVA 0x3a4000. Its stock registration call at RVA 0x16509a passes callback RVA 0x1689b0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300ec0.",
+    "link_bindings": {
+      "_vtable_UGUIVertGripButton": {
+        "va": 281022144,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1689b8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2a906d91121b13bee0d88b9a4345df96171c6cb1e94635b256c5f96a8dbb1f61",
+      "inputs_sha256": "2aeb7188b7ffc952bc32e317cace86b2f411dc8554a7d283d2ee8e96d825320f"
+    }
+  },
+  {
+    "id": "delete-uguivertgripbutton",
+    "offset": 1477056,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIVertGripButton@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIVertGripButton vtable at RVA 0x300ec0, slot 3, points to entry RVA 0x1689c0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIVertGripButton@4": {
+        "va": 279349744,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1689f0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "c969242c8306622fde7e99e39dae2512bb2979dfb32d8f46dea387da9a42ed20"
+    }
+  },
+  {
+    "id": "place-uguivertscrollbutton",
+    "offset": 1477216,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIVertScrollButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIVertScrollButton::PrivateStaticClass identifies the UClass object at RVA 0x3a3ee8. Its stock registration call at RVA 0x165042 passes callback RVA 0x168a60. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300e10.",
+    "link_bindings": {
+      "_vtable_UGUIVertScrollButton": {
+        "va": 281021968,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168a68. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e9e476b240f92d5ddebc8799672369c5ba402064c5f8c409502c60f9572b3e89",
+      "inputs_sha256": "4eb914d68d92ca29ccba391500b44e6823f96b42f199ef85923be70c77f266f0"
+    }
+  },
+  {
+    "id": "delete-uguivertscrollbutton",
+    "offset": 1477232,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIVertScrollButton@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIVertScrollButton vtable at RVA 0x300e10, slot 3, points to entry RVA 0x168a70. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIVertScrollButton@4": {
+        "va": 279349920,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168aa0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "5bf2deeec89d15bae7041c9cb992c60705e4969c89da57410a2f8d5bb91b3b46"
+    }
+  },
+  {
+    "id": "place-uguivertscrollzone",
+    "offset": 1477392,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIVertScrollZone",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIVertScrollZone::PrivateStaticClass identifies the UClass object at RVA 0x3a3dd0. Its stock registration call at RVA 0x164fea passes callback RVA 0x168b10. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300d60.",
+    "link_bindings": {
+      "_vtable_UGUIVertScrollZone": {
+        "va": 281021792,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168b18. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "beca30fc941a98f99b770bcb04c7fe1aac73f8e493b48cc6a099f1f95ba203cf",
+      "inputs_sha256": "ae567b993672dd00834691896a7f9271a5deb5134dd7fa6d42962e6869ec35c9"
+    }
+  },
+  {
+    "id": "delete-uguivertscrollzone",
+    "offset": 1477408,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIVertScrollZone@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIVertScrollZone vtable at RVA 0x300d60, slot 3, points to entry RVA 0x168b20. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIVertScrollZone@4": {
+        "va": 279350096,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168b50."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "7a9a9092556ac801947662a0bc1d5abd8e208a2b975bfa83cef7ce7615879874"
+    }
+  },
+  {
+    "id": "place-uguiscrollbarbase",
+    "offset": 1477568,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIScrollBarBase",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIScrollBarBase::PrivateStaticClass identifies the UClass object at RVA 0x3a3cb8. Its stock registration call at RVA 0x164f92 passes callback RVA 0x168bc0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3026a0.",
+    "link_bindings": {
+      "_vtable_UGUIScrollBarBase": {
+        "va": 281028256,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168bc8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "dc4d0391c7648f6639bbe6b3cc7005d64477105423313f58d7f584e78abb2853",
+      "inputs_sha256": "af2d444682f889900f369aac8fc771f7d61170f8e3f257c456d573b72ad34055"
+    }
+  },
+  {
+    "id": "place-uguimulticomponent",
+    "offset": 1477584,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIMultiComponent",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIMultiComponent::PrivateStaticClass identifies the UClass object at RVA 0x3a3ba0. Its stock registration call at RVA 0x164f3a passes callback RVA 0x168bd0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x303060.",
+    "link_bindings": {
+      "_vtable_UGUIMultiComponent": {
+        "va": 281030752,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168bd8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b19131c63e301e8e3d1aa00f862c2e8fba4ddb2a771e431e52106f45aee6d315",
+      "inputs_sha256": "bf38a8d8f0be08a1f570a0a1acdbb1fb0f98d899889506e457b14dbd5fc6bce8"
+    }
+  },
+  {
+    "id": "place-uguinumericedit",
+    "offset": 1477600,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUINumericEdit",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUINumericEdit::PrivateStaticClass identifies the UClass object at RVA 0x3a3a88. Its stock registration call at RVA 0x164ee2 passes callback RVA 0x168be0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300cb0.",
+    "link_bindings": {
+      "_vtable_UGUINumericEdit": {
+        "va": 281021616,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168be8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0c2dc46824b46d40633221d93f1a9102a7eb3922ea8de16e5b0c71c26e814812",
+      "inputs_sha256": "933f06689ab518435046ec20bf04cf481fddecf71e12cb83737f136402dc9caa"
+    }
+  },
+  {
+    "id": "place-uguieditbox",
+    "offset": 1477792,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIEditBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIEditBox::PrivateStaticClass identifies the UClass object at RVA 0x3a3970. Its stock registration call at RVA 0x164e8a passes callback RVA 0x168ca0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300c00.",
+    "link_bindings": {
+      "_vtable_UGUIEditBox": {
+        "va": 281021440,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168ca8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4d8d1dbc053b2a3fb6da6a6887d138cd085ddfd706a0a3af0efd83f87799c9ac",
+      "inputs_sha256": "82c96ad087e9f06e00ef3b8fceeb0fbfc8aa440ce8c53112f20cdf1b278f611d"
+    }
+  },
+  {
+    "id": "delete-uguieditbox",
+    "offset": 1477808,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIEditBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIEditBox vtable at RVA 0x300c00, slot 3, points to entry RVA 0x168cb0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIEditBox@4": {
+        "va": 279350496,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168ce0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "643cc5a77f9dae885af4b16c3c100cc2624722d3a4618602baf7b739a0312ef7"
+    }
+  },
+  {
+    "id": "place-uguicheckbox",
+    "offset": 1478000,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUICheckBox",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUICheckBox::PrivateStaticClass identifies the UClass object at RVA 0x3a3858. Its stock registration call at RVA 0x164e32 passes callback RVA 0x168d70. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300b50.",
+    "link_bindings": {
+      "_vtable_UGUICheckBox": {
+        "va": 281021264,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168d78. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "395b9a8662d90142792bb9dd09bdad378c8fd386f74b21be397f5cb114773365",
+      "inputs_sha256": "64b79b508d0f08f3c6f51afa98056d9ee5d6a7e45bb91c95d60bdb3c504230ed"
+    }
+  },
+  {
+    "id": "delete-uguicheckbox",
+    "offset": 1478016,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUICheckBox@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUICheckBox vtable at RVA 0x300b50, slot 3, points to entry RVA 0x168d80. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUICheckBox@4": {
+        "va": 279350704,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168db0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "e66f6eb588825104c4a78dad3d0c097cf7571230e9146fdbee18aec4a4d250b7"
+    }
+  },
+  {
+    "id": "place-uguicheckboxbutton",
+    "offset": 1478192,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUICheckBoxButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUICheckBoxButton::PrivateStaticClass identifies the UClass object at RVA 0x3a3740. Its stock registration call at RVA 0x164dda passes callback RVA 0x168e30. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300aa0.",
+    "link_bindings": {
+      "_vtable_UGUICheckBoxButton": {
+        "va": 281021088,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168e38. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "55476d07692d0be5c802566b0cdd5b8559b65f47fbaef0d1968a24135c10f6ef",
+      "inputs_sha256": "9d6ab5878578ffcf7ffc348833a56ecf6954ffcb0395a85ff343892d52b4f0e1"
+    }
+  },
+  {
+    "id": "place-uguispinnerbutton",
+    "offset": 1478368,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUISpinnerButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUISpinnerButton::PrivateStaticClass identifies the UClass object at RVA 0x3a3628. Its stock registration call at RVA 0x164d82 passes callback RVA 0x168ee0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3009f0.",
+    "link_bindings": {
+      "_vtable_UGUISpinnerButton": {
+        "va": 281020912,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168ee8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "829fbe2f6dcf05107a623e59b82facb683bf25bb9d391d5b7ad2a3f1dd33427d",
+      "inputs_sha256": "4e0e691a081b8e9a7487977fca01729f43a7660a28855cc535d27ee064f96d5d"
+    }
+  },
+  {
+    "id": "place-uguigfxbutton",
+    "offset": 1478544,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIGFXButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIGFXButton::PrivateStaticClass identifies the UClass object at RVA 0x3a3510. Its stock registration call at RVA 0x164d2a passes callback RVA 0x168f90. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301230.",
+    "link_bindings": {
+      "_vtable_UGUIGFXButton": {
+        "va": 281023024,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168f98. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ed4ea1a7bc834d84a33cda527da3cbf5058d8dfd14b29dfec715536b77e9e43c",
+      "inputs_sha256": "25819abce17610321318f1a5412df264ee5f4ab1c3c865bccfe009e860cfdea4"
+    }
+  },
+  {
+    "id": "place-uguibutton",
+    "offset": 1478560,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIButton",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIButton::PrivateStaticClass identifies the UClass object at RVA 0x3a33f8. Its stock registration call at RVA 0x164cd2 passes callback RVA 0x168fa0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x301810.",
+    "link_bindings": {
+      "_vtable_UGUIButton": {
+        "va": 281024528,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168fa8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3e2450e7d19cebb5811c2841c9e96842477e417549719c6b8c5136abe3ea75cc",
+      "inputs_sha256": "761ff61bb75ba91be768c097af301af4084906a88b5f5825f168217754e118d6"
+    }
+  },
+  {
+    "id": "place-uguilabelpad",
+    "offset": 1478576,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUILabelPad",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUILabelPad::PrivateStaticClass identifies the UClass object at RVA 0x3a32e0. Its stock registration call at RVA 0x164c7a passes callback RVA 0x168fb0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300890.",
+    "link_bindings": {
+      "_vtable_UGUILabelPad": {
+        "va": 281020560,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x168fb8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a8c6f00f739f613bfbf234aef7566b4291674a47fea9ad7e16ce4703db409b91",
+      "inputs_sha256": "b3e575efa681f942017e435e8164b1a00a5008d58b235fb92e29da4a7e9c6161"
+    }
+  },
+  {
+    "id": "delete-uguilabel",
+    "offset": 1478592,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUILabel@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUILabel vtable at RVA 0x300940, slot 3, points to entry RVA 0x168fc0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUILabel@4": {
+        "va": 279351280,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x168ff0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "e62fe4a40fdfb4abf977935488820ba2e04ac624f56f097349300ad3c1f8ebf3"
+    }
+  },
+  {
+    "id": "delete-uguilabelpad",
+    "offset": 1478784,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUILabelPad@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUILabelPad vtable at RVA 0x300890, slot 3, points to entry RVA 0x169080. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUILabelPad@4": {
+        "va": 279351472,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1690b0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "0538b6514ac304e04005053347aeb835f21a8deb512a279d5aaaa4c59a3279c1"
+    }
+  },
+  {
+    "id": "place-uguilabel",
+    "offset": 1478944,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUILabel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUILabel::PrivateStaticClass identifies the UClass object at RVA 0x3a31c8. Its stock registration call at RVA 0x164c22 passes callback RVA 0x169120. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300940.",
+    "link_bindings": {
+      "_vtable_UGUILabel": {
+        "va": 281020736,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x169128. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c6540fae82a3e181fc37f48758c85d68f2a0a49e4f18f2c40e1bf53223a2ace4",
+      "inputs_sha256": "9210ffec62617740cf68fa0a54aedf0b8756f3ddebc4fc02a823d99a5d84e6d8"
+    }
+  },
+  {
+    "id": "place-uguifont",
+    "offset": 1478960,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIFont",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIFont::PrivateStaticClass identifies the UClass object at RVA 0x3a30b0. Its stock registration call at RVA 0x164bca passes callback RVA 0x169130. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300838.",
+    "link_bindings": {
+      "_vtable_UGUIFont": {
+        "va": 281020472,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x169138. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c193f3336d7e3689704ece2fa30de237e14d45d079b320a4d18caea464f9eee0",
+      "inputs_sha256": "0b1565418ea83cfb51f86de223cf4c144f1be05bf2b6efdc0437f19deddaed29"
+    }
+  },
+  {
+    "id": "delete-uguifont",
+    "offset": 1478976,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIFont@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIFont vtable at RVA 0x300838, slot 3, points to entry RVA 0x169140. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIFont@4": {
+        "va": 279351664,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x169170."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "b80edaf5f9e6b90e268c2f299dcc0c32803481ec7e189a15d14206de69466b2c"
+    }
+  },
+  {
+    "id": "place-uguipage",
+    "offset": 1479184,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIPage",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIPage::PrivateStaticClass identifies the UClass object at RVA 0x3a2f98. Its stock registration call at RVA 0x164b75 passes callback RVA 0x169210. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x302cf0.",
+    "link_bindings": {
+      "_vtable_UGUIPage": {
+        "va": 281029872,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x169218. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "98ad954c1d8ffbb267c92cd6af69bbce9f6023e689411949cb5534eae44715de",
+      "inputs_sha256": "a495c6878b2a442ecf4d4ca228ae98308463294639cf71d5fb2909c973d3eac8"
+    }
+  },
+  {
+    "id": "place-uguiimage",
+    "offset": 1479200,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIImage",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIImage::PrivateStaticClass identifies the UClass object at RVA 0x3a2e80. Its stock registration call at RVA 0x164b1d passes callback RVA 0x169220. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x300788.",
+    "link_bindings": {
+      "_vtable_UGUIImage": {
+        "va": 281020296,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x169228. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3b1f767c8460023ea67a1612a3dba19f02f4e2084c4760cefab8180b490e2002",
+      "inputs_sha256": "d571546a706d2691997068f11a6adcbddc53579547eac60d8cbb0f410ba52eb8"
+    }
+  },
+  {
+    "id": "delete-uguiimage",
+    "offset": 1479216,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIImage@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIImage vtable at RVA 0x300788, slot 3, points to entry RVA 0x169230. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIImage@4": {
+        "va": 279351904,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x169260."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ee516c89d72120086382e2d7e751e5fe365505eae4087f0b3eb2233f02a10478"
+    }
+  },
+  {
+    "id": "place-uguicomponent",
+    "offset": 1479376,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUIComponent",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUIComponent::PrivateStaticClass identifies the UClass object at RVA 0x3a2d68. Its stock registration call at RVA 0x164ac5 passes callback RVA 0x1692d0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x303110.",
+    "link_bindings": {
+      "_vtable_UGUIComponent": {
+        "va": 281030928,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1692d8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e4b296ff590912b21d8836029d347fbf128a411403dfffe4b45da4330d95e00b",
+      "inputs_sha256": "0bf106b6ea6a0a00b1b190ea3a497bf168090a22f3873a82537ff0a278b6d37e"
+    }
+  },
+  {
+    "id": "place-ugui",
+    "offset": 1479392,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_UGUI",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for UGUI::PrivateStaticClass identifies the UClass object at RVA 0x3a2c50. Its stock registration call at RVA 0x164a6d passes callback RVA 0x1692e0. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x3031c0.",
+    "link_bindings": {
+      "_vtable_UGUI": {
+        "va": 281031104,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1692e8. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "962d574ce048044bbc946c71b73dbfcf26b9fa0820a66abd9ffb6d3626b2ddf9",
+      "inputs_sha256": "8a057aa808c3e45423f319c6ab1bf36b048010f1048b0fb8986d55afca47792e"
+    }
+  },
+  {
+    "id": "delete-uguicontroller",
+    "offset": 1479488,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGUIController@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGUIController vtable at RVA 0x300708, slot 3, points to entry RVA 0x169340. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGUIController@4": {
+        "va": 279352176,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x169370."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "413a45c038861a47d3ca33792744221e203ed3073a3b215549f1bda7ce9c4050"
+    }
+  },
+  {
+    "id": "register-gui-natives",
+    "offset": 1480112,
+    "size": 5183,
+    "rebuilt_symbol": "_register_gui_natives",
+    "identification": "The call at VA 0x1090b35c enters this GUI registrar at VA 0x10a695b0. It installs 94 native slots in the shared VM dispatch table. The final RET precedes alignment at VA 0x10a6a9ef.",
+    "inputs": [
+      "src/versus_register_gui_natives.c",
+      "src/versus_native_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G6 /Gy /c /Folocal/versus_register_gui_natives.obj src/versus_register_gui_natives.c",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281549272,
+        "basis": "Steam VM dispatch table, indexed by native ID."
+      },
+      "_native_initialized": {
+        "va": 281849260,
+        "basis": "Global one-time initialization flag tested for the native table."
+      },
+      "_native_duplicate": {
+        "va": 281617772,
+        "basis": "Global storing the last duplicate native identifier."
+      },
+      "@undefined_native@16": {
+        "va": 278140944,
+        "basis": "Default handler filled into unregistered VM native slots."
+      },
+      "@exec_GUI_moListEditBox_GameMode_FillList@16": {
+        "va": 279328368,
+        "basis": "Native slot 1460 is assigned at VA 0x10a695eb."
+      },
+      "@exec_GUI_GUIComponent_ActualTop@16": {
+        "va": 279286400,
+        "basis": "Native slot 1615 is assigned at VA 0x10a69622."
+      },
+      "@exec_GUI_GUIComponent_ActualLeft@16": {
+        "va": 279286208,
+        "basis": "Native slot 1614 is assigned at VA 0x10a69659."
+      },
+      "@exec_GUI_GUIComponent_ActualHeight@16": {
+        "va": 279286016,
+        "basis": "Native slot 1613 is assigned at VA 0x10a69690."
+      },
+      "@exec_GUI_GUIComponent_ActualWidth@16": {
+        "va": 279285872,
+        "basis": "Native slot 1612 is assigned at VA 0x10a696c7."
+      },
+      "@exec_GUI_GUIComponent_KillTimer@16": {
+        "va": 279288288,
+        "basis": "Native slot 1611 is assigned at VA 0x10a696fe."
+      },
+      "@exec_GUI_GUIComponent_SetTimer@16": {
+        "va": 279288048,
+        "basis": "Native slot 1610 is assigned at VA 0x10a69735."
+      },
+      "@exec_GUI_StrategicMap_UpdateTeamMate@16": {
+        "va": 279325200,
+        "basis": "Native slot 1868 is assigned at VA 0x10a6976c."
+      },
+      "@exec_GUI_StrategicMap_UpdateStrategicMapPosition@16": {
+        "va": 279326672,
+        "basis": "Native slot 1531 is assigned at VA 0x10a697a3."
+      },
+      "@exec_GUI_GUIPage_InitExecution@16": {
+        "va": 279289328,
+        "basis": "Native slot 1617 is assigned at VA 0x10a697da."
+      },
+      "@exec_GUI_GUIPage_Sleep@16": {
+        "va": 279289184,
+        "basis": "Native slot 332 is assigned at VA 0x10a69811."
+      },
+      "@exec_GUI_Browser_Keys_NativeSaveAllkey@16": {
+        "va": 279321792,
+        "basis": "Native slot 1724 is assigned at VA 0x10a69848."
+      },
+      "@exec_GUI_GUIMultiColumnList_UpdatedItem@16": {
+        "va": 279316848,
+        "basis": "Native slot 1622 is assigned at VA 0x10a6987f."
+      },
+      "@exec_GUI_GUIMultiColumnList_AddedItem@16": {
+        "va": 279316560,
+        "basis": "Native slot 1621 is assigned at VA 0x10a698b6."
+      },
+      "@exec_GUI_GUIMultiColumnList_ChangeSortOrder@16": {
+        "va": 279317088,
+        "basis": "Native slot 1620 is assigned at VA 0x10a698ed."
+      },
+      "@exec_GUI_GUIMultiColumnList_SortList@16": {
+        "va": 279317456,
+        "basis": "Native slot 1619 is assigned at VA 0x10a69924."
+      },
+      "@exec_GUI_GUIList_SortList@16": {
+        "va": 279306896,
+        "basis": "Native slot 1618 is assigned at VA 0x10a6995b."
+      },
+      "@exec_GUI_GUISplitter_SplitterUpdatePositions@16": {
+        "va": 279311216,
+        "basis": "Native slot 1616 is assigned at VA 0x10a69992."
+      },
+      "@exec_GUI_GUIStyles_DrawText@16": {
+        "va": 279283792,
+        "basis": "Native slot 1624 is assigned at VA 0x10a699c9."
+      },
+      "@exec_GUI_GUIStyles_Draw@16": {
+        "va": 279283520,
+        "basis": "Native slot 1623 is assigned at VA 0x10a69a00."
+      },
+      "@exec_GUI_GUIFont_GetFont@16": {
+        "va": 279283184,
+        "basis": "Native slot 1625 is assigned at VA 0x10a69a37."
+      },
+      "@exec_GUI_GUIController_CauseInputEvent@16": {
+        "va": 279270368,
+        "basis": "Native slot 1664 is assigned at VA 0x10a69a6e."
+      },
+      "@exec_GUI_GUIController_LANParty_MatchFinished@16": {
+        "va": 279281472,
+        "basis": "Native slot 1833 is assigned at VA 0x10a69aa5."
+      },
+      "@exec_GUI_GUIController_LANParty_DumpTeamInfo@16": {
+        "va": 279280224,
+        "basis": "Native slot 1873 is assigned at VA 0x10a69adc."
+      },
+      "@exec_GUI_GUIController_LANParty_DumpPlayerInfo@16": {
+        "va": 279279328,
+        "basis": "Native slot 1834 is assigned at VA 0x10a69b13."
+      },
+      "@exec_GUI_GUIController_LANParty_MatchStarted@16": {
+        "va": 279278176,
+        "basis": "Native slot 1832 is assigned at VA 0x10a69b4a."
+      },
+      "@exec_GUI_GUIController_GetEAXStatus@16": {
+        "va": 279277264,
+        "basis": "Native slot 1709 is assigned at VA 0x10a69b81."
+      },
+      "@exec_GUI_GUIController_SetEAXStatus@16": {
+        "va": 279277344,
+        "basis": "Native slot 1708 is assigned at VA 0x10a69bb8."
+      },
+      "@exec_GUI_GUIController_PlaySound@16": {
+        "va": 279277472,
+        "basis": "Native slot 1036 is assigned at VA 0x10a69bef."
+      },
+      "@exec_GUI_GUIController_IsWriteAccountListFinished@16": {
+        "va": 279272656,
+        "basis": "Native slot 1651 is assigned at VA 0x10a69c26."
+      },
+      "@exec_GUI_GUIController_RequestWriteAccountList@16": {
+        "va": 279272608,
+        "basis": "Native slot 1650 is assigned at VA 0x10a69c5d."
+      },
+      "@exec_GUI_GUIController_IsGetAccountListFinished@16": {
+        "va": 279272432,
+        "basis": "Native slot 1649 is assigned at VA 0x10a69c94."
+      },
+      "@exec_GUI_GUIController_RequestGetAccountList@16": {
+        "va": 279272384,
+        "basis": "Native slot 1648 is assigned at VA 0x10a69ccb."
+      },
+      "@exec_GUI_GUIController_IsRemoveProfileFinished@16": {
+        "va": 279271856,
+        "basis": "Native slot 1654 is assigned at VA 0x10a69d02."
+      },
+      "@exec_GUI_GUIController_RequestRemoveProfile@16": {
+        "va": 279272032,
+        "basis": "Native slot 1653 is assigned at VA 0x10a69d39."
+      },
+      "@exec_GUI_GUIController_IsWriteProfileFinished@16": {
+        "va": 279272208,
+        "basis": "Native slot 1647 is assigned at VA 0x10a69d70."
+      },
+      "@exec_GUI_GUIController_RequestWriteProfile@16": {
+        "va": 279271680,
+        "basis": "Native slot 1646 is assigned at VA 0x10a69da7."
+      },
+      "@exec_GUI_GUIController_IsUseProfileFinished@16": {
+        "va": 279271504,
+        "basis": "Native slot 1645 is assigned at VA 0x10a69dde."
+      },
+      "@exec_GUI_GUIController_RequestUseProfile@16": {
+        "va": 279271408,
+        "basis": "Native slot 1644 is assigned at VA 0x10a69e15."
+      },
+      "@exec_GUI_GUIController_GetProfileName@16": {
+        "va": 279271232,
+        "basis": "Native slot 1643 is assigned at VA 0x10a69e4c."
+      },
+      "@exec_GUI_GUIController_GetProfileCount@16": {
+        "va": 279271184,
+        "basis": "Native slot 1642 is assigned at VA 0x10a69e83."
+      },
+      "@exec_GUI_GUIController_IsProfileOnMC@16": {
+        "va": 279271008,
+        "basis": "Native slot 1641 is assigned at VA 0x10a69eba."
+      },
+      "@exec_GUI_GUIController_IsGetProfileListFinished@16": {
+        "va": 279270832,
+        "basis": "Native slot 1640 is assigned at VA 0x10a69ef1."
+      },
+      "@exec_GUI_GUIController_RequestGetProfileList@16": {
+        "va": 279270768,
+        "basis": "Native slot 1639 is assigned at VA 0x10a69f28."
+      },
+      "@exec_GUI_GUIController_NeededSpaceToSaveProfile@16": {
+        "va": 278175552,
+        "basis": "Native slot 1057 is assigned at VA 0x10a69f5f."
+      },
+      "@exec_GUI_GUIController_LaunchDashBoardMemoryPage@16": {
+        "va": 279078432,
+        "basis": "Native slot 1026 is assigned at VA 0x10a69f96."
+      },
+      "@exec_GUI_GUIController_SetMemoryCardActivation@16": {
+        "va": 279270624,
+        "basis": "Native slot 1638 is assigned at VA 0x10a69fcd."
+      },
+      "@exec_GUI_GUIController_HasMemoryCardBeenChanged@16": {
+        "va": 279270720,
+        "basis": "Native slot 1637 is assigned at VA 0x10a6a004."
+      },
+      "@exec_GUI_GUIController_IsMemoryCardReady@16": {
+        "va": 279270576,
+        "basis": "Native slot 1636 is assigned at VA 0x10a6a03b."
+      },
+      "@exec_GUI_GUIController_IsSavingMediaAvailable@16": {
+        "va": 279270528,
+        "basis": "Native slot 1635 is assigned at VA 0x10a6a072."
+      },
+      "@exec_GUI_GUIController_SetDefaultServerPort@16": {
+        "va": 279282912,
+        "basis": "Native slot 1859 is assigned at VA 0x10a6a0a9."
+      },
+      "@exec_GUI_GUIController_GetDefaultServerPort@16": {
+        "va": 279282880,
+        "basis": "Native slot 1858 is assigned at VA 0x10a6a0e0."
+      },
+      "@exec_GUI_GUIController_IsBetaVersion@16": {
+        "va": 278175552,
+        "basis": "Native slot 1712 is assigned at VA 0x10a6a117."
+      },
+      "@exec_GUI_GUIController_IsDedicatedServer@16": {
+        "va": 278175552,
+        "basis": "Native slot 1857 is assigned at VA 0x10a6a14e."
+      },
+      "@exec_GUI_GUIController_IsLANEnable@16": {
+        "va": 279672608,
+        "basis": "Native slot 1856 is assigned at VA 0x10a6a185."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerRevenge@16": {
+        "va": 278175552,
+        "basis": "Native slot 1890 is assigned at VA 0x10a6a1bc."
+      },
+      "@exec_GUI_GUIController_UpdateDedicatedServerTitle@16": {
+        "va": 279283056,
+        "basis": "Native slot 1880 is assigned at VA 0x10a6a1f3."
+      },
+      "@exec_GUI_GUIController_ResetDedicatedServerSkipMenus@16": {
+        "va": 279078432,
+        "basis": "Native slot 1879 is assigned at VA 0x10a6a22a."
+      },
+      "@exec_GUI_GUIController_IsDedicatedServerCreateGame@16": {
+        "va": 278175552,
+        "basis": "Native slot 1877 is assigned at VA 0x10a6a261."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerLobby@16": {
+        "va": 279283024,
+        "basis": "Native slot 1885 is assigned at VA 0x10a6a298."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerPort@16": {
+        "va": 278175552,
+        "basis": "Native slot 1884 is assigned at VA 0x10a6a2cf."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerGameMode@16": {
+        "va": 278175552,
+        "basis": "Native slot 1883 is assigned at VA 0x10a6a306."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerUbiPassword@16": {
+        "va": 279283024,
+        "basis": "Native slot 1882 is assigned at VA 0x10a6a33d."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerUbiAccount@16": {
+        "va": 279283024,
+        "basis": "Native slot 1881 is assigned at VA 0x10a6a374."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerMinPlayer@16": {
+        "va": 278175552,
+        "basis": "Native slot 1876 is assigned at VA 0x10a6a3ab."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerPassword@16": {
+        "va": 279283024,
+        "basis": "Native slot 1875 is assigned at VA 0x10a6a3e2."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerName@16": {
+        "va": 279283024,
+        "basis": "Native slot 1888 is assigned at VA 0x10a6a419."
+      },
+      "@exec_GUI_GUIController_GetDedicatedServerMapname@16": {
+        "va": 279283024,
+        "basis": "Native slot 1874 is assigned at VA 0x10a6a450."
+      },
+      "@exec_GUI_GUIController_AutoPatch@16": {
+        "va": 278175552,
+        "basis": "Native slot 1862 is assigned at VA 0x10a6a487."
+      },
+      "@exec_GUI_GUIController_Shutdown@16": {
+        "va": 279282992,
+        "basis": "Native slot 1717 is assigned at VA 0x10a6a4be."
+      },
+      "@exec_GUI_GUIController_ResetCreateServer@16": {
+        "va": 279282848,
+        "basis": "Native slot 1861 is assigned at VA 0x10a6a4f5."
+      },
+      "@exec_GUI_GUIController_ResetJoinIpRequest@16": {
+        "va": 279282816,
+        "basis": "Native slot 1855 is assigned at VA 0x10a6a52c."
+      },
+      "@exec_GUI_GUIController_GetJoinIpPort@16": {
+        "va": 279282704,
+        "basis": "Native slot 1854 is assigned at VA 0x10a6a563."
+      },
+      "@exec_GUI_GUIController_GetJoinIpIp@16": {
+        "va": 279282592,
+        "basis": "Native slot 1853 is assigned at VA 0x10a6a59a."
+      },
+      "@exec_GUI_GUIController_TryJoinIp@16": {
+        "va": 279282464,
+        "basis": "Native slot 1852 is assigned at VA 0x10a6a5d1."
+      },
+      "@exec_GUI_GUIController_ResetAutoValidatePage@16": {
+        "va": 279282432,
+        "basis": "Native slot 1886 is assigned at VA 0x10a6a608."
+      },
+      "@exec_GUI_GUIController_IsAutoValidatePage@16": {
+        "va": 279282368,
+        "basis": "Native slot 1851 is assigned at VA 0x10a6a63f."
+      },
+      "@exec_GUI_GUIController_IsCreateServer@16": {
+        "va": 279282336,
+        "basis": "Native slot 1860 is assigned at VA 0x10a6a676."
+      },
+      "@exec_GUI_GUIController_IsRequestJoinIp@16": {
+        "va": 279282304,
+        "basis": "Native slot 1850 is assigned at VA 0x10a6a6ad."
+      },
+      "@exec_GUI_GUIController_IsOnlineAvailable@16": {
+        "va": 279282256,
+        "basis": "Native slot 1835 is assigned at VA 0x10a6a6e4."
+      },
+      "@exec_GUI_GUIController_LoadDecoText@16": {
+        "va": 278175760,
+        "basis": "Native slot 1634 is assigned at VA 0x10a6a71b."
+      },
+      "@exec_GUI_GUIController_GetProfileList@16": {
+        "va": 278175760,
+        "basis": "Native slot 1633 is assigned at VA 0x10a6a752."
+      },
+      "@exec_GUI_GUIController_IsMapExists@16": {
+        "va": 279273536,
+        "basis": "Native slot 1039 is assigned at VA 0x10a6a789."
+      },
+      "@exec_GUI_GUIController_GetMapList@16": {
+        "va": 279273248,
+        "basis": "Native slot 1632 is assigned at VA 0x10a6a7c0."
+      },
+      "@exec_GUI_GUIController_GetTeamSymbolList@16": {
+        "va": 278175760,
+        "basis": "Native slot 1631 is assigned at VA 0x10a6a7f7."
+      },
+      "@exec_GUI_GUIController_LaunchURL@16": {
+        "va": 279273008,
+        "basis": "Native slot 1707 is assigned at VA 0x10a6a82e."
+      },
+      "@exec_GUI_GUIController_LaunchNewImage@16": {
+        "va": 279272832,
+        "basis": "Native slot 1630 is assigned at VA 0x10a6a865."
+      },
+      "@exec_GUI_GUIController_IsAmateurMap@16": {
+        "va": 279274320,
+        "basis": "Native slot 1889 is assigned at VA 0x10a6a89c."
+      },
+      "@exec_GUI_GUIController_GetMasterVersion@16": {
+        "va": 279274160,
+        "basis": "Native slot 1891 is assigned at VA 0x10a6a8d3."
+      },
+      "@exec_GUI_GUIController_GetVersion@16": {
+        "va": 279274000,
+        "basis": "Native slot 1629 is assigned at VA 0x10a6a90a."
+      },
+      "@exec_GUI_GUIController_GetCurrentRes@16": {
+        "va": 279273776,
+        "basis": "Native slot 1628 is assigned at VA 0x10a6a941."
+      },
+      "@exec_GUI_GUIController_GetStyle@16": {
+        "va": 279274656,
+        "basis": "Native slot 1627 is assigned at VA 0x10a6a978."
+      },
+      "@exec_GUI_GUIController_GetMenuFont@16": {
+        "va": 279274384,
+        "basis": "Native slot 1626 is assigned at VA 0x10a6a9af."
+      },
+      "@exec_Native_333@16": {
+        "va": 279289264,
+        "basis": "Native slot 333 is assigned at VA 0x10a6a9d8."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f9b8fb3c776504e5c014537ef6ef1168dd3d7103fdc5d12a4f3aa6df36647444",
+      "inputs_sha256": "999e5751d2a96fc8c3a1737b0db89b6c5140955009710f55f4e4df1e25d7e492"
+    }
+  },
+  {
+    "id": "delete-ugameservicesubsystem",
+    "offset": 1487616,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_UGameServiceSubsystem@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock UGameServiceSubsystem vtable at RVA 0x300270, slot 3, points to entry RVA 0x16b300. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_UGameServiceSubsystem@4": {
+        "va": 279359920,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x16b1b0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a6cb52f67f676e7c5d99a5b502ef2d96bcfc520f26e5e3a617495134fd4a4640",
+      "inputs_sha256": "39c2004230968c3d6e85e12f9ac4dc9d9c81bfd58ad8a79160cbbef843ef0d23"
+    }
+  }
+]

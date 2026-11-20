@@ -1,0 +1,1151 @@
+[
+  {
+    "id": "vm-object-less-int-int",
+    "offset": 4128864,
+    "size": 130,
+    "rebuilt_symbol": "@execLess_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecLess_IntInt identifies callback VA 0x10cf0060. The CRT initializer at RVA 0x7ac7a0 passes native slot 150 and callback cell 0x111c9810. The entire reachable body ends before RVA 0x3f00e2. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "95b47f0674489323f4f8a2c906e0f68a98d397f94e8fcf9102888369aabbb947",
+      "inputs_sha256": "7ee4c2144b355d18b7a12669a4c52a57e055b95a614e1fcf2cf51c562cf09523"
+    }
+  },
+  {
+    "id": "vm-object-greater-int-int",
+    "offset": 4129008,
+    "size": 130,
+    "rebuilt_symbol": "@execGreater_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecGreater_IntInt identifies callback VA 0x10cf00f0. The CRT initializer at RVA 0x7ac7c0 passes native slot 151 and callback cell 0x111c9814. The entire reachable body ends before RVA 0x3f0172. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4e4913a53ada6a70be27441c184eb666404e2c12ce42a6ca935747efa9f8d8bd",
+      "inputs_sha256": "4961ab65240ae0d7bfe6210b5810fffbc9140d3cf20f6478d16a86f0d36c9cdc"
+    }
+  },
+  {
+    "id": "vm-object-less-equal-int-int",
+    "offset": 4129152,
+    "size": 130,
+    "rebuilt_symbol": "@execLessEqual_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecLessEqual_IntInt identifies callback VA 0x10cf0180. The CRT initializer at RVA 0x7ac7e0 passes native slot 152 and callback cell 0x111c9818. The entire reachable body ends before RVA 0x3f0202. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2ea5c31fe066f944f2acdeb5ef1d5de11ae22135db0830487cf228d306f7cb51",
+      "inputs_sha256": "edd89bb0c43b8b24f4505ddae640ba81f6d0edaa87d71d7ae267aa82fc5c86e8"
+    }
+  },
+  {
+    "id": "vm-object-greater-equal-int-int",
+    "offset": 4129296,
+    "size": 130,
+    "rebuilt_symbol": "@execGreaterEqual_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecGreaterEqual_IntInt identifies callback VA 0x10cf0210. The CRT initializer at RVA 0x7ac800 passes native slot 153 and callback cell 0x111c981c. The entire reachable body ends before RVA 0x3f0292. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d2982a713c0b6507fba0b6935c839db5922c99a0e0e4bb3616dffc77258bbab8",
+      "inputs_sha256": "f8759e5dc52a9ea15d7f76104c4a8b5aca3e39373edda17532e8c6e205721b62"
+    }
+  },
+  {
+    "id": "vm-object-equal-equal-int-int",
+    "offset": 4129440,
+    "size": 130,
+    "rebuilt_symbol": "@execEqualEqual_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecEqualEqual_IntInt identifies callback VA 0x10cf02a0. The CRT initializer at RVA 0x7ac820 passes native slot 154 and callback cell 0x111c9820. The entire reachable body ends before RVA 0x3f0322. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "dad4a9c3fffafb9476c47a97102026ddda2d109cffc98c955b94ae30be020514",
+      "inputs_sha256": "a6e05e7f9f9e80c0109496cbb232c51e08ff28f2ef542dd77ba249ec5d5fb7ad"
+    }
+  },
+  {
+    "id": "vm-object-not-equal-int-int",
+    "offset": 4129584,
+    "size": 130,
+    "rebuilt_symbol": "@execNotEqual_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecNotEqual_IntInt identifies callback VA 0x10cf0330. The CRT initializer at RVA 0x7ac840 passes native slot 155 and callback cell 0x111c9824. The entire reachable body ends before RVA 0x3f03b2. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fa984778f6450f88fcb8ed313e61b6f4fd550f685c84a9772ac2306a0492d008",
+      "inputs_sha256": "c3aad030a67f1251a973d62a8888fb19471335c31aec9d7c280abd309e8adb06"
+    }
+  },
+  {
+    "id": "vm-object-and-int-int",
+    "offset": 4129728,
+    "size": 125,
+    "rebuilt_symbol": "@execAnd_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAnd_IntInt identifies callback VA 0x10cf03c0. The CRT initializer at RVA 0x7ac860 passes native slot 156 and callback cell 0x111c9828. The entire reachable body ends before RVA 0x3f043d. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c20d8f74b4fa91befa819fabe50e14e23ce811e20b65ed445ba39242d842af8a",
+      "inputs_sha256": "69442665c31f20444d4ce420e7eb4624694237f6e0d52bc7b6013a0636499987"
+    }
+  },
+  {
+    "id": "vm-object-xor-int-int",
+    "offset": 4129856,
+    "size": 125,
+    "rebuilt_symbol": "@execXor_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecXor_IntInt identifies callback VA 0x10cf0440. The CRT initializer at RVA 0x7ac880 passes native slot 157 and callback cell 0x111c982c. The entire reachable body ends before RVA 0x3f04bd. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "10e25b7e58224a92bc6aa94e0eb156dacd7569374bd0fdc743b407f91f35baa9",
+      "inputs_sha256": "5a3bd73c4875c4013e75cd33e451c7c8440fab9b169ee969e1a8aae2440d8525"
+    }
+  },
+  {
+    "id": "vm-object-or-int-int",
+    "offset": 4129984,
+    "size": 125,
+    "rebuilt_symbol": "@execOr_IntInt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecOr_IntInt identifies callback VA 0x10cf04c0. The CRT initializer at RVA 0x7ac8a0 passes native slot 158 and callback cell 0x111c9830. The entire reachable body ends before RVA 0x3f053d. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "10540be1dbd8ef41064ddf0dfb50ae9366dcc27b2579f2429007574ddba00b99",
+      "inputs_sha256": "9cc4b49d57fc94373b317a59c94b32831670e1064e74c106ec4e228a87d2573a"
+    }
+  },
+  {
+    "id": "vm-object-min",
+    "offset": 4131376,
+    "size": 137,
+    "rebuilt_symbol": "@execMin@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMin identifies callback VA 0x10cf0a30. The CRT initializer at RVA 0x7ac9e0 passes native slot 249 and callback cell 0x111c9858. The entire reachable body ends before RVA 0x3f0ab9. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4d5e0cd211ef8c224befd5cf50ca8a4f426a280120a9b9a4d566678d8325e7d9",
+      "inputs_sha256": "ebc3ae18948296caefd9c8964443087277a9ad613ba8d6ec3bd79c369a9027a5"
+    }
+  },
+  {
+    "id": "vm-object-max",
+    "offset": 4131520,
+    "size": 137,
+    "rebuilt_symbol": "@execMax@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMax identifies callback VA 0x10cf0ac0. The CRT initializer at RVA 0x7aca00 passes native slot 250 and callback cell 0x111c985c. The entire reachable body ends before RVA 0x3f0b49. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e79d7fc88c2af56376501015457319702aadcc5b0b1405eec17e31b91dbf712c",
+      "inputs_sha256": "54d278ad6908e2dbbb3c6ba9106090ed38dfc5da9da3c01066a01f4f7af6bef3"
+    }
+  },
+  {
+    "id": "vm-object-clamp",
+    "offset": 4131664,
+    "size": 185,
+    "rebuilt_symbol": "@execClamp@16",
+    "inputs": [
+      "src/campaign_vm_geometry.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_geometry.obj src/campaign_vm_geometry.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecClamp identifies callback VA 0x10cf0b50. The CRT initializer at RVA 0x7aca20 passes native slot 251 and callback cell 0x111c9860. The entire reachable body ends before RVA 0x3f0c09. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2241acd7e7004e3b4ad0b0afbf307f07bda5ce74739a9fa3867a2127a34daede",
+      "inputs_sha256": "496be5d6a42043487bbe18066a67394ebe1e2e9efd900b9e6b3684e3c98bef52"
+    }
+  },
+  {
+    "id": "vm-object-multiply-float-float",
+    "offset": 4132096,
+    "size": 123,
+    "rebuilt_symbol": "@execMultiply_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiply_FloatFloat identifies callback VA 0x10cf0d00. The CRT initializer at RVA 0x7aca80 passes native slot 171 and callback cell 0x111c986c. The entire reachable body ends before RVA 0x3f0d7b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "cccc865c86730d8c430d8ad600bfdb3d64e1594ce8dd88d24fd2a59db2ff52b5",
+      "inputs_sha256": "de43728698476c91ae4e40a82f960aa26e5e7092a7ced931fa75a1e4bd79d5fb"
+    }
+  },
+  {
+    "id": "vm-object-add-float-float",
+    "offset": 4132528,
+    "size": 123,
+    "rebuilt_symbol": "@execAdd_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAdd_FloatFloat identifies callback VA 0x10cf0eb0. The CRT initializer at RVA 0x7acae0 passes native slot 174 and callback cell 0x111c9878. The entire reachable body ends before RVA 0x3f0f2b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "636b84d87f0c98b4b8d1171d488947ed59a7f5d3462774280809ca556c17d40c",
+      "inputs_sha256": "a781ddb00fd3ce0fe9e3dbc4b2556074a70b303e97270493af6f2d5d0ba9ec64"
+    }
+  },
+  {
+    "id": "vm-object-subtract-float-float",
+    "offset": 4132656,
+    "size": 123,
+    "rebuilt_symbol": "@execSubtract_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtract_FloatFloat identifies callback VA 0x10cf0f30. The CRT initializer at RVA 0x7acb00 passes native slot 175 and callback cell 0x111c987c. The entire reachable body ends before RVA 0x3f0fab. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0a65456d62375ada28a2a5e877792377a5bddf77eea16c156bd9f379404eaf20",
+      "inputs_sha256": "5b7b8ff43cc7dd48cc716beabefb54987b9069417e822c80bad08b950b426a9a"
+    }
+  },
+  {
+    "id": "vm-object-less-float-float",
+    "offset": 4132784,
+    "size": 147,
+    "rebuilt_symbol": "@execLess_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecLess_FloatFloat identifies callback VA 0x10cf0fb0. The CRT initializer at RVA 0x7acb20 passes native slot 176 and callback cell 0x111c9880. The entire reachable body ends before RVA 0x3f1043. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "81ec2b7816a8847436e29b25e889f780f88bb30d557cc9e50edb4dc5db7cd450",
+      "inputs_sha256": "17fbe9e68c0a0f2b63ec80336473dcf1785363ae8bd085677e0dee9305b59ea6"
+    }
+  },
+  {
+    "id": "vm-object-greater-float-float",
+    "offset": 4132944,
+    "size": 147,
+    "rebuilt_symbol": "@execGreater_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecGreater_FloatFloat identifies callback VA 0x10cf1050. The CRT initializer at RVA 0x7acb40 passes native slot 177 and callback cell 0x111c9884. The entire reachable body ends before RVA 0x3f10e3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d3f2381ced90a742acad6ace1ca08eed6a8a24702527d3b05faf859277e962b0",
+      "inputs_sha256": "b55ed07d8b576791ce0677f29e2b6f58e7b787f206f8fe103ebf824088b20419"
+    }
+  },
+  {
+    "id": "vm-object-less-equal-float-float",
+    "offset": 4133104,
+    "size": 147,
+    "rebuilt_symbol": "@execLessEqual_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecLessEqual_FloatFloat identifies callback VA 0x10cf10f0. The CRT initializer at RVA 0x7acb60 passes native slot 178 and callback cell 0x111c9888. The entire reachable body ends before RVA 0x3f1183. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "06e859a1931841ebcc4f98e8cfea9dfebd1b40868f1f5d54a861a0bfb19fd3b1",
+      "inputs_sha256": "3718e2660f756a2889cec8f964a5055ef7ca154b1797c1295ff8e2bcf2d98b9b"
+    }
+  },
+  {
+    "id": "vm-object-greater-equal-float-float",
+    "offset": 4133264,
+    "size": 147,
+    "rebuilt_symbol": "@execGreaterEqual_FloatFloat@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecGreaterEqual_FloatFloat identifies callback VA 0x10cf1190. The CRT initializer at RVA 0x7acb80 passes native slot 179 and callback cell 0x111c988c. The entire reachable body ends before RVA 0x3f1223. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c38e6c48d8f4ab49406318c411d566ede06fbd7804041ff8a075763359355549",
+      "inputs_sha256": "ccc3a695709bf0b6762891f6a44490e2e8630efcd188a2a088d592cffd978e94"
+    }
+  },
+  {
+    "id": "vm-object-sin",
+    "offset": 4134720,
+    "size": 99,
+    "rebuilt_symbol": "@execSin@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSin identifies callback VA 0x10cf1740. The CRT initializer at RVA 0x7acca0 passes native slot 187 and callback cell 0x111c98b0. The entire reachable body ends before RVA 0x3f17a3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_sin": {
+        "va": 281848656,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0beaa691503cccd77948c81fc462685e7554653c337bc6cce28be0d5e6609400",
+      "inputs_sha256": "19304fb5bc2ded25260b868b5d0a33cfbef5c8a2aa0585731f2feb93f7a1dde3"
+    }
+  },
+  {
+    "id": "vm-object-cos",
+    "offset": 4134832,
+    "size": 99,
+    "rebuilt_symbol": "@execCos@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecCos identifies callback VA 0x10cf17b0. The CRT initializer at RVA 0x7accc0 passes native slot 188 and callback cell 0x111c98b4. The entire reachable body ends before RVA 0x3f1813. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_cos": {
+        "va": 281848672,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a12e0473798c29de4dbfe54be28fe5239418ef5220f9b598cac6bb95f9aeaea4",
+      "inputs_sha256": "6cb469f5e5fb39e14b9068b6fd16cd41176204a571a957052694c3f79e9b87e2"
+    }
+  },
+  {
+    "id": "vm-object-tan",
+    "offset": 4134944,
+    "size": 99,
+    "rebuilt_symbol": "@execTan@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecTan identifies callback VA 0x10cf1820. The CRT initializer at RVA 0x7acce0 passes native slot 189 and callback cell 0x111c98b8. The entire reachable body ends before RVA 0x3f1883. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_tan": {
+        "va": 281848720,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "790aca94727ffc7e87728571d1163968d0b7bc9e5b1a1cfa09f98be118fb872b",
+      "inputs_sha256": "8f18292768480eb618c8ca307b8dd38090e715a25440bd8c895acb83380ca83f"
+    }
+  },
+  {
+    "id": "vm-object-atan",
+    "offset": 4135056,
+    "size": 99,
+    "rebuilt_symbol": "@execAtan@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAtan identifies callback VA 0x10cf1890. The CRT initializer at RVA 0x7acd00 passes native slot 190 and callback cell 0x111c98bc. The entire reachable body ends before RVA 0x3f18f3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_atan": {
+        "va": 281848736,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e0c7e0ff0e4a50f77a126584b7f43f981ba9bb2badd25c6ab5b3bf03f205fcac",
+      "inputs_sha256": "d0af8e9635bb39cb9a867b712d540b4c4151afc08397c09fd9919b72aa08415b"
+    }
+  },
+  {
+    "id": "vm-object-asin",
+    "offset": 4135328,
+    "size": 99,
+    "rebuilt_symbol": "@execAsin@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAsin identifies callback VA 0x10cf19a0. The CRT initializer at RVA 0x7acd40 passes native slot 1103 and callback cell 0x111c98c4. The entire reachable body ends before RVA 0x3f1a03. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_asin": {
+        "va": 281848704,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f66107c751de9592aee2af28ac4d1d10dfb96ae24db2c08d4d944b22bd0d9af7",
+      "inputs_sha256": "98820b3988696ab4ade172db8103cc6183211b11151dc670b4d06fae709739a3"
+    }
+  },
+  {
+    "id": "vm-object-exp",
+    "offset": 4136256,
+    "size": 99,
+    "rebuilt_symbol": "@execExp@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecExp identifies callback VA 0x10cf1d40. The CRT initializer at RVA 0x7acde0 passes native slot 191 and callback cell 0x111c98d8. The entire reachable body ends before RVA 0x3f1da3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_exp": {
+        "va": 281848592,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3889a6e182265944187c3a0655a2395934dc3c79d34fa4827f63d21276226e56",
+      "inputs_sha256": "cfb92124552285578a0d179e7c92d9e2fcd2030c919627e583049b85473d5712"
+    }
+  },
+  {
+    "id": "vm-object-loge",
+    "offset": 4136368,
+    "size": 99,
+    "rebuilt_symbol": "@execLoge@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecLoge identifies callback VA 0x10cf1db0. The CRT initializer at RVA 0x7ace00 passes native slot 192 and callback cell 0x111c98dc. The entire reachable body ends before RVA 0x3f1e13. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_loge": {
+        "va": 281848624,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1cb1def7631c90f6f1d6a2b50422e5d84dbae0459804b5408971330d9a5d7283",
+      "inputs_sha256": "c549567f7f23ac298c8af2ebe98dbc5bb228c21ebf6174acf2bc2f9c3b4aa1f8"
+    }
+  },
+  {
+    "id": "vm-object-sqrt",
+    "offset": 4136480,
+    "size": 99,
+    "rebuilt_symbol": "@execSqrt@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSqrt identifies callback VA 0x10cf1e20. The CRT initializer at RVA 0x7ace20 passes native slot 193 and callback cell 0x111c98e0. The entire reachable body ends before RVA 0x3f1e83. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_sqrt": {
+        "va": 281848768,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "164b33fcc20a06f9a82935f8c6b874781337c3091dde2a99196c2ca2277d3b41",
+      "inputs_sha256": "d3b9bd54f5ecbe0373bd94d2737e372e58aa915865c5c1d26468d0a85e920221"
+    }
+  },
+  {
+    "id": "vm-object-square",
+    "offset": 4136592,
+    "size": 89,
+    "rebuilt_symbol": "@execSquare@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSquare identifies callback VA 0x10cf1e90. The CRT initializer at RVA 0x7ace40 passes native slot 194 and callback cell 0x111c98e4. The entire reachable body ends before RVA 0x3f1ee9. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0b85d62c3462b6157f472229e181351e47c0835f25f170b5cd09f8e5558d15d6",
+      "inputs_sha256": "e48067afebd6cfa9afbafbe867bf010eed2e8ef3853340bb11d22d0f22630d4c"
+    }
+  },
+  {
+    "id": "vm-object-fmin",
+    "offset": 4136784,
+    "size": 147,
+    "rebuilt_symbol": "@execFMin@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecFMin identifies callback VA 0x10cf1f50. The CRT initializer at RVA 0x7acea0 passes native slot 244 and callback cell 0x111c98f0. The entire reachable body ends before RVA 0x3f1fe3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "fc7a82982c78d14ed2e46557f3b146aab93540f4be040d67969cb1fc906b6f6a",
+      "inputs_sha256": "6c82123dc91b312ac1b5fb76d5d150fa4e3fe9c5345a65b8cb6a5144f21d4cff"
+    }
+  },
+  {
+    "id": "vm-object-fmax",
+    "offset": 4136944,
+    "size": 147,
+    "rebuilt_symbol": "@execFMax@16",
+    "inputs": [
+      "src/campaign_vm_operators.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_operators.obj src/campaign_vm_operators.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecFMax identifies callback VA 0x10cf1ff0. The CRT initializer at RVA 0x7acec0 passes native slot 245 and callback cell 0x111c98f4. The entire reachable body ends before RVA 0x3f2083. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "61b844d95a613c37c8055881b59786ecd72f6c67b15aee892f1990b78290f772",
+      "inputs_sha256": "9cbff88af9dcacd48a2c130cd99ec760f99672a34770ba2370d081622559d499"
+    }
+  },
+  {
+    "id": "vm-object-lerp",
+    "offset": 4137328,
+    "size": 169,
+    "rebuilt_symbol": "@execLerp@16",
+    "inputs": [
+      "src/campaign_vm_geometry.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_geometry.obj src/campaign_vm_geometry.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecLerp identifies callback VA 0x10cf2170. The CRT initializer at RVA 0x7acf00 passes native slot 247 and callback cell 0x111c98fc. The entire reachable body ends before RVA 0x3f2219. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "32c377539049ec3b46fb10ae1a1e35f0bc8269d1e4035b38ae3b4bd0ce88c37c",
+      "inputs_sha256": "b2a9bae5bfd5a5f2ddd9d0e6e0c9d49be19c78c2542ec72a28f468b2d895f1b2"
+    }
+  },
+  {
+    "id": "vm-object-rotation-const",
+    "offset": 4137696,
+    "size": 54,
+    "rebuilt_symbol": "@execRotationConst@16",
+    "inputs": [
+      "src/campaign_vm_values.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_values.obj src/campaign_vm_values.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecRotationConst identifies callback VA 0x10cf22e0. The CRT initializer at RVA 0x7acf40 passes native slot 34 and callback cell 0x111c9904. The entire reachable body ends before RVA 0x3f2316.",
+    "match": {
+      "bytes_sha256": "3c99c31b8de27c542229c4405c5e2c151fc8ad79cc26ccd9409e084084d896ea",
+      "inputs_sha256": "bb43c2c8c4a80ad90eac331ecbe25b47dded658c78273f145f8ad15ad1236dd3"
+    }
+  },
+  {
+    "id": "vm-object-subtract-pre-vector",
+    "offset": 4138272,
+    "size": 123,
+    "rebuilt_symbol": "@execSubtract_PreVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtract_PreVector identifies callback VA 0x10cf2520. The CRT initializer at RVA 0x7ad380 passes native slot 211 and callback cell 0x111c992c. The entire reachable body ends before RVA 0x3f259b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "603dde17d78baad79b3b5a760a30e4fe06c5937ba87e60292dabd72c31b30d85",
+      "inputs_sha256": "1398ef2e55204e9fd2e5be98431310d54c1ca9aa92fcf24189992e13a614594c"
+    }
+  },
+  {
+    "id": "vm-object-multiply-vector-float",
+    "offset": 4138400,
+    "size": 163,
+    "rebuilt_symbol": "@execMultiply_VectorFloat@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiply_VectorFloat identifies callback VA 0x10cf25a0. The CRT initializer at RVA 0x7ad3a0 passes native slot 212 and callback cell 0x111c9930. The entire reachable body ends before RVA 0x3f2643. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "da2515bc568dffb736c96fe45d442e51d71a394497edfaa713979bbeb3c8bb0b",
+      "inputs_sha256": "a9ed161e2b34fe25f335fa97a883e92e9b54ce22d72ae4df9e6e2eb9fdb17c4d"
+    }
+  },
+  {
+    "id": "vm-object-multiply-float-vector",
+    "offset": 4138576,
+    "size": 163,
+    "rebuilt_symbol": "@execMultiply_FloatVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiply_FloatVector identifies callback VA 0x10cf2650. The CRT initializer at RVA 0x7ad3c0 passes native slot 213 and callback cell 0x111c9934. The entire reachable body ends before RVA 0x3f26f3. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0c63412a9793d93cf3e031cc43a698cecc780741aa9f1299ab2f4df703e97e12",
+      "inputs_sha256": "df72845d95a418e20aa6f4175e489585dba5b869576c26e07a11aeddbdffb960"
+    }
+  },
+  {
+    "id": "vm-object-multiply-vector-vector",
+    "offset": 4138752,
+    "size": 155,
+    "rebuilt_symbol": "@execMultiply_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecMultiply_VectorVector identifies callback VA 0x10cf2700. The CRT initializer at RVA 0x7ad3e0 passes native slot 296 and callback cell 0x111c9938. The entire reachable body ends before RVA 0x3f279b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b1eed7ac3b710eb5fa7c0943b9ab5c598f03c0e50b205b1deeaf3967e4e11e97",
+      "inputs_sha256": "6b66bc8f07fb0ffc4468ea2ab6c63516b141761ebd0a687177f573a3e698e9eb"
+    }
+  },
+  {
+    "id": "vm-object-add-vector-vector",
+    "offset": 4139152,
+    "size": 155,
+    "rebuilt_symbol": "@execAdd_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAdd_VectorVector identifies callback VA 0x10cf2890. The CRT initializer at RVA 0x7ad420 passes native slot 215 and callback cell 0x111c9940. The entire reachable body ends before RVA 0x3f292b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ca6ff4d326e7c8f6e2eaa3308cd07664733cbbc87f0834b9cb3e2c2dea3ee984",
+      "inputs_sha256": "5b8cc14104583ab2c6bf99c18dee1a7d93ed6fb1338b8ae3306473e76146b026"
+    }
+  },
+  {
+    "id": "vm-object-subtract-vector-vector",
+    "offset": 4139312,
+    "size": 155,
+    "rebuilt_symbol": "@execSubtract_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtract_VectorVector identifies callback VA 0x10cf2930. The CRT initializer at RVA 0x7ad440 passes native slot 216 and callback cell 0x111c9944. The entire reachable body ends before RVA 0x3f29cb. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "15cfebdf02c344dfb0fd8e088defb5b2af917756c644dfce88e9a508279d0a0e",
+      "inputs_sha256": "84e97f7c7fe90f82359b203db69c73873553bc3d36b72c2b6f2534228f45a0d8"
+    }
+  },
+  {
+    "id": "vm-object-equal-equal-vector-vector",
+    "offset": 4139888,
+    "size": 173,
+    "rebuilt_symbol": "@execEqualEqual_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecEqualEqual_VectorVector identifies callback VA 0x10cf2b70. The CRT initializer at RVA 0x7ad4a0 passes native slot 217 and callback cell 0x111c9950. The entire reachable body ends before RVA 0x3f2c1d. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c998760c229252172a91134834d492badb4858b21bdf312d05088a1353423d8b",
+      "inputs_sha256": "4d1ca4922d297c1890ae799a6d7ec4d41166cf82bc4094a99942bd13f6ccd31e"
+    }
+  },
+  {
+    "id": "vm-object-not-equal-vector-vector",
+    "offset": 4140064,
+    "size": 173,
+    "rebuilt_symbol": "@execNotEqual_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecNotEqual_VectorVector identifies callback VA 0x10cf2c20. The CRT initializer at RVA 0x7ad4c0 passes native slot 218 and callback cell 0x111c9954. The entire reachable body ends before RVA 0x3f2ccd. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "035188b42d4f517f272a18507d0df3b2f3e28c32fbe074dc9e38d89a22b7c3cb",
+      "inputs_sha256": "7eed8cab6ed4b2698931a6846be5634d9773e2c3fe17d7e2b7709c9935487cdd"
+    }
+  },
+  {
+    "id": "vm-object-dot-vector-vector",
+    "offset": 4140240,
+    "size": 130,
+    "rebuilt_symbol": "@execDot_VectorVector@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecDot_VectorVector identifies callback VA 0x10cf2cd0. The CRT initializer at RVA 0x7ad4e0 passes native slot 219 and callback cell 0x111c9958. The entire reachable body ends before RVA 0x3f2d52. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b1bc5479b9490f38ea2be99ec6d850dbe8679e8bde783dfc8db7df7892f19d76",
+      "inputs_sha256": "3742d1df091e5981912b47131564f43e6d822d80554133a773cdae81d20669b0"
+    }
+  },
+  {
+    "id": "vm-object-vsize",
+    "offset": 4141600,
+    "size": 119,
+    "rebuilt_symbol": "@execVSize@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecVSize identifies callback VA 0x10cf3220. The CRT initializer at RVA 0x7ad5c0 passes native slot 225 and callback cell 0x111c9974. The entire reachable body ends before RVA 0x3f3297. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_sqrt": {
+        "va": 281848768,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7d3a368a678a4c7d00d4e80ce3f490d349a8bff2548cb53b0915cf2bb6db4d6e",
+      "inputs_sha256": "3373cb583de6d09bef3005e2f993705980ead0163c6805ab39e9193da5014bbd"
+    }
+  },
+  {
+    "id": "vm-object-vsize2d",
+    "offset": 4141728,
+    "size": 109,
+    "rebuilt_symbol": "@execVSize2D@16",
+    "inputs": [
+      "src/campaign_vm_vector_ops.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_vector_ops.obj src/campaign_vm_vector_ops.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecVSize2D identifies callback VA 0x10cf32a0. The CRT initializer at RVA 0x7ad5e0 passes native slot 228 and callback cell 0x111c9978. The entire reachable body ends before RVA 0x3f330d. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      },
+      "_campaign_sqrt": {
+        "va": 281848768,
+        "basis": "Campaign double-precision math routine called directly by this named VM handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f80367b84fa1020ca65a39a2c38a31d7edeafe520d2291fca49c72059da85dab",
+      "inputs_sha256": "5c9aad9ee150f7ecc4a193cc42448101810a90f700056decd7efd38ca2711534"
+    }
+  },
+  {
+    "id": "vm-object-equal-equal-rotator-rotator",
+    "offset": 4142864,
+    "size": 152,
+    "rebuilt_symbol": "@execEqualEqual_RotatorRotator@16",
+    "inputs": [
+      "src/campaign_vm_geometry.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_geometry.obj src/campaign_vm_geometry.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecEqualEqual_RotatorRotator identifies callback VA 0x10cf3710. The CRT initializer at RVA 0x7ad6a0 passes native slot 142 and callback cell 0x111c9990. The entire reachable body ends before RVA 0x3f37a8. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9c1352c7c6884fb4f70eac5e08f1bb3196fbef3c1f54bbe04adf731311f3c6fa",
+      "inputs_sha256": "d2599498457d36f795406082beb990842afd42d0b7240c04bd9534150185bbf2"
+    }
+  },
+  {
+    "id": "vm-object-not-equal-rotator-rotator",
+    "offset": 4143024,
+    "size": 152,
+    "rebuilt_symbol": "@execNotEqual_RotatorRotator@16",
+    "inputs": [
+      "src/campaign_vm_geometry.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_geometry.obj src/campaign_vm_geometry.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecNotEqual_RotatorRotator identifies callback VA 0x10cf37b0. The CRT initializer at RVA 0x7ad6c0 passes native slot 203 and callback cell 0x111c9994. The entire reachable body ends before RVA 0x3f3848. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "032d50e93a798393f5cd825fb5ec88cefaabf835f7a911ba2f8c77010f02316c",
+      "inputs_sha256": "155fa589ab3a34f74a20756ce7367c0f7616ba1b6faf2dbbb43b8f1b3b8ed778"
+    }
+  },
+  {
+    "id": "vm-object-add-rotator-rotator",
+    "offset": 4144224,
+    "size": 139,
+    "rebuilt_symbol": "@execAdd_RotatorRotator@16",
+    "inputs": [
+      "src/campaign_vm_geometry.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_geometry.obj src/campaign_vm_geometry.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecAdd_RotatorRotator identifies callback VA 0x10cf3c60. The CRT initializer at RVA 0x7ad780 passes native slot 316 and callback cell 0x111c99ac. The entire reachable body ends before RVA 0x3f3ceb. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e31701ef0aaca13a69afae3187336c15a00d387d9ce6f4510d99abf289654ecc",
+      "inputs_sha256": "96fdcc55cc88582869e7fffa8b75071d02ec06fa1d905225176c038f3ab8d4e7"
+    }
+  },
+  {
+    "id": "vm-object-subtract-rotator-rotator",
+    "offset": 4144368,
+    "size": 139,
+    "rebuilt_symbol": "@execSubtract_RotatorRotator@16",
+    "inputs": [
+      "src/campaign_vm_geometry.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vm_geometry.obj src/campaign_vm_geometry.c",
+    "identification": "Stock campaign wide-name entry intUObjectexecSubtract_RotatorRotator identifies callback VA 0x10cf3cf0. The CRT initializer at RVA 0x7ad7a0 passes native slot 317 and callback cell 0x111c99b0. The entire reachable body ends before RVA 0x3f3d7b. After consuming operands the campaign handler conditionally dispatches debug-info opcode 0x42.",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign VM dispatch table filled at RVA 0x3ee250; index 0x42 runs debug info."
+      }
+    },
+    "match": {
+      "bytes_sha256": "4e4abf1a4718bb0294a3db8a8551e08b552b99dde83450c30461b58df1c3115a",
+      "inputs_sha256": "0cefe6d3397d1a9b85984ed552b2af7d5deb1ac1f96184d721c05c9987a2fe70"
+    }
+  },
+  {
+    "id": "cast-uenum",
+    "offset": 4148304,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UEnum",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UEnum": {
+        "va": 288432212,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UEnum": {
+        "va": 281923104,
+        "basis": "The constructor passes both the UTF-16 UEnum allocation tag and Enum class name to the engine."
+      },
+      "_register_UEnum": {
+        "va": 281899184,
+        "basis": "Direct registration call after initializing the singleton for UEnum."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x3f4c50, directly called at RVA 0x3f5118. Its class constructor at RVA 0x3dce20 identifies UEnum; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "f18b87be93d625712f0b7a2387406746583f3d8afba6c01ea2b92507837a150d",
+      "inputs_sha256": "d660f03a6feca592e03bcf73728ff2d7b71ecff0dad8df5e6a1b71703cc019e6"
+    }
+  }
+]

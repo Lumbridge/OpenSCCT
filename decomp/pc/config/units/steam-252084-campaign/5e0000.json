@@ -1,0 +1,66 @@
+[
+  {
+    "id": "campaign-sha1-digest-width",
+    "offset": 6219296,
+    "size": 6,
+    "rebuilt_symbol": "@sha1_digest_width@4",
+    "inputs": [
+      "src/digest_dimensions.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+    "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x8545d4, zero-based slot 7, selects RVA 0x5ee620. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "b5e246fbf558c442548ccb78aa6a03d48027a6f91f15c02d7dc661bd43aaaab1",
+      "inputs_sha256": "0b49b43fb749b50fcd0a02a1d66e97d74a1b8854e6aa962e440290e9eea301a2"
+    }
+  },
+  {
+    "id": "campaign-sha1-double-digest-width",
+    "offset": 6219312,
+    "size": 6,
+    "rebuilt_symbol": "@sha1_double_digest_width@4",
+    "inputs": [
+      "src/digest_dimensions.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+    "identification": "Steam MSVC complete-object RTTI names HashModule_SHA1. Primary vftable RVA 0x8545d4, zero-based slot 8, selects RVA 0x5ee630. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "2ae904b3a6bc4ca2b742b13a6b4372b0110f2731cdf29edd795459ef1845e802",
+      "inputs_sha256": "5a18c4e293670565533b1d64d4f774922cefa558530208401d8ed0f0cfaa7f62"
+    }
+  },
+  {
+    "id": "campaign-md5-digest-width",
+    "offset": 6219472,
+    "size": 6,
+    "rebuilt_symbol": "@md5_digest_width@4",
+    "inputs": [
+      "src/digest_dimensions.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+    "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x85460c, zero-based slot 7, selects RVA 0x5ee6d0. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "75f533bd3e59de2588c8f1901e45a3eea6688bc16b7ecaf3dcaf4d49cf4f3d49",
+      "inputs_sha256": "2af4d43d83ad5c2f4b8db9b6c8a87e5267faa04b480d085e624fdb4b5aae872c"
+    }
+  },
+  {
+    "id": "campaign-md5-double-digest-width",
+    "offset": 6219488,
+    "size": 6,
+    "rebuilt_symbol": "@md5_double_digest_width@4",
+    "inputs": [
+      "src/digest_dimensions.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/digest_dimensions.obj src/digest_dimensions.c",
+    "identification": "Steam MSVC complete-object RTTI names HashModule_MD5. Primary vftable RVA 0x85460c, zero-based slot 8, selects RVA 0x5ee6e0. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "6e7ad2e0613c7b35767a2892528cb56d04e6c29c6569027d24dd57c372d07617",
+      "inputs_sha256": "51f5b1308871244132190cb9b297dbc4994d8802a85f04be0b702f4d96e2f248"
+    }
+  }
+]

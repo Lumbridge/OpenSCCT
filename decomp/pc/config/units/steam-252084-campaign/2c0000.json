@@ -1,0 +1,63 @@
+[
+  {
+    "id": "script-parameters-isgamepaused-2",
+    "offset": 2896320,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_IsGamePaused@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_IsGamePaused": {
+        "va": 287285352,
+        "basis": "FName initialized with retail UTF-16 IsGamePaused (VA 0x110d5560). The FName constructor call at RVA 0x13bd15 precedes the store to this slot at RVA 0x13bd27."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail IsGamePaused event wrapper at RVA 0x2c31c0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPlayerController.IsGamePaused with Bool ReturnValue at serial offset 0xac8f3.",
+    "match": {
+      "bytes_sha256": "cdccbec0685af65464dbbbce0fea62f3dfcff6a6ea7049db0f6e189bb9339119",
+      "inputs_sha256": "50aebfaa5b3476d71ddf766fe0fc764019af335a1c011cef875346ad08ef624e"
+    }
+  },
+  {
+    "id": "cast-aegameplayobject",
+    "offset": 2901744,
+    "size": 85,
+    "rebuilt_symbol": "_cast_AEGameplayObject",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_AEGameplayObject": {
+        "va": 287502160,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_AEGameplayObject": {
+        "va": 280947472,
+        "basis": "The constructor passes both the UTF-16 AEGameplayObject allocation tag and EGameplayObject class name to the engine."
+      },
+      "_register_AEGameplayObject": {
+        "va": 280928560,
+        "basis": "Direct registration call after initializing the singleton for AEGameplayObject."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 package name Echelon passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x2c46f0, directly called at RVA 0x2cc34b. Its class constructor at RVA 0x2eeb10 identifies AEGameplayObject; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "4c91bed9c448b6c2031aca74f4eb7c91d6461b1da35bef0c745a13ff2b48266e",
+      "inputs_sha256": "f2fc9ab3fd744299148ed2861d303eb95a636b7b345873625019e35e4a37e3be"
+    }
+  }
+]

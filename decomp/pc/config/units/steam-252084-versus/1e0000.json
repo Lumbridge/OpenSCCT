@@ -1,0 +1,1306 @@
+[
+  {
+    "id": "versus-trigger-time",
+    "offset": 2001648,
+    "size": 52,
+    "rebuilt_symbol": "@versus_trigger_time@16",
+    "inputs": [
+      "src/versus_trigger_time.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_trigger_time.obj src/versus_trigger_time.c",
+    "identification": "Retail registration at RVA 0x186af1 assigns GNatives[1317] to RVA 0x1e8af0. The class and function name SObjectiveTrigger.GetTriggerTime agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "87f97c4b01682135ca70d855d7186267573e62ef159d471e518cd265fdc72cef",
+      "inputs_sha256": "43ac4259623c0833fe147d02a6250eff1723a72c06c0b2ceb583a841bb223be6"
+    }
+  },
+  {
+    "id": "versus-objective-is-active",
+    "offset": 2001712,
+    "size": 29,
+    "rebuilt_symbol": "@versus_objective_is_active@16",
+    "inputs": [
+      "src/versus_objective_state.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_objective_state.obj src/versus_objective_state.c",
+    "identification": "Retail registration at RVA 0x186aba assigns GNatives[1318] to RVA 0x1e8b30. The class and function name SObjectiveTrigger.IsActive agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "238239e02f16fb280d8d2205f4a72bf0a9950564e7cc025c9da6c6803275a351",
+      "inputs_sha256": "7b854a08e056a60e064760382db53668ff67895e30f090a8b74722c437f1903e"
+    }
+  },
+  {
+    "id": "versus-authorize-energy",
+    "offset": 2004240,
+    "size": 117,
+    "rebuilt_symbol": "@versus_authorize_energy@16",
+    "inputs": [
+      "src/versus_camera_energy.c",
+      "src/versus_vm_argument.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_camera_energy.obj src/versus_camera_energy.c",
+    "identification": "Retail registration at RVA 0x18cf46 assigns GNatives[1811] to RVA 0x1e9510. The class and function name SCamNetwork.AuthorizeEnergy agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "7137f0a2b8a69fa490e2bf412adb325cca638a152191159556529bb565cf25f9",
+      "inputs_sha256": "3e970ba93f8eadabed40c2c2ed2f859d4473c76eac1e4410e6719255382fd96c"
+    }
+  },
+  {
+    "id": "versus-deactivate-trigger",
+    "offset": 2006112,
+    "size": 18,
+    "rebuilt_symbol": "@versus_deactivate_trigger@16",
+    "inputs": [
+      "src/versus_trigger_time.c",
+      "src/versus_script_frame.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_trigger_time.obj src/versus_trigger_time.c",
+    "identification": "Retail registration at RVA 0x186a83 assigns GNatives[1319] to RVA 0x1e9c60. The class and function name SObjectiveTrigger.Desactivate agree with the project inventory at this native index. The complete body ends before alignment.",
+    "match": {
+      "bytes_sha256": "bdd775ac8bd16174d84276b52b61ee4c45551698ba06fb6bddb1bad715f0595f",
+      "inputs_sha256": "c4df9e18ae6799b5d892e90c1ccd203eb4ec74b2aafb04d14ad38beefee80ff9"
+    }
+  },
+  {
+    "id": "place-asflagdropzoneinteraction",
+    "offset": 2021840,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASFlagDropZoneInteraction",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASFlagDropZoneInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39bdd0. The registry call at RVA 0x1ed9c7 passes its placement callback at RVA 0x1ed9d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fde68.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASFlagDropZoneInteraction": {
+        "va": 281009768,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ed9dd. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6bcc5f115bbae9f4a7a4e2c9adc5de54fb33fe4146f3af443bcc6d89558264d4",
+      "inputs_sha256": "f782e30a630eee4486fb7e7012e50c0294beb52acd27b69efd615ca10ba6d137"
+    }
+  },
+  {
+    "id": "delete-asinteractobject",
+    "offset": 2021872,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASInteractObject@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASInteractObject vtable at RVA 0x2fdfa8, slot 3, points to entry RVA 0x1ed9f0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASInteractObject@4": {
+        "va": 279894560,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1eda20."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "bb15f0c4cf9e429956f25e3aa75afe3bbd89807d079ff57b25c69557e073f65f"
+    }
+  },
+  {
+    "id": "delete-asflagdropzoneinteraction",
+    "offset": 2022048,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASFlagDropZoneInteraction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASFlagDropZoneInteraction vtable at RVA 0x2fde68, slot 3, points to entry RVA 0x1edaa0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASFlagDropZoneInteraction@4": {
+        "va": 279894736,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1edad0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "daa04f301e41ea543f0e4f0420b24308319e30c27cc0306c629801e32caa536e"
+    }
+  },
+  {
+    "id": "place-aspresdetector",
+    "offset": 2022208,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASPresDetector",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASPresDetector::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ad68. The registry call at RVA 0x1ed96b passes its placement callback at RVA 0x1edb40 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fdab8.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASPresDetector": {
+        "va": 281008824,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1edb4d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e37bba2f6b679d4ecc7b97d1767dc1836ba78224ca30fc0576439f040f3b5efd",
+      "inputs_sha256": "25c97ab6d59a850188258559015d73e8d97cf2338411287a8174cf74f9ad67da"
+    }
+  },
+  {
+    "id": "delete-asbasicgameplayobject",
+    "offset": 2022240,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASBasicGamePlayObject@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASBasicGamePlayObject vtable at RVA 0x2fdd30, slot 3, points to entry RVA 0x1edb60. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASBasicGamePlayObject@4": {
+        "va": 279894928,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1edb90."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "b6fe651e4c6587cf9d7134b8f739e60f58fc72c85239ca7edc8fd034abeb0ea5"
+    }
+  },
+  {
+    "id": "place-asnotifynoise",
+    "offset": 2022736,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASNotifyNoise",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASNotifyNoise::PrivateStaticClass identifies the stock UClass instance at RVA 0x399670. The registry call at RVA 0x1ed912 passes its placement callback at RVA 0x1edd50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd980.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASNotifyNoise": {
+        "va": 281008512,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1edd5d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a1f8afef2c09571169f3d0781a96cec2d357648c1309db7142053d5d429d67c5",
+      "inputs_sha256": "bd06a7ee1e9618104b888882225d6aa18fbaf0be55178165a82868afb82a3d5b"
+    }
+  },
+  {
+    "id": "place-asdamagevolume",
+    "offset": 2022928,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASDamageVolume",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASDamageVolume::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a2278. The registry call at RVA 0x1ed8b6 passes its placement callback at RVA 0x1ede10 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd848.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASDamageVolume": {
+        "va": 281008200,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ede1d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "16ea003a30927f926dafeab09ed3b765c0bfc55d69ac4cfe5cb0433d69a08921",
+      "inputs_sha256": "7f824a593ea572fd19e22ec197e1f58afc70541d318ff24b45f2f4258ade46c3"
+    }
+  },
+  {
+    "id": "delete-asdamagevolume",
+    "offset": 2022960,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASDamageVolume@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASDamageVolume vtable at RVA 0x2fd848, slot 3, points to entry RVA 0x1ede30. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASDamageVolume@4": {
+        "va": 279895648,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ede60."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "75a1d3869a1ab2a0eaf8e41a64e629156be5814a2b9a2e562debab87d94a0313"
+    }
+  },
+  {
+    "id": "place-asdisk",
+    "offset": 2023120,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASDisk",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASDisk::PrivateStaticClass identifies the stock UClass instance at RVA 0x39a6d8. The registry call at RVA 0x1ed85e passes its placement callback at RVA 0x1eded0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd490.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASDisk": {
+        "va": 281007248,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ededd. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "173e64e590b3c0224e58b3189de154afbd9fb97de820c47ab7dd545a588a2437",
+      "inputs_sha256": "12ad5f984e8b364ba7ccde81a946d8af0f9b6dd8da48b3bdf3e81b5067f8889b"
+    }
+  },
+  {
+    "id": "delete-asgameplayobject",
+    "offset": 2023152,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASGamePlayObject@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASGamePlayObject vtable at RVA 0x2fd710, slot 3, points to entry RVA 0x1edef0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASGamePlayObject@4": {
+        "va": 279895952,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1edf90."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "113668429c33f625903c03f3cb56718c968ba0c3c0450fb27db6a03d5efb865d",
+      "inputs_sha256": "5a5ab10b091df9777484aa3bc0f2508b468b4c1422d96205e4bfa12fafcd6207"
+    }
+  },
+  {
+    "id": "delete-asdisk",
+    "offset": 2023696,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASDisk@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASDisk vtable at RVA 0x2fd490, slot 3, points to entry RVA 0x1ee110. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASDisk@4": {
+        "va": 279896384,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ee140."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "8b034a7383bd9f93c2bb0f041ccf3d0bdefcb41650cd906884dd5fec2c417b62"
+    }
+  },
+  {
+    "id": "place-asflaque",
+    "offset": 2023856,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASFlaque",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASFlaque::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1328. The registry call at RVA 0x1ed802 passes its placement callback at RVA 0x1ee1b0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd358.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASFlaque": {
+        "va": 281006936,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ee1bd. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c75aae58b4ad5ee3a081b192ff29b056939364c7854d6ab891513636355d50a8",
+      "inputs_sha256": "4c3db2d8bb50c620c05e120e76cfe255b49112c1778b990208e99723b8ae5f04"
+    }
+  },
+  {
+    "id": "place-assprinkler",
+    "offset": 2024048,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASSprinkler",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASSprinkler::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b858. The registry call at RVA 0x1ed7a6 passes its placement callback at RVA 0x1ee270 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd220.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASSprinkler": {
+        "va": 281006624,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ee27d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5cfe247e6a1c54e60f1cd7d81f197d7552873aad7844fcf28d829b6a70445285",
+      "inputs_sha256": "6dffdb1d25b1c88c861e84df71f138212ffb4632fcb4e08e41a75bb91708d4a5"
+    }
+  },
+  {
+    "id": "delete-assprinkler",
+    "offset": 2024080,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASSprinkler@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASSprinkler vtable at RVA 0x2fd220, slot 3, points to entry RVA 0x1ee290. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASSprinkler@4": {
+        "va": 279896768,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ee2c0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "ed7c22cfdc610e1065046ad6167a7ed61de71e636c050efb2013a03d6d8fec96"
+    }
+  },
+  {
+    "id": "place-asbombtargetinteraction",
+    "offset": 2024240,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASBombTargetInteraction",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASBombTargetInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e538. The registry call at RVA 0x1ed74a passes its placement callback at RVA 0x1ee330 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fd0e0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASBombTargetInteraction": {
+        "va": 281006304,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ee33d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "64885322a6d09e7e0505c7fbde005a00916d5e38957073d44236dabfcca84af9",
+      "inputs_sha256": "223b9b2e7a561b400a87058fab160539a086801e6c7af3011b93522d76289133"
+    }
+  },
+  {
+    "id": "delete-asbombtargetinteraction",
+    "offset": 2024272,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASBombTargetInteraction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASBombTargetInteraction vtable at RVA 0x2fd0e0, slot 3, points to entry RVA 0x1ee350. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASBombTargetInteraction@4": {
+        "va": 279896960,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ee380."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "c7591b18d082d63003c92b4c37d4570ad00db1b2bdd8617c3af9a8b394e28439"
+    }
+  },
+  {
+    "id": "place-usmapsettings",
+    "offset": 2024448,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_USMapSettings",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for USMapSettings::PrivateStaticClass identifies the UClass object at RVA 0x39bba0. Its stock registration call at RVA 0x1ed6ee passes callback RVA 0x1ee400. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x2fd088.",
+    "link_bindings": {
+      "_vtable_USMapSettings": {
+        "va": 281006216,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ee408. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "8de793a7caf07b3e460ac2fbeaa6ae4e863f6d7d8439cd41e7659a9488276054",
+      "inputs_sha256": "8fb25c817682c045a40a63bcfccc0528d002702cbd4906175e60f347b606f297"
+    }
+  },
+  {
+    "id": "place-asanimatedmesh",
+    "offset": 2025168,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASAnimatedMesh",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASAnimatedMesh::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c578. The registry call at RVA 0x1ed696 passes its placement callback at RVA 0x1ee6d0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fcf50.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASAnimatedMesh": {
+        "va": 281005904,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ee6dd. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ce938f417c13d805ad69cc31db879fe265d1796b2c3adab7495585d5666f9045",
+      "inputs_sha256": "8ca7750c848e1d724de0bb6099ea5b5cff0d2f3fa33b19c305216315e5c0208f"
+    }
+  },
+  {
+    "id": "delete-asanimatedmesh",
+    "offset": 2025200,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASAnimatedMesh@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASAnimatedMesh vtable at RVA 0x2fcf50, slot 3, points to entry RVA 0x1ee6f0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASAnimatedMesh@4": {
+        "va": 279897888,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ee720."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "641cd3ed3ad8ff60869ffb9cc65ef0fff1f4839046633c716430831a0af1025c"
+    }
+  },
+  {
+    "id": "place-asprojofixe",
+    "offset": 2025408,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASProjoFixe",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASProjoFixe::PrivateStaticClass identifies the stock UClass instance at RVA 0x39ebc8. The registry call at RVA 0x1ed63a passes its placement callback at RVA 0x1ee7c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fcce0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASProjoFixe": {
+        "va": 281005280,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ee7cd. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "65d730ee01c776974e78e1efaf587948e420a05017f652f44d55b123e2e1b564",
+      "inputs_sha256": "f234986ce95e3a96ebcfe2bef475b476815266012b3a2addab4690646bf2c4d7"
+    }
+  },
+  {
+    "id": "delete-uspersistentdata",
+    "offset": 2025984,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_USPersistentData@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock USPersistentData vtable at RVA 0x2fcc88, slot 3, points to entry RVA 0x1eea00. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_USPersistentData@4": {
+        "va": 279898672,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1eea30."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "59f9d195ec1fb1a2a88535f59a136ad3a7c2207d1d010c099b4a5712c0f33306"
+    }
+  },
+  {
+    "id": "place-asmagicevent",
+    "offset": 2026256,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASMagicEvent",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASMagicEvent::PrivateStaticClass identifies the stock UClass instance at RVA 0x398ec8. The registry call at RVA 0x1ed585 passes its placement callback at RVA 0x1eeb10 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fcb50.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASMagicEvent": {
+        "va": 281004880,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1eeb1d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ec25d0ada3ba50a9449c57c51eca7d20aa50666d3a87f5a5ee39ecf68c1f5c05",
+      "inputs_sha256": "fca00115269fc8d34ec6214958019868f22afbf1186501a1e050a09a9a6274c2"
+    }
+  },
+  {
+    "id": "delete-asmagicevent",
+    "offset": 2026288,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASMagicEvent@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASMagicEvent vtable at RVA 0x2fcb50, slot 3, points to entry RVA 0x1eeb30. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASMagicEvent@4": {
+        "va": 279898976,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1eeb60."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "5c6c9132dc5596e0c8e5b1a7fd97b3a4014690f9c08084a790274dd3ea455792"
+    }
+  },
+  {
+    "id": "place-asliftdoor",
+    "offset": 2026832,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASLiftDoor",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASLiftDoor::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a2160. The registry call at RVA 0x1ed52d passes its placement callback at RVA 0x1eed50 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fca10.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASLiftDoor": {
+        "va": 281004560,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1eed5d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "52132c6764add5865dd3b76f2f8cada0bf76c6d0bbc780c843e7bfbae3c00e66",
+      "inputs_sha256": "4d0f974a09e158f5330be191474d0de76609a303a0939dca4118ed2a6c8a967d"
+    }
+  },
+  {
+    "id": "place-aslift",
+    "offset": 2027024,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASLift",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASLift::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a2048. The registry call at RVA 0x1ed4d1 passes its placement callback at RVA 0x1eee10 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fc8d0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASLift": {
+        "va": 281004240,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1eee1d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "966ef6284ea8687fa610e7597805fd33467c46aad2a55c44e8ad79334beac38c",
+      "inputs_sha256": "0ce7305ffc4c59480fe130155b02636db057c16aeaa956d114fa593c7abe2a61"
+    }
+  },
+  {
+    "id": "place-asinfirmary",
+    "offset": 2027536,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASInfirmary",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASInfirmary::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a1210. The registry call at RVA 0x1ed475 passes its placement callback at RVA 0x1ef010 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fc798.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASInfirmary": {
+        "va": 281003928,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef01d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b1f8cc6f46ed137b4e9bda5d182eebe78892283c8d5867e6f0a006e358634002",
+      "inputs_sha256": "f836686863723475ace73fac5f72f521dc82f7547e37738066cef2abde0f5c2f"
+    }
+  },
+  {
+    "id": "delete-asinfirmary",
+    "offset": 2027568,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASInfirmary@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASInfirmary vtable at RVA 0x2fc798, slot 3, points to entry RVA 0x1ef030. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASInfirmary@4": {
+        "va": 279900256,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ef060."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "407526df1bddb1bdce9d2714cb44a40423e887ebb554f3369889187919bdcb90"
+    }
+  },
+  {
+    "id": "delete-aszonetips",
+    "offset": 2027920,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASZoneTips@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASZoneTips vtable at RVA 0x2fc660, slot 3, points to entry RVA 0x1ef190. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASZoneTips@4": {
+        "va": 279900608,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ef1c0."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "cde1b3e46bd935f65d27f60caa1fa24588ba09eb741c24297a06047891baa39b"
+    }
+  },
+  {
+    "id": "place-asflashgen",
+    "offset": 2028144,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASFlashGen",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASFlashGen::PrivateStaticClass identifies the stock UClass instance at RVA 0x39f258. The registry call at RVA 0x1ed3c5 passes its placement callback at RVA 0x1ef270 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fc528.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASFlashGen": {
+        "va": 281003304,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef27d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "85fd03d403c073209e1ecbad9bba32ad99fe22c26eeacdd0b72a70e943ae7216",
+      "inputs_sha256": "9795a8013aafbe1e0d12e65451c2d32683afd9f2c1a1e21fd74ecdfd0a1b36ff"
+    }
+  },
+  {
+    "id": "place-asteaminfo",
+    "offset": 2028336,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASTeamInfo",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASTeamInfo::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a18a0. The registry call at RVA 0x1ed369 passes its placement callback at RVA 0x1ef330 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fc3f0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASTeamInfo": {
+        "va": 281002992,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef33d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d84fa18b2fc7102e5105971322e9035be650e97b20ec36aa61796586b9b2fed1",
+      "inputs_sha256": "b0f0f75b877723a27eac8a0b33f7fd2af383ee88cc90ad037546cf61e78a646c"
+    }
+  },
+  {
+    "id": "delete-asteaminfo",
+    "offset": 2028368,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASTeamInfo@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASTeamInfo vtable at RVA 0x2fc3f0, slot 3, points to entry RVA 0x1ef350. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASTeamInfo@4": {
+        "va": 279901056,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ef380."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "13decbf079fe65051a5422f706f124dd87c1d8bbb8b564dff2b100b446faca2c"
+    }
+  },
+  {
+    "id": "place-usxboxliveref",
+    "offset": 2028624,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_USXBoxLiveRef",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for USXBoxLiveRef::PrivateStaticClass identifies the UClass object at RVA 0x39dd90. Its stock registration call at RVA 0x1ed30d passes callback RVA 0x1ef450. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x2fc398.",
+    "link_bindings": {
+      "_vtable_USXBoxLiveRef": {
+        "va": 281002904,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef458. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "787584d2904c0a769685363b4d9ef7063b9bac2755cf2c2946cbe5a75c96b95c",
+      "inputs_sha256": "33c7d426f6dd7769bab7c933e75f9ec878af2edc3fbc1368fffe0e640678383b"
+    }
+  },
+  {
+    "id": "place-usplayerprofile",
+    "offset": 2028864,
+    "size": 15,
+    "inputs": [
+      "src/versus_class_placement.c"
+    ],
+    "rebuilt_symbol": "_place_USPlayerProfile",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_placement.obj src/versus_class_placement.c",
+    "identification": "The reflection annotation for USPlayerProfile::PrivateStaticClass identifies the UClass object at RVA 0x3a0720. Its stock registration call at RVA 0x1ed2b5 passes callback RVA 0x1ef540. The registrar stores this argument at UClass+0x104. The callback checks the storage argument and installs its primary vtable at RVA 0x2fc340.",
+    "link_bindings": {
+      "_vtable_USPlayerProfile": {
+        "va": 281002816,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef548. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "e4286b2c9c82c2b8c2c97b0562f0e3f1568f5c6997c8fc0bba99f84a1e66bacd",
+      "inputs_sha256": "b8843c68a97164210394c13fccc79d19da825e18c7a6b8df9a5961ccf3cdefdc"
+    }
+  },
+  {
+    "id": "place-asweapondefense",
+    "offset": 2029104,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASWeaponDefense",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASWeaponDefense::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b3f8. The registry call at RVA 0x1ed25c passes its placement callback at RVA 0x1ef630 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fc0d0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASWeaponDefense": {
+        "va": 281002192,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef63d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "00aaa116342fea9f918d0131f6ed71ad54b176f5bedcc47345078fc12cc82dba",
+      "inputs_sha256": "c10e8596d9850d88e05e0aeabfe4192c880706fdacd2b99d9faaca476afa6605"
+    }
+  },
+  {
+    "id": "place-asweaponattaque",
+    "offset": 2029504,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASWeaponAttaque",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASWeaponAttaque::PrivateStaticClass identifies the stock UClass instance at RVA 0x39c348. The registry call at RVA 0x1ed203 passes its placement callback at RVA 0x1ef7c0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fbf98.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASWeaponAttaque": {
+        "va": 281001880,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef7cd. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "aef012144c771dc771ee2688d5ff2d344567ec41795ab8ae8d7ac64e0e6fb892",
+      "inputs_sha256": "7ebba3adc30d3b7c951e9f8cb0a7d851bf7902dfa67b9564a88709117289fb3e"
+    }
+  },
+  {
+    "id": "delete-asweaponattaque",
+    "offset": 2029536,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASWeaponAttaque@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASWeaponAttaque vtable at RVA 0x2fbf98, slot 3, points to entry RVA 0x1ef7e0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASWeaponAttaque@4": {
+        "va": 279902224,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1ef810."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "6bc0f31bac88fb28d849a9ffab1b1265771dfb066945f57952a78f6b349b17cf"
+    }
+  },
+  {
+    "id": "place-asweapon",
+    "offset": 2029696,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASWeapon",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASWeapon::PrivateStaticClass identifies the stock UClass instance at RVA 0x39dc78. The registry call at RVA 0x1ed1a7 passes its placement callback at RVA 0x1ef880 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fc208.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASWeapon": {
+        "va": 281002504,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef88d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "47077559191abb7e3341c1ae402e8f140314f51b6397a587e0e825bd0a231584",
+      "inputs_sha256": "05deefe0c21b0c5bcaa4530d6201e0d9e0a176906a0a223c6d819bdad95da38d"
+    }
+  },
+  {
+    "id": "place-asweapondefensedummy",
+    "offset": 2029728,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASWeaponDefenseDummy",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASWeaponDefenseDummy::PrivateStaticClass identifies the stock UClass instance at RVA 0x399ad0. The registry call at RVA 0x1ed14b passes its placement callback at RVA 0x1ef8a0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fbe60.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASWeaponDefenseDummy": {
+        "va": 281001568,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef8ad. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "494dabea6a746f3d2270e7d47b87458f64edb048662b8a852a0e693eb3d40b9e",
+      "inputs_sha256": "cfb3e7580074a648a2d99798a990931298cac6bbcb6b3a551eb3d3fe9e474b74"
+    }
+  },
+  {
+    "id": "place-asvolumetricsensor",
+    "offset": 2029920,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASVolumetricSensor",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASVolumetricSensor::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e998. The registry call at RVA 0x1ed0ef passes its placement callback at RVA 0x1ef960 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fbd28.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASVolumetricSensor": {
+        "va": 281001256,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1ef96d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "637a2b6009448103b2f6a7ad0082f5d656813fd5e6d970b9aa72ee0354fd5575",
+      "inputs_sha256": "5108be22264a4d41923f886213fc8e17cf448b43de04a9a90a055754533aadb0"
+    }
+  },
+  {
+    "id": "place-astriggerlight",
+    "offset": 2030128,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASTriggerLight",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASTriggerLight::PrivateStaticClass identifies the stock UClass instance at RVA 0x39bee8. The registry call at RVA 0x1ed093 passes its placement callback at RVA 0x1efa30 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fbbf0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASTriggerLight": {
+        "va": 281000944,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1efa3d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2261348b41c3df6cd4ed12167ee84beccbe1e3d593c8977a3a1e4ff8c83b7086",
+      "inputs_sha256": "3c539a2c1f7e5f403ca0c57bad97b3411402e59129ae0cf07491e8f137141e43"
+    }
+  },
+  {
+    "id": "delete-astriggerlight",
+    "offset": 2030160,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASTriggerLight@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASTriggerLight vtable at RVA 0x2fbbf0, slot 3, points to entry RVA 0x1efa50. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASTriggerLight@4": {
+        "va": 279902848,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1efa80."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "6d875a669d20ff14c095cefa1d84ed9390a47376244c2309534ebf1d92ede9af"
+    }
+  },
+  {
+    "id": "place-astriggerinteraction",
+    "offset": 2030336,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASTriggerInteraction",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASTriggerInteraction::PrivateStaticClass identifies the stock UClass instance at RVA 0x398950. The registry call at RVA 0x1ed037 passes its placement callback at RVA 0x1efb00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fbab0.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASTriggerInteraction": {
+        "va": 281000624,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1efb0d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b0fb5d163ddc1043cf2654c5cae440557d32448d3bbe08b8c573fae4b72341d0",
+      "inputs_sha256": "633e3806fb638348fbce3cfefb16dde30d2044d09c4307800e4c2d40c53286c8"
+    }
+  },
+  {
+    "id": "delete-astriggerinteraction",
+    "offset": 2030368,
+    "size": 33,
+    "inputs": [
+      "src/versus_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_ASTriggerInteraction@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/versus_deleting_destructors.obj src/versus_deleting_destructors.c",
+    "identification": "Stock ASTriggerInteraction vtable at RVA 0x2fbab0, slot 3, points to entry RVA 0x1efb20. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return.",
+    "link_bindings": {
+      "@destroy_ASTriggerInteraction@4": {
+        "va": 279903056,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x1efb50."
+      },
+      "_engine_allocator": {
+        "va": 281492464,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
+      "inputs_sha256": "db41bee8bad3a1437b5fd236698234d613728610a2c8acc7af6e2219fb9f40ab"
+    }
+  },
+  {
+    "id": "place-asstickycamemitter",
+    "offset": 2030528,
+    "size": 40,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASStickyCamEmitter",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASStickyCamEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d188. The registry call at RVA 0x1ecfdb passes its placement callback at RVA 0x1efbc0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb968. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASStickyCamEmitter": {
+        "va": 281000296,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1efbe1. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "1c88b1553eca2efe36d294d43ad92da86fbf69fd5c6f9141e6cdd9394ea4dc22",
+      "inputs_sha256": "01973075fad4172960645de36019ea0e6e467da54d4feea32d3757c1a651eff8"
+    }
+  },
+  {
+    "id": "place-asspybulletlauncher",
+    "offset": 2030736,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASSpyBulletLauncher",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASSpyBulletLauncher::PrivateStaticClass identifies the stock UClass instance at RVA 0x39d930. The registry call at RVA 0x1ecf7f passes its placement callback at RVA 0x1efc90 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb6f8.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASSpyBulletLauncher": {
+        "va": 280999672,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1efc9d. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f5263b168dd0e0dd94877f1f5e93d2e7ce97d5c4c6a65a454467a3d3565fb210",
+      "inputs_sha256": "29694ab4db01ed741595dce09b790602e3f5f38d63eb6aa8f42bb1d162049137"
+    }
+  },
+  {
+    "id": "place-assmokelaunchemitter",
+    "offset": 2031104,
+    "size": 40,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASSmokeLaunchEmitter",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASSmokeLaunchEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39b0b0. The registry call at RVA 0x1ecf26 passes its placement callback at RVA 0x1efe00 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb5b0. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASSmokeLaunchEmitter": {
+        "va": 280999344,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1efe21. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2769f00c78fe21cb41a6b5327f4f0682bf5d6ccc52e204a8b885fc9954ef7f68",
+      "inputs_sha256": "288560bdc5a9dad4fff24cc27636c5e377d69f3519583dcec2a99f3911ee0d46"
+    }
+  },
+  {
+    "id": "place-assmokeemitter",
+    "offset": 2031312,
+    "size": 40,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASSmokeEmitter",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASSmokeEmitter::PrivateStaticClass identifies the stock UClass instance at RVA 0x39e0d8. The registry call at RVA 0x1ecece passes its placement callback at RVA 0x1efed0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb468. The emitter members at +0x32c and +0x338 receive 1.0 and zero.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASSmokeEmitter": {
+        "va": 280999016,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1efef1. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f2aa22de8484e435256e9f8e554a8d839d17510295eae6fa93486e8f8a3dbae0",
+      "inputs_sha256": "d4d42f39bc1c0652e7bd588e2b25f93f6be57c1b584fe2854d8d2d515861771d"
+    }
+  },
+  {
+    "id": "place-assavedmove",
+    "offset": 2031520,
+    "size": 20,
+    "inputs": [
+      "src/versus_actor_placement.c"
+    ],
+    "rebuilt_symbol": "_place_ASSavedMove",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/versus_actor_placement.c -o local/versus_actor_placement.obj",
+    "identification": "The reflection annotation for ASSavedMove::PrivateStaticClass identifies the stock UClass instance at RVA 0x3a0b80. The registry call at RVA 0x1ece76 passes its placement callback at RVA 0x1effa0 for UClass+0x104. The callback checks for non-null storage, calls the AActor base initializer and installs the class vtable at RVA 0x2fb330.",
+    "link_bindings": {
+      "_initialize_actor": {
+        "va": 278470912,
+        "basis": "AActor registration passes the placement callback at RVA 0xae2f0, which transfers the incoming object in EAX to RVA 0x92100. The base initializer installs the known AActor vtable and returns with EAX preserved on every path."
+      },
+      "_vtable_ASSavedMove": {
+        "va": 280998704,
+        "basis": "Primary vtable installed at stock placement callback RVA 0x1effad. Its first five slots are code addresses and match the reference image."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a977fdff883f02a4a7b3212adefc98742c744fbbbddc2daa30ee07af80d4a2bd",
+      "inputs_sha256": "afbb40788cf71c69653e20f9ad70ac9e5831a35c549c8619692e5b0180df9041"
+    }
+  }
+]

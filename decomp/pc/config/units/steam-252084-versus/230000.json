@@ -1,0 +1,18 @@
+[
+  {
+    "id": "versus-named-exception-message",
+    "offset": 2335792,
+    "size": 4,
+    "rebuilt_symbol": "@named_exception_message@4",
+    "inputs": [
+      "src/named_exception_text.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/named_exception_text.obj src/named_exception_text.c",
+    "identification": "Steam MSVC complete-object RTTI names __Named_exception@_STL. Primary vftable RVA 0x2e1310, zero-based slot 1, selects RVA 0x23a430. The complete body terminates at a return before alignment.",
+    "match": {
+      "bytes_sha256": "bf9a4d01d1b8c2260962ee739fe4b6a547d3450d9b40041673ef71f673ba9bf7",
+      "inputs_sha256": "893db2c169d6093ae67b0f2531d6d8b17dda7631107310c05f0b7655f0113ce9"
+    }
+  }
+]

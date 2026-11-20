@@ -1,0 +1,389 @@
+[
+  {
+    "id": "class-registration-uwindowsclient",
+    "offset": 3934864,
+    "size": 264,
+    "rebuilt_symbol": "_register_UWindowsClient",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UWindowsClient": {
+        "va": 287507716,
+        "basis": "The UWindowsClient class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UClient": {
+        "va": 287286152,
+        "basis": "The UClient class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClient": {
+        "va": 279217616,
+        "basis": "The constructor names UClient using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UClient": {
+        "va": 279213504,
+        "basis": "Registration target reached after the UClient constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UWindowsClient at RVA 0x3c0a90, called immediately after the class factory at RVA 0x3c1460 in the singleton initialization path. Sets superclass UClient, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "d37ab2384080fa8881f9cb1002b6b7cf3318a4e5db2b714ca506e007e383449f",
+      "inputs_sha256": "4db1774bc69b0d7554664663666ca4db40142ef2902bc6dd8cf1edc6b829fc60"
+    }
+  },
+  {
+    "id": "placement-uwindowsclient",
+    "offset": 3937360,
+    "size": 14,
+    "rebuilt_symbol": "_place_UWindowsClient",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UWindowsClient@4": {
+        "va": 281809680,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UWindowsClient class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UWindowsClient class factory at RVA 0x3c1460. The callback at RVA 0x3c1450 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "c61d93e197ad1251363c7a4207a5cbb347878c590f3a7d3bbb046dc9f8384c14",
+      "inputs_sha256": "e1461574422b4a9c613c13de60a0fc524eabf7f6d540aabd6c2cd4b6a428f091"
+    }
+  },
+  {
+    "id": "class-factory-uwindowsclient",
+    "offset": 3937376,
+    "size": 106,
+    "rebuilt_symbol": "_create_UWindowsClient",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UWindowsClient": {
+        "va": 286457016,
+        "basis": "Retail UTF-16 UWindowsClient allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UWindowsClient": {
+        "va": 281810000,
+        "basis": "Placement callback passed to the native descriptor constructor for UWindowsClient."
+      },
+      "@static_init_UWindowsClient@4": {
+        "va": 281807776,
+        "basis": "Static class callback passed together with the placement callback for UWindowsClient."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3c1460; its allocation tag and reflected class name identify UWindowsClient. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "b25bc41a2cda18d6efb03ae32fdb307e165e69419428ff62b7e1484d333dd56c",
+      "inputs_sha256": "acd42609b94a9541cc0272e2dd9aa18988876f9cb8c11be1feacb675ea30b51a"
+    }
+  },
+  {
+    "id": "class-registration-uwindowsviewport",
+    "offset": 3939904,
+    "size": 264,
+    "rebuilt_symbol": "_register_UWindowsViewport",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UWindowsViewport": {
+        "va": 287507720,
+        "basis": "The UWindowsViewport class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UViewport": {
+        "va": 287286140,
+        "basis": "The UViewport class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UViewport": {
+        "va": 279205584,
+        "basis": "The constructor names UViewport using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UViewport": {
+        "va": 279205696,
+        "basis": "Registration target reached after the UViewport constructor initializes the singleton."
+      },
+      "_class_UWindowsClient": {
+        "va": 287507716,
+        "basis": "The UWindowsClient class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UWindowsClient": {
+        "va": 281810016,
+        "basis": "The constructor names UWindowsClient using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_WinDrv": {
+        "va": 285964928,
+        "basis": "Retail UTF-16 WinDrv package supplied to the class constructor."
+      },
+      "_register_UWindowsClient": {
+        "va": 281807504,
+        "basis": "Registration target reached after the UWindowsClient constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UWindowsViewport at RVA 0x3c1e40, called immediately after the class factory at RVA 0x3c71d0 in the singleton initialization path. Sets superclass UViewport, within-class UWindowsClient, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "0264053db0d09a7006ea4989069f7454af99a163138d3f431656304a79d2400f",
+      "inputs_sha256": "eac614cd9543e1ed7e03d7b245857640598ab129d2e2e8fa8345de19ebdf64bd"
+    }
+  },
+  {
+    "id": "class-factory-uwindowsviewport",
+    "offset": 3961296,
+    "size": 106,
+    "rebuilt_symbol": "_create_UWindowsViewport",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UWindowsViewport": {
+        "va": 286458552,
+        "basis": "Retail UTF-16 UWindowsViewport allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UWindowsViewport": {
+        "va": 281833920,
+        "basis": "Placement callback passed to the native descriptor constructor for UWindowsViewport."
+      },
+      "@static_init_UWindowsViewport@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UWindowsViewport."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3c71d0; its allocation tag and reflected class name identify UWindowsViewport. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "ec7be03539c81aefb4607efeeb4a63b78adffc700ded7cf819d2d0914778db6e",
+      "inputs_sha256": "b204ab1310534fa15204b6a48453a53d0dd3252fcc03cfcee42f609f3e0ed9ea"
+    }
+  },
+  {
+    "id": "class-registration-uwinjoystickmgr",
+    "offset": 3961792,
+    "size": 264,
+    "rebuilt_symbol": "_register_UWinJoystickMgr",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UWinJoystickMgr": {
+        "va": 287507760,
+        "basis": "The UWinJoystickMgr class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UWindowsClient": {
+        "va": 287507716,
+        "basis": "The UWindowsClient class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UWindowsClient": {
+        "va": 281810016,
+        "basis": "The constructor names UWindowsClient using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_WinDrv": {
+        "va": 285964928,
+        "basis": "Retail UTF-16 WinDrv package supplied to the class constructor."
+      },
+      "_register_UWindowsClient": {
+        "va": 281807504,
+        "basis": "Registration target reached after the UWindowsClient constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UWinJoystickMgr at RVA 0x3c73c0, called immediately after the class factory at RVA 0x3c87e0 in the singleton initialization path. Sets superclass UObject, within-class UWindowsClient, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "f6ce32a18bf970b69c5b3096631148a20f243e17a4832da7c9315b0de00d83a0",
+      "inputs_sha256": "6004cfa8fa6ee095df115949ab774ddda0101517bd291ea9818745895ffbdd2b"
+    }
+  },
+  {
+    "id": "placement-uwinjoystickmgr",
+    "offset": 3966864,
+    "size": 14,
+    "rebuilt_symbol": "_place_UWinJoystickMgr",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UWinJoystickMgr@4": {
+        "va": 281838976,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UWinJoystickMgr class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UWinJoystickMgr class factory at RVA 0x3c87e0. The callback at RVA 0x3c8790 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "e7e53374e13e520b5cbbd882018fbdf54e6486b9d4c99b487fb0d8d001ffc4a6",
+      "inputs_sha256": "860942ad348eb61ac0874edd72f55dceac4304abdaa04a1cd5a3492f36160286"
+    }
+  },
+  {
+    "id": "class-factory-uwinjoystickmgr",
+    "offset": 3966944,
+    "size": 106,
+    "rebuilt_symbol": "_create_UWinJoystickMgr",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UWinJoystickMgr": {
+        "va": 286459360,
+        "basis": "Retail UTF-16 UWinJoystickMgr allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UWinJoystickMgr": {
+        "va": 281839504,
+        "basis": "Placement callback passed to the native descriptor constructor for UWinJoystickMgr."
+      },
+      "@static_init_UWinJoystickMgr@4": {
+        "va": 281834704,
+        "basis": "Static class callback passed together with the placement callback for UWinJoystickMgr."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3c87e0; its allocation tag and reflected class name identify UWinJoystickMgr. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "31b1a296b86870a782d8dec0a7fba5104b29cf90190ce5ba1dcc7d57b87e5eb6",
+      "inputs_sha256": "dab639cebb850433fe175c49d1d41aa3360198c6b9bd2f1199f3b47163fa6cc2"
+    }
+  }
+]

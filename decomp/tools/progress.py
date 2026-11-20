@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from images import coff_symbol_offset, inspect, readonly_pe_data, span
 from link_x86 import link_function
+from manifests import load_target, save_receipt
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -146,7 +147,7 @@ def report(root):
         folder = root / edition
         targets = []
         for path in sorted((folder / "config").glob("*.json")):
-            target = json.loads(path.read_text(encoding="utf-8"))
+            target = load_target(path)
             if target["id"] != path.stem:
                 raise ValueError(f"target id differs from filename: {path}")
             targets.append(summary(folder, target))
@@ -230,12 +231,12 @@ def main():
     elif args.command in ("verify", "match"):
         folder = ROOT / args.edition
         path = folder / "config" / (args.target + ".json")
-        target = json.loads(path.read_text(encoding="utf-8"))
+        target = load_target(path)
         if args.command == "verify":
             verify(target, args.retail)
         else:
             match(folder, target, args.unit, args.retail, args.rebuilt)
-            write(path, target)
+            save_receipt(path, next(u for u in target["units"] if u["id"] == args.unit), write)
         print(f"Verified {target['label']}")
     else:
         feed = report(ROOT)

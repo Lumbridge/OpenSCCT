@@ -1,0 +1,360 @@
+[
+  {
+    "id": "sound-free-aligned",
+    "offset": 7587024,
+    "size": 16,
+    "rebuilt_symbol": "_SND_fn_vFreeSndAligned@8",
+    "inputs": [
+      "src/sound_aligned.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_aligned.obj src/sound_aligned.c",
+    "identification": "Steam PE export _SND_fn_vFreeSndAligned@8 at RVA 0x73c4d0. Loads the raw allocation pointer from four bytes before the user pointer and forwards to the named free export. The alignment argument is unused. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a2132d3c50a9102f62581804301c2710197604e1e6aeadd7e7c9dd1e888aa3a0",
+      "inputs_sha256": "0f836ee1c6a2fe273127be992e2f00f429feafd2437159d0f5cc424a7c9a646b"
+    }
+  },
+  {
+    "id": "sound-heap-initialize",
+    "offset": 7587200,
+    "size": 64,
+    "rebuilt_symbol": "_SND_fn_bInitMallocSnd@0",
+    "inputs": [
+      "src/sound_heap_init.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_heap_init.obj src/sound_heap_init.c",
+    "identification": "Steam PE export _SND_fn_bInitMallocSnd@0 at RVA 0x73c580. Requires both CPU-detection flags; otherwise reports sound error five and returns false. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_heap_detect_cpu": {
+        "va": 285459680,
+        "basis": "Allocation initialization calls this flag detector; its body tests the EFLAGS ID bit and the CPUID MMX bit."
+      },
+      "_SND_fn_vDisplayError@8": {
+        "va": 285460432,
+        "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "09f87ee9c972dae98e2e770dee4768eaf0a61a51f2ed43587b3971ceb330e73c",
+      "inputs_sha256": "9e6c650af5c7e5d795c4a414a9bac67810ec3b30ea16c3d63160f0f9e55bdbc7"
+    }
+  },
+  {
+    "id": "sound-move-bytes",
+    "offset": 7587376,
+    "size": 26,
+    "rebuilt_symbol": "_SND_fn_vMemMoveSnd@12",
+    "inputs": [
+      "src/sound_memmove.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_memmove.obj src/sound_memmove.c",
+    "identification": "Steam PE export _SND_fn_vMemMoveSnd@12 at RVA 0x73c630. The named export forwards the destination, source and count to the movement helper. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_move_bytes": {
+        "va": 284367760,
+        "basis": "Called directly from the wrapper; its argument order and the export name identify the movement operation."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d884d7d5b07f0c993521829f43df93faa5e5d115038a66a90dc72ac1b826c3ce",
+      "inputs_sha256": "b296260264382814cf5d79fdda3d4e468371e46c10038c4fba343122a25d9669"
+    }
+  },
+  {
+    "id": "sound-reallocate-aligned",
+    "offset": 7587536,
+    "size": 97,
+    "rebuilt_symbol": "_SND_fn_pvReAllocSndAligned@12",
+    "inputs": [
+      "src/sound_aligned.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_aligned.obj src/sound_aligned.c",
+    "identification": "Steam PE export _SND_fn_pvReAllocSndAligned@12 at RVA 0x73c6d0. Allocates a replacement, copies the lesser of the old and new sizes and releases the old block. A failed replacement allocation still releases the old block. Zero size releases immediately. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_SND_fn_vFreeSnd@4": {
+        "va": 285460592,
+        "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+      },
+      "_SND_fn_pvMallocSndAligned@8": {
+        "va": 285459568,
+        "basis": "Named export _SND_fn_pvMallocSndAligned@8 in the Steam campaign PE."
+      },
+      "_SND_fn_vMemCopySnd@12": {
+        "va": 285459920,
+        "basis": "Named export _SND_fn_vMemCopySnd@12 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "58f7a2407908a4eecf62135fbabac6ceb43759370b94e552e4b14024105638c4",
+      "inputs_sha256": "fdabd4ef2c04577e2b7cb5b53dcc901846d505dcfc04beb111b15dd571f960cb"
+    }
+  },
+  {
+    "id": "sound-error-shutdown",
+    "offset": 7587696,
+    "size": 5,
+    "rebuilt_symbol": "_SND_fn_vDesInitErrorSnd@0",
+    "inputs": [
+      "src/sound_error_display.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_display.obj src/sound_error_display.c",
+    "identification": "Steam PE export _SND_fn_vDesInitErrorSnd@0 at RVA 0x73c770. Tail-jumps to the error shutdown helper, a separate entry point. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_end_error_display": {
+        "va": 285460656,
+        "basis": "Direct tail target of SND_fn_vDesInitErrorSnd."
+      }
+    },
+    "match": {
+      "bytes_sha256": "48d0f4e1d3ac6ff9cdbc9af0178f55d9978e4fe8b7ad9a58cd40019db9880ef2",
+      "inputs_sha256": "720543c2ff2ff0b493b7e0a2e515ebb2823bbe3a8b8b24b05874dadd7974912d"
+    }
+  },
+  {
+    "id": "sound-error-label",
+    "offset": 7587712,
+    "size": 67,
+    "rebuilt_symbol": "_sound_error_label",
+    "inputs": [
+      "src/sound_error_label.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_label.obj src/sound_error_label.c",
+    "identification": "SND_fn_vDisplayError and SND_fn_vDisplayErrorEx both call this helper. Scans eight-byte code/label records. Returns the fallback string for the terminal 0xffff entry. Includes aligned loop code and the final return. Locally assigned C name.",
+    "link_bindings": {
+      "_SOUND_ERRORS": {
+        "va": 287195512,
+        "basis": "The code/label table is indexed directly by the common error helper from the two named display exports."
+      }
+    },
+    "match": {
+      "bytes_sha256": "d8699995640c4c6fedfea57e319535cacbaa1c50f205f93ef685ed611a44784d",
+      "inputs_sha256": "272fd2d902bf5da952568a7a9081b05fdcbbcc25e0dba00487de44426fdd00f7"
+    }
+  },
+  {
+    "id": "sound-error-display",
+    "offset": 7587792,
+    "size": 30,
+    "rebuilt_symbol": "_SND_fn_vDisplayError@8",
+    "inputs": [
+      "src/sound_error_display.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_display.obj src/sound_error_display.c",
+    "identification": "Steam PE export _SND_fn_vDisplayError@8 at RVA 0x73c7d0. Looks up the label for the integer code and passes it with the context to the report helper. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_error_label": {
+        "va": 285460352,
+        "basis": "The two named error-display exports both call this error-code string table lookup."
+      },
+      "_sound_report_error": {
+        "va": 285460608,
+        "basis": "The two named error-display exports both pass the label and context to this routine."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0cb9703d8849864c85ef051edce7d6265985ddd045e8f73d2c13feaf4e70a69d",
+      "inputs_sha256": "d29158a745b12393cd9257cad99cb2c6f70e2f9ad197891674d867176612e3e6"
+    }
+  },
+  {
+    "id": "sound-error-display-extended",
+    "offset": 7587824,
+    "size": 54,
+    "rebuilt_symbol": "_SND_fn_vDisplayErrorEx@12",
+    "inputs": [
+      "src/sound_error_display.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_display.obj src/sound_error_display.c",
+    "identification": "Steam PE export _SND_fn_vDisplayErrorEx@12 at RVA 0x73c7f0. Gates the report on the indexed error flag then sets it to one. The third argument is not read. Includes all reachable exits and excludes alignment.",
+    "link_bindings": {
+      "_sound_error_label": {
+        "va": 285460352,
+        "basis": "The two named error-display exports both call this error-code string table lookup."
+      },
+      "_sound_report_error": {
+        "va": 285460608,
+        "basis": "The two named error-display exports both pass the label and context to this routine."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a324abccdeb0eb1eae2b43e3fdaa786632277c9b1f51b09900403b53bd7fafe5",
+      "inputs_sha256": "0c9b3cdfe0c888707162dfea901cdd2ee097de410aa5e39a0294ff48e944d620"
+    }
+  },
+  {
+    "id": "sound-allocate",
+    "offset": 7587888,
+    "size": 23,
+    "rebuilt_symbol": "_SND_fn_pvMallocSnd@4",
+    "inputs": [
+      "src/sound_allocation.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_allocation.obj src/sound_allocation.c",
+    "identification": "Steam PE export _SND_fn_pvMallocSnd@4 at RVA 0x73c830. Dispatches the requested size and a constant tag to slot zero of the allocator at VA 0x111c88a0. The object is passed in ECX. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "22c72acdfe4c7380ff0f95ccb66a9c0f64c4370b6618895098fd78f93214968e",
+      "inputs_sha256": "1948c03fa178e28ee89fb5a1d74f5c6a22fbd9da531581e90ee67204bad02a50"
+    }
+  },
+  {
+    "id": "sound-reallocate",
+    "offset": 7587920,
+    "size": 29,
+    "rebuilt_symbol": "_SND_fn_pvReAllocSnd@8",
+    "inputs": [
+      "src/sound_allocation.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_allocation.obj src/sound_allocation.c",
+    "identification": "Steam PE export _SND_fn_pvReAllocSnd@8 at RVA 0x73c850. Dispatches the existing block, new size and tag to slot one of the same allocator. The object is passed in ECX. All reachable return paths are included; the following alignment is excluded.",
+    "match": {
+      "bytes_sha256": "3a878adb65d910ab19e76222c29734b7f5271df80f1bee83b50436453376ef68",
+      "inputs_sha256": "edbdf2fe9f12e5c61afe7612b9f58d60769833147979a5ca2a01847d398de7df"
+    }
+  },
+  {
+    "id": "sound-free-allocation",
+    "offset": 7587952,
+    "size": 11,
+    "rebuilt_symbol": "_SND_fn_vFreeSnd@4",
+    "inputs": [
+      "src/sound_allocator.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O1 /Gy /c /Folocal/sound_allocator.obj src/sound_allocator.c",
+    "identification": "The named stdcall export takes its allocation on the stack, loads the allocator singleton at VA 0x111c88a0 into ECX, and tail-dispatches via virtual table slot two. Alignment follows the jump.",
+    "match": {
+      "bytes_sha256": "d416b7f25a99b31f9c55fdae14c2329234588389dc0c4f2705fa4a85c3a9831c",
+      "inputs_sha256": "83cf7c248c2c3aecc9028d61b386d785870f1dbbc5209eb9ea32dc96dfe029af"
+    }
+  },
+  {
+    "id": "sound-local-event-by-editor-id",
+    "offset": 7591440,
+    "size": 183,
+    "rebuilt_symbol": "_sound_handle_by_editor_id_mode1",
+    "inputs": [
+      "src/sound_find_event.c",
+      "src/sound_bank_layout.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_find_event.obj src/sound_find_event.c",
+    "identification": "Direct mode-one call target of SND_fn_hGetSoundEventHandleFromEditorId at RVA 0x745e1d. Searches ordinary A/B event groups, then extra A/B groups when enabled. Matches editor IDs on 104-byte records. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+    "link_bindings": {
+      "_bank_a_events": {
+        "va": 288536716,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_bank_b_events": {
+        "va": 288536836,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_bank_a_extra_events": {
+        "va": 288536756,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_bank_b_extra_events": {
+        "va": 288536876,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      }
+    },
+    "match": {
+      "bytes_sha256": "5bb49e2c1d4b2221db2d82b24e6fdb64700ae1996b7ca869cdc026d8ae6c1f56",
+      "inputs_sha256": "986f17dd1dd117a3ef956ff8836a26fc1181ba095760327101ecf9968129d1fd"
+    }
+  },
+  {
+    "id": "sound-local-resource-by-editor-id",
+    "offset": 7591968,
+    "size": 149,
+    "rebuilt_symbol": "_sound_resource_by_editor_id_mode1@4",
+    "inputs": [
+      "src/sound_find_local.c",
+      "src/sound_bank_layout.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_find_local.obj src/sound_find_local.c",
+    "identification": "Direct mode-one tail target of SND_fn_pstGetResFromEdIdSnd from RVA 0x745ffe. Scans each loaded bank in B-then-A order, testing its normal and extra 104-byte resource arrays. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+    "match": {
+      "bytes_sha256": "de292878774a5ab36a21f96a41fc2601c03b4a6e6d169e663447b6d6e6e9b8e5",
+      "inputs_sha256": "e785f6b9b423ec957ec0766160144dbb6c419772ab66cabab5610d3f63cff576"
+    }
+  },
+  {
+    "id": "sound-local-resource-at",
+    "offset": 7592128,
+    "size": 81,
+    "rebuilt_symbol": "_sound_bin_res_mode1@4",
+    "inputs": [
+      "src/sound_local_record_access.c",
+      "src/sound_bank_layout.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_local_record_access.obj src/sound_local_record_access.c",
+    "identification": "Direct mode-one tail target of SND_fn_pGetBinRes at RVA 0x745578. High bits select the bank and group, the low 16 bits index the 104-byte records; -2 returns null. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+    "link_bindings": {
+      "_bank_b": {
+        "va": 288536824,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_bank_a": {
+        "va": 288536704,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_SND_fn_vDisplayError@8": {
+        "va": 285460432,
+        "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "12fdc05d47db00dd5c1b75ebe6efe9b62298ae309a5fa6d141d0f35d3ffd9573",
+      "inputs_sha256": "86a7503d8ec5f11efca708d19a6e33f7ba7416806e498b47eeb800b8424b900b"
+    }
+  },
+  {
+    "id": "sound-local-event-at",
+    "offset": 7592224,
+    "size": 75,
+    "rebuilt_symbol": "_sound_bin_event_mode1",
+    "inputs": [
+      "src/sound_local_record_access.c",
+      "src/sound_bank_layout.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_local_record_access.obj src/sound_local_record_access.c",
+    "identification": "Direct mode-one call target of SND_fn_pGetBinEvent at RVA 0x7455cd. Uses the same packed bank, group and record index to select an event. Locally assigned C name. Complete CFG through all terminal exits, including internal alignment only.",
+    "link_bindings": {
+      "_bank_b": {
+        "va": 288536824,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_bank_a": {
+        "va": 288536704,
+        "basis": "Bank or event-group member address used by the directly called Steam mode-one resource lookup."
+      },
+      "_SND_fn_vDisplayError@8": {
+        "va": 285460432,
+        "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9b2861f388c9b653068c931326f13c1bb5b811a5eec61243308030251651cfb7",
+      "inputs_sha256": "a39fe9b93df0e911daaa9dd409023cd3eed69cf64504a9994e576f9866c5ae54"
+    }
+  }
+]

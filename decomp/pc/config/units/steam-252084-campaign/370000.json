@@ -1,0 +1,1028 @@
+[
+  {
+    "id": "delete-aeuavdrone",
+    "offset": 3606944,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AEUAVDrone@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AEUAVDrone UClass factory at RVA 0x370a10 references the named placement constructor at RVA 0x3709d0. That constructor installs the vtable at RVA 0x80f610, whose slot 3 points to this deleting destructor at RVA 0x3709a0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AEUAVDrone": {
+        "va": 286324240,
+        "basis": "The placement constructor at RVA 0x3709d0 installs this same vtable at RVA 0x370a08."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AEUAVDrone@4": {
+        "va": 281479472,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "609d80dffe01e10801ffa15a16fda2eb2927853d36bc12aac6d9ef1e0d82b9aa",
+      "inputs_sha256": "b530651c8b689a37d9494ef51e61a5d8015dffe73f3add706501682be6aaab10"
+    }
+  },
+  {
+    "id": "placement-aeuavdrone",
+    "offset": 3606992,
+    "size": 64,
+    "rebuilt_symbol": "_place_AEUAVDrone",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AEUAVDrone class descriptor."
+      },
+      "_vtable_AEUAVDrone": {
+        "va": 286324240,
+        "basis": "Class-specific table installed after base initialization in the named AEUAVDrone descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AEUAVDrone class factory at RVA 0x370a10. The callback at RVA 0x3709d0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "c2b03b6576b87da0298f241e82ca71f9b784aa9f076569e5f2aadf12b901cdd3",
+      "inputs_sha256": "afda40e530a85ee8709f5078fef819368e26e8fe0a7e4bdf75495c3d9c230285"
+    }
+  },
+  {
+    "id": "class-factory-aeuavdrone",
+    "offset": 3607056,
+    "size": 109,
+    "rebuilt_symbol": "_create_AEUAVDrone",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AEUAVDrone": {
+        "va": 286325088,
+        "basis": "Retail UTF-16 AEUAVDrone allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AEUAVDrone": {
+        "va": 281479632,
+        "basis": "Placement callback passed to the native descriptor constructor for AEUAVDrone."
+      },
+      "@static_init_AEUAVDrone@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AEUAVDrone."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x370a10; its allocation tag and reflected class name identify AEUAVDrone. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "976f7cde0158517241ca3ad17bc784349fae5ac3183cdde3c8783aac5cf0d8c7",
+      "inputs_sha256": "caf048ca6a6dafd3c4735203283342c35c3ac3892bb0932a722850f21ab09834"
+    }
+  },
+  {
+    "id": "class-registration-uesbcustom",
+    "offset": 3609920,
+    "size": 264,
+    "rebuilt_symbol": "_register_UESBCustom",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UESBCustom": {
+        "va": 287506112,
+        "basis": "The UESBCustom class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UESoftBody": {
+        "va": 287286448,
+        "basis": "The UESoftBody class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UESoftBody": {
+        "va": 279266464,
+        "basis": "The constructor names UESoftBody using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UESoftBody": {
+        "va": 279242944,
+        "basis": "Registration target reached after the UESoftBody constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UESBCustom at RVA 0x371540, called immediately after the class factory at RVA 0x3745f0 in the singleton initialization path. Sets superclass UESoftBody, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "feb2859e2b73d5e5a9a47e681e9f94983900fbd38bbfcee8d0f98fd9b519db55",
+      "inputs_sha256": "115dcdcdbb5492342878f5bc1aa61b57181710e61304f2867a2f9b615f72f0e9"
+    }
+  },
+  {
+    "id": "placement-uesbcustom",
+    "offset": 3622368,
+    "size": 14,
+    "rebuilt_symbol": "_place_UESBCustom",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UESBCustom@4": {
+        "va": 281494096,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESBCustom class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UESBCustom class factory at RVA 0x3745f0. The callback at RVA 0x3745e0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "a5b4e3fa375de1ccf1d0437d1e0412a2627ecdcc511c5952eca004bc50a39f38",
+      "inputs_sha256": "fc7c12c8a21f107212be5f90f3df113d7576c74440b2db8f733e6917c0151e3f"
+    }
+  },
+  {
+    "id": "class-factory-uesbcustom",
+    "offset": 3622384,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESBCustom",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESBCustom": {
+        "va": 286325404,
+        "basis": "Retail UTF-16 UESBCustom allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESBCustom": {
+        "va": 281495008,
+        "basis": "Placement callback passed to the native descriptor constructor for UESBCustom."
+      },
+      "@static_init_UESBCustom@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESBCustom."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x3745f0; its allocation tag and reflected class name identify UESBCustom. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "71f8f9df96282f1b98cdf52f93d2a6d29ca07c45d1908e0e0182b98773c8fc62",
+      "inputs_sha256": "0b18e0c5c50be7af1ad7887f7425512ab51edc589a134d844605fabc434922b7"
+    }
+  },
+  {
+    "id": "class-registration-uesbpatch",
+    "offset": 3622704,
+    "size": 264,
+    "rebuilt_symbol": "_register_UESBPatch",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UESBPatch": {
+        "va": 287506116,
+        "basis": "The UESBPatch class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UESoftBody": {
+        "va": 287286448,
+        "basis": "The UESoftBody class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UESoftBody": {
+        "va": 279266464,
+        "basis": "The constructor names UESoftBody using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UESoftBody": {
+        "va": 279242944,
+        "basis": "Registration target reached after the UESoftBody constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UESBPatch at RVA 0x374730, called immediately after the class factory at RVA 0x378880 in the singleton initialization path. Sets superclass UESoftBody, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "aa02f5b8e57273229e45e5268b9ac68770e077ee714da33a0e3866723bae7a0a",
+      "inputs_sha256": "0f8612469d5233708e8e032a6008b5b4beaa76012cda84013d87ffd900ac6b3c"
+    }
+  },
+  {
+    "id": "placement-uesbpatch",
+    "offset": 3639408,
+    "size": 14,
+    "rebuilt_symbol": "_place_UESBPatch",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UESBPatch@4": {
+        "va": 281511568,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESBPatch class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UESBPatch class factory at RVA 0x378880. The callback at RVA 0x378870 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "e387f1df9d779ddfac3337715bc898104d8dbddd9814995d007abe86fabbbf89",
+      "inputs_sha256": "a67f3214a0cff88ee62eb5964e98c3ce2a5e8e9be431fe70e38442b66103bb7c"
+    }
+  },
+  {
+    "id": "class-factory-uesbpatch",
+    "offset": 3639424,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESBPatch",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESBPatch": {
+        "va": 286325696,
+        "basis": "Retail UTF-16 UESBPatch allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESBPatch": {
+        "va": 281512048,
+        "basis": "Placement callback passed to the native descriptor constructor for UESBPatch."
+      },
+      "@static_init_UESBPatch@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESBPatch."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x378880; its allocation tag and reflected class name identify UESBPatch. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "7c23b720ca45bde2fafcc409ad3a7cea856e6f5fb4f2fc1132e498e24e910d60",
+      "inputs_sha256": "ad60df0f338fb532c6e6c4904ccf755a13849b77c9cf08737051a080bbb2a052"
+    }
+  },
+  {
+    "id": "class-registration-uesbstripdoor",
+    "offset": 3639568,
+    "size": 264,
+    "rebuilt_symbol": "_register_UESBStripDoor",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UESBStripDoor": {
+        "va": 287506120,
+        "basis": "The UESBStripDoor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UESBPatch": {
+        "va": 287506116,
+        "basis": "The UESBPatch class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UESBPatch": {
+        "va": 281512064,
+        "basis": "The constructor names UESBPatch using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 EchelonIngredient package supplied to the class constructor."
+      },
+      "_register_UESBPatch": {
+        "va": 281495344,
+        "basis": "Registration target reached after the UESBPatch constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UESBStripDoor at RVA 0x378910, called immediately after the class factory at RVA 0x37aed0 in the singleton initialization path. Sets superclass UESBPatch, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "6e8595e46bd0e4e1dd4dcfa52b1ce82663143c297a9ad598eac03e638d9e2784",
+      "inputs_sha256": "188f8801a34473c421d16481dcb525ec3b99561a11286d249a6790be9ae13f89"
+    }
+  },
+  {
+    "id": "delete-uesbstripdoor",
+    "offset": 3649120,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UESBStripDoor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UESBStripDoor UClass factory at RVA 0x37aed0 references the named placement constructor at RVA 0x37aeb0. That constructor installs the vtable at RVA 0x80fbd8, whose slot 3 points to this deleting destructor at RVA 0x37ae60. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UESBStripDoor": {
+        "va": 286325720,
+        "basis": "The placement constructor at RVA 0x37aeb0 installs this same vtable at RVA 0x37aec0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UESBStripDoor@4": {
+        "va": 281511744,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "34cf8f5f1fa660bf6554c56791ccabf47e87a0b1b337b232654847e69dbe7181",
+      "inputs_sha256": "4396073cbc8fe796ac9ac6a66b50adc414d1479357de806802035908694f1367"
+    }
+  },
+  {
+    "id": "placement-uesbstripdoor",
+    "offset": 3649200,
+    "size": 24,
+    "rebuilt_symbol": "_place_UESBStripDoor",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_UESBStripDoor@4": {
+        "va": 281511568,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESBStripDoor class descriptor."
+      },
+      "_vtable_UESBStripDoor": {
+        "va": 286325720,
+        "basis": "Class-specific table installed after base initialization in the named UESBStripDoor descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UESBStripDoor class factory at RVA 0x37aed0. The callback at RVA 0x37aeb0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "5f9d3b4c0af3283059fd259a909df84840eb55a8f719653ea49b65a20da4a09f",
+      "inputs_sha256": "05b98fef5ca4a268a641fa97f41839eb9b4b708b3847e759cd4aa388f8f5548b"
+    }
+  },
+  {
+    "id": "class-factory-uesbstripdoor",
+    "offset": 3649232,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESBStripDoor",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESBStripDoor": {
+        "va": 286325984,
+        "basis": "Retail UTF-16 UESBStripDoor allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESBStripDoor": {
+        "va": 281521840,
+        "basis": "Placement callback passed to the native descriptor constructor for UESBStripDoor."
+      },
+      "@static_init_UESBStripDoor@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESBStripDoor."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x37aed0; its allocation tag and reflected class name identify UESBStripDoor. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "b5b7c1e31a1c4407dca3753272ed19f02cca7be717a6e0191bad7c0113c91ab6",
+      "inputs_sha256": "e1f54e31a2ae3547eb9a55e90e847ed4370b449cdbb9387b92283a48d3d55094"
+    }
+  },
+  {
+    "id": "class-registration-uesbrope",
+    "offset": 3649552,
+    "size": 264,
+    "rebuilt_symbol": "_register_UESBRope",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UESBRope": {
+        "va": 287506124,
+        "basis": "The UESBRope class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UESoftBody": {
+        "va": 287286448,
+        "basis": "The UESoftBody class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UESoftBody": {
+        "va": 279266464,
+        "basis": "The constructor names UESoftBody using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UESoftBody": {
+        "va": 279242944,
+        "basis": "Registration target reached after the UESoftBody constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UESBRope at RVA 0x37b010, called immediately after the class factory at RVA 0x37d420 in the singleton initialization path. Sets superclass UESoftBody, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "45bb4b275cc4737e7995db8014194c1d081ea424c01670e865dd5fa60f59f52f",
+      "inputs_sha256": "ecc78aa2cefa184a9daec6903f7d777b1d9aded3f1939b89f72862944bdc99b8"
+    }
+  },
+  {
+    "id": "placement-uesbrope",
+    "offset": 3658768,
+    "size": 14,
+    "rebuilt_symbol": "_place_UESBRope",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UESBRope@4": {
+        "va": 281530880,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESBRope class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UESBRope class factory at RVA 0x37d420. The callback at RVA 0x37d410 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "e7e53374e13e520b5cbbd882018fbdf54e6486b9d4c99b487fb0d8d001ffc4a6",
+      "inputs_sha256": "1e7514b95b24a7ac360d81da6fec88f6cb73df7ff4be9420d3c02c5ce0831244"
+    }
+  },
+  {
+    "id": "class-factory-uesbrope",
+    "offset": 3658784,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESBRope",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESBRope": {
+        "va": 286326280,
+        "basis": "Retail UTF-16 UESBRope allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESBRope": {
+        "va": 281531408,
+        "basis": "Placement callback passed to the native descriptor constructor for UESBRope."
+      },
+      "@static_init_UESBRope@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESBRope."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x37d420; its allocation tag and reflected class name identify UESBRope. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "32c896925e30a6d5037df0ef6557a31b2a9a5ee49059a8f496b272961a4b0f98",
+      "inputs_sha256": "0662a154794f7da11c9a76c3cdbee89d44a73ef03805e2110101ca2384a8f260"
+    }
+  },
+  {
+    "id": "class-registration-uesbropeclimb",
+    "offset": 3658928,
+    "size": 264,
+    "rebuilt_symbol": "_register_UESBRopeClimb",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UESBRopeClimb": {
+        "va": 287506128,
+        "basis": "The UESBRopeClimb class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UESBRope": {
+        "va": 287506124,
+        "basis": "The UESBRope class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UESBRope": {
+        "va": 281531424,
+        "basis": "The constructor names UESBRope using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 EchelonIngredient package supplied to the class constructor."
+      },
+      "_register_UESBRope": {
+        "va": 281522192,
+        "basis": "Registration target reached after the UESBRope constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UESBRopeClimb at RVA 0x37d4b0, called immediately after the class factory at RVA 0x37e8e0 in the singleton initialization path. Sets superclass UESBRope, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "dc6b3722b2c45d494b0eb20eeacaba1ef959b389111dbb2b8b4747c16e591895",
+      "inputs_sha256": "ec9515e66229b6d9b121bf0cc726334acc336d100a3a7df01057ecd6d0a68495"
+    }
+  },
+  {
+    "id": "delete-uesbropeclimb",
+    "offset": 3663936,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UESBRopeClimb@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UESBRopeClimb UClass factory at RVA 0x37e8e0 references the named placement constructor at RVA 0x37e8c0. That constructor installs the vtable at RVA 0x80fe38, whose slot 3 points to this deleting destructor at RVA 0x37e840. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UESBRopeClimb": {
+        "va": 286326328,
+        "basis": "The placement constructor at RVA 0x37e8c0 installs this same vtable at RVA 0x37e8d0."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UESBRopeClimb@4": {
+        "va": 281531056,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "93dbf2e63c3f848e2572c24e213bd9ff880b0c37ae35ff532eb5a68e51281b9c",
+      "inputs_sha256": "1680bef245f1bbe2ccb2e0b334655c4513e1ba013ccd52e9760838876f7856a5"
+    }
+  },
+  {
+    "id": "placement-uesbropeclimb",
+    "offset": 3664064,
+    "size": 24,
+    "rebuilt_symbol": "_place_UESBRopeClimb",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_UESBRopeClimb@4": {
+        "va": 281530880,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESBRopeClimb class descriptor."
+      },
+      "_vtable_UESBRopeClimb": {
+        "va": 286326328,
+        "basis": "Class-specific table installed after base initialization in the named UESBRopeClimb descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UESBRopeClimb class factory at RVA 0x37e8e0. The callback at RVA 0x37e8c0 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "32824e1319b7d64b84253bd446984e4840cbf3079a9fa7fe2b968c1dd0d51bc4",
+      "inputs_sha256": "d54300f864a44a45abba7dbb9f64ec8f2cc0b1bbd1417359caeee0c1a3917760"
+    }
+  },
+  {
+    "id": "class-factory-uesbropeclimb",
+    "offset": 3664096,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESBRopeClimb",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESBRopeClimb": {
+        "va": 286326592,
+        "basis": "Retail UTF-16 UESBRopeClimb allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESBRopeClimb": {
+        "va": 281536704,
+        "basis": "Placement callback passed to the native descriptor constructor for UESBRopeClimb."
+      },
+      "@static_init_UESBRopeClimb@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESBRopeClimb."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x37e8e0; its allocation tag and reflected class name identify UESBRopeClimb. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "d4622e3dfe9eeda13bb1dbe0dc483c6c5754c9bd4d84066f15a83dbebc8f1320",
+      "inputs_sha256": "7da75215a8623aefcb4dbf245d0a7d90baa286edae7df777ccfd61011ce6abe6"
+    }
+  },
+  {
+    "id": "class-registration-uesbchain",
+    "offset": 3664240,
+    "size": 264,
+    "rebuilt_symbol": "_register_UESBChain",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UESBChain": {
+        "va": 287506132,
+        "basis": "The UESBChain class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UESBRope": {
+        "va": 287506124,
+        "basis": "The UESBRope class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UESBRope": {
+        "va": 281531424,
+        "basis": "The constructor names UESBRope using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_EchelonIngredient": {
+        "va": 285964980,
+        "basis": "Retail UTF-16 EchelonIngredient package supplied to the class constructor."
+      },
+      "_register_UESBRope": {
+        "va": 281522192,
+        "basis": "Registration target reached after the UESBRope constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UESBChain at RVA 0x37e970, called immediately after the class factory at RVA 0x37f270 in the singleton initialization path. Sets superclass UESBRope, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "28dcd55d27f1f4d224296d0b880f883ec45b3e20033bcd9a0afe5703a8631f33",
+      "inputs_sha256": "1e8ad00ed5ab05263d5a8bd56dca06c764968e4c5a98851fc59bf80259601a48"
+    }
+  },
+  {
+    "id": "delete-uesbchain",
+    "offset": 3666432,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_UESBChain@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock UESBChain UClass factory at RVA 0x37f270 references the named placement constructor at RVA 0x37f250. That constructor installs the vtable at RVA 0x80ff60, whose slot 3 points to this deleting destructor at RVA 0x37f200. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_UESBChain": {
+        "va": 286326624,
+        "basis": "The placement constructor at RVA 0x37f250 installs this same vtable at RVA 0x37f260."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_UESBChain@4": {
+        "va": 281531056,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ed05b10accdc660bc6e5f9ee795906e438ebc0f13ad6a5ff712aa743f79c30e6",
+      "inputs_sha256": "1bae68c586e01aa9a25bf985a69e7bed8296cb5f70d3e65dfde77b49f4ae45a9"
+    }
+  },
+  {
+    "id": "placement-uesbchain",
+    "offset": 3666512,
+    "size": 24,
+    "rebuilt_symbol": "_place_UESBChain",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_UESBChain@4": {
+        "va": 281530880,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESBChain class descriptor."
+      },
+      "_vtable_UESBChain": {
+        "va": 286326624,
+        "basis": "Class-specific table installed after base initialization in the named UESBChain descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the UESBChain class factory at RVA 0x37f270. The callback at RVA 0x37f250 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "c3dd1edc3d724acda5707632e614caa6b3c58c1702420bdf2114dfaf5a3008fb",
+      "inputs_sha256": "4f69ce5bff17c5811f323e676ee1d5beaeb718610392253442500c84d6a4b28d"
+    }
+  },
+  {
+    "id": "class-factory-uesbchain",
+    "offset": 3666544,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESBChain",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESBChain": {
+        "va": 286326888,
+        "basis": "Retail UTF-16 UESBChain allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESBChain": {
+        "va": 281539152,
+        "basis": "Placement callback passed to the native descriptor constructor for UESBChain."
+      },
+      "@static_init_UESBChain@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESBChain."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x37f270; its allocation tag and reflected class name identify UESBChain. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "36342ec2745c14194d59d0be6a22e70bbc92ab6de2ed58f285040bf17518cc14",
+      "inputs_sha256": "8f9bdaf2f6b22de2098166de0b9e7fd0f7af971dcf1d5f57834450a8eb08f8d2"
+    }
+  }
+]

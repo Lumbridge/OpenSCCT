@@ -1,0 +1,98 @@
+[
+  {
+    "id": "versus-ref-format-indented",
+    "offset": 2566160,
+    "size": 8,
+    "rebuilt_symbol": "@versus_ref_format_indented@16",
+    "inputs": [
+      "src/versus_data_dispatch.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Os /c /Folocal/versus_data_dispatch.obj src/versus_data_dispatch.c",
+    "identification": "Retail RTTI identifies clDataRef vftable RVA 0x2e1ec4. Zero-based slot 1 selects this body. Its indirect tail jump precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "acadc52a356731528e5c9fceb4d8243a12f150ef38eef8b7a36652024135016b",
+      "inputs_sha256": "25cd6fb06b9a4b08ff95f3c0f782eca6a3ae9b88075b7345dbae73b12214eb90"
+    }
+  },
+  {
+    "id": "versus-ref-format-slot-2",
+    "offset": 2566176,
+    "size": 8,
+    "rebuilt_symbol": "@versus_ref_format_slot_2@16",
+    "inputs": [
+      "src/versus_data_dispatch.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Os /c /Folocal/versus_data_dispatch.obj src/versus_data_dispatch.c",
+    "identification": "Retail RTTI identifies clDataRef vftable RVA 0x2e1ec4. Zero-based slot 2 selects this body. Its indirect tail jump precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "060658c2207826b496746ba61ad0db12fbc8a6c57638d4c07e588e8b02eb6a2f",
+      "inputs_sha256": "12205375d54bd0bdc9b4373bb69355e58d5d8f6f863c3cc61ea03a8d9f252183"
+    }
+  },
+  {
+    "id": "versus-ref-print",
+    "offset": 2566192,
+    "size": 8,
+    "rebuilt_symbol": "@versus_ref_print@4",
+    "inputs": [
+      "src/versus_data_dispatch.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Os /c /Folocal/versus_data_dispatch.obj src/versus_data_dispatch.c",
+    "identification": "Retail RTTI identifies clDataRef vftable RVA 0x2e1ec4. Zero-based slot 4 selects this body. Its indirect tail jump precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "e639bfe3efc2c2df70c29f307a39ca87fae71ec4f006386f99938a584ff67c93",
+      "inputs_sha256": "38339ea38fc5b1d89b19770c01ad2d75016059132d5907b548ae8fa36b09a78e"
+    }
+  },
+  {
+    "id": "versus-ref-append-text",
+    "offset": 2566208,
+    "size": 8,
+    "rebuilt_symbol": "@versus_ref_append_text@12",
+    "inputs": [
+      "src/versus_data_dispatch.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Os /c /Folocal/versus_data_dispatch.obj src/versus_data_dispatch.c",
+    "identification": "Retail RTTI identifies clDataRef vftable RVA 0x2e1ec4. Zero-based slot 3 selects this body. Its indirect tail jump precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "b7bd9eccad64400217c35647d73def30cb590070fdf477ff01b2d56b7eb0ccf4",
+      "inputs_sha256": "eb6260aafeff9900a0ce7afd618dec86d8ac8f07b280e5e18aa514e42d9eb033"
+    }
+  },
+  {
+    "id": "versus-ref-data-size",
+    "offset": 2566224,
+    "size": 8,
+    "rebuilt_symbol": "@versus_ref_data_size@4",
+    "inputs": [
+      "src/versus_data_dispatch.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Os /c /Folocal/versus_data_dispatch.obj src/versus_data_dispatch.c",
+    "identification": "Retail RTTI identifies clDataRef vftable RVA 0x2e1ec4. Zero-based slot 5 selects this body. Its indirect tail jump precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "2489889fca96580805e19d932c314c14265ad031950f0dd3d83e382ff598a6ae",
+      "inputs_sha256": "6f76e5666cc6d65a69901e92e694336ee0d75c41a58453c24ab3411ad0e5d046"
+    }
+  },
+  {
+    "id": "crt-byteswap-ulong",
+    "offset": 2585328,
+    "size": 35,
+    "rebuilt_symbol": "_steam_byteswap_ulong",
+    "inputs": [
+      "src/crt_versus_byteswap.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_versus_byteswap.pdb /Folocal/crt_versus_byteswap.obj src/crt_versus_byteswap.c",
+    "identification": "The named complete __byteswap_ulong COFF section from Microsoft Visual C++ Toolkit 2003 libc.lib member build\\intel\\st_obj\\bswap.obj (COFF SHA-256 393698ed926d8e288d15da2a56f869108c1b869aaf8f5ab2b65d2d71432ab50f) occurs once in this Steam Versus executable. The independently reconstructed unsigned byte reversal has no relocations.",
+    "match": {
+      "bytes_sha256": "8b734c70825f7ee267b65d18340ed57550c74caf8b7d8eb3db7b9bf85166c37e",
+      "inputs_sha256": "9bbe179a327ed5b9651bd96b145cc3f937377e7e084d59d5f52bebd497a4604e"
+    }
+  }
+]

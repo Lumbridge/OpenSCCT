@@ -1,0 +1,417 @@
+[
+  {
+    "id": "class-singleton-uobject",
+    "offset": 167200,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_UObject",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor passes both the UTF-16 UObject allocation tag and Object class name to the engine."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Direct registration call after initializing the singleton for UObject."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 package name Core passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0x28d20, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x3d9340 names UObject. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "5629408265541ec9196b8da030aae646848d7584df98f0ed6e8a243dabc8a8d5",
+      "inputs_sha256": "60fc139bc50108e763fa5fd519a84f44d18e1a720ab69469c68aa5d3c5ed3488"
+    }
+  },
+  {
+    "id": "script-event-stoppattern",
+    "offset": 167488,
+    "size": 32,
+    "rebuilt_symbol": "@event_StopPattern@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_StopPattern": {
+        "va": 287504052,
+        "basis": "FName initialized with retail UTF-16 StopPattern (VA 0x110fa368). The FName constructor call at RVA 0x33629e precedes the store to this slot at RVA 0x3362a7."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail StopPattern event wrapper at RVA 0x28e40, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "5388c382d5693551853fe8409e418de7751d13d27ce96db68ea82b11f578a456",
+      "inputs_sha256": "6e9fd05a1084527712bae1dbbec976f1cc165e79f6625a52bf0776eb4b749a0d"
+    }
+  },
+  {
+    "id": "class-registration-abasepattern",
+    "offset": 169088,
+    "size": 264,
+    "rebuilt_symbol": "_register_ABasePattern",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_ABasePattern": {
+        "va": 287265696,
+        "basis": "The ABasePattern class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AEPattern": {
+        "va": 287500664,
+        "basis": "The AEPattern class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AEPattern": {
+        "va": 280599984,
+        "basis": "The constructor names AEPattern using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 Echelon package supplied to the class constructor."
+      },
+      "_register_AEPattern": {
+        "va": 280552848,
+        "basis": "Registration target reached after the AEPattern constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ABasePattern at RVA 0x29480, called immediately after the class factory at RVA 0x2caa0 in the singleton initialization path. Sets superclass AEPattern, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "7f272fa6a7e4e88691391da85345ca19599ebf6d6474468c82c81f08c75313da",
+      "inputs_sha256": "b3e564e9a8d27ed94d39d7c1721db7e8a207a9e669dfe4d05a493050c120d8ec"
+    }
+  },
+  {
+    "id": "delete-aactor",
+    "offset": 182384,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AActor@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AActor vtable at RVA 0x7bc1b8, slot 3, points to entry RVA 0x2c870. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x96580 references the placement constructor at RVA 0x95d10, which installs this vtable at RVA 0x95d20.",
+    "link_bindings": {
+      "@destroy_AActor@4": {
+        "va": 278048032,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2ad20."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "475043720da0d0e9685af4dda6fb4c4e5646b9e38b537f9a30992fd5294f9fe2",
+      "inputs_sha256": "80e4f9f186f772b8e15d7b37d022b658548098f4b34db22013b8393920085407"
+    }
+  },
+  {
+    "id": "delete-aepattern",
+    "offset": 182752,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AEPattern@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AEPattern vtable at RVA 0x7bc458, slot 3, points to entry RVA 0x2c9e0. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x299db0 references the placement constructor at RVA 0x299d70, which installs this vtable at RVA 0x299da8.",
+    "link_bindings": {
+      "@destroy_AEPattern@4": {
+        "va": 278055072,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2c8a0."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "52a868b3ec7103f55906865fc6a861e7220b73ce09019fa490399a0db08e2cbd",
+      "inputs_sha256": "4e5308bcf578ef58ff8d3c4aaa37091f023f00c2309d9a318e3340ec4e1ecafc"
+    }
+  },
+  {
+    "id": "delete-abasepattern",
+    "offset": 182848,
+    "size": 57,
+    "inputs": [
+      "src/campaign_member_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_ABasePattern@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_member_destruction.obj src/campaign_member_destruction.c",
+    "identification": "Stock ABasePattern UClass factory at RVA 0x2caa0 references the placement constructor at RVA 0x2ca80. Its vtable at RVA 0x7bc720 points to this complete function in slot 3. The function destroys the member at offset 0x7b8, then the base, and conditionally frees the whole object.",
+    "link_bindings": {
+      "_vtable_ABasePattern": {
+        "va": 285984544,
+        "basis": "The placement constructor at RVA 0x2ca80 installs this vtable at RVA 0x2ca90."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_member_ABasePattern@4": {
+        "va": 278046560,
+        "basis": "Direct call with this pointing to the embedded member at offset 0x7b8."
+      },
+      "@destroy_base_ABasePattern@4": {
+        "va": 278055072,
+        "basis": "The next direct destruction call restores the original receiver before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator on the conditional release path. Its slot 2 receives the original object."
+      }
+    },
+    "match": {
+      "bytes_sha256": "71e6d7a9b28c2ba3f5c5710cf4300ab5d21b1a81c97c0ab3a7511011acdd8885",
+      "inputs_sha256": "89dcc7fb464dbc949232971b4b2fbc07d87f68f3454855b354fb16ca474be337"
+    }
+  },
+  {
+    "id": "placement-abasepattern",
+    "offset": 182912,
+    "size": 24,
+    "rebuilt_symbol": "_place_ABasePattern",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_base_of_ABasePattern@4": {
+        "va": 280596816,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named ABasePattern class descriptor."
+      },
+      "_vtable_ABasePattern": {
+        "va": 285984544,
+        "basis": "Class-specific table installed after base initialization in the named ABasePattern descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the ABasePattern class factory at RVA 0x2caa0. The callback at RVA 0x2ca80 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "27cf276585c8b65c1316929d1cad3794f3a6f1bb8ff7182b9d6450b4201dbed2",
+      "inputs_sha256": "0ffe0690544c889d94bbf53d61f127620d7f189de10d26f5466660b7535b51b8"
+    }
+  },
+  {
+    "id": "class-factory-abasepattern",
+    "offset": 182944,
+    "size": 105,
+    "rebuilt_symbol": "_create_ABasePattern",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_ABasePattern": {
+        "va": 285985252,
+        "basis": "Retail UTF-16 ABasePattern allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_ABasePattern": {
+        "va": 278055552,
+        "basis": "Placement callback passed to the native descriptor constructor for ABasePattern."
+      },
+      "@static_init_ABasePattern@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for ABasePattern."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2caa0; its allocation tag and reflected class name identify ABasePattern. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "8f73f3e5883d98513d433bed14f90150fcad322b7f2e1bfcd2b2c752f92c2aaa",
+      "inputs_sha256": "b1e856e0836385ece661cd802e060bc34936a2f333f10599e600a28e86292d1b"
+    }
+  },
+  {
+    "id": "script-event-endevent",
+    "offset": 191680,
+    "size": 32,
+    "rebuilt_symbol": "@event_EndEvent@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_EndEvent": {
+        "va": 287285240,
+        "basis": "FName initialized with retail UTF-16 EndEvent (VA 0x110d58b8). The FName constructor call at RVA 0x13ba7e precedes the store to this slot at RVA 0x13ba87."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail EndEvent event wrapper at RVA 0x2ecc0, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "df37109449a782347c4aa0800f7cb8599153cebe88fe304f7ac004ed6dbc29c3",
+      "inputs_sha256": "8560d5929021d6c0111b88d451360bd12a7df57ac4252215b42fa54d5347c0ef"
+    }
+  },
+  {
+    "id": "script-parameters-revive",
+    "offset": 191888,
+    "size": 48,
+    "rebuilt_symbol": "@script_call_Revive@8",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_Revive": {
+        "va": 287503952,
+        "basis": "FName initialized with retail UTF-16 Revive (VA 0x110fa628). The FName constructor call at RVA 0x33604f precedes the store to this slot at RVA 0x336061."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail Revive event wrapper at RVA 0x2ed90, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.Revive with Pawn reviver at serial offset 0x6f34e.",
+    "match": {
+      "bytes_sha256": "cfe14a96c3875aa67de5d8fa29cd258d58c2bce65d74b526af63e3e3e7957630",
+      "inputs_sha256": "d3930885dbec28d47a596b28239336560972acdc886e789742fa0e92d5dcb04f"
+    }
+  },
+  {
+    "id": "class-registration-abasecivilian",
+    "offset": 193232,
+    "size": 264,
+    "rebuilt_symbol": "_register_ABaseCivilian",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_ABaseCivilian": {
+        "va": 287265700,
+        "basis": "The ABaseCivilian class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_ABasePattern": {
+        "va": 287265696,
+        "basis": "The ABasePattern class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_ABasePattern": {
+        "va": 278055584,
+        "basis": "The constructor names ABasePattern using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_EchelonAI": {
+        "va": 285964960,
+        "basis": "Retail UTF-16 EchelonAI package supplied to the class constructor."
+      },
+      "_register_ABasePattern": {
+        "va": 278041728,
+        "basis": "Registration target reached after the ABasePattern constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for ABaseCivilian at RVA 0x2f2d0, called immediately after the class factory at RVA 0x42f90 in the singleton initialization path. Sets superclass ABasePattern, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "2237c53575c72ba0547562e2f84d2f884af07d5d6003cee74ec9fb6578b6581e",
+      "inputs_sha256": "ac2c27a6d63dce12801cc05fe4e47555c838da33b0c6091c2bbe2eac2cb951c2"
+    }
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "cast-uskeletalmeshinstance",
+    "offset": 218096,
+    "size": 85,
+    "rebuilt_symbol": "_cast_USkeletalMeshInstance",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_USkeletalMeshInstance": {
+        "va": 287279852,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_USkeletalMeshInstance": {
+        "va": 278926944,
+        "basis": "The constructor passes both the UTF-16 USkeletalMeshInstance allocation tag and SkeletalMeshInstance class name to the engine."
+      },
+      "_register_USkeletalMeshInstance": {
+        "va": 278726464,
+        "basis": "Direct registration call after initializing the singleton for USkeletalMeshInstance."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x353f0, directly called at RVA 0x3bda0. Its class constructor at RVA 0x101660 identifies USkeletalMeshInstance; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "9a54d1405074c0a6c21191e11905e93e6a6ca5cfb1f843b88dda2584d56195bf",
+      "inputs_sha256": "c3ee02881045017f0b03352176c25097c49680701e8912e210a821985614c8d4"
+    }
+  }
+]

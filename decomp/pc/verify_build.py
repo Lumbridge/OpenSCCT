@@ -1,7 +1,6 @@
 """Rebuild the Steam 252084 PC units and verify their checked-in byte receipts."""
 
 import argparse
-import json
 import os
 from pathlib import Path
 import re
@@ -15,6 +14,7 @@ import tempfile
 PC = Path(__file__).resolve().parent
 sys.path.insert(0, str(PC.parent / "tools"))
 from progress import compare_unit, summary, verify
+from manifests import load_target
 
 
 CLANG_X86_TARGET = "i686-pc-windows-msvc"
@@ -98,7 +98,7 @@ def main():
     for edition in ("campaign", "versus"):
         target_id = f"steam-252084-{edition}"
         manifest = PC / "config" / f"{target_id}.json"
-        target = json.loads(manifest.read_text(encoding="utf-8"))
+        target = load_target(manifest)
         if target["id"] != target_id:
             raise ValueError(f"unexpected target ID in {manifest}")
         totals = summary(PC, target)

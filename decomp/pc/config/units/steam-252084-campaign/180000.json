@@ -1,0 +1,171 @@
+[
+  {
+    "id": "script-event-nomorefloor",
+    "offset": 1581552,
+    "size": 32,
+    "rebuilt_symbol": "@event_NoMoreFloor@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_NoMoreFloor": {
+        "va": 287285400,
+        "basis": "FName initialized with retail UTF-16 NoMoreFloor (VA 0x110d5430). The FName constructor call at RVA 0x13be31 precedes the store to this slot at RVA 0x13be43."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail NoMoreFloor event wrapper at RVA 0x1821f0, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "e251a6c8c8a9539117be166b17d4fe2d3b672236016bed172cd7b35cbed0f617",
+      "inputs_sha256": "e268adb0bc33d25abfb3feab3143c240fd4b2b4434ffc9e013d32e2228b3a932"
+    }
+  },
+  {
+    "id": "script-event-movetodestinationsucceeded",
+    "offset": 1581584,
+    "size": 32,
+    "rebuilt_symbol": "@event_MoveToDestinationSucceeded@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_MoveToDestinationSucceeded": {
+        "va": 287285396,
+        "basis": "FName initialized with retail UTF-16 MoveToDestinationSucceeded (VA 0x110d5448). The FName constructor call at RVA 0x13be19 precedes the store to this slot at RVA 0x13be22."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail MoveToDestinationSucceeded event wrapper at RVA 0x182210, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "0039532769b90477bf90bc84b832517bb1ca9a51e8dd42f249d3198cca32088d",
+      "inputs_sha256": "3ee57d29accc970445052dac036ca3f6d8c8806170f202c3fac5966ce72b2d93"
+    }
+  },
+  {
+    "id": "script-event-movetodestinationfailed",
+    "offset": 1581616,
+    "size": 32,
+    "rebuilt_symbol": "@event_MoveToDestinationFailed@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_MoveToDestinationFailed": {
+        "va": 287285392,
+        "basis": "FName initialized with retail UTF-16 MoveToDestinationFailed (VA 0x110d5480). The FName constructor call at RVA 0x13be02 precedes the store to this slot at RVA 0x13be14."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail MoveToDestinationFailed event wrapper at RVA 0x182230, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "b8b073621b8ea3549fecd93b8d846c91e921687959426cb133c6a34b98d023d3",
+      "inputs_sha256": "d383ed6f5015c59351178c9e6eab744400180526971b363d2378ffbea3e57c08"
+    }
+  },
+  {
+    "id": "cast-ustaticmesh",
+    "offset": 1596240,
+    "size": 85,
+    "rebuilt_symbol": "_cast_UStaticMesh",
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UStaticMesh": {
+        "va": 287271412,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded for the superclass comparison."
+      },
+      "_create_UStaticMesh": {
+        "va": 278677904,
+        "basis": "The constructor passes both the UTF-16 UStaticMesh allocation tag and StaticMesh class name to the engine."
+      },
+      "_register_UStaticMesh": {
+        "va": 278622736,
+        "basis": "Direct registration call after initializing the singleton for UStaticMesh."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Typed cast at campaign RVA 0x185b50, directly called at RVA 0x18609d. Its class constructor at RVA 0xc4990 identifies UStaticMesh; the complete object and null return paths precede alignment.",
+    "match": {
+      "bytes_sha256": "36583bae5aba3a7675a0082ef579e6594379b16cc7bfe9cc49eecfa0798e6e05",
+      "inputs_sha256": "2567e905fea4ae1a27bd45d63c00f83e4761a939a19ce21d7ec2629f6b130dae"
+    }
+  },
+  {
+    "id": "script-event-felloutofworld",
+    "offset": 1615392,
+    "size": 32,
+    "rebuilt_symbol": "@event_FellOutOfWorld@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_FellOutOfWorld": {
+        "va": 287285272,
+        "basis": "FName initialized with retail UTF-16 FellOutOfWorld (VA 0x110d57b0). The FName constructor call at RVA 0x13bb3c precedes the store to this slot at RVA 0x13bb4e."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail FellOutOfWorld event wrapper at RVA 0x18a620, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "2551779d16dca06527b75ebbf047095a55eb5383bb711e1a415711c412f56e2f",
+      "inputs_sha256": "7128b83bc60e448ecabb36d38e64f717acea62cde42d96aca941ba3c4e3384e7"
+    }
+  },
+  {
+    "id": "script-event-stepdampingchanged",
+    "offset": 1615648,
+    "size": 32,
+    "rebuilt_symbol": "@event_StepDampingChanged@4",
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_StepDampingChanged": {
+        "va": 287285576,
+        "basis": "FName initialized with retail UTF-16 StepDampingChanged (VA 0x110d4f3c). The FName constructor call at RVA 0x13c242 precedes the store to this slot at RVA 0x13c24b."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail StepDampingChanged event wrapper at RVA 0x18a720, including the return. The name initialization and script lookup link the wrapper to its event.",
+    "match": {
+      "bytes_sha256": "2399c0d3d865c5b401c51dbed3c505da677f9c9b47d4a3171ba8c8dbe6a57fd4",
+      "inputs_sha256": "d4fbebba9ae0624fd657c22a78804616201212f99ef6c5d1600ee99d7478e1cc"
+    }
+  }
+]

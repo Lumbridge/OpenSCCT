@@ -1,0 +1,878 @@
+[
+  {
+    "id": "delete-aeplayercontroller",
+    "offset": 2960416,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AEPlayerController@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AEPlayerController vtable at RVA 0x7eb180, slot 3, points to entry RVA 0x2d2c20. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2d2ed0 references the placement constructor at RVA 0x2d2e90, which installs this vtable at RVA 0x2d2ec8.",
+    "link_bindings": {
+      "@destroy_AEPlayerController@4": {
+        "va": 280833104,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2d2c50."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "fe9b563d8f0aff1cbbb98afcf8abe4328ca7ecc6e8d3f10f269e961289971106"
+    }
+  },
+  {
+    "id": "placement-aeplayercontroller",
+    "offset": 2961040,
+    "size": 64,
+    "rebuilt_symbol": "_place_AEPlayerController",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AEPlayerController class descriptor."
+      },
+      "_vtable_AEPlayerController": {
+        "va": 286175616,
+        "basis": "Class-specific table installed after base initialization in the named AEPlayerController descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AEPlayerController class factory at RVA 0x2d2ed0. The callback at RVA 0x2d2e90 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "eaa96a3ac0bde345f94fd723fdbf8a714955a3bcd3d6c9026b3e61b2e06d8491",
+      "inputs_sha256": "5fdd70d98410d1d567d84df45c43e8c122386fb43f52b2f913b7145ea0f9d2dc"
+    }
+  },
+  {
+    "id": "class-factory-aeplayercontroller",
+    "offset": 2961104,
+    "size": 106,
+    "rebuilt_symbol": "_create_AEPlayerController",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AEPlayerController": {
+        "va": 286176360,
+        "basis": "Retail UTF-16 AEPlayerController allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AEPlayerController": {
+        "va": 280833680,
+        "basis": "Placement callback passed to the native descriptor constructor for AEPlayerController."
+      },
+      "@static_init_AEPlayerController@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AEPlayerController."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d2ed0; its allocation tag and reflected class name identify AEPlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "9346973353b5f763f918be6113e3ad34e69d776646e65e605f295620bc0c61e1",
+      "inputs_sha256": "f0eea78f6f09d5793504b9c92b6a0ab7412f0656ecb2b2fffd3c56c1f0953524"
+    }
+  },
+  {
+    "id": "class-registration-aecoopplayercontroller",
+    "offset": 2961344,
+    "size": 264,
+    "rebuilt_symbol": "_register_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_AECoopPlayerController": {
+        "va": 287502000,
+        "basis": "The AECoopPlayerController class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AEPlayerController": {
+        "va": 287501576,
+        "basis": "The AEPlayerController class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AEPlayerController": {
+        "va": 280833744,
+        "basis": "The constructor names AEPlayerController using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail UTF-16 Echelon package supplied to the class constructor."
+      },
+      "_register_AEPlayerController": {
+        "va": 280745728,
+        "basis": "Registration target reached after the AEPlayerController constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AECoopPlayerController at RVA 0x2d2fc0, called immediately after the class factory at RVA 0x2d5740 in the singleton initialization path. Sets superclass AEPlayerController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "fefab6044dcdceced41666e6d10363807adbdb6bff3093e180c25e2b1738d070",
+      "inputs_sha256": "443d3785cb59a4c67972806d7342857a73762406694e2476d25732d16734d148"
+    }
+  },
+  {
+    "id": "delete-aecoopplayercontroller",
+    "offset": 2971344,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AECoopPlayerController@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AECoopPlayerController UClass factory at RVA 0x2d5740 references the named placement constructor at RVA 0x2d5700. That constructor installs the vtable at RVA 0x7eb4c0, whose slot 3 points to this deleting destructor at RVA 0x2d56d0. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AECoopPlayerController": {
+        "va": 286176448,
+        "basis": "The placement constructor at RVA 0x2d5700 installs this same vtable at RVA 0x2d5738."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AECoopPlayerController@4": {
+        "va": 280833104,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6348d7bb6af636fd301dd29654f0378cd28844e8b1a9bab106e877794013d948",
+      "inputs_sha256": "ee348cf698858c72d38596b901e6138d6ba7e0bb7d8466e863a16233da18fa7c"
+    }
+  },
+  {
+    "id": "placement-aecoopplayercontroller",
+    "offset": 2971392,
+    "size": 64,
+    "rebuilt_symbol": "_place_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AECoopPlayerController class descriptor."
+      },
+      "_vtable_AECoopPlayerController": {
+        "va": 286176448,
+        "basis": "Class-specific table installed after base initialization in the named AECoopPlayerController descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AECoopPlayerController class factory at RVA 0x2d5740. The callback at RVA 0x2d5700 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "70f6368a373bd77bb30b276f193f7647b1619e3cda86a744aa5095bbd7422b3f",
+      "inputs_sha256": "7c8068b4c6b6249acd2c3b80250ad63c4624c9485f3d7dd4ae409e7babff0120"
+    }
+  },
+  {
+    "id": "class-factory-aecoopplayercontroller",
+    "offset": 2971456,
+    "size": 106,
+    "rebuilt_symbol": "_create_AECoopPlayerController",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AECoopPlayerController": {
+        "va": 286177192,
+        "basis": "Retail UTF-16 AECoopPlayerController allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AECoopPlayerController": {
+        "va": 280844032,
+        "basis": "Placement callback passed to the native descriptor constructor for AECoopPlayerController."
+      },
+      "@static_init_AECoopPlayerController@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AECoopPlayerController."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d5740; its allocation tag and reflected class name identify AECoopPlayerController. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "ee16547af449ede6cda67ba5888569d29f925eaa069a116b070bf8637c2587b3",
+      "inputs_sha256": "07426d5d5bb0392a6d8ed95e81e2f5d94f3eea0b71b152d0cab2b958efdd9e94"
+    }
+  },
+  {
+    "id": "class-registration-ae3dmapsystem",
+    "offset": 2972512,
+    "size": 264,
+    "rebuilt_symbol": "_register_AE3DMapSystem",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AE3DMapSystem": {
+        "va": 287502012,
+        "basis": "The AE3DMapSystem class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AE3DMapSystem at RVA 0x2d5b60, called immediately after the class factory at RVA 0x2d85c0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "0135d19883757fe50069fe93730400b48e6acc85e9c7ea1766430b2e12446d6b",
+      "inputs_sha256": "12fc460a6ba202c91f2bc686ceb20326edfcbdd1efadfa9dfc25dbbd78c9e41a"
+    }
+  },
+  {
+    "id": "class-registration-ae3dcameratarget",
+    "offset": 2972784,
+    "size": 264,
+    "rebuilt_symbol": "_register_AE3DCameraTarget",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AE3DCameraTarget": {
+        "va": 287502016,
+        "basis": "The AE3DCameraTarget class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AE3DCameraTarget at RVA 0x2d5c70, called immediately after the class factory at RVA 0x2d7f50 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "7d04b5b6f891a971ab8e26f6a98b47df48c17a4dd1ac434d9c4181c57e2b1a82",
+      "inputs_sha256": "1805fba5e6dd9916d61e708f4b05bf13ba004a2e338fc87b82a16eb424556f23"
+    }
+  },
+  {
+    "id": "class-registration-ae3dbeacon",
+    "offset": 2973056,
+    "size": 264,
+    "rebuilt_symbol": "_register_AE3DBeacon",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AE3DBeacon": {
+        "va": 287502020,
+        "basis": "The AE3DBeacon class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AE3DBeacon at RVA 0x2d5d80, called immediately after the class factory at RVA 0x2d7fc0 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "62c214f9b00da3e15d8431bfd4e3c5a16f5a131ed043ddfff94aebf93d29b429",
+      "inputs_sha256": "4d6ddfaf8e8755ee179b0fabf4f93c140c3ca8da60c266fa3fe0734aa3adbb59"
+    }
+  },
+  {
+    "id": "delete-ae3dbeacon",
+    "offset": 2981136,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AE3DBeacon@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AE3DBeacon UClass factory at RVA 0x2d7fc0 references the named placement constructor at RVA 0x2d7e20. That constructor installs the vtable at RVA 0x7eb7f8, whose slot 3 points to this deleting destructor at RVA 0x2d7d10. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AE3DBeacon": {
+        "va": 286177272,
+        "basis": "The placement constructor at RVA 0x2d7e20 installs this same vtable at RVA 0x2d7e58."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AE3DBeacon@4": {
+        "va": 278048032,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0cf857b413ddd7a74c36e040ef417a497a763c3e1926290afa798abddd6ace36",
+      "inputs_sha256": "e012fdd0bd3c15065567ae0d4f94be2306c29ec120b7701077eb6e89a95231b0"
+    }
+  },
+  {
+    "id": "delete-ae3dcameratarget",
+    "offset": 2981232,
+    "size": 46,
+    "inputs": [
+      "src/campaign_class_destruction.c"
+    ],
+    "rebuilt_symbol": "@delete_AE3DCameraTarget@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_destruction.obj src/campaign_class_destruction.c",
+    "identification": "Stock AE3DCameraTarget UClass factory at RVA 0x2d7f50 references the named placement constructor at RVA 0x2d7e60. That constructor installs the vtable at RVA 0x7eba90, whose slot 3 points to this deleting destructor at RVA 0x2d7d70. Both paths converge before the final RET 4.",
+    "link_bindings": {
+      "_vtable_AE3DCameraTarget": {
+        "va": 286177936,
+        "basis": "The placement constructor at RVA 0x2d7e60 installs this same vtable at RVA 0x2d7e98."
+      },
+      "@conditional_destroy@4": {
+        "va": 281901616,
+        "basis": "Shared UObject helper checks the object index and destruction flag before dispatching virtual slot 9."
+      },
+      "@destroy_base_AE3DCameraTarget@4": {
+        "va": 278048032,
+        "basis": "Second direct destruction call receives the same object, immediately before the release-flag test."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator read on the conditional release path; slot 2 takes the original receiver."
+      }
+    },
+    "match": {
+      "bytes_sha256": "494c634b349623b70dc7cb10571c0092326d629379f85bd5161527a2328806ec",
+      "inputs_sha256": "a0db779ad9e41cd89bfc881948ed11ba10fceae7cf445907a750d3908ba90257"
+    }
+  },
+  {
+    "id": "placement-ae3dbeacon",
+    "offset": 2981408,
+    "size": 64,
+    "rebuilt_symbol": "_place_AE3DBeacon",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AE3DBeacon class descriptor."
+      },
+      "_vtable_AE3DBeacon": {
+        "va": 286177272,
+        "basis": "Class-specific table installed after base initialization in the named AE3DBeacon descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AE3DBeacon class factory at RVA 0x2d7fc0. The callback at RVA 0x2d7e20 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "c4ac375127363934e443fe105e172929422141a20091f83b64f1ed4b08114df5",
+      "inputs_sha256": "d010fad21404ee48ffc35a562002a0884de4c843874275901c3a04640061f543"
+    }
+  },
+  {
+    "id": "placement-ae3dcameratarget",
+    "offset": 2981472,
+    "size": 64,
+    "rebuilt_symbol": "_place_AE3DCameraTarget",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AE3DCameraTarget class descriptor."
+      },
+      "_vtable_AE3DCameraTarget": {
+        "va": 286177936,
+        "basis": "Class-specific table installed after base initialization in the named AE3DCameraTarget descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AE3DCameraTarget class factory at RVA 0x2d7f50. The callback at RVA 0x2d7e60 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "0517c0b3ff4ef92ffd30b58a62c450b26c6fb7cb3e9cbd7784fe9d7be4530595",
+      "inputs_sha256": "dafb2d51721d35c5dd6b3537ce20432ffedc30ba77eac76258e3e5c08ca54c4b"
+    }
+  },
+  {
+    "id": "class-factory-ae3dcameratarget",
+    "offset": 2981712,
+    "size": 105,
+    "rebuilt_symbol": "_create_AE3DCameraTarget",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AE3DCameraTarget": {
+        "va": 286178600,
+        "basis": "Retail UTF-16 AE3DCameraTarget allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AE3DCameraTarget": {
+        "va": 280854112,
+        "basis": "Placement callback passed to the native descriptor constructor for AE3DCameraTarget."
+      },
+      "@static_init_AE3DCameraTarget@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AE3DCameraTarget."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d7f50; its allocation tag and reflected class name identify AE3DCameraTarget. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "8c706269003e782da592ccf33f74e6444c6f79fd134a066d079a9e1cd551dcfd",
+      "inputs_sha256": "f466f71364915350de4e607696da9fe46b8f595b10bbe29774201cb4d882d2a3"
+    }
+  },
+  {
+    "id": "class-factory-ae3dbeacon",
+    "offset": 2981824,
+    "size": 105,
+    "rebuilt_symbol": "_create_AE3DBeacon",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AE3DBeacon": {
+        "va": 286178636,
+        "basis": "Retail UTF-16 AE3DBeacon allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AE3DBeacon": {
+        "va": 280854048,
+        "basis": "Placement callback passed to the native descriptor constructor for AE3DBeacon."
+      },
+      "@static_init_AE3DBeacon@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AE3DBeacon."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d7fc0; its allocation tag and reflected class name identify AE3DBeacon. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "54dc3ac531183529f21dd4c2fbf7fdac4616746d9a12047dfa84b628f24a2fc8",
+      "inputs_sha256": "ad2675b070972a7cd521e329fa3bc51e535bb798a037305a79b7e7de8941716a"
+    }
+  },
+  {
+    "id": "delete-ae3dmapsystem",
+    "offset": 2983024,
+    "size": 33,
+    "inputs": [
+      "src/campaign_deleting_destructors.c"
+    ],
+    "rebuilt_symbol": "@delete_AE3DMapSystem@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_deleting_destructors.obj src/campaign_deleting_destructors.c",
+    "identification": "Stock AE3DMapSystem vtable at RVA 0x7ebd68, slot 3, points to entry RVA 0x2d8470. Calls the class destructor, conditionally frees the receiver through the engine allocator, returns the receiver and pops the stack flag. Both branches converge before the final return. Named UClass factory at RVA 0x2d85c0 references the placement constructor at RVA 0x2d8580, which installs this vtable at RVA 0x2d85b8.",
+    "link_bindings": {
+      "@destroy_AE3DMapSystem@4": {
+        "va": 280855712,
+        "basis": "Direct destructor call on the receiver before inspecting the deletion flag. Destination is in the stock .text section at RVA 0x2d84a0."
+      },
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Global allocator loaded on the conditional release path. Its virtual slot 2 receives the original object pointer."
+      }
+    },
+    "match": {
+      "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
+      "inputs_sha256": "987d995bcc7e6863acde37fad12821956cceabe67e1bdbea32a5483b72c249e8"
+    }
+  },
+  {
+    "id": "placement-ae3dmapsystem",
+    "offset": 2983296,
+    "size": 64,
+    "rebuilt_symbol": "_place_AE3DMapSystem",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_object@4": {
+        "va": 281901360,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named AE3DMapSystem class descriptor."
+      },
+      "_vtable_AE3DMapSystem": {
+        "va": 286178664,
+        "basis": "Class-specific table installed after base initialization in the named AE3DMapSystem descriptor callback. Its first slot points into the campaign code section."
+      }
+    },
+    "identification": "Placement callback passed to the AE3DMapSystem class factory at RVA 0x2d85c0. The callback at RVA 0x2d8580 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "b42ef248b1a7a6d82930f13abb7ab631e49a6921e551b19e1d1da19d584aaa79",
+      "inputs_sha256": "0d81d1644e90e370c94e293417e895ab00871feef0f80142c2d279960a3aba02"
+    }
+  },
+  {
+    "id": "class-factory-ae3dmapsystem",
+    "offset": 2983360,
+    "size": 105,
+    "rebuilt_symbol": "_create_AE3DMapSystem",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_AE3DMapSystem": {
+        "va": 286179328,
+        "basis": "Retail UTF-16 AE3DMapSystem allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_AE3DMapSystem": {
+        "va": 280855936,
+        "basis": "Placement callback passed to the native descriptor constructor for AE3DMapSystem."
+      },
+      "@static_init_AE3DMapSystem@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for AE3DMapSystem."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x2d85c0; its allocation tag and reflected class name identify AE3DMapSystem. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "fc8944caa0189a0cc106f1be10a887f0bac5b0ca76593161b8e8222b41157f65",
+      "inputs_sha256": "37c745c0dbc9350de4b962592e6c779570efb48828f8fb869f67c23c9b3bc36b"
+    }
+  },
+  {
+    "id": "script-parameters-getcurrent",
+    "offset": 2985472,
+    "size": 52,
+    "rebuilt_symbol": "@script_call_GetCurrent@4",
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_GetCurrent": {
+        "va": 287503520,
+        "basis": "FName initialized with retail UTF-16 GetCurrent (VA 0x110fb378). The FName constructor call at RVA 0x335653 precedes the store to this slot at RVA 0x335665."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Shared script-function lookup. Its two stack arguments are the event FName and lookup option, and its result is passed to the UObject virtual ProcessEvent slot at +0x10."
+      }
+    },
+    "identification": "Retail GetCurrent event wrapper at RVA 0x2d8e00, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EGoalList.GetCurrent with EGoal ReturnValue at serial offset 0xce82d.",
+    "match": {
+      "bytes_sha256": "12a47473eab5dffd1611f59656420ce6cb96abf49ad19d4346cc95241d6e4bd3",
+      "inputs_sha256": "4ec43291dc54c6694a393916e3c3a47a70810806c969a8d18da4af5eec88bc8a"
+    }
+  },
+  {
+    "id": "class-registration-aeaimanager",
+    "offset": 2986544,
+    "size": 264,
+    "rebuilt_symbol": "_register_AEAIManager",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_AEAIManager": {
+        "va": 287502044,
+        "basis": "The AEAIManager class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_AActor": {
+        "va": 287271032,
+        "basis": "The AActor class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_AActor": {
+        "va": 278488448,
+        "basis": "The constructor names AActor using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_AActor": {
+        "va": 278458352,
+        "basis": "Registration target reached after the AActor constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for AEAIManager at RVA 0x2d9230, called immediately after the class factory at RVA 0x2e4f00 in the singleton initialization path. Sets superclass AActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "9a399b8695f549705669f97c50d9cdc228db4080e94d2c407df1af016dcccad6",
+      "inputs_sha256": "8ee01bda379adbf9f6ed47d40ec37206301d97717a3337d85560ba7aa1de4d2a"
+    }
+  }
+]

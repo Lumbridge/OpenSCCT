@@ -1,0 +1,256 @@
+[
+  {
+    "id": "placement-uesoftbody",
+    "offset": 1391408,
+    "size": 14,
+    "rebuilt_symbol": "_place_UESoftBody",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UESoftBody@4": {
+        "va": 279261264,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UESoftBody class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UESoftBody class factory at RVA 0x1544a0. The callback at RVA 0x153b30 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "7b1b69ee547d7c6c8a5977d2728ea2d9ae5d1290e00f9e59355fe2933faa1a9a",
+      "inputs_sha256": "c88133e0054b4c302b10f98e7fb37eb23b278062c260853803250c6a7b155487"
+    }
+  },
+  {
+    "id": "class-factory-uesoftbody",
+    "offset": 1393824,
+    "size": 105,
+    "rebuilt_symbol": "_create_UESoftBody",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UESoftBody": {
+        "va": 286094084,
+        "basis": "Retail UTF-16 UESoftBody allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UESoftBody": {
+        "va": 279264048,
+        "basis": "Placement callback passed to the native descriptor constructor for UESoftBody."
+      },
+      "@static_init_UESoftBody@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UESoftBody."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x1544a0; its allocation tag and reflected class name identify UESoftBody. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "f341163e48e362c1cdd27756986d70e6bcfb7d9ec5bf3188157f0915e0c85da5",
+      "inputs_sha256": "21300110c5d832fa09dff56221ca10ec35c62195329f8f0d0ee7a4b6ab49add5"
+    }
+  },
+  {
+    "id": "class-registration-uerope",
+    "offset": 1394736,
+    "size": 264,
+    "rebuilt_symbol": "_register_UERope",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UERope": {
+        "va": 287286460,
+        "basis": "The UERope class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UPrimitive": {
+        "va": 287268812,
+        "basis": "The UPrimitive class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UPrimitive": {
+        "va": 278344544,
+        "basis": "The constructor names UPrimitive using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UPrimitive": {
+        "va": 278341120,
+        "basis": "Registration target reached after the UPrimitive constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UERope at RVA 0x154830, called immediately after the class factory at RVA 0x1570b0 in the singleton initialization path. Sets superclass UPrimitive, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "91460468ea6f680707e3812449a0405bf41ec12e203e8713bbbfeb8ffa061ce7",
+      "inputs_sha256": "2909f92d3b701fcf328790e4090c9d66948f01177725e6c011a82737fb0a513e"
+    }
+  },
+  {
+    "id": "placement-uerope",
+    "offset": 1403008,
+    "size": 14,
+    "rebuilt_symbol": "_place_UERope",
+    "inputs": [
+      "src/campaign_placement.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_placement.obj src/campaign_placement.c",
+    "link_bindings": {
+      "@initialize_UERope@4": {
+        "va": 279275184,
+        "basis": "Direct base or delegated constructor target in the placement callback referenced by the named UERope class descriptor."
+      }
+    },
+    "identification": "Placement callback passed to the UERope class factory at RVA 0x1570b0. The callback at RVA 0x156880 covers construction and the null-storage return. ",
+    "match": {
+      "bytes_sha256": "b27a3751cf89b14027507292807026e5033dc711c2d27b7c88723768c50dd29a",
+      "inputs_sha256": "22195a509a0736296e355b55a0144730bbe7c3f97195171bcb5f53ec8f1f19a2"
+    }
+  },
+  {
+    "id": "class-factory-uerope",
+    "offset": 1405104,
+    "size": 105,
+    "rebuilt_symbol": "_create_UERope",
+    "inputs": [
+      "src/campaign_class_factories.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_factories.obj src/campaign_class_factories.c",
+    "link_bindings": {
+      "_engine_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator pointer. Its first virtual slot allocates the runtime class descriptor."
+      },
+      "_native_name_UERope": {
+        "va": 286094296,
+        "basis": "Retail UTF-16 UERope allocation tag. The class-name argument skips the first character of this same string."
+      },
+      "_config_System": {
+        "va": 285983088,
+        "basis": "Retail UTF-16 System configuration name passed to the class descriptor constructor."
+      },
+      "_place_UERope": {
+        "va": 279275648,
+        "basis": "Placement callback passed to the native descriptor constructor for UERope."
+      },
+      "@static_init_UERope@4": {
+        "va": 281897664,
+        "basis": "Static class callback passed together with the placement callback for UERope."
+      },
+      "@construct_runtime_class@56": {
+        "va": 281961024,
+        "basis": "Common native class descriptor constructor called after the successful 0x2e0-byte allocation."
+      }
+    },
+    "identification": "Native class factory at RVA 0x1570b0; its allocation tag and reflected class name identify UERope. The successful construction and null-allocation returns both belong to this complete symbol.",
+    "match": {
+      "bytes_sha256": "7cd1ab1cd638e49b70a4a14bf440bbc1363820ae01d7be1bd37832e970109574",
+      "inputs_sha256": "46676d7cf177f154001b6180d8be3901537c079fe54af657fc9b0abf6b7473e7"
+    }
+  },
+  {
+    "id": "class-registration-uenavmesh",
+    "offset": 1405344,
+    "size": 264,
+    "rebuilt_symbol": "_register_UENavMesh",
+    "inputs": [
+      "src/campaign_class_registration_1.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_1.obj src/campaign_class_registration_1.c",
+    "link_bindings": {
+      "_class_UENavMesh": {
+        "va": 287286472,
+        "basis": "The UENavMesh class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UENavMesh at RVA 0x1571a0, called immediately after the class factory at RVA 0x16b840 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "a56e75c131a686ff4c9f6e1a798fd4885568e666bda10572d63c7b81252e4188",
+      "inputs_sha256": "4381979922f521171ad7fd9a47554e8f34ff177c534c37feae96c929915ae0cb"
+    }
+  }
+]

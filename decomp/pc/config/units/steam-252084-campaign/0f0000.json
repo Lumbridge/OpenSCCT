@@ -1,0 +1,36 @@
+[
+  {
+    "id": "class-singleton-ulodmeshinstance-secondary",
+    "offset": 995264,
+    "size": 38,
+    "rebuilt_symbol": "_get_class_ULodMeshInstance",
+    "inputs": [
+      "src/campaign_class_singletons.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_singletons.obj src/campaign_class_singletons.c",
+    "link_bindings": {
+      "_class_ULodMeshInstance": {
+        "va": 287286496,
+        "basis": "Class singleton checked before allocation, stored after the constructor, and loaded once registration returns."
+      },
+      "_create_ULodMeshInstance": {
+        "va": 279366496,
+        "basis": "The constructor passes both the UTF-16 ULodMeshInstance allocation tag and LodMeshInstance class name to the engine."
+      },
+      "_register_ULodMeshInstance": {
+        "va": 279364368,
+        "basis": "Direct registration call after initializing the singleton for ULodMeshInstance."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 package name Engine passed to the class constructor."
+      }
+    },
+    "identification": "Class singleton accessor at campaign RVA 0xf2fc0, at a 16-byte-aligned entry with INT3 padding after its return. The constructor at RVA 0x16cb60 names ULodMeshInstance. Both branches end at the return before alignment.",
+    "match": {
+      "bytes_sha256": "dd6502972783fa92b5d7379cf084cbee714d901702ccf9f5417cc12a86862ea3",
+      "inputs_sha256": "2c8fe9ba16920fe7a8911b73d4dcdc85787edcab0455d051f287135f0e3568da"
+    }
+  }
+]

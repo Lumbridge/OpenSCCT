@@ -1,0 +1,34 @@
+[
+  {
+    "id": "versus-data-format-via-slot-1",
+    "offset": 2392928,
+    "size": 5,
+    "rebuilt_symbol": "@versus_data_format_via_slot_1@16",
+    "inputs": [
+      "src/versus_data_dispatch.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Os /c /Folocal/versus_data_dispatch.obj src/versus_data_dispatch.c",
+    "identification": "Retail RTTI identifies clDataStr vftable RVA 0x2e1f30. Zero-based slot 2 selects this body. Its indirect tail jump precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "5a90d0bd0afcbaffbae31458745dba34a323191670616da2e2939913e474ad99",
+      "inputs_sha256": "8c8da3bae9b28f1426d0186cf4a2ca71fff748b4aae2bfac31a8d7f163160c1b"
+    }
+  },
+  {
+    "id": "versus-range-data-size",
+    "offset": 2392944,
+    "size": 9,
+    "rebuilt_symbol": "@versus_range_data_size@4",
+    "inputs": [
+      "src/versus_data_sizes.c"
+    ],
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /c /Folocal/versus_data_sizes.obj src/versus_data_sizes.c",
+    "identification": "Retail RTTI identifies clDataBin vftable RVA 0x2e1688. Zero-based slot 5 selects this body. Its return precedes alignment padding.",
+    "match": {
+      "bytes_sha256": "f9bb8add1928091fba2d7239954bcc6d18938bc6a5dc7e3eed8a68586dce9e7f",
+      "inputs_sha256": "fea0db3b0675ad3ff6d73de332516ecc1e3da9a5a3bd5f0629b7fd3443fabd3c"
+    }
+  }
+]

@@ -1,0 +1,144 @@
+[
+  {
+    "id": "class-registration-uanimnotify-script",
+    "offset": 926752,
+    "size": 264,
+    "rebuilt_symbol": "_register_UAnimNotify_Script",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UAnimNotify_Script": {
+        "va": 287279876,
+        "basis": "The UAnimNotify_Script class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UAnimNotify": {
+        "va": 287279872,
+        "basis": "The UAnimNotify class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UAnimNotify": {
+        "va": 278774800,
+        "basis": "The constructor names UAnimNotify using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UAnimNotify": {
+        "va": 278702016,
+        "basis": "Registration target reached after the UAnimNotify constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UAnimNotify_Script at RVA 0xe2420, called immediately after the class factory at RVA 0xdc480 in the singleton initialization path. Sets superclass UAnimNotify, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "df22047df2a44a17432db1e84210eef78936a8913f8ce8266f07d7b4e173c909",
+      "inputs_sha256": "844b85f059bdcf8b96aa42137be5eab2803a80468b7866bce7408167955d740c"
+    }
+  },
+  {
+    "id": "class-registration-uanimnotify-sound",
+    "offset": 927024,
+    "size": 264,
+    "rebuilt_symbol": "_register_UAnimNotify_Sound",
+    "inputs": [
+      "src/campaign_class_registration_2.c",
+      "src/campaign_class_registration.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_registration_2.obj src/campaign_class_registration_2.c",
+    "link_bindings": {
+      "_class_UAnimNotify_Sound": {
+        "va": 287279880,
+        "basis": "The UAnimNotify_Sound class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_class_UAnimNotify": {
+        "va": 287279872,
+        "basis": "The UAnimNotify class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UAnimNotify": {
+        "va": 278774800,
+        "basis": "The constructor names UAnimNotify using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail UTF-16 Engine package supplied to the class constructor."
+      },
+      "_register_UAnimNotify": {
+        "va": 278702016,
+        "basis": "Registration target reached after the UAnimNotify constructor initializes the singleton."
+      },
+      "_class_UObject": {
+        "va": 288432204,
+        "basis": "The UObject class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UObject": {
+        "va": 281908032,
+        "basis": "The constructor names UObject using its retail UTF-16 allocation tag and class name."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail UTF-16 Core package supplied to the class constructor."
+      },
+      "_register_UObject": {
+        "va": 281901984,
+        "basis": "Registration target reached after the UObject constructor initializes the singleton."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "The UClass class singleton also appears in its verified class accessor and named class constructor path."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "The constructor names UClass using its retail UTF-16 allocation tag and class name."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Registration target reached after the UClass constructor initializes the singleton."
+      },
+      "_object_system_initialized": {
+        "va": 281898912,
+        "basis": "Call to RVA 0x3d6fa0, a global read used to gate the final virtual registration call."
+      }
+    },
+    "identification": "Class registration for UAnimNotify_Sound at RVA 0xe2530, called immediately after the class factory at RVA 0xdc4f0 in the singleton initialization path. Sets superclass UAnimNotify, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
+    "match": {
+      "bytes_sha256": "9acea0555f47a8afe91cd46329368e1d9ea99b3d45ac6e856449eb37be0bf107",
+      "inputs_sha256": "ab87a3e83faffd0ec35f9b8301812af4a22c8c5ac14ca315791df14c3f63f8c7"
+    }
+  }
+]
