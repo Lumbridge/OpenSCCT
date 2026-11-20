@@ -1,5 +1,109 @@
 [
   {
+    "id": "versus-sbase-splayercontroller-canstarttravelonserver",
+    "offset": 1775040,
+    "size": 32,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SPlayerController_canStartTravelOnServer@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SPlayerController_canStartTravelOnServer at RVA 0x1b15c0. Native slot 1661 registration at RVA 0x18a9ad stores the address of the complete routine.",
+    "link_bindings": {
+      "_pending_clients": {
+        "va": 281590768,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "9fd72259f18d0b212ab21e02b3c1bf0b74773b1e9023bd86f243003fbc99bf3e",
+      "inputs_sha256": "fe74b5edf2d1857c4d8bfd27a9f009699f4de8a45d4ba95ca5a417ca6cbbfae8"
+    }
+  },
+  {
+    "id": "versus-sbase-splayercontroller-refuseclientsconnections",
+    "offset": 1775072,
+    "size": 19,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SPlayerController_refuseClientsConnections@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SPlayerController_refuseClientsConnections at RVA 0x1b15e0. Native slot 1666 registration at RVA 0x18aa1b stores the address of the complete routine.",
+    "link_bindings": {
+      "_pending_clients": {
+        "va": 281590768,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "6bae5f1fc722b85287d69b9d258cb58b65544815e8782e6004f53bcbd73504bb",
+      "inputs_sha256": "1351324f65c428becebcd88c3e4ed4a842ac8fcf7e577cfab2ba287508026130"
+    }
+  },
+  {
+    "id": "versus-sbase-splayercontroller-nbpendingclientonserver",
+    "offset": 1775152,
+    "size": 28,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SPlayerController_NbPendingClientOnServer@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SPlayerController_NbPendingClientOnServer at RVA 0x1b1630. Native slot 1665 registration at RVA 0x18aa52 stores the address of the complete routine.",
+    "link_bindings": {
+      "_pending_clients": {
+        "va": 281590768,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "195bf97f70381001d1dd1effa6fe1df3090eb052f41356f453dda359a6837dbe",
+      "inputs_sha256": "481c9fc81a30735a43849f1f7850265d9dc841708908de77f084d099f6db7dfd"
+    }
+  },
+  {
+    "id": "versus-sbase-splayercontroller-resetclientpending",
+    "offset": 1775184,
+    "size": 22,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SPlayerController_resetClientPending@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SPlayerController_resetClientPending at RVA 0x1b1650. Native slot 1702 registration at RVA 0x18a976 stores the address of the complete routine.",
+    "link_bindings": {
+      "_pending_clients": {
+        "va": 281590768,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "37edee6bd87db6c6f8b3f53e3d6d9b014d31682272319d9b3add8bbf22ebe265",
+      "inputs_sha256": "d5981424a5c915a2c203093288032c3243b1e559a249530a26b80ee8a06f4cbe"
+    }
+  },
+  {
+    "id": "versus-sbase-srj45checker-isrj45plugged",
+    "offset": 1799968,
+    "size": 20,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SRJ45Checker_isRJ45Plugged@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SRJ45Checker_isRJ45Plugged at RVA 0x1b7720. Native slot 1790 registration at RVA 0x18a52a stores the address of the complete routine.",
+    "match": {
+      "bytes_sha256": "333a470b9c24b78a356407b22944b60a8da3a816c37bc14d30f7dd92b9fb51a3",
+      "inputs_sha256": "d3a646878b562782c1533a1b0f720eb6c2f152457b99084938c0175fe510a295"
+    }
+  },
+  {
     "id": "versus-interaction-count",
     "offset": 1830128,
     "size": 22,

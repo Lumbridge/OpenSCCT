@@ -836,6 +836,22 @@
     }
   },
   {
+    "id": "versus-core-object-subtract-prefloat",
+    "offset": 281616,
+    "size": 64,
+    "inputs": [
+      "src/versus_float_negation.c"
+    ],
+    "rebuilt_symbol": "@exec_Core_Object_Subtract_PreFloat@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_float_negation.obj src/versus_float_negation.c",
+    "identification": "Versus script handler Core_Object_Subtract_PreFloat at RVA 0x44c10. Native slot 169 registration at RVA 0x4bb41 stores the address of the complete routine.",
+    "match": {
+      "bytes_sha256": "aab7b3e0e757476df323b02a2309aff96ec32545da697b2db9e2431dc84dacd2",
+      "inputs_sha256": "eb365c1f77206a5c9fb51a57fb910da39fe606f36b977773408660df717001bc"
+    }
+  },
+  {
     "id": "vm-multiply-multiply-float-float",
     "offset": 281680,
     "size": 105,

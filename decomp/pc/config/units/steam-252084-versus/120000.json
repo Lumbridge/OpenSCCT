@@ -469,6 +469,28 @@
     }
   },
   {
+    "id": "versus-engine-actor-nettype",
+    "offset": 1205408,
+    "size": 22,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_NetType@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler Engine_Actor_NetType at RVA 0x1264a0. Native slot 1069 registration at RVA 0x94ecb stores the address of the complete routine.",
+    "link_bindings": {
+      "_lan_mode": {
+        "va": 281617332,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "56b285af88773ec83ac244baf3e1ebecf4488bbb997d6ef15db448d18ba2b5a7",
+      "inputs_sha256": "d1981da1ad1000445d1d49ff2ca0cdfa91e80d2e0b37ce138e6289b02c63883e"
+    }
+  },
+  {
     "id": "vm-rot-rand-with-angle",
     "offset": 1205440,
     "size": 176,
@@ -492,6 +514,50 @@
     }
   },
   {
+    "id": "versus-engine-actor-enterlan",
+    "offset": 1205696,
+    "size": 20,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_EnterLAN@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler Engine_Actor_EnterLAN at RVA 0x1265c0. Native slot 1070 registration at RVA 0x94e5d stores the address of the complete routine.",
+    "link_bindings": {
+      "_lan_mode": {
+        "va": 281617332,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c070f1cef234c6108906287ed7841a71bf01dadce7b03d5f9584ee719364e9a1",
+      "inputs_sha256": "0809b4fd2dcc9955c334d9541d4a527b0d4283b7008396e70a10f2c9fe64355d"
+    }
+  },
+  {
+    "id": "versus-engine-actor-leavelan",
+    "offset": 1205728,
+    "size": 20,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_LeaveLAN@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler Engine_Actor_LeaveLAN at RVA 0x1265e0. Native slot 1071 registration at RVA 0x94e26 stores the address of the complete routine.",
+    "link_bindings": {
+      "_lan_mode": {
+        "va": 281617332,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2fb60b68707098fc7dcaf0aaad82c216f46a9d7693352bd5c284a41e4e1cd265",
+      "inputs_sha256": "a5e6be97de8649ab69f37fae7c904e81ca17bb4a0dee752a5621f205fe84224e"
+    }
+  },
+  {
     "id": "vm-launch-context",
     "offset": 1205760,
     "size": 17,
@@ -505,6 +571,22 @@
     "match": {
       "bytes_sha256": "ee73bcf6a71a75d54e016186249d900282ff60946bfbc7de69a87cfb14e2381a",
       "inputs_sha256": "7b81350a71aba847ae9b42cf69328403818ab31a8f7cbe44a5c60961b6f93dcc"
+    }
+  },
+  {
+    "id": "versus-sbase-slanserverlink-init",
+    "offset": 1205792,
+    "size": 10,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SLANServerLink_Init@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SLANServerLink_Init at RVA 0x126620. Native slot 1341 registration at RVA 0x18be84 stores the address of the complete routine.",
+    "match": {
+      "bytes_sha256": "f3035b265a1252c5d16896c93511706befc8b8ea6d89ba5b86cd50f39525af1b",
+      "inputs_sha256": "0c761173625afe047d05e038717d212aa2009213a8a580f00fd8a2c2d8d6982d"
     }
   },
   {

@@ -265,6 +265,28 @@
     }
   },
   {
+    "id": "versus-engine-lanerrorhandler-initialize",
+    "offset": 1109760,
+    "size": 16,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_Engine_LANErrorHandler_Initialize@16",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler Engine_LANErrorHandler_Initialize at RVA 0x10ef00. Native slot 1222 registration at RVA 0x95d67 stores the address of the complete routine.",
+    "link_bindings": {
+      "_lan_error_handler": {
+        "va": 281617724,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "737bc20f3da7815c5d0566dcf3e20f8e72a6aeb3fb289dc0026dce5f6de53814",
+      "inputs_sha256": "e4944c7ace4cd9c3f995c247a122b5a2c7103ccad06dd218cabbca8fb8574b22"
+    }
+  },
+  {
     "id": "versus-mesh-owner-location",
     "offset": 1110304,
     "size": 37,

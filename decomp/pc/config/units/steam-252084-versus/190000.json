@@ -361,6 +361,72 @@
     }
   },
   {
+    "id": "versus-sbase-sxboxliveref-ipjoingetserverversion",
+    "offset": 1687120,
+    "size": 22,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SXBoxLiveRef_IPJoinGetServerVersion@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SXBoxLiveRef_IPJoinGetServerVersion at RVA 0x19be50. Native slot 1753 registration at RVA 0x188cac stores the address of the complete routine.",
+    "link_bindings": {
+      "_server_version": {
+        "va": 281791064,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "954a51862a3b846135c8e74728334c1a9d11bcf7826acdc7cd0afa9d06a793be",
+      "inputs_sha256": "d790ebe7d4a0a9dfff340071210fa7020c7b4a416adbb2c9de053b8f5234ea1c"
+    }
+  },
+  {
+    "id": "versus-sbase-sxboxliveref-ipjoinpunkbusterenabled",
+    "offset": 1687216,
+    "size": 22,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SXBoxLiveRef_IPJoinPunkBusterEnabled@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SXBoxLiveRef_IPJoinPunkBusterEnabled at RVA 0x19beb0. Native slot 1756 registration at RVA 0x188c07 stores the address of the complete routine.",
+    "link_bindings": {
+      "_server_punkbuster": {
+        "va": 281791108,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c15ed6712a806ccdb634f70064d2be616fbcf436f01f412631e1936fb7be6ef0",
+      "inputs_sha256": "e0fb15e087e89d0f686d2e5ca873acf930ba8912a804f91d7a3f3e4548a25757"
+    }
+  },
+  {
+    "id": "versus-sbase-sxboxliveref-ipjoinislocked",
+    "offset": 1687248,
+    "size": 22,
+    "inputs": [
+      "src/versus_session_state.c"
+    ],
+    "rebuilt_symbol": "@exec_SBase_SXBoxLiveRef_IPJoinIsLocked@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_session_state.obj src/versus_session_state.c",
+    "identification": "Versus script handler SBase_SXBoxLiveRef_IPJoinIsLocked at RVA 0x19bed0. Native slot 1757 registration at RVA 0x188bd0 stores the address of the complete routine.",
+    "link_bindings": {
+      "_server_locked": {
+        "va": 281791104,
+        "basis": "Retail session state referenced by the registered handler."
+      }
+    },
+    "match": {
+      "bytes_sha256": "db3292958bbd9b5700b9ebbb45a727fce4920b66c48a9f84416e7ad31688d21d",
+      "inputs_sha256": "714c4c5b6dd382bdd08e6f43b380d622e114ff782c0f79e2cae2dd6f326d0d8a"
+    }
+  },
+  {
     "id": "online-match-query-is-reachable",
     "offset": 1687824,
     "size": 80,
