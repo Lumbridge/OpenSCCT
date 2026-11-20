@@ -172,6 +172,50 @@
     }
   },
   {
+    "id": "counted-node-12-7523c0",
+    "size": 34,
+    "offset": 7676864,
+    "inputs": [
+      "src/campaign_counted_nodes.c"
+    ],
+    "rebuilt_symbol": "@allocate_12@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_nodes.obj src/campaign_counted_nodes.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285460528,
+        "basis": "Indexed engine allocator entry."
+      }
+    },
+    "identification": "Complete Campaign method at RVA 0x7523c0. Allocates a 12-byte node, initializes both links and increases the count on success.",
+    "match": {
+      "bytes_sha256": "b3da474e7e50cede9dca74e0e1e49aa5183a39df3b13aab2ed435d0543013126",
+      "inputs_sha256": "cf7b99dbc704f93b951d49d9c0c6b36f8d3645287cc7b025a643caf6b71acbf6"
+    }
+  },
+  {
+    "id": "counted-node-release-752400",
+    "size": 24,
+    "offset": 7676928,
+    "inputs": [
+      "src/campaign_counted_nodes.c"
+    ],
+    "rebuilt_symbol": "@release_counted_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_nodes.obj src/campaign_counted_nodes.c",
+    "link_bindings": {
+      "_release_node@4": {
+        "va": 285460592,
+        "basis": "Indexed engine buffer release."
+      }
+    },
+    "identification": "Complete Campaign method at RVA 0x752400. Releases a non-null node and decreases the count.",
+    "match": {
+      "bytes_sha256": "56277eab858c47f075bc55acf63baf66588284be415ea0b16914dd3d190aad86",
+      "inputs_sha256": "787bda1d3de5f348ebf750df25b8311ec74d2415ac4160f4200c92c9c5a5f91e"
+    }
+  },
+  {
     "id": "create-managed-item",
     "offset": 7676960,
     "size": 103,
@@ -798,6 +842,50 @@
     "match": {
       "bytes_sha256": "cb86afec6a11b054bc98d403d187b922e09a0f069182485ed7e9661f101bad66",
       "inputs_sha256": "a09a00332515d96da7e768ce8b7ce22b31b928a16690f4ea60b0110b131df854"
+    }
+  },
+  {
+    "id": "counted-node-16-7588c0",
+    "size": 34,
+    "offset": 7702720,
+    "inputs": [
+      "src/campaign_counted_nodes.c"
+    ],
+    "rebuilt_symbol": "@allocate_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_nodes.obj src/campaign_counted_nodes.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285460528,
+        "basis": "Indexed engine allocator entry."
+      }
+    },
+    "identification": "Complete Campaign method at RVA 0x7588c0. Allocates a 16-byte node, initializes both links and increases the count on success.",
+    "match": {
+      "bytes_sha256": "fecd41d6010d0273340aa1675fb5b56f561f5163749f19d4956976eb5b58826e",
+      "inputs_sha256": "97cc4652a37d16f6da58ab4599d75f8720f0be4a021495aa738ab898f7bbf2ec"
+    }
+  },
+  {
+    "id": "counted-node-release-7588f0",
+    "size": 24,
+    "offset": 7702768,
+    "inputs": [
+      "src/campaign_counted_nodes.c"
+    ],
+    "rebuilt_symbol": "@release_counted_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_nodes.obj src/campaign_counted_nodes.c",
+    "link_bindings": {
+      "_release_node@4": {
+        "va": 285460592,
+        "basis": "Indexed engine buffer release."
+      }
+    },
+    "identification": "Complete Campaign method at RVA 0x7588f0. Releases a non-null node and decreases the count.",
+    "match": {
+      "bytes_sha256": "bcc4ec67c03d827dc224f97d8b439ba396ae0bf3f3161372a162b788d8beb3bf",
+      "inputs_sha256": "6bdd3d1fbdfc90ba720b9ed2de2b4f436aeadb690d3a95ec32abe72deba55d3f"
     }
   },
   {
