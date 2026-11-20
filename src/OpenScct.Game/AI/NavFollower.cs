@@ -59,9 +59,12 @@ public sealed partial class NavFollower
     private float _progressAt = -1f;
     private float _steeredAt = -100f;
     private int _ladderWay;
+    private float _pipeDescentAt = -1f;
+    private float _pipeDescentZ;
     private int _calmHealth = int.MaxValue;
     private readonly Dictionary<int, int> _interrupted = new();
     private readonly List<int> _avoidScratch = new();
+    private readonly Dictionary<int, float> _deferredLinks = new();
     private float _bestRemaining;
     private int _replans;
 
@@ -120,6 +123,9 @@ public sealed partial class NavFollower
 
     /// <summary>Told what the follower ran into (a failed link, a stuck walk), for the bot's event log.</summary>
     public Action<string>? Trace { get; set; }
+
+    /// <summary>Whether a traversal is unsafe to start now. It is briefly avoided by this follower only.</summary>
+    internal Func<NavLink, float, bool>? DeferLink { get; set; }
 
     public int ActiveLink => _phase != TPhase.None && _next < _path.Count ? _path[_next].Link : -1;
 
@@ -263,7 +269,7 @@ public sealed partial class NavFollower
         _replans = 0;
         Arrived = false;
         Failed = false;
-        if (pawn.Physics == EPhysics.PHYS_OnLadder || OnFence(pawn))
+        if (pawn.Physics is EPhysics.PHYS_OnLadder or EPhysics.PHYS_OnPipe || OnFence(pawn))
         {
             // A pawn can grab a ladder/fence automatically, or lose its path during a goal change.
             // It has no floor node partway up: finish the climb before asking A* for a new floor route.
@@ -326,7 +332,7 @@ public sealed partial class NavFollower
             penalty = n => (_avoid.Contains(n) ? 5000f : 0f) + (inner?.Invoke(n) ?? 0f);
         }
 
-        if (!g.BeginPath(search, from, to, _stealth, penalty, _world.BadLinks(_spy), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
+        if (!g.BeginPath(search, from, to, _stealth, penalty, BlockedLinks(), float.MaxValue, _world.BadEdges(_spy), allowPartial: true,
                 BeltCost(g)))
         {
             Failed = true;
@@ -337,6 +343,21 @@ public sealed partial class NavFollower
         _pendingFrom = from;
         _pendingTo = to;
         return true;
+    }
+
+    private IReadOnlySet<int> BlockedLinks()
+    {
+        IReadOnlySet<int> world = _world.BadLinks(_spy);
+        if (_deferredLinks.Count == 0) return world;
+
+        float now = _world.Now;
+        var blocked = new HashSet<int>(world);
+        foreach ((int link, float until) in _deferredLinks)
+        {
+            if (now < until) blocked.Add(link);
+            else _deferredLinks.Remove(link);
+        }
+        return blocked;
     }
 
     private bool PlanEnd(Pawn pawn, NavGraph.PathSearch search)
@@ -418,37 +439,35 @@ public sealed partial class NavFollower
             cmd.Tolerance = 65536;
             return cmd;
         }
-        if (!_hasGoal || Failed)
-        {
-            return cmd;
-        }
-
-        if (_phase == TPhase.None)
-        {
-            _calmHealth = pawn.Health;
-        }
-
         FVector at = pawn.Location;
         FVector feet = Feet(pawn);
-        // A partial route gets the bot out of spawn toward its objective, but never steers blindly across the
-        // missing connection. At its endpoint report failure so the brain can choose another objective/route.
-        if (_partial && _path.Count > 0 && Horizontal(_path[^1].Point - at) < 20f && MathF.Abs(_path[^1].Point.Z - feet.Z) < 80f)
+        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnPipe && !AdoptVerticalLink(at, now, pipe: true))
         {
-            Failed = true;
+            // No planned exit from this pole. Slide down to a floor node. If a lip stops the slide,
+            // use the controller's crouch release to detach and let gravity finish the descent.
+            if (_pipeDescentAt < 0f || at.Z < _pipeDescentZ - 8f)
+            {
+                _pipeDescentAt = now;
+                _pipeDescentZ = at.Z;
+            }
+            cmd.Keys.BT_Down = 1;
+            if (now - _pipeDescentAt > 0.8f)
+            {
+                cmd.Keys.bCrouch = 1;
+                _pipeDescentAt = now;
+            }
+            cmd.Tolerance = 65536;
+            cmd.Busy = true;
             return cmd;
         }
-        if (pawn.Physics != EPhysics.PHYS_OnLadder)
-        {
-            _ladderWay = 0;
-        }
-
-        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnLadder && !AdoptLadderLink(at, now))
+        _pipeDescentAt = -1f;
+        if (_phase == TPhase.None && pawn.Physics == EPhysics.PHYS_OnLadder && !AdoptVerticalLink(at, now, pipe: false))
         {
             // On a ladder with no link of the route to follow: one way, chosen once, until the pawn is off it (chosen
             // every tick against the goal's height it turned round near the top and went down and up for good).
             if (_ladderWay == 0)
             {
-                _ladderWay = _goal.Z > feet.Z + 80f ? 1 : -1;
+                _ladderWay = _hasGoal && !Failed && _goal.Z > feet.Z + 80f ? 1 : -1;
             }
 
             cmd.Crouched = null;
@@ -464,6 +483,28 @@ public sealed partial class NavFollower
             }
 
             return cmd;
+        }
+
+        if (!_hasGoal || Failed)
+        {
+            return cmd;
+        }
+
+        if (_phase == TPhase.None)
+        {
+            _calmHealth = pawn.Health;
+        }
+
+        // A partial route gets the bot out of spawn toward its objective, but never steers blindly across the
+        // missing connection. At its endpoint report failure so the brain can choose another objective/route.
+        if (_partial && _path.Count > 0 && Horizontal(_path[^1].Point - at) < 20f && MathF.Abs(_path[^1].Point.Z - feet.Z) < 80f)
+        {
+            Failed = true;
+            return cmd;
+        }
+        if (pawn.Physics != EPhysics.PHYS_OnLadder)
+        {
+            _ladderWay = 0;
         }
 
         if (_phase == TPhase.None && Horizontal(_goal - at) < 20f && MathF.Abs(_goal.Z - feet.Z) < 80f)
@@ -1028,7 +1069,7 @@ public sealed partial class NavFollower
     /// The pawn hangs on a ladder before the follower reached the ladder's link (it took hold on the way in): the next
     /// ladder link of the route that starts or ends here is taken over in its climb, so the rest of the route follows.
     /// </summary>
-    private bool AdoptLadderLink(FVector at, float now)
+    private bool AdoptVerticalLink(FVector at, float now, bool pipe)
     {
         int last = Math.Min(_path.Count, _next + 40);
         for (int i = _next; i < last; i++)
@@ -1039,7 +1080,10 @@ public sealed partial class NavFollower
             }
 
             NavLink link = Graph.Links[_path[i].Link];
-            if (link.Kind is not (NavEdgeKind.LadderUp or NavEdgeKind.LadderDown))
+            bool compatible = pipe
+                ? link.Kind is NavEdgeKind.PipeClimb or NavEdgeKind.PipeToBar or NavEdgeKind.PipeToBarToZip
+                : link.Kind is NavEdgeKind.LadderUp or NavEdgeKind.LadderDown;
+            if (!compatible)
             {
                 continue;
             }
@@ -1069,6 +1113,15 @@ public sealed partial class NavFollower
     private NavCommand Traverse(SBasePawn pawn, float now, int viewYaw, NavStep step)
     {
         NavLink link = Graph.Links[step.Link];
+        // Recheck on approach: the enemy could have arrived since the route was planned.
+        if (_phase is TPhase.None or TPhase.Approach or TPhase.Face && pawn.Physics == EPhysics.PHYS_Walking &&
+            Horizontal(pawn.Location - link.Start) < 240f && DeferLink?.Invoke(link, now) == true)
+        {
+            _deferredLinks[step.Link] = now + 3f;
+            Trace?.Invoke($"deferred exposed {link.Kind} {step.Link}");
+            PlanAgain(pawn);
+            return new NavCommand { Tolerance = 9000 };
+        }
         if (link.Kind == NavEdgeKind.Jump) return TraverseJump(pawn, now, viewYaw, step, link);
         var cmd = new NavCommand { Busy = true, Crouched = false, Tolerance = 9000 };
         FVector at = pawn.Location;

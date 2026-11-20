@@ -92,6 +92,26 @@ public partial class SGadStickyCam
         }
 
         FCoords fx = CombatServices.Ports(this).BoneCoords(weapon, SWeaponDefense.FxBone);
+        if (!TryFindPlacement(pawn, fx, out var location, out var facing, out var hitActor))
+        {
+            return false;
+        }
+
+        if (!bTest)
+        {
+            LastUsed = Level.TimeSeconds;
+            SpawnCam(StickyCamClass, pawn, location, facing, iNbSmokeChargeForCurrentSticky, hitActor);
+        }
+
+        return true;
+    }
+
+    /// <summary>Predicts the replicated mount from a candidate muzzle pose without firing the launcher.</summary>
+    internal bool TryFindPlacement(SBasePawn pawn, FCoords fx, out FVector location, out FRotator facing, out Actor? hitActor)
+    {
+        location = default;
+        facing = default;
+        hitActor = null;
         FVector d = fx.XAxis;
         FVector start = fx.Origin - d * K.StickyLaunchPullBack;
         FVector end = start + d * MaxLaunchDist;
@@ -122,7 +142,7 @@ public partial class SGadStickyCam
 
         // The original biases only the final facing, after the corner probes. A vertical normal has no yaw;
         // the tiny reverse-shot component keeps floor/ceiling cams facing the shooter instead of world east.
-        FRotator facing = NetRoundRotation((n - d * K.StickyFacingBias).Rotation());
+        facing = NetRoundRotation((n - d * K.StickyFacingBias).Rotation());
         p = NetRoundLocation(p);
         FVector lens = p + facing.Vector() * CameraK.StickyCamOffset;
         // A later corner correction can cross a wall checked by an earlier probe, or put the lens through
@@ -134,12 +154,8 @@ public partial class SGadStickyCam
             return false;
         }
 
-        if (!bTest)
-        {
-            LastUsed = Level.TimeSeconds;
-            SpawnCam(StickyCamClass, pawn, p, facing, iNbSmokeChargeForCurrentSticky, hit.Actor);
-        }
-
+        location = p;
+        hitActor = hit.Actor;
         return true;
     }
 

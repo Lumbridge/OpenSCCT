@@ -90,9 +90,10 @@ public sealed class MercMeleeBotTests
                     new AiInput { bCrouch = 1 }.ApplyTo(scene.Spy.Controller);
                 }
             };
-            scene.Step(1f);
         }
 
+        // Walking states also include stance transitions. Give either spawn stance time to settle at melee range.
+        scene.Step(1f);
         Assert.False(scene.Spy.Pawn!.bIsCrouched, "the spy did not stand up");
         return scene;
     }

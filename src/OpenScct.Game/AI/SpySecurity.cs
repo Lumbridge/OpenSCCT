@@ -42,12 +42,20 @@ public sealed class SpySecurity
             // A mine or a tracker is a small thing on a wall: seen from nearer than a camera or a beam emitter.
             float range = device is SMines ? MineSightRange : 1600f;
             if (d.SizeSquared() > range * range || d.SafeNormal().Dot(bot.Controller.Rotation.Vector()) < .1f ||
-                !bot.World.LineOpen(eye, device.Location)) continue;
+                !CanSeeDevice(bot, eye, device)) continue;
             _known.Add(device);
             // A newly seen beam or camera can invalidate the route chosen before it was visible.
             bot.Brain?.Follower.Clear();
         }
         _known.RemoveAll(d => d.bDeleteMe);
+    }
+
+    private static bool CanSeeDevice(AiController bot, FVector origin, SBasicGamePlayObject device)
+    {
+        // Flush-mounted emitters can have their origin embedded in the wall behind their face.
+        FVector delta = device.Location - origin;
+        FVector face = device.Location - delta.SafeNormal() * MathF.Min(delta.Size(), Math.Clamp(device.CollisionRadius, 2f, 12f));
+        return bot.World.LineOpen(origin, face);
     }
 
     private static readonly Name NameActive = new("s_Active");
@@ -131,7 +139,13 @@ public sealed class SpySecurity
             if (Covers(device, center, AiK.PawnRadius + 40f, AiK.SpyCrouchHeight) &&
                 (device is SLaserTrigger or SMineLaser || bot.World.LineOpen(device.Location, center)))
             {
-                if (_avoidUntil.TryGetValue(device, out float until) && bot.World.Now < until) return float.PositiveInfinity;
+                if (_avoidUntil.TryGetValue(device, out float until) && bot.World.Now < until)
+                {
+                    // A trigger raises an alarm; it does not physically block the doorway. Allow an
+                    // unavoidable crossing after a failed disable, while strongly preferring a detour.
+                    if (device is not SLaserTrigger) return float.PositiveInfinity;
+                    cost += LaserMineCost;
+                }
                 // A laser mine kills: another way round unless there is none. A proximity mine or a tracker is
                 // crept through (MustCreep), which costs time.
                 cost += device is SMineLaser ? LaserMineCost : SpeedTrap(device) ? 60f : 150f;
@@ -215,7 +229,8 @@ public sealed class SpySecurity
         plan.Yaw = aim.Yaw;
         plan.Pitch = aim.Pitch;
         SPlayerController pc = bot.Controller;
-        if (!bot.World.LineOpen(origin, aimPoint) || now - _engageAt > 6f)
+        FVector toEmitter = aimPoint - origin;
+        if (!CanSeeDevice(bot, origin, threat) || now - _engageAt > 4f)
         {
             // No usable shot, or repeated misses: exclude this coverage briefly and let navigation
             // find another route/objective. Never hold the spy facing an unreachable emitter forever.
@@ -229,11 +244,15 @@ public sealed class SpySecurity
             _drawAt = now;
             plan.Keys.bFireMode = 1;
         }
+        // Measure the muzzle ray against the emitter's hit area, so a close target does not
+        // require sub-degree precision before the spy will fire.
+        float along = toEmitter.Dot(shotRotation.Vector());
+        float hitRadius = Math.Clamp(MathF.Min(threat.CollisionRadius, threat.CollisionHeight) * 0.65f, 1f, 10f);
+        bool onTarget = along > 0 && (toEmitter - shotRotation.Vector() * along).SizeSquared() <= hitRadius * hitRadius;
         string state = pc.GetStateName().ToString();
         if (pawn.WeaponLoaded == 2 && !pawn.bWeaponTransit && !state.Contains("0HTo2H", StringComparison.Ordinal) &&
             !state.Contains("2HTo0H", StringComparison.Ordinal) && pawn.EnergyLevel >= SpyAiK.ShotEnergy &&
-            now - _shotAt > 1f && NavFollower.YawError(pc.Rotation.Yaw, aim.Yaw) < 40 &&
-            Math.Abs(FRotator.NormalizeAxis(pc.Rotation.Pitch - aim.Pitch)) < 40)
+            now - _shotAt > 1f && onTarget)
         {
             _shotAt = now;
             plan.Keys.bFire = 1;
