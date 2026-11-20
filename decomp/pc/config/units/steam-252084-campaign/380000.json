@@ -924,6 +924,28 @@
     }
   },
   {
+    "id": "range-copy-dispatch-387ca0",
+    "size": 34,
+    "offset": 3701920,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_copy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_copy_range": {
+        "va": 281565568,
+        "basis": "Indexed copy loop at RVA 0x385980; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range copy wrapper at RVA 0x387ca0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "ae8f249f68742d1c56b207722b250534a79bc0c77d335a5f3993b0c6a9bb4074",
+      "inputs_sha256": "bbce011490b85baecf97455bb556c709e2bc77ef10fee854c5d33235cf5f1a7b"
+    }
+  },
+  {
     "id": "typed-array-remove-387de0",
     "size": 23,
     "offset": 3702240,
@@ -1089,6 +1111,28 @@
     "match": {
       "bytes_sha256": "de25642f4a896a1a22bf7bfe30a30e7d8e3f4505f97d8c872af8475579bef8ce",
       "inputs_sha256": "1e1c6fd042a69ad6be41b4d816a69bc5a258f93cb3b352900e827e3de4f49e01"
+    }
+  },
+  {
+    "id": "range-fill-dispatch-388290",
+    "size": 34,
+    "offset": 3703440,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_fill",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_fill_count": {
+        "va": 281574448,
+        "basis": "Indexed fill loop at RVA 0x387c30; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range fill wrapper at RVA 0x388290, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "35a8250d97fb6578ceb4a4ba552ca41adc0f9ebcc199170d72de7c684289cf95",
+      "inputs_sha256": "d2345079920b61f1f0f973f2f5a8e6bc0a291e7a103dc062b57af58d97b0419c"
     }
   },
   {

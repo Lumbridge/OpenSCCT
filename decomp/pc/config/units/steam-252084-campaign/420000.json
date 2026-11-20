@@ -2264,6 +2264,50 @@
     }
   },
   {
+    "id": "range-copy-dispatch-42bf80",
+    "size": 34,
+    "offset": 4374400,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_copy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_copy_range": {
+        "va": 282244224,
+        "basis": "Indexed copy loop at RVA 0x42b480; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range copy wrapper at RVA 0x42bf80, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "9396c439ef359408857415a843b1205b9cf06187635ddeba4872bcfba5ceb706",
+      "inputs_sha256": "b5a3eb5aed2e7f0bb2209b8c0caa5251855a07e8daf90508b2fa389a867bbd11"
+    }
+  },
+  {
+    "id": "range-copy-dispatch-42bff0",
+    "size": 34,
+    "offset": 4374512,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_copy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_copy_range": {
+        "va": 282244320,
+        "basis": "Indexed copy loop at RVA 0x42b4e0; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range copy wrapper at RVA 0x42bff0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "47625d0498be89cad6b46a98ab168daf61c87c11420efa6954c41894ca472d4b",
+      "inputs_sha256": "f695b2f636f9b85cb714b3fb85df09058a7ae12d30d507c4d81ae24ae649173d"
+    }
+  },
+  {
     "id": "clear-owned-storage-42c0f0",
     "size": 42,
     "offset": 4374768,
@@ -2308,6 +2352,28 @@
     }
   },
   {
+    "id": "range-fill-dispatch-42c2c0",
+    "size": 34,
+    "offset": 4375232,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_fill",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_fill_count": {
+        "va": 282247200,
+        "basis": "Indexed fill loop at RVA 0x42c020; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range fill wrapper at RVA 0x42c2c0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "3af55c78b7499a439c84b1009072a1e30d70eeed4ae51dcd24187d509b52f6f5",
+      "inputs_sha256": "b1e92715077738467a19d182c8d3d2641d6832791c480e29cb152d3e90282a9a"
+    }
+  },
+  {
     "id": "delete-members-42cae0",
     "size": 30,
     "offset": 4377312,
@@ -2332,6 +2398,50 @@
     "match": {
       "bytes_sha256": "6559b82c2f31d6b452a3a6db1a40f48f1a8d2b38bf1682a1d33cc121151ba7c4",
       "inputs_sha256": "64f7161fa01e6305a580e14d56053b758bc1586a4bd92fb614766208f6065fdf"
+    }
+  },
+  {
+    "id": "range-copy-dispatch-42d5f0",
+    "size": 34,
+    "offset": 4380144,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_copy",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_copy_range": {
+        "va": 282250416,
+        "basis": "Indexed copy loop at RVA 0x42ccb0; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range copy wrapper at RVA 0x42d5f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "7fa81a70cd1c57ad18877ee90fbb400a2800d1468a801c373fa8c9402309caa3",
+      "inputs_sha256": "31896d5704d9cdb58b0fa361eebd6349266612334fe5afa2f9eeb464b2c29fb4"
+    }
+  },
+  {
+    "id": "range-fill-dispatch-42dd30",
+    "size": 34,
+    "offset": 4382000,
+    "inputs": [
+      "src/campaign_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "_dispatch_fill",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_dispatch.obj src/campaign_range_dispatch.c",
+    "link_bindings": {
+      "_fill_count": {
+        "va": 282252656,
+        "basis": "Indexed fill loop at RVA 0x42d570; the wrapper directly forwards the four arguments and appends a category object."
+      }
+    },
+    "identification": "Aligned range fill wrapper at RVA 0x42dd30, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
+    "match": {
+      "bytes_sha256": "3efccbc70e97fc7715f4f45b694a3e40744cb801c48fb26a619a500bb1472297",
+      "inputs_sha256": "c08538a0db9802981cc56b9410615e6bd1b66311878db7a75d5479dc833dd8ae"
     }
   },
   {
