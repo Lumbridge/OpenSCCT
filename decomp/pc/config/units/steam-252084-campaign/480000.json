@@ -1677,6 +1677,48 @@
     }
   },
   {
+    "id": "allocation-service-get-context",
+    "size": 78,
+    "offset": 4764768,
+    "inputs": [
+      "src/campaign_allocation_service.c"
+    ],
+    "rebuilt_symbol": "_get_context",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocation_service.obj src/campaign_allocation_service.c",
+    "link_bindings": {
+      "_shared_context": {
+        "va": 288466576,
+        "basis": "Retail operand for shared context."
+      },
+      "_initializing": {
+        "va": 288466572,
+        "basis": "Retail operand for initializing."
+      },
+      "_source_file": {
+        "va": 286510300,
+        "basis": "Retail operand for source file."
+      },
+      "_context_name": {
+        "va": 286510336,
+        "basis": "Retail operand for context name."
+      },
+      "_allocate_context": {
+        "va": 282622768,
+        "basis": "Retail operand for allocate context."
+      },
+      "@construct_context@8": {
+        "va": 282637136,
+        "basis": "Retail operand for @construct context@8."
+      }
+    },
+    "identification": "Indexed whole allocation service routine called by rebuilt typed allocation adapters. Get context.",
+    "match": {
+      "bytes_sha256": "886665bbc9231032a28dfc0eb04885ba6e7f274f1589fbd7e64cb40e6808ce51",
+      "inputs_sha256": "348842c9acdd437b61ae86311e9e00732d28b415a0bab82424c05008564ed589"
+    }
+  },
+  {
     "id": "delete-members-48b4b0",
     "size": 47,
     "offset": 4764848,
@@ -1709,6 +1751,66 @@
     "match": {
       "bytes_sha256": "93bc0fc0c3f9e845ae06387a79d2bf4d8d7f7102f4dcd60566dd9b0d091a809b",
       "inputs_sha256": "9d934f8146a920cf30bf370d29cd39e3919a1b24ad024d43d70dd1402668483d"
+    }
+  },
+  {
+    "id": "allocation-service-allocate-block",
+    "size": 104,
+    "offset": 4764896,
+    "inputs": [
+      "src/campaign_allocation_service.c"
+    ],
+    "rebuilt_symbol": "_allocate_block",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocation_service.obj src/campaign_allocation_service.c",
+    "link_bindings": {
+      "_allocate_callback": {
+        "va": 288466560,
+        "basis": "Retail operand for allocate callback."
+      },
+      "_release_callback": {
+        "va": 288466564,
+        "basis": "Retail operand for release callback."
+      },
+      "_header_size": {
+        "va": 288466568,
+        "basis": "Retail operand for header size."
+      },
+      "_default_allocate": {
+        "va": 284370264,
+        "basis": "Retail operand for default allocate."
+      }
+    },
+    "identification": "Indexed whole allocation service routine called by rebuilt typed allocation adapters. Allocate block.",
+    "match": {
+      "bytes_sha256": "1d32a6a85f85ddf3cc387a655d09fa2f09daf9821ab8613d59a69055f4fcaffb",
+      "inputs_sha256": "208dae71aa27177ad06e7a535de8ead9efc599f307ff7c7676926bc669e8a723"
+    }
+  },
+  {
+    "id": "allocation-service-release-block",
+    "size": 81,
+    "offset": 4765008,
+    "inputs": [
+      "src/campaign_allocation_service.c"
+    ],
+    "rebuilt_symbol": "_release_block",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocation_service.obj src/campaign_allocation_service.c",
+    "link_bindings": {
+      "_header_size": {
+        "va": 288466568,
+        "basis": "Retail operand for header size."
+      },
+      "_default_release": {
+        "va": 284370282,
+        "basis": "Retail operand for default release."
+      }
+    },
+    "identification": "Indexed whole allocation service routine called by rebuilt typed allocation adapters. Release block.",
+    "match": {
+      "bytes_sha256": "b4e5333f97c6d93165fc4f18355767e2a8ced9a61d1070e5026c3968aa22c484",
+      "inputs_sha256": "e7d6bcaa6be245fb0cc299933a196ddc6d8bfc4905a20e4caaf1ede38cb1ed18"
     }
   },
   {
