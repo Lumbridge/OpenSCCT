@@ -906,6 +906,40 @@
     }
   },
   {
+    "id": "vector-context-4-495af0",
+    "size": 91,
+    "offset": 4807408,
+    "inputs": [
+      "src/campaign_vector_context.c"
+    ],
+    "rebuilt_symbol": "@initialize_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_context.obj src/campaign_vector_context.c",
+    "link_bindings": {
+      "@vector_length_error@4": {
+        "va": 282678768,
+        "basis": "Direct call to the vector length exception constructor and throw routine."
+      },
+      "_allocation_source": {
+        "va": 285991560,
+        "basis": "Wide source label passed to the allocation service."
+      },
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Direct call to the allocation context accessor."
+      },
+      "_allocate_buffer": {
+        "va": 282637536,
+        "basis": "Direct call to the Campaign allocation service."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x495af0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "aafe121213ff768e998f46191c22d7230663aa509ec0522507e52dc2c9ebd22a",
+      "inputs_sha256": "e15d0845201abee4e98d6d40582b2b092b592f86e41974d673671b5e6b6378a9"
+    }
+  },
+  {
     "id": "delete-record-495b50",
     "offset": 4807504,
     "size": 30,
@@ -3068,6 +3102,40 @@
     "match": {
       "bytes_sha256": "f563a41b481bcc898c8700ad1f3c147e4264b171e874a916f786a41ab6b2ca80",
       "inputs_sha256": "21da89df3fb532f452235a0cf623a88d0d059a29cc3295e5a118ca8fdd603ca2"
+    }
+  },
+  {
+    "id": "vector-context-4-49c7f0",
+    "size": 91,
+    "offset": 4835312,
+    "inputs": [
+      "src/campaign_vector_context.c"
+    ],
+    "rebuilt_symbol": "@initialize_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_vector_context.obj src/campaign_vector_context.c",
+    "link_bindings": {
+      "@vector_length_error@4": {
+        "va": 282707840,
+        "basis": "Direct call to the vector length exception constructor and throw routine."
+      },
+      "_allocation_source": {
+        "va": 285991560,
+        "basis": "Wide source label passed to the allocation service."
+      },
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Direct call to the allocation context accessor."
+      },
+      "_allocate_buffer": {
+        "va": 282637536,
+        "basis": "Direct call to the Campaign allocation service."
+      }
+    },
+    "identification": "Aligned vector initialization entry at RVA 0x49c7f0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
+    "match": {
+      "bytes_sha256": "d741b895ae58e4a2257308fad3b3ee241e2262a7c870c442d5ca37a2fd0b653c",
+      "inputs_sha256": "5dced6c61d5d0ad9557880b93f086729e77c82453719c6c01909b67ea54afd70"
     }
   },
   {
