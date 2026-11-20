@@ -61,6 +61,34 @@
     }
   },
   {
+    "id": "array-resize-2931d0",
+    "size": 37,
+    "offset": 2699728,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r2931d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x2931d0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "ce7c57276d3f68a0a00498d668511803928530dbfda4fa0750113b4be1c4c693"
+    }
+  },
+  {
     "id": "game-echelon-epattern-stopspeech",
     "offset": 2702784,
     "size": 46,
@@ -149,6 +177,62 @@
     "match": {
       "bytes_sha256": "0f172c331d6b7da037851face11b385eb57ac5514894826b7a8c69db3c2c2f65",
       "inputs_sha256": "0c593f4c12288249aac1548923129cedf07da312626bdda806e3da184e20e822"
+    }
+  },
+  {
+    "id": "array-append-2978b0",
+    "size": 82,
+    "offset": 2717872,
+    "inputs": [
+      "src/campaign_array_append_item.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_array_item_r2978b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_append_item.obj src/campaign_array_append_item.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x2978b0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
+      "inputs_sha256": "e26dcec096a3eca4294aaf85e30331f86c4971fbcca5cd23ba171d514b8088a1"
+    }
+  },
+  {
+    "id": "array-append-297980",
+    "size": 82,
+    "offset": 2718080,
+    "inputs": [
+      "src/campaign_array_append_item.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_array_item_r297980@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_append_item.obj src/campaign_array_append_item.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x297980 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
+      "inputs_sha256": "1e8f0bba991fba1bfa93674be46c1d6945c40f76676de2fe40cb6d858ed3476e"
     }
   },
   {

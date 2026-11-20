@@ -2921,6 +2921,90 @@
     }
   },
   {
+    "id": "array-resize-3462d0",
+    "size": 37,
+    "offset": 3433168,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r3462d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x3462d0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "30ddaad3729cced22770fd43945d20755b89440bf2226815651cdaebf33b0196"
+    }
+  },
+  {
+    "id": "array-resize-346300",
+    "size": 37,
+    "offset": 3433216,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r346300@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x346300 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "7bca4ff5555c741115c0bc3edb832306094afd2d71cb380af7a8d55159a76b0a"
+    }
+  },
+  {
+    "id": "array-resize-346330",
+    "size": 37,
+    "offset": 3433264,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r346330@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x346330 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "b20b487176de06f87f5b18b1042e1c8651d0ba5b718e2b319af350be976d6f92"
+    }
+  },
+  {
     "id": "array-remove-3463f0",
     "size": 138,
     "offset": 3433456,
@@ -3520,6 +3604,34 @@
     "match": {
       "bytes_sha256": "26213126a864557fa8e68c9fe5f6e27b209607a1ae9341f5c3b44b9b1570d831",
       "inputs_sha256": "302e72427712f05cebac7b2fe48a42b64464eadeaf137aeb797f79d9f7b07eb7"
+    }
+  },
+  {
+    "id": "array-resize-347a80",
+    "size": 37,
+    "offset": 3439232,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r347a80@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x347a80 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "3829dd98f2613d83877de21567f12af21eb47b1903c5cffccc0bf43d67f22638"
     }
   },
   {
@@ -4259,6 +4371,34 @@
     }
   },
   {
+    "id": "array-resize-349dc0",
+    "size": 37,
+    "offset": 3448256,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r349dc0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x349dc0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "a00bff6ba0e39fd20f99f67c511f0a56a7b8a3eea6b377ef6fbd6da9311de3dc"
+    }
+  },
+  {
     "id": "array-remove-34a070",
     "size": 138,
     "offset": 3448944,
@@ -4315,6 +4455,34 @@
     "match": {
       "bytes_sha256": "a1fa780de6a0eb57e77307256209d1c099cc84245c181e012d01317f63b2594e",
       "inputs_sha256": "568afd4cf03df0899d05acfbe3d97235a58ee732a0ab8e015e31547c95e411ba"
+    }
+  },
+  {
+    "id": "array-append-34a7d0",
+    "size": 82,
+    "offset": 3450832,
+    "inputs": [
+      "src/campaign_array_append_item.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_array_item_r34a7d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_append_item.obj src/campaign_array_append_item.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x34a7d0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
+      "inputs_sha256": "8fc7049a98688fe67fa5bc10fcd05139b127d1e2d54f809c904f0f1bac89f515"
     }
   },
   {
@@ -5549,6 +5717,62 @@
     }
   },
   {
+    "id": "array-resize-34ce10",
+    "size": 37,
+    "offset": 3460624,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r34ce10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x34ce10 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "237e2fc073d552f6d08a6c29de343eaac015f04e0d30b3dab20acc809d7e0021"
+    }
+  },
+  {
+    "id": "array-resize-34ce40",
+    "size": 37,
+    "offset": 3460672,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r34ce40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x34ce40 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "43905a3108f211b51fec306504baed57b0e10c8ebc4c5edda8c7ad4f2bcf95a8"
+    }
+  },
+  {
     "id": "array-remove-34cfd0",
     "size": 138,
     "offset": 3461072,
@@ -6313,6 +6537,34 @@
     }
   },
   {
+    "id": "array-resize-34f050",
+    "size": 37,
+    "offset": 3469392,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r34f050@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x34f050 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "0f409eb6f3e838ea8fb26aa3a5473987ff3ee5908727a3a3704d528176a7c4ef"
+    }
+  },
+  {
     "id": "array-remove-34f1b0",
     "size": 138,
     "offset": 3469744,
@@ -6652,6 +6904,34 @@
     "match": {
       "bytes_sha256": "73a1be6f414557c0b551a0117cc2b286403c0d6da4edd53ddc33e4ec95bdd0af",
       "inputs_sha256": "8997d67aa9fe054d4032edebea05712625b6b8f14a1d6aa5d6ca84f1802235d5"
+    }
+  },
+  {
+    "id": "array-resize-34f810",
+    "size": 37,
+    "offset": 3471376,
+    "inputs": [
+      "src/campaign_array_resize.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@resize_array_r34f810@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_resize.obj src/campaign_array_resize.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator. The call passes the old storage, requested byte length and UTF-16 allocation tag to virtual slot 1."
+      },
+      "_heap_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Original read-only UTF-16 allocation tag 'FArray', also used at this exact address by a separately rebuilt FArray operation."
+      }
+    },
+    "identification": "Complete independently analyzed stock FArray method at RVA 0x34f810 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
+    "match": {
+      "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
+      "inputs_sha256": "f563f8e8c19789f24c962847c5a1e27d0e8b0ec9540bed9a98b2461d6ba55730"
     }
   },
   {
