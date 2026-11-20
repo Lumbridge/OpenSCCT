@@ -2596,6 +2596,32 @@
     }
   },
   {
+    "id": "container-append-node-1dce60",
+    "size": 50,
+    "offset": 1953376,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 279821152,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 279825552,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x1dce60. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "f836807bff29f43a53748b0d367b783f3a2f56c124a2d84e1040d4994767db5c",
+      "inputs_sha256": "a24a73a4f567c18f92b10234732c3b8a99d433b76e61a83c094bc9ac891f947d"
+    }
+  },
+  {
     "id": "allocate-engine-buffer",
     "offset": 1953968,
     "size": 30,

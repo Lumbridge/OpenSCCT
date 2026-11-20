@@ -917,6 +917,32 @@
     }
   },
   {
+    "id": "container-append-node-65320",
+    "size": 50,
+    "offset": 414496,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 278259968,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 278286800,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x65320. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "71d59265c6929ffa5c71e2a9b3007b57296ce9836ab2319534f2016fbf3f8b2d",
+      "inputs_sha256": "4e5eeb25f05b3ff2a3d5042d84b742aa1a952eeb453f0e4964f65f6cc90703cf"
+    }
+  },
+  {
     "id": "heap-table-destroy-065a30",
     "size": 34,
     "offset": 416304,

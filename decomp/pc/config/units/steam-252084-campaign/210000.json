@@ -1280,6 +1280,32 @@
     }
   },
   {
+    "id": "container-append-node-21b6a0",
+    "size": 50,
+    "offset": 2209440,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 280079408,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 280081872,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x21b6a0. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "3d38f102299dbd2301b7106be769a74735d5656552117409b2005cf4a84d504b",
+      "inputs_sha256": "e364faeb2550e45a2a43a2146485093c6d12eb883a0bc5808d29537f6259b0ee"
+    }
+  },
+  {
     "id": "list-growth-28-21bcd0",
     "size": 140,
     "offset": 2211024,
@@ -1353,6 +1379,32 @@
     "match": {
       "bytes_sha256": "0de80b18a7d4c3a5888158a212b6ed78c461f0576957c79911c0dc272ca64897",
       "inputs_sha256": "6885694e69a27f6488a675ff8ffe626e52aac9e65c87cd79efb29d870f56b4f4"
+    }
+  },
+  {
+    "id": "container-append-node-21be80",
+    "size": 50,
+    "offset": 2211456,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 280083520,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 280083664,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x21be80. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "6eb85558bc753b5b28cde7413aa19c9cef3ffd51516695b516f7d86e3888fb97",
+      "inputs_sha256": "1bf10b14b40f546f94e9c9ecbc1ba1b6273ac9a2b0ee4089a1d15bbe62324359"
     }
   },
   {

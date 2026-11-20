@@ -301,6 +301,58 @@
     }
   },
   {
+    "id": "container-erase-node-481360",
+    "size": 65,
+    "offset": 4723552,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@erase_node@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Shared allocation context accessor."
+      },
+      "_release_node": {
+        "va": 282637648,
+        "basis": "Context-aware node release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x481360. Preserves the successor, unlinks and releases a non-sentinel node and returns the successor cursor.",
+    "match": {
+      "bytes_sha256": "faf97898ad619d23570acc19c309de0009489bea0426b639012aba58aa789251",
+      "inputs_sha256": "b53ba9ad1e03efeef08640a075eddf29c104fecd728a0b1e62e3f3f6586cb522"
+    }
+  },
+  {
+    "id": "container-erase-node-4813b0",
+    "size": 65,
+    "offset": 4723632,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@erase_node@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Shared allocation context accessor."
+      },
+      "_release_node": {
+        "va": 282637648,
+        "basis": "Context-aware node release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x4813b0. Preserves the successor, unlinks and releases a non-sentinel node and returns the successor cursor.",
+    "match": {
+      "bytes_sha256": "c0cb52dea580a685778da5883088f2d47d9ffb821a467bbdd414c2b9a79fd1cd",
+      "inputs_sha256": "f28b0cccb7d2018c3966db70be7ff313487c74b182f9f25e6e209beaaf10e018"
+    }
+  },
+  {
     "id": "clear-record-481460",
     "offset": 4723808,
     "size": 37,
@@ -869,6 +921,32 @@
     }
   },
   {
+    "id": "container-append-node-482bd0",
+    "size": 50,
+    "offset": 4729808,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 282595184,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 282601760,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x482bd0. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "c838287c26f752b3697ccc5ce706d0b6687652a6573efc9b61586a8ac4fd9813",
+      "inputs_sha256": "67e0b1f7002ab26f0eabc7866e9424aa8f2b5621a044cbaeb28b8ba2e52504d2"
+    }
+  },
+  {
     "id": "field-address-483e60",
     "offset": 4734560,
     "size": 4,
@@ -1114,6 +1192,32 @@
     "match": {
       "bytes_sha256": "8d319c1adb7393c7ff6f23beb7cba8dc76047c7ace806d9dac39d7b3d7184f00",
       "inputs_sha256": "a40ccfa424f9444af95da367ddfd89c8018e1b5a2164f0ef4db01a06bb9092d7"
+    }
+  },
+  {
+    "id": "container-append-node-486ad0",
+    "size": 50,
+    "offset": 4745936,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 282609504,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 282616960,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x486ad0. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "2030993c2a509e477b8be3bc569dc756522abe49369af69a0e91587e3e2e67d5",
+      "inputs_sha256": "3e4dd8acf6c68cd19272f373ea1a02c344835f3dd1b8ee3dffae90df8d4c7271"
     }
   },
   {
@@ -2875,6 +2979,32 @@
     }
   },
   {
+    "id": "container-erase-node-48c910",
+    "size": 65,
+    "offset": 4770064,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@erase_node@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Shared allocation context accessor."
+      },
+      "_release_node": {
+        "va": 282637648,
+        "basis": "Context-aware node release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x48c910. Preserves the successor, unlinks and releases a non-sentinel node and returns the successor cursor.",
+    "match": {
+      "bytes_sha256": "0f24258d542b15b2fa16d89458f9dfee643c10ebb353a0927310b33709d16a34",
+      "inputs_sha256": "f966f3d9d36fd13e6b9955d6421a57259f43185fbab21ffda1eb9cdee81c98ba"
+    }
+  },
+  {
     "id": "clear-record-48c960",
     "offset": 4770144,
     "size": 37,
@@ -3000,6 +3130,32 @@
     "match": {
       "bytes_sha256": "f3ed42437a659dcfb0b223a5a50fbe13ea93a452a50471e00c72416cd6971697",
       "inputs_sha256": "521401a8187aa456139a43582e71b2f65551e3f0f271c800bb0f1fc0700687d2"
+    }
+  },
+  {
+    "id": "container-erase-node-48cd70",
+    "size": 65,
+    "offset": 4771184,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@erase_node@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Shared allocation context accessor."
+      },
+      "_release_node": {
+        "va": 282637648,
+        "basis": "Context-aware node release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x48cd70. Preserves the successor, unlinks and releases a non-sentinel node and returns the successor cursor.",
+    "match": {
+      "bytes_sha256": "477520d0b67985d419267c411eb20f79029a74d923df832b0489bf36b529fefb",
+      "inputs_sha256": "cab4ab0d08925244e84da5d61b1d990fb6b91a766285bdae6aa716f36ae6cbae"
     }
   },
   {
@@ -3374,6 +3530,58 @@
     "match": {
       "bytes_sha256": "b20ee1c7e457b24a1c04c8d5164b820367045ec88285281311cef6e1c26eb84f",
       "inputs_sha256": "183b2ed58112daf01c7b98f605886d64945baae2e712e317346354423cb835b6"
+    }
+  },
+  {
+    "id": "container-append-node-48dc50",
+    "size": 50,
+    "offset": 4774992,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 282641520,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 282645264,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x48dc50. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "f9663fa15dc9eb87e932a90503a362f13b3cfb419bd660199aa6f6893b5d57e7",
+      "inputs_sha256": "b1af32d3c678d3d73009adeac425dc5e2f9c736d98273dff956016570f93c391"
+    }
+  },
+  {
+    "id": "container-append-node-48dcb0",
+    "size": 50,
+    "offset": 4775088,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@append_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "@construct_node@20": {
+        "va": 282641760,
+        "basis": "Indexed node constructor receiving both links and the new value."
+      },
+      "@grow_list@8": {
+        "va": 282645840,
+        "basis": "Matched container size increment and overflow check."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x48dcb0. Appends a constructed node before the list sentinel and increases the count.",
+    "match": {
+      "bytes_sha256": "24f323be76bf3d624173718a6a54be84b36ebb158127ab43ae1355d788e01530",
+      "inputs_sha256": "b259f3129785a0c830fc8b31c230db0f12f75d6993db80c6a2f1c7973e6776f3"
     }
   },
   {

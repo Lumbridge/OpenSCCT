@@ -841,6 +841,32 @@
     }
   },
   {
+    "id": "container-erase-node-73acd0",
+    "size": 65,
+    "offset": 7580880,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@erase_node@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 282637408,
+        "basis": "Shared allocation context accessor."
+      },
+      "_release_node": {
+        "va": 282637648,
+        "basis": "Context-aware node release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x73acd0. Preserves the successor, unlinks and releases a non-sentinel node and returns the successor cursor.",
+    "match": {
+      "bytes_sha256": "e5c151950c44bf2afa19d7d3c569901168785f3e89234ce44ac3641bdc977615",
+      "inputs_sha256": "3b3e9ca4cc61b5248b8e129b1f204ec3573eddc2f90983e2ba7d173c14fed292"
+    }
+  },
+  {
     "id": "vector-clear-managed-73ad20",
     "size": 50,
     "offset": 7580960,

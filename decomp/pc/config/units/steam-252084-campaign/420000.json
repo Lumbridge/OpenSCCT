@@ -749,6 +749,110 @@
     }
   },
   {
+    "id": "container-destroy-vector-422420",
+    "size": 63,
+    "offset": 4334624,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282205728,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x422420. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "f815a1e772ef243631f4cd95e36fb612441fb5258508f5609c5a55f5d78a2472",
+      "inputs_sha256": "704a32ee0bec12c6d06d8368755cf51b07f5a6c76a3980d277b8bd55939d68bb"
+    }
+  },
+  {
+    "id": "container-destroy-vector-4228d0",
+    "size": 63,
+    "offset": 4335824,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282205728,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x4228d0. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "4465024ff353a643140d0c56ff8cb50bc95f756c3b8bf8315e4a6a7397992c39",
+      "inputs_sha256": "7873d6c0a54e0954c2098edaae520cda60c19dd192ff3528a9963e14a3a8120d"
+    }
+  },
+  {
+    "id": "container-destroy-vector-422910",
+    "size": 63,
+    "offset": 4335888,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282205728,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x422910. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "0da444723b20fa7b4f8c5587eee80b15df680af03de30721c3728914484e829c",
+      "inputs_sha256": "ac627a7f9ee38686f779fb5a68aba24e43d948531e12dfbea20981c7a09528db"
+    }
+  },
+  {
+    "id": "container-destroy-vector-422a00",
+    "size": 63,
+    "offset": 4336128,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282205728,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x422a00. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "bbece0fc2ad2decc8144f2fcf54521c5987accc882a7f4de7931db03c6db9858",
+      "inputs_sha256": "1ed16468b7a3a6915dd11208425e3d22a3c25cc6677ffbe94a35df4c8095d6c5"
+    }
+  },
+  {
     "id": "tree-clear-managed-422af0",
     "size": 43,
     "offset": 4336368,
@@ -3482,6 +3586,110 @@
     }
   },
   {
+    "id": "container-destroy-vector-42c320",
+    "size": 63,
+    "offset": 4375328,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282244096,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42c320. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "7521e4d8ad678a025a4d953588e971b3da02e760b0b5dfef8ab2350b83727a2e",
+      "inputs_sha256": "39b6c825484a82a7529d2a1e50e6c669fc81283b4b4ddb71d028ddca18b8ebc1"
+    }
+  },
+  {
+    "id": "container-destroy-vector-42c460",
+    "size": 63,
+    "offset": 4375648,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282244096,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42c460. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "478ebc7291360699aa8dea5afa6fd4dd942d53e8665d9f663e98ce32b7b2b256",
+      "inputs_sha256": "ef56522ebb6a4dd0f9735cb0b849afc0d502a192e16c21bd324a44a3aa02e2d6"
+    }
+  },
+  {
+    "id": "container-destroy-vector-42c4a0",
+    "size": 63,
+    "offset": 4375712,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282244096,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42c4a0. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "8d0e95a10a46b42dc1226419c734e06732987816f5a1879fd578c8b50c2d182f",
+      "inputs_sha256": "4e4404083c20a8d9c8a003f3c6f2339c4c7cc21566e056236c175edf0ef18179"
+    }
+  },
+  {
+    "id": "container-destroy-vector-42c8c0",
+    "size": 63,
+    "offset": 4376768,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282244096,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42c8c0. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "2ccc8d985c0739a3436dfc7ac257f04187c410f4104b0e900141be4e9f9fc6e7",
+      "inputs_sha256": "55eaab989110228ebae38ec04225f3fec726d90792a39280a47347fde6fb1329"
+    }
+  },
+  {
     "id": "delete-members-42cae0",
     "size": 30,
     "offset": 4377312,
@@ -3619,6 +3827,84 @@
     }
   },
   {
+    "id": "container-destroy-vector-42e0e0",
+    "size": 63,
+    "offset": 4382944,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282252544,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42e0e0. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "c4f30b3884b28cde3bd59672718f3c1d648d671232ff454f6523eaf8aff7517f",
+      "inputs_sha256": "69d1a1fac004790d9bef7c998b979cf08d975af0a939e90b43cd4b40ff0c0d41"
+    }
+  },
+  {
+    "id": "container-destroy-vector-42f150",
+    "size": 63,
+    "offset": 4387152,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282252544,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42f150. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "705ae511135d37ad3f32c229eaa9892b705f55476690ff275fe2af53435e2cfa",
+      "inputs_sha256": "e0ccbc56216ed93dd0211cc02b43fb5abdf03584af979361e257231f2c53885c"
+    }
+  },
+  {
+    "id": "container-destroy-vector-42f1d0",
+    "size": 63,
+    "offset": 4387280,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282252544,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42f1d0. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "c16ea2e163bd1a84604435ac7774ab260a564fe5c58c51fd36d80344c5a94f66",
+      "inputs_sha256": "61577a4bf2f8ab319205726681fa3f4115cc67a5f6bd2f03152657f248002f71"
+    }
+  },
+  {
     "id": "vector-insert-one-42f210",
     "size": 106,
     "offset": 4387344,
@@ -3638,6 +3924,32 @@
     "match": {
       "bytes_sha256": "c54cf330d25a254d393b779dd58dc6b5874be6ff615e6c872922c0c681848019",
       "inputs_sha256": "0c73b807284d7314a83b67757d465cd1c72a0aba67d5281e947a74c7587a280b"
+    }
+  },
+  {
+    "id": "container-destroy-vector-42f410",
+    "size": 63,
+    "offset": 4387856,
+    "inputs": [
+      "src/campaign_container_methods.c"
+    ],
+    "rebuilt_symbol": "@destroy_vector@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_methods.obj src/campaign_container_methods.c",
+    "link_bindings": {
+      "_destroy_range": {
+        "va": 282252544,
+        "basis": "Indexed range destruction loop."
+      },
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared Campaign buffer release."
+      }
+    },
+    "identification": "Aligned container method at RVA 0x42f410. Destroys the occupied range, releases its storage, and clears all three pointers.",
+    "match": {
+      "bytes_sha256": "63cb2234cfd79cc8d49ffb0aba7da7457cc861d587f4a9eea80d8159d36799a9",
+      "inputs_sha256": "55c10a3dafc47bb0e3530eaaf4a4884709a0ecfa2642f189399e8009f7378428"
     }
   },
   {
