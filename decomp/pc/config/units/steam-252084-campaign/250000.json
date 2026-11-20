@@ -65,6 +65,114 @@
     }
   },
   {
+    "id": "register-names-251620",
+    "size": 95,
+    "offset": 2430496,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_251620",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e3014": {
+        "va": 286142484,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ddc8": {
+        "va": 287497672,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e31ac": {
+        "va": 286142892,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ddcc": {
+        "va": 287497676,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e2b10": {
+        "va": 286141200,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ddd0": {
+        "va": 287497680,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e2b00": {
+        "va": 286141184,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ddd4": {
+        "va": 287497684,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 4 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "2afdada0325d2ba7ea3fcd46a9352e29416dfac2543a17ee99b86dd4d0f5eb99",
+      "inputs_sha256": "c241ca19992bb4a6da0ede11abebdea291e727fc0aa9af0891d65c6202cdb02c"
+    }
+  },
+  {
+    "id": "register-names-2519d0",
+    "size": 95,
+    "offset": 2431440,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_2519d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e1580": {
+        "va": 286135680,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92de00": {
+        "va": 287497728,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e22a8": {
+        "va": 286139048,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92de04": {
+        "va": 287497732,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3248": {
+        "va": 286143048,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92de08": {
+        "va": 287497736,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e228c": {
+        "va": 286139020,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92de0c": {
+        "va": 287497740,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 4 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "ea2fa6aa1004b38ccea2e10e80c78402d31a76bf70cb921975bd0f3612a44fc6",
+      "inputs_sha256": "e078e270e3eecc507866761baab56860c7d4bab5e092b3d94c9eedd7658cd140"
+    }
+  },
+  {
     "id": "register-pair-252370",
     "size": 49,
     "offset": 2433904,
@@ -130,6 +238,36 @@
     }
   },
   {
+    "id": "register-names-252690",
+    "size": 27,
+    "offset": 2434704,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_252690",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7dfeac": {
+        "va": 286129836,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92de70": {
+        "va": 287497840,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 1 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "35270b24cc842a684623aba91bdde7512e73cefb4fc9ed2eb491ff83ee46d628",
+      "inputs_sha256": "5053a4872826d6fb43bbed075f9f1a0468b8cbb58afbc5fde929246e18d53856"
+    }
+  },
+  {
     "id": "write-word-252980",
     "offset": 2435456,
     "size": 10,
@@ -143,6 +281,98 @@
     "match": {
       "bytes_sha256": "91664da878e060a95b809aae824cb658a0e4ed73c1e520a7afce1ba579ba3ba9",
       "inputs_sha256": "f9b64153224296b720e0d86a260ad8b1300f9c0a9db12157155b789ae3d2e92a"
+    }
+  },
+  {
+    "id": "register-names-252a50",
+    "size": 27,
+    "offset": 2435664,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_252a50",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e3354": {
+        "va": 286143316,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92de9c": {
+        "va": 287497884,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 1 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "63dc9a9d753ce35732c40b729b6fb30d4dd3a5ebd02c10ef729c4bb4d94a1aa0",
+      "inputs_sha256": "a38ee6624ab67fdeef0a25d3dae6c7e17fa2c9affed3f86eadfd7879a3c3ac0f"
+    }
+  },
+  {
+    "id": "register-names-2530a0",
+    "size": 117,
+    "offset": 2437280,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_2530a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e3514": {
+        "va": 286143764,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92dec8": {
+        "va": 287497928,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3508": {
+        "va": 286143752,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92decc": {
+        "va": 287497932,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e34c8": {
+        "va": 286143688,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ded0": {
+        "va": 287497936,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e34fc": {
+        "va": 286143740,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ded4": {
+        "va": 287497940,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e34f0": {
+        "va": 286143728,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92ded8": {
+        "va": 287497944,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 5 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "d0da3d54cd212d5c727f485e4c4374b0d24e6d50b6524b028df8a2c0dac9aecf",
+      "inputs_sha256": "8732bc23a2ff15bab8f73672f15de5434d0a601bbcff4f0077f89143f8e5f723"
     }
   },
   {
@@ -379,6 +609,208 @@
     }
   },
   {
+    "id": "register-names-254c90",
+    "size": 72,
+    "offset": 2444432,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_254c90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e3a28": {
+        "va": 286145064,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92dfc4": {
+        "va": 287498180,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3a18": {
+        "va": 286145048,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92dfc8": {
+        "va": 287498184,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3a0c": {
+        "va": 286145036,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92dfcc": {
+        "va": 287498188,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "21846d5b5a90cc5bca08e4fcd8945705b8f3b2005afd5d2594152f9e9f5b3eba",
+      "inputs_sha256": "3b2c94cb1b778dc27654bafb3dde1895c73cd7a58e55c8f4042651232b022dd6"
+    }
+  },
+  {
+    "id": "register-names-255360",
+    "size": 72,
+    "offset": 2446176,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_255360",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7df008": {
+        "va": 286126088,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92dff8": {
+        "va": 287498232,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3ac4": {
+        "va": 286145220,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92dffc": {
+        "va": 287498236,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3ab8": {
+        "va": 286145208,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e000": {
+        "va": 287498240,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "e928fa890ce2aefc782843a795fce1c63b9498469287398945b488877b39d60e",
+      "inputs_sha256": "ac757d279df70a8e5a6ba7fb3e37a7c45d623d2ffe38606762dcf28aec45162f"
+    }
+  },
+  {
+    "id": "register-names-255dd0",
+    "size": 255,
+    "offset": 2448848,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_255dd0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e3ac4": {
+        "va": 286145220,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e054": {
+        "va": 287498324,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7dffc0": {
+        "va": 286130112,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e02c": {
+        "va": 287498284,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3c14": {
+        "va": 286145556,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e030": {
+        "va": 287498288,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e2500": {
+        "va": 286139648,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e034": {
+        "va": 287498292,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3c08": {
+        "va": 286145544,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e038": {
+        "va": 287498296,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bfc": {
+        "va": 286145532,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e03c": {
+        "va": 287498300,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bf0": {
+        "va": 286145520,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e040": {
+        "va": 287498304,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bdc": {
+        "va": 286145500,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e044": {
+        "va": 287498308,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bd4": {
+        "va": 286145492,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e048": {
+        "va": 287498312,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bcc": {
+        "va": 286145484,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e04c": {
+        "va": 287498316,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bbc": {
+        "va": 286145468,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e050": {
+        "va": 287498320,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 11 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "7ed5740f1cd0b1788561ae184ab3fbf155fe19235d84e6192179bc1e5bab2de3",
+      "inputs_sha256": "7055faf117e72550b4a02e74af15890e01b51cce3255f57638022abfc4d5c2e3"
+    }
+  },
+  {
     "id": "delete-record-256830",
     "offset": 2451504,
     "size": 33,
@@ -403,6 +835,92 @@
     "match": {
       "bytes_sha256": "e52ab9b4fde608dc63a37c1a751a395919455b62366661df0768ed5199516edd",
       "inputs_sha256": "c739477aab3c343f591a0c75760b7d28fce4eb25615651f08a2a00e7440d4d19"
+    }
+  },
+  {
+    "id": "register-names-256ce0",
+    "size": 186,
+    "offset": 2452704,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_256ce0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7defe8": {
+        "va": 286126056,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e080": {
+        "va": 287498368,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3ea0": {
+        "va": 286146208,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e084": {
+        "va": 287498372,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bcc": {
+        "va": 286145484,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e08c": {
+        "va": 287498380,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bd4": {
+        "va": 286145492,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e090": {
+        "va": 287498384,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3bbc": {
+        "va": 286145468,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e094": {
+        "va": 287498388,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3e90": {
+        "va": 286146192,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e098": {
+        "va": 287498392,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3e7c": {
+        "va": 286146172,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e09c": {
+        "va": 287498396,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3cb8": {
+        "va": 286145720,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e088": {
+        "va": 287498376,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 8 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "64607ff419fb553654549d0abf5110336cb85889d3e7627d5d86d4d57bdc3f9d",
+      "inputs_sha256": "665855003b0f96ad1559e2c26f91d0b56bf1558619fb6f389779a1cfe1cb847b"
     }
   },
   {
@@ -433,6 +951,98 @@
     }
   },
   {
+    "id": "register-names-257600",
+    "size": 72,
+    "offset": 2455040,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_257600",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7deff8": {
+        "va": 286126072,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e0c8": {
+        "va": 287498440,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3ac4": {
+        "va": 286145220,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e0cc": {
+        "va": 287498444,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3cb8": {
+        "va": 286145720,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e0d0": {
+        "va": 287498448,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "e6c6ced689061abfadfea287739919f13856941d88ac69dd5040e8b843d7f52c",
+      "inputs_sha256": "fa75334f8ce103e6d8f46b4f0e7940167a1fe84cad2cf92760018ea483aa85a8"
+    }
+  },
+  {
+    "id": "register-names-257920",
+    "size": 72,
+    "offset": 2455840,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_257920",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e3f84": {
+        "va": 286146436,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e0fc": {
+        "va": 287498492,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e100": {
+        "va": 287498496,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3f78": {
+        "va": 286146424,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e104": {
+        "va": 287498500,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "fe91216c63a03ce8d226afd360aff880775b4d41ac13fb52f8fa2ed26a9ea417",
+      "inputs_sha256": "6bdcc723a10c586401ce722b6ea12178e96cccb5a6a33e492d902c34258867b4"
+    }
+  },
+  {
     "id": "delete-record-257f70",
     "offset": 2457456,
     "size": 33,
@@ -457,6 +1067,52 @@
     "match": {
       "bytes_sha256": "f8aa7179c8b330b02c9f881b21bab60402f59fded578edb1f1de0aa3463a0b8c",
       "inputs_sha256": "edaeb423acda5a1b8e1f132c708d0512d75cb5795132cd12f185d82c8bae6d96"
+    }
+  },
+  {
+    "id": "register-names-258780",
+    "size": 72,
+    "offset": 2459520,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_258780",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e4254": {
+        "va": 286147156,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e130": {
+        "va": 287498544,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7df888": {
+        "va": 286128264,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e134": {
+        "va": 287498548,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e2c0c": {
+        "va": 286141452,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e138": {
+        "va": 287498552,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "bd2f44d9034740e4d615b71e90ce3f3d1c7358100bf6464e2151e6ae321abf45",
+      "inputs_sha256": "23ccac4c3ca1ff9aa9b181f22d108bd34533ce6d9b1b229e671b8137839237e8"
     }
   },
   {
@@ -507,6 +1163,140 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "38b259b1f9912e81cba0c0e48ad1aa428198b974a93da09fc603b82c90ee5c75"
+    }
+  },
+  {
+    "id": "register-names-2590a0",
+    "size": 323,
+    "offset": 2461856,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_2590a0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e4588": {
+        "va": 286147976,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e164": {
+        "va": 287498596,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4578": {
+        "va": 286147960,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e174": {
+        "va": 287498612,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4564": {
+        "va": 286147940,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e178": {
+        "va": 287498616,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4554": {
+        "va": 286147924,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e17c": {
+        "va": 287498620,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e454c": {
+        "va": 286147916,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e180": {
+        "va": 287498624,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4544": {
+        "va": 286147908,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e184": {
+        "va": 287498628,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4530": {
+        "va": 286147888,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e168": {
+        "va": 287498600,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e451c": {
+        "va": 286147868,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e16c": {
+        "va": 287498604,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4504": {
+        "va": 286147844,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e170": {
+        "va": 287498608,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e44e4": {
+        "va": 286147812,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e188": {
+        "va": 287498632,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7de290": {
+        "va": 286122640,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e18c": {
+        "va": 287498636,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e44d0": {
+        "va": 286147792,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e190": {
+        "va": 287498640,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e44bc": {
+        "va": 286147772,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e194": {
+        "va": 287498644,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e44ac": {
+        "va": 286147756,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e198": {
+        "va": 287498648,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 14 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "2bde36a546f128f03466ca82235109ef73e26c295f7913b043822f7da5487c6e",
+      "inputs_sha256": "ab80952c9805071ac14ab28e2891f7f67040b2aae647d87341e4e81c4bf1a5bb"
     }
   },
   {
@@ -627,6 +1417,148 @@
     }
   },
   {
+    "id": "register-names-25aba0",
+    "size": 346,
+    "offset": 2468768,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_25aba0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e4aec": {
+        "va": 286149356,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1c4": {
+        "va": 287498692,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4adc": {
+        "va": 286149340,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1c8": {
+        "va": 287498696,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4ac8": {
+        "va": 286149320,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1d0": {
+        "va": 287498704,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4ab4": {
+        "va": 286149300,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1cc": {
+        "va": 287498700,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4aa4": {
+        "va": 286149284,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1d4": {
+        "va": 287498708,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4a94": {
+        "va": 286149268,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1d8": {
+        "va": 287498712,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4a7c": {
+        "va": 286149244,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1dc": {
+        "va": 287498716,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4a64": {
+        "va": 286149220,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1e0": {
+        "va": 287498720,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4a48": {
+        "va": 286149192,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1e4": {
+        "va": 287498724,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4a30": {
+        "va": 286149168,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1e8": {
+        "va": 287498728,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4a1c": {
+        "va": 286149148,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1ec": {
+        "va": 287498732,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e49f0": {
+        "va": 286149104,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1f0": {
+        "va": 287498736,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e49b4": {
+        "va": 286149044,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1f4": {
+        "va": 287498740,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e49a0": {
+        "va": 286149024,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1f8": {
+        "va": 287498744,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4990": {
+        "va": 286149008,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e1fc": {
+        "va": 287498748,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 15 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "f0d6e2cc7646e975adf9c1d62ad588bedff300b9da1976175405b496e0ce3b09",
+      "inputs_sha256": "31f6e973400baed735f55b085da6a9fcb8915458ceb7b16b01e5406a0ff10ddd"
+    }
+  },
+  {
     "id": "delete-record-25b1f0",
     "offset": 2470384,
     "size": 33,
@@ -654,6 +1586,178 @@
     }
   },
   {
+    "id": "register-names-25ba20",
+    "size": 72,
+    "offset": 2472480,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_25ba20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e4ba8": {
+        "va": 286149544,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e228": {
+        "va": 287498792,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e1090": {
+        "va": 286134416,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e22c": {
+        "va": 287498796,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e2500": {
+        "va": 286139648,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e230": {
+        "va": 287498800,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "a2fb3927a25ef4d02e9e59d2ef4b3fcd2a176c43aaab5d6dc90de92bc1d79584",
+      "inputs_sha256": "e1fddd2c065c5fd66f38e5093c716cb6eb8e21b9f3f0c34ec9dc23a52118f7a7"
+    }
+  },
+  {
+    "id": "register-names-25c300",
+    "size": 301,
+    "offset": 2474752,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_25c300",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e4e08": {
+        "va": 286150152,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e25c": {
+        "va": 287498844,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4e00": {
+        "va": 286150144,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e260": {
+        "va": 287498848,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4df8": {
+        "va": 286150136,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e264": {
+        "va": 287498852,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4dec": {
+        "va": 286150124,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e268": {
+        "va": 287498856,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4de4": {
+        "va": 286150116,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e26c": {
+        "va": 287498860,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4dd4": {
+        "va": 286150100,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e270": {
+        "va": 287498864,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4dc4": {
+        "va": 286150084,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e274": {
+        "va": 287498868,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4db4": {
+        "va": 286150068,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e278": {
+        "va": 287498872,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4da8": {
+        "va": 286150056,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e27c": {
+        "va": 287498876,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4da0": {
+        "va": 286150048,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e280": {
+        "va": 287498880,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4d88": {
+        "va": 286150024,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e284": {
+        "va": 287498884,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4d74": {
+        "va": 286150004,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e288": {
+        "va": 287498888,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4d5c": {
+        "va": 286149980,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e28c": {
+        "va": 287498892,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 13 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "6dca785f5c39f0fc3a5854e089903a39e8828e032bda97e32d4a97e9ebb4dd82",
+      "inputs_sha256": "06457fb41cfe62354f5440834480ca149d13c48a30499ca3dd357180e19738d5"
+    }
+  },
+  {
     "id": "delete-record-25c700",
     "offset": 2475776,
     "size": 33,
@@ -678,6 +1782,68 @@
     "match": {
       "bytes_sha256": "23d0b7535f4cc5133b974798325fe93ed759c754e7cea6c53ebbad1d47197c46",
       "inputs_sha256": "0805159c5f40ef7e97d3e8744d054d55284b31185a52f87df2a4cf16f5682b08"
+    }
+  },
+  {
+    "id": "register-names-25d750",
+    "size": 117,
+    "offset": 2479952,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_25d750",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e4fa4": {
+        "va": 286150564,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2b8": {
+        "va": 287498936,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e4f94": {
+        "va": 286150548,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2bc": {
+        "va": 287498940,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e2500": {
+        "va": 286139648,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2c0": {
+        "va": 287498944,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3c08": {
+        "va": 286145544,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2c4": {
+        "va": 287498948,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e3a0c": {
+        "va": 286145036,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2c8": {
+        "va": 287498952,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 5 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "ee306bd8da6a4de3ad3384e8cddb834056df3e6e1b885b8eb4772d72110aad53",
+      "inputs_sha256": "b331d5ddcf7188155d0ee196bca60907b427cc9b244d82ac480fe72a1dce5128"
     }
   },
   {
@@ -728,6 +1894,100 @@
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
       "inputs_sha256": "c5f35c657852630c10664fa5d1aaf04f0b50edc1653c4d32faeb720fc7258d12"
+    }
+  },
+  {
+    "id": "register-names-25e2f0",
+    "size": 210,
+    "offset": 2482928,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_25e2f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7e51b0": {
+        "va": 286151088,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2f4": {
+        "va": 287498996,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e51a0": {
+        "va": 286151072,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2f8": {
+        "va": 287499000,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e5194": {
+        "va": 286151060,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e2fc": {
+        "va": 287499004,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e5184": {
+        "va": 286151044,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e300": {
+        "va": 287499008,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e5174": {
+        "va": 286151028,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e304": {
+        "va": 287499012,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e5164": {
+        "va": 286151012,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e308": {
+        "va": 287499016,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e5154": {
+        "va": 286150996,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e30c": {
+        "va": 287499020,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7de290": {
+        "va": 286122640,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e310": {
+        "va": 287499024,
+        "basis": "Static destination for the computed identifier."
+      },
+      "_name_7e5140": {
+        "va": 286150976,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_92e314": {
+        "va": 287499028,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 9 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "ef6773fa441fcdb3883faa4c49fbf9d44dcacb2b1d4ad5db7f8102e52151fb03",
+      "inputs_sha256": "5fbed2e81948c949551faecef31f1c0f56ccea3975150e8f5fdfdbc476ddd72c"
     }
   },
   {

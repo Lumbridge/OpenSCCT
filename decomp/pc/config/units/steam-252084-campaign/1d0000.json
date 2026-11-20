@@ -205,6 +205,36 @@
     }
   },
   {
+    "id": "register-names-1d4530",
+    "size": 27,
+    "offset": 1918256,
+    "inputs": [
+      "src/campaign_name_crc_series.c"
+    ],
+    "rebuilt_symbol": "_register_names_1d4530",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_name_crc_series.obj src/campaign_name_crc_series.c",
+    "link_bindings": {
+      "_name_crc": {
+        "va": 282211232,
+        "basis": "Independently rebuilt name CRC routine."
+      },
+      "_name_7dae6c": {
+        "va": 286109292,
+        "basis": "Retail literal checked including its terminator."
+      },
+      "_id_90aa84": {
+        "va": 287353476,
+        "basis": "Static destination for the computed identifier."
+      }
+    },
+    "identification": "Default Ghidra extent. Computes 1 static identifiers from their original name strings using the rebuilt CRC routine.",
+    "match": {
+      "bytes_sha256": "52b5d85202347cc7605c146351a750d64b9fb864f0532b754d3e8ba7938b1392",
+      "inputs_sha256": "bead2b2475b85a4271e0b2be877981dd8ae8e3856ae2f945ba3421906a300b40"
+    }
+  },
+  {
     "id": "array-release-1d4ce0",
     "size": 43,
     "offset": 1920224,
