@@ -1,5 +1,28 @@
 [
   {
+    "id": "array-release-011ed0",
+    "size": 43,
+    "offset": 73424,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r011ed0@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x11ed0. Microsoft C++ frame handler RVA 0x7961a8 uses FuncInfo RVA 0x87b45c. State 0 in unwind map RVA 0x87b454 selects cleanup thunk RVA 0x7961a0, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "f74da2352b3f37da29067ef5e1c8ed2853d457d1006031e1c09ffa7a01d17157"
+    }
+  },
+  {
     "id": "array-remove-011f00",
     "size": 138,
     "offset": 73472,
@@ -28,6 +51,29 @@
     "match": {
       "bytes_sha256": "362aa0620155d19b4be5b0a10e3afd656584130289406da486ab5201f590043a",
       "inputs_sha256": "83760ae451ec507c8c33aad539e83dea2782605e2e7cdc99e1b0ec00c14c40aa"
+    }
+  },
+  {
+    "id": "array-release-0157d0",
+    "size": 43,
+    "offset": 88016,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r0157d0@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x157d0. Microsoft C++ frame handler RVA 0x7965a8 uses FuncInfo RVA 0x87b83c. State 0 in unwind map RVA 0x87b834 selects cleanup thunk RVA 0x7965a0, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "881b84956a09e832ba5d351099e577c118b4626a82721b2b00e207ade716acdf"
     }
   },
   {
@@ -161,6 +207,29 @@
     }
   },
   {
+    "id": "array-release-0192f0",
+    "size": 43,
+    "offset": 103152,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r0192f0@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x192f0. Microsoft C++ frame handler RVA 0x796918 uses FuncInfo RVA 0x87bbcc. State 0 in unwind map RVA 0x87bbc4 selects cleanup thunk RVA 0x796910, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "37295af94c80f197095bdd080c1222cf1a5c21f3911936e221030d75fa34c226"
+    }
+  },
+  {
     "id": "array-remove-019320",
     "size": 138,
     "offset": 103200,
@@ -189,6 +258,29 @@
     "match": {
       "bytes_sha256": "1da2dd8443631843c1d407af723cf24bd9e1fb8fc5bbb0a29942e1e2ed0540e4",
       "inputs_sha256": "cc9d0b7529de8a8c714a5fc7f95df10cfbdda8bbafa86e728b9bc3083d42cb83"
+    }
+  },
+  {
+    "id": "array-release-019420",
+    "size": 43,
+    "offset": 103456,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r019420@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x19420. Microsoft C++ frame handler RVA 0x796938 uses FuncInfo RVA 0x87bbf0. State 0 in unwind map RVA 0x87bbe8 selects cleanup thunk RVA 0x796930, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "6af1fc96284a53ff234ab9344c67aa4fe02cfa9b490bcf854afed62ee3887ac6"
     }
   },
   {
@@ -242,7 +334,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x19960, including RET. Incoming transfer decoded within analyzed function code at RVA 0x196c4. Releases non-null storage through the engine allocator and clears the pointer, capacity and count.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "622286c8b200265a4a310d2f717da2c54fa82a5eac4323a022f67dff65b77d93"
+      "inputs_sha256": "1f36ab46f74a4301baaf89833c19fcad14ed280f624084b0f3ae094d41742f7b"
     }
   },
   {
@@ -379,6 +471,29 @@
     }
   },
   {
+    "id": "array-release-01b290",
+    "size": 43,
+    "offset": 111248,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r01b290@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x1b290. Microsoft C++ frame handler RVA 0x796a38 uses FuncInfo RVA 0x87bd2c. State 0 in unwind map RVA 0x87bd24 selects cleanup thunk RVA 0x796a30, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "f70ebc582de64c6d2e55f921b831e6f0394f550e2f3543520515e1e4ae8f6fa0"
+    }
+  },
+  {
     "id": "array-remove-01b2c0",
     "size": 138,
     "offset": 111296,
@@ -407,6 +522,29 @@
     "match": {
       "bytes_sha256": "3217b63e2e1cb23f71a81d8e8b2305cd84f6e5ca19af3a16537d56a86d3ed8d8",
       "inputs_sha256": "e0c3893c313d5a68387c4cad0f4c70f9644616ba9566be5769f536c1542c4f08"
+    }
+  },
+  {
+    "id": "array-release-01d2f0",
+    "size": 43,
+    "offset": 119536,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r01d2f0@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x1d2f0. Microsoft C++ frame handler RVA 0x796e88 uses FuncInfo RVA 0x87c204. State 0 in unwind map RVA 0x87c1fc selects cleanup thunk RVA 0x796e80, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "1dee9515494872b4edbd88c7bc00fed475444de966f88f4a1861fded4f978deb"
     }
   },
   {
@@ -472,6 +610,29 @@
     "match": {
       "bytes_sha256": "ab3879492fca362de75d688c14eab5221d3862c706bdda31987f1fe54e1e1b51",
       "inputs_sha256": "7d135918bab62adadcda63a95ea426e08ad566b704d48c5042f483a4d79e096a"
+    }
+  },
+  {
+    "id": "array-release-01f840",
+    "size": 43,
+    "offset": 129088,
+    "inputs": [
+      "src/campaign_array_release.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_release.obj src/campaign_array_release.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@array_release_r01f840@4",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator referenced by the registered UClass factories and class destruction callbacks."
+      }
+    },
+    "identification": "Complete FArray storage release at RVA 0x1f840. Microsoft C++ frame handler RVA 0x7970a8 uses FuncInfo RVA 0x87c424. State 0 in unwind map RVA 0x87c41c selects cleanup thunk RVA 0x7970a0, which loads the receiver from the frame and jumps to this specific release function.",
+    "match": {
+      "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
+      "inputs_sha256": "128f9c54c87e7fdad25feaf3d7c82fa849a5d32ad7987eef8131e7b15b0f53f9"
     }
   },
   {
