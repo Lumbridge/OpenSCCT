@@ -484,6 +484,30 @@
     }
   },
   {
+    "id": "make-node-23ba70",
+    "size": 35,
+    "offset": 2341488,
+    "inputs": [
+      "src/versus_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_23ba70@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_linked_node_copy.obj src/versus_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 279385296,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b392ee. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "eb9b81932ba68e698080cf52ce92f18bb561437b440eb4d01a255c42f096dc28",
+      "inputs_sha256": "04ecfbb7b8f4510d69e9402e0d899fda24fb0deacac43175f2adf19d518b4dc5"
+    }
+  },
+  {
     "id": "delete-record-23c1b0",
     "offset": 2343344,
     "size": 27,

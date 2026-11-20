@@ -342,5 +342,29 @@
       "bytes_sha256": "2d4e0e3396c5858fb8e26524939b69a70897619e27e286c0323b1d66c384e106",
       "inputs_sha256": "792ad34e2944e11a81089bcefd1bbb959eb94b0393cc0160f41c3b9f38ebe80f"
     }
+  },
+  {
+    "id": "make-node-5fabd0",
+    "size": 33,
+    "offset": 6269904,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_5fabd0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef98ad. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "75ed572bf95f2386218a4d605f2ef4d7c7951fd9740d01005ec16805ed228fe6",
+      "inputs_sha256": "9be2fcb6ea93c55eb4fd3077e79506cfd98cf40039e52499e7417ffbe33b91ad"
+    }
   }
 ]

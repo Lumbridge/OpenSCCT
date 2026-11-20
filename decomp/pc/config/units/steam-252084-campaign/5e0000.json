@@ -469,6 +469,102 @@
     }
   },
   {
+    "id": "make-node-5ee0c0",
+    "size": 33,
+    "offset": 6217920,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_5ee0c0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eed8d0. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "82e2edace41906cee03e6b101c0e0c7ee7f9809d7ef91161d9a00c7f35f87859",
+      "inputs_sha256": "da5124050af262813cf522ce3d77dbc56ee182062947b680d387ec41f2aa041f"
+    }
+  },
+  {
+    "id": "make-node-5ee0f0",
+    "size": 33,
+    "offset": 6217968,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_5ee0f0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eedaa0. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "ee25fd3a23ca69e5df8150d4877f2f4b9859b9c288b96160991027bb2fab96c4",
+      "inputs_sha256": "4696ee132864aa30a35d39fcfadbe844d9dcf3d43edb2f382b4a5d00a7ee7d3b"
+    }
+  },
+  {
+    "id": "make-node-5ee120",
+    "size": 33,
+    "offset": 6218016,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_5ee120@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eedc70. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "736d3f71082b7a95799451df7f9bf28b595debac30d75043fe9549dd5c285796",
+      "inputs_sha256": "1f5eed2886e931a259ed0f1895f48f961b8ed6d231f875e21db60b4e828ebe06"
+    }
+  },
+  {
+    "id": "make-node-5ee150",
+    "size": 33,
+    "offset": 6218064,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_5ee150@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10eede40. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "999adf63bd1f0d76753f58ceff3ee51ea207675538dd1030d11b9e961c85da17",
+      "inputs_sha256": "02ed40fc0bad94cae446efe2737ae9a904f9cc3e5392d5593b23a8a8f02719ba"
+    }
+  },
+  {
     "id": "campaign-sha1-digest-width",
     "offset": 6219296,
     "size": 6,

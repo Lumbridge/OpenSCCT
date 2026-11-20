@@ -92,6 +92,30 @@
     }
   },
   {
+    "id": "make-node-723da0",
+    "size": 33,
+    "offset": 7486880,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_723da0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x11023b7d. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "9ae8c5fa95ac7d8ebe231be16040f52b2e42e5b534026d3fee0014b65211edb1",
+      "inputs_sha256": "dd1296afe37300444ecb037a2ba030a9c334e005db50f4dc8aeebc2ded10d441"
+    }
+  },
+  {
     "id": "erase-branch-727b90",
     "offset": 7502736,
     "size": 45,
@@ -148,6 +172,30 @@
     "match": {
       "bytes_sha256": "a3c6e396a04eae1079b8209506fbbcb000f9b3a8f1bffc4ea64e758fba27a8ea",
       "inputs_sha256": "f530955e5ca0f564a521610169730a90f021a165ef43ab8a8fd2b3a736bfc99c"
+    }
+  },
+  {
+    "id": "make-node-727f10",
+    "size": 25,
+    "offset": 7503632,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_727f10@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x11027d40. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "c526518b128a33e2933ff7d1184f89769589cea9c6058bce437555aa288762ec",
+      "inputs_sha256": "33f21b1b160c6e63e9bb452212427fd16453399140b831c608f0c4326be3f208"
     }
   },
   {

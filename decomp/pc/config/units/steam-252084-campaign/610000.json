@@ -74,6 +74,30 @@
     }
   },
   {
+    "id": "make-node-619050",
+    "size": 46,
+    "offset": 6393936,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_619050@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f16b94. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "086e1a56444ebbb86da77b0929b37bbeeb6b9c55fadb997204c381214f5e3d93",
+      "inputs_sha256": "0ba5227027b6c52edabc3fabdd1dfb99613f967aea939bab4282f394476c0dcd"
+    }
+  },
+  {
     "id": "insert-node-619080",
     "offset": 6393984,
     "size": 450,
@@ -135,6 +159,78 @@
     "match": {
       "bytes_sha256": "54f4535f675c33651c2553085694017335419a5f271224db71eb37ecc60fe5be",
       "inputs_sha256": "ae3fe6cd60d7fa2e3e601622b576c3dc83d54325e7f914f65165cc4c7c290cb1"
+    }
+  },
+  {
+    "id": "make-node-61c390",
+    "size": 33,
+    "offset": 6407056,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_61c390@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f1bebd. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "097e2f065a3123b69e4769bf187fb3e135d073c4d603bcae4d59774b2f3c67c9",
+      "inputs_sha256": "adfec682a0c84497f754c853e817b1158d82c833eb897a99a951e4a108a41df7"
+    }
+  },
+  {
+    "id": "make-node-61c3c0",
+    "size": 33,
+    "offset": 6407104,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_61c3c0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f1c03d. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "354230a62d4e3296f701976d7049de034cf141375c28328533f71df713ea8630",
+      "inputs_sha256": "faf95b492ecad324262230d3b1cbeb462250e96d2646706072519e55a03d0010"
+    }
+  },
+  {
+    "id": "make-node-61c3f0",
+    "size": 33,
+    "offset": 6407152,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_61c3f0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f1c1bd. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "c5789ba44ade69bf0d67cd3933e5db3fe31b069009f1061440acae37c4f5de8d",
+      "inputs_sha256": "e0902ae15f828df848625ae64a486cd351b597e5a5d2d9235578d93e3d4d73a4"
     }
   }
 ]

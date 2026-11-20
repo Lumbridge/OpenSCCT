@@ -110,6 +110,30 @@
     }
   },
   {
+    "id": "make-node-625b90",
+    "size": 33,
+    "offset": 6445968,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_625b90@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f26456. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "afdaea0fd7699b4eabb358f4bebb1dab79a671d61fc4ab7fbd8f93dadd1339dc",
+      "inputs_sha256": "f504bcac2120efd3c76cfd6bc3a8167a1d7389b03ebd0c70b01e786c115fbe62"
+    }
+  },
+  {
     "id": "tree-begin-626850",
     "offset": 6449232,
     "size": 14,
@@ -252,6 +276,30 @@
     "match": {
       "bytes_sha256": "327d821582fd89bc8b944f3ba545e2a66115b6cb10c1f8797390b1b3036842eb",
       "inputs_sha256": "2aaa0b41b33e4c239fdf6a41662891b3b89608d5315e8435cae92f604458bb13"
+    }
+  },
+  {
+    "id": "make-node-628990",
+    "size": 33,
+    "offset": 6457744,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_628990@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f287f0. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "273f8803bc941622066f8f56c864adc6cf3cd9820755b0ed95afb310f1c45765",
+      "inputs_sha256": "98519ca3e816fe398bdfb582483f7ce6ba5532d543be6fd4bc3372c55f963a5f"
     }
   },
   {
@@ -550,6 +598,78 @@
     }
   },
   {
+    "id": "make-node-62d600",
+    "size": 35,
+    "offset": 6477312,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_62d600@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f2b7ce. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "84d7825a4bf5a4a82bb65661fc804355d5cfb2aecf2b0d469b274568d8993c7a",
+      "inputs_sha256": "0810fc58eb1fae43b824cce9ab7b0e97b10c81d0dd19cf2373fab14a69968b8d"
+    }
+  },
+  {
+    "id": "make-node-62d630",
+    "size": 33,
+    "offset": 6477360,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_62d630@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f2b967. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "090d1104749e72937b2484c2aec1f5a0f933ee51f1aef993b98684d5fd93fa12",
+      "inputs_sha256": "e862055ef79dc75d9102b8847ab7320e699f33edaa80f3f201ca992a666f0cfc"
+    }
+  },
+  {
+    "id": "make-node-62d660",
+    "size": 33,
+    "offset": 6477408,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_62d660@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f2bb41. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "1287f413f1bd2cf9a1d982bab8dff04d783aded6ae0659b270f5f923c2ee6261",
+      "inputs_sha256": "074937244b051faa1751b6d65bfbdd79488b4a25e781ce54c6d74a3ff4f616b7"
+    }
+  },
+  {
     "id": "tree-begin-62eae0",
     "offset": 6482656,
     "size": 14,
@@ -638,6 +758,30 @@
     "match": {
       "bytes_sha256": "22613c787b8eac34079f2a51597ec80d496b05851f04313ae5302b7225b4b4be",
       "inputs_sha256": "3e86567675ceefb30970c2df8df0a63156a3e60fb8dcb14f63133f7b8bdd51a8"
+    }
+  },
+  {
+    "id": "make-node-62f3d0",
+    "size": 33,
+    "offset": 6484944,
+    "inputs": [
+      "src/campaign_linked_node_copy.c",
+      "src/linked_node_copy.h"
+    ],
+    "rebuilt_symbol": "@make_node_62f3d0@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_linked_node_copy.obj src/campaign_linked_node_copy.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Allocator shared with the independently matched empty tree constructor."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f2ec76. Allocates the tree node and copies its payload starting at byte 16.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "e413514a8b74721c95f228c348898e7fba980a1480be12a07a4120d76f952dd8",
+      "inputs_sha256": "4b27c54cc58a9a3d7973a37f998f0f5754298da20be83338002e6e7d9a6f7d9c"
     }
   }
 ]
