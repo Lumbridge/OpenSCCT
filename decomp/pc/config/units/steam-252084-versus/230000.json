@@ -508,6 +508,60 @@
     }
   },
   {
+    "id": "copy-byte-range-23bb50",
+    "offset": 2341712,
+    "size": 44,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_string_storage.c"
+    ],
+    "rebuilt_symbol": "_copy_range@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_string_storage.obj src/linked_string_storage.c",
+    "link_bindings": {
+      "_move_bytes": {
+        "va": 280508658,
+        "basis": "Overlapping byte range copy used by string construction."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b3b2ac. Copies the range and returns the end of the destination.",
+    "match": {
+      "bytes_sha256": "5732b21339ef9cad4ac52190de39a7bec4adeeccb3fb0621c5b6cff2172a660b",
+      "inputs_sha256": "8a3a9489a23f2733b34951a7275c3259e638f05b4fb60bfad995b64c7c0202ce"
+    }
+  },
+  {
+    "id": "reserve-empty-string-23c020",
+    "offset": 2342944,
+    "size": 56,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_string_storage.c"
+    ],
+    "rebuilt_symbol": "@reserve_empty@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_string_storage.obj src/linked_string_storage.c",
+    "link_bindings": {
+      "_allocate_bytes@4": {
+        "va": 279385296,
+        "basis": "Retail allocation wrapper used by independently matched tree nodes."
+      },
+      "_string_name": {
+        "va": 281247440,
+        "basis": "Read-only basic_string diagnostic."
+      },
+      "_length_error": {
+        "va": 280212032,
+        "basis": "Length error path reached for an invalid buffer size."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b3bafd. Initializes the string buffer pointers or reports a basic_string length error.",
+    "match": {
+      "bytes_sha256": "2adf598184aa6cf5ebd6bb8353a521b0d91bd198dcc510ce408de874fb84ad7e",
+      "inputs_sha256": "3b892b77e1f43f75f21e21162cdb097e41e3d5e2d3f85bb6312b146380580f58"
+    }
+  },
+  {
     "id": "delete-record-23c1b0",
     "offset": 2343344,
     "size": 27,

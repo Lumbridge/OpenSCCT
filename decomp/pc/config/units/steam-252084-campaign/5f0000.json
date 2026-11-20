@@ -272,6 +272,60 @@
     }
   },
   {
+    "id": "copy-byte-range-5f9cc0",
+    "offset": 6266048,
+    "size": 44,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_string_storage.c"
+    ],
+    "rebuilt_symbol": "_copy_range@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_string_storage.obj src/linked_string_storage.c",
+    "link_bindings": {
+      "_move_bytes": {
+        "va": 284367760,
+        "basis": "Overlapping byte range copy used by string construction."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef9c5c. Copies the range and returns the end of the destination.",
+    "match": {
+      "bytes_sha256": "44009db2ddcda59fee58d101dc4300f0a69f99b50cf9e4d16b3065f72398acf8",
+      "inputs_sha256": "70a598f5c6fe4a29786ee28689b1bc728426fbc8eacf6862eab8e1825aaaa2a4"
+    }
+  },
+  {
+    "id": "reserve-empty-string-5fa030",
+    "offset": 6266928,
+    "size": 56,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_string_storage.c"
+    ],
+    "rebuilt_symbol": "@reserve_empty@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_string_storage.obj src/linked_string_storage.c",
+    "link_bindings": {
+      "_allocate_bytes@4": {
+        "va": 285448704,
+        "basis": "Retail allocation wrapper used by independently matched tree nodes."
+      },
+      "_string_name": {
+        "va": 287122432,
+        "basis": "Read-only basic_string diagnostic."
+      },
+      "_length_error": {
+        "va": 284138480,
+        "basis": "Length error path reached for an invalid buffer size."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef9614. Initializes the string buffer pointers or reports a basic_string length error.",
+    "match": {
+      "bytes_sha256": "1169e846850ef7244a30be1d0b092822f916cee3ff10c10660802507a9c3edd1",
+      "inputs_sha256": "48f8c2e181c1c4ece6cbcbaa17263bae3f5fb8e9890447c1bfcd894928286052"
+    }
+  },
+  {
     "id": "insert-node-5fa0d0",
     "offset": 6267088,
     "size": 425,
@@ -365,6 +419,29 @@
     "match": {
       "bytes_sha256": "75ed572bf95f2386218a4d605f2ef4d7c7951fd9740d01005ec16805ed228fe6",
       "inputs_sha256": "9be2fcb6ea93c55eb4fd3077e79506cfd98cf40039e52499e7417ffbe33b91ad"
+    }
+  },
+  {
+    "id": "copy-byte-range-5fac40",
+    "offset": 6270016,
+    "size": 44,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/linked_string_storage.c"
+    ],
+    "rebuilt_symbol": "_copy_range@12",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/linked_string_storage.obj src/linked_string_storage.c",
+    "link_bindings": {
+      "_move_bytes": {
+        "va": 284367760,
+        "basis": "Overlapping byte range copy used by string construction."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10ef96d8. Copies the range and returns the end of the destination.",
+    "match": {
+      "bytes_sha256": "825340f16a1ae3ac3e513be5e80d9b15fe3790d2d32c6d6ce6f30f425c1bb634",
+      "inputs_sha256": "2af68650d012ea6eb9194093baf4ddba47393e001371ff043e8633a989ee7782"
     }
   }
 ]
