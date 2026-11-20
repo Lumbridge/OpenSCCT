@@ -175,6 +175,40 @@
     }
   },
   {
+    "id": "construct-range-460940",
+    "size": 37,
+    "offset": 4589888,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r460940",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2afd60.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "8c6411527ec3e9f06333b116fd736cc33455a6e4b703642167e16b6cedcb399d"
+    }
+  },
+  {
+    "id": "construct-copies-460a00",
+    "size": 35,
+    "offset": 4590080,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_copies_r460a00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2ab840.",
+    "match": {
+      "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
+      "inputs_sha256": "fdcb49c60a7f4c20e5f603cd71adcf92be1e519c23524a7aacb412c07936f537"
+    }
+  },
+  {
     "id": "clear-owned-storage-460bc0",
     "size": 42,
     "offset": 4590528,
@@ -1260,6 +1294,57 @@
     }
   },
   {
+    "id": "construct-range-462b30",
+    "size": 37,
+    "offset": 4598576,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r462b30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2afd60.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "ded4915fa7115ea29cdf9203b72e6609d19a6a7de924eadf627041cf12b1cad4"
+    }
+  },
+  {
+    "id": "construct-range-462d60",
+    "size": 37,
+    "offset": 4599136,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r462d60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2afd60.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "b18c80cf002f081d37846a6d6ac51cd898a7fdc9b7b03aa6c55330fba0d3b56a"
+    }
+  },
+  {
+    "id": "construct-copies-462d90",
+    "size": 35,
+    "offset": 4599184,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_copies_r462d90",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2ab840.",
+    "match": {
+      "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
+      "inputs_sha256": "ab27a6dd77b9131ed280f643663e38a84e7967b2cb473afc962304363aaa5f43"
+    }
+  },
+  {
     "id": "clear-owned-storage-462e20",
     "size": 42,
     "offset": 4599328,
@@ -2142,6 +2227,40 @@
     "match": {
       "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
       "inputs_sha256": "4dd5354740f58cb585a0375d67b341384e3ee9b3c69be11ed3aec1d399b99d15"
+    }
+  },
+  {
+    "id": "construct-range-464920",
+    "size": 37,
+    "offset": 4606240,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r464920",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2afd60.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "72d8a709999347e8005eba1e9930e9f517cf473035aac9a87a3f072d870dc86a"
+    }
+  },
+  {
+    "id": "construct-copies-464a30",
+    "size": 35,
+    "offset": 4606512,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_copies_r464a30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2ab840.",
+    "match": {
+      "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
+      "inputs_sha256": "cf6516ab96ac5ce63cb7264d68502235f6b85183680b6240af0f14040bf83f9e"
     }
   },
   {

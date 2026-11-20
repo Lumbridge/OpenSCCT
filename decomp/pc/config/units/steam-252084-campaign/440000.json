@@ -1224,6 +1224,40 @@
     }
   },
   {
+    "id": "construct-range-443d30",
+    "size": 37,
+    "offset": 4472112,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r443d30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2afd60.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "008615859979e84396fbba3467cb1c62b78112e12be08fa985636a57b60c5163"
+    }
+  },
+  {
+    "id": "construct-range-443d60",
+    "size": 37,
+    "offset": 4472160,
+    "inputs": [
+      "src/campaign_shared_record_construction.c",
+      "src/record_copy.h"
+    ],
+    "rebuilt_symbol": "_construct_range_r443d60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_record_construction.obj src/campaign_shared_record_construction.c",
+    "identification": "Aligned Campaign function with return and compiler padding on both boundaries. Its whole record construction loop matches Versus RVA 0x2afd60.",
+    "match": {
+      "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
+      "inputs_sha256": "b3e87521afcdcaad4bce0646fcde4ce8a50e84f7b5454ca9228140d326a70283"
+    }
+  },
+  {
     "id": "construct-n-443e20",
     "offset": 4472352,
     "size": 43,
