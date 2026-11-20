@@ -1,5 +1,95 @@
 [
   {
+    "id": "range-container-cleanup-4d09e0",
+    "size": 54,
+    "offset": 5048800,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d09e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d06e0@16": {
+        "va": 282920672,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "88ee1d27ff247fd0187fa07cac60c8fcbfe72edda63ccb18a1ea52aa3c80a3ee",
+      "inputs_sha256": "65b597ff4a171b9e056ebe2a3c1558e7a894b691f70d7e1812756c95715f7a5a"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d0ba0",
+    "size": 54,
+    "offset": 5049248,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d0ba0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d06e0@16": {
+        "va": 282920672,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "32a270d4998ee042a124ab98ff668212cee86d31eebb5043b7a7b36f5e6fd201",
+      "inputs_sha256": "4928675ead8c2cc5328234fda93bb938462e0a6b7b22099c73102e727e44221c"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d0c60",
+    "size": 54,
+    "offset": 5049440,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d0c60@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d06e0@16": {
+        "va": 282920672,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "fc6d3d442526277d69b7f9bd36125de8af9f8f2c99ff314c39403ed7e0d1f274",
+      "inputs_sha256": "844c69c50a52597b21a4ee95770203e3b29feec36ac7758076c71ce3b0caceba"
+    }
+  },
+  {
     "id": "init-sentinel-tree-4d1310",
     "size": 46,
     "offset": 5051152,
@@ -44,6 +134,36 @@
     }
   },
   {
+    "id": "range-container-cleanup-4d1370",
+    "size": 54,
+    "offset": 5051248,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d1370@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d06e0@16": {
+        "va": 282920672,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "b23b4170c14afa0d144d1b6007f401f30abafa8bac74b1ea7f29db7b986238de",
+      "inputs_sha256": "831352d108c46112648202c2310e9120b92f7c844c515a3156dcd5195edb7ad0"
+    }
+  },
+  {
     "id": "init-sentinel-tree-4d13b0",
     "size": 46,
     "offset": 5051312,
@@ -63,6 +183,36 @@
     "match": {
       "bytes_sha256": "e9af42ac91f97fba4fb5065ff41a292c3e5bf1742887efe72d2f6e8361657ed0",
       "inputs_sha256": "5dddcdd1ee17531cea2787109ee1902e53e47c8badc40540cd95dbce69d72fbf"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d13e0",
+    "size": 54,
+    "offset": 5051360,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d13e0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d06e0@16": {
+        "va": 282920672,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "edf4d1afe0bd7b0e7bd4c23fce50769f801bde413af60149cb3e19b8b0f09f6f",
+      "inputs_sha256": "abdec21bc9d652be128f93eb9d8d93e74fcce6f3471868e45628bb069ecbe18e"
     }
   },
   {
@@ -622,6 +772,96 @@
     }
   },
   {
+    "id": "range-container-cleanup-4d4df0",
+    "size": 54,
+    "offset": 5066224,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d4df0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d4a50@16": {
+        "va": 282937936,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "9f9be9184023f84eb48dd68b288c8d4ec378bec3bf6890fc750042344f9e6c6c",
+      "inputs_sha256": "0f899c3463d90efeb37d8726eddcc9a35ce545cc112be89d8c34f214b3299653"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d4ef0",
+    "size": 54,
+    "offset": 5066480,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d4ef0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d4a50@16": {
+        "va": 282937936,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "4dd200ad15eb17588d6d7a4dd72daef7e259ce5a02e752f4f6ae7c54221722d2",
+      "inputs_sha256": "807b5cecbde2d0e78015e06110553f41c60eb9ff4481d85b55bea1c1e3893321"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d4f30",
+    "size": 54,
+    "offset": 5066544,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d4f30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d4a50@16": {
+        "va": 282937936,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "6f4b50f1288d9b3a72df82dc6d570e820f055e32379fe34f1dc05692bfcb0e7c",
+      "inputs_sha256": "b8cdf76963113a85a056b40237798b9ff05087d4b41d5a5c92f188462bc83050"
+    }
+  },
+  {
     "id": "init-sentinel-tree-4d5230",
     "size": 43,
     "offset": 5067312,
@@ -663,6 +903,36 @@
     "match": {
       "bytes_sha256": "45a561a6380d13176bff09bd940309a9501d30ffd9e5879b2af1f67806fd53f8",
       "inputs_sha256": "10ec97b083b49a3ae30482795cad2ddeaaa4aa011ea45da1d11bb27b16014251"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d5290",
+    "size": 54,
+    "offset": 5067408,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d5290@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d4a50@16": {
+        "va": 282937936,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "e8bfe581c5405ce259b110309fb5fd4a575ff964d9bb8dfa1f99e7947ef3afa6",
+      "inputs_sha256": "7f0c0969a9323f62356ee27af80f8beadb1670c5358f20df16cc0021f64229b7"
     }
   },
   {
@@ -1321,6 +1591,96 @@
     }
   },
   {
+    "id": "range-container-cleanup-4d8690",
+    "size": 54,
+    "offset": 5080720,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d8690@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d83f0@16": {
+        "va": 282952688,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "cf0785b19367e1433089d782dbc19e5b393ea8694cbcdd3fd4271e56de0dd3e2",
+      "inputs_sha256": "19bd54037df3b6aefe8f36621717b9e2ab71fa6a1a06c87230a688aef0ffbfb3"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d8750",
+    "size": 54,
+    "offset": 5080912,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d8750@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d83f0@16": {
+        "va": 282952688,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "56121c720f3e90d3f489c4de5e96ff8292e64941ead8cf1aaa311ad2c4b6a330",
+      "inputs_sha256": "90383014094f69c5cd2b6eecb3c4df644a8ff32514d1dea732391728ee75785e"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d8790",
+    "size": 54,
+    "offset": 5080976,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d8790@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d83f0@16": {
+        "va": 282952688,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "b9a0b0b1731a277edba870aa17adf7096a537232131b790fdeb097a2534f5b15",
+      "inputs_sha256": "74078af8295943280f8c86c907d1277bac591cb2eb3802811529b01e433fb4ef"
+    }
+  },
+  {
     "id": "init-sentinel-tree-4d8850",
     "size": 43,
     "offset": 5081168,
@@ -1362,6 +1722,36 @@
     "match": {
       "bytes_sha256": "a6e21508dd9c71679dda22a02811d30f7cee5d9b33b6d597c51eb36ddce9d273",
       "inputs_sha256": "16e3feb4506fc85e7ce8072ee81ac4ad53242c1cf9c6efbccffa72dfbc120eb8"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4d88b0",
+    "size": 54,
+    "offset": 5081264,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4d88b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4d83f0@16": {
+        "va": 282952688,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "d6d0d68b5cf27ededd6fa1eb943f14353759575005076f235a22508dac92cfde",
+      "inputs_sha256": "708c8c1c8cd71e0a08bc93b6e4bcb1c870d2d52f49ba925997d46decb318a232"
     }
   },
   {
@@ -2597,6 +2987,66 @@
     }
   },
   {
+    "id": "range-container-cleanup-4def50",
+    "size": 54,
+    "offset": 5107536,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4def50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4dee30@16": {
+        "va": 282979888,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "2fd1bf3c54257d99e3af476dc898df7d94d10274a30327412ae9be8519ba0608",
+      "inputs_sha256": "4f3a34dd406c92c07497651b27ffdb3ffe839e9958f9817ca7938db74a4204fb"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4defd0",
+    "size": 54,
+    "offset": 5107664,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4defd0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4dee30@16": {
+        "va": 282979888,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "e4d466c7b4828c5ce041c7cdb852c730997af054bd86220fb3be83bbb7d2a7fe",
+      "inputs_sha256": "5ceadf26cf8ae833842b91ee3824b94b7f3ede06f923baf1879ea92181dba00e"
+    }
+  },
+  {
     "id": "init-sentinel-tree-4df0f0",
     "size": 43,
     "offset": 5107952,
@@ -2638,6 +3088,36 @@
     "match": {
       "bytes_sha256": "ac3af5015bb179a3d3cefe3069a9e8f785d7b62fc6e8458e2eaca9f6178f6507",
       "inputs_sha256": "081be932323818e4413f4ef01e79e86697e85bf0057a769b189e33b5b2f91ba6"
+    }
+  },
+  {
+    "id": "range-container-cleanup-4df300",
+    "size": 54,
+    "offset": 5108480,
+    "inputs": [
+      "src/campaign_range_container_cleanup.c"
+    ],
+    "rebuilt_symbol": "@cleanup_4df300@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_range_container_cleanup.obj src/campaign_range_container_cleanup.c",
+    "link_bindings": {
+      "@erase_4dee30@16": {
+        "va": 282979888,
+        "basis": "Indexed range erasure called with first and sentinel iterators."
+      },
+      "_prepare_release": {
+        "va": 282637408,
+        "basis": "Shared allocation preparation with category seven."
+      },
+      "_release_prepared": {
+        "va": 282637648,
+        "basis": "Releases the prepared sentinel allocation."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
+    "match": {
+      "bytes_sha256": "a16e00598515f45647bc5ea607e7db483edd2f2237c2eb3dac797368196c2d79",
+      "inputs_sha256": "497b736debfaa71d0b4aa72731c689bb5fbfda01b2193202c9dc3aadee458bf5"
     }
   },
   {
