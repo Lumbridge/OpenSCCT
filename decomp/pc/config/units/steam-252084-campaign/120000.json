@@ -5554,6 +5554,48 @@
     }
   },
   {
+    "id": "class-allocation-utexturestreamer-12e780",
+    "size": 75,
+    "offset": 1238912,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UTextureStreamer",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UTextureStreamer allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UTextureStreamer allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UTextureStreamer allocation wrapper."
+      },
+      "_class_UTextureStreamer": {
+        "va": 287287272,
+        "basis": "Retail operand for class_UTextureStreamer in the UTextureStreamer allocation wrapper."
+      },
+      "_create_UTextureStreamer": {
+        "va": 279644800,
+        "basis": "Retail operand for create_UTextureStreamer in the UTextureStreamer allocation wrapper."
+      },
+      "_register_UTextureStreamer": {
+        "va": 279630384,
+        "basis": "Retail operand for register_UTextureStreamer in the UTextureStreamer allocation wrapper."
+      }
+    },
+    "identification": "Complete UTextureStreamer allocation wrapper at aligned RVA 0x12e780. Class singleton RVA 0x12e750 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "e43ae8c5cd2b1451181c16abd4f385ea87978074d1d6d8a67207b98c4333a63c",
+      "inputs_sha256": "4c480dc62a7535c322c87e9f92bff6f80195b3f7fb53fdd1dfd4310195ea0222"
+    }
+  },
+  {
     "id": "class-singleton-usmstreamer",
     "offset": 1239008,
     "size": 38,
@@ -5585,6 +5627,48 @@
     "match": {
       "bytes_sha256": "44773687662e25357c86535cc2b2e8b403917af6ed74063d6779c42bbfc595bb",
       "inputs_sha256": "2170afd1bb6131f67324c42cd4203c2261dc906b0d27ebf74d59d90391ee5a60"
+    }
+  },
+  {
+    "id": "class-allocation-usmstreamer-12e810",
+    "size": 75,
+    "offset": 1239056,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_USMStreamer",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the USMStreamer allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the USMStreamer allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the USMStreamer allocation wrapper."
+      },
+      "_class_USMStreamer": {
+        "va": 287353264,
+        "basis": "Retail operand for class_USMStreamer in the USMStreamer allocation wrapper."
+      },
+      "_create_USMStreamer": {
+        "va": 279740416,
+        "basis": "Retail operand for create_USMStreamer in the USMStreamer allocation wrapper."
+      },
+      "_register_USMStreamer": {
+        "va": 279732672,
+        "basis": "Retail operand for register_USMStreamer in the USMStreamer allocation wrapper."
+      }
+    },
+    "identification": "Complete USMStreamer allocation wrapper at aligned RVA 0x12e810. Class singleton RVA 0x12e7e0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "c702d526908ab9b6c417a2707bc74088fb18c25643b58318d17531d077df4e18",
+      "inputs_sha256": "4f17d94f3c1c50b7b17ecb90d216b09e39367d0abdb8f38d24f2dc6f671002cf"
     }
   },
   {

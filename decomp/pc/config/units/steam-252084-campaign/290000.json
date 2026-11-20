@@ -1439,6 +1439,132 @@
     }
   },
   {
+    "id": "class-allocation-uegoallist-29db10",
+    "size": 75,
+    "offset": 2743056,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEGoalList",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEGoalList allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEGoalList allocation wrapper."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail operand for package_Echelon in the UEGoalList allocation wrapper."
+      },
+      "_class_UEGoalList": {
+        "va": 287503240,
+        "basis": "Retail operand for class_UEGoalList in the UEGoalList allocation wrapper."
+      },
+      "_create_UEGoalList": {
+        "va": 281166432,
+        "basis": "Retail operand for create_UEGoalList in the UEGoalList allocation wrapper."
+      },
+      "_register_UEGoalList": {
+        "va": 281165408,
+        "basis": "Retail operand for register_UEGoalList in the UEGoalList allocation wrapper."
+      }
+    },
+    "identification": "Complete UEGoalList allocation wrapper at aligned RVA 0x29db10. Class singleton RVA 0x30b0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "5e16d5245d011f6f30d8f845c78e2494fe27be100f3ea618f209fe7c58df4fb7",
+      "inputs_sha256": "f1aa3ba722d886aaad696fbf5aef7158207b43ae1cd659de2ca18be2ceafdb65"
+    }
+  },
+  {
+    "id": "class-allocation-uesearchmanager-29db60",
+    "size": 75,
+    "offset": 2743136,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UESearchManager",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UESearchManager allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UESearchManager allocation wrapper."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail operand for package_Echelon in the UESearchManager allocation wrapper."
+      },
+      "_class_UESearchManager": {
+        "va": 287503260,
+        "basis": "Retail operand for class_UESearchManager in the UESearchManager allocation wrapper."
+      },
+      "_create_UESearchManager": {
+        "va": 281205936,
+        "basis": "Retail operand for create_UESearchManager in the UESearchManager allocation wrapper."
+      },
+      "_register_UESearchManager": {
+        "va": 281193760,
+        "basis": "Retail operand for register_UESearchManager in the UESearchManager allocation wrapper."
+      }
+    },
+    "identification": "Complete UESearchManager allocation wrapper at aligned RVA 0x29db60. Class singleton RVA 0x31a0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "2c1229925a55fef2c6c0a73d257153a430e60ea68ff34af04469ed807629ac7a",
+      "inputs_sha256": "503913f2eb558a2a6c0949f0715c0511a6a348ed3f4c383bb87cc98b0973df37"
+    }
+  },
+  {
+    "id": "class-allocation-uetransitioncontroller-29dbc0",
+    "size": 75,
+    "offset": 2743232,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UETransitionController",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UETransitionController allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UETransitionController allocation wrapper."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail operand for package_Echelon in the UETransitionController allocation wrapper."
+      },
+      "_class_UETransitionController": {
+        "va": 287503272,
+        "basis": "Retail operand for class_UETransitionController in the UETransitionController allocation wrapper."
+      },
+      "_create_UETransitionController": {
+        "va": 281223200,
+        "basis": "Retail operand for create_UETransitionController in the UETransitionController allocation wrapper."
+      },
+      "_register_UETransitionController": {
+        "va": 281211040,
+        "basis": "Retail operand for register_UETransitionController in the UETransitionController allocation wrapper."
+      }
+    },
+    "identification": "Complete UETransitionController allocation wrapper at aligned RVA 0x29dbc0. Class singleton RVA 0x3260 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "af583737ea3aed8e344c3d9298021e94e0753764efea195720d8de91f3b171a2",
+      "inputs_sha256": "1ee5469c4e3f4c2d725993178c38e1ae6fd1881e120563d931ce1ade64548288"
+    }
+  },
+  {
     "id": "array-release-29dc10",
     "size": 43,
     "offset": 2743312,

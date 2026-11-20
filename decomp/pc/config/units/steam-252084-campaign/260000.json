@@ -257,6 +257,48 @@
     }
   },
   {
+    "id": "class-allocation-uinput-2629f0",
+    "size": 75,
+    "offset": 2501104,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UInput",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UInput allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UInput allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UInput allocation wrapper."
+      },
+      "_class_UInput": {
+        "va": 287285052,
+        "basis": "Retail operand for class_UInput in the UInput allocation wrapper."
+      },
+      "_create_UInput": {
+        "va": 279154144,
+        "basis": "Retail operand for create_UInput in the UInput allocation wrapper."
+      },
+      "_register_UInput": {
+        "va": 279141200,
+        "basis": "Retail operand for register_UInput in the UInput allocation wrapper."
+      }
+    },
+    "identification": "Complete UInput allocation wrapper at aligned RVA 0x2629f0. Class singleton RVA 0x6880 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "3c0ad906dbbaa0777578650376d9ea100d590360bd956565520c11b2c3298c26",
+      "inputs_sha256": "03470095f64a095e1daca9420790bb031721d65ffe7cec7200d69a83713e99f4"
+    }
+  },
+  {
     "id": "register-names-262a40",
     "size": 278,
     "offset": 2501184,

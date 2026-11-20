@@ -778,6 +778,48 @@
     }
   },
   {
+    "id": "class-allocation-ustruct-b5930",
+    "size": 75,
+    "offset": 743728,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UStruct",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UStruct allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UStruct allocation wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UStruct allocation wrapper."
+      },
+      "_class_UStruct": {
+        "va": 288432356,
+        "basis": "Retail operand for class_UStruct in the UStruct allocation wrapper."
+      },
+      "_create_UStruct": {
+        "va": 281961696,
+        "basis": "Retail operand for create_UStruct in the UStruct allocation wrapper."
+      },
+      "_register_UStruct": {
+        "va": 281962480,
+        "basis": "Retail operand for register_UStruct in the UStruct allocation wrapper."
+      }
+    },
+    "identification": "Complete UStruct allocation wrapper at aligned RVA 0xb5930. Class singleton RVA 0xb5900 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "f6899347ef9ba1983fc152bbec7f6d6e1c441ae17b7877ad94220b39de6a75ba",
+      "inputs_sha256": "1730303005acbaeb031372b5cb36b00fc0f359ba3291106a4b640d7072196678"
+    }
+  },
+  {
     "id": "delete-members-0b59c0",
     "size": 59,
     "offset": 743872,
@@ -851,6 +893,48 @@
     }
   },
   {
+    "id": "class-allocation-uobjectproperty-b5a30",
+    "size": 75,
+    "offset": 743984,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UObjectProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UObjectProperty allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UObjectProperty allocation wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UObjectProperty allocation wrapper."
+      },
+      "_class_UObjectProperty": {
+        "va": 288432916,
+        "basis": "Retail operand for class_UObjectProperty in the UObjectProperty allocation wrapper."
+      },
+      "_create_UObjectProperty": {
+        "va": 281986720,
+        "basis": "Retail operand for create_UObjectProperty in the UObjectProperty allocation wrapper."
+      },
+      "_register_UObjectProperty": {
+        "va": 281983200,
+        "basis": "Retail operand for register_UObjectProperty in the UObjectProperty allocation wrapper."
+      }
+    },
+    "identification": "Complete UObjectProperty allocation wrapper at aligned RVA 0xb5a30. Class singleton RVA 0xb5a00 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "4678ace1d86a51d16bc2ed976ed17b12e818c2634fe78eec848a3d3eb424f689",
+      "inputs_sha256": "c259135ca89142b4abf7564e44bd2c81eae4581e0fcad217121684f21da5c9f9"
+    }
+  },
+  {
     "id": "delete-uobjectproperty",
     "offset": 744112,
     "size": 46,
@@ -919,6 +1003,48 @@
     }
   },
   {
+    "id": "class-allocation-uarrayproperty-b5b40",
+    "size": 75,
+    "offset": 744256,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UArrayProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UArrayProperty allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UArrayProperty allocation wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UArrayProperty allocation wrapper."
+      },
+      "_class_UArrayProperty": {
+        "va": 288432936,
+        "basis": "Retail operand for class_UArrayProperty in the UArrayProperty allocation wrapper."
+      },
+      "_create_UArrayProperty": {
+        "va": 281987936,
+        "basis": "Retail operand for create_UArrayProperty in the UArrayProperty allocation wrapper."
+      },
+      "_register_UArrayProperty": {
+        "va": 281984816,
+        "basis": "Retail operand for register_UArrayProperty in the UArrayProperty allocation wrapper."
+      }
+    },
+    "identification": "Complete UArrayProperty allocation wrapper at aligned RVA 0xb5b40. Class singleton RVA 0xb5b00 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "c8a00e33d7b8dc59ae76d856aa812459b36febc51c1ecb8c9706ec3d778f6966",
+      "inputs_sha256": "72adf56bd91ec82ab7e0e36da413e3d6eeeb1ae57ca62707adf559d8b78e430e"
+    }
+  },
+  {
     "id": "delete-uarrayproperty",
     "offset": 744480,
     "size": 46,
@@ -984,6 +1110,48 @@
     "match": {
       "bytes_sha256": "0bbbf522d470ffb0f75379fc2c3c2e1c140b595eea50f6049dea14a1a29e3f5f",
       "inputs_sha256": "f87b5efd099568547d32e8e915b679399af8b2db694bac4b8f94b88c4b90778d"
+    }
+  },
+  {
+    "id": "class-allocation-ustructproperty-b5cd0",
+    "size": 75,
+    "offset": 744656,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UStructProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UStructProperty allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UStructProperty allocation wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UStructProperty allocation wrapper."
+      },
+      "_class_UStructProperty": {
+        "va": 288432944,
+        "basis": "Retail operand for class_UStructProperty in the UStructProperty allocation wrapper."
+      },
+      "_create_UStructProperty": {
+        "va": 281989920,
+        "basis": "Retail operand for create_UStructProperty in the UStructProperty allocation wrapper."
+      },
+      "_register_UStructProperty": {
+        "va": 281985360,
+        "basis": "Retail operand for register_UStructProperty in the UStructProperty allocation wrapper."
+      }
+    },
+    "identification": "Complete UStructProperty allocation wrapper at aligned RVA 0xb5cd0. Class singleton RVA 0xb5ca0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "a7c000a322f9e38d3c300e705c97de765b89506d1d034b4c16ceb634d180da4b",
+      "inputs_sha256": "6011bf922bba8c4e01eef435f780f9ef3fa17386403a274d60836d2f01b239ed"
     }
   },
   {

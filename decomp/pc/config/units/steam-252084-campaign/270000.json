@@ -2503,6 +2503,48 @@
     }
   },
   {
+    "id": "class-allocation-uehkskeletalsystem-27d940",
+    "size": 75,
+    "offset": 2611520,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEHkSkeletalSystem",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEHkSkeletalSystem allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEHkSkeletalSystem allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UEHkSkeletalSystem allocation wrapper."
+      },
+      "_class_UEHkSkeletalSystem": {
+        "va": 287282528,
+        "basis": "Retail operand for class_UEHkSkeletalSystem in the UEHkSkeletalSystem allocation wrapper."
+      },
+      "_create_UEHkSkeletalSystem": {
+        "va": 278957376,
+        "basis": "Retail operand for create_UEHkSkeletalSystem in the UEHkSkeletalSystem allocation wrapper."
+      },
+      "_register_UEHkSkeletalSystem": {
+        "va": 278955248,
+        "basis": "Retail operand for register_UEHkSkeletalSystem in the UEHkSkeletalSystem allocation wrapper."
+      }
+    },
+    "identification": "Complete UEHkSkeletalSystem allocation wrapper at aligned RVA 0x27d940. Class singleton RVA 0x5910 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "fe91069eb68ac02b98df1e6afac0df1a9adedae315d063d084be061513e891ad",
+      "inputs_sha256": "dcece487f39c9783e19e3270f397389e41d9718eab6bbf03f108d21f29fb709e"
+    }
+  },
+  {
     "id": "script-parameters-takehit",
     "offset": 2611632,
     "size": 52,

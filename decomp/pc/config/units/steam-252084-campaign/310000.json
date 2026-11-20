@@ -780,6 +780,48 @@
     }
   },
   {
+    "id": "class-allocation-ueglobalmissionmanager-311c50",
+    "size": 75,
+    "offset": 3218512,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEGlobalMissionManager",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEGlobalMissionManager allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEGlobalMissionManager allocation wrapper."
+      },
+      "_package_Echelon": {
+        "va": 285964944,
+        "basis": "Retail operand for package_Echelon in the UEGlobalMissionManager allocation wrapper."
+      },
+      "_class_UEGlobalMissionManager": {
+        "va": 287503312,
+        "basis": "Retail operand for class_UEGlobalMissionManager in the UEGlobalMissionManager allocation wrapper."
+      },
+      "_create_UEGlobalMissionManager": {
+        "va": 281235264,
+        "basis": "Retail operand for create_UEGlobalMissionManager in the UEGlobalMissionManager allocation wrapper."
+      },
+      "_register_UEGlobalMissionManager": {
+        "va": 281234128,
+        "basis": "Retail operand for register_UEGlobalMissionManager in the UEGlobalMissionManager allocation wrapper."
+      }
+    },
+    "identification": "Complete UEGlobalMissionManager allocation wrapper at aligned RVA 0x311c50. Class singleton RVA 0x32f0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "1efd23c82cab388ead94d38c5f159708f3d792d3aac5a00afe4bf6a38dacf59a",
+      "inputs_sha256": "ff8fa8c122b8561986f18f17e5023937c43473a3dffd696e7b7227b43224ee9c"
+    }
+  },
+  {
     "id": "array-release-311ca0",
     "size": 43,
     "offset": 3218592,

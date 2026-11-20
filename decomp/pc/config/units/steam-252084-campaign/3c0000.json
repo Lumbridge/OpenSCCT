@@ -1,5 +1,89 @@
 [
   {
+    "id": "class-allocation-uwindowsviewport-3c09e0",
+    "size": 75,
+    "offset": 3934688,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UWindowsViewport",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UWindowsViewport allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UWindowsViewport allocation wrapper."
+      },
+      "_package_WinDrv": {
+        "va": 285964928,
+        "basis": "Retail operand for package_WinDrv in the UWindowsViewport allocation wrapper."
+      },
+      "_class_UWindowsViewport": {
+        "va": 287507720,
+        "basis": "Retail operand for class_UWindowsViewport in the UWindowsViewport allocation wrapper."
+      },
+      "_create_UWindowsViewport": {
+        "va": 281833936,
+        "basis": "Retail operand for create_UWindowsViewport in the UWindowsViewport allocation wrapper."
+      },
+      "_register_UWindowsViewport": {
+        "va": 281812544,
+        "basis": "Retail operand for register_UWindowsViewport in the UWindowsViewport allocation wrapper."
+      }
+    },
+    "identification": "Complete UWindowsViewport allocation wrapper at aligned RVA 0x3c09e0. Class singleton RVA 0x1b70 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "d663b41c2d5f2dbab743759bcb25e911808b54980ce0167bbf0ea2ef7d0fca71",
+      "inputs_sha256": "e9d2052523f694e954b2e6d95316b3602a507cb2a93ef6c9d3bdd36b7684452d"
+    }
+  },
+  {
+    "id": "class-allocation-uwinjoystickmgr-3c0a30",
+    "size": 75,
+    "offset": 3934768,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UWinJoystickMgr",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UWinJoystickMgr allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UWinJoystickMgr allocation wrapper."
+      },
+      "_package_WinDrv": {
+        "va": 285964928,
+        "basis": "Retail operand for package_WinDrv in the UWinJoystickMgr allocation wrapper."
+      },
+      "_class_UWinJoystickMgr": {
+        "va": 287507760,
+        "basis": "Retail operand for class_UWinJoystickMgr in the UWinJoystickMgr allocation wrapper."
+      },
+      "_create_UWinJoystickMgr": {
+        "va": 281839584,
+        "basis": "Retail operand for create_UWinJoystickMgr in the UWinJoystickMgr allocation wrapper."
+      },
+      "_register_UWinJoystickMgr": {
+        "va": 281834432,
+        "basis": "Retail operand for register_UWinJoystickMgr in the UWinJoystickMgr allocation wrapper."
+      }
+    },
+    "identification": "Complete UWinJoystickMgr allocation wrapper at aligned RVA 0x3c0a30. Class singleton RVA 0x1ba0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "f65cabe56d529283b4726cc8e7a7b5c418ee07f7c652df10cd33bb9dd2fd2c6d",
+      "inputs_sha256": "6bc36a621f5eedf02f73c366938591fbac2fb23b16ec927d7e045f4438fbba34"
+    }
+  },
+  {
     "id": "class-registration-uwindowsclient",
     "offset": 3934864,
     "size": 264,

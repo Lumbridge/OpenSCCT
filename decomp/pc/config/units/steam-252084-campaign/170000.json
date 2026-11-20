@@ -1218,6 +1218,48 @@
     }
   },
   {
+    "id": "class-allocation-ueoceanprimitive-171c60",
+    "size": 75,
+    "offset": 1514592,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEOceanPrimitive",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEOceanPrimitive allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEOceanPrimitive allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UEOceanPrimitive allocation wrapper."
+      },
+      "_class_UEOceanPrimitive": {
+        "va": 287286532,
+        "basis": "Retail operand for class_UEOceanPrimitive in the UEOceanPrimitive allocation wrapper."
+      },
+      "_create_UEOceanPrimitive": {
+        "va": 279387008,
+        "basis": "Retail operand for create_UEOceanPrimitive in the UEOceanPrimitive allocation wrapper."
+      },
+      "_register_UEOceanPrimitive": {
+        "va": 279383968,
+        "basis": "Retail operand for register_UEOceanPrimitive in the UEOceanPrimitive allocation wrapper."
+      }
+    },
+    "identification": "Complete UEOceanPrimitive allocation wrapper at aligned RVA 0x171c60. Class singleton RVA 0x6fc0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "ead698ef4a506d6566c10adbd289577ec7e267fec3cc3150d775c8eb222a3b4c",
+      "inputs_sha256": "6848776eb9ed903e5349154519764b195de9acd752a370df1c8fc6e2b6db5871"
+    }
+  },
+  {
     "id": "array-release-1720c0",
     "size": 43,
     "offset": 1515712,

@@ -1859,6 +1859,48 @@
     }
   },
   {
+    "id": "class-allocation-uwindmaker-c74b0",
+    "size": 75,
+    "offset": 816304,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UWindMaker",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UWindMaker allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UWindMaker allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UWindMaker allocation wrapper."
+      },
+      "_class_UWindMaker": {
+        "va": 287271040,
+        "basis": "Retail operand for class_UWindMaker in the UWindMaker allocation wrapper."
+      },
+      "_create_UWindMaker": {
+        "va": 278467584,
+        "basis": "Retail operand for create_UWindMaker in the UWindMaker allocation wrapper."
+      },
+      "_register_UWindMaker": {
+        "va": 278458896,
+        "basis": "Retail operand for register_UWindMaker in the UWindMaker allocation wrapper."
+      }
+    },
+    "identification": "Complete UWindMaker allocation wrapper at aligned RVA 0xc74b0. Class singleton RVA 0x67b0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "95c43c93745be62a22ff94fd4598dd934bb4e53fb050d82491ff542db9da7048",
+      "inputs_sha256": "3ad0c2cc5d6f0e4f626c942bc24e32394338b96ea92dcd879ce800649aad092b"
+    }
+  },
+  {
     "id": "array-release-0c7520",
     "size": 43,
     "offset": 816416,

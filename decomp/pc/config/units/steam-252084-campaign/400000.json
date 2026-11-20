@@ -823,6 +823,48 @@
     }
   },
   {
+    "id": "class-allocation-uwindowmanager-407950",
+    "size": 75,
+    "offset": 4225360,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UWindowManager",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UWindowManager allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UWindowManager allocation wrapper."
+      },
+      "_package_Window": {
+        "va": 285967276,
+        "basis": "Retail operand for package_Window in the UWindowManager allocation wrapper."
+      },
+      "_class_UWindowManager": {
+        "va": 288452724,
+        "basis": "Retail operand for class_UWindowManager in the UWindowManager allocation wrapper."
+      },
+      "_create_UWindowManager": {
+        "va": 282097232,
+        "basis": "Retail operand for create_UWindowManager in the UWindowManager allocation wrapper."
+      },
+      "_register_UWindowManager": {
+        "va": 282088848,
+        "basis": "Retail operand for register_UWindowManager in the UWindowManager allocation wrapper."
+      }
+    },
+    "identification": "Complete UWindowManager allocation wrapper at aligned RVA 0x407950. Class singleton RVA 0x407920 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "18cf6a261c8045e38b205c60c786d2da825bedba848f2bf309371fdd7c372d7a",
+      "inputs_sha256": "3b0d2254a99092cc4774e9b7e6b943086fa4f496a563a75ea223aad4a03fde59"
+    }
+  },
+  {
     "id": "typed-array-remove-407c50",
     "size": 20,
     "offset": 4226128,

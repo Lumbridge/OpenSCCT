@@ -2253,6 +2253,48 @@
     }
   },
   {
+    "id": "class-allocation-uerope-a61a0",
+    "size": 75,
+    "offset": 680352,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UERope",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UERope allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UERope allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UERope allocation wrapper."
+      },
+      "_class_UERope": {
+        "va": 287286460,
+        "basis": "Retail operand for class_UERope in the UERope allocation wrapper."
+      },
+      "_create_UERope": {
+        "va": 279277744,
+        "basis": "Retail operand for create_UERope in the UERope allocation wrapper."
+      },
+      "_register_UERope": {
+        "va": 279267376,
+        "basis": "Retail operand for register_UERope in the UERope allocation wrapper."
+      }
+    },
+    "identification": "Complete UERope allocation wrapper at aligned RVA 0xa61a0. Class singleton RVA 0x6b40 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "6180bf2236bbb61bc56bd407c6be14f16d1e621abb38c8b164665c586afe32a9",
+      "inputs_sha256": "044d1899091cd8d800b875c8515511f0ecc9bef406463a702ed45d1996ceed25"
+    }
+  },
+  {
     "id": "class-registration-aeropeactor",
     "offset": 680432,
     "size": 264,
@@ -3585,6 +3627,48 @@
     }
   },
   {
+    "id": "class-allocation-utexture-a7ac0",
+    "size": 75,
+    "offset": 686784,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UTexture",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UTexture allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UTexture allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UTexture allocation wrapper."
+      },
+      "_class_UTexture": {
+        "va": 287268824,
+        "basis": "Retail operand for class_UTexture in the UTexture allocation wrapper."
+      },
+      "_create_UTexture": {
+        "va": 278380640,
+        "basis": "Retail operand for create_UTexture in the UTexture allocation wrapper."
+      },
+      "_register_UTexture": {
+        "va": 278353488,
+        "basis": "Retail operand for register_UTexture in the UTexture allocation wrapper."
+      }
+    },
+    "identification": "Complete UTexture allocation wrapper at aligned RVA 0xa7ac0. Class singleton RVA 0x2ab0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "814c134aef0cd839976514d06bcbab8bc821a06576fbea8c6a1000124ce59de4",
+      "inputs_sha256": "b4cc87519fc4bed9382e8f6f11e605a5a476da68cd844421b623573262906034"
+    }
+  },
+  {
     "id": "class-registration-acubemapsampleinfo",
     "offset": 686992,
     "size": 264,
@@ -4908,6 +4992,48 @@
     }
   },
   {
+    "id": "class-allocation-uoceanpatchset-ac2f0",
+    "size": 75,
+    "offset": 705264,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UOceanPatchSet",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UOceanPatchSet allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UOceanPatchSet allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UOceanPatchSet allocation wrapper."
+      },
+      "_class_UOceanPatchSet": {
+        "va": 287271348,
+        "basis": "Retail operand for class_UOceanPatchSet in the UOceanPatchSet allocation wrapper."
+      },
+      "_create_UOceanPatchSet": {
+        "va": 278576128,
+        "basis": "Retail operand for create_UOceanPatchSet in the UOceanPatchSet allocation wrapper."
+      },
+      "_register_UOceanPatchSet": {
+        "va": 278572096,
+        "basis": "Retail operand for register_UOceanPatchSet in the UOceanPatchSet allocation wrapper."
+      }
+    },
+    "identification": "Complete UOceanPatchSet allocation wrapper at aligned RVA 0xac2f0. Class singleton RVA 0x7020 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "bd822772370fea34a17e8e5e21188413253bfa671fba0e14968dea05708cdeb2",
+      "inputs_sha256": "ffdea6bcb734fff28498b98eeaf6c54df165166cd6ec7425e546e47641d6a75b"
+    }
+  },
+  {
     "id": "array-remove-0ac340",
     "size": 138,
     "offset": 705344,
@@ -5480,6 +5606,90 @@
     "match": {
       "bytes_sha256": "a453fdcfcb8985d0b688ce9dfcaf49c0dee90753118fbd34a1f3d67e3b022a22",
       "inputs_sha256": "5a7b86b537298b0a0a9d2ea4f544c65bf8eedcd76e3fe8b9a89f687cb16d3a60"
+    }
+  },
+  {
+    "id": "class-allocation-uevirtualwaterprimitive-ae2f0",
+    "size": 75,
+    "offset": 713456,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEVirtualWaterPrimitive",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEVirtualWaterPrimitive allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEVirtualWaterPrimitive allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UEVirtualWaterPrimitive allocation wrapper."
+      },
+      "_class_UEVirtualWaterPrimitive": {
+        "va": 287271356,
+        "basis": "Retail operand for class_UEVirtualWaterPrimitive in the UEVirtualWaterPrimitive allocation wrapper."
+      },
+      "_create_UEVirtualWaterPrimitive": {
+        "va": 278585632,
+        "basis": "Retail operand for create_UEVirtualWaterPrimitive in the UEVirtualWaterPrimitive allocation wrapper."
+      },
+      "_register_UEVirtualWaterPrimitive": {
+        "va": 278573520,
+        "basis": "Retail operand for register_UEVirtualWaterPrimitive in the UEVirtualWaterPrimitive allocation wrapper."
+      }
+    },
+    "identification": "Complete UEVirtualWaterPrimitive allocation wrapper at aligned RVA 0xae2f0. Class singleton RVA 0x7050 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "6c660c1a504ea948176a30678a0cfa741277db612ff46e1f8458d71a8cb03710",
+      "inputs_sha256": "61a76db6bbc3993c716815c46c77fe6396102e12afa22b38d8253714d9f6cb01"
+    }
+  },
+  {
+    "id": "class-allocation-uewaterprimitive-ae340",
+    "size": 75,
+    "offset": 713536,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEWaterPrimitive",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEWaterPrimitive allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEWaterPrimitive allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UEWaterPrimitive allocation wrapper."
+      },
+      "_class_UEWaterPrimitive": {
+        "va": 287271360,
+        "basis": "Retail operand for class_UEWaterPrimitive in the UEWaterPrimitive allocation wrapper."
+      },
+      "_create_UEWaterPrimitive": {
+        "va": 278585744,
+        "basis": "Retail operand for create_UEWaterPrimitive in the UEWaterPrimitive allocation wrapper."
+      },
+      "_register_UEWaterPrimitive": {
+        "va": 278573856,
+        "basis": "Retail operand for register_UEWaterPrimitive in the UEWaterPrimitive allocation wrapper."
+      }
+    },
+    "identification": "Complete UEWaterPrimitive allocation wrapper at aligned RVA 0xae340. Class singleton RVA 0x7080 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "656dc3e3b5b68cbd00427b2f2512e135c747231c1209873424b96331e6bcd852",
+      "inputs_sha256": "3e9a7dd5f514dc48f4335dbe86a904e6c878f41274fc3411054b0e0d7e06abdf"
     }
   },
   {

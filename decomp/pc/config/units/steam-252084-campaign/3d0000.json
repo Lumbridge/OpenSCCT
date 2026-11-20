@@ -277,6 +277,48 @@
     }
   },
   {
+    "id": "class-allocation-usystem-3d3820",
+    "size": 75,
+    "offset": 4012064,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_USystem",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the USystem allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the USystem allocation wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the USystem allocation wrapper."
+      },
+      "_class_USystem": {
+        "va": 288190820,
+        "basis": "Retail operand for class_USystem in the USystem allocation wrapper."
+      },
+      "_create_USystem": {
+        "va": 281884544,
+        "basis": "Retail operand for create_USystem in the USystem allocation wrapper."
+      },
+      "_register_USystem": {
+        "va": 281875648,
+        "basis": "Retail operand for register_USystem in the USystem allocation wrapper."
+      }
+    },
+    "identification": "Complete USystem allocation wrapper at aligned RVA 0x3d3820. Class singleton RVA 0x3d37f0 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "07b7ac05ebb117740f6fd7919341861df80922590e05492f209d24d664c4d7e3",
+      "inputs_sha256": "0bd1d08e66ca1263bb4506c15f1341e2e234f57a560cf140f89121c97c9dc830"
+    }
+  },
+  {
     "id": "array-release-3d4360",
     "size": 43,
     "offset": 4014944,

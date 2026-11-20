@@ -907,6 +907,48 @@
     }
   },
   {
+    "id": "class-allocation-upalette-660a0",
+    "size": 75,
+    "offset": 417952,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UPalette",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UPalette allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UPalette allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UPalette allocation wrapper."
+      },
+      "_class_UPalette": {
+        "va": 287268828,
+        "basis": "Retail operand for class_UPalette in the UPalette allocation wrapper."
+      },
+      "_create_UPalette": {
+        "va": 278377568,
+        "basis": "Retail operand for create_UPalette in the UPalette allocation wrapper."
+      },
+      "_register_UPalette": {
+        "va": 278353856,
+        "basis": "Retail operand for register_UPalette in the UPalette allocation wrapper."
+      }
+    },
+    "identification": "Complete UPalette allocation wrapper at aligned RVA 0x660a0. Class singleton RVA 0x2a50 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "aaae8980f7a8f25a5b249a465eab589bc6c4579842e52cd86851de4900e7d2e0",
+      "inputs_sha256": "e1a7a303e94f6ab901065d9fdd90175f006d825b99717da05151230a87f4d868"
+    }
+  },
+  {
     "id": "array-release-0661a0",
     "size": 43,
     "offset": 418208,

@@ -2417,6 +2417,48 @@
     }
   },
   {
+    "id": "class-allocation-uelistnode-10abf0",
+    "size": 75,
+    "offset": 1092592,
+    "inputs": [
+      "src/campaign_class_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_UEListNode",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_allocation.obj src/campaign_class_allocation.c",
+    "link_bindings": {
+      "_allocation_context": {
+        "va": 287082644,
+        "basis": "Retail operand for allocation_context in the UEListNode allocation wrapper."
+      },
+      "_allocate_object": {
+        "va": 281936800,
+        "basis": "Retail operand for allocate_object in the UEListNode allocation wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the UEListNode allocation wrapper."
+      },
+      "_class_UEListNode": {
+        "va": 287282540,
+        "basis": "Retail operand for class_UEListNode in the UEListNode allocation wrapper."
+      },
+      "_create_UEListNode": {
+        "va": 278965120,
+        "basis": "Retail operand for create_UEListNode in the UEListNode allocation wrapper."
+      },
+      "_register_UEListNode": {
+        "va": 278964112,
+        "basis": "Retail operand for register_UEListNode in the UEListNode allocation wrapper."
+      }
+    },
+    "identification": "Complete UEListNode allocation wrapper at aligned RVA 0x10abf0. Class singleton RVA 0x5970 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "ce259b280b8f7b36c2a7a68eadac91d9ffb41ca6ba22f30a053debb17dfccb7b",
+      "inputs_sha256": "acfc1a3f5ae8bc8f939e28af3a67b03c967d2b7ea6b4099e47639f8e98067087"
+    }
+  },
+  {
     "id": "class-registration-uepatrolinfo",
     "offset": 1093296,
     "size": 264,
