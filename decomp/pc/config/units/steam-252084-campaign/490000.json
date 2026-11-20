@@ -644,6 +644,28 @@
     }
   },
   {
+    "id": "reset-sentinel-tree-496c50",
+    "size": 41,
+    "offset": 4811856,
+    "inputs": [
+      "src/campaign_reset_tree_head.c"
+    ],
+    "rebuilt_symbol": "@init_tree_496c50@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reset_tree_head.obj src/campaign_reset_tree_head.c",
+    "link_bindings": {
+      "@make_node_496a50@4": {
+        "va": 282683984,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x496a50, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "5da3ac7f21d674063065b1eeaf1cf9182b4126d2a4d652420ce161786a215caa",
+      "inputs_sha256": "8fb681e6cb247a60cf0004fa730bcbcaa26a8899a41513a1fbd912a002d76a18"
+    }
+  },
+  {
     "id": "tree-prev-496860-prefix-496c80",
     "offset": 4811904,
     "size": 12,
@@ -1124,6 +1146,28 @@
     "match": {
       "bytes_sha256": "af74bf25374511b5a5f895eb0a87a84496e3f380e2d7f97925ca509b179fbcb4",
       "inputs_sha256": "8f78011bae7b980dd1f01afebe923606325931ca9d0ef153532bcb3efd9d2fc7"
+    }
+  },
+  {
+    "id": "reset-sentinel-tree-4995f0",
+    "size": 41,
+    "offset": 4822512,
+    "inputs": [
+      "src/campaign_reset_tree_head.c"
+    ],
+    "rebuilt_symbol": "@init_tree_4995f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reset_tree_head.obj src/campaign_reset_tree_head.c",
+    "link_bindings": {
+      "@make_node_499410@4": {
+        "va": 282694672,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x499410, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "0367c88bae07f05d20f82212971adb72befc81d59724530c57df2acb5e771bf4",
+      "inputs_sha256": "76ce88283875831f01f761a13f92551b771619abebdcfb8a78f45e5bdd16d4f2"
     }
   },
   {
@@ -1934,6 +1978,28 @@
     "match": {
       "bytes_sha256": "fb258a011b5ee4b852cca820e45a32772f8b6068d01c95a77f2998e93df861de",
       "inputs_sha256": "99d62afb0ae7efb8f9eaad3a21402bce22a9039726e4a5defb1e87e44e5385d8"
+    }
+  },
+  {
+    "id": "reset-sentinel-tree-49faf0",
+    "size": 41,
+    "offset": 4848368,
+    "inputs": [
+      "src/campaign_reset_tree_head.c"
+    ],
+    "rebuilt_symbol": "@init_tree_49faf0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reset_tree_head.obj src/campaign_reset_tree_head.c",
+    "link_bindings": {
+      "@make_node_49f6d0@4": {
+        "va": 282719952,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x49f6d0, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "9d6755c53d76b89636aa35fb06955ecbaf6765b7eef65dee35e6647f310191ab",
+      "inputs_sha256": "cc326739ab2cadb84448656007e26da9c71b188fca96adb635fdcc7303a5ce05"
     }
   },
   {

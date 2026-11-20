@@ -1002,6 +1002,28 @@
     }
   },
   {
+    "id": "reset-sentinel-tree-4897d0",
+    "size": 41,
+    "offset": 4757456,
+    "inputs": [
+      "src/campaign_reset_tree_head.c"
+    ],
+    "rebuilt_symbol": "@init_tree_4897d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reset_tree_head.obj src/campaign_reset_tree_head.c",
+    "link_bindings": {
+      "@make_node_4894c0@4": {
+        "va": 282629312,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x4894c0, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "79d9e1e849d1163669221348fa58ebb67636f68ba935ea1b8ba4b91b88d04ff3",
+      "inputs_sha256": "7de85ffb7a9bde6e9c29950acecb7541f8490b8b2fcd2d3d6effa686719b2ffb"
+    }
+  },
+  {
     "id": "tree-prev-4890a0-prefix-489800",
     "offset": 4757504,
     "size": 12,
@@ -1431,6 +1453,28 @@
     "match": {
       "bytes_sha256": "dae7d719c5d2b184adbbcb3821e63606c369bb69b43b7e9bcb089a4f72583ff6",
       "inputs_sha256": "ae8b278bd95573ce09b4056b1a2b0ab8e402455bc1969af7f32aa8663556c386"
+    }
+  },
+  {
+    "id": "reset-sentinel-tree-48c9b0",
+    "size": 41,
+    "offset": 4770224,
+    "inputs": [
+      "src/campaign_reset_tree_head.c"
+    ],
+    "rebuilt_symbol": "@init_tree_48c9b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reset_tree_head.obj src/campaign_reset_tree_head.c",
+    "link_bindings": {
+      "@make_node_48c630@4": {
+        "va": 282641968,
+        "basis": "Direct call returning the node installed as this empty tree head."
+      }
+    },
+    "identification": "Default Ghidra range. Installs the node returned by RVA 0x48c630, sets the sentinel byte at offset 25, points all three links to itself, and clears the count.",
+    "match": {
+      "bytes_sha256": "b71fd0cab2237a88cd891c9ca8d0e2207f41ec938e765cd67b8d3518a52c8f98",
+      "inputs_sha256": "288f8dd39d5f383b4c2881ecab62a3d71a16a1c8a1ff8a9edc1831c9a3ce2253"
     }
   },
   {
