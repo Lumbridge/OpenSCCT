@@ -872,6 +872,22 @@
     }
   },
   {
+    "id": "animation-widen-name",
+    "size": 57,
+    "offset": 3984864,
+    "inputs": [
+      "src/campaign_notify_text.c"
+    ],
+    "rebuilt_symbol": "_widen_name",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_notify_text.obj src/campaign_notify_text.c",
+    "identification": "Indexed whole function called from the animation notify method at RVA 0xd1d90. Converts a byte string to 16-bit code units and adds a terminator.",
+    "match": {
+      "bytes_sha256": "7d2b3fabacaf2407611effa61ba89e95769a1f53ae322cf25122bf8493c94349",
+      "inputs_sha256": "4db8c6a8bc8919fdbb32b8d2dae41cf838915a74330ddff700878c21268bed93"
+    }
+  },
+  {
     "id": "array-release-3cd010",
     "size": 43,
     "offset": 3985424,

@@ -306,6 +306,40 @@
     }
   },
   {
+    "id": "animation-notify-text",
+    "size": 96,
+    "offset": 859536,
+    "inputs": [
+      "src/campaign_notify_text.c"
+    ],
+    "rebuilt_symbol": "@notify_text@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_notify_text.obj src/campaign_notify_text.c",
+    "link_bindings": {
+      "_name_buffers": {
+        "va": 288194488,
+        "basis": "Stock operand for name buffers."
+      },
+      "_next_buffer": {
+        "va": 288415676,
+        "basis": "Stock operand for next buffer."
+      },
+      "_name_entries": {
+        "va": 288415680,
+        "basis": "Stock operand for name entries."
+      },
+      "_widen_name": {
+        "va": 281857504,
+        "basis": "Stock operand for widen name."
+      }
+    },
+    "identification": "Animation method pointer at RVA 0x7cfcd8. Formats the indexed animation notify name using 1024 rotating buffers of 100 wide characters.",
+    "match": {
+      "bytes_sha256": "dea2cbe52380a33b2f04366a060b36b7e3c4be01530cb8fdea1127e030acb8d5",
+      "inputs_sha256": "ed78e80541a1085585d9715b4f6c77efaac4203e4711361bc3df86a6057bd465"
+    }
+  },
+  {
     "id": "mesh-sequence-notify-name",
     "size": 44,
     "offset": 859632,
