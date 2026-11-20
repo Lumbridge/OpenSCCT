@@ -264,6 +264,33 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-epattern-issomeoneabletoreachbody",
+    "size": 97,
+    "offset": 2709568,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPattern_IsSomeoneAbleToReachBody@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EPattern_IsSomeoneAbleToReachBody@8": {
+        "va": 280572416,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPattern_IsSomeoneAbleToReachBody at RVA 0x295840. CRT initializer at RVA 0x7a9330 registers callback cell at VA 0x111c29e0. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "ba14553f077377af7e969ae7d9ab76a51cf1b8a4c7490d29de09d602e659b094",
+      "inputs_sha256": "64aaff030821a12b89b299ef1639e6a2856e783d9e6eec267fa6edba4fc578a1"
+    }
+  },
+  {
     "id": "script-method-echelon-epattern-killnpc",
     "size": 130,
     "offset": 2710384,
@@ -532,6 +559,33 @@
     "match": {
       "bytes_sha256": "6b47f850623ee4ebbbc50efb46a25941ef2bf114612edea57923dadf2ea88c40",
       "inputs_sha256": "81fb27e2db9d933348bb4700505d8874f83df2dc3fcb9aaf122e0e57f8aa96e3"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-epattern-sendpatternevent",
+    "size": 173,
+    "offset": 2718240,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPattern_SendPatternEvent@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EPattern_SendPatternEvent@16": {
+        "va": 280586976,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPattern_SendPatternEvent at RVA 0x297a20. CRT initializer at RVA 0x7a9730 registers callback cell at VA 0x111c2a60. Decodes 3 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "77e9cc05269d2161e3440c8136a709264eae71a8c37f2926417a91698c16094a",
+      "inputs_sha256": "682e4e764db7c55e822eef44a6034b90d5297d94dd8647b5ac9eaf50c6c10cc4"
     }
   },
   {

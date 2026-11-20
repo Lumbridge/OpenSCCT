@@ -3744,6 +3744,29 @@
     }
   },
   {
+    "id": "script-dispatch-aprojector-detachprojector",
+    "size": 94,
+    "offset": 549520,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_AProjector_DetachProjector@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback AProjector_DetachProjector at RVA 0x86290. CRT initializer at RVA 0x7a51e0 registers callback cell at VA 0x111b1d50. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "fa1d09f0f8959c70b03e2bb185f4b73c22df44a92afc87f7bc14f6679cf156c5",
+      "inputs_sha256": "203a700a1637971d0c51f6445de8382399844d2a872962c9ac512a28523490d9"
+    }
+  },
+  {
     "id": "class-registration-aprojector",
     "offset": 550528,
     "size": 264,

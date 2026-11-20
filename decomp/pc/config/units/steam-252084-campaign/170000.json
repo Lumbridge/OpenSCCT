@@ -2589,6 +2589,33 @@
     }
   },
   {
+    "id": "script-dispatch-aactor-isanimating",
+    "size": 97,
+    "offset": 1549104,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_AActor_IsAnimating@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_AActor_IsAnimating@8": {
+        "va": 278453184,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback AActor_IsAnimating at RVA 0x17a330. CRT initializer at RVA 0x7a49e0 registers callback cell at VA 0x111b1c50. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "dedefaafbf038f15183d4297a48fcc349ff7f68208e48a5853c9bc24e7074855",
+      "inputs_sha256": "c3c2a63192f312f5c5416424dee44284e4ce6c3660ca371dbc03bd829ba3c215"
+    }
+  },
+  {
     "id": "script-method-aactor-setcollision",
     "size": 91,
     "offset": 1554912,
@@ -2640,6 +2667,33 @@
     "match": {
       "bytes_sha256": "01e22fe9bb538c2ce8df2b56aa678330d3be3eb0790cd797b34e814a5a353c0c",
       "inputs_sha256": "6a362aab04ed5d63b0f43d66d9de954c58e461443638549d54973c2307719951"
+    }
+  },
+  {
+    "id": "script-dispatch-aactor-detachfrombone",
+    "size": 97,
+    "offset": 1557776,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_AActor_DetachFromBone@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_AActor_DetachFromBone@8": {
+        "va": 279430208,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback AActor_DetachFromBone at RVA 0x17c510. CRT initializer at RVA 0x7a46c0 registers callback cell at VA 0x111b1bec. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "07e604a6dbb5199a86dfa514e3e7a2eb737fa61eba322a4add6e5346d1f0afdd",
+      "inputs_sha256": "9dd08192bf764a500d35e0f8833b73e3e491ee6d27b2266652ccac2a5bbdab30"
     }
   },
   {
@@ -2719,6 +2773,33 @@
     "match": {
       "bytes_sha256": "23ad106f2c99f52de66298944d6e5e3738338d09f00c04f90275eee884ed5e26",
       "inputs_sha256": "3d5bb773250fd8a874713e7841cf9a5da6b8ad23e08a052a3a9bbe9ed61e9973"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-pawn-getikcompflag",
+    "size": 97,
+    "offset": 1567648,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_GetIKCompFlag@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Engine_Pawn_GetIKCompFlag@8": {
+        "va": 279440128,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_GetIKCompFlag at RVA 0x17eba0. CRT initializer at RVA 0x7a5360 registers callback cell at VA 0x111b1d80. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "6063280fea8a57153361eab5283cb13e1edd3d2600835707082dce0b9ddcc457",
+      "inputs_sha256": "1cd4144e9d9a1934d05dedcd80dacc45d74daa23442390cbe887da0beb8462a1"
     }
   },
   {

@@ -2476,6 +2476,33 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-epawn-arepointsconnected",
+    "size": 136,
+    "offset": 2605456,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_ArePointsConnected@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EPawn_ArePointsConnected@12": {
+        "va": 279729952,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_ArePointsConnected at RVA 0x27c190. CRT initializer at RVA 0x7aa790 registers callback cell at VA 0x111c2c6c. Decodes 2 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "5b234fc1d799eb5fbe779fb0b71b8c9cba9588f4212fa36838b43df94434c104",
+      "inputs_sha256": "831c4e610319d0ab1b5ae1a9938f6ca3e59bb38fee67e3ed65a3a813db8b025f"
+    }
+  },
+  {
     "id": "script-parameters-sethandik",
     "offset": 2611456,
     "size": 61,
@@ -3043,6 +3070,29 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-epawn-startmouthmotion",
+    "size": 94,
+    "offset": 2617136,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_StartMouthMotion@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_StartMouthMotion at RVA 0x27ef30. CRT initializer at RVA 0x7aa2d0 registers callback cell at VA 0x111c2bd4. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "3302931ef3f65e79cd5990f8b5da287b17a195dc0b7d3e7a453e44987f1fc4ad",
+      "inputs_sha256": "967e81bdab78c757c7ede5406cf64a6ef405675365b4fd815bd1c199897cba8e"
+    }
+  },
+  {
     "id": "game-echelon-epawn-stopmouthmotion",
     "offset": 2617328,
     "size": 49,
@@ -3064,6 +3114,29 @@
     "match": {
       "bytes_sha256": "3a593b69f0cb4afe89f8600bfb16cef7ed7c3dde533eef6fce07a52562f5b4db",
       "inputs_sha256": "750dc54687308708c1d1e7e13fec44479bbb870a794d820aef6763dcd92f593a"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-epawn-getmovespeed",
+    "size": 100,
+    "offset": 2620368,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPawn_GetMoveSpeed@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPawn_GetMoveSpeed at RVA 0x27fbd0. CRT initializer at RVA 0x7aa650 registers callback cell at VA 0x111c2c44. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "dbf2c495554420c78d27effe32338844988e05e9aef8d88542b903fcf1ac648d",
+      "inputs_sha256": "693b8d0fd11889055e38c32140cf76930d44af8a9cc3718360b6c69e4fdb4655"
     }
   }
 ]

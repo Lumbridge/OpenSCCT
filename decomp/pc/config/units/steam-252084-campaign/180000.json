@@ -27,6 +27,33 @@
     }
   },
   {
+    "id": "script-dispatch-engine-pawn-activatebonechain",
+    "size": 173,
+    "offset": 1574176,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Pawn_ActivateBoneChain@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Engine_Pawn_ActivateBoneChain@16": {
+        "va": 279440400,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Engine_Pawn_ActivateBoneChain at RVA 0x180520. CRT initializer at RVA 0x7a5400 registers callback cell at VA 0x111b1d94. Decodes 3 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "1518fedb07b9dcba74893125e7a311b5c9989948b49b1a1886fa90f44f3d212f",
+      "inputs_sha256": "f21f5d8a1cb1c3cef0dd5d6c4d907c51af99c76ed20772f08e19eda869cb99cf"
+    }
+  },
+  {
     "id": "script-method-engine-pawn-validatefeetik",
     "size": 91,
     "offset": 1577952,
@@ -279,6 +306,33 @@
     }
   },
   {
+    "id": "script-dispatch-engine-actor-getanimtime",
+    "size": 97,
+    "offset": 1581920,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_GetAnimTime@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Engine_Actor_GetAnimTime@8": {
+        "va": 279452704,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Engine_Actor_GetAnimTime at RVA 0x182360. CRT initializer at RVA 0x7a3cc0 registers callback cell at VA 0x111b1aac. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "09f9e9a31ebf709917b7fff719da50d7015cb5514620638681c24d48853bafc9",
+      "inputs_sha256": "511fbfc95cbc51e4f3d72dae7d5113e5ca72731c064621a7dc85316e20e88598"
+    }
+  },
+  {
     "id": "game-engine-actor-findbase",
     "offset": 1583744,
     "size": 46,
@@ -304,6 +358,29 @@
     "match": {
       "bytes_sha256": "15c4c8b4c500481d4836115a9c366809b099fdcd98ee76f24f98954c1e7fb3e4",
       "inputs_sha256": "5d1bcfdb4df559f1aff52428b98aff7ad446c9fb8d7700403298162de8d8bfae"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-controller-testsearchpoint",
+    "size": 100,
+    "offset": 1594000,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Controller_TestSearchPoint@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_Controller_TestSearchPoint at RVA 0x185290. CRT initializer at RVA 0x7a57c0 registers callback cell at VA 0x111b1e0c. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "a256eca5cf800034282ed88901d0714afa1a1a3c2831f9912ef56125d8d38502",
+      "inputs_sha256": "701410366520f4b21e99495e8c138b247bee1fb67e32d86d2ab6ca86ebe22185"
     }
   },
   {
@@ -441,6 +518,29 @@
     "match": {
       "bytes_sha256": "a34171b20f92dd03aeb8f896c93031609a1fae4c0c998e46024249853ab9e546",
       "inputs_sha256": "e3f6cce194574b0228e85199ac911c1a2e3e5974a2e25abbd64ec6444fdd0800"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-actor-israiningonactor",
+    "size": 101,
+    "offset": 1595584,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_Actor_IsRainingOnActor@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_Actor_IsRainingOnActor at RVA 0x1858c0. CRT initializer at RVA 0x7a3f80 registers callback cell at VA 0x111b1b04. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "87acdb52f30e8225d8796a3e0a32a6176e170245546815cd9746328d43c8cf4d",
+      "inputs_sha256": "1a4b1a65405be3d635723b051c53786cceb55d67bf979aaaea0575fb1135e9e4"
     }
   },
   {

@@ -218,6 +218,33 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-ecoopplayercontroller-isvalidcoopinteract",
+    "size": 136,
+    "offset": 2967792,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_ECoopPlayerController_IsValidCoopInteract@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_ECoopPlayerController_IsValidCoopInteract@12": {
+        "va": 280836000,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_ECoopPlayerController_IsValidCoopInteract at RVA 0x2d48f0. CRT initializer at RVA 0x7a8c30 registers callback cell at VA 0x111c2900. Decodes 2 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "2d759b2e13624b8d9b7ced866c03e7e0a64651d2ca123e67d473cb5a5ea9979e",
+      "inputs_sha256": "caf25a6c6c7dce73b58bbd6b9056f05a38f84ce805af74ae6e384a16ee70f261"
+    }
+  },
+  {
     "id": "construct-actor-aecoopplayercontroller",
     "offset": 2971296,
     "size": 48,
@@ -2309,6 +2336,249 @@
     "match": {
       "bytes_sha256": "9a399b8695f549705669f97c50d9cdc228db4080e94d2c407df1af016dcccad6",
       "inputs_sha256": "006598541187c6d0f1fdbbfb41a13f7d89b17b24be1a2434aa5c05057a2c1968"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-unsubscribetochangedactormanager",
+    "size": 95,
+    "offset": 2987440,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_UnSubscribeToChangedActorManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_UnSubscribeToChangedActorManager@8": {
+        "va": 280923248,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_UnSubscribeToChangedActorManager at RVA 0x2d95b0. CRT initializer at RVA 0x7a9bd0 registers callback cell at VA 0x111c2af4. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "f195db5653697c6650d853b95677e1c9968dbc21047cafe90ee52ff914fcbd5e",
+      "inputs_sha256": "6cbd7db40b4557d953723dccc171a1f05737dd702c873a068af88a892e32d811"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-subscribetosramanager",
+    "size": 95,
+    "offset": 2987648,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_SubscribeToSRAManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_SubscribeToSRAManager@8": {
+        "va": 281207376,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_SubscribeToSRAManager at RVA 0x2d9680. CRT initializer at RVA 0x7a9b90 registers callback cell at VA 0x111c2aec. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "6f5623ce05670e64e0daa01b9572061ca235a775fa80ca544a5a00a926760877",
+      "inputs_sha256": "d817861c787004ef546b5b8986021fbfc5d603d41e073e9ef3ae078109e81434"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-unsubscribetosramanager",
+    "size": 95,
+    "offset": 2987744,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_UnSubscribeToSRAManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_UnSubscribeToSRAManager@8": {
+        "va": 281207040,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_UnSubscribeToSRAManager at RVA 0x2d96e0. CRT initializer at RVA 0x7a9b70 registers callback cell at VA 0x111c2ae8. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "c15b1bab57617b8ee9af78da085ea13026ca0a465bde044bf6b8d2415f4ec4ca",
+      "inputs_sha256": "046882b86c467fdafd09f9f0f00ffae062fa4c28a1b274872d04ba891a0bdd4e"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-subscribeactortohwmanager",
+    "size": 95,
+    "offset": 2990144,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_SubscribeActorToHWManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_SubscribeActorToHWManager@8": {
+        "va": 281174112,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_SubscribeActorToHWManager at RVA 0x2da040. CRT initializer at RVA 0x7a9b50 registers callback cell at VA 0x111c2ae4. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "c1a273f11c661c68dc86028840a296ea80c7702b1b3f9e563b3fe9f3059e1287",
+      "inputs_sha256": "3e3b7afe26830663e6b3c57a90ee4a0e35242b6ab67411c900c8e7aa71fafe7c"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-subscribeobjecttohwmanager",
+    "size": 95,
+    "offset": 2990240,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_SubscribeObjectToHWManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_SubscribeObjectToHWManager@8": {
+        "va": 281173584,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_SubscribeObjectToHWManager at RVA 0x2da0a0. CRT initializer at RVA 0x7a9b30 registers callback cell at VA 0x111c2ae0. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "6e86d001a21ded85d77a64330c4b2bd9036f1d57b1d4e00a08415641c9d60e63",
+      "inputs_sha256": "cb9ee6e7d4e1754770b3aefe44001f25d0410930f747f115886faada59fd987e"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-unsubscribeactortohwmanager",
+    "size": 95,
+    "offset": 2990336,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_UnSubscribeActorToHWManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_UnSubscribeActorToHWManager@8": {
+        "va": 281174672,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_UnSubscribeActorToHWManager at RVA 0x2da100. CRT initializer at RVA 0x7a9b10 registers callback cell at VA 0x111c2adc. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "3c972c3afb52ac36700c2818ead23508c8afa72e7e780f9ae151510669a7c52e",
+      "inputs_sha256": "37283907a71af80ed3e3c5f4803d2d4dd23b681425ab0ef360c66acb1cb2fa95"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-unsubscribeobjecttohwmanager",
+    "size": 95,
+    "offset": 2990432,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_UnSubscribeObjectToHWManager@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_UnSubscribeObjectToHWManager@8": {
+        "va": 281170528,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_UnSubscribeObjectToHWManager at RVA 0x2da160. CRT initializer at RVA 0x7a9af0 registers callback cell at VA 0x111c2ad8. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "ecff26dbc84b35284ab2b8b1036c64bded126122461be2342670dc63ff338703",
+      "inputs_sha256": "5f75c6bf8a3f2082ec5b99451ad4de764e8a4f901d502f0e35fc70f6f26d5e8e"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-getnpclastzone",
+    "size": 97,
+    "offset": 2990800,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_GetNPCLastZone@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_GetNPCLastZone@8": {
+        "va": 280856864,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_GetNPCLastZone at RVA 0x2da2d0. CRT initializer at RVA 0x7a9a50 registers callback cell at VA 0x111c2ac4. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "50187c8dff32f01204a73942ef24211f73844e2d8b21f26994503036cb8cda18",
+      "inputs_sha256": "aac5047272f01104b622a6918fa05c2b284607f9b38978c2970dded46a7c6485"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eaimanager-getnpclastknowntimeupdate",
+    "size": 97,
+    "offset": 2990912,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EAIManager_GetNPCLastKnownTimeUpdate@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EAIManager_GetNPCLastKnownTimeUpdate@8": {
+        "va": 280856944,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EAIManager_GetNPCLastKnownTimeUpdate at RVA 0x2da340. CRT initializer at RVA 0x7a9a70 registers callback cell at VA 0x111c2ac8. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "40e186cd6d9f2dadf9f515deef90c10f78e8488cb3f7ee0c03f2dc75a0eafe7c",
+      "inputs_sha256": "96419d98400ca9d1214f6d94ec4c5bf1ca52c19c0cfd592278b09bae245474ae"
     }
   },
   {

@@ -773,6 +773,52 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-eplayercontroller-notifyinterestobject",
+    "size": 133,
+    "offset": 2870336,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPlayerController_NotifyInterestObject@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPlayerController_NotifyInterestObject at RVA 0x2bcc40. CRT initializer at RVA 0x7a8490 registers callback cell at VA 0x111c280c. Decodes 2 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "e86ce041607b00719f87c6efd2f42984cebccef439d9b5d299248910e85d7c38",
+      "inputs_sha256": "4429c563eb54027c27e05ed92b769b40ff17c6821e5430ad476cdc833ec4f50c"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-eplayercontroller-notifymenu",
+    "size": 176,
+    "offset": 2870544,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EPlayerController_NotifyMenu@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EPlayerController_NotifyMenu at RVA 0x2bcd10. CRT initializer at RVA 0x7a84b0 registers callback cell at VA 0x111c2810. Decodes 3 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "1e3e29c2fd35fbe1ff6f32584e991913d8be2b405f758db29390cdb463cbbf41",
+      "inputs_sha256": "3244a41d86667391c23eea119ae7f41fb8fb31f7ac32dea1e423839ccdc9d582"
+    }
+  },
+  {
     "id": "script-frame-pausegame",
     "offset": 2872080,
     "size": 73,

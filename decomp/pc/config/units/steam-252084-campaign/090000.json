@@ -10004,6 +10004,75 @@
     }
   },
   {
+    "id": "script-dispatch-engine-einteractobject-cppinteract",
+    "size": 94,
+    "offset": 643760,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_EInteractObject_CPPInteract@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_EInteractObject_CPPInteract at RVA 0x9d2b0. CRT initializer at RVA 0x7a5020 registers callback cell at VA 0x111b1d18. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "eae72dd710ea5f9e186ed3c1e487b7875c6c02783f1bb94f7e543e46f47f9da2",
+      "inputs_sha256": "d8fc816e8a100e05b7320d37ae0facda169a7d3111ba845cd8b8668892f52a9c"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-einteractobject-cpppostinteract",
+    "size": 94,
+    "offset": 643856,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_EInteractObject_CPPPostInteract@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_EInteractObject_CPPPostInteract at RVA 0x9d310. CRT initializer at RVA 0x7a5000 registers callback cell at VA 0x111b1d14. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "e12e2b3f1cf06d48a2ff73ea2469cddd8ce35944552f13bd648ff76a0794b34f",
+      "inputs_sha256": "332308582cb21be354014761b3b04ead4c1e409ce8b815e5ce7162e7a7dc204b"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-einteractobject-cppsetinteractlocation",
+    "size": 94,
+    "offset": 643952,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_EInteractObject_CPPSetInteractLocation@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_EInteractObject_CPPSetInteractLocation at RVA 0x9d370. CRT initializer at RVA 0x7a4fe0 registers callback cell at VA 0x111b1d10. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "5193d4e3cf4b0637bc2fe918d6370c28cea33d40bc8c91fece47916b901860d6",
+      "inputs_sha256": "a64d761dc0b6079879bf5eba1484020857c0380232474be703e32aa5f22bbbe4"
+    }
+  },
+  {
     "id": "class-registration-ueinteractionmanager",
     "offset": 644176,
     "size": 264,

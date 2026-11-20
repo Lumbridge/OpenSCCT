@@ -421,6 +421,33 @@
     }
   },
   {
+    "id": "script-dispatch-echelonai-basesoldier-canhandlechokedoor",
+    "size": 97,
+    "offset": 288752,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_EchelonAI_BaseSoldier_CanHandleChokeDoor@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_EchelonAI_BaseSoldier_CanHandleChokeDoor@8": {
+        "va": 278147440,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback EchelonAI_BaseSoldier_CanHandleChokeDoor at RVA 0x467f0. CRT initializer at RVA 0x7a25c0 registers callback cell at VA 0x111b0f20. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "d01863a93c3b6258383bbf9e667803f52272a6a16fecc58aba41b302d2ca4ff7",
+      "inputs_sha256": "d1b4c70d491eca0b8b06412b3c734ab924dd4a702a553288054a903b25df3232"
+    }
+  },
+  {
     "id": "array-insert-range-048f60",
     "offset": 298848,
     "size": 117,
@@ -593,6 +620,33 @@
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
       "inputs_sha256": "846dd30c56259c37a667487f3589f117ed4defdf5ecc6cecee82a159414b9143"
+    }
+  },
+  {
+    "id": "script-dispatch-echelonai-basesoldier-switchwithotherenemy",
+    "size": 97,
+    "offset": 299440,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_EchelonAI_BaseSoldier_SwitchWithOtherEnemy@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_EchelonAI_BaseSoldier_SwitchWithOtherEnemy@8": {
+        "va": 278153968,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback EchelonAI_BaseSoldier_SwitchWithOtherEnemy at RVA 0x491b0. CRT initializer at RVA 0x7a24c0 registers callback cell at VA 0x111b0f00. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "16291ed5dd011084a42deb9f55da5110ed05abd0905902fdcafd8f8cf9d45e7c",
+      "inputs_sha256": "278b2b74aff3413564820f9e2c6a757a4abb625b3eb3967ba64d0480f80a01c3"
     }
   },
   {

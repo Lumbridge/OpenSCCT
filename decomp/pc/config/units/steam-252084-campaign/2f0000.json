@@ -5263,6 +5263,29 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-escopeattachment-togglescope",
+    "size": 94,
+    "offset": 3128272,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EScopeAttachment_ToggleScope@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EScopeAttachment_ToggleScope at RVA 0x2fbbd0. CRT initializer at RVA 0x7a7ff0 registers callback cell at VA 0x111c2778. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "618e7c4f1623ebaa506a527f194adedfa9cdc915ef8b954db9b8fd6d0c6e6eae",
+      "inputs_sha256": "c13eb2f81adf308f3034414f46ad51ce6f9c606fc51fccc927a7d61a871abb4b"
+    }
+  },
+  {
     "id": "array-resize-2fbe10",
     "size": 37,
     "offset": 3128848,

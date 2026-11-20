@@ -6956,6 +6956,33 @@
     }
   },
   {
+    "id": "script-dispatch-echeloningredient-eelevatorpanel-sendelevator",
+    "size": 173,
+    "offset": 3466000,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_EchelonIngredient_EElevatorPanel_SendElevator@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_EchelonIngredient_EElevatorPanel_SendElevator@16": {
+        "va": 281337248,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback EchelonIngredient_EElevatorPanel_SendElevator at RVA 0x34e310. CRT initializer at RVA 0x7ab170 registers callback cell at VA 0x111c2dc4. Decodes 3 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "15485dbe6d8440670c1b0357ff1963d8f5c622b97dc0d22b2698a401589ccdfc",
+      "inputs_sha256": "46767c943479828d6f52c65beec62fa12ec26cffd890be874468d5906d663b6a"
+    }
+  },
+  {
     "id": "game-echeloningredient-eelevatorpanel-keypushed",
     "offset": 3466176,
     "size": 46,

@@ -2528,6 +2528,33 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-einventory-canadditem",
+    "size": 97,
+    "offset": 3304768,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EInventory_CanAddItem@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Echelon_EInventory_CanAddItem@8": {
+        "va": 281176464,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EInventory_CanAddItem at RVA 0x326d40. CRT initializer at RVA 0x7a7e30 registers callback cell at VA 0x111c2740. Decodes 1 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "a29c3f166725d159f67fd89bd1f754623292df30e207bdfe93e92612a1f77f23",
+      "inputs_sha256": "0852390cbf359b10531ab2e98b73826fd63fbf3b377b6828dcb5a3aa2c30e9e6"
+    }
+  },
+  {
     "id": "script-method-echelon-einventory-setselecteditem",
     "size": 91,
     "offset": 3304880,

@@ -3212,6 +3212,29 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-egameplayobject-setmalfunctionning",
+    "size": 94,
+    "offset": 3059376,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EGameplayObject_SetMalfunctionning@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EGameplayObject_SetMalfunctionning at RVA 0x2eaeb0. CRT initializer at RVA 0x7a7ef0 registers callback cell at VA 0x111c2758. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "eae72dd710ea5f9e186ed3c1e487b7875c6c02783f1bb94f7e543e46f47f9da2",
+      "inputs_sha256": "5adf3b21a0b1ecaa5b237a99d47caeecfbab86f4a6f8737c887e332365b11f38"
+    }
+  },
+  {
     "id": "script-event-destructed-2",
     "offset": 3059472,
     "size": 32,
@@ -5130,6 +5153,52 @@
     "match": {
       "bytes_sha256": "34fab035e6d54252b1496e234e5e994d36ccf0ac38cfb6a9dd84cebef5da1e3a",
       "inputs_sha256": "77b73fbdb3737e4c1e8918aa6dfba17be6c60cbc82c85e5c39fea0e4d5814223"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-ebasedoor-getinteraction",
+    "size": 100,
+    "offset": 3079616,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EBaseDoor_GetInteraction@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EBaseDoor_GetInteraction at RVA 0x2efdc0. CRT initializer at RVA 0x7aa070 registers callback cell at VA 0x111c2b88. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "4db72dcf69ed3cb2cdc46a067539d21684032ad6966b28dc774f932865e16702",
+      "inputs_sha256": "e44d553b424f90333770ff5ba18ef7b6ddca0a948abce9334ccef84743096ae1"
+    }
+  },
+  {
+    "id": "script-dispatch-echelon-ebasedoor-candotrigger",
+    "size": 139,
+    "offset": 3079840,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_EBaseDoor_CanDoTrigger@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_EBaseDoor_CanDoTrigger at RVA 0x2efea0. CRT initializer at RVA 0x7aa050 registers callback cell at VA 0x111c2b84. Decodes 2 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "0b37a41353f23c01eca53c4c3cd3c354396611d7dec6fa968d2c554fb4180ef6",
+      "inputs_sha256": "653c473b0cc1a37e20d6ec70e516f9509e6c2d7b5b7fe9b4ce6c118483d806ad"
     }
   }
 ]

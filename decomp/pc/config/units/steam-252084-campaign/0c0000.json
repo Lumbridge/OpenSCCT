@@ -1422,6 +1422,33 @@
     }
   },
   {
+    "id": "script-dispatch-engine-navmeshactor-changetrianglestate",
+    "size": 134,
+    "offset": 813072,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_NavMeshActor_ChangeTriangleState@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      },
+      "@native_Engine_NavMeshActor_ChangeTriangleState@12": {
+        "va": 279284624,
+        "basis": "Native method called after script argument decoding."
+      }
+    },
+    "identification": "Campaign script callback Engine_NavMeshActor_ChangeTriangleState at RVA 0xc6810. CRT initializer at RVA 0x7a4d40 registers callback cell at VA 0x111b1cbc. Decodes 2 script argument(s) and invokes the direct native method.",
+    "match": {
+      "bytes_sha256": "2c9dbaaa685349cd72ec15533a8b18d8970d3df7609aaa7b92047b1fb468893b",
+      "inputs_sha256": "ed232579ba194ed899f6431e64cbf06db114fef263f041a2d3f9faa37bb7bec6"
+    }
+  },
+  {
     "id": "array-resize-0c68a0",
     "size": 37,
     "offset": 813216,

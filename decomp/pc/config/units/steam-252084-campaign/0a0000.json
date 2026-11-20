@@ -2788,6 +2788,52 @@
     }
   },
   {
+    "id": "script-dispatch-engine-esoftbodyactor-attachpawn",
+    "size": 176,
+    "offset": 683184,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_ESoftBodyActor_AttachPawn@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_ESoftBodyActor_AttachPawn at RVA 0xa6cb0. CRT initializer at RVA 0x7a4d80 registers callback cell at VA 0x111b1cc4. Decodes 3 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "49fab3e59d2a4f6d5a5a44efba7ec737fb0db3ea462dcaf5297d5641b3964919",
+      "inputs_sha256": "846b1a6cddefb4861e5daa430522fe8bddaf71ade97022a3f46e28631a69fa41"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-esoftbodyactor-stepclimb",
+    "size": 100,
+    "offset": 683360,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_ESoftBodyActor_StepClimb@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_ESoftBodyActor_StepClimb at RVA 0xa6d60. CRT initializer at RVA 0x7a4d60 registers callback cell at VA 0x111b1cc0. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "e5719d4c8d0c70f91afc2f491515c475714e288a7eef6d9566175704adb72b66",
+      "inputs_sha256": "1a8a29a5eb6856a226e8834de73367948118dc39df386e5aad4340c4825e3c48"
+    }
+  },
+  {
     "id": "placement-uerumble",
     "offset": 683536,
     "size": 24,

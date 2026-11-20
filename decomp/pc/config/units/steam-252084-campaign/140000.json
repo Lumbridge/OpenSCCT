@@ -1367,6 +1367,121 @@
     }
   },
   {
+    "id": "script-dispatch-ucanvas-videoplay",
+    "size": 176,
+    "offset": 1348992,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_UCanvas_VideoPlay@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback UCanvas_VideoPlay at RVA 0x149580. CRT initializer at RVA 0x7a5d40 registers callback cell at VA 0x111b1ec0. Decodes 3 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "c5cb5f462adbc9084643b78128df56bb6c04cd61d64ad3bc2e9bfb94db2ac042",
+      "inputs_sha256": "ee3a56dc2b13e55e5b14aedf8f36446ba117784455282ba226a6f1a93aa4e253"
+    }
+  },
+  {
+    "id": "script-dispatch-ucanvas-videogotoframe",
+    "size": 94,
+    "offset": 1349168,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_UCanvas_VideoGotoFrame@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback UCanvas_VideoGotoFrame at RVA 0x149630. CRT initializer at RVA 0x7a5d60 registers callback cell at VA 0x111b1ec4. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "d8fa1acf21ee45f814826f283bb486354f2017f5038c294b0e72017e0fb09702",
+      "inputs_sha256": "8824d428b44abc66661e3b3c2183ad900793e0a4b9cac4758f398e8b553b4414"
+    }
+  },
+  {
+    "id": "script-dispatch-ucanvas-setpos",
+    "size": 133,
+    "offset": 1349328,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_UCanvas_SetPos@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback UCanvas_SetPos at RVA 0x1496d0. CRT initializer at RVA 0x7a5da0 registers callback cell at VA 0x111b1ecc. Decodes 2 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "1839d4fd2f99cf176fe7176e97df83a9c17cc0f4fb26dafd5b4543631648bb11",
+      "inputs_sha256": "d16d16f30d407658efbee122e2004b405a4b9724b3ef7ae5da8df0db1cccec67"
+    }
+  },
+  {
+    "id": "script-dispatch-ucanvas-setorigin",
+    "size": 133,
+    "offset": 1349472,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_UCanvas_SetOrigin@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback UCanvas_SetOrigin at RVA 0x149760. CRT initializer at RVA 0x7a5dc0 registers callback cell at VA 0x111b1ed0. Decodes 2 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "880a7c7eb6eb5c88f0a3c0998cafce9e9516e071125c87f207ca4a5ed626d4e4",
+      "inputs_sha256": "b6c9e0b4cacad1336eed3bd626cbf8faeb60ef12af8e86da7808d4f845a0df6b"
+    }
+  },
+  {
+    "id": "script-dispatch-ucanvas-setclip",
+    "size": 130,
+    "offset": 1349616,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_UCanvas_SetClip@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback UCanvas_SetClip at RVA 0x1497f0. CRT initializer at RVA 0x7a5de0 registers callback cell at VA 0x111b1ed4. Decodes 2 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "aad8a8407dd7a060c8332a2a2f7227ddedbbde91ee0fe03ff49259c45da299f3",
+      "inputs_sha256": "db376389193d8e581901a0f9e7da9f205747ff2bd86a31b773f4864a147968aa"
+    }
+  },
+  {
     "id": "class-registration-ucanvas",
     "offset": 1349968,
     "size": 264,

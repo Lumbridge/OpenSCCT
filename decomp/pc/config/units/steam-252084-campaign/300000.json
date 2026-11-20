@@ -4868,6 +4868,29 @@
     }
   },
   {
+    "id": "script-dispatch-echelon-esra-applyimpulse",
+    "size": 100,
+    "offset": 3209376,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Echelon_ESRA_ApplyImpulse@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Echelon_ESRA_ApplyImpulse at RVA 0x30f8a0. CRT initializer at RVA 0x7a8eb0 registers callback cell at VA 0x111c2950. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "351a454c1ca38574bf84d5c044d4396178e0ecd3503a3fcbbaade45764d2f948",
+      "inputs_sha256": "d9477a93c13c7b23c72419435225ef7bfbabb430f5dec36ed6365cab978f2abd"
+    }
+  },
+  {
     "id": "game-echelon-esra-releaseownerlock",
     "offset": 3209488,
     "size": 46,

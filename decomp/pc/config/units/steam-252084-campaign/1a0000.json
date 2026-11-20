@@ -1861,6 +1861,52 @@
     }
   },
   {
+    "id": "script-dispatch-engine-levelinfo-notifynpcofnavmeshchanges",
+    "size": 94,
+    "offset": 1738192,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_LevelInfo_NotifyNPCofNavMeshChanges@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_LevelInfo_NotifyNPCofNavMeshChanges at RVA 0x1a85d0. CRT initializer at RVA 0x7a5ba0 registers callback cell at VA 0x111b1e88. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "eae72dd710ea5f9e186ed3c1e487b7875c6c02783f1bb94f7e543e46f47f9da2",
+      "inputs_sha256": "fcfea8a87a216d0d096ba0d627fef299cf9de475c70e17557a268896b02b56dc"
+    }
+  },
+  {
+    "id": "script-dispatch-engine-levelinfo-removefromallusersacknowledgelist",
+    "size": 94,
+    "offset": 1738288,
+    "inputs": [
+      "src/campaign_script_method_dispatch.c",
+      "src/campaign_vm_frame.h"
+    ],
+    "rebuilt_symbol": "@exec_Engine_LevelInfo_RemoveFromAllUsersAcknowledgeList@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_script_method_dispatch.obj src/campaign_script_method_dispatch.c",
+    "link_bindings": {
+      "_campaign_native_table": {
+        "va": 288434104,
+        "basis": "Campaign native VM table, including the debug-info entry."
+      }
+    },
+    "identification": "Campaign script callback Engine_LevelInfo_RemoveFromAllUsersAcknowledgeList at RVA 0x1a8630. CRT initializer at RVA 0x7a5b00 registers callback cell at VA 0x111b1e74. Decodes 1 script argument(s) and invokes the virtual native method.",
+    "match": {
+      "bytes_sha256": "971d66e982c041a9021e471f32870cb7b47261bedd79bb8176907249695f0b19",
+      "inputs_sha256": "e233cfe192d98b8eef14840d385c17cbdac42deec4746f5f13585b630e50610c"
+    }
+  },
+  {
     "id": "array-resize-1a89c0",
     "size": 37,
     "offset": 1739200,
