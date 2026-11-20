@@ -61,7 +61,7 @@ internal sealed partial class MainForm
     private void RefreshUnrealPanel(bool busy)
     {
         UnrealInstallation? installed = _unreal.Installed();
-        string? setupProblem = installed is null ? null : UnrealService.SetupProblem(installed);
+        string? setupProblem = installed is null ? null : _unreal.PlaySetupProblem(installed);
         string? prerequisite = _unreal.PrerequisiteProblem();
         SemVersion? pending = _unreal.Pending;
         VersionedRelease? latest = _unrealCheck?.Latest;
@@ -160,7 +160,7 @@ internal sealed partial class MainForm
             await RunAsync(SetupOrUpdateUnrealAsync);
             return;
         }
-        if (UnrealService.SetupProblem(installed) is not null)
+        if (_unreal.PlaySetupProblem(installed) is not null)
         {
             await RunAsync(CheckSelectedAsync);
             return;

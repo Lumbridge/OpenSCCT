@@ -208,6 +208,19 @@ public sealed class UnrealService
         return info;
     }
 
+    // Versions shipped before standalone setup can still use their original installed map packs.
+    private string? LegacyPlayRoot(UnrealInstallation installed)
+    {
+        if (SupportsSteamContent(installed.Version)) return null;
+        string maps = Path.Combine(_layout.Packs, "svmap");
+        return File.Exists(Path.Combine(_layout.Packs, "shared", "classes.json")) && Directory.Exists(maps) &&
+            Directory.EnumerateDirectories(maps).Any(map => File.Exists(Path.Combine(map, "manifest.json")))
+            ? _layout.Packs : null;
+    }
+
+    public string? PlaySetupProblem(UnrealInstallation installed) =>
+        LegacyPlayRoot(installed) is null ? SetupProblem(installed) : null;
+
     public static string? SetupProblem(UnrealInstallation installed)
     {
         if (!SupportsSteamContent(installed.Version))
@@ -224,7 +237,7 @@ public sealed class UnrealService
     private static string SetupAssembly(UnrealInstallation installed) =>
         Path.Combine(installed.Folder, "contenttools", "setup", "OpenScct.UnrealSetup.dll");
 
-    public string? PrerequisiteProblem() => ActiveContentRoot() is null
+    public string? PrerequisiteProblem() => !(Installed() is { } installed && LegacyPlayRoot(installed) is not null) && ActiveContentRoot() is null
         ? "Build the original maps and assets from your Steam installation."
         : null;
 
@@ -441,8 +454,8 @@ public sealed class UnrealService
             }
         }
 
-        if (SetupProblem(installed) is { } problem) throw new InvalidOperationException(problem);
-        string content = ActiveContentRoot() ?? throw new InvalidOperationException("Build the original maps and assets from your Steam installation.");
+        if (PlaySetupProblem(installed) is { } problem) throw new InvalidOperationException(problem);
+        string content = LegacyPlayRoot(installed) ?? ActiveContentRoot() ?? throw new InvalidOperationException("Build the original maps and assets from your Steam installation.");
         string arguments = ContentArgument(content);
         LauncherSettings settings = LauncherSettings.Load(_layout.Settings);
         if (settings.UnrealMapModsEnabled)
