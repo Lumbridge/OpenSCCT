@@ -29,6 +29,22 @@ public sealed class UnrealServiceTests
     private static readonly byte[] Patch = File.ReadAllBytes(Path.Combine(Fixtures, "old-new.osdiff"));
 
     [Fact]
+    public void SteamReadinessUsesOnlyTheLocalConversionEvenWhenOffline()
+    {
+        using var dir = new TempDir();
+        var layout = new LauncherLayout(dir.Path);
+        var handler = new FakeHandler(_ => throw new HttpRequestException("Offline"));
+        using var http = new HttpClient(handler);
+        var service = new UnrealService(layout, http);
+
+        Assert.NotNull(service.PrerequisiteProblem());
+        SteamFiles(layout);
+        Assert.Null(service.PrerequisiteProblem());
+        Assert.Null(new UnrealService(layout, http).PrerequisiteProblem());
+        Assert.Empty(handler.Requests);
+    }
+
+    [Fact]
     public async Task FreshInstallFromZipThenStartsWithQuotedContentFolder()
     {
         using var dir = new TempDir();

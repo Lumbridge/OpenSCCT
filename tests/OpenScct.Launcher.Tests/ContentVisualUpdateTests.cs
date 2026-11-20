@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,28 +16,21 @@ namespace OpenScct.Launcher.Tests;
 public sealed class ContentVisualUpdateTests
 {
     [Fact]
-    public async Task UnrealUpdatesAnOlderCharacterPackOnceAndKeepsOfflineInstallsPlayable()
+    public async Task PublicCatalogueNeverFetchesOrReplacesInstalledSharedAssets()
     {
         CancellationToken cancel = TestContext.Current.CancellationToken;
         using var root = new TempDir();
-        using var zipBytes = new MemoryStream();
-        using (var archive = new ZipArchive(zipBytes, ZipArchiveMode.Create, leaveOpen: true))
-        using (var writer = new StreamWriter(archive.CreateEntry("chars/models.json").Open()))
-            writer.Write("updated models");
-        byte[] bytes = zipBytes.ToArray();
-        string digest = Builds.Sha256(bytes);
         string indexJson = JsonSerializer.Serialize(new
         {
             format = ContentIndex.Format, formatVersion = 1,
-            shared = new[] { new { id = "chars", version = "1", contents = new[] { "chars" },
-                download = new { url = "https://example.invalid/chars.zip", size = bytes.Length, sha256 = digest } } },
+            shared = new[] { new { id = "chars", version = "2", contents = new[] { "chars" },
+                download = new { url = "https://example.invalid/chars.zip", size = 1, sha256 = new string('a', 64) } } },
         });
         bool offline = false;
         var handler = new FakeHandler(req =>
         {
+            Assert.Equal(ContentStore.IndexUrl, req.RequestUri!.AbsoluteUri);
             if (offline) throw new HttpRequestException("Offline");
-            if (req.RequestUri!.AbsolutePath.EndsWith(".zip", StringComparison.Ordinal))
-                return Builds.Bytes(bytes);
             if (req.Headers.IfNoneMatch.SingleOrDefault()?.Tag == "\"v2\"")
                 return new HttpResponseMessage(HttpStatusCode.NotModified);
             HttpResponseMessage response = Builds.Text(indexJson);
@@ -55,20 +47,22 @@ public sealed class ContentVisualUpdateTests
         await File.WriteAllTextAsync(model, "old models", cancel);
 
         ContentIndex online = await store.FetchIndexAsync(cancel);
-        Assert.True(PackedContent.HasOnlineSharedUpdate(online, store));
+        Assert.Empty(online.Shared);
+        Assert.False(PackedContent.HasOnlineSharedUpdate(online, store));
+
         offline = true;
         ContentIndex cached = await store.FetchIndexAsync(cancel);
         Assert.True(cached.FromOfflineCache);
-        Assert.False(PackedContent.HasOnlineSharedUpdate(cached, store));
-        Assert.Equal("old models", await File.ReadAllTextAsync(model, cancel));
+        Assert.Empty(cached.Shared);
+
         offline = false;
         ContentIndex revalidated = await store.FetchIndexAsync(cancel);
-        Assert.True(PackedContent.HasOnlineSharedUpdate(revalidated, store));
-        await store.InstallSharedAsync(Assert.Single(PackedContent.SharedToFetch(revalidated, store)), null, cancel);
-        Assert.Equal("updated models", await File.ReadAllTextAsync(model, cancel));
-        Assert.Equal(digest, Assert.Single(store.Installed()).Sha256);
-        Assert.False(PackedContent.HasOnlineSharedUpdate(await store.FetchIndexAsync(cancel), store));
-        Assert.Single(handler.Requests, r => r.RequestUri!.AbsolutePath == "/chars.zip");
+        Assert.False(revalidated.FromOfflineCache);
+        Assert.Empty(revalidated.Shared);
+        Assert.Empty(PackedContent.SharedToFetch(revalidated, store));
+        Assert.Equal(3, handler.Requests.Count);
+        Assert.Equal(oldReceipt, await File.ReadAllTextAsync(receipt, cancel));
+        Assert.Equal("old models", await File.ReadAllTextAsync(model, cancel));
     }
 
     [Fact]
@@ -80,11 +74,11 @@ public sealed class ContentVisualUpdateTests
             Directory.CreateDirectory(Path.Combine(root, "svmap", "Example"));
             File.WriteAllText(Path.Combine(root, "svmap", "Example", "manifest.json"), "{}");
             File.WriteAllText(Path.Combine(root, "installed.json"), """
-                [{"id":"stock/Example","code":"Example","version":"1.0.1","sha256":"old-visuals","kind":0,"contentHash":"same-gameplay"}]
+                [{"id":"community/Example","code":"Example","version":"1.0.1","sha256":"old-visuals","kind":0,"contentHash":"same-gameplay"}]
                 """);
             using var http = new HttpClient();
             var store = new ContentStore(root, http);
-            var updated = new ContentMap { Id = "stock/Example", Code = "Example", Version = "1.0.2", ContentHash = "same-gameplay",
+            var updated = new ContentMap { Id = "community/Example", Code = "Example", Version = "1.0.2", ContentHash = "same-gameplay",
                 Full = new("https://example.invalid/full.zip", 1, "new-visuals"), Sim = new("https://example.invalid/sim.zip", 1, "sim") };
             Assert.False(store.Has(updated));
             Assert.True(store.Has(updated, ContentKind.Sim));
