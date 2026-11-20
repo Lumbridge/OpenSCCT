@@ -1,12 +1,12 @@
 # Responsive spy smoke
 
-New matches use responsive spy smoke for concealment and mercenary gas exposure. The authority applies the same simulation to all players.
+Godot uses the original spy smoke particles and gas exposure by default. Hosts can enable the experimental responsive simulation for a round. The server applies its exposure rules to every player.
 
 ## Enabling and saving the rule
 
-- Creating a match from the menu uses responsive smoke automatically.
-- Dedicated servers default to responsive smoke. The JSON setting `responsiveSmoke` and the `set responsivesmoke` console command support explicit overrides.
-- Offline play and a command-line LAN host accept `--svm-responsive-smoke` with `--svm-play=Map`.
+- New Godot host setups use original smoke. Saved host setups retain their explicit smoke selection.
+- Dedicated servers default to original smoke. The JSON setting `responsiveSmoke` and the `set responsivesmoke` console command support explicit overrides.
+- Offline play and a command-line LAN host accept `--svm-responsive-smoke` with `--svm-play=Map`. When joining a remote responsive match, Godot draws the original particles unless the player explicitly selects responsive rendering.
 - The Editor's **Build → Play Options** saves **Smoke: Original**, **Smoke: Volumetric Fast** or **Smoke: Volumetric Full** for every play action. The game accepts `--svm-smoke-mode=original|fast|full`: Original disables the replacement; Fast selects Low detail; Full selects High detail and scene lighting attenuation. These detail overrides last for that launch and do not write the player's graphics preference. The legacy enable flag alone retains the normal detail preference.
 - Local TestRange launches automatically enable Practice resources. Explicit online sessions and recorded demos retain their authoritative rules.
 - Host setup persistence and game/demo launch options use `?SvmResponsiveSmoke=0|1`. The rule is independent of Practice and Alternate rules and survives map/mode changes and rotation.

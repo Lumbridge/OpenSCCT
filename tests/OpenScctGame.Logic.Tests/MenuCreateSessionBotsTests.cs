@@ -32,7 +32,8 @@ public sealed class MenuCreateSessionBotsTests
         page.SetChecked(rule, false);
         page.Step(rule, -1);
         page.SelectMap("Other");
-        Assert.True(page.Setup.Rifles && page.Setup.Sidearms && page.Setup.ResponsiveSmoke);
+        Assert.True(page.Setup.Rifles && page.Setup.Sidearms);
+        Assert.False(page.Setup.ResponsiveSmoke);
     }
 
     [Fact]

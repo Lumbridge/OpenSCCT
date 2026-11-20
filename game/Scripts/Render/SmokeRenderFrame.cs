@@ -90,9 +90,14 @@ internal static class SmokeRenderCache
     }
     private static readonly ConditionalWeakTable<Level, Cache> Levels = new();
 
+    internal sealed record Presentation(bool Responsive);
+
+    public static bool UsesVolume(Level level) =>
+        ResponsiveSmokeWorld.IsEnabled(level) && level.GetService<Presentation>() is not { Responsive: false };
+
     public static SmokeRenderFrame Capture(Level level)
     {
-        if (!ResponsiveSmokeWorld.IsEnabled(level))
+        if (!UsesVolume(level))
         {
             Levels.Remove(level);
             return SmokeRenderFrame.Disabled;

@@ -7,7 +7,7 @@ public sealed class SmokeLaunchModeTests
     [Fact]
     public void OlderEnableFlagsRemainRecognisedWithTheNewDefaults()
     {
-        Assert.True(LaunchOptions.Parse([]).ResponsiveSmoke);
+        Assert.False(LaunchOptions.Parse([]).ResponsiveSmoke);
         var options = LaunchOptions.Parse(["--svm-play=AquaE", "--svm-rifles", "--svm-sidearms", "--svm-practice"]);
         Assert.True(options.Practice);
         Assert.Empty(options.Unknown);
@@ -47,7 +47,7 @@ public sealed class SmokeLaunchModeTests
     public void InvalidSmokeModesStayVisibleAsUnknownArguments()
     {
         LaunchOptions options = LaunchOptions.Parse(["--svm-smoke-mode=ultra"]);
-        Assert.True(options.ResponsiveSmoke);
+        Assert.False(options.ResponsiveSmoke);
         Assert.Null(options.SmokeMode);
         Assert.Contains("--svm-smoke-mode=ultra", options.Unknown);
     }

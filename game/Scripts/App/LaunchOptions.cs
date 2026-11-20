@@ -121,7 +121,7 @@ public sealed class LaunchOptions
     /// <summary>Record the offline play (<c>--svm-record</c>) as a demo in the user's demos folder (docs/DEMOS.md).</summary>
     public bool PlayRecord { get; private init; }
 
-    public bool ResponsiveSmoke => SmokeMode != "original";
+    public bool ResponsiveSmoke { get; private init; }
 
     /// <summary>Enable Practice rules in a local test launch.</summary>
     public bool Practice { get; private init; }
@@ -205,6 +205,7 @@ public sealed class LaunchOptions
         string difficulty = "normal";
         bool record = false;
         bool practice = false;
+        bool responsiveSmoke = false;
         string? smokeMode = null;
         string? demo = null;
         string? priority = null;
@@ -302,7 +303,11 @@ public sealed class LaunchOptions
             {
                 difficulty = arg[DifficultyPrefix.Length..].ToLowerInvariant();
             }
-            else if (arg is ResponsiveSmokeFlag or RiflesFlag or SidearmsFlag)
+            else if (arg == ResponsiveSmokeFlag)
+            {
+                responsiveSmoke = true;
+            }
+            else if (arg is RiflesFlag or SidearmsFlag)
             {
                 // Older launch commands explicitly enabled features which are now part of a normal match.
                 continue;
@@ -393,6 +398,7 @@ public sealed class LaunchOptions
             PlayDifficulty = difficulty,
             PlayRecord = record,
             Practice = practice,
+            ResponsiveSmoke = smokeMode is null ? responsiveSmoke : smokeMode != "original",
             SmokeMode = smokeMode,
             DemoFile = demo,
             Priority = priority,

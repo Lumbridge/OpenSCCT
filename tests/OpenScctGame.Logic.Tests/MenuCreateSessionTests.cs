@@ -61,7 +61,9 @@ public sealed class MenuCreateSessionTests
     {
         var previous = new LobbySetup { Map = "SteeE", Rifles = false, Sidearms = false, ResponsiveSmoke = false, TimeLimit = 11 };
         var fresh = Page(previous.WithStandardFeatures());
-        Assert.True(fresh.Setup.Rifles && fresh.Setup.Sidearms && fresh.Setup.ResponsiveSmoke);
+        Assert.True(fresh.Setup.Rifles && fresh.Setup.Sidearms);
+        Assert.False(fresh.Setup.ResponsiveSmoke);
+        Assert.True((previous with { ResponsiveSmoke = true }).WithStandardFeatures().ResponsiveSmoke);
         Assert.Equal(previous.TimeLimit, fresh.Setup.TimeLimit);
 
         var remote = Page(previous);

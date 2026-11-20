@@ -267,7 +267,7 @@ public sealed partial class EffectViews : Node3D
             if (OpenScctGame.Views.GlassBreakViews.ReplacesEmitter(level, a)) continue;
             // The authoritative responsive field is drawn by the shared volume shader. Keep the grenade's
             // launch trail and every other emitter on the legacy path; never draw both cloud representations.
-            if (a is SSmokeEmitter && OpenScct.Game.Equipment.ResponsiveSmokeWorld.IsEnabled(level)) continue;
+            if (a is SSmokeEmitter && SmokeRenderCache.UsesVolume(level)) continue;
             // The same actor gets the same stream on linear playback and after rebuilding its channel.
             uint? seed = demoConnection?.FindActorChannel(a) is { } channel
                 ? channel.NetGuid * 2246822519u
