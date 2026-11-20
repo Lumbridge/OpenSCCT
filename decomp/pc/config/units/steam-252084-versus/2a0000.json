@@ -309,6 +309,40 @@
     }
   },
   {
+    "id": "entry-type-2a6830",
+    "size": 63,
+    "offset": 2779184,
+    "inputs": [
+      "src/versus_entry_types.c"
+    ],
+    "rebuilt_symbol": "_eligible_type",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_types.obj src/versus_entry_types.c",
+    "link_bindings": {},
+    "identification": "Indexed type predicate at RVA 0x2a6830. Calls method slot 3 and accepts type IDs [1, 2, 3, 7, 8, 10]. The complete code contribution includes both compiler-generated lookup tables.",
+    "match": {
+      "bytes_sha256": "2f2827fb71923afa6411597b002be29050368e6a693b228f9df9adecfcc07a4b",
+      "inputs_sha256": "6dfb797c7792b9c2cb6c68ad5dc0e28bcf887261fb0f0d941f2f668cb1970c91"
+    }
+  },
+  {
+    "id": "entry-type-2a6870",
+    "size": 63,
+    "offset": 2779248,
+    "inputs": [
+      "src/versus_entry_types.c"
+    ],
+    "rebuilt_symbol": "_is_type_three",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_types.obj src/versus_entry_types.c",
+    "link_bindings": {},
+    "identification": "Indexed type predicate at RVA 0x2a6870. Calls method slot 3 and accepts type IDs [3]. The complete code contribution includes both compiler-generated lookup tables.",
+    "match": {
+      "bytes_sha256": "fd319af5825d296d31af6b27df6621aa01f4a5d21eb69285593e8f7ae9e9e729",
+      "inputs_sha256": "8a4c687d565b4fd9eb92cde3b86b5da242365653e0eede13187dfc6f4cd62b7c"
+    }
+  },
+  {
     "id": "listener-event-2a6c80",
     "size": 47,
     "offset": 2780288,
