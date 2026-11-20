@@ -244,6 +244,33 @@
     }
   },
   {
+    "id": "delete-owned-record-2bf0e0",
+    "offset": 2879712,
+    "size": 37,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_owned_record.c"
+    ],
+    "rebuilt_symbol": "@delete_owned_record@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_owned_record.obj src/versus_owned_record.c",
+    "link_bindings": {
+      "_record_methods": {
+        "va": 280960960,
+        "basis": "Read-only methods table. Its first slot refers to this deleting destructor."
+      },
+      "_release_allocation@4": {
+        "va": 279385360,
+        "basis": "Independently linked Versus engine heap release wrapper."
+      }
+    },
+    "identification": "Versus vftable RVA 0x2f1fc0, zero-based slot 0, points to this complete deleting destructor. Releases member storage before the flag-controlled receiver release.",
+    "match": {
+      "bytes_sha256": "7ceabeb9614dfe62dd2e14375625381e871578ea28689649a0b19cf7e3b353da",
+      "inputs_sha256": "72b5bfc748ffdb05b675021d606afc8ef7ab2d3bd10d8341c3ec4d33293f1ca1"
+    }
+  },
+  {
     "id": "delete-record-2bf550",
     "offset": 2880848,
     "size": 27,
