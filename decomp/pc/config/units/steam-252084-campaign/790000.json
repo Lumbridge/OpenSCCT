@@ -22,6 +22,28 @@
     }
   },
   {
+    "id": "physics-buffer-release-791a20",
+    "size": 30,
+    "offset": 7936544,
+    "inputs": [
+      "src/campaign_physics_buffer_release.c"
+    ],
+    "rebuilt_symbol": "_release_791a20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_buffer_release.obj src/campaign_physics_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 8 bytes and the caller-supplied category.",
+    "match": {
+      "bytes_sha256": "8591106efeacd23f84f74842782a9cc18ad322a64c4deb4a43eb04f7d49ec29c",
+      "inputs_sha256": "f6a82efef8f4fe3a63a2892a0d54378a1788fa0d6bb2dfff36839235f76025b1"
+    }
+  },
+  {
     "id": "physics-sized-release-791ac0",
     "size": 41,
     "offset": 7936704,
@@ -227,6 +249,28 @@
     "match": {
       "bytes_sha256": "19d200194d49b34530548575f37a1bb4203ee60f18d42f0084e86b7a8c899faa",
       "inputs_sha256": "096a46ed3a46f0657acd14dd492d216f2f6a3d37fe7a035dd21675817ff97b6e"
+    }
+  },
+  {
+    "id": "physics-buffer-release-7930d0",
+    "size": 30,
+    "offset": 7942352,
+    "inputs": [
+      "src/campaign_physics_buffer_release.c"
+    ],
+    "rebuilt_symbol": "_release_7930d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_buffer_release.obj src/campaign_physics_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 4 bytes and the caller-supplied category.",
+    "match": {
+      "bytes_sha256": "c2e6e11b171f0c03e97fd3901487ef50ed8b83a17f7f7db312057f7f7d1973dd",
+      "inputs_sha256": "cecb07e627dc1778e5680d59ef91d455d55e9a4717331085458b654268f0eb65"
     }
   },
   {

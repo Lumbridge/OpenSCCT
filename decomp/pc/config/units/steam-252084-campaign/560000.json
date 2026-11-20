@@ -138,6 +138,28 @@
     }
   },
   {
+    "id": "physics-scaled-release-563cb0",
+    "size": 33,
+    "offset": 5651632,
+    "inputs": [
+      "src/campaign_physics_scaled_release.c"
+    ],
+    "rebuilt_symbol": "_release_563cb0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_scaled_release.obj src/campaign_physics_scaled_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 48 bytes and the caller-supplied category.",
+    "match": {
+      "bytes_sha256": "5aea96eb696431c34ea865fb1d7d0c583d5641cf7bff0074e854ba7e59516419",
+      "inputs_sha256": "d8416bf985d5dc249a691d0e0028c05675f74c602557ade2fe1a54b409073402"
+    }
+  },
+  {
     "id": "physics-sized-release-563db0",
     "size": 41,
     "offset": 5651888,
@@ -419,6 +441,50 @@
     "match": {
       "bytes_sha256": "848ccaebe05c5b17688dfe7ea3bed4de06f419057c97a9e97957f84c1e06cf5e",
       "inputs_sha256": "205e9c00a47ceb6447e71c818aeca3c44f5f4e2bd669cba07c087a9feaf80d07"
+    }
+  },
+  {
+    "id": "physics-buffer-release-5676f0",
+    "size": 30,
+    "offset": 5666544,
+    "inputs": [
+      "src/campaign_physics_buffer_release.c"
+    ],
+    "rebuilt_symbol": "_release_5676f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_buffer_release.obj src/campaign_physics_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 32 bytes and the caller-supplied category.",
+    "match": {
+      "bytes_sha256": "78a6f48ce5e42f709a3452310bde38ae7d3bdc77cec16257cf57cae2bbd8fb99",
+      "inputs_sha256": "7552ab43f6f0036cf25541a900ab22de36b1d19ad9f21ea5d8684468344b7ea8"
+    }
+  },
+  {
+    "id": "physics-buffer-release-567720",
+    "size": 30,
+    "offset": 5666592,
+    "inputs": [
+      "src/campaign_physics_buffer_release.c"
+    ],
+    "rebuilt_symbol": "_release_567720",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_buffer_release.obj src/campaign_physics_buffer_release.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used to release owned storage."
+      }
+    },
+    "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 28 bytes and the caller-supplied category.",
+    "match": {
+      "bytes_sha256": "a8abece3dac2a41897014aab5782ec54616e5a0d4c779a39b8c0d02912f09915",
+      "inputs_sha256": "c5d483a365902af68c5537f535cb924f329b7db96a234a00e877dd0904334748"
     }
   },
   {
