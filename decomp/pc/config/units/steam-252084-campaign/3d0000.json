@@ -3872,5 +3872,27 @@
       "bytes_sha256": "9937ec2be2c01a2b525027e40c423c1effea99d23c92b11c62c608d56aa91428",
       "inputs_sha256": "a8a29d390dd35496576f091473597b6d462af4813a9b752ccfc89bf57f8b0595"
     }
+  },
+  {
+    "id": "object-lookup-forward",
+    "size": 5,
+    "offset": 4062880,
+    "inputs": [
+      "src/campaign_class_lookup_forward.c"
+    ],
+    "rebuilt_symbol": "_forward_find_object",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup_forward.obj src/campaign_class_lookup_forward.c",
+    "link_bindings": {
+      "_find_object": {
+        "va": 281935328,
+        "basis": "Indexed forwarding routine jumps to the object hash lookup."
+      }
+    },
+    "identification": "Complete indexed forwarding function at RVA 0x3dfea0. Both typed lookup wrappers call it directly.",
+    "match": {
+      "bytes_sha256": "0873af1117bd7228ee29e0b904b306310d0b12e225a6dd1bb9836b1a2e9ddb6c",
+      "inputs_sha256": "f25f6d7169c0aba6e34b5d7b783a73cd9a6fca77f383ab6f876bc0810101f40f"
+    }
   }
 ]

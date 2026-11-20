@@ -14228,6 +14228,44 @@
     }
   },
   {
+    "id": "subclass-load-urenderdevice-6c10",
+    "size": 73,
+    "offset": 27664,
+    "inputs": [
+      "src/campaign_subclass_load.c"
+    ],
+    "rebuilt_symbol": "_load_subclass_URenderDevice",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subclass_load.obj src/campaign_subclass_load.c",
+    "link_bindings": {
+      "_load_subclass": {
+        "va": 281950512,
+        "basis": "Retail operand for load_subclass in the URenderDevice load wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the URenderDevice load wrapper."
+      },
+      "_class_URenderDevice": {
+        "va": 287285084,
+        "basis": "Retail operand for class_URenderDevice in the URenderDevice load wrapper."
+      },
+      "_create_URenderDevice": {
+        "va": 279159664,
+        "basis": "Retail operand for create_URenderDevice in the URenderDevice load wrapper."
+      },
+      "_register_URenderDevice": {
+        "va": 279159776,
+        "basis": "Retail operand for register_URenderDevice in the URenderDevice load wrapper."
+      }
+    },
+    "identification": "Complete URenderDevice load wrapper at aligned RVA 0x6c10. Class singleton RVA 0x6a70 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "2b5a46ad0f4c5ed48aff36bd35b1a2387e13a1fa2bfcb9a8d2243c57fe528361",
+      "inputs_sha256": "495d3aa284de56c409b14ef77a97e86e6cdbdda6cc0b73819696557dcab52e2d"
+    }
+  },
+  {
     "id": "class-singleton-ulodmeshinstance",
     "offset": 27936,
     "size": 38,

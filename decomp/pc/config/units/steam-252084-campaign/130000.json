@@ -2166,6 +2166,44 @@
     }
   },
   {
+    "id": "class-lookup-uenum-135870",
+    "size": 62,
+    "offset": 1267824,
+    "inputs": [
+      "src/campaign_class_lookup_forward.c"
+    ],
+    "rebuilt_symbol": "_forward_find_UEnum",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup_forward.obj src/campaign_class_lookup_forward.c",
+    "link_bindings": {
+      "_forward_find_object": {
+        "va": 281935520,
+        "basis": "Retail operand for forward_find_object in the UEnum lookup wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UEnum lookup wrapper."
+      },
+      "_class_UEnum": {
+        "va": 288432212,
+        "basis": "Retail operand for class_UEnum in the UEnum lookup wrapper."
+      },
+      "_create_UEnum": {
+        "va": 281923104,
+        "basis": "Retail operand for create_UEnum in the UEnum lookup wrapper."
+      },
+      "_register_UEnum": {
+        "va": 281899184,
+        "basis": "Retail operand for register_UEnum in the UEnum lookup wrapper."
+      }
+    },
+    "identification": "Complete UEnum lookup wrapper at aligned RVA 0x135870. Class singleton RVA 0x134960 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "69a2e17027bc13bc2c336dff57a2f3a157e1383bb0a3b6de7dfe95d6e7be11c4",
+      "inputs_sha256": "9515a9aedecba2a4000502dcc8875e167cbba6d570a25ab6f50d97ec650c65d9"
+    }
+  },
+  {
     "id": "array-release-135990",
     "size": 43,
     "offset": 1268112,
@@ -3422,6 +3460,44 @@
     }
   },
   {
+    "id": "class-load-uclass-13a070",
+    "size": 73,
+    "offset": 1286256,
+    "inputs": [
+      "src/campaign_class_load.c"
+    ],
+    "rebuilt_symbol": "_load_UClass",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_load.obj src/campaign_class_load.c",
+    "link_bindings": {
+      "_load_object": {
+        "va": 281950032,
+        "basis": "Retail operand for load_object in the UClass load wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UClass load wrapper."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Retail operand for class_UClass in the UClass load wrapper."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Retail operand for create_UClass in the UClass load wrapper."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Retail operand for register_UClass in the UClass load wrapper."
+      }
+    },
+    "identification": "Complete UClass load wrapper at aligned RVA 0x13a070. Class singleton RVA 0x1870 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "4b2171c49e3520ea5c9fcc184e6769e8ccaeecece8baf735b2ab3ea29fc597a6",
+      "inputs_sha256": "b074a7006c80ade709001bce654348a24d06321abd10668a48867067e327a78b"
+    }
+  },
+  {
     "id": "class-allocation-uprimitive-13a0c0",
     "size": 75,
     "offset": 1286336,
@@ -4199,6 +4275,44 @@
     }
   },
   {
+    "id": "class-lookup-uclass-13cbf0",
+    "size": 62,
+    "offset": 1297392,
+    "inputs": [
+      "src/campaign_class_lookup_forward.c"
+    ],
+    "rebuilt_symbol": "_forward_find_UClass",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_lookup_forward.obj src/campaign_class_lookup_forward.c",
+    "link_bindings": {
+      "_forward_find_object": {
+        "va": 281935520,
+        "basis": "Retail operand for forward_find_object in the UClass lookup wrapper."
+      },
+      "_package_Core": {
+        "va": 285964628,
+        "basis": "Retail operand for package_Core in the UClass lookup wrapper."
+      },
+      "_class_UClass": {
+        "va": 288432364,
+        "basis": "Retail operand for class_UClass in the UClass lookup wrapper."
+      },
+      "_create_UClass": {
+        "va": 281961920,
+        "basis": "Retail operand for create_UClass in the UClass lookup wrapper."
+      },
+      "_register_UClass": {
+        "va": 281963952,
+        "basis": "Retail operand for register_UClass in the UClass lookup wrapper."
+      }
+    },
+    "identification": "Complete UClass lookup wrapper at aligned RVA 0x13cbf0. Class singleton RVA 0x1870 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "342ce84c58a508dba3a6ce786d0594a58022d4204ebd766cb125b3be691f8e79",
+      "inputs_sha256": "585212dfdc07f8f42f666009d31003201f16df2b87fc19657ebadd981e07b2af"
+    }
+  },
+  {
     "id": "script-event-setinitialstate",
     "offset": 1297456,
     "size": 32,
@@ -4708,6 +4822,44 @@
     "match": {
       "bytes_sha256": "70d4130002c35f1f79bf30ff75e7989de4ef0c932d161117755509b65c1c9e09",
       "inputs_sha256": "414b50ce562c76148acade12c52988e1c49fa608c98bcab26d325a6547a26ca2"
+    }
+  },
+  {
+    "id": "class-load-ulevel-13dfc0",
+    "size": 73,
+    "offset": 1302464,
+    "inputs": [
+      "src/campaign_class_load.c"
+    ],
+    "rebuilt_symbol": "_load_ULevel",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_class_load.obj src/campaign_class_load.c",
+    "link_bindings": {
+      "_load_object": {
+        "va": 281950032,
+        "basis": "Retail operand for load_object in the ULevel load wrapper."
+      },
+      "_package_Engine": {
+        "va": 285964612,
+        "basis": "Retail operand for package_Engine in the ULevel load wrapper."
+      },
+      "_class_ULevel": {
+        "va": 287285032,
+        "basis": "Retail operand for class_ULevel in the ULevel load wrapper."
+      },
+      "_create_ULevel": {
+        "va": 279135792,
+        "basis": "Retail operand for create_ULevel in the ULevel load wrapper."
+      },
+      "_register_ULevel": {
+        "va": 279122448,
+        "basis": "Retail operand for register_ULevel in the ULevel load wrapper."
+      }
+    },
+    "identification": "Complete ULevel load wrapper at aligned RVA 0x13dfc0. Class singleton RVA 0x6840 independently binds its descriptor, package, creation and registration calls.",
+    "match": {
+      "bytes_sha256": "f598b52e02661d7750efafc6b53988437701c939f68eab980343aac0e652f116",
+      "inputs_sha256": "313406f16ffef0ec980e50182849ed6e6428fdff49df0507cafa4b894a4527ac"
     }
   },
   {
