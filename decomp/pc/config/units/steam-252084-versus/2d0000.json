@@ -10000,6 +10000,40 @@
     }
   },
   {
+    "id": "default-object-init-2d8700",
+    "size": 22,
+    "offset": 2983680,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2d8700",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3c9e8c": {
+        "va": 281845388,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dc6f0": {
+        "va": 280872688,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334778. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "6233c1751bf6173055ff18052285fba427ba7ec9c0ecd866f206bebcf7d2038f",
+      "inputs_sha256": "b5038940f2e9a2916d05272ae7eca110083abb902c0b2076bf9cb4b0756c1f78"
+    }
+  },
+  {
     "id": "registered-object-init-2d87c0",
     "size": 24,
     "offset": 2983872,
@@ -10371,6 +10405,40 @@
     "match": {
       "bytes_sha256": "32ff5984fcde8e73f45fae45c3477e462b63eeeaedb05ba97541a799548e7442",
       "inputs_sha256": "c591e69fbcfbfecd3ed3bd43c2365f9e6e5e091a21ed57de3053668cddfb34e9"
+    }
+  },
+  {
+    "id": "default-object-init-2d8940",
+    "size": 22,
+    "offset": 2984256,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2d8940",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3c9e68": {
+        "va": 281845352,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dc810": {
+        "va": 280872976,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x33476c. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "ac64080503f05a69d24784bb9980ffc93dd45cd8646ce33188e0f8e126f62eda",
+      "inputs_sha256": "12b03e3f49ad6824a784e23eaff26b33d227c651cd9f8c55be172a8bb3b3efd9"
     }
   },
   {
@@ -16664,6 +16732,40 @@
     }
   },
   {
+    "id": "default-object-init-2da230",
+    "size": 22,
+    "offset": 2990640,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da230",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3bcdcc": {
+        "va": 281791948,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd420": {
+        "va": 280876064,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334464. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "4b76539732d32f15f8247a6a8713cadaa1139fc9c2487f794854677bbad9c9f7",
+      "inputs_sha256": "c6e96c4a42407f6e41abe246f16dc5ccab55a47b7c762d068054b11635a91e03"
+    }
+  },
+  {
     "id": "registered-object-init-2da250",
     "size": 24,
     "offset": 2990672,
@@ -17035,6 +17137,346 @@
     "match": {
       "bytes_sha256": "1883059f17716a9c8fea0d86cfc6361d55801390d924550a0a98a4063e8d7031",
       "inputs_sha256": "9ef9f3cd4665315739ab159f8f7a401d288f638b8e2012c024cca47d21e0c266"
+    }
+  },
+  {
+    "id": "default-object-init-2da410",
+    "size": 22,
+    "offset": 2991120,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da410",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3b785c": {
+        "va": 281770076,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd520": {
+        "va": 280876320,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334420. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "4eeb649f22ed9517d766995d71d9abecaf59ba20bf73b22ceb451deafee3d649",
+      "inputs_sha256": "b0451ede5bb05a50a156e8cbbea787052c56a54b407496361ee7c2bc4691b3f5"
+    }
+  },
+  {
+    "id": "default-object-init-2da470",
+    "size": 22,
+    "offset": 2991216,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da470",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a7780": {
+        "va": 281704320,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd540": {
+        "va": 280876352,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x3343f4. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "f23288e68567e313beb97789cf40bcde2732b9450607e74e469fbf7c256c2831",
+      "inputs_sha256": "1e502d4a227b11115d1fa24041820bbba4a446af6bf03744cc6261c1580e984a"
+    }
+  },
+  {
+    "id": "default-object-init-2da490",
+    "size": 22,
+    "offset": 2991248,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da490",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a778c": {
+        "va": 281704332,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd550": {
+        "va": 280876368,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x3343f8. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "709d5453c3d22f89d4be8f53d01a39780a86599546a5fb3270609c663504d8c8",
+      "inputs_sha256": "947da2b7f2cf171277d9eb464b34ef11fc28ebfd88edf5ec9e1bca9b5a1c268f"
+    }
+  },
+  {
+    "id": "default-object-init-2da4b0",
+    "size": 22,
+    "offset": 2991280,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da4b0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a7798": {
+        "va": 281704344,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd560": {
+        "va": 280876384,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x3343fc. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "c97fe175ccf508b2685c24a25241b5f95f972e5c23e86f259ac23e49953bd4fa",
+      "inputs_sha256": "9321a2e22693f9221e83166ee16f6a945871a3e9b47b39afa009ec63be4cc0c0"
+    }
+  },
+  {
+    "id": "default-object-init-2da4d0",
+    "size": 22,
+    "offset": 2991312,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da4d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a77a4": {
+        "va": 281704356,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd570": {
+        "va": 280876400,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334400. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "113d89266dfc8850d2e6b734877a169b566c44c1fb9637c9988e145a438b2ff9",
+      "inputs_sha256": "3e13faee5b430c9a1ccb1be4c3f8abd33dac90095b03332d3b8dff482a43fe28"
+    }
+  },
+  {
+    "id": "default-object-init-2da4f0",
+    "size": 22,
+    "offset": 2991344,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da4f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a77b0": {
+        "va": 281704368,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd580": {
+        "va": 280876416,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334404. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "76673e54758d3efa95d71fe0b1dec3699de10032b396121e943827421d0c476a",
+      "inputs_sha256": "8554f5c2895ca6199bc129ccab096420d210d6efec37ea137a10f97fcb98f81f"
+    }
+  },
+  {
+    "id": "default-object-init-2da510",
+    "size": 22,
+    "offset": 2991376,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da510",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a77bc": {
+        "va": 281704380,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd590": {
+        "va": 280876432,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334408. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "53ccba39b41f059247ff327346a6c7a9aa548f16d5726eb888cd323176b22671",
+      "inputs_sha256": "fef8aeefc78e5df48431d634ed1c3f54f084e5335ec487dc9d02fcd1275ed27c"
+    }
+  },
+  {
+    "id": "default-object-init-2da530",
+    "size": 22,
+    "offset": 2991408,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da530",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a77c8": {
+        "va": 281704392,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd5a0": {
+        "va": 280876448,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x33440c. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "afeaec119f8bcdac33df583317178859548c7cbf5ef75853d8eb8aba775f22a6",
+      "inputs_sha256": "1df87ba24ae437f7a6178eefabc9f0f83595b4fcf078cfc51b8de291db52b320"
+    }
+  },
+  {
+    "id": "default-object-init-2da550",
+    "size": 22,
+    "offset": 2991440,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da550",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a77d4": {
+        "va": 281704404,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd5b0": {
+        "va": 280876464,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334410. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "c4b6c7db169390160bd84944a2953619aee1099b83a4f6a063408c6416408166",
+      "inputs_sha256": "8bee17f4bf3ecd589d2d4a510402fd568a268335f19bf134bbb627af50e02794"
+    }
+  },
+  {
+    "id": "default-object-init-2da570",
+    "size": 22,
+    "offset": 2991472,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2da570",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_3a77e0": {
+        "va": 281704416,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2dd5c0": {
+        "va": 280876480,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334414. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "41943f0b7be8cdd0631ba1a5215022c440285501c0918ccb53da8c859805908b",
+      "inputs_sha256": "330a100dcfd754236a92780658a683d35606e483763c439baabdbed98c8f1e76"
     }
   },
   {
@@ -24722,6 +25164,40 @@
     }
   },
   {
+    "id": "default-object-init-2dc590",
+    "size": 22,
+    "offset": 2999696,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2dc590",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_397760": {
+        "va": 281638752,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_004630@4": {
+        "va": 277890608,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2de470": {
+        "va": 280880240,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334020. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "67938cc1bf661900a7b5696beab0416832213563d9077ed49c3ab316f6673b4f",
+      "inputs_sha256": "a457ea5965e9cdd41bd8756a85468a700a2a17e98f4b888b9e1dd0a0c20e6cc6"
+    }
+  },
+  {
     "id": "registered-object-init-2dc5b0",
     "size": 24,
     "offset": 2999728,
@@ -24753,6 +25229,74 @@
     "match": {
       "bytes_sha256": "d9cadc5cff3f4ed85bc6e7fec21499d4e01bd7c7842169d02676b6f5785a8fbe",
       "inputs_sha256": "a1804123e5b62c379ada9d5383cdbb50e0a37d6598cf036b182a240bec549e23"
+    }
+  },
+  {
+    "id": "default-object-init-2dc5d0",
+    "size": 22,
+    "offset": 2999760,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2dc5d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_374e2c": {
+        "va": 281497132,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_22fdf0@4": {
+        "va": 280165872,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2de490": {
+        "va": 280880272,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334018. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "3917fa759081b4d2fd3bd40e92b60f9a754c4753a7870063f6f334346cf421d0",
+      "inputs_sha256": "85b53f021fc5de97abfaca790f526295ea5604ca7d56bd9f9f0343e850f20f03"
+    }
+  },
+  {
+    "id": "default-object-init-2dc5f0",
+    "size": 22,
+    "offset": 2999792,
+    "inputs": [
+      "src/versus_default_object_init_group.c"
+    ],
+    "rebuilt_symbol": "_init_2dc5f0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_default_object_init_group.obj src/versus_default_object_init_group.c",
+    "link_bindings": {
+      "_object_375054": {
+        "va": 281497684,
+        "basis": "Static object also referenced by the cleanup callback."
+      },
+      "@construct_283f0c@4": {
+        "va": 280510220,
+        "basis": "Called with the object receiver."
+      },
+      "_cleanup_2de4a0": {
+        "va": 280880288,
+        "basis": "Indexed cleanup callback for the same static object."
+      },
+      "_register_exit": {
+        "va": 280508022,
+        "basis": "Shared Versus exit callback registration routine."
+      }
+    },
+    "identification": "Static initializer pointer at RVA 0x334008. Constructs the writable object and registers an indexed shutdown callback that refers to the same object.",
+    "match": {
+      "bytes_sha256": "8d6ebb2c0cde821028c2cfefc5697446bba8afaba4b8c6e5d9659b5dc600feaf",
+      "inputs_sha256": "2eea1842ee8ad5498a19d2bff1c31379de100004f7f0359c0c1b7a65562c8e37"
     }
   },
   {
