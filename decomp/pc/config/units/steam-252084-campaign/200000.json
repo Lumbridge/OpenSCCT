@@ -122,6 +122,41 @@
     }
   },
   {
+    "id": "delete-members-204090",
+    "size": 46,
+    "offset": 2113680,
+    "inputs": [
+      "src/campaign_managed_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_204090@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_member_cleanup.obj src/campaign_managed_member_cleanup.c",
+    "link_bindings": {
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "_methods_7d9540": {
+        "va": 286102848,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_2049d0@4": {
+        "va": 279988688,
+        "basis": "Unconditional cleanup call with receiver offset 68."
+      },
+      "@cleanup_4a2740@4": {
+        "va": 282732352,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
+    "match": {
+      "bytes_sha256": "81de64b0538c92be87ef0e63377930f417670c61bb6fe37f7b2584179d7e592f",
+      "inputs_sha256": "42652b1430bb8ad58906eaa8f7a89738654e603e6793f387b6e4e1d0f55a3b2b"
+    }
+  },
+  {
     "id": "delete-members-204430",
     "size": 36,
     "offset": 2114608,
@@ -467,6 +502,41 @@
     "match": {
       "bytes_sha256": "b10fc09b04d47c8e94aa72172d3833486d2d0998cc43e72d8c5631d159016ad5",
       "inputs_sha256": "c1b2ce77587e9ef29a8c5fc2748bbf84ff548cfc10f6ab0e2423c15fe5fbabb2"
+    }
+  },
+  {
+    "id": "delete-members-2056f0",
+    "size": 46,
+    "offset": 2119408,
+    "inputs": [
+      "src/campaign_managed_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_2056f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_member_cleanup.obj src/campaign_managed_member_cleanup.c",
+    "link_bindings": {
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Separately linked heap release wrapper."
+      },
+      "_methods_7d9710": {
+        "va": 286103312,
+        "basis": "Read-only receiver table with an executable first slot."
+      },
+      "@cleanup_2057c0@4": {
+        "va": 279992256,
+        "basis": "Unconditional cleanup call with receiver offset 68."
+      },
+      "@cleanup_4a2740@4": {
+        "va": 282732352,
+        "basis": "Unconditional cleanup call with receiver offset 0."
+      }
+    },
+    "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
+    "match": {
+      "bytes_sha256": "01ed6156afcb7b46ded267d1c4bfd1f335eefffe7dfb6d4837b01a766497197c",
+      "inputs_sha256": "b6eeaa5e7d9ef29c164afcc631118adde27df1bfc792954447c2496bef591954"
     }
   },
   {
