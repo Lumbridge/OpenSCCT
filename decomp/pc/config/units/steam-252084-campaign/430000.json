@@ -221,6 +221,32 @@
     }
   },
   {
+    "id": "pool-drop-reference-431010",
+    "size": 54,
+    "offset": 4395024,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_431010@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_431050@4": {
+        "va": 282267728,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x430fba. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "0e19b2b3c9cb30bc5a28276c883c6cb2f009ac0b6554f0579cf14dad60c7af59",
+      "inputs_sha256": "e01c769b24c7bfd08c55811f3a3dd1cd1e81faa691b646f7f543a36191ff4bfd"
+    }
+  },
+  {
     "id": "block-pool-pop-431050",
     "size": 30,
     "offset": 4395088,
@@ -397,6 +423,32 @@
     }
   },
   {
+    "id": "pool-drop-reference-432b50",
+    "size": 54,
+    "offset": 4402000,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_432b50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_432b90@4": {
+        "va": 282274704,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x432afa. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "7a18a2fd2eafd80968b3502e614837aae68ed600200d52413949ff14929b6451",
+      "inputs_sha256": "c3272b0396b7886a20143fbee3ec150a21470037e8b717539460bd755a8bb07d"
+    }
+  },
+  {
     "id": "block-pool-pop-432b90",
     "size": 30,
     "offset": 4402064,
@@ -551,6 +603,32 @@
     }
   },
   {
+    "id": "pool-drop-reference-434240",
+    "size": 54,
+    "offset": 4407872,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_434240@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_434280@4": {
+        "va": 282280576,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x4341ea. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "a754dc068733d4ca1dfc362b69dad8375ef414a5e9faeff272a9ad17bcd29728",
+      "inputs_sha256": "a3aa76f78b3d9df2a1731d71caa85d48057b0ad43c3d726d4d0418d8e13e1d09"
+    }
+  },
+  {
     "id": "block-pool-pop-434280",
     "size": 30,
     "offset": 4407936,
@@ -702,6 +780,32 @@
     "match": {
       "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
       "inputs_sha256": "300804ff82dc33060b2ce9ae8ac5ec6f331de09bca67f6d148916a64b7120497"
+    }
+  },
+  {
+    "id": "pool-drop-reference-435440",
+    "size": 54,
+    "offset": 4412480,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_435440@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_435480@4": {
+        "va": 282285184,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x4353ea. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "52ebd77cd89c3c9af5f342332622c91709eed9b3510fb6d985f54c8fd50b7e6c",
+      "inputs_sha256": "49a769b6eee7b8a76b2bef69f58adfc72bd576c576b4b5596886bd4cb5b212e2"
     }
   },
   {
@@ -1030,6 +1134,32 @@
     }
   },
   {
+    "id": "pool-drop-reference-437e10",
+    "size": 54,
+    "offset": 4423184,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_437e10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_437e50@4": {
+        "va": 282295888,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x437dba. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "d64b8d068b0d09bfd7bf4c3f76b7eba1f4117b337bad7a9cb1e320045a27eb4b",
+      "inputs_sha256": "88bf810fcc39f5adb5bfd71addada5b841c57ce36dada7e1489ddc147fcdc5c1"
+    }
+  },
+  {
     "id": "block-pool-pop-437e50",
     "size": 30,
     "offset": 4423248,
@@ -1159,6 +1289,32 @@
     "match": {
       "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
       "inputs_sha256": "0b4b1c387869eac2da689b4d406c25a6b7ce9bfa7585022df04092456c17bf97"
+    }
+  },
+  {
+    "id": "pool-drop-reference-438930",
+    "size": 54,
+    "offset": 4426032,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_438930@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_438970@4": {
+        "va": 282298736,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x4388da. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "5f07d303e252353cae4601e0c0e39c83be2fe857bb3b3e49e83e5e998be2df5f",
+      "inputs_sha256": "2a3686faaa952cd2865b05c565c7e7fa78d7d22d2ac67ae4b139ca15cfd5fa7b"
     }
   },
   {
@@ -1313,6 +1469,32 @@
     "match": {
       "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
       "inputs_sha256": "398f9be1fb1d23412fb3e0225f0cda7133988022a7ad421f0d66f4b251037b95"
+    }
+  },
+  {
+    "id": "pool-drop-reference-438d90",
+    "size": 54,
+    "offset": 4427152,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_438d90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_438dd0@4": {
+        "va": 282299856,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x438d3a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "a9ddbf4aae0dbade8ff21fc17b8c2c530d3281e92c10687cfdbfb3f94ca4e2f2",
+      "inputs_sha256": "2b349691e13f1e6d6bb1c3195d075974f91da900eb78cc12abeee381b7ff39cf"
     }
   },
   {
@@ -1480,6 +1662,32 @@
     }
   },
   {
+    "id": "pool-drop-reference-43a510",
+    "size": 54,
+    "offset": 4433168,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_43a510@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_43a550@4": {
+        "va": 282305872,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x43a4ba. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "e30bae8598f0d1137bc5a63a1859587adc911beae4c7998e2c19fd885c082ab7",
+      "inputs_sha256": "afacc13b7e5b1e154d6745ffea47b586b2e875ac7b4a1383849dc0d0d7dd5693"
+    }
+  },
+  {
     "id": "block-pool-pop-43a550",
     "size": 30,
     "offset": 4433232,
@@ -1546,6 +1754,32 @@
     }
   },
   {
+    "id": "pool-drop-reference-43a660",
+    "size": 54,
+    "offset": 4433504,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_43a660@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_43a6a0@4": {
+        "va": 282306208,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x43a60a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "05a65595c2d96c9ecf9eac4d27d9a3a73f9ac9a7e31050e10c9b565a9725ef54",
+      "inputs_sha256": "70a6fd834ac82faceaf956ce7310d2030062bcd0443536039c03fedcba688650"
+    }
+  },
+  {
     "id": "block-pool-pop-43a6a0",
     "size": 30,
     "offset": 4433568,
@@ -1609,6 +1843,32 @@
     "match": {
       "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
       "inputs_sha256": "21af57613be592fbb050c0373d7fc7f931076e7422f39b04f78e02e5799bbbd4"
+    }
+  },
+  {
+    "id": "pool-drop-reference-43a7b0",
+    "size": 54,
+    "offset": 4433840,
+    "inputs": [
+      "src/campaign_pool_drop_reference.c"
+    ],
+    "rebuilt_symbol": "@drop_43a7b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_pool_drop_reference.obj src/campaign_pool_drop_reference.c",
+    "link_bindings": {
+      "_release_buffer": {
+        "va": 279826640,
+        "basis": "Shared campaign heap release."
+      },
+      "@pop_43a7f0@4": {
+        "va": 282306544,
+        "basis": "Pops the last descriptor from the receiver pool."
+      }
+    },
+    "identification": "Direct call at RVA 0x43a75a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
+    "match": {
+      "bytes_sha256": "8cc3c4a44df5943a94c84c09c4adea99ebaf0f9743b12c223338eb63668567b6",
+      "inputs_sha256": "ed9de71743da7a1f4a6ec82d16e82576c6350b8938f85b54ad89f44e929d61cf"
     }
   },
   {
