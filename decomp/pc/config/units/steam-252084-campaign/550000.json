@@ -118,6 +118,32 @@
     }
   },
   {
+    "id": "physics-object-release-5509f0",
+    "size": 38,
+    "offset": 5573104,
+    "inputs": [
+      "src/campaign_physics_release.c"
+    ],
+    "rebuilt_symbol": "@release_5509f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_release.obj src/campaign_physics_release.c",
+    "link_bindings": {
+      "_methods_84bc90": {
+        "va": 286571664,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84bc90. Restores the base table, conditionally releases the receiver with size 4 and category 28, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "a520a4a7d08f9b2af02b14d16bc3f3b1a868da1635e0d2bb26b8b518055a0925",
+      "inputs_sha256": "e8a787cce39b01267fe7d9b3f768b8452ec9b63a1334a9e11a57eb4966188bec"
+    }
+  },
+  {
     "id": "read-word-550d70",
     "offset": 5574000,
     "size": 4,
@@ -131,6 +157,32 @@
     "match": {
       "bytes_sha256": "7e6bda0a031f94dbe8477fe3ce3ba2b7e3d761a050d55625bc7d92212670e60c",
       "inputs_sha256": "28a7f13821542625e9eb6556d8d59447652694d5d2ad58389c3e784ac059be35"
+    }
+  },
+  {
+    "id": "physics-object-release-552ba0",
+    "size": 38,
+    "offset": 5581728,
+    "inputs": [
+      "src/campaign_physics_release.c"
+    ],
+    "rebuilt_symbol": "@release_552ba0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_release.obj src/campaign_physics_release.c",
+    "link_bindings": {
+      "_methods_84bc90": {
+        "va": 286571664,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84bcac. Restores the base table, conditionally releases the receiver with size 4 and category 28, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "a520a4a7d08f9b2af02b14d16bc3f3b1a868da1635e0d2bb26b8b518055a0925",
+      "inputs_sha256": "feaa56fe02f8895cd493c064f6844098ab93aa7fda3094481cfffa794ca93d23"
     }
   },
   {

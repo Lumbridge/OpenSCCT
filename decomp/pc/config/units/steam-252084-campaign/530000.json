@@ -546,6 +546,58 @@
     }
   },
   {
+    "id": "physics-object-release-53ae50",
+    "size": 38,
+    "offset": 5484112,
+    "inputs": [
+      "src/campaign_physics_release.c"
+    ],
+    "rebuilt_symbol": "@release_53ae50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_release.obj src/campaign_physics_release.c",
+    "link_bindings": {
+      "_methods_84aa70": {
+        "va": 286567024,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84b414. Restores the base table, conditionally releases the receiver with size 8 and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "363c0c61d8465776a5edb0ade3092769335ae6bdcd8608208b02e8d73297f570",
+      "inputs_sha256": "c38e7fed4ce6c8fd4588bbf74d083af3a265296bf9f30eafc927d8b8b5298784"
+    }
+  },
+  {
+    "id": "physics-object-release-53ae80",
+    "size": 38,
+    "offset": 5484160,
+    "inputs": [
+      "src/campaign_physics_release.c"
+    ],
+    "rebuilt_symbol": "@release_53ae80@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_physics_release.obj src/campaign_physics_release.c",
+    "link_bindings": {
+      "_methods_84aa68": {
+        "va": 286567016,
+        "basis": "Read-only base method table installed before release."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Shared manager holding the allocator interface."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x84b41c. Restores the base table, conditionally releases the receiver with size 8 and category 26, then returns the receiver.",
+    "match": {
+      "bytes_sha256": "2fb355d69bc053460ae29730b9f008224e978c0afa820de61627dc2513b7a259",
+      "inputs_sha256": "0048443ed6422c509e3475c944909eae4e910e21d36b49da27e8d16014b6ed7d"
+    }
+  },
+  {
     "id": "collector-query-53b5f0",
     "size": 55,
     "offset": 5486064,
