@@ -56,10 +56,14 @@ The first command compiles the C source for the R5900 with GNU GCC 12.2, reads t
 
 - **Ghidra.** Import the ELF into a local project and open CodeBrowser. For full PS2 instructions, install the [Emotion Engine extension](https://github.com/chaoticgd/ghidra-emotionengine-reloaded) matching your Ghidra version and select its PS2 language. Press **G** to go to the EE address and inspect references to the function. The [headless script](ghidra/ReviewEeLeaf.java) checks the nominated addresses and both direct calls. This particular leaf uses base MIPS instructions, so the following cross-check also works with a stock Ghidra installation.
 - **PCSX2.** Start your disc with your own BIOS, open **Debug → Open Debugger**, select the Emotion Engine CPU and wait until the relevant ELF loads. For the online leaf, set an execute breakpoint at `0x0018B4F0`. Inspect register `a0`, the word at `a0 + 4` and the returned `v0` after the delay slot. The boot entry belongs to a different ELF. [PCSX2 debugger](https://pcsx2.net/docs/advanced/debugger/)
-- **decomp.me.** Select **PlayStation 2 → New scratch** to compare compiler and flag hypotheses with your own small test cases. Keep retail assembly and game-derived drafts local. Record the compiler, flags and scratch link when publishing a synthetic reproduction. [PS2 workbench](https://decomp.me/platform/ps2)
+- **decomp.me.** Select **PlayStation 2 → New scratch** to compare compiler and flag hypotheses using independently authored test cases. Keep retail assembly and game-derived drafts local. [PS2 workbench](https://decomp.me/platform/ps2)
 
 With the working directory set to the repository root, create `decomp/ps2/local/ghidra` and run this command from your Ghidra installation's `support` tools. Windows uses `analyzeHeadless.bat`. For an existing project already containing the ELF, replace `-import ... -processor ...` with `-process SC3_ON.ELF`.
 
 ```sh
 analyzeHeadless decomp/ps2/local/ghidra pal-online -import decomp/ps2/local/disc/SC3_ON.ELF -processor MIPS:LE:32:default -noanalysis -scriptPath decomp/ps2/ghidra -postScript ReviewEeLeaf.java 0x0018B4F0 8 0x0018AA74 0x0018BE38
 ```
+
+### A measured compiler difference
+
+The public `openscct_flag_probe` scratch compares two compilers on an unsigned C function that returns `flags ^ 0x35u`. Its assembly target was generated from that same authored C function using the local R5900 GCC 12.2 recipe above. GCC 12.2 emits two instructions and computes the result in the return delay slot. On decomp.me, **EE GCC 3.2 build 040921** at `-O2` emits three instructions. It computes the XOR in the argument register first, then moves the value to the return register in the delay slot. This experiment shows how the compilers schedule one synthetic expression. The original game compiler remains unidentified. [Saved compiler comparison](https://decomp.me/scratch/OaYQW)
