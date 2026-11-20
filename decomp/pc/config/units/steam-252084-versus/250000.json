@@ -1,0 +1,28 @@
+[
+  {
+    "id": "finalize-record-r25cd60",
+    "size": 10,
+    "offset": 2477408,
+    "inputs": [
+      "src/versus_shutdown_callbacks.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shutdown_callbacks.obj src/versus_shutdown_callbacks.c",
+    "rebuilt_symbol": "_finalize_record_r25cd60",
+    "identification": "Stock exit registration RVA 0x25cd40 pushes the full callback address RVA 0x25cd60 before calling the reproduced atexit function. Loads the static object into ECX and tail-calls its destructor. Static writable record loaded as the receiver of the cleanup call.",
+    "link_bindings": {
+      "_exit_object_374f00": {
+        "va": 281497344,
+        "basis": "Static writable record loaded as the receiver of the cleanup call."
+      },
+      "@destroy_record_262b80@4": {
+        "va": 280374144,
+        "basis": "Executable destructor entry at RVA 0x262b80 reached by the terminal direct branch."
+      }
+    },
+    "match": {
+      "bytes_sha256": "963b9bfce8d9e8333c6793b6e241295c65025c924531034ed4fd71058fbf6c26",
+      "inputs_sha256": "8dcf6209dbf5cdf1375e1df3841e7ac1c54f0db362e2fbaa6f3cafa64e230ead"
+    }
+  }
+]

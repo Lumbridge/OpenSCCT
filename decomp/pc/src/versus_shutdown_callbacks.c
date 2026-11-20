@@ -1,0 +1,924 @@
+/* Each entry is passed to the stock C runtime as a void(void) exit callback. */
+struct StaticRecord;
+struct RuntimeClass;
+
+#define FINALIZE_RECORD(Entry, Finalizer, Object) \
+    void Entry(void) { Finalizer(&Object); }
+
+#define EMPTY_EXIT_CALLBACK(Entry) \
+    void Entry(void) {}
+
+extern struct RuntimeClass class_object_AActor;
+extern struct RuntimeClass class_object_AAntiPortalActor;
+extern struct RuntimeClass class_object_ABlockingVolume;
+extern struct RuntimeClass class_object_ABrush;
+extern struct RuntimeClass class_object_ACamera;
+extern struct RuntimeClass class_object_ACarriedObject;
+extern struct RuntimeClass class_object_AController;
+extern struct RuntimeClass class_object_ADecoVolumeObject;
+extern struct RuntimeClass class_object_ADecoration;
+extern struct RuntimeClass class_object_ADecorationList;
+extern struct RuntimeClass class_object_AERainVolume;
+extern struct RuntimeClass class_object_AESBChainActor;
+extern struct RuntimeClass class_object_AESBPatchActor;
+extern struct RuntimeClass class_object_AESBRopeActor;
+extern struct RuntimeClass class_object_AESBStripDoorActor;
+extern struct RuntimeClass class_object_AESoftBodyActor;
+extern struct RuntimeClass class_object_AEffects;
+extern struct RuntimeClass class_object_AEmitter;
+extern struct RuntimeClass class_object_AFileLog;
+extern struct RuntimeClass class_object_AGameInfo;
+extern struct RuntimeClass class_object_AGameReplicationInfo;
+extern struct RuntimeClass class_object_AGameStats;
+extern struct RuntimeClass class_object_AHUD;
+extern struct RuntimeClass class_object_AInfo;
+extern struct RuntimeClass class_object_AInternetInfo;
+extern struct RuntimeClass class_object_AInternetLink;
+extern struct RuntimeClass class_object_AInventory;
+extern struct RuntimeClass class_object_AKeypoint;
+extern struct RuntimeClass class_object_ALevelInfo;
+extern struct RuntimeClass class_object_ALight;
+extern struct RuntimeClass class_object_ALineOfSightTrigger;
+extern struct RuntimeClass class_object_ALocalMessage;
+extern struct RuntimeClass class_object_AMotionTrackingVision;
+extern struct RuntimeClass class_object_AMover;
+extern struct RuntimeClass class_object_AMoverRotating;
+extern struct RuntimeClass class_object_ANote;
+extern struct RuntimeClass class_object_APawn;
+extern struct RuntimeClass class_object_APlayerController;
+extern struct RuntimeClass class_object_APlayerReplicationInfo;
+extern struct RuntimeClass class_object_APlayerStart;
+extern struct RuntimeClass class_object_AProjectile;
+extern struct RuntimeClass class_object_AProjector;
+extern struct RuntimeClass class_object_AReplicationInfo;
+extern struct RuntimeClass class_object_ASAlarm;
+extern struct RuntimeClass class_object_ASAmbientSoundTrigger;
+extern struct RuntimeClass class_object_ASAmmoStock;
+extern struct RuntimeClass class_object_ASAmmoStockInteraction;
+extern struct RuntimeClass class_object_ASAnimatedMesh;
+extern struct RuntimeClass class_object_ASBackPackInteraction;
+extern struct RuntimeClass class_object_ASBasePawn;
+extern struct RuntimeClass class_object_ASBasicGamePlayObject;
+extern struct RuntimeClass class_object_ASBloodSplat;
+extern struct RuntimeClass class_object_ASBombTargetInteraction;
+extern struct RuntimeClass class_object_ASBombTargetObjectiveTrigger;
+extern struct RuntimeClass class_object_ASBulletImpact;
+extern struct RuntimeClass class_object_ASCamNetwork;
+extern struct RuntimeClass class_object_ASCamera;
+extern struct RuntimeClass class_object_ASChaffeEmitter;
+extern struct RuntimeClass class_object_ASComputerInteraction;
+extern struct RuntimeClass class_object_ASComputerObjectiveTrigger;
+extern struct RuntimeClass class_object_ASCoronaLight;
+extern struct RuntimeClass class_object_ASDamageVolume;
+extern struct RuntimeClass class_object_ASDisk;
+extern struct RuntimeClass class_object_ASDouilleEmitter;
+extern struct RuntimeClass class_object_ASExtincteur;
+extern struct RuntimeClass class_object_ASExtincteurEmitter;
+extern struct RuntimeClass class_object_ASFireTrace;
+extern struct RuntimeClass class_object_ASFlag;
+extern struct RuntimeClass class_object_ASFlagDropZone;
+extern struct RuntimeClass class_object_ASFlagDropZoneInteraction;
+extern struct RuntimeClass class_object_ASFlaque;
+extern struct RuntimeClass class_object_ASFlareCourseEmitter;
+extern struct RuntimeClass class_object_ASFlareEmitter;
+extern struct RuntimeClass class_object_ASFlashBang;
+extern struct RuntimeClass class_object_ASFlashGen;
+extern struct RuntimeClass class_object_ASFlashLight;
+extern struct RuntimeClass class_object_ASFlashLight_FragGrenade;
+extern struct RuntimeClass class_object_ASFragLaunchEmitter;
+extern struct RuntimeClass class_object_ASGPOControl;
+extern struct RuntimeClass class_object_ASGadBackPack;
+extern struct RuntimeClass class_object_ASGadBomb;
+extern struct RuntimeClass class_object_ASGadCamNetwork;
+extern struct RuntimeClass class_object_ASGadChaffeGrenade;
+extern struct RuntimeClass class_object_ASGadFlareLauncher;
+extern struct RuntimeClass class_object_ASGadFlashBang;
+extern struct RuntimeClass class_object_ASGadFragGrenade;
+extern struct RuntimeClass class_object_ASGadGasMask;
+extern struct RuntimeClass class_object_ASGadGrenLauncher;
+extern struct RuntimeClass class_object_ASGadHeartBeatSensor;
+extern struct RuntimeClass class_object_ASGadMultiMinesLauncher;
+extern struct RuntimeClass class_object_ASGadMultiPresDetectorLauncher;
+extern struct RuntimeClass class_object_ASGadNoiseEmitter;
+extern struct RuntimeClass class_object_ASGadPhosphoLauncher;
+extern struct RuntimeClass class_object_ASGadSmokeGrenade;
+extern struct RuntimeClass class_object_ASGadStickyCam;
+extern struct RuntimeClass class_object_ASGadTazerLauncher;
+extern struct RuntimeClass class_object_ASGadTorche;
+extern struct RuntimeClass class_object_ASGadTorcheLaser;
+extern struct RuntimeClass class_object_ASGadget;
+extern struct RuntimeClass class_object_ASGameInfo;
+extern struct RuntimeClass class_object_ASGameMessages;
+extern struct RuntimeClass class_object_ASGamePlayObject;
+extern struct RuntimeClass class_object_ASGoggle;
+extern struct RuntimeClass class_object_ASGoggleBeam;
+extern struct RuntimeClass class_object_ASGrenadeExplosion;
+extern struct RuntimeClass class_object_ASHealMateInteraction;
+extern struct RuntimeClass class_object_ASHud;
+extern struct RuntimeClass class_object_ASImpactEffectBase;
+extern struct RuntimeClass class_object_ASImpactEffectShocker;
+extern struct RuntimeClass class_object_ASImpactEffectShockerMetal;
+extern struct RuntimeClass class_object_ASImpactManager;
+extern struct RuntimeClass class_object_ASInfirmary;
+extern struct RuntimeClass class_object_ASInteractObject;
+extern struct RuntimeClass class_object_ASInteractionManager;
+extern struct RuntimeClass class_object_ASInterrupteur;
+extern struct RuntimeClass class_object_ASLANClientLink;
+extern struct RuntimeClass class_object_ASLANServerLink;
+extern struct RuntimeClass class_object_ASLaserBeam;
+extern struct RuntimeClass class_object_ASLaserBeam_MineLaser;
+extern struct RuntimeClass class_object_ASLaserProjector;
+extern struct RuntimeClass class_object_ASLaserTrigger;
+extern struct RuntimeClass class_object_ASLeaveInteraction;
+extern struct RuntimeClass class_object_ASLift;
+extern struct RuntimeClass class_object_ASLiftDoor;
+extern struct RuntimeClass class_object_ASLogManager;
+extern struct RuntimeClass class_object_ASMagicEvent;
+extern struct RuntimeClass class_object_ASMateInteraction;
+extern struct RuntimeClass class_object_ASMineLaser;
+extern struct RuntimeClass class_object_ASMinePiegeSpy;
+extern struct RuntimeClass class_object_ASMinePoison;
+extern struct RuntimeClass class_object_ASMineProx;
+extern struct RuntimeClass class_object_ASMineProxInteraction;
+extern struct RuntimeClass class_object_ASMines;
+extern struct RuntimeClass class_object_ASMission;
+extern struct RuntimeClass class_object_ASMotionTrackingVision;
+extern struct RuntimeClass class_object_ASMuzzleFlash;
+extern struct RuntimeClass class_object_ASMuzzleSticky;
+extern struct RuntimeClass class_object_ASNoiseEmitter;
+extern struct RuntimeClass class_object_ASNotifyNoise;
+extern struct RuntimeClass class_object_ASObjective;
+extern struct RuntimeClass class_object_ASObjectiveTrigger;
+extern struct RuntimeClass class_object_ASOrientableObject;
+extern struct RuntimeClass class_object_ASPAWNDEFENSE;
+extern struct RuntimeClass class_object_ASPawnAttaque;
+extern struct RuntimeClass class_object_ASPhosphoEmitter;
+extern struct RuntimeClass class_object_ASPickupInteraction;
+extern struct RuntimeClass class_object_ASPlayerCam;
+extern struct RuntimeClass class_object_ASPlayerController;
+extern struct RuntimeClass class_object_ASPoisonEmitter;
+extern struct RuntimeClass class_object_ASPresDetector;
+extern struct RuntimeClass class_object_ASProjChaffe;
+extern struct RuntimeClass class_object_ASProjFlare;
+extern struct RuntimeClass class_object_ASProjFlashBang;
+extern struct RuntimeClass class_object_ASProjFrag;
+extern struct RuntimeClass class_object_ASProjGrenade;
+extern struct RuntimeClass class_object_ASProjMarqueurSpy;
+extern struct RuntimeClass class_object_ASProjPhospho;
+extern struct RuntimeClass class_object_ASProjSmoke;
+extern struct RuntimeClass class_object_ASProjoFixe;
+extern struct RuntimeClass class_object_ASRJ45Checker;
+extern struct RuntimeClass class_object_ASRemoveSpyBulletInteraction;
+extern struct RuntimeClass class_object_ASSavedMove;
+extern struct RuntimeClass class_object_ASShareObjectInteraction;
+extern struct RuntimeClass class_object_ASSmokeEmitter;
+extern struct RuntimeClass class_object_ASSmokeLaunchEmitter;
+extern struct RuntimeClass class_object_ASSprinkler;
+extern struct RuntimeClass class_object_ASSpyBulletLauncher;
+extern struct RuntimeClass class_object_ASStickyCam;
+extern struct RuntimeClass class_object_ASStickyCamEmitter;
+extern struct RuntimeClass class_object_ASStickyCamInteraction;
+extern struct RuntimeClass class_object_ASTazerEmitter;
+extern struct RuntimeClass class_object_ASTeamInfo;
+extern struct RuntimeClass class_object_ASTriggerInteraction;
+extern struct RuntimeClass class_object_ASTriggerLight;
+extern struct RuntimeClass class_object_ASVitre;
+extern struct RuntimeClass class_object_ASVolumetricSensor;
+extern struct RuntimeClass class_object_ASWeapon;
+extern struct RuntimeClass class_object_ASWeaponAttaque;
+extern struct RuntimeClass class_object_ASWeaponDefense;
+extern struct RuntimeClass class_object_ASWeaponDefenseDummy;
+extern struct RuntimeClass class_object_ASWeaponDefenseDummy_Shotgun;
+extern struct RuntimeClass class_object_ASWeaponDefenseDummy_Uzi;
+extern struct RuntimeClass class_object_ASWeaponDefense_Shotgun;
+extern struct RuntimeClass class_object_ASWeaponDefense_Uzi;
+extern struct RuntimeClass class_object_ASZoneTips;
+extern struct RuntimeClass class_object_ASecurity;
+extern struct RuntimeClass class_object_AShadowProjector;
+extern struct RuntimeClass class_object_ASkyZoneInfo;
+extern struct RuntimeClass class_object_AStaticMeshActor;
+extern struct RuntimeClass class_object_ATcpLink;
+extern struct RuntimeClass class_object_ATeamInfo;
+extern struct RuntimeClass class_object_ATrigger;
+extern struct RuntimeClass class_object_ATriggers;
+extern struct RuntimeClass class_object_AUdpLink;
+extern struct RuntimeClass class_object_AVolume;
+extern struct RuntimeClass class_object_AZoneInfo;
+extern struct RuntimeClass class_object_UActorChannel;
+extern struct RuntimeClass class_object_UAnimNotify;
+extern struct RuntimeClass class_object_UAnimNotify_DestroyEffect;
+extern struct RuntimeClass class_object_UAnimNotify_Effect;
+extern struct RuntimeClass class_object_UAnimNotify_Script;
+extern struct RuntimeClass class_object_UAnimNotify_Scripted;
+extern struct RuntimeClass class_object_UAnimNotify_Sound;
+extern struct RuntimeClass class_object_UAnimNotify_StopSound;
+extern struct RuntimeClass class_object_UAnimation;
+extern struct RuntimeClass class_object_UArrayProperty;
+extern struct RuntimeClass class_object_UBaseGUIController;
+extern struct RuntimeClass class_object_UBeamEmitter;
+extern struct RuntimeClass class_object_UBitmapMaterial;
+extern struct RuntimeClass class_object_UBoolProperty;
+extern struct RuntimeClass class_object_UBrowser_Keys;
+extern struct RuntimeClass class_object_UByteProperty;
+extern struct RuntimeClass class_object_UCanvas;
+extern struct RuntimeClass class_object_UChannel;
+extern struct RuntimeClass class_object_UCheatManager;
+extern struct RuntimeClass class_object_UClass;
+extern struct RuntimeClass class_object_UClassProperty;
+extern struct RuntimeClass class_object_UClient;
+extern struct RuntimeClass class_object_UColorModifier;
+extern struct RuntimeClass class_object_UCombiner;
+extern struct RuntimeClass class_object_UCommandlet;
+extern struct RuntimeClass class_object_UConsole;
+extern struct RuntimeClass class_object_UConst;
+extern struct RuntimeClass class_object_UConstantColor;
+extern struct RuntimeClass class_object_UConstantMaterial;
+extern struct RuntimeClass class_object_UControlChannel;
+extern struct RuntimeClass class_object_UConvexVolume;
+extern struct RuntimeClass class_object_UCubemap;
+extern struct RuntimeClass class_object_UD3DRenderDevice;
+extern struct RuntimeClass class_object_UDelegateProperty;
+extern struct RuntimeClass class_object_UEMFChannelTextures;
+extern struct RuntimeClass class_object_UEMFTextureModifier;
+extern struct RuntimeClass class_object_UERainPrimitive;
+extern struct RuntimeClass class_object_UESBChain;
+extern struct RuntimeClass class_object_UESBPatch;
+extern struct RuntimeClass class_object_UESBRope;
+extern struct RuntimeClass class_object_UESBStripDoor;
+extern struct RuntimeClass class_object_UESoftBody;
+extern struct RuntimeClass class_object_UEchelonLightingMaterial;
+extern struct RuntimeClass class_object_UEngine;
+extern struct RuntimeClass class_object_UEnum;
+extern struct RuntimeClass class_object_UExporter;
+extern struct RuntimeClass class_object_UFactory;
+extern struct RuntimeClass class_object_UFadeColor;
+extern struct RuntimeClass class_object_UField;
+extern struct RuntimeClass class_object_UFinalBlend;
+extern struct RuntimeClass class_object_UFixedArrayProperty;
+extern struct RuntimeClass class_object_UFlicFlocEmitter;
+extern struct RuntimeClass class_object_UFloatProperty;
+extern struct RuntimeClass class_object_UFont;
+extern struct RuntimeClass class_object_UFunction;
+extern struct RuntimeClass class_object_UGUI;
+extern struct RuntimeClass class_object_UGUIButton;
+extern struct RuntimeClass class_object_UGUICadre;
+extern struct RuntimeClass class_object_UGUIChatBox;
+extern struct RuntimeClass class_object_UGUICheckBox;
+extern struct RuntimeClass class_object_UGUICheckBoxButton;
+extern struct RuntimeClass class_object_UGUICircularList;
+extern struct RuntimeClass class_object_UGUIComboBox;
+extern struct RuntimeClass class_object_UGUIComponent;
+extern struct RuntimeClass class_object_UGUIController;
+extern struct RuntimeClass class_object_UGUIEditBox;
+extern struct RuntimeClass class_object_UGUIFont;
+extern struct RuntimeClass class_object_UGUIGFXButton;
+extern struct RuntimeClass class_object_UGUIHorzGripButton;
+extern struct RuntimeClass class_object_UGUIHorzList;
+extern struct RuntimeClass class_object_UGUIHorzScrollBar;
+extern struct RuntimeClass class_object_UGUIHorzScrollButton;
+extern struct RuntimeClass class_object_UGUIHorzScrollZone;
+extern struct RuntimeClass class_object_UGUIImage;
+extern struct RuntimeClass class_object_UGUILabel;
+extern struct RuntimeClass class_object_UGUILabelPad;
+extern struct RuntimeClass class_object_UGUIList;
+extern struct RuntimeClass class_object_UGUIListBase;
+extern struct RuntimeClass class_object_UGUIListBox;
+extern struct RuntimeClass class_object_UGUIListBoxBase;
+extern struct RuntimeClass class_object_UGUIListFriends;
+extern struct RuntimeClass class_object_UGUIMOTDInfoBox;
+extern struct RuntimeClass class_object_UGUIMenuOption;
+extern struct RuntimeClass class_object_UGUIMultiColumnList;
+extern struct RuntimeClass class_object_UGUIMultiColumnListBox;
+extern struct RuntimeClass class_object_UGUIMultiColumnListHeader;
+extern struct RuntimeClass class_object_UGUIMultiComponent;
+extern struct RuntimeClass class_object_UGUIMultiPageLabel;
+extern struct RuntimeClass class_object_UGUIMultiPageLabelBox;
+extern struct RuntimeClass class_object_UGUINumericEdit;
+extern struct RuntimeClass class_object_UGUIPage;
+extern struct RuntimeClass class_object_UGUIPageWaitLaunch;
+extern struct RuntimeClass class_object_UGUIPanel;
+extern struct RuntimeClass class_object_UGUIProgressBar;
+extern struct RuntimeClass class_object_UGUIScrollBarBase;
+extern struct RuntimeClass class_object_UGUIScrollText;
+extern struct RuntimeClass class_object_UGUIScrollTextBox;
+extern struct RuntimeClass class_object_UGUISearchFilterBox;
+extern struct RuntimeClass class_object_UGUISessionInfoBox;
+extern struct RuntimeClass class_object_UGUISlider;
+extern struct RuntimeClass class_object_UGUISpinnerButton;
+extern struct RuntimeClass class_object_UGUISplitter;
+extern struct RuntimeClass class_object_UGUIStyles;
+extern struct RuntimeClass class_object_UGUITabButton;
+extern struct RuntimeClass class_object_UGUITabControl;
+extern struct RuntimeClass class_object_UGUITabPanel;
+extern struct RuntimeClass class_object_UGUITitleBar;
+extern struct RuntimeClass class_object_UGUIVertGripButton;
+extern struct RuntimeClass class_object_UGUIVertList;
+extern struct RuntimeClass class_object_UGUIVertScrollBar;
+extern struct RuntimeClass class_object_UGUIVertScrollBarLabel;
+extern struct RuntimeClass class_object_UGUIVertScrollButton;
+extern struct RuntimeClass class_object_UGUIVertScrollZone;
+extern struct RuntimeClass class_object_UGameEngine;
+extern struct RuntimeClass class_object_UGameServiceSubsystem;
+extern struct RuntimeClass class_object_UGlobalTempObjects;
+extern struct RuntimeClass class_object_UHeatTextureModifier;
+extern struct RuntimeClass class_object_UIndexBuffer;
+extern struct RuntimeClass class_object_UInput;
+extern struct RuntimeClass class_object_UIntProperty;
+extern struct RuntimeClass class_object_UInteraction;
+extern struct RuntimeClass class_object_UInteractionMaster;
+extern struct RuntimeClass class_object_UInteractions;
+extern struct RuntimeClass class_object_ULANErrorHandler;
+extern struct RuntimeClass class_object_ULanguage;
+extern struct RuntimeClass class_object_ULevel;
+extern struct RuntimeClass class_object_ULevelBase;
+extern struct RuntimeClass class_object_ULevelSummary;
+extern struct RuntimeClass class_object_ULinker;
+extern struct RuntimeClass class_object_ULinkerLoad;
+extern struct RuntimeClass class_object_ULinkerSave;
+extern struct RuntimeClass class_object_ULitSpecularMaterial;
+extern struct RuntimeClass class_object_ULodMesh;
+extern struct RuntimeClass class_object_ULodMeshInstance;
+extern struct RuntimeClass class_object_UMagmaInteraction;
+extern struct RuntimeClass class_object_UMapProperty;
+extern struct RuntimeClass class_object_UMatchInfo;
+extern struct RuntimeClass class_object_UMatchmakingSubsystem;
+extern struct RuntimeClass class_object_UMaterial;
+extern struct RuntimeClass class_object_UMaterialSequence;
+extern struct RuntimeClass class_object_UMaterialSwitch;
+extern struct RuntimeClass class_object_UMenuManager;
+extern struct RuntimeClass class_object_UMenuManagerSubsystem;
+extern struct RuntimeClass class_object_UMesh;
+extern struct RuntimeClass class_object_UMeshAnimation;
+extern struct RuntimeClass class_object_UMeshEmitter;
+extern struct RuntimeClass class_object_UMeshInstance;
+extern struct RuntimeClass class_object_UMeshObject;
+extern struct RuntimeClass class_object_UModel;
+extern struct RuntimeClass class_object_UModifier;
+extern struct RuntimeClass class_object_UNameProperty;
+extern struct RuntimeClass class_object_UNetConnection;
+extern struct RuntimeClass class_object_UNetDriver;
+extern struct RuntimeClass class_object_UNetPendingLevel;
+extern struct RuntimeClass class_object_UNullRenderDevice;
+extern struct RuntimeClass class_object_UObject;
+extern struct RuntimeClass class_object_UObjectExporterT3D;
+extern struct RuntimeClass class_object_UObjectProperty;
+extern struct RuntimeClass class_object_UOpacityModifier;
+extern struct RuntimeClass class_object_UPCSaveGameDevice;
+extern struct RuntimeClass class_object_UPackage;
+extern struct RuntimeClass class_object_UPackageMap;
+extern struct RuntimeClass class_object_UPackageMapLevel;
+extern struct RuntimeClass class_object_UPalette;
+extern struct RuntimeClass class_object_UParticleEmitter;
+extern struct RuntimeClass class_object_UParticleMaterial;
+extern struct RuntimeClass class_object_UPendingLevel;
+extern struct RuntimeClass class_object_UPersistentData;
+extern struct RuntimeClass class_object_UPlayer;
+extern struct RuntimeClass class_object_UPlayerInput;
+extern struct RuntimeClass class_object_UPolys;
+extern struct RuntimeClass class_object_UPrimitive;
+extern struct RuntimeClass class_object_UProjectorMaterial;
+extern struct RuntimeClass class_object_UProjectorPrimitive;
+extern struct RuntimeClass class_object_UProperty;
+extern struct RuntimeClass class_object_UProxyBitmapMaterial;
+extern struct RuntimeClass class_object_URenderDevice;
+extern struct RuntimeClass class_object_URenderResource;
+extern struct RuntimeClass class_object_URenderedMaterial;
+extern struct RuntimeClass class_object_USMapSettings;
+extern struct RuntimeClass class_object_USMatchInfo;
+extern struct RuntimeClass class_object_USPersistentData;
+extern struct RuntimeClass class_object_USPlayerProfile;
+extern struct RuntimeClass class_object_USXBoxLiveRef;
+extern struct RuntimeClass class_object_USaveGameDevice;
+extern struct RuntimeClass class_object_UScriptedTexture;
+extern struct RuntimeClass class_object_UServerCommandlet;
+extern struct RuntimeClass class_object_UShader;
+extern struct RuntimeClass class_object_UShadowBitmapMaterial;
+extern struct RuntimeClass class_object_USkeletalMesh;
+extern struct RuntimeClass class_object_USkeletalMeshInstance;
+extern struct RuntimeClass class_object_USkinVertexBuffer;
+extern struct RuntimeClass class_object_USparkEmitter;
+extern struct RuntimeClass class_object_USpecialVisionTextureModifier;
+extern struct RuntimeClass class_object_USpriteEmitter;
+extern struct RuntimeClass class_object_UState;
+extern struct RuntimeClass class_object_UStaticMesh;
+extern struct RuntimeClass class_object_UStaticMeshInstance;
+extern struct RuntimeClass class_object_UStrProperty;
+extern struct RuntimeClass class_object_UStrategicMap;
+extern struct RuntimeClass class_object_UStruct;
+extern struct RuntimeClass class_object_UStructProperty;
+extern struct RuntimeClass class_object_USubsystem;
+extern struct RuntimeClass class_object_USystem;
+extern struct RuntimeClass class_object_UTcpNetDriver;
+extern struct RuntimeClass class_object_UTcpipConnection;
+extern struct RuntimeClass class_object_UTexCoordMaterial;
+extern struct RuntimeClass class_object_UTexCoordSource;
+extern struct RuntimeClass class_object_UTexEnvMap;
+extern struct RuntimeClass class_object_UTexFriendlyPanner;
+extern struct RuntimeClass class_object_UTexMatrix;
+extern struct RuntimeClass class_object_UTexModifier;
+extern struct RuntimeClass class_object_UTexOscillator;
+extern struct RuntimeClass class_object_UTexOscillatorTriggered;
+extern struct RuntimeClass class_object_UTexPanner;
+extern struct RuntimeClass class_object_UTexPannerTriggered;
+extern struct RuntimeClass class_object_UTexRotator;
+extern struct RuntimeClass class_object_UTexScaler;
+extern struct RuntimeClass class_object_UTextBuffer;
+extern struct RuntimeClass class_object_UTextBufferFactory;
+extern struct RuntimeClass class_object_UTexture;
+extern struct RuntimeClass class_object_UTrailEmitter;
+extern struct RuntimeClass class_object_UUNIAudioSubsystem;
+extern struct RuntimeClass class_object_UVertMesh;
+extern struct RuntimeClass class_object_UVertMeshInstance;
+extern struct RuntimeClass class_object_UVertexBuffer;
+extern struct RuntimeClass class_object_UVertexColor;
+extern struct RuntimeClass class_object_UVertexStreamBase;
+extern struct RuntimeClass class_object_UVertexStreamPosNormTex;
+extern struct RuntimeClass class_object_UVertexStreamUV;
+extern struct RuntimeClass class_object_UVertexStreamVECTOR;
+extern struct RuntimeClass class_object_UViewport;
+extern struct RuntimeClass class_object_UWindowManager;
+extern struct RuntimeClass class_object_UWindowsClient;
+extern struct RuntimeClass class_object_UWindowsViewport;
+extern struct RuntimeClass class_object_UmoEditBox;
+extern struct RuntimeClass class_object_UmoImageListMap;
+extern struct RuntimeClass class_object_UmoListEditBox;
+extern struct RuntimeClass class_object_UmoListEditBox_GameMode;
+extern struct StaticRecord exit_object_374e2c;
+extern struct StaticRecord exit_object_374f00;
+extern struct StaticRecord exit_object_375054;
+extern struct StaticRecord exit_object_397760;
+extern struct StaticRecord exit_object_3a7780;
+extern struct StaticRecord exit_object_3a778c;
+extern struct StaticRecord exit_object_3a7798;
+extern struct StaticRecord exit_object_3a77a4;
+extern struct StaticRecord exit_object_3a77b0;
+extern struct StaticRecord exit_object_3a77bc;
+extern struct StaticRecord exit_object_3a77c8;
+extern struct StaticRecord exit_object_3a77d4;
+extern struct StaticRecord exit_object_3a77e0;
+extern struct StaticRecord exit_object_3b785c;
+extern struct StaticRecord exit_object_3bcdcc;
+extern struct StaticRecord exit_object_3bf770;
+extern struct StaticRecord exit_object_3c9e68;
+extern struct StaticRecord exit_object_3c9e8c;
+extern void __fastcall destroy_record_0048b0(struct StaticRecord *object);
+extern void __fastcall destroy_record_01ef20(struct StaticRecord *object);
+extern void __fastcall destroy_record_0cddd0(struct StaticRecord *object);
+extern void __fastcall destroy_record_22fe20(struct StaticRecord *object);
+extern void __fastcall destroy_record_262b80(struct StaticRecord *object);
+extern void __fastcall destroy_record_283ea8(struct StaticRecord *object);
+extern void __fastcall destroy_runtime_class(struct RuntimeClass *object);
+
+FINALIZE_RECORD(finalize_record_r25cd60, destroy_record_262b80, exit_object_374f00)
+FINALIZE_RECORD(finalize_class_USystem, destroy_runtime_class, class_object_USystem)
+FINALIZE_RECORD(finalize_record_r2dc6f0, destroy_record_01ef20, exit_object_3c9e8c)
+FINALIZE_RECORD(finalize_class_UObject, destroy_runtime_class, class_object_UObject)
+FINALIZE_RECORD(finalize_class_UTextBuffer, destroy_runtime_class, class_object_UTextBuffer)
+FINALIZE_RECORD(finalize_class_UEnum, destroy_runtime_class, class_object_UEnum)
+FINALIZE_RECORD(finalize_class_ULinker, destroy_runtime_class, class_object_ULinker)
+FINALIZE_RECORD(finalize_class_ULinkerLoad, destroy_runtime_class, class_object_ULinkerLoad)
+FINALIZE_RECORD(finalize_class_ULinkerSave, destroy_runtime_class, class_object_ULinkerSave)
+FINALIZE_RECORD(finalize_class_USubsystem, destroy_runtime_class, class_object_USubsystem)
+FINALIZE_RECORD(finalize_class_UCommandlet, destroy_runtime_class, class_object_UCommandlet)
+FINALIZE_RECORD(finalize_class_UPackage, destroy_runtime_class, class_object_UPackage)
+FINALIZE_RECORD(finalize_class_UTextBufferFactory, destroy_runtime_class, class_object_UTextBufferFactory)
+FINALIZE_RECORD(finalize_class_ULanguage, destroy_runtime_class, class_object_ULanguage)
+FINALIZE_RECORD(finalize_record_r2dc810, destroy_record_01ef20, exit_object_3c9e68)
+FINALIZE_RECORD(finalize_class_UField, destroy_runtime_class, class_object_UField)
+FINALIZE_RECORD(finalize_class_UStruct, destroy_runtime_class, class_object_UStruct)
+FINALIZE_RECORD(finalize_class_UState, destroy_runtime_class, class_object_UState)
+FINALIZE_RECORD(finalize_class_UClass, destroy_runtime_class, class_object_UClass)
+FINALIZE_RECORD(finalize_class_UFunction, destroy_runtime_class, class_object_UFunction)
+FINALIZE_RECORD(finalize_class_UConst, destroy_runtime_class, class_object_UConst)
+FINALIZE_RECORD(finalize_class_UExporter, destroy_runtime_class, class_object_UExporter)
+FINALIZE_RECORD(finalize_class_UObjectExporterT3D, destroy_runtime_class, class_object_UObjectExporterT3D)
+FINALIZE_RECORD(finalize_class_UProperty, destroy_runtime_class, class_object_UProperty)
+FINALIZE_RECORD(finalize_class_UByteProperty, destroy_runtime_class, class_object_UByteProperty)
+FINALIZE_RECORD(finalize_class_UIntProperty, destroy_runtime_class, class_object_UIntProperty)
+FINALIZE_RECORD(finalize_class_UDelegateProperty, destroy_runtime_class, class_object_UDelegateProperty)
+FINALIZE_RECORD(finalize_class_UBoolProperty, destroy_runtime_class, class_object_UBoolProperty)
+FINALIZE_RECORD(finalize_class_UFloatProperty, destroy_runtime_class, class_object_UFloatProperty)
+FINALIZE_RECORD(finalize_class_UObjectProperty, destroy_runtime_class, class_object_UObjectProperty)
+FINALIZE_RECORD(finalize_class_UClassProperty, destroy_runtime_class, class_object_UClassProperty)
+FINALIZE_RECORD(finalize_class_UNameProperty, destroy_runtime_class, class_object_UNameProperty)
+FINALIZE_RECORD(finalize_class_UStrProperty, destroy_runtime_class, class_object_UStrProperty)
+FINALIZE_RECORD(finalize_class_UFixedArrayProperty, destroy_runtime_class, class_object_UFixedArrayProperty)
+FINALIZE_RECORD(finalize_class_UArrayProperty, destroy_runtime_class, class_object_UArrayProperty)
+FINALIZE_RECORD(finalize_class_UMapProperty, destroy_runtime_class, class_object_UMapProperty)
+FINALIZE_RECORD(finalize_class_UStructProperty, destroy_runtime_class, class_object_UStructProperty)
+FINALIZE_RECORD(finalize_class_UFactory, destroy_runtime_class, class_object_UFactory)
+FINALIZE_RECORD(finalize_class_UPackageMap, destroy_runtime_class, class_object_UPackageMap)
+FINALIZE_RECORD(finalize_class_UD3DRenderDevice, destroy_runtime_class, class_object_UD3DRenderDevice)
+FINALIZE_RECORD(finalize_class_ASecurity, destroy_runtime_class, class_object_ASecurity)
+FINALIZE_RECORD(finalize_class_UMeshEmitter, destroy_runtime_class, class_object_UMeshEmitter)
+FINALIZE_RECORD(finalize_class_UVertMesh, destroy_runtime_class, class_object_UVertMesh)
+FINALIZE_RECORD(finalize_class_UVertMeshInstance, destroy_runtime_class, class_object_UVertMeshInstance)
+FINALIZE_RECORD(finalize_class_USpriteEmitter, destroy_runtime_class, class_object_USpriteEmitter)
+FINALIZE_RECORD(finalize_class_ASImpactManager, destroy_runtime_class, class_object_ASImpactManager)
+FINALIZE_RECORD(finalize_class_AActor, destroy_runtime_class, class_object_AActor)
+FINALIZE_RECORD(finalize_class_ALight, destroy_runtime_class, class_object_ALight)
+FINALIZE_RECORD(finalize_class_ANote, destroy_runtime_class, class_object_ANote)
+FINALIZE_RECORD(finalize_class_ALevelInfo, destroy_runtime_class, class_object_ALevelInfo)
+FINALIZE_RECORD(finalize_class_AGameInfo, destroy_runtime_class, class_object_AGameInfo)
+FINALIZE_RECORD(finalize_class_ACamera, destroy_runtime_class, class_object_ACamera)
+FINALIZE_RECORD(finalize_class_AZoneInfo, destroy_runtime_class, class_object_AZoneInfo)
+FINALIZE_RECORD(finalize_class_ASkyZoneInfo, destroy_runtime_class, class_object_ASkyZoneInfo)
+FINALIZE_RECORD(finalize_class_ADecoration, destroy_runtime_class, class_object_ADecoration)
+FINALIZE_RECORD(finalize_class_AProjectile, destroy_runtime_class, class_object_AProjectile)
+FINALIZE_RECORD(finalize_class_APlayerStart, destroy_runtime_class, class_object_APlayerStart)
+FINALIZE_RECORD(finalize_class_AKeypoint, destroy_runtime_class, class_object_AKeypoint)
+FINALIZE_RECORD(finalize_class_ATriggers, destroy_runtime_class, class_object_ATriggers)
+FINALIZE_RECORD(finalize_class_ATrigger, destroy_runtime_class, class_object_ATrigger)
+FINALIZE_RECORD(finalize_class_AHUD, destroy_runtime_class, class_object_AHUD)
+FINALIZE_RECORD(finalize_class_AInfo, destroy_runtime_class, class_object_AInfo)
+FINALIZE_RECORD(finalize_class_ALocalMessage, destroy_runtime_class, class_object_ALocalMessage)
+FINALIZE_RECORD(finalize_class_AReplicationInfo, destroy_runtime_class, class_object_AReplicationInfo)
+FINALIZE_RECORD(finalize_class_AMotionTrackingVision, destroy_runtime_class, class_object_AMotionTrackingVision)
+FINALIZE_RECORD(finalize_class_APlayerReplicationInfo, destroy_runtime_class, class_object_APlayerReplicationInfo)
+FINALIZE_RECORD(finalize_class_AInternetInfo, destroy_runtime_class, class_object_AInternetInfo)
+FINALIZE_RECORD(finalize_class_AGameReplicationInfo, destroy_runtime_class, class_object_AGameReplicationInfo)
+FINALIZE_RECORD(finalize_class_ULevelSummary, destroy_runtime_class, class_object_ULevelSummary)
+FINALIZE_RECORD(finalize_class_AController, destroy_runtime_class, class_object_AController)
+FINALIZE_RECORD(finalize_class_APlayerController, destroy_runtime_class, class_object_APlayerController)
+FINALIZE_RECORD(finalize_class_ABrush, destroy_runtime_class, class_object_ABrush)
+FINALIZE_RECORD(finalize_class_ALineOfSightTrigger, destroy_runtime_class, class_object_ALineOfSightTrigger)
+FINALIZE_RECORD(finalize_class_AVolume, destroy_runtime_class, class_object_AVolume)
+FINALIZE_RECORD(finalize_class_ABlockingVolume, destroy_runtime_class, class_object_ABlockingVolume)
+FINALIZE_RECORD(finalize_class_ATeamInfo, destroy_runtime_class, class_object_ATeamInfo)
+FINALIZE_RECORD(finalize_class_AAntiPortalActor, destroy_runtime_class, class_object_AAntiPortalActor)
+FINALIZE_RECORD(finalize_class_ACarriedObject, destroy_runtime_class, class_object_ACarriedObject)
+FINALIZE_RECORD(finalize_class_ASLogManager, destroy_runtime_class, class_object_ASLogManager)
+FINALIZE_RECORD(finalize_class_AInventory, destroy_runtime_class, class_object_AInventory)
+FINALIZE_RECORD(finalize_class_AEffects, destroy_runtime_class, class_object_AEffects)
+FINALIZE_RECORD(finalize_class_ASImpactEffectBase, destroy_runtime_class, class_object_ASImpactEffectBase)
+FINALIZE_RECORD(finalize_class_ASBulletImpact, destroy_runtime_class, class_object_ASBulletImpact)
+FINALIZE_RECORD(finalize_class_UMatchInfo, destroy_runtime_class, class_object_UMatchInfo)
+FINALIZE_RECORD(finalize_class_AMoverRotating, destroy_runtime_class, class_object_AMoverRotating)
+FINALIZE_RECORD(finalize_class_UEngine, destroy_runtime_class, class_object_UEngine)
+FINALIZE_RECORD(finalize_class_URenderDevice, destroy_runtime_class, class_object_URenderDevice)
+FINALIZE_RECORD(finalize_class_UServerCommandlet, destroy_runtime_class, class_object_UServerCommandlet)
+FINALIZE_RECORD(finalize_class_UGlobalTempObjects, destroy_runtime_class, class_object_UGlobalTempObjects)
+FINALIZE_RECORD(finalize_class_UMaterial, destroy_runtime_class, class_object_UMaterial)
+FINALIZE_RECORD(finalize_class_UBitmapMaterial, destroy_runtime_class, class_object_UBitmapMaterial)
+FINALIZE_RECORD(finalize_class_UProxyBitmapMaterial, destroy_runtime_class, class_object_UProxyBitmapMaterial)
+FINALIZE_RECORD(finalize_class_URenderedMaterial, destroy_runtime_class, class_object_URenderedMaterial)
+FINALIZE_RECORD(finalize_class_UTexCoordMaterial, destroy_runtime_class, class_object_UTexCoordMaterial)
+FINALIZE_RECORD(finalize_class_UColorModifier, destroy_runtime_class, class_object_UColorModifier)
+FINALIZE_RECORD(finalize_class_UEchelonLightingMaterial, destroy_runtime_class, class_object_UEchelonLightingMaterial)
+FINALIZE_RECORD(finalize_class_UShader, destroy_runtime_class, class_object_UShader)
+FINALIZE_RECORD(finalize_class_ULitSpecularMaterial, destroy_runtime_class, class_object_ULitSpecularMaterial)
+FINALIZE_RECORD(finalize_class_UCombiner, destroy_runtime_class, class_object_UCombiner)
+FINALIZE_RECORD(finalize_class_UConstantMaterial, destroy_runtime_class, class_object_UConstantMaterial)
+FINALIZE_RECORD(finalize_class_UConstantColor, destroy_runtime_class, class_object_UConstantColor)
+FINALIZE_RECORD(finalize_class_UFadeColor, destroy_runtime_class, class_object_UFadeColor)
+FINALIZE_RECORD(finalize_class_UModifier, destroy_runtime_class, class_object_UModifier)
+FINALIZE_RECORD(finalize_class_UTexModifier, destroy_runtime_class, class_object_UTexModifier)
+FINALIZE_RECORD(finalize_class_UTexPannerTriggered, destroy_runtime_class, class_object_UTexPannerTriggered)
+FINALIZE_RECORD(finalize_class_UTexPanner, destroy_runtime_class, class_object_UTexPanner)
+FINALIZE_RECORD(finalize_class_UTexFriendlyPanner, destroy_runtime_class, class_object_UTexFriendlyPanner)
+FINALIZE_RECORD(finalize_class_UTexScaler, destroy_runtime_class, class_object_UTexScaler)
+FINALIZE_RECORD(finalize_class_UTexRotator, destroy_runtime_class, class_object_UTexRotator)
+FINALIZE_RECORD(finalize_class_UTexOscillatorTriggered, destroy_runtime_class, class_object_UTexOscillatorTriggered)
+FINALIZE_RECORD(finalize_class_UTexOscillator, destroy_runtime_class, class_object_UTexOscillator)
+FINALIZE_RECORD(finalize_class_UTexEnvMap, destroy_runtime_class, class_object_UTexEnvMap)
+FINALIZE_RECORD(finalize_class_UTexMatrix, destroy_runtime_class, class_object_UTexMatrix)
+FINALIZE_RECORD(finalize_class_UTexCoordSource, destroy_runtime_class, class_object_UTexCoordSource)
+FINALIZE_RECORD(finalize_class_UVertexColor, destroy_runtime_class, class_object_UVertexColor)
+FINALIZE_RECORD(finalize_class_UFinalBlend, destroy_runtime_class, class_object_UFinalBlend)
+FINALIZE_RECORD(finalize_class_UMaterialSwitch, destroy_runtime_class, class_object_UMaterialSwitch)
+FINALIZE_RECORD(finalize_class_UMaterialSequence, destroy_runtime_class, class_object_UMaterialSequence)
+FINALIZE_RECORD(finalize_class_UHeatTextureModifier, destroy_runtime_class, class_object_UHeatTextureModifier)
+FINALIZE_RECORD(finalize_class_UEMFTextureModifier, destroy_runtime_class, class_object_UEMFTextureModifier)
+FINALIZE_RECORD(finalize_class_USpecialVisionTextureModifier, destroy_runtime_class, class_object_USpecialVisionTextureModifier)
+FINALIZE_RECORD(finalize_class_UEMFChannelTextures, destroy_runtime_class, class_object_UEMFChannelTextures)
+FINALIZE_RECORD(finalize_class_UOpacityModifier, destroy_runtime_class, class_object_UOpacityModifier)
+FINALIZE_RECORD(finalize_class_UMeshObject, destroy_runtime_class, class_object_UMeshObject)
+FINALIZE_RECORD(finalize_class_URenderResource, destroy_runtime_class, class_object_URenderResource)
+FINALIZE_RECORD(finalize_class_UVertexStreamBase, destroy_runtime_class, class_object_UVertexStreamBase)
+FINALIZE_RECORD(finalize_class_UVertexStreamVECTOR, destroy_runtime_class, class_object_UVertexStreamVECTOR)
+FINALIZE_RECORD(finalize_class_UVertexStreamUV, destroy_runtime_class, class_object_UVertexStreamUV)
+FINALIZE_RECORD(finalize_class_UVertexStreamPosNormTex, destroy_runtime_class, class_object_UVertexStreamPosNormTex)
+FINALIZE_RECORD(finalize_class_UVertexBuffer, destroy_runtime_class, class_object_UVertexBuffer)
+FINALIZE_RECORD(finalize_class_UIndexBuffer, destroy_runtime_class, class_object_UIndexBuffer)
+FINALIZE_RECORD(finalize_class_USkinVertexBuffer, destroy_runtime_class, class_object_USkinVertexBuffer)
+FINALIZE_RECORD(finalize_class_UESoftBody, destroy_runtime_class, class_object_UESoftBody)
+FINALIZE_RECORD(finalize_class_AEmitter, destroy_runtime_class, class_object_AEmitter)
+FINALIZE_RECORD(finalize_class_UParticleMaterial, destroy_runtime_class, class_object_UParticleMaterial)
+FINALIZE_RECORD(finalize_class_ULodMeshInstance, destroy_runtime_class, class_object_ULodMeshInstance)
+FINALIZE_RECORD(finalize_class_ULodMesh, destroy_runtime_class, class_object_ULodMesh)
+FINALIZE_RECORD(finalize_class_UNullRenderDevice, destroy_runtime_class, class_object_UNullRenderDevice)
+FINALIZE_RECORD(finalize_class_AMover, destroy_runtime_class, class_object_AMover)
+FINALIZE_RECORD(finalize_class_APawn, destroy_runtime_class, class_object_APawn)
+FINALIZE_RECORD(finalize_class_UBeamEmitter, destroy_runtime_class, class_object_UBeamEmitter)
+FINALIZE_RECORD(finalize_class_UMeshAnimation, destroy_runtime_class, class_object_UMeshAnimation)
+FINALIZE_RECORD(finalize_class_UAnimation, destroy_runtime_class, class_object_UAnimation)
+FINALIZE_RECORD(finalize_class_USkeletalMesh, destroy_runtime_class, class_object_USkeletalMesh)
+FINALIZE_RECORD(finalize_class_USkeletalMeshInstance, destroy_runtime_class, class_object_USkeletalMeshInstance)
+FINALIZE_RECORD(finalize_class_UAnimNotify, destroy_runtime_class, class_object_UAnimNotify)
+FINALIZE_RECORD(finalize_class_UAnimNotify_Effect, destroy_runtime_class, class_object_UAnimNotify_Effect)
+FINALIZE_RECORD(finalize_class_UAnimNotify_DestroyEffect, destroy_runtime_class, class_object_UAnimNotify_DestroyEffect)
+FINALIZE_RECORD(finalize_class_UAnimNotify_Sound, destroy_runtime_class, class_object_UAnimNotify_Sound)
+FINALIZE_RECORD(finalize_class_UAnimNotify_StopSound, destroy_runtime_class, class_object_UAnimNotify_StopSound)
+FINALIZE_RECORD(finalize_class_UAnimNotify_Script, destroy_runtime_class, class_object_UAnimNotify_Script)
+FINALIZE_RECORD(finalize_class_UAnimNotify_Scripted, destroy_runtime_class, class_object_UAnimNotify_Scripted)
+FINALIZE_RECORD(finalize_class_UTrailEmitter, destroy_runtime_class, class_object_UTrailEmitter)
+FINALIZE_RECORD(finalize_class_UProjectorPrimitive, destroy_runtime_class, class_object_UProjectorPrimitive)
+FINALIZE_RECORD(finalize_class_AProjector, destroy_runtime_class, class_object_AProjector)
+FINALIZE_RECORD(finalize_class_AShadowProjector, destroy_runtime_class, class_object_AShadowProjector)
+FINALIZE_RECORD(finalize_class_UProjectorMaterial, destroy_runtime_class, class_object_UProjectorMaterial)
+FINALIZE_RECORD(finalize_class_UInteraction, destroy_runtime_class, class_object_UInteraction)
+FINALIZE_RECORD(finalize_class_UConsole, destroy_runtime_class, class_object_UConsole)
+FINALIZE_RECORD(finalize_class_UBaseGUIController, destroy_runtime_class, class_object_UBaseGUIController)
+FINALIZE_RECORD(finalize_class_UPendingLevel, destroy_runtime_class, class_object_UPendingLevel)
+FINALIZE_RECORD(finalize_class_UNetPendingLevel, destroy_runtime_class, class_object_UNetPendingLevel)
+FINALIZE_RECORD(finalize_class_UStaticMesh, destroy_runtime_class, class_object_UStaticMesh)
+FINALIZE_RECORD(finalize_class_UStaticMeshInstance, destroy_runtime_class, class_object_UStaticMeshInstance)
+FINALIZE_RECORD(finalize_class_AStaticMeshActor, destroy_runtime_class, class_object_AStaticMeshActor)
+FINALIZE_RECORD(finalize_record_r2dd1a0, destroy_record_0cddd0, exit_object_3bf770)
+FINALIZE_RECORD(finalize_class_ADecorationList, destroy_runtime_class, class_object_ADecorationList)
+FINALIZE_RECORD(finalize_class_ADecoVolumeObject, destroy_runtime_class, class_object_ADecoVolumeObject)
+FINALIZE_RECORD(finalize_class_UMeshInstance, destroy_runtime_class, class_object_UMeshInstance)
+FINALIZE_RECORD(finalize_class_UMesh, destroy_runtime_class, class_object_UMesh)
+FINALIZE_RECORD(finalize_class_UChannel, destroy_runtime_class, class_object_UChannel)
+FINALIZE_RECORD(finalize_class_UControlChannel, destroy_runtime_class, class_object_UControlChannel)
+FINALIZE_RECORD(finalize_class_UActorChannel, destroy_runtime_class, class_object_UActorChannel)
+FINALIZE_RECORD(finalize_class_AESoftBodyActor, destroy_runtime_class, class_object_AESoftBodyActor)
+FINALIZE_RECORD(finalize_class_UClient, destroy_runtime_class, class_object_UClient)
+FINALIZE_RECORD(finalize_class_UPersistentData, destroy_runtime_class, class_object_UPersistentData)
+FINALIZE_RECORD(finalize_class_UShadowBitmapMaterial, destroy_runtime_class, class_object_UShadowBitmapMaterial)
+FINALIZE_RECORD(finalize_class_USaveGameDevice, destroy_runtime_class, class_object_USaveGameDevice)
+FINALIZE_RECORD(finalize_class_UScriptedTexture, destroy_runtime_class, class_object_UScriptedTexture)
+FINALIZE_RECORD(finalize_class_UPolys, destroy_runtime_class, class_object_UPolys)
+FINALIZE_RECORD(finalize_class_UGameEngine, destroy_runtime_class, class_object_UGameEngine)
+FINALIZE_RECORD(finalize_class_UPackageMapLevel, destroy_runtime_class, class_object_UPackageMapLevel)
+FINALIZE_RECORD(finalize_class_UNetDriver, destroy_runtime_class, class_object_UNetDriver)
+FINALIZE_RECORD(finalize_class_AFileLog, destroy_runtime_class, class_object_AFileLog)
+FINALIZE_RECORD(finalize_class_UCheatManager, destroy_runtime_class, class_object_UCheatManager)
+FINALIZE_RECORD(finalize_class_UPlayerInput, destroy_runtime_class, class_object_UPlayerInput)
+FINALIZE_RECORD(finalize_class_AGameStats, destroy_runtime_class, class_object_AGameStats)
+FINALIZE_RECORD(finalize_class_UTexture, destroy_runtime_class, class_object_UTexture)
+FINALIZE_RECORD(finalize_class_UPalette, destroy_runtime_class, class_object_UPalette)
+FINALIZE_RECORD(finalize_class_UCubemap, destroy_runtime_class, class_object_UCubemap)
+FINALIZE_RECORD(finalize_class_ULevelBase, destroy_runtime_class, class_object_ULevelBase)
+FINALIZE_RECORD(finalize_class_ULevel, destroy_runtime_class, class_object_ULevel)
+FINALIZE_RECORD(finalize_class_UParticleEmitter, destroy_runtime_class, class_object_UParticleEmitter)
+FINALIZE_RECORD(finalize_class_UInput, destroy_runtime_class, class_object_UInput)
+FINALIZE_RECORD(finalize_class_UCanvas, destroy_runtime_class, class_object_UCanvas)
+FINALIZE_RECORD(finalize_class_USparkEmitter, destroy_runtime_class, class_object_USparkEmitter)
+FINALIZE_RECORD(finalize_class_AERainVolume, destroy_runtime_class, class_object_AERainVolume)
+FINALIZE_RECORD(finalize_class_UERainPrimitive, destroy_runtime_class, class_object_UERainPrimitive)
+FINALIZE_RECORD(finalize_class_UPlayer, destroy_runtime_class, class_object_UPlayer)
+FINALIZE_RECORD(finalize_class_UFlicFlocEmitter, destroy_runtime_class, class_object_UFlicFlocEmitter)
+FINALIZE_RECORD(finalize_class_UModel, destroy_runtime_class, class_object_UModel)
+FINALIZE_RECORD(finalize_record_r2dd420, destroy_record_01ef20, exit_object_3bcdcc)
+FINALIZE_RECORD(finalize_class_UMenuManagerSubsystem, destroy_runtime_class, class_object_UMenuManagerSubsystem)
+FINALIZE_RECORD(finalize_class_UMatchmakingSubsystem, destroy_runtime_class, class_object_UMatchmakingSubsystem)
+FINALIZE_RECORD(finalize_class_UViewport, destroy_runtime_class, class_object_UViewport)
+FINALIZE_RECORD(finalize_class_UConvexVolume, destroy_runtime_class, class_object_UConvexVolume)
+FINALIZE_RECORD(finalize_class_UMagmaInteraction, destroy_runtime_class, class_object_UMagmaInteraction)
+FINALIZE_RECORD(finalize_class_UNetConnection, destroy_runtime_class, class_object_UNetConnection)
+FINALIZE_RECORD(finalize_class_ULANErrorHandler, destroy_runtime_class, class_object_ULANErrorHandler)
+FINALIZE_RECORD(finalize_class_UPrimitive, destroy_runtime_class, class_object_UPrimitive)
+FINALIZE_RECORD(finalize_class_UInteractions, destroy_runtime_class, class_object_UInteractions)
+FINALIZE_RECORD(finalize_class_UInteractionMaster, destroy_runtime_class, class_object_UInteractionMaster)
+FINALIZE_RECORD(finalize_class_UFont, destroy_runtime_class, class_object_UFont)
+FINALIZE_RECORD(finalize_record_r2dd520, destroy_record_0048b0, exit_object_3b785c)
+FINALIZE_RECORD(finalize_record_r2dd540, destroy_record_0048b0, exit_object_3a7780)
+FINALIZE_RECORD(finalize_record_r2dd550, destroy_record_0048b0, exit_object_3a778c)
+FINALIZE_RECORD(finalize_record_r2dd560, destroy_record_0048b0, exit_object_3a7798)
+FINALIZE_RECORD(finalize_record_r2dd570, destroy_record_0048b0, exit_object_3a77a4)
+FINALIZE_RECORD(finalize_record_r2dd580, destroy_record_0048b0, exit_object_3a77b0)
+FINALIZE_RECORD(finalize_record_r2dd590, destroy_record_0048b0, exit_object_3a77bc)
+FINALIZE_RECORD(finalize_record_r2dd5a0, destroy_record_0048b0, exit_object_3a77c8)
+FINALIZE_RECORD(finalize_record_r2dd5b0, destroy_record_0048b0, exit_object_3a77d4)
+FINALIZE_RECORD(finalize_record_r2dd5c0, destroy_record_0048b0, exit_object_3a77e0)
+FINALIZE_RECORD(finalize_class_UGUIController, destroy_runtime_class, class_object_UGUIController)
+FINALIZE_RECORD(finalize_class_UGUI, destroy_runtime_class, class_object_UGUI)
+FINALIZE_RECORD(finalize_class_UGUIComponent, destroy_runtime_class, class_object_UGUIComponent)
+FINALIZE_RECORD(finalize_class_UGUIImage, destroy_runtime_class, class_object_UGUIImage)
+FINALIZE_RECORD(finalize_class_UGUIPage, destroy_runtime_class, class_object_UGUIPage)
+FINALIZE_RECORD(finalize_class_UGUIFont, destroy_runtime_class, class_object_UGUIFont)
+FINALIZE_RECORD(finalize_class_UGUILabel, destroy_runtime_class, class_object_UGUILabel)
+FINALIZE_RECORD(finalize_class_UGUILabelPad, destroy_runtime_class, class_object_UGUILabelPad)
+FINALIZE_RECORD(finalize_class_UGUIButton, destroy_runtime_class, class_object_UGUIButton)
+FINALIZE_RECORD(finalize_class_UGUIGFXButton, destroy_runtime_class, class_object_UGUIGFXButton)
+FINALIZE_RECORD(finalize_class_UGUISpinnerButton, destroy_runtime_class, class_object_UGUISpinnerButton)
+FINALIZE_RECORD(finalize_class_UGUICheckBoxButton, destroy_runtime_class, class_object_UGUICheckBoxButton)
+FINALIZE_RECORD(finalize_class_UGUICheckBox, destroy_runtime_class, class_object_UGUICheckBox)
+FINALIZE_RECORD(finalize_class_UGUIEditBox, destroy_runtime_class, class_object_UGUIEditBox)
+FINALIZE_RECORD(finalize_class_UGUINumericEdit, destroy_runtime_class, class_object_UGUINumericEdit)
+FINALIZE_RECORD(finalize_class_UGUIMultiComponent, destroy_runtime_class, class_object_UGUIMultiComponent)
+FINALIZE_RECORD(finalize_class_UGUIScrollBarBase, destroy_runtime_class, class_object_UGUIScrollBarBase)
+FINALIZE_RECORD(finalize_class_UGUIVertScrollZone, destroy_runtime_class, class_object_UGUIVertScrollZone)
+FINALIZE_RECORD(finalize_class_UGUIVertScrollButton, destroy_runtime_class, class_object_UGUIVertScrollButton)
+FINALIZE_RECORD(finalize_class_UGUIVertGripButton, destroy_runtime_class, class_object_UGUIVertGripButton)
+FINALIZE_RECORD(finalize_class_UGUIVertScrollBar, destroy_runtime_class, class_object_UGUIVertScrollBar)
+FINALIZE_RECORD(finalize_class_UGUIHorzScrollZone, destroy_runtime_class, class_object_UGUIHorzScrollZone)
+FINALIZE_RECORD(finalize_class_UGUIHorzScrollButton, destroy_runtime_class, class_object_UGUIHorzScrollButton)
+FINALIZE_RECORD(finalize_class_UGUIHorzGripButton, destroy_runtime_class, class_object_UGUIHorzGripButton)
+FINALIZE_RECORD(finalize_class_UGUIHorzScrollBar, destroy_runtime_class, class_object_UGUIHorzScrollBar)
+FINALIZE_RECORD(finalize_class_UGUIListBoxBase, destroy_runtime_class, class_object_UGUIListBoxBase)
+FINALIZE_RECORD(finalize_class_UGUIListBox, destroy_runtime_class, class_object_UGUIListBox)
+FINALIZE_RECORD(finalize_class_UGUIMultiColumnListBox, destroy_runtime_class, class_object_UGUIMultiColumnListBox)
+FINALIZE_RECORD(finalize_class_UGUIPanel, destroy_runtime_class, class_object_UGUIPanel)
+FINALIZE_RECORD(finalize_class_UGUIListBase, destroy_runtime_class, class_object_UGUIListBase)
+FINALIZE_RECORD(finalize_class_UGUIList, destroy_runtime_class, class_object_UGUIList)
+FINALIZE_RECORD(finalize_class_UGUIListFriends, destroy_runtime_class, class_object_UGUIListFriends)
+FINALIZE_RECORD(finalize_class_UGUIMultiColumnList, destroy_runtime_class, class_object_UGUIMultiColumnList)
+FINALIZE_RECORD(finalize_class_UGUIMultiColumnListHeader, destroy_runtime_class, class_object_UGUIMultiColumnListHeader)
+FINALIZE_RECORD(finalize_class_UGUIStyles, destroy_runtime_class, class_object_UGUIStyles)
+FINALIZE_RECORD(finalize_class_UGUITabControl, destroy_runtime_class, class_object_UGUITabControl)
+FINALIZE_RECORD(finalize_class_UGUITabButton, destroy_runtime_class, class_object_UGUITabButton)
+FINALIZE_RECORD(finalize_class_UGUITabPanel, destroy_runtime_class, class_object_UGUITabPanel)
+FINALIZE_RECORD(finalize_class_UGUIComboBox, destroy_runtime_class, class_object_UGUIComboBox)
+FINALIZE_RECORD(finalize_class_UGUIMenuOption, destroy_runtime_class, class_object_UGUIMenuOption)
+FINALIZE_RECORD(finalize_class_UGUITitleBar, destroy_runtime_class, class_object_UGUITitleBar)
+FINALIZE_RECORD(finalize_class_UGUISplitter, destroy_runtime_class, class_object_UGUISplitter)
+FINALIZE_RECORD(finalize_class_UGUISlider, destroy_runtime_class, class_object_UGUISlider)
+FINALIZE_RECORD(finalize_class_UGUIVertList, destroy_runtime_class, class_object_UGUIVertList)
+FINALIZE_RECORD(finalize_class_UGUIHorzList, destroy_runtime_class, class_object_UGUIHorzList)
+FINALIZE_RECORD(finalize_class_UGUICircularList, destroy_runtime_class, class_object_UGUICircularList)
+FINALIZE_RECORD(finalize_class_UGUIScrollText, destroy_runtime_class, class_object_UGUIScrollText)
+FINALIZE_RECORD(finalize_class_UGUIScrollTextBox, destroy_runtime_class, class_object_UGUIScrollTextBox)
+FINALIZE_RECORD(finalize_class_UmoImageListMap, destroy_runtime_class, class_object_UmoImageListMap)
+FINALIZE_RECORD(finalize_class_UGUICadre, destroy_runtime_class, class_object_UGUICadre)
+FINALIZE_RECORD(finalize_class_UGUISearchFilterBox, destroy_runtime_class, class_object_UGUISearchFilterBox)
+FINALIZE_RECORD(finalize_class_UGUISessionInfoBox, destroy_runtime_class, class_object_UGUISessionInfoBox)
+FINALIZE_RECORD(finalize_class_UGUIMOTDInfoBox, destroy_runtime_class, class_object_UGUIMOTDInfoBox)
+FINALIZE_RECORD(finalize_class_UGUIMultiPageLabelBox, destroy_runtime_class, class_object_UGUIMultiPageLabelBox)
+FINALIZE_RECORD(finalize_class_UGUIVertScrollBarLabel, destroy_runtime_class, class_object_UGUIVertScrollBarLabel)
+FINALIZE_RECORD(finalize_class_UGUIMultiPageLabel, destroy_runtime_class, class_object_UGUIMultiPageLabel)
+FINALIZE_RECORD(finalize_class_UGUIChatBox, destroy_runtime_class, class_object_UGUIChatBox)
+FINALIZE_RECORD(finalize_class_UBrowser_Keys, destroy_runtime_class, class_object_UBrowser_Keys)
+FINALIZE_RECORD(finalize_class_UGUIPageWaitLaunch, destroy_runtime_class, class_object_UGUIPageWaitLaunch)
+FINALIZE_RECORD(finalize_class_UStrategicMap, destroy_runtime_class, class_object_UStrategicMap)
+FINALIZE_RECORD(finalize_class_UmoEditBox, destroy_runtime_class, class_object_UmoEditBox)
+FINALIZE_RECORD(finalize_class_UmoListEditBox, destroy_runtime_class, class_object_UmoListEditBox)
+FINALIZE_RECORD(finalize_class_UmoListEditBox_GameMode, destroy_runtime_class, class_object_UmoListEditBox_GameMode)
+FINALIZE_RECORD(finalize_class_UGUIProgressBar, destroy_runtime_class, class_object_UGUIProgressBar)
+FINALIZE_RECORD(finalize_class_UGameServiceSubsystem, destroy_runtime_class, class_object_UGameServiceSubsystem)
+FINALIZE_RECORD(finalize_class_AUdpLink, destroy_runtime_class, class_object_AUdpLink)
+FINALIZE_RECORD(finalize_class_UTcpipConnection, destroy_runtime_class, class_object_UTcpipConnection)
+FINALIZE_RECORD(finalize_class_UTcpNetDriver, destroy_runtime_class, class_object_UTcpNetDriver)
+FINALIZE_RECORD(finalize_class_AInternetLink, destroy_runtime_class, class_object_AInternetLink)
+FINALIZE_RECORD(finalize_class_ATcpLink, destroy_runtime_class, class_object_ATcpLink)
+FINALIZE_RECORD(finalize_class_ASDamageVolume, destroy_runtime_class, class_object_ASDamageVolume)
+FINALIZE_RECORD(finalize_class_ASLift, destroy_runtime_class, class_object_ASLift)
+FINALIZE_RECORD(finalize_class_ASLiftDoor, destroy_runtime_class, class_object_ASLiftDoor)
+FINALIZE_RECORD(finalize_class_ASFlareEmitter, destroy_runtime_class, class_object_ASFlareEmitter)
+FINALIZE_RECORD(finalize_class_USPlayerProfile, destroy_runtime_class, class_object_USPlayerProfile)
+FINALIZE_RECORD(finalize_class_ASVitre, destroy_runtime_class, class_object_ASVitre)
+FINALIZE_RECORD(finalize_class_ASStickyCamInteraction, destroy_runtime_class, class_object_ASStickyCamInteraction)
+FINALIZE_RECORD(finalize_class_ASCoronaLight, destroy_runtime_class, class_object_ASCoronaLight)
+FINALIZE_RECORD(finalize_class_ASPoisonEmitter, destroy_runtime_class, class_object_ASPoisonEmitter)
+FINALIZE_RECORD(finalize_class_ASGadMultiPresDetectorLauncher, destroy_runtime_class, class_object_ASGadMultiPresDetectorLauncher)
+FINALIZE_RECORD(finalize_class_ASWeaponDefenseDummy_Uzi, destroy_runtime_class, class_object_ASWeaponDefenseDummy_Uzi)
+FINALIZE_RECORD(finalize_class_ASWeaponDefense_Uzi, destroy_runtime_class, class_object_ASWeaponDefense_Uzi)
+FINALIZE_RECORD(finalize_class_ASGadGasMask, destroy_runtime_class, class_object_ASGadGasMask)
+FINALIZE_RECORD(finalize_class_ASImpactEffectShockerMetal, destroy_runtime_class, class_object_ASImpactEffectShockerMetal)
+FINALIZE_RECORD(finalize_class_ASImpactEffectShocker, destroy_runtime_class, class_object_ASImpactEffectShocker)
+FINALIZE_RECORD(finalize_class_ASGadChaffeGrenade, destroy_runtime_class, class_object_ASGadChaffeGrenade)
+FINALIZE_RECORD(finalize_class_ASGadFlareLauncher, destroy_runtime_class, class_object_ASGadFlareLauncher)
+FINALIZE_RECORD(finalize_class_ASGadFragGrenade, destroy_runtime_class, class_object_ASGadFragGrenade)
+FINALIZE_RECORD(finalize_class_ASGadPhosphoLauncher, destroy_runtime_class, class_object_ASGadPhosphoLauncher)
+FINALIZE_RECORD(finalize_class_ASGadSmokeGrenade, destroy_runtime_class, class_object_ASGadSmokeGrenade)
+FINALIZE_RECORD(finalize_class_ASGadFlashBang, destroy_runtime_class, class_object_ASGadFlashBang)
+FINALIZE_RECORD(finalize_class_ASExtincteur, destroy_runtime_class, class_object_ASExtincteur)
+FINALIZE_RECORD(finalize_class_ASHud, destroy_runtime_class, class_object_ASHud)
+FINALIZE_RECORD(finalize_class_ASBasicGamePlayObject, destroy_runtime_class, class_object_ASBasicGamePlayObject)
+FINALIZE_RECORD(finalize_class_ASGamePlayObject, destroy_runtime_class, class_object_ASGamePlayObject)
+FINALIZE_RECORD(finalize_class_ASNoiseEmitter, destroy_runtime_class, class_object_ASNoiseEmitter)
+FINALIZE_RECORD(finalize_class_ASAlarm, destroy_runtime_class, class_object_ASAlarm)
+FINALIZE_RECORD(finalize_class_ASGPOControl, destroy_runtime_class, class_object_ASGPOControl)
+FINALIZE_RECORD(finalize_class_ASVolumetricSensor, destroy_runtime_class, class_object_ASVolumetricSensor)
+FINALIZE_RECORD(finalize_class_ASFlashBang, destroy_runtime_class, class_object_ASFlashBang)
+FINALIZE_RECORD(finalize_class_ASMines, destroy_runtime_class, class_object_ASMines)
+FINALIZE_RECORD(finalize_class_ASMuzzleFlash, destroy_runtime_class, class_object_ASMuzzleFlash)
+FINALIZE_RECORD(finalize_class_ASMuzzleSticky, destroy_runtime_class, class_object_ASMuzzleSticky)
+FINALIZE_RECORD(finalize_class_ASBloodSplat, destroy_runtime_class, class_object_ASBloodSplat)
+FINALIZE_RECORD(finalize_class_ASAmbientSoundTrigger, destroy_runtime_class, class_object_ASAmbientSoundTrigger)
+FINALIZE_RECORD(finalize_class_ASAmmoStock, destroy_runtime_class, class_object_ASAmmoStock)
+FINALIZE_RECORD(finalize_class_ASInfirmary, destroy_runtime_class, class_object_ASInfirmary)
+FINALIZE_RECORD(finalize_class_ASFlagDropZone, destroy_runtime_class, class_object_ASFlagDropZone)
+FINALIZE_RECORD(finalize_class_ASFlareCourseEmitter, destroy_runtime_class, class_object_ASFlareCourseEmitter)
+FINALIZE_RECORD(finalize_class_ASFlashLight, destroy_runtime_class, class_object_ASFlashLight)
+FINALIZE_RECORD(finalize_class_ASDouilleEmitter, destroy_runtime_class, class_object_ASDouilleEmitter)
+FINALIZE_RECORD(finalize_class_USMatchInfo, destroy_runtime_class, class_object_USMatchInfo)
+FINALIZE_RECORD(finalize_class_ASFlaque, destroy_runtime_class, class_object_ASFlaque)
+FINALIZE_RECORD(finalize_class_ASProjoFixe, destroy_runtime_class, class_object_ASProjoFixe)
+FINALIZE_RECORD(finalize_class_ASSavedMove, destroy_runtime_class, class_object_ASSavedMove)
+FINALIZE_RECORD(finalize_class_ASOrientableObject, destroy_runtime_class, class_object_ASOrientableObject)
+FINALIZE_RECORD(finalize_class_ASProjMarqueurSpy, destroy_runtime_class, class_object_ASProjMarqueurSpy)
+FINALIZE_RECORD(finalize_class_ASGameInfo, destroy_runtime_class, class_object_ASGameInfo)
+FINALIZE_RECORD(finalize_class_ASGameMessages, destroy_runtime_class, class_object_ASGameMessages)
+FINALIZE_RECORD(finalize_class_ASAmmoStockInteraction, destroy_runtime_class, class_object_ASAmmoStockInteraction)
+FINALIZE_RECORD(finalize_class_ASTeamInfo, destroy_runtime_class, class_object_ASTeamInfo)
+FINALIZE_RECORD(finalize_class_ASFlashGen, destroy_runtime_class, class_object_ASFlashGen)
+FINALIZE_RECORD(finalize_class_ASZoneTips, destroy_runtime_class, class_object_ASZoneTips)
+FINALIZE_RECORD(finalize_class_ASMineLaser, destroy_runtime_class, class_object_ASMineLaser)
+FINALIZE_RECORD(finalize_class_ASTazerEmitter, destroy_runtime_class, class_object_ASTazerEmitter)
+FINALIZE_RECORD(finalize_class_ASPlayerCam, destroy_runtime_class, class_object_ASPlayerCam)
+FINALIZE_RECORD(finalize_class_ASBombTargetObjectiveTrigger, destroy_runtime_class, class_object_ASBombTargetObjectiveTrigger)
+FINALIZE_RECORD(finalize_class_ASBombTargetInteraction, destroy_runtime_class, class_object_ASBombTargetInteraction)
+FINALIZE_RECORD(finalize_class_ASGadTorcheLaser, destroy_runtime_class, class_object_ASGadTorcheLaser)
+FINALIZE_RECORD(finalize_class_ASComputerInteraction, destroy_runtime_class, class_object_ASComputerInteraction)
+FINALIZE_RECORD(finalize_class_ASSmokeEmitter, destroy_runtime_class, class_object_ASSmokeEmitter)
+FINALIZE_RECORD(finalize_class_ASGoggleBeam, destroy_runtime_class, class_object_ASGoggleBeam)
+FINALIZE_RECORD(finalize_class_ASFragLaunchEmitter, destroy_runtime_class, class_object_ASFragLaunchEmitter)
+FINALIZE_RECORD(finalize_class_USXBoxLiveRef, destroy_runtime_class, class_object_USXBoxLiveRef)
+FINALIZE_RECORD(finalize_class_ASWeapon, destroy_runtime_class, class_object_ASWeapon)
+FINALIZE_RECORD(finalize_class_ASObjective, destroy_runtime_class, class_object_ASObjective)
+FINALIZE_RECORD(finalize_class_ASGadget, destroy_runtime_class, class_object_ASGadget)
+FINALIZE_RECORD(finalize_class_ASGadBomb, destroy_runtime_class, class_object_ASGadBomb)
+FINALIZE_RECORD(finalize_class_ASGadGrenLauncher, destroy_runtime_class, class_object_ASGadGrenLauncher)
+FINALIZE_RECORD(finalize_class_ASGadMultiMinesLauncher, destroy_runtime_class, class_object_ASGadMultiMinesLauncher)
+FINALIZE_RECORD(finalize_class_ASGadNoiseEmitter, destroy_runtime_class, class_object_ASGadNoiseEmitter)
+FINALIZE_RECORD(finalize_class_ASGadStickyCam, destroy_runtime_class, class_object_ASGadStickyCam)
+FINALIZE_RECORD(finalize_class_ASSpyBulletLauncher, destroy_runtime_class, class_object_ASSpyBulletLauncher)
+FINALIZE_RECORD(finalize_class_ASGadTazerLauncher, destroy_runtime_class, class_object_ASGadTazerLauncher)
+FINALIZE_RECORD(finalize_class_ASStickyCamEmitter, destroy_runtime_class, class_object_ASStickyCamEmitter)
+FINALIZE_RECORD(finalize_class_ASChaffeEmitter, destroy_runtime_class, class_object_ASChaffeEmitter)
+FINALIZE_RECORD(finalize_class_ASPlayerController, destroy_runtime_class, class_object_ASPlayerController)
+FINALIZE_RECORD(finalize_class_ASLANClientLink, destroy_runtime_class, class_object_ASLANClientLink)
+FINALIZE_RECORD(finalize_class_ASLANServerLink, destroy_runtime_class, class_object_ASLANServerLink)
+FINALIZE_RECORD(finalize_class_ASMinePoison, destroy_runtime_class, class_object_ASMinePoison)
+FINALIZE_RECORD(finalize_class_ASProjFrag, destroy_runtime_class, class_object_ASProjFrag)
+FINALIZE_RECORD(finalize_class_ASMinePiegeSpy, destroy_runtime_class, class_object_ASMinePiegeSpy)
+FINALIZE_RECORD(finalize_class_ASCamera, destroy_runtime_class, class_object_ASCamera)
+FINALIZE_RECORD(finalize_class_ASLaserTrigger, destroy_runtime_class, class_object_ASLaserTrigger)
+FINALIZE_RECORD(finalize_class_ASGadTorche, destroy_runtime_class, class_object_ASGadTorche)
+FINALIZE_RECORD(finalize_class_ASAnimatedMesh, destroy_runtime_class, class_object_ASAnimatedMesh)
+FINALIZE_RECORD(finalize_class_ASRJ45Checker, destroy_runtime_class, class_object_ASRJ45Checker)
+FINALIZE_RECORD(finalize_class_ASWeaponAttaque, destroy_runtime_class, class_object_ASWeaponAttaque)
+FINALIZE_RECORD(finalize_class_ASProjFlashBang, destroy_runtime_class, class_object_ASProjFlashBang)
+FINALIZE_RECORD(finalize_class_ASProjGrenade, destroy_runtime_class, class_object_ASProjGrenade)
+FINALIZE_RECORD(finalize_class_USPersistentData, destroy_runtime_class, class_object_USPersistentData)
+FINALIZE_RECORD(finalize_class_ASTriggerLight, destroy_runtime_class, class_object_ASTriggerLight)
+FINALIZE_RECORD(finalize_class_ASFlagDropZoneInteraction, destroy_runtime_class, class_object_ASFlagDropZoneInteraction)
+FINALIZE_RECORD(finalize_class_ASHealMateInteraction, destroy_runtime_class, class_object_ASHealMateInteraction)
+FINALIZE_RECORD(finalize_class_USMapSettings, destroy_runtime_class, class_object_USMapSettings)
+FINALIZE_RECORD(finalize_class_ASWeaponDefense_Shotgun, destroy_runtime_class, class_object_ASWeaponDefense_Shotgun)
+FINALIZE_RECORD(finalize_class_ASWeaponDefenseDummy_Shotgun, destroy_runtime_class, class_object_ASWeaponDefenseDummy_Shotgun)
+FINALIZE_RECORD(finalize_class_ASSprinkler, destroy_runtime_class, class_object_ASSprinkler)
+FINALIZE_RECORD(finalize_class_ASLaserProjector, destroy_runtime_class, class_object_ASLaserProjector)
+FINALIZE_RECORD(finalize_class_ASPickupInteraction, destroy_runtime_class, class_object_ASPickupInteraction)
+FINALIZE_RECORD(finalize_class_ASBackPackInteraction, destroy_runtime_class, class_object_ASBackPackInteraction)
+FINALIZE_RECORD(finalize_class_ASWeaponDefense, destroy_runtime_class, class_object_ASWeaponDefense)
+FINALIZE_RECORD(finalize_class_ASGadHeartBeatSensor, destroy_runtime_class, class_object_ASGadHeartBeatSensor)
+FINALIZE_RECORD(finalize_class_ASFlashLight_FragGrenade, destroy_runtime_class, class_object_ASFlashLight_FragGrenade)
+FINALIZE_RECORD(finalize_class_ASSmokeLaunchEmitter, destroy_runtime_class, class_object_ASSmokeLaunchEmitter)
+FINALIZE_RECORD(finalize_class_ASLaserBeam, destroy_runtime_class, class_object_ASLaserBeam)
+FINALIZE_RECORD(finalize_class_ASLaserBeam_MineLaser, destroy_runtime_class, class_object_ASLaserBeam_MineLaser)
+FINALIZE_RECORD(finalize_class_ASPresDetector, destroy_runtime_class, class_object_ASPresDetector)
+FINALIZE_RECORD(finalize_class_ASComputerObjectiveTrigger, destroy_runtime_class, class_object_ASComputerObjectiveTrigger)
+FINALIZE_RECORD(finalize_class_ASPAWNDEFENSE, destroy_runtime_class, class_object_ASPAWNDEFENSE)
+FINALIZE_RECORD(finalize_class_ASProjChaffe, destroy_runtime_class, class_object_ASProjChaffe)
+FINALIZE_RECORD(finalize_class_ASInteractionManager, destroy_runtime_class, class_object_ASInteractionManager)
+FINALIZE_RECORD(finalize_class_ASStickyCam, destroy_runtime_class, class_object_ASStickyCam)
+FINALIZE_RECORD(finalize_class_ASDisk, destroy_runtime_class, class_object_ASDisk)
+FINALIZE_RECORD(finalize_class_ASMission, destroy_runtime_class, class_object_ASMission)
+FINALIZE_RECORD(finalize_class_ASMotionTrackingVision, destroy_runtime_class, class_object_ASMotionTrackingVision)
+FINALIZE_RECORD(finalize_class_ASMineProx, destroy_runtime_class, class_object_ASMineProx)
+FINALIZE_RECORD(finalize_class_ASProjSmoke, destroy_runtime_class, class_object_ASProjSmoke)
+FINALIZE_RECORD(finalize_class_ASMateInteraction, destroy_runtime_class, class_object_ASMateInteraction)
+FINALIZE_RECORD(finalize_class_ASBasePawn, destroy_runtime_class, class_object_ASBasePawn)
+FINALIZE_RECORD(finalize_class_ASProjPhospho, destroy_runtime_class, class_object_ASProjPhospho)
+FINALIZE_RECORD(finalize_class_ASPhosphoEmitter, destroy_runtime_class, class_object_ASPhosphoEmitter)
+FINALIZE_RECORD(finalize_class_ASGadBackPack, destroy_runtime_class, class_object_ASGadBackPack)
+FINALIZE_RECORD(finalize_class_ASShareObjectInteraction, destroy_runtime_class, class_object_ASShareObjectInteraction)
+FINALIZE_RECORD(finalize_class_ASWeaponDefenseDummy, destroy_runtime_class, class_object_ASWeaponDefenseDummy)
+FINALIZE_RECORD(finalize_class_ASRemoveSpyBulletInteraction, destroy_runtime_class, class_object_ASRemoveSpyBulletInteraction)
+FINALIZE_RECORD(finalize_class_ASGrenadeExplosion, destroy_runtime_class, class_object_ASGrenadeExplosion)
+FINALIZE_RECORD(finalize_class_ASFireTrace, destroy_runtime_class, class_object_ASFireTrace)
+FINALIZE_RECORD(finalize_class_ASNotifyNoise, destroy_runtime_class, class_object_ASNotifyNoise)
+FINALIZE_RECORD(finalize_class_ASObjectiveTrigger, destroy_runtime_class, class_object_ASObjectiveTrigger)
+FINALIZE_RECORD(finalize_class_ASProjFlare, destroy_runtime_class, class_object_ASProjFlare)
+FINALIZE_RECORD(finalize_class_ASCamNetwork, destroy_runtime_class, class_object_ASCamNetwork)
+FINALIZE_RECORD(finalize_class_ASGoggle, destroy_runtime_class, class_object_ASGoggle)
+FINALIZE_RECORD(finalize_class_ASGadCamNetwork, destroy_runtime_class, class_object_ASGadCamNetwork)
+FINALIZE_RECORD(finalize_class_ASFlag, destroy_runtime_class, class_object_ASFlag)
+FINALIZE_RECORD(finalize_class_ASMagicEvent, destroy_runtime_class, class_object_ASMagicEvent)
+FINALIZE_RECORD(finalize_class_ASInterrupteur, destroy_runtime_class, class_object_ASInterrupteur)
+FINALIZE_RECORD(finalize_class_ASExtincteurEmitter, destroy_runtime_class, class_object_ASExtincteurEmitter)
+FINALIZE_RECORD(finalize_class_ASPawnAttaque, destroy_runtime_class, class_object_ASPawnAttaque)
+FINALIZE_RECORD(finalize_class_ASMineProxInteraction, destroy_runtime_class, class_object_ASMineProxInteraction)
+FINALIZE_RECORD(finalize_class_ASTriggerInteraction, destroy_runtime_class, class_object_ASTriggerInteraction)
+FINALIZE_RECORD(finalize_class_ASInteractObject, destroy_runtime_class, class_object_ASInteractObject)
+FINALIZE_RECORD(finalize_class_ASLeaveInteraction, destroy_runtime_class, class_object_ASLeaveInteraction)
+FINALIZE_RECORD(finalize_class_UESBRope, destroy_runtime_class, class_object_UESBRope)
+FINALIZE_RECORD(finalize_class_AESBPatchActor, destroy_runtime_class, class_object_AESBPatchActor)
+FINALIZE_RECORD(finalize_class_AESBChainActor, destroy_runtime_class, class_object_AESBChainActor)
+FINALIZE_RECORD(finalize_class_UESBChain, destroy_runtime_class, class_object_UESBChain)
+FINALIZE_RECORD(finalize_class_UESBPatch, destroy_runtime_class, class_object_UESBPatch)
+FINALIZE_RECORD(finalize_class_AESBStripDoorActor, destroy_runtime_class, class_object_AESBStripDoorActor)
+FINALIZE_RECORD(finalize_class_UESBStripDoor, destroy_runtime_class, class_object_UESBStripDoor)
+FINALIZE_RECORD(finalize_class_AESBRopeActor, destroy_runtime_class, class_object_AESBRopeActor)
+FINALIZE_RECORD(finalize_class_UUNIAudioSubsystem, destroy_runtime_class, class_object_UUNIAudioSubsystem)
+FINALIZE_RECORD(finalize_class_UPCSaveGameDevice, destroy_runtime_class, class_object_UPCSaveGameDevice)
+FINALIZE_RECORD(finalize_class_UWindowsViewport, destroy_runtime_class, class_object_UWindowsViewport)
+FINALIZE_RECORD(finalize_class_UWindowsClient, destroy_runtime_class, class_object_UWindowsClient)
+FINALIZE_RECORD(finalize_class_UWindowManager, destroy_runtime_class, class_object_UWindowManager)
+FINALIZE_RECORD(finalize_record_r2de470, destroy_record_0048b0, exit_object_397760)
+FINALIZE_RECORD(finalize_class_UMenuManager, destroy_runtime_class, class_object_UMenuManager)
+FINALIZE_RECORD(finalize_record_r2de490, destroy_record_22fe20, exit_object_374e2c)
+FINALIZE_RECORD(finalize_record_r2de4a0, destroy_record_283ea8, exit_object_375054)

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "crt-register-exit-callback",
+    "offset": 2635382,
+    "size": 18,
+    "rebuilt_symbol": "_atexit",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "identification": "The complete 18-byte function at RVA 0x283676 agrees with the named _atexit symbol in both VC7.1 static runtime archives. Original class cleanup registrations pass their callbacks to this entry.",
+    "link_bindings": {
+      "__onexit": {
+        "va": 280507984,
+        "basis": "Named __onexit relocation in the matching _atexit COFF section; the original direct call uses this target."
+      }
+    },
+    "inputs": [
+      "src/crt_atexit.c"
+    ],
+    "build_command": "cl /nologo /Gy /O1 /c /Folocal/crt_atexit.obj src/crt_atexit.c",
+    "match": {
+      "bytes_sha256": "9956a247573966813726e63bed94c3b5a88c47839aa1c6e0769f26f4cb070331",
+      "inputs_sha256": "126c73f27fd565ef81615a4397632018e36d96e9bbeaf00037ece008dde8e791"
+    }
+  }
+]

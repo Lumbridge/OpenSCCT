@@ -4,11 +4,11 @@
     "size": 18,
     "offset": 6494121,
     "inputs": [
-      "src/campaign_atexit.c"
+      "src/crt_atexit.c"
     ],
     "rebuilt_symbol": "_atexit",
     "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
-    "build_command": "cl /nologo /Gy /O1 /c /Folocal/campaign_atexit.obj src/campaign_atexit.c",
+    "build_command": "cl /nologo /Gy /O1 /c /Folocal/crt_atexit.obj src/crt_atexit.c",
     "link_bindings": {
       "__onexit": {
         "va": 284366705,
@@ -18,7 +18,7 @@
     "identification": "The complete 18-byte function at RVA 0x6317a9 matches the named _atexit section in both Toolkit libc.lib and libcmt.lib (onexit.obj), including the relative call. Stock cleanup registrations pass their callback to this entry.",
     "match": {
       "bytes_sha256": "e26840bcbd3b97895ffd5e9c994a73e054e4531ede72f93c35364d9990295c01",
-      "inputs_sha256": "e5ae95d51557ec0e3d0af2cf3559baf68ee7bcaf69fb842370dcd69d121756ea"
+      "inputs_sha256": "6829d58efea983cfceda8ae6cbabd602088ca7b7be54c8aeda7bcbe254b861da"
     }
   },
   {
