@@ -81,6 +81,23 @@
     }
   },
   {
+    "id": "assign-range-4943d0",
+    "offset": 4801488,
+    "size": 30,
+    "rebuilt_symbol": "_assign_range_r4943d0",
+    "inputs": [
+      "src/campaign_record_copy_instances.c",
+      "src/record_copy.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy_instances.obj src/campaign_record_copy_instances.c",
+    "identification": "Default Ghidra extent matches the independently compiled 4-byte record operation at RVA 0x4210d0.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "36d1c6d874814f2dd2c913e412741ffca5971b7305810c7d135d294408da7b82"
+    }
+  },
+  {
     "id": "clear-record-494620",
     "offset": 4802080,
     "size": 37,
@@ -1032,6 +1049,23 @@
     "match": {
       "bytes_sha256": "dea5db48fb297895319922ee66646de6b9c0ce35ab87beb88c5c345e0da11fb9",
       "inputs_sha256": "7e8c3bf7d228d705493d77e5f64d126df4573de4bc14a181d5cce9a71bf1bb73"
+    }
+  },
+  {
+    "id": "assign-range-49c010",
+    "offset": 4833296,
+    "size": 30,
+    "rebuilt_symbol": "_assign_range_r49c010",
+    "inputs": [
+      "src/campaign_record_copy_instances.c",
+      "src/record_copy.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy_instances.obj src/campaign_record_copy_instances.c",
+    "identification": "Default Ghidra extent matches the independently compiled 4-byte record operation at RVA 0x4210d0.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "2c63043b5602b99f10314f7a6dd7b00e692ac4f73dbfb5b894fff8a0ea9fc6f9"
     }
   },
   {

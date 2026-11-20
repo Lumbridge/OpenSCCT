@@ -3319,6 +3319,23 @@
     }
   },
   {
+    "id": "assign-range-10df00",
+    "offset": 1105664,
+    "size": 30,
+    "rebuilt_symbol": "_assign_range_r10df00",
+    "inputs": [
+      "src/campaign_record_copy_instances.c",
+      "src/record_copy.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_copy_instances.obj src/campaign_record_copy_instances.c",
+    "identification": "Default Ghidra extent matches the independently compiled 4-byte record operation at RVA 0x4210d0.",
+    "match": {
+      "bytes_sha256": "fe5e96b5969e5ae6c7b3311b02a5760fbe387efaa07f367300af69fce91960e0",
+      "inputs_sha256": "8176ecb5ca16512495fc5801958a0d34a8b95bdb4d8d39cefe7edd243fd82cfd"
+    }
+  },
+  {
     "id": "class-registration-uscmagmainteraction",
     "offset": 1106192,
     "size": 264,
