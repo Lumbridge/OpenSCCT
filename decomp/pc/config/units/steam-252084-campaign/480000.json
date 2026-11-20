@@ -43,6 +43,32 @@
     }
   },
   {
+    "id": "managed-list-clear-481300",
+    "size": 63,
+    "offset": 4723456,
+    "inputs": [
+      "src/campaign_managed_list_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_list_481300@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_list_clear.obj src/campaign_managed_list_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Loads the shared allocation manager."
+      },
+      "_release_allocation": {
+        "va": 282637648,
+        "basis": "Releases the node allocation through the shared allocator."
+      }
+    },
+    "identification": "Direct call at RVA 0x481463. Restores the two sentinel links and clears the count before walking and releasing each detached node with allocation category 7.",
+    "match": {
+      "bytes_sha256": "9cb3e0b499d799602e1aa161be6717213b7c69ab111c481a7b2c97ea3afd4592",
+      "inputs_sha256": "21c38baf0430d6f5d833a1ac62e99d16548106052fc4b03131bd44de66bb8bfc"
+    }
+  },
+  {
     "id": "clear-record-481460",
     "offset": 4723808,
     "size": 37,
@@ -1280,6 +1306,32 @@
     }
   },
   {
+    "id": "managed-list-clear-48c120",
+    "size": 63,
+    "offset": 4768032,
+    "inputs": [
+      "src/campaign_managed_list_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_list_48c120@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_list_clear.obj src/campaign_managed_list_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Loads the shared allocation manager."
+      },
+      "_release_allocation": {
+        "va": 282637648,
+        "basis": "Releases the node allocation through the shared allocator."
+      }
+    },
+    "identification": "Direct call at RVA 0x48c2b3. Restores the two sentinel links and clears the count before walking and releasing each detached node with allocation category 7.",
+    "match": {
+      "bytes_sha256": "37c19c2dedef8f08c6940a77e882564f5e96f9f12082544c289709f2a774dafb",
+      "inputs_sha256": "9cbb84b1fd5d7e009cf83e770e7cb34e7eff0e270bbe59e764264e98e12d1cb6"
+    }
+  },
+  {
     "id": "clear-record-48c2b0",
     "offset": 4768432,
     "size": 37,
@@ -1347,6 +1399,32 @@
     "match": {
       "bytes_sha256": "c95dcbf046d7ae545cb66a7d5bb778a6e98fbe8fb8d37b90cdd456d077a41b84",
       "inputs_sha256": "a590c47e4a6e42470cb0381a6811ae40f67d0e8fa3267c369b9e4d79e7087672"
+    }
+  },
+  {
+    "id": "managed-list-clear-48c520",
+    "size": 63,
+    "offset": 4769056,
+    "inputs": [
+      "src/campaign_managed_list_clear.c"
+    ],
+    "rebuilt_symbol": "@clear_list_48c520@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_list_clear.obj src/campaign_managed_list_clear.c",
+    "link_bindings": {
+      "_get_manager": {
+        "va": 282637408,
+        "basis": "Loads the shared allocation manager."
+      },
+      "_release_allocation": {
+        "va": 282637648,
+        "basis": "Releases the node allocation through the shared allocator."
+      }
+    },
+    "identification": "Direct call at RVA 0x48c963. Restores the two sentinel links and clears the count before walking and releasing each detached node with allocation category 7.",
+    "match": {
+      "bytes_sha256": "46708f9f8f16bdb0dc5c6db9b63f9154df6ced689a0fc5c8b9fbce8f111d9f75",
+      "inputs_sha256": "db18384028f8de4b7e45bd80a8d6e981852effc9c0601255c368a7746d670a30"
     }
   },
   {
