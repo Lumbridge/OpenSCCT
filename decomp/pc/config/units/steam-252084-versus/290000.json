@@ -1,5 +1,178 @@
 [
   {
+    "id": "fill-dwords-indexed-29e680",
+    "size": 37,
+    "offset": 2745984,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "_fill_dwords@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed fill dwords function at RVA 0x29e680.",
+    "match": {
+      "bytes_sha256": "68b9cf63d7e82dffd1c37a27f85a1a8ae9cf324148c81af1ec69ac2916c3cadb",
+      "inputs_sha256": "1002b219d07f3edfc8274dda01ddd2d16cad9fe6363c926c055ea7c9da38c824"
+    }
+  },
+  {
+    "id": "rotate-left-indexed-29e6b0",
+    "size": 82,
+    "offset": 2746032,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "@rotate_left@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed rotate left function at RVA 0x29e6b0.",
+    "link_bindings": {
+      "_nil": {
+        "va": 281500920,
+        "basis": "Retail tree sentinel referenced by this traversal or rotation."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "03617bec76b1bbda236ab55629d0500bc240df513b898a88a4b913a55921d7b7",
+      "inputs_sha256": "3a63d85c2a16aa6ac35a1ca429b8b80ed9f06d15e01c13784319de954e4d16cb"
+    }
+  },
+  {
+    "id": "tree-minimum-indexed-29e710",
+    "size": 25,
+    "offset": 2746128,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "_tree_minimum",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed tree minimum function at RVA 0x29e710.",
+    "link_bindings": {
+      "_nil": {
+        "va": 281500920,
+        "basis": "Retail tree sentinel referenced by this traversal or rotation."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "687d4ab75e199217ba12aaf4deb596c3fa4e613dea746f0ed6f8c1413c17e64e",
+      "inputs_sha256": "00bc7c21807ffe47372f90d512304e3b3aad36fbf87a0e471ace35c1c03be696"
+    }
+  },
+  {
+    "id": "rotate-right-indexed-29e730",
+    "size": 86,
+    "offset": 2746160,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "@rotate_right@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed rotate right function at RVA 0x29e730.",
+    "link_bindings": {
+      "_nil": {
+        "va": 281500920,
+        "basis": "Retail tree sentinel referenced by this traversal or rotation."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "dada890236f45c10257bda527e43ba04afe8ef67c32a02003002934465d6eb88",
+      "inputs_sha256": "2ac6b2986a69fac503205ad76ddb7b207596bdaa4f820158e15c1e69f1677c8d"
+    }
+  },
+  {
+    "id": "make-node-indexed-29e790",
+    "size": 27,
+    "offset": 2746256,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "@make_node@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed make node function at RVA 0x29e790.",
+    "link_bindings": {
+      "_allocate_node": {
+        "va": 277889760,
+        "basis": "Allocator called with the size of the tree node."
+      }
+    },
+    "match": {
+      "bytes_sha256": "f9b7fb0804e0d35987f0afb2967e08bd9b417c6fb095fb50a4068134c9a3f2fa",
+      "inputs_sha256": "b843e21a99699acb0f7b71fdd83780ee15e6205cde7035425bd27731458cca48"
+    }
+  },
+  {
+    "id": "copy-word-indexed-29e860",
+    "size": 35,
+    "offset": 2746464,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "_copy_word",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed copy word function at RVA 0x29e860.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "6699861ae9870d4cb74810da0cd10c1a3e5e14018a96b09db768f02b65131020",
+      "inputs_sha256": "2bdbbe94a188cbc35c4029cbbf7e3684a8194b75c0c47fbee79c21b4f3cea1bf"
+    }
+  },
+  {
+    "id": "copy-dword-indexed-29e890",
+    "size": 33,
+    "offset": 2746512,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "_copy_dword",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed copy dword function at RVA 0x29e890.",
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "6a4a263061d1f6135adbe61fd6f6993db5788dbb068c0301a11b3f3e7ab25d28",
+      "inputs_sha256": "d42b97f8b9f4826930db7c5998bedfdb1e14ceab05656b6283459b0bf2f91239"
+    }
+  },
+  {
+    "id": "init-dword-indexed-29e8c0",
+    "size": 17,
+    "offset": 2746560,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "_init_dword",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed init dword function at RVA 0x29e8c0.",
+    "match": {
+      "bytes_sha256": "b81506b867e4a18d41e0e2e4ec0582d8ba5495b2baa1263ba034086158f5a707",
+      "inputs_sha256": "93102cad3cebfa04ea038e7eadc341bc392fe1a076845e635fedebcab49f795e"
+    }
+  },
+  {
+    "id": "init-word-indexed-29e8e0",
+    "size": 19,
+    "offset": 2746592,
+    "inputs": [
+      "src/ordered_tree_and_copy.c"
+    ],
+    "rebuilt_symbol": "_init_word",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/ordered_tree_and_copy.obj src/ordered_tree_and_copy.c",
+    "identification": "Complete indexed init word function at RVA 0x29e8e0.",
+    "match": {
+      "bytes_sha256": "ff2fc423f2ef76556aba0fec06ea816b6e61c2630844d6ce1fc22bd2625d6253",
+      "inputs_sha256": "de3b230e4bfbdf3be77818d3236aa78836aebf93d81dbe341e8c63f4d267d1d1"
+    }
+  },
+  {
     "id": "resample-box-filter",
     "size": 48,
     "offset": 2746624,
