@@ -3008,6 +3008,32 @@
     }
   },
   {
+    "id": "embedded-array-cleanup-555870",
+    "size": 44,
+    "offset": 5593200,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_555870@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84bc90": {
+        "va": 286571664,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 8, releases 4-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "c584ac554235f71331aab4b0716a7f66b1f97bd63e94a7743984c73b34cf4865",
+      "inputs_sha256": "d75994f20f7a33213f90658ec40fa1d409d981fee898c0cdcba176664500aa75"
+    }
+  },
+  {
     "id": "delete-pool-5599c0",
     "size": 40,
     "offset": 5609920,

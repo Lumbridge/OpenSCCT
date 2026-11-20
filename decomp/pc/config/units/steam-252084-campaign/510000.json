@@ -310,6 +310,36 @@
     }
   },
   {
+    "id": "embedded-array-cleanup-513070",
+    "size": 53,
+    "offset": 5320816,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_513070@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "82668315b4437e750f859fb7ec393f8a4f936d647626495302a31eb74fb36306"
+    }
+  },
+  {
     "id": "physics-array-release-5130b0",
     "size": 83,
     "offset": 5320880,
@@ -337,6 +367,36 @@
     "match": {
       "bytes_sha256": "0fde202d5d75c57f4532e19c25a2bedf813107fa3cef1609ec5064d4d6845f05",
       "inputs_sha256": "83369c884d8bc8d3dc976d83fb5b07cf22fd62c19c717c223f5a792575999278"
+    }
+  },
+  {
+    "id": "embedded-array-cleanup-513130",
+    "size": 53,
+    "offset": 5321008,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_513130@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "852b8129edb23be8b4140bed12873a4ccaa22de3da9a55d6ff2071caf6cc864d"
     }
   },
   {
@@ -381,6 +441,36 @@
     "match": {
       "bytes_sha256": "3e00f9a4025fcb832deaebedfaa460b7361b01b41e7c5bd14ee9808aaa811737",
       "inputs_sha256": "084d17e265983a70564cb504ed3198d01d204937d334bf1f661c03beccc45a1a"
+    }
+  },
+  {
+    "id": "embedded-array-cleanup-513250",
+    "size": 53,
+    "offset": 5321296,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_513250@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "075c4488775e25c6de576b8bfd2a3a49d9f1dcb9ff75d80eb8b90f4134fb5c7f"
     }
   },
   {
@@ -536,6 +626,36 @@
     }
   },
   {
+    "id": "embedded-array-cleanup-514580",
+    "size": 53,
+    "offset": 5326208,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_514580@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "0ff9dc867becbfb8ac02382737cfce53b6ab3f6567826ca4144a430ed30cb599"
+    }
+  },
+  {
     "id": "scratch-array-construction-5145c0",
     "size": 107,
     "offset": 5326272,
@@ -577,6 +697,36 @@
     "match": {
       "bytes_sha256": "d26028e775ab4541539941dd9aec56114be8545cadc19a7e7e8ddb246292a858",
       "inputs_sha256": "8583c46ce5dbe6d30bf0af29eb4aa5a01517b82a6def7fe70c4adaeac7d00d65"
+    }
+  },
+  {
+    "id": "embedded-array-cleanup-5146a0",
+    "size": 53,
+    "offset": 5326496,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_5146a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "044b3da36201926151bb3eca7b61e3c6a548534653c178a8c769ef60668c478f"
     }
   },
   {
@@ -798,6 +948,36 @@
     }
   },
   {
+    "id": "embedded-array-cleanup-515f10",
+    "size": 53,
+    "offset": 5332752,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_515f10@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "855bfee7e49d0882e88a59044cf6279c236853532f4d565069dfa4cdb7d318f2"
+    }
+  },
+  {
     "id": "scratch-array-construction-515fe0",
     "size": 106,
     "offset": 5332960,
@@ -839,6 +1019,36 @@
     "match": {
       "bytes_sha256": "179a378e55fbd5b11429afb6fba1c902f4106a00d63a7f8cc7768bc5bb0311d7",
       "inputs_sha256": "e90f61e1bc9da79225b9e74ed1044ae6c0595e70c45a15b8046f90f4969706d2"
+    }
+  },
+  {
+    "id": "embedded-array-cleanup-5160c0",
+    "size": 53,
+    "offset": 5333184,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_5160c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_84aa90": {
+        "va": 286567056,
+        "basis": "Receiver method table installed during destruction."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 12-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "5455b10df6de3322f9fa436552790a7c094583b659b5b8ee6329e95145748b98",
+      "inputs_sha256": "0cd6b0b3f4d0a762a012497751448b9f58e0507754f895dc369e0145d607e2f0"
     }
   },
   {
@@ -1135,6 +1345,58 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "ca77abf35df3bf6ba7c6dd2f918ac33da20981866a31a8edabea87187df9289b"
+    }
+  },
+  {
+    "id": "embedded-array-cleanup-518380",
+    "size": 44,
+    "offset": 5342080,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_518380@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 4-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "defd6f6d65a5ca1f52c893a78e7f0a15040c21da7cb5fe88849352217d33b7fe",
+      "inputs_sha256": "9b14626094c4fd8bff19bbac36541ac425f04b5cac42a7f4e892d80c5c89213b"
+    }
+  },
+  {
+    "id": "embedded-array-cleanup-5183f0",
+    "size": 44,
+    "offset": 5342192,
+    "inputs": [
+      "src/campaign_embedded_array_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_5183f0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_embedded_array_cleanup.obj src/campaign_embedded_array_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Receiver method table installed during destruction."
+      }
+    },
+    "identification": "Indexed destructor checks ownership of the array at offset 12, releases 4-byte elements and installs the base method table.",
+    "match": {
+      "bytes_sha256": "defd6f6d65a5ca1f52c893a78e7f0a15040c21da7cb5fe88849352217d33b7fe",
+      "inputs_sha256": "fbe5a0e669bf96b153c1192f17761fdabce27730671a9f8514b63eb9e04b64e6"
     }
   },
   {
