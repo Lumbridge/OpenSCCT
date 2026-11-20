@@ -16,7 +16,7 @@ using OpenScct.Launcher.GitHub;
 using OpenScct.Launcher.Install;
 using OpenScct.Launcher.Launch;
 using OpenScct.Launcher.Settings;
-using OpenScct.Launcher.Content;
+using OpenScct.Maps;
 using OpenScct.Launcher.Update;
 using OpenScct.Launcher.Versioning;
 
@@ -57,7 +57,10 @@ public sealed class UnrealService
     public static readonly SemVersion MinimumSteamVersion = SemVersion.Parse("0.1.10");
     public static bool SupportsSteamContent(SemVersion? version) => version >= MinimumSteamVersion;
 
-    private readonly GodotSteamContent _content;
+    private string? _validatedFolder;
+    private DateTime _pointerTime;
+    private long _checkedAt;
+    private string? _contentRoot;
     private readonly LauncherLayout _layout;
     private readonly LauncherLayout _install;
     private readonly HttpClient _http;
@@ -73,7 +76,6 @@ public sealed class UnrealService
         ArgumentNullException.ThrowIfNull(layout);
         ArgumentNullException.ThrowIfNull(http);
         _layout = layout;
-        _content = new GodotSteamContent(layout);
         _http = http;
         Repository = IsValidRepository(repository) ? repository!.Trim() : DefaultRepository;
         string[] parts = Repository.Split('/');
@@ -173,7 +175,45 @@ public sealed class UnrealService
     public bool IsRunning => RunningGames().Count > 0;
 
     /// <summary>Null when the OpenSCCT content the game needs is there, else a sentence for the player.</summary>
-    public string? PrerequisiteProblem() => _content.ActiveRoot() is null
+    public string? ActiveContentRoot()
+    {
+        var installation = Installed();
+        if (installation is null) return null;
+        var pointerTime = File.GetLastWriteTimeUtc(Path.Combine(_install.Content, SteamContentInstall.PointerFile));
+        if (_validatedFolder != installation.Folder || pointerTime != _pointerTime || Environment.TickCount64 - _checkedAt >= 1000)
+        {
+            _contentRoot = UnrealSteamInstall.ActiveRoot(_install.Content,
+                UnrealSteamInstall.ReadRecipe(Path.Combine(installation.Folder, "contenttools")));
+            _pointerTime = pointerTime;
+            _validatedFolder = installation.Folder;
+            _checkedAt = Environment.TickCount64;
+        }
+        return _contentRoot;
+    }
+
+    public ProcessStartInfo SetupInfo(string? steamFolder, bool rebuild = false)
+    {
+        var installed = Installed() ?? throw new InvalidOperationException("Install OpenSCCT Unreal first.");
+        if (!SupportsSteamContent(installed.Version))
+            throw new InvalidOperationException($"Update OpenSCCT Unreal to {MinimumSteamVersion} or later.");
+        string host = Path.Combine(installed.Folder, "OpenSCCTUnreal", "Binaries", "DotNet", "dotnet.exe");
+        string setup = Path.Combine(installed.Folder, "contenttools", "setup", "OpenScct.UnrealSetup.dll");
+        if (!File.Exists(host) || !File.Exists(setup))
+            throw new IOException("The Unreal setup tool is missing. Repair or reinstall the Unreal release.");
+        var info = new ProcessStartInfo(host) { UseShellExecute = false, WorkingDirectory = installed.Folder };
+        info.ArgumentList.Add(setup);
+        info.ArgumentList.Add("--content-dir");
+        info.ArgumentList.Add(_install.Content);
+        if (!string.IsNullOrWhiteSpace(steamFolder))
+        {
+            info.ArgumentList.Add("--source");
+            info.ArgumentList.Add(steamFolder);
+        }
+        if (rebuild) info.ArgumentList.Add("--rebuild");
+        return info;
+    }
+
+    public string? PrerequisiteProblem() => ActiveContentRoot() is null
         ? "Build the original maps and assets from your Steam installation."
         : null;
 
@@ -392,7 +432,7 @@ public sealed class UnrealService
 
         if (!SupportsSteamContent(installed.Version))
             throw new InvalidOperationException($"Update OpenSCCT Unreal to {MinimumSteamVersion} or later to use your Steam game files.");
-        string content = _content.ActiveRoot() ?? throw new InvalidOperationException("Build the original maps and assets from your Steam installation.");
+        string content = ActiveContentRoot() ?? throw new InvalidOperationException("Build the original maps and assets from your Steam installation.");
         string arguments = ContentArgument(content);
         LauncherSettings settings = LauncherSettings.Load(_layout.Settings);
         if (settings.UnrealMapModsEnabled)
@@ -409,6 +449,7 @@ public sealed class UnrealService
             UseShellExecute = false,
             Arguments = arguments,
         };
+        info.Environment[UnrealSteamInstall.ContentDirectoryVariable] = _install.Content;
         info.Environment.Remove("SVM_CONTENT");
         info.Environment.Remove("SVM_GAME_ROOT");
         return info;

@@ -225,7 +225,7 @@ internal sealed partial class MainForm
         {
             Product.Ps2 => Ps2Status + "/" + Ps2.DiscPath + "/" + Ps2.EmulatorPath + "/" + Ps2.ModPath,
             Product.Retail => _page == LibraryPage.Mods ? "" : RetailStatus + "/" + _settings.Retail.InstallFolder,
-            Product.Unreal => _settings.UnrealMapModRoot + "/" + _settings.UnrealMapModsEnabled + "/" + _steamSource.Value + "/" + _steamContentRoot,
+            Product.Unreal => _settings.UnrealMapModRoot + "/" + _settings.UnrealMapModsEnabled + "/" + _unreal.ActiveContentRoot(),
             Product.Game or Product.Editor => _steamSource.Value + "/" + _steamContentRoot + "/" + _store.Current(),
             _ => "",
         });
@@ -296,9 +296,12 @@ internal sealed partial class MainForm
             Button rebuild = ActionButton("Rebuild game files", () =>
             {
                 SelectPage(LibraryPage.Games);
-                _ = RunAsync(BuildSteamContentAsync);
+                if (_selected == Product.Unreal) _ = RunAsync(cancel => SetUpUnrealContentAsync(cancel, true));
+                else _ = RunAsync(BuildSteamContentAsync);
             });
-            rebuild.Enabled = Content.GodotSteamContent.SupportsClient(_store.Current()) && _steamSource.Value is not null;
+            rebuild.Enabled = _selected == Product.Unreal
+                ? UnrealService.SupportsSteamContent(_unreal.Installed()?.Version) && !_unreal.IsRunning
+                : Content.GodotSteamContent.SupportsClient(_store.Current()) && _steamSource.Value is not null;
             return LibraryCard("Steam installation", _steamSource.Value ?? "Choose the folder where Steam installed Chaos Theory.",
                 ActionButton("Choose Steam folder", ChooseSteamSource), rebuild, ActionButton("Open settings", OpenSettings));
         }

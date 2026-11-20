@@ -39,23 +39,23 @@ internal sealed partial class MainForm
         if (Visible) Activate();
     }
 
-    private bool SteamBuilderUpdateAvailable()
-    {
-        if (_steamContentRoot is null || _steamSource.Value is null
-            || !SemVersion.TryParse(ContentState.Load(_steamContentRoot)?.Version, out var built)) return false;
-        var current = _store.Current();
-        var offered = _lastCheck is { Feed.Source: ReleaseFeedSource.Network or ReleaseFeedSource.NotModified, Latest: { } latest } ? latest.Version : null;
-        return current > built || offered > built;
-    }
+    private Task SetUpUnrealContentAsync(CancellationToken cancel) => SetUpUnrealContentAsync(cancel, false);
 
-    private async Task RebuildWithLatestBuilderAsync(CancellationToken cancel)
+    private async Task SetUpUnrealContentAsync(CancellationToken cancel, bool rebuild)
     {
-        if (_lastCheck?.Latest is { } latest && GodotSteamContent.SupportsClient(latest.Version)
-            && (_store.Current() is not { } current || current < latest.Version))
-            await UpdateGameBinaryAsync(cancel);
-        if (_store.Pending() is not null)
-            throw new InvalidOperationException("Close the running game to finish updating the Steam content builder.");
-        await BuildSteamContentAsync(cancel);
+        SetOperation("Building Unreal game files");
+        SetStatus("Follow the Unreal setup window to convert your Steam installation.", Theme.Muted);
+        using var setup = Process.Start(_unreal.SetupInfo(_steamSource.Value, rebuild))
+            ?? throw new IOException("The Unreal setup tool could not start.");
+        try { await setup.WaitForExitAsync(cancel); }
+        catch (OperationCanceledException)
+        {
+            if (!setup.HasExited) setup.Kill(entireProcessTree: true);
+            throw;
+        }
+        if (setup.ExitCode == 2) { SetStatus("Unreal setup cancelled.", Theme.Muted); return; }
+        if (setup.ExitCode != 0) throw new IOException("Unreal setup could not finish. See its message and build log.");
+        SetStatus("Unreal game files are ready.", Theme.Accent);
     }
 
     private void RefreshUnrealPanel(bool busy)
@@ -69,7 +69,6 @@ internal sealed partial class MainForm
         bool unreleased = installed is null && _unrealCheck is { Latest: null, Feed.Problem: null };
         // An installed update waits for the running game to close; starting another copy cannot work until then.
         bool waiting = pending is not null && _unreal.IsRunning;
-        bool rebuild = !busy && installed is not null && prerequisite is null && SteamBuilderUpdateAvailable();
 
         _installedInfo.Text = installed is null ? "Unreal Engine build · not installed"
             : "OpenSCCT Unreal " + installed.Version + (installed.OpenscctVersion is { Length: > 0 } core ? " · OpenSCCT " + core : string.Empty);
@@ -87,11 +86,6 @@ internal sealed partial class MainForm
         {
             _heading.Text = "Update ready";
             _launchDetail.Text = "Close OpenSCCT Unreal to finish the update.";
-        }
-        else if (NeedsSteamSource)
-        {
-            _heading.Text = "Steam installation needed";
-            _launchDetail.Text = "Choose your Steam copy of Chaos Theory to build the original Versus maps and assets.";
         }
         else if (installed is null)
         {
@@ -113,11 +107,6 @@ internal sealed partial class MainForm
             _heading.Text = "Steam files needed";
             _launchDetail.Text = prerequisite;
         }
-        else if (rebuild)
-        {
-            _heading.Text = "Steam content update";
-            _launchDetail.Text = "Rebuild your game files from Steam with the newer content builder.";
-        }
         else
         {
             _heading.Text = "Ready to play";
@@ -128,20 +117,18 @@ internal sealed partial class MainForm
         _main.Text = busy ? (_operationCanCancel ? "Cancel" : "Please wait")
             : unreleased ? "Check again"
             : waiting && !update ? "Waiting for game to close"
-            : NeedsSteamSource ? "Choose Steam folder"
             : installed is null ? "Install Unreal"
             : _unrealSetupFailed ? "Retry update"
             : update ? "Update Unreal"
             : !UnrealService.SupportsSteamContent(installed.Version) ? "Check for updates"
             : prerequisite is not null ? "Build game files"
-            : rebuild ? "Update Steam files"
             : "Play";
         bool waitingAction = !busy && !update && waiting;
         _main.Enabled = busy ? _operationCanCancel : !waitingAction;
         Theme.SetButtonEmphasis(_main, !busy && !waitingAction, Palette);
         _tips.SetToolTip(_main, null);
         _playCurrent.Text = "Use current version";
-        _playCurrent.Visible = !busy && installed is not null && (update || rebuild || _unrealSetupFailed) && UnrealService.SupportsSteamContent(installed.Version) && prerequisite is null;
+        _playCurrent.Visible = !busy && installed is not null && (update || _unrealSetupFailed) && UnrealService.SupportsSteamContent(installed.Version) && prerequisite is null;
         _playCurrent.Enabled = !busy;
         _check.Visible = true;
     }
@@ -166,7 +153,6 @@ internal sealed partial class MainForm
             await RunAsync(CheckSelectedAsync);
             return;
         }
-        if (NeedsSteamSource) { ChooseSteamSource(); return; }
         bool update = installed is not null && _unrealCheck?.Latest is { } latest && latest.Version > (_unreal.Pending ?? installed.Version);
         if (installed is null || update || _unrealSetupFailed)
         {
@@ -180,7 +166,7 @@ internal sealed partial class MainForm
         }
         if (_unreal.PrerequisiteProblem() is not null)
         {
-            await RunAsync(cancel => EnsureSteamContentAsync(cancel));
+            await RunAsync(SetUpUnrealContentAsync);
             return;
         }
         if (_unreal.Pending is not null && _unreal.IsRunning)
@@ -189,8 +175,7 @@ internal sealed partial class MainForm
             SetStatus("Close OpenSCCT Unreal to finish the update.", Theme.Muted);
             return;
         }
-        if (SteamBuilderUpdateAvailable()) await RunAsync(RebuildWithLatestBuilderAsync);
-        else await OpenUnrealAsync();
+        await OpenUnrealAsync();
     }
 
     private async Task SetupOrUpdateUnrealAsync(CancellationToken cancel)
@@ -201,8 +186,7 @@ internal sealed partial class MainForm
             if (!_closeAfterWork && _unreal.Installed() is { } installed && UnrealService.SupportsSteamContent(installed.Version)
                 && !_unreal.IsRunning && _unreal.Pending is null)
             {
-                if (_unreal.PrerequisiteProblem() is not null) await EnsureSteamContentAsync(cancel);
-                else if (SteamBuilderUpdateAvailable()) await RebuildWithLatestBuilderAsync(cancel);
+                if (_unreal.PrerequisiteProblem() is not null) await SetUpUnrealContentAsync(cancel);
             }
             _unrealSetupFailed = false;
         }

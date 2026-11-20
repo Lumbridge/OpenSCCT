@@ -29,10 +29,14 @@ public sealed class UnrealServiceTests
     private static readonly byte[] Patch = File.ReadAllBytes(Path.Combine(Fixtures, "old-new.osdiff"));
 
     [Fact]
-    public void SteamReadinessUsesOnlyTheLocalConversionEvenWhenOffline()
+    public async Task SteamReadinessUsesOnlyTheLocalConversionEvenWhenOffline()
     {
         using var dir = new TempDir();
-        var layout = new LauncherLayout(dir.Path);
+        var github = new FakeGitHub();
+        github.AddVersion("0.1.10", Zip("0.1.10"));
+        var (installer, layout) = Create(dir, github);
+        var cancel = TestContext.Current.CancellationToken;
+        await installer.InstallAsync((await installer.CheckAsync(false, cancel)).Latest!, null, cancel);
         var handler = new FakeHandler(_ => throw new HttpRequestException("Offline"));
         using var http = new HttpClient(handler);
         var service = new UnrealService(layout, http);
@@ -673,18 +677,47 @@ public sealed class UnrealServiceTests
         return (service, layout);
     }
 
-    /// <summary>The OpenSCCT content the Game tab downloads, as far as the Unreal build needs it.</summary>
+    private static readonly string Recipe = JsonSerializer.Serialize(new { schema = 1, platform = "win-x64", recipeDigest = new string('a', 64) });
+
+    [Fact]
+    public async Task UnrealSetupUsesItsPackagedConverterAndItsOwnGeneration()
+    {
+        using var dir = new TempDir();
+        var github = new FakeGitHub();
+        github.AddVersion("0.1.10", Zip("0.1.10"));
+        var (service, layout) = Create(dir, github);
+        var cancel = TestContext.Current.CancellationToken;
+        await service.InstallAsync((await service.CheckAsync(false, cancel)).Latest!, null, cancel);
+        string generation = SteamFiles(layout);
+        string directory = Path.Combine(layout.Unreal, "content");
+        string source = dir.Combine("Steam library with spaces");
+        var setup = service.SetupInfo(source);
+        Assert.EndsWith(Path.Combine("Binaries", "DotNet", "dotnet.exe"), setup.FileName);
+        Assert.Contains(Path.Combine("contenttools", "setup", "OpenScct.UnrealSetup.dll"), setup.ArgumentList[0]);
+        Assert.Equal(new[] { "--content-dir", directory, "--source", source }, setup.ArgumentList.Skip(1));
+        Assert.Equal(generation, service.ActiveContentRoot());
+        Assert.False(Directory.Exists(layout.Content));
+        Directory.Move(directory, layout.Content);
+        Assert.Null(service.ActiveContentRoot());
+        Directory.Move(layout.Content, directory);
+        File.WriteAllText(Path.Combine(generation, UnrealSteamInstall.RecipeFile), Recipe.Replace(new string('a', 64), new string('b', 64)));
+        Assert.Null(UnrealSteamInstall.ActiveRoot(directory, new string('a', 64)));
+    }
+
+    /// <summary>A complete generation built with the installed Unreal edition's converter.</summary>
     private static string SteamFiles(LauncherLayout layout)
     {
         string id = Guid.NewGuid().ToString("N");
-        string root = Path.Combine(layout.Content, SteamContentInstall.BuildsDirectory, id);
+        string directory = Path.Combine(layout.Unreal, "content");
+        string root = Path.Combine(directory, SteamContentInstall.BuildsDirectory, id);
         foreach (string relative in SteamContentInstall.RequiredFiles())
         {
             string path = Path.Combine(root, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, "{}");
         }
-        File.WriteAllText(Path.Combine(layout.Content, SteamContentInstall.PointerFile), JsonSerializer.Serialize(new { format = 1, build = id }));
+        File.WriteAllText(Path.Combine(root, UnrealSteamInstall.RecipeFile), Recipe);
+        File.WriteAllText(Path.Combine(directory, SteamContentInstall.PointerFile), JsonSerializer.Serialize(new { format = 1, build = id }));
         return root;
     }
 
@@ -712,6 +745,9 @@ public sealed class UnrealServiceTests
             Write(zip, "OpenSCCT Unreal/" + UnrealService.StarterExe, Bytes("starter " + version));
             Write(zip, "OpenSCCT Unreal/" + Shipping, Bytes("shipping " + version));
             Write(zip, "OpenSCCT Unreal/Prerequisites/vc_redist.x64.exe", Bytes("redist"));
+            Write(zip, "OpenSCCT Unreal/contenttools/" + UnrealSteamInstall.RecipeFile, Bytes(Recipe));
+            Write(zip, "OpenSCCT Unreal/contenttools/setup/OpenScct.UnrealSetup.dll", Bytes("setup"));
+            Write(zip, "OpenSCCT Unreal/OpenSCCTUnreal/Binaries/DotNet/dotnet.exe", Bytes("private runtime"));
             Write(zip, "OpenSCCT Unreal/data/big.bin", Old);
             Write(zip, "OpenSCCT Unreal/version.json", VersionJson(version));
         }
