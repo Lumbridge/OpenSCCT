@@ -28,6 +28,33 @@
     }
   },
   {
+    "id": "array-destroy-041d30",
+    "size": 56,
+    "offset": 269616,
+    "rebuilt_symbol": "@array_destroy_r041d30@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r036720@16": {
+        "va": 278095648,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-036720. The call passes index zero, the current count and element size 80."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x41d30, 0x41d68). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x36720. Removes every element with stride 80 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "52cdeb1c7dedbcf98044bdcb5dec9eb9af7c42c7057b0cecf9fd874146bf5e78",
+      "inputs_sha256": "18b801821d89c25074f4d63b2a752bf0fc62d59b608b1df10cbc024f1f5b2f3f"
+    }
+  },
+  {
     "id": "game-echelonai-basecivilian-setsearchawareness",
     "offset": 269792,
     "size": 46,

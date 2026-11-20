@@ -323,6 +323,87 @@
     }
   },
   {
+    "id": "array-destroy-374070",
+    "size": 56,
+    "offset": 3620976,
+    "rebuilt_symbol": "@array_destroy_r374070@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r372380@16": {
+        "va": 281486208,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-372380. The call passes index zero, the current count and element size 60."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x374070, 0x3740a8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x372380. Removes every element with stride 60 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "7c3137ce03bd303da0474695e54d1c0e3a9fa2d23db0e6f3239fe610d5d7887a",
+      "inputs_sha256": "c1e48536758031397d2a2986583901afe253a84eb371a620ce0581cadc49aebb"
+    }
+  },
+  {
+    "id": "array-destroy-3740b0",
+    "size": 56,
+    "offset": 3621040,
+    "rebuilt_symbol": "@array_destroy_r3740b0@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r372410@16": {
+        "va": 281486352,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-372410. The call passes index zero, the current count and element size 40."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x3740b0, 0x3740e8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x372410. Removes every element with stride 40 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "2ea9f3be4b53fbed1b7f013fa05dea1a6b10f4081a8334f4eded85d1da12557f",
+      "inputs_sha256": "8f3c9eb08734713e7b2a0e6b6d56e82a851216dbfb3194418a0866b814a21849"
+    }
+  },
+  {
+    "id": "array-destroy-374130",
+    "size": 56,
+    "offset": 3621168,
+    "rebuilt_symbol": "@array_destroy_r374130@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r372530@16": {
+        "va": 281486640,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-372530. The call passes index zero, the current count and element size 64."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x374130, 0x374168). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x372530. Removes every element with stride 64 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "da7ae742d0d99a2f45c26afd2719b844fe0c5b9eda3ff7969e70181047c75ec6",
+      "inputs_sha256": "78d68ac035a72b3d2c43ba227d4fa36ed01514af451efe89d07ef60087e62927"
+    }
+  },
+  {
     "id": "placement-uesbcustom",
     "offset": 3622368,
     "size": 14,

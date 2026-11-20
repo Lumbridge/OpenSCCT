@@ -1,5 +1,113 @@
 [
   {
+    "id": "array-destroy-061480",
+    "size": 56,
+    "offset": 398464,
+    "rebuilt_symbol": "@array_destroy_r061480@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r05f5c0@16": {
+        "va": 278263232,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-05f5c0. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x61480, 0x614b8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x5f5c0. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "b6219f2ae0c38330e4d2fe23aa31b4934277e73361291784a296221cb9ba4946",
+      "inputs_sha256": "7f04b55e1df1e568c59c730e84b16b2b2fcf581e99a62b50f5f59639b9491a03"
+    }
+  },
+  {
+    "id": "array-destroy-061520",
+    "size": 56,
+    "offset": 398624,
+    "rebuilt_symbol": "@array_destroy_r061520@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r05f6a0@16": {
+        "va": 278263456,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-05f6a0. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x61520, 0x61558). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x5f6a0. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "5aca00ce4df55377204d2ac1a3e217d7b43f8b42f467cc1b2705d26f4ccc5c78",
+      "inputs_sha256": "438a3497a5610448667be5babf2991d8cbc4e8da02409eebeee38a3b44587486"
+    }
+  },
+  {
+    "id": "array-destroy-061690",
+    "size": 56,
+    "offset": 398992,
+    "rebuilt_symbol": "@array_destroy_r061690@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r05f7b0@16": {
+        "va": 278263728,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-05f7b0. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x61690, 0x616c8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x5f7b0. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "e0743cf440f15c4484b6689a4e8e7e775d5500cf94890c634ef49e0019f2fb2a",
+      "inputs_sha256": "c7f903706d584deeeb8936a15320dcad809c54569833503db6f4889b83db7516"
+    }
+  },
+  {
+    "id": "array-destroy-061730",
+    "size": 56,
+    "offset": 399152,
+    "rebuilt_symbol": "@array_destroy_r061730@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r05f890@16": {
+        "va": 278263952,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-05f890. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x61730, 0x61768). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x5f890. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "f550e912f932b5ac7c95cefc21a98bd7a433bb8eb21b2ad9ff2d25de26f5db96",
+      "inputs_sha256": "5b57a9f9ff0793b64412c691059e679a6340aa1c931db033048fb0dc0fcdb591"
+    }
+  },
+  {
     "id": "class-singleton-ufactory",
     "offset": 417760,
     "size": 38,
@@ -155,7 +263,7 @@
     "identification": "Complete stock array destructor at RVA 0x670c0, called from decoded game code at RVA 0x2cef2f. Removes every element with stride 1 and releases remaining storage.",
     "match": {
       "bytes_sha256": "8587daacd6b9cc7bc217d468fcab48ebe61b65065d79a3fa4a8421476bd23414",
-      "inputs_sha256": "af0e7380692e90b6a4e34c9ba6c325850ab2555e96eb22d8c5205cab9ad6a137"
+      "inputs_sha256": "722e300a4a7a6ef7f10a83f958164d30f4d5d0bdb02407ccfc5ed18c88edbf7a"
     }
   },
   {
@@ -1142,7 +1250,7 @@
     "identification": "Complete stock array destructor at RVA 0x69270, called from decoded game code at RVA 0x69611. Removes every element with stride 44 and releases remaining storage.",
     "match": {
       "bytes_sha256": "0f6a5355228080e57d773b3356d4b93abf33e2416753263d525784580632096b",
-      "inputs_sha256": "84fa5dc5cab5b91f097cc49a84b4471223f62d7925fde24d820225a12b05fbf1"
+      "inputs_sha256": "dd6b4995332d22507a34382011aa1d9ba96348a67fcf51a27a7cf9f102c20c56"
     }
   },
   {
@@ -1169,7 +1277,7 @@
     "identification": "Complete stock array destructor at RVA 0x692b0, called from decoded game code at RVA 0x698a1. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "c81ee961bdac384647756d5cd730a1ec0b720c5cf15391a52ac0b25e73f55fe9",
-      "inputs_sha256": "4e4fea1d3b0b5611285f0d491d623eb2b7dfcf54950ddeaddfd77f2faa82be7b"
+      "inputs_sha256": "b633dcfc5c8c1bd3847973ef7fa80ba9df2e36df233861a3adfd9a4f5251761b"
     }
   },
   {
@@ -1196,7 +1304,7 @@
     "identification": "Complete stock array destructor at RVA 0x692f0, called from decoded game code at RVA 0x69ad1. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "3cb057548785fa132f30b80faa4e691d46e69451e534710f16695662394381c8",
-      "inputs_sha256": "3ac33d120f2d6937c943705ec0337bae24cc5bc914d9538103a81cbb41e7870d"
+      "inputs_sha256": "419928ca8c69a18294ee4473a7088278055586f93f1483cacc8ccda6a1c88f7d"
     }
   },
   {
@@ -1223,7 +1331,7 @@
     "identification": "Complete stock array destructor at RVA 0x69330, called from decoded game code at RVA 0x69d91. Removes every element with stride 40 and releases remaining storage.",
     "match": {
       "bytes_sha256": "56cb3bb2ac569b8bbc6440edfba43af89480fdf6189f25a1da19e5d25f2dd8c9",
-      "inputs_sha256": "4b55816488fe27648483e6320fce000a701ad84715b2529e6c74804bcaccd789"
+      "inputs_sha256": "585977def4f21f695eaa05c6135cbdb62c61c3f10a19b5c2f15e49aca6b68cdd"
     }
   },
   {

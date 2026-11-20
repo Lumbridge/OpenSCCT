@@ -120,6 +120,33 @@
     }
   },
   {
+    "id": "array-destroy-2979e0",
+    "size": 56,
+    "offset": 2718176,
+    "rebuilt_symbol": "@array_destroy_r2979e0@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r2957b0@16": {
+        "va": 280582064,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-2957b0. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x2979e0, 0x297a18). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x2957b0. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "6b47f850623ee4ebbbc50efb46a25941ef2bf114612edea57923dadf2ea88c40",
+      "inputs_sha256": "81fb27e2db9d933348bb4700505d8874f83df2dc3fcb9aaf122e0e57f8aa96e3"
+    }
+  },
+  {
     "id": "game-echelon-epattern-sendpostattackpatternevent",
     "offset": 2722160,
     "size": 46,

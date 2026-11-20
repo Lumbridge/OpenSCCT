@@ -300,6 +300,33 @@
     }
   },
   {
+    "id": "array-destroy-146720",
+    "size": 56,
+    "offset": 1337120,
+    "rebuilt_symbol": "@array_destroy_r146720@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r1462a0@16": {
+        "va": 279208608,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-1462a0. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x146720, 0x146758). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x1462a0. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "64728d4be8a3fc156dddfe7426c597e40c3f5f6a9db244e74f6fc2daf83cfc77",
+      "inputs_sha256": "5785c100e0c1ddafedcc1739ed383f547b6e47698313bbac6dcc12623f231035"
+    }
+  },
+  {
     "id": "delete-ubyteproperty",
     "offset": 1339936,
     "size": 46,
@@ -488,7 +515,7 @@
     "identification": "Complete stock array destructor at RVA 0x1487b0, called from decoded game code at RVA 0x148851. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "39a09ebe318fa008070623b596e1e30bec2b7d4e6c76ed6d89d9c712763b813b",
-      "inputs_sha256": "9fa8fd7ac5b01275ff2702c3dc9cbc607a796e64b2249fdaa689a2a9ec7f8e3b"
+      "inputs_sha256": "5555325400e327d404b55fbc312284e973be35f4b3b95511e763f4f29c520f0a"
     }
   },
   {

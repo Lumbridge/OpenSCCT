@@ -146,6 +146,33 @@
     }
   },
   {
+    "id": "array-destroy-276180",
+    "size": 56,
+    "offset": 2580864,
+    "rebuilt_symbol": "@array_destroy_r276180@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r275d00@16": {
+        "va": 280452352,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-275d00. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x276180, 0x2761b8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x275d00. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "64728d4be8a3fc156dddfe7426c597e40c3f5f6a9db244e74f6fc2daf83cfc77",
+      "inputs_sha256": "5670d73c5415031e695feaa7a8adb237cf63086cbe375e9406ddbd6c8a0f4f33"
+    }
+  },
+  {
     "id": "array-remove-276a30",
     "size": 138,
     "offset": 2583088,
@@ -205,6 +232,33 @@
     "match": {
       "bytes_sha256": "2657cbd15069d1897c61e08973ac73744e3690e4b42343783454513a97b47153",
       "inputs_sha256": "725c0eda5cd360184d93d9f49331b8e047433e6a27732520d3ccf3e370e26795"
+    }
+  },
+  {
+    "id": "array-destroy-279d80",
+    "size": 56,
+    "offset": 2596224,
+    "rebuilt_symbol": "@array_destroy_r279d80@4",
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Engine allocator used by the recovered FArray removal and release functions."
+      },
+      "@destroy_remove_r279b40@16": {
+        "va": 280468288,
+        "basis": "Direct call to the independently compiled FArray range-removal function array-remove-279b40. The call passes index zero, the current count and element size 4."
+      }
+    },
+    "identification": "Default Ghidra analysis independently identified the isolated range [0x279d80, 0x279db8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x279b40. Removes every element with stride 4 and releases remaining storage.",
+    "match": {
+      "bytes_sha256": "2f23e59fd8ab2e9199f7b637e739f9776992cc5e47cd88dad1266b50b7c5cada",
+      "inputs_sha256": "2f247259eaac5400fd9a3221dd777bf1ee3e3b6dfb77a92bb1c5c4ac98b7939b"
     }
   },
   {
