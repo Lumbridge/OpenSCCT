@@ -285,6 +285,40 @@
     }
   },
   {
+    "id": "tree-next-496740",
+    "size": 87,
+    "offset": 4810560,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_496740@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d96a03. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "4f05cd089be98030c53694ccbe67c9dfd0a6e1a759354f795b3dc5755e836b19",
+      "inputs_sha256": "3aa1d231759bd9336b93196f65ff22456f22748315bb5e2489a477f5bbc6671d"
+    }
+  },
+  {
+    "id": "tree-prev-496860",
+    "size": 93,
+    "offset": 4810848,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_496860@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d96bb3. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "44b9bfcc11f7b8dcd1fc53faa657b854a09c5db4c75d1a49dec7bef8516ac0a1",
+      "inputs_sha256": "df74f481368cea1da528c212aa12f7cb5efffd1b3ccb4698348b2cc5eafcb6a6"
+    }
+  },
+  {
     "id": "rotate-left-496950",
     "size": 85,
     "offset": 4811088,
@@ -515,6 +549,23 @@
     "match": {
       "bytes_sha256": "fd16811cb23c7a5fd672a77c5f377f33622b6a7902656ee8e7d3afcea62ee93d",
       "inputs_sha256": "9f863b22220f1411c5c89661dfc251667520d363314dea0f22a744bd240ebf75"
+    }
+  },
+  {
+    "id": "tree-prev-499210",
+    "size": 93,
+    "offset": 4821520,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_499210@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d99403. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "44b9bfcc11f7b8dcd1fc53faa657b854a09c5db4c75d1a49dec7bef8516ac0a1",
+      "inputs_sha256": "566c69c34ef226286fb97ebf4aa43c655bf5a0abcb964e3febb9c0a5c17ef637"
     }
   },
   {
@@ -847,6 +898,40 @@
     "match": {
       "bytes_sha256": "fd16811cb23c7a5fd672a77c5f377f33622b6a7902656ee8e7d3afcea62ee93d",
       "inputs_sha256": "5fb304a3e23a2023975ff86258d8fd419d54dfa4147cd4aaa4f93e08a6117078"
+    }
+  },
+  {
+    "id": "tree-next-49f3b0",
+    "size": 87,
+    "offset": 4846512,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_49f3b0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d9f673. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "4f05cd089be98030c53694ccbe67c9dfd0a6e1a759354f795b3dc5755e836b19",
+      "inputs_sha256": "da97da734f03d7ed3b7300430d6172ad4a29640839644ec184f36475344440e9"
+    }
+  },
+  {
+    "id": "tree-prev-49f4d0",
+    "size": 93,
+    "offset": 4846800,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_49f4d0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d9f833. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "44b9bfcc11f7b8dcd1fc53faa657b854a09c5db4c75d1a49dec7bef8516ac0a1",
+      "inputs_sha256": "520829037ccf55fa9e6cfc94bcc1d92552ec11f12b302215e32cf1f09f5d6aa6"
     }
   },
   {

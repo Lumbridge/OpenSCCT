@@ -68,6 +68,23 @@
     }
   },
   {
+    "id": "tree-next-2a0460",
+    "size": 87,
+    "offset": 2753632,
+    "inputs": [
+      "src/versus_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_2a0460@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_iteration.obj src/versus_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10ba092e. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "4f05cd089be98030c53694ccbe67c9dfd0a6e1a759354f795b3dc5755e836b19",
+      "inputs_sha256": "8aa687f2b45ca65a2e5b36fe5b9b97363126ed273187747d083417bbc329cab4"
+    }
+  },
+  {
     "id": "rotate-left-2a0710",
     "size": 85,
     "offset": 2754320,

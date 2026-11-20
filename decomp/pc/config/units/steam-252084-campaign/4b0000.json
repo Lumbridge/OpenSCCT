@@ -1119,5 +1119,39 @@
       "bytes_sha256": "fd16811cb23c7a5fd672a77c5f377f33622b6a7902656ee8e7d3afcea62ee93d",
       "inputs_sha256": "30f12f3d49a3c5b35a316683723e88072dc7f7945153e00684097b44c9c4b8a3"
     }
+  },
+  {
+    "id": "tree-next-4bfd80",
+    "size": 87,
+    "offset": 4980096,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_4bfd80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10dc0183. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "4f05cd089be98030c53694ccbe67c9dfd0a6e1a759354f795b3dc5755e836b19",
+      "inputs_sha256": "ae62119548da78943a66d7c6d08d3dc36215ff9474ad2a314cceb396dd0a8d37"
+    }
+  },
+  {
+    "id": "tree-prev-4bfea0",
+    "size": 93,
+    "offset": 4980384,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_4bfea0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10dc0333. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "44b9bfcc11f7b8dcd1fc53faa657b854a09c5db4c75d1a49dec7bef8516ac0a1",
+      "inputs_sha256": "8dc51d19e352b5361907584bbd107a8d4ee7dc22e25ab6da3d4e4cb5bbaed71c"
+    }
   }
 ]

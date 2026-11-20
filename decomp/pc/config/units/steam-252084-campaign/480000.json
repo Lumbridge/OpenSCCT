@@ -251,6 +251,23 @@
     }
   },
   {
+    "id": "tree-next-4846c0",
+    "size": 87,
+    "offset": 4736704,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_4846c0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d84983. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "4f05cd089be98030c53694ccbe67c9dfd0a6e1a759354f795b3dc5755e836b19",
+      "inputs_sha256": "b85ca7941c525c76a4622e66a13e596ed7404f09d73406f03784e39961ff8aaa"
+    }
+  },
+  {
     "id": "delete-record-484860",
     "offset": 4737120,
     "size": 30,
@@ -515,6 +532,40 @@
     }
   },
   {
+    "id": "tree-next-488f90",
+    "size": 87,
+    "offset": 4755344,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_488f90@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d893e3. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "4f05cd089be98030c53694ccbe67c9dfd0a6e1a759354f795b3dc5755e836b19",
+      "inputs_sha256": "ba46e4893c802d249cf48c1814ee3daf6e77c296d1a92fc01342da5d7865ae7c"
+    }
+  },
+  {
+    "id": "tree-prev-4890a0",
+    "size": 93,
+    "offset": 4755616,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_4890a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d89583. Iterator traverses children or ascends parent links and checks the sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "44b9bfcc11f7b8dcd1fc53faa657b854a09c5db4c75d1a49dec7bef8516ac0a1",
+      "inputs_sha256": "93eb99284b30d25081ac050d7bf47280462adb9a31239e8c01a5603e0c3b33e0"
+    }
+  },
+  {
     "id": "rotate-left-489370",
     "size": 85,
     "offset": 4756336,
@@ -611,6 +662,40 @@
     "match": {
       "bytes_sha256": "35f4120a6cb66c21b83d5f46a43f56feb3fc1c87ff450e4d0dd920c8406a7414",
       "inputs_sha256": "be6ee8b4811c812cf86f774fe78009bbe940f216991bda77ff32061f897dbf5c"
+    }
+  },
+  {
+    "id": "tree-next-48bc70",
+    "size": 87,
+    "offset": 4766832,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_48bc70@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d8c3f3. Iterator traverses children or ascends parent links and checks the sentinel at offset 25.",
+    "match": {
+      "bytes_sha256": "d101e68c97c4a12196f932013f380e1e10af4738b21ba039c26045cee64b8869",
+      "inputs_sha256": "ee3883bcaf451dc25f3849b602237521a74d6064aa01fecbab8f069087a265ce"
+    }
+  },
+  {
+    "id": "tree-prev-48bde0",
+    "size": 93,
+    "offset": 4767200,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_48bde0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d8c7b3. Iterator traverses children or ascends parent links and checks the sentinel at offset 25.",
+    "match": {
+      "bytes_sha256": "653232a5647659ca965012db4c96b6b14c82451fa9105c7c757d8402543a46b3",
+      "inputs_sha256": "a67ee1c1ed981cf663d1d829124c3d40d10082d381cc90554d8cdacbedebcfbe"
     }
   },
   {

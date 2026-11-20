@@ -34,6 +34,23 @@
     }
   },
   {
+    "id": "tree-next-380710",
+    "size": 87,
+    "offset": 3671824,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10c83713. Iterator traverses children or ascends parent links and checks the sentinel at offset 17.",
+    "match": {
+      "bytes_sha256": "11579090353e0a373f40cc0bb4ad24d3dafbb58d1590e35ce45f8b3d5c28965a",
+      "inputs_sha256": "8198b6dcf89918cde7c5c88182074b60342e199767e8ed7c3027d21d4b647a80"
+    }
+  },
+  {
     "id": "class-registration-ud3drenderdevice",
     "offset": 3675008,
     "size": 264,
@@ -136,6 +153,23 @@
     "match": {
       "bytes_sha256": "b6fec6f22a20e2d6378570ea5cd8bafea8cd59047417675d2e5232a1958c3cc9",
       "inputs_sha256": "0ab30f9fe7572b41c4addf728dee0db9012bbbeff658616ad4ec1ccb87307626"
+    }
+  },
+  {
+    "id": "tree-prev-383690",
+    "size": 93,
+    "offset": 3683984,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_383690@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10c85873. Iterator traverses children or ascends parent links and checks the sentinel at offset 17.",
+    "match": {
+      "bytes_sha256": "48c7408adefdfc208f241956a688b828874a48cf2a7370392855c6e84978e16c",
+      "inputs_sha256": "051384da47a2c7809434dc942cc881bc1744a8d0a52ac74e6240233ffb903857"
     }
   },
   {

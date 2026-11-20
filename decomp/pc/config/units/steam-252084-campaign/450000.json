@@ -1,5 +1,22 @@
 [
   {
+    "id": "tree-next-450020",
+    "size": 87,
+    "offset": 4522016,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_450020@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d50143. Iterator traverses children or ascends parent links and checks the sentinel at offset 53.",
+    "match": {
+      "bytes_sha256": "9f5c36a85b720b1cce4e09f3c468d1443b0516a5e44db67c3b36e8f765f91278",
+      "inputs_sha256": "d42d092e2c6de3eb4a689d6bf1e8e5d4d700f022de5e31ce7b90d27bb7a808ef"
+    }
+  },
+  {
     "id": "clear-owned-storage-452650",
     "size": 42,
     "offset": 4531792,
@@ -63,6 +80,23 @@
     "match": {
       "bytes_sha256": "aa92a242e964dc51c930874c59b9af7cda21ed776281fea42886073a5f5d8e4c",
       "inputs_sha256": "027f9d783254569e1edd4e9100a74ee63e0c00a4b0a4cad5ce711badeb35da60"
+    }
+  },
+  {
+    "id": "tree-prev-454ff0",
+    "size": 93,
+    "offset": 4542448,
+    "inputs": [
+      "src/campaign_tree_iteration.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_prev_454ff0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_iteration.obj src/campaign_tree_iteration.c",
+    "identification": "Direct call at retail VA 0x10d55333. Iterator traverses children or ascends parent links and checks the sentinel at offset 53.",
+    "match": {
+      "bytes_sha256": "c01e2f57f29101644a6c66382b41adab74e0dea217803515540a677d93afc54b",
+      "inputs_sha256": "d9ef44d5b867558f0435316f78b71d02154ae5b9510b040d3b90592ac5ec4cb9"
     }
   },
   {

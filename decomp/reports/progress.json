@@ -58,8 +58,8 @@
           "matched_bytes": 0,
           "total_bytes": 8082506,
           "matched_units": 0,
-          "candidate_bytes": 556036,
-          "candidate_units": 8919,
+          "candidate_bytes": 559996,
+          "candidate_units": 8963,
           "percent": 0.0,
           "evidence": "decomp/pc/config/steam-252084-campaign.json"
         },
@@ -71,8 +71,8 @@
           "matched_bytes": 0,
           "total_bytes": 2991392,
           "matched_units": 0,
-          "candidate_bytes": 121315,
-          "candidate_units": 1819,
+          "candidate_bytes": 121402,
+          "candidate_units": 1820,
           "percent": 0.0,
           "evidence": "decomp/pc/config/steam-252084-versus.json"
         }
