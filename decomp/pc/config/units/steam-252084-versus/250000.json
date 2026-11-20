@@ -261,6 +261,52 @@
     }
   },
   {
+    "id": "dispatch-byte-values-254110",
+    "size": 83,
+    "offset": 2441488,
+    "inputs": [
+      "src/versus_callback_byte_values.c"
+    ],
+    "rebuilt_symbol": "@dispatch_254110@4",
+    "coff_alignment": 16,
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_byte_values.obj src/versus_callback_byte_values.c",
+    "link_bindings": {
+      "@read_253cd0@16": {
+        "va": 280313040,
+        "basis": "Retail call with three local output addresses."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the byte output to 0 and two word outputs to zero before invoking the reader and handler slot 3.",
+    "match": {
+      "bytes_sha256": "799c0c166303210c5f2b815757575e93f955d5077b264007b688156e727f088c",
+      "inputs_sha256": "535dc8296d5cc49c9ef4f9c621867217c178d8ff7a01e18c9c7c11c32bb5f477"
+    }
+  },
+  {
+    "id": "dispatch-byte-values-254ea0",
+    "size": 83,
+    "offset": 2444960,
+    "inputs": [
+      "src/versus_callback_byte_values.c"
+    ],
+    "rebuilt_symbol": "@dispatch_254ea0@4",
+    "coff_alignment": 16,
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_callback_byte_values.obj src/versus_callback_byte_values.c",
+    "link_bindings": {
+      "@read_254f00@16": {
+        "va": 280317696,
+        "basis": "Retail call with three local output addresses."
+      }
+    },
+    "identification": "Default Ghidra extent. Initializes the byte output to 39 and two word outputs to zero before invoking the reader and handler slot 0.",
+    "match": {
+      "bytes_sha256": "48d898476104b91f6430ed1c881e990eae394b890d563e152221a8db5fb5ab42",
+      "inputs_sha256": "b2259c96a3bf94c2c897f9d5e680e50f5259a55f70f7e42a99b7cd787c277f98"
+    }
+  },
+  {
     "id": "delete-record-256a90",
     "offset": 2452112,
     "size": 27,
