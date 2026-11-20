@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using OpenScct.Launcher.Content;
 using OpenScct.Launcher.Unreal;
 using OpenScct.Launcher.Content;
 using OpenScct.Launcher.GitHub;
@@ -119,11 +118,6 @@ internal sealed partial class MainForm
             _heading.Text = "Steam content update";
             _launchDetail.Text = "Rebuild your game files from Steam with the newer content builder.";
         }
-        else if (sharedUpdate)
-        {
-            _heading.Text = "Shared game files update available";
-            _launchDetail.Text = "Download the updated files for OpenSCCT Unreal.";
-        }
         else
         {
             _heading.Text = "Ready to play";
@@ -155,13 +149,10 @@ internal sealed partial class MainForm
     private async Task CheckUnrealAsync(CancellationToken cancel)
     {
         SetOperation("Checking OpenSCCT Unreal updates");
-        Task<UnrealCheck> release = _unreal.CheckAsync(_settings.UnrealIncludePrereleases, cancel);
-        await Task.WhenAll(release, RefreshPackIndexAsync(cancel));
-        _unrealCheck = await release;
+        _unrealCheck = await _unreal.CheckAsync(_settings.UnrealIncludePrereleases, cancel);
         RefreshReleasePreview();
         SetStatus(_unrealCheck.Feed.Problem ?? (_unrealCheck.Latest is null ? UnrealService.NoReleaseMessage
             : _unrealCheck.UpdateAvailable ? "An OpenSCCT Unreal update is available." : _unrealCheck.Installed is null ? string.Empty
-            : PackedContent.HasOnlineSharedUpdate(_packIndex, _packs) ? "Updated shared game files are available."
             : "OpenSCCT Unreal is up to date."),
             _unrealCheck.Feed.Problem is null ? Theme.Muted : Theme.Warning);
     }
@@ -207,11 +198,11 @@ internal sealed partial class MainForm
         try
         {
             await SetupOrUpdateUnrealCoreAsync(cancel);
-            if (!_closeAfterWork && _unreal.Installed() is not null && !_unreal.IsRunning)
+            if (!_closeAfterWork && _unreal.Installed() is { } installed && UnrealService.SupportsSteamContent(installed.Version)
+                && !_unreal.IsRunning && _unreal.Pending is null)
             {
-                bool missing = _unreal.PrerequisiteProblem() is not null;
-                if (missing || PackedContent.HasOnlineSharedUpdate(_packIndex, _packs))
-                    await DownloadContentAsync(cancel, _packIndex, sharedOnly: !missing);
+                if (_unreal.PrerequisiteProblem() is not null) await EnsureSteamContentAsync(cancel);
+                else if (SteamBuilderUpdateAvailable()) await RebuildWithLatestBuilderAsync(cancel);
             }
             _unrealSetupFailed = false;
         }
@@ -258,8 +249,6 @@ internal sealed partial class MainForm
         _operationCanCancel = true;
         RefreshLocal();
         if (_closeAfterWork) return;
-        if (_unreal.PrerequisiteProblem() is not null && _unreal.Pending is null)
-            await EnsureSteamContentAsync(cancel);
         string downloaded = result.DownloadedBytes is long bytes && bytes > 0 ? $" Downloaded {Mb(bytes)}." : string.Empty;
         SetStatus(result.Outcome switch
         {

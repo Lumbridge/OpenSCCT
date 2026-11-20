@@ -67,7 +67,7 @@ internal sealed partial class MainForm
 
     private async Task BuildSteamContentAsync(CancellationToken cancel)
     {
-        if (_games.Running().Count > 0 || _unreal.IsRunning || EditorUsesSharedContent())
+        if (_steamContent.ActiveRoot() is not null && (_games.Running().Count > 0 || _unreal.IsRunning || EditorUsesSharedContent()))
             throw new InvalidOperationException("Close the modernisations and editor before rebuilding their game files.");
         string? folder = _steamSource.Value;
         if (folder is null || GodotSteamContent.FindSource(folder) is not { } source)
