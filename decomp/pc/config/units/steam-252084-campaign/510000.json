@@ -204,7 +204,7 @@
     "identification": "Indexed scratch array constructor for 160-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "c6c48b192bb537d47b43bc653ec968ad1bb6bc8cdf5b229d119b3ac2b31dea35",
-      "inputs_sha256": "841af0c3db16a586d33eb396e3f17d72afd297700866172375b4605762c50adc"
+      "inputs_sha256": "35743b6d386e087fa4d1030c580e9775f3837d67e2333cde986695216414cea5"
     }
   },
   {
@@ -334,7 +334,7 @@
     "identification": "Indexed scratch array constructor for 48-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "3965178ba52655080e4efe5b04fc85bb2aa05652d6564c1d4a9ef8fadbee0f01",
-      "inputs_sha256": "5273b366c1f8fd183823d1e9a35b9ab2274da3b365eaaf063150a6abca3a72db"
+      "inputs_sha256": "ba98178f65c0b5795d5521b268fe4b236858e0f69550f24addfb993efe70b85f"
     }
   },
   {
@@ -464,7 +464,7 @@
     "identification": "Indexed scratch array constructor for 256-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "de32860f6f984ca6501fc7a3b949e31628a99ed82678b84eac84e14ea6fddec6",
-      "inputs_sha256": "3f9f7544f6b78460311e0b1e440e42f5dc9cf2fffee65b8ac4e121bf011f9172"
+      "inputs_sha256": "15ecfa7aa961e5251147ecf028740ae97ad0e685580631aedeb53e3bab6bdccf"
     }
   },
   {

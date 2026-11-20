@@ -18,7 +18,7 @@
     "identification": "Indexed scratch array constructor for 16-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "fb1a49110ad41652adb025c2bf4c125e0e27794d4f2c9f213c2a98c6d794c6b8",
-      "inputs_sha256": "fcc6b9654e6e36e9125654edea8c965d7a22664df85f888947e7eac67668cf74"
+      "inputs_sha256": "f3b86241f236fb7de834110e368c4cddc2ffeb1d3ab5aaeea139ba18e207a830"
     }
   },
   {
@@ -106,7 +106,7 @@
     "identification": "Indexed scratch array constructor for 2-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "25eba6ca5e429859476a31b774c2c9fa2dd82a37b6a6387124bf4ede2bfa50db",
-      "inputs_sha256": "809c46f51ad68de7afe6d0317ed6e74d1a4bd6a69053c9719d8708056701a42a"
+      "inputs_sha256": "e0cdbb869103fc89d66da3ccc7ab5814877153a3a9e4e9ea535b761e098bb709"
     }
   },
   {

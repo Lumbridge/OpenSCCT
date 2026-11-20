@@ -658,7 +658,7 @@
     "identification": "Indexed scratch array constructor for 12-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "449362281f00787f87ef07aebc0a1d06100604444da54b698eadb4fbd4235641",
-      "inputs_sha256": "71d7662cba363f5d45131acda375780f0c5bce1e3676c9684afe77cc51ccd2bd"
+      "inputs_sha256": "01e0a7c9b3895d98001ddda245d9db71c1f540511b1bda35b9e00bae84cb0973"
     }
   },
   {

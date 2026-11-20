@@ -92,7 +92,7 @@
     "identification": "Indexed scratch array constructor for 4-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "53d110a7892f9b6544478f220db3ce87433807e47985dfa835000d920bdff96a",
-      "inputs_sha256": "c5974da1aa9f6a199c0feb200b566eb3fc776fe5e95a66123a4387bff0ed2e51"
+      "inputs_sha256": "ad116295d1cab9637e94485463345c0af46cbc1ab6d4d6d8212b6dfae9072241"
     }
   },
   {
@@ -136,7 +136,7 @@
     "identification": "Indexed scratch array constructor for 4-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "53d110a7892f9b6544478f220db3ce87433807e47985dfa835000d920bdff96a",
-      "inputs_sha256": "2b2fad758b8d6c9c7c9a3e5e77a06ab1b460869caa15bcde1964871773a8be70"
+      "inputs_sha256": "4a6c464088512b78c8450f5951d4dc70cb8c087a0f09f7d67605a0531002479d"
     }
   },
   {
@@ -180,7 +180,7 @@
     "identification": "Indexed scratch array constructor for 4-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "53d110a7892f9b6544478f220db3ce87433807e47985dfa835000d920bdff96a",
-      "inputs_sha256": "7721d9cdbb5705ae94bc1b9d99d9f861ffb1dd9260473680ef223914ab2aa8ba"
+      "inputs_sha256": "ee20cd75086843cc886a4494eb452df505401570597e414deafb9a3f38c134cb"
     }
   },
   {
@@ -224,7 +224,7 @@
     "identification": "Indexed scratch array constructor for 16-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "fb1a49110ad41652adb025c2bf4c125e0e27794d4f2c9f213c2a98c6d794c6b8",
-      "inputs_sha256": "95f5cca9429671240d79de95af32ce6b6168aca2fb48e9cbea0879ca994f731a"
+      "inputs_sha256": "8dca1e0fe9eac76985b572d06d509af4bed2e057a2acf34bf9080032c2d2c38d"
     }
   },
   {
@@ -268,7 +268,7 @@
     "identification": "Indexed scratch array constructor for 4-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "53d110a7892f9b6544478f220db3ce87433807e47985dfa835000d920bdff96a",
-      "inputs_sha256": "667554383306fc1724e00a53773ccecb4ec043e6ca3ed22a9fa3aefc2ee31e6e"
+      "inputs_sha256": "5f40092387e4fddb57a59f86b4ec009e39c226fc1e915bcf97270e842756ed95"
     }
   },
   {
@@ -312,7 +312,7 @@
     "identification": "Indexed scratch array constructor for 1-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "1743b118412a42e47cb1fde78369dbaddc4f5493f45b0106a5c4c0f18e62a1f2",
-      "inputs_sha256": "64cbce67da81f9ec1d42c8d53d493786f895fce03e0267333174ca329b235a8c"
+      "inputs_sha256": "accfb74d8bf2746436f765fb4f0d9a4996ad6fb935858e8c0e5c0b247620677d"
     }
   },
   {
@@ -335,6 +335,28 @@
     "match": {
       "bytes_sha256": "f1327eaa3933f6b9cfae7c606e0315fc42ead9a7bb0ed61c91aad3b5f78a87ea",
       "inputs_sha256": "11bc7b99670477decd60ff4d4c1e264b57cab617ed11475b0e62b60e4300f81f"
+    }
+  },
+  {
+    "id": "scratch-array-construction-6f8960",
+    "size": 105,
+    "offset": 7309664,
+    "inputs": [
+      "src/campaign_scratch_array_construct.c"
+    ],
+    "rebuilt_symbol": "@construct_6f8960@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_scratch_array_construct.obj src/campaign_scratch_array_construct.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager consulted for space in its current block."
+      }
+    },
+    "identification": "Aligned 4-byte element constructor between indexed scratch array destructors at RVAs 0x6f8900 and 0x6f89d0, with INT3 padding on both boundaries.",
+    "match": {
+      "bytes_sha256": "53d110a7892f9b6544478f220db3ce87433807e47985dfa835000d920bdff96a",
+      "inputs_sha256": "bcd19d6d24a12a435dde08e0a4c58553f070a40564f1b015bdf098f2474240e5"
     }
   },
   {
