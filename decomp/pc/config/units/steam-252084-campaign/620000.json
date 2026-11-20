@@ -1,0 +1,112 @@
+[
+  {
+    "id": "init-tree-head-628730",
+    "offset": 6457136,
+    "size": 62,
+    "inputs": [
+      "src/campaign_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_628730@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_head_construction.obj src/campaign_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Retail call allocating the 24-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10f2808f. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "7d46da9fe787b5460a032813ebea7b3f81154122a1eeaf6190abe70d381335b4",
+      "inputs_sha256": "9f95506318ae15065f95145cd935cd8469a2f5e994ac506ce00bd34f73a145de"
+    }
+  },
+  {
+    "id": "init-tree-head-62c1e0",
+    "offset": 6472160,
+    "size": 62,
+    "inputs": [
+      "src/campaign_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_62c1e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_head_construction.obj src/campaign_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Retail call allocating the 48-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10f28a2b. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "805d26704fe403c4bb79e883cf0c22c896e41e03313717479697c92ab59a5552",
+      "inputs_sha256": "818ce19f8a85d28db1fe64a4f4a548351c7ceee9f88d71904e84b5a309b81d34"
+    }
+  },
+  {
+    "id": "init-tree-head-62c240",
+    "offset": 6472256,
+    "size": 62,
+    "inputs": [
+      "src/campaign_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_62c240@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_head_construction.obj src/campaign_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Retail call allocating the 24-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10f28a57. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "002fbbc23c1ec37d8dc62e3513c98a46557f5e1109ee5e24ea887cb95c378cce",
+      "inputs_sha256": "718a7709cac648d5b387a856f94305d03f245ed9528a2fc13356630406616fb1"
+    }
+  },
+  {
+    "id": "init-tree-head-62c290",
+    "offset": 6472336,
+    "size": 62,
+    "inputs": [
+      "src/campaign_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_62c290@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_head_construction.obj src/campaign_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Retail call allocating the 24-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10f28a83. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "1cf4aa3eacae1cf589c50e7c6c82d420d884529ef1649da12f408780f1176b09",
+      "inputs_sha256": "4337ec11f8ce4997e1be0e72a478de8d628a2de9e3dded5bacce692887c99398"
+    }
+  },
+  {
+    "id": "init-tree-head-62c2e0",
+    "offset": 6472416,
+    "size": 62,
+    "inputs": [
+      "src/campaign_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_62c2e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_head_construction.obj src/campaign_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Retail call allocating the 24-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10f28aaf. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "00d5c18efa8cb1ea144a00e0904ae343f222bd813c061011299f10a06bb9f5fa",
+      "inputs_sha256": "c3acf2e1c0b29078865815b7ff4b35753e0250dea3ab3129c070854cc226788f"
+    }
+  }
+]

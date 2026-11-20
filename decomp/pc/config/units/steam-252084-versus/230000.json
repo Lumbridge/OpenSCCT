@@ -27,6 +27,28 @@
     }
   },
   {
+    "id": "init-tree-head-235f20",
+    "offset": 2318112,
+    "size": 62,
+    "inputs": [
+      "src/versus_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_235f20@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_head_construction.obj src/versus_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 279385296,
+        "basis": "Retail call allocating the 24-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10b358ef. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "03e7f03adca9f3a9cf9763476d682868099996a7e9b14b90609b9b38ccd9d01f",
+      "inputs_sha256": "82d463d7e0a578865d75958e4319e01ccd66a45feaaa83b8dfa28f9bcaac8c14"
+    }
+  },
+  {
     "id": "delete-record-236660",
     "offset": 2319968,
     "size": 27,
@@ -105,6 +127,28 @@
     "match": {
       "bytes_sha256": "f00f521f918940bfeedd9e8e81f46be3442f63d24c0fe5ee3469d40af0a8bab5",
       "inputs_sha256": "86b9d0d9fa881fcd4af3faf3510419b1be71c7866f7cf52ccc2325413d835529"
+    }
+  },
+  {
+    "id": "init-tree-head-239ff0",
+    "offset": 2334704,
+    "size": 62,
+    "inputs": [
+      "src/versus_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_239ff0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_head_construction.obj src/versus_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 279385296,
+        "basis": "Retail call allocating the 48-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x10b364db. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "556d845b77d6ee2b049107a6e0bd3f5a22726705dd86ad9147f85d4aebb7ccd0",
+      "inputs_sha256": "c6b58c7ad2558195e80861bf5a90a60a2a1d5df5e1c908da4a6f06d3d4110d00"
     }
   },
   {

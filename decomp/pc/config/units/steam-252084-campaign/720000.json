@@ -1,5 +1,27 @@
 [
   {
+    "id": "init-tree-head-722fc0",
+    "offset": 7483328,
+    "size": 62,
+    "inputs": [
+      "src/campaign_tree_head_construction.c"
+    ],
+    "rebuilt_symbol": "@init_tree_head_722fc0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_head_construction.obj src/campaign_tree_head_construction.c",
+    "link_bindings": {
+      "_allocate_node@4": {
+        "va": 285448704,
+        "basis": "Retail call allocating the 24-byte tree head."
+      }
+    },
+    "identification": "Direct retail caller at VA 0x11021200. Creates an empty tree with a null root and both extreme links pointing at the head.",
+    "match": {
+      "bytes_sha256": "10b27862ba245b173e0be849ce17c4034155fcee27e42d8c199c0f1f42943b98",
+      "inputs_sha256": "be67b026016b438ca14afeb86c52ac0b1e3edc46cfc43641256f9b338947bdb3"
+    }
+  },
+  {
     "id": "finalize-record-r7282a0",
     "size": 10,
     "offset": 7504544,
