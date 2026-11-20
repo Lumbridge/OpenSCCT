@@ -58,6 +58,70 @@
     }
   },
   {
+    "id": "insert-node-2533c0",
+    "offset": 2438080,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_2533c0@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_insert_rebalance.obj src/versus_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_253390@8": {
+        "va": 280310672,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 280192032,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 280191952,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b51722. Inserts an unsigned 16-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "8829b7051ac7fa26a606f9f6565be4aca0c9ad193eb5ace663406570474a485e",
+      "inputs_sha256": "a0f69bc6f3106cea8fbc66bc3cd43503995125c518dcae5cb7a8c367746383f7"
+    }
+  },
+  {
+    "id": "insert-node-253590",
+    "offset": 2438544,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_253590@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_insert_rebalance.obj src/versus_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_253920@8": {
+        "va": 280312096,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 280192032,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 280191952,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b52eb2. Inserts an unsigned 16-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "3221196babe98c430cb581a3bc4c5f20f8ce0ec61e000c8a0cced51eb880f72e",
+      "inputs_sha256": "ddb32ac314855b63a03e1613e7b2fd5c50f51d67b4dc90cb8fb338a61dca055a"
+    }
+  },
+  {
     "id": "delete-record-256a90",
     "offset": 2452112,
     "size": 27,
@@ -140,6 +204,38 @@
     "match": {
       "bytes_sha256": "559ac1a75e91a0e99ea6828d806a3abee7f39fb29cc52b6682185b73d9eef5e3",
       "inputs_sha256": "265e92dfc6faf400e20985d6d109f789eda88fb61954ec8e098de7ae2b1c57b2"
+    }
+  },
+  {
+    "id": "insert-node-259c40",
+    "offset": 2464832,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_259c40@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_insert_rebalance.obj src/versus_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_259ff0@8": {
+        "va": 280338416,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 280192032,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 280191952,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b59762. Inserts a signed 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "cf79a6d5c515b039a0dd637395a0d7ee875086580bd2c7cbe7ddc75422d45a83",
+      "inputs_sha256": "67781a08d0120c6ba3836570259068808448ea3bc91b596185d36e93ec6cf2c4"
     }
   },
   {

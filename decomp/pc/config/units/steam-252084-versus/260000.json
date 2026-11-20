@@ -376,10 +376,10 @@
         "basis": "Independently matched red-black tree rotation."
       }
     },
-    "identification": "Direct call at retail VA 0x10b3597a. Inserts an unsigned key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "identification": "Direct call at retail VA 0x10b3597a. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "41961da0ef65e683e8af500ec2b93f77b2726009b4c2071bf555fc7ad700d498",
-      "inputs_sha256": "debca734d07dcd84eefd730e3af6c0f16402472080111a896705d3bbc8ac331d"
+      "inputs_sha256": "cf4b771aa9ca368cd24c483497164cec1f74e0925e628187a947f544e0a8c1ab"
     }
   },
   {
@@ -673,6 +673,38 @@
     "match": {
       "bytes_sha256": "03a5524463881f53be5a7945f12688c489449cb3a6ad29055be0e07bf22fd7e3",
       "inputs_sha256": "4f88b2f400062e9fa22c8d6dc47ae0f7841cabcb68d65d1e2d0dc7fac0f7003b"
+    }
+  },
+  {
+    "id": "insert-node-26b700",
+    "offset": 2537216,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_26b700@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_insert_rebalance.obj src/versus_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_26ba50@8": {
+        "va": 280410704,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 280192032,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 280191952,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b6b292. Inserts an unsigned 8-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "a162098852f23bfed6d8704617e2f5764c7ef4b759a6abd8d94a9c8493329e8e",
+      "inputs_sha256": "23ff04e9b108544fbeb78cbe757c093ce84eb3c55b88f121f9be28c1fa242b27"
     }
   },
   {

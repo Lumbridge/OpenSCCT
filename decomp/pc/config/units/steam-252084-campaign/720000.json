@@ -119,6 +119,38 @@
     }
   },
   {
+    "id": "insert-node-727d10",
+    "offset": 7503120,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_727d10@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_insert_rebalance.obj src/campaign_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_727f10@8": {
+        "va": 285376272,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 284090480,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 284090400,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x11024219. Inserts a signed 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "a3c6e396a04eae1079b8209506fbbcb000f9b3a8f1bffc4ea64e758fba27a8ea",
+      "inputs_sha256": "d79fdd1284ddd988aa64aecd67076715b73c6388e932805cdd413414746c3783"
+    }
+  },
+  {
     "id": "finalize-record-r7282a0",
     "size": 10,
     "offset": 7504544,

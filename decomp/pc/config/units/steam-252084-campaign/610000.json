@@ -72,5 +72,69 @@
       "bytes_sha256": "0fb5d965086e7a3a39603d8a0510fc815c9e34148c6de33224b72a8c3b57dcdb",
       "inputs_sha256": "e117ee9bb412d1447747bb39ca107b7f59df570b1a88e271a95df3ccac7d7483"
     }
+  },
+  {
+    "id": "insert-node-619080",
+    "offset": 6393984,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_619080@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_insert_rebalance.obj src/campaign_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_619050@8": {
+        "va": 284266576,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 284090480,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 284090400,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f16c32. Inserts an unsigned 16-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "878d37f1341600d1d1bf4f34f6d054317ebd968f96bff1e296d1f3da78f3a689",
+      "inputs_sha256": "7988b57b42aec78d664cc192c7f571bd33f52af6044882b6fe87300fe50562c9"
+    }
+  },
+  {
+    "id": "insert-node-619250",
+    "offset": 6394448,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/campaign_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_619250@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_insert_rebalance.obj src/campaign_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_619640@8": {
+        "va": 284268096,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 284090480,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 284090400,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10f18b42. Inserts an unsigned 16-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "54f4535f675c33651c2553085694017335419a5f271224db71eb37ecc60fe5be",
+      "inputs_sha256": "099fd0268632fb34483178399ff4415452d238bbf80706ae750d3d2ef669a679"
+    }
   }
 ]

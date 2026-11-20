@@ -1,4 +1,5 @@
-struct Node { unsigned char color; struct Node *parent, *left, *right; unsigned key; };
+union Key { unsigned u32; int s32; unsigned short u16; unsigned char u8; };
+struct Node { unsigned char color; struct Node *parent, *left, *right; union Key key; };
 #define ROTATE(Name, Near, Far) \
     static __forceinline void Name(struct Node *node, struct Node **root) \
     { \
@@ -19,10 +20,10 @@ struct Position { struct Node *node; };
 struct Args {
     struct Position *out;
     struct Node *left_hint, *parent;
-    const unsigned *value;
+    const union Key *value;
     unsigned right_hint;
 };
-struct Value { const unsigned *data; };
+struct Value { const union Key *data; };
 
 extern void rotate_left_call(struct Node *,struct Node **);
 extern void rotate_right_call(struct Node *,struct Node **);
@@ -42,14 +43,14 @@ extern void rotate_right_call(struct Node *,struct Node **);
             Second(current->parent->parent, root); \
         }
 
-#define INSERT_NODE(Entry, Make) \
+#define INSERT_NODE(Entry, Make, Field) \
     struct Position *__fastcall Entry(struct Tree *tree, struct Args args) \
     { \
         struct Value value; \
         struct Node *node, *parent = args.parent, *current; \
         struct Node **root; \
         value.data = args.value; \
-        if (parent == tree->head || (!args.right_hint && (args.left_hint || *value.data < parent->key))) { \
+        if (parent == tree->head || (!args.right_hint && (args.left_hint || value.data->Field < parent->key.Field))) { \
             node = Make(tree, value); \
             parent->left = node; \
             if (parent == tree->head) { \

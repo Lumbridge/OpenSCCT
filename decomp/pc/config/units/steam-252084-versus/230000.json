@@ -460,10 +460,10 @@
         "basis": "Independently matched red-black tree rotation."
       }
     },
-    "identification": "Direct call at retail VA 0x10b39382. Inserts an unsigned key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "identification": "Direct call at retail VA 0x10b39382. Inserts an unsigned 32-bit key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
     "match": {
       "bytes_sha256": "a60913ee2b4e6e9564ff796b0cfdbe62daaf0bde3e23e0d2538c8566d48fafba",
-      "inputs_sha256": "357e289d2c6f10cd5fa952114383d9cdab6cceaf400f0f1045f3dd6331e3d043"
+      "inputs_sha256": "e7100c685de086dbb53ed31b371b1ca60d38e9f911b115d3eecdb29090263ba7"
     }
   },
   {
