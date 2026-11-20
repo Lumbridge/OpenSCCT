@@ -28,6 +28,93 @@
     }
   },
   {
+    "id": "place-record-0512e0",
+    "offset": 332512,
+    "size": 74,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r0512e0",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x512e0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 4 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "f337a068e8a4ced58767380ca47bef2e3cf516eb121d0b1d9b07990eb3c06c7f",
+      "inputs_sha256": "5ba3a89bd9f6f0f3451dd5c4edf44e0e4bd17c75ca04d2ce382d512f555ad4c9"
+    }
+  },
+  {
+    "id": "append-record-051b00",
+    "offset": 334592,
+    "size": 114,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r051b00@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x51b00. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 20 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "c6ec6d814ab559c31808cfd6472d90f69e3a49f9a2a84eba254402a54928947f",
+      "inputs_sha256": "b7c37e3ca86a3341c322c90d6effa7aaedcf4fc09b7dd88b50034709f861a60b"
+    }
+  },
+  {
+    "id": "append-record-051c30",
+    "offset": 334896,
+    "size": 114,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r051c30@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x51c30. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 20 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "c6ec6d814ab559c31808cfd6472d90f69e3a49f9a2a84eba254402a54928947f",
+      "inputs_sha256": "a2010c135592bf25743ac05c0f5b96015d4833478fdc7ec5eccfe0597050c7ec"
+    }
+  },
+  {
     "id": "array-destroy-051cb0",
     "size": 56,
     "offset": 335024,

@@ -4826,6 +4826,35 @@
     }
   },
   {
+    "id": "append-record-2fcf20",
+    "offset": 3133216,
+    "size": 97,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r2fcf20@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x2fcf20. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 48 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "e38af433bb036138919a2a21efc4e3332e94e836833523d0a722e5f06b15b04c",
+      "inputs_sha256": "99da32f0df8ac70b90f882047eb5d16a4684fbe03f5fc9bac59ddd43a8c989a8"
+    }
+  },
+  {
     "id": "virtual-aeforegripattach-182-2fd4b0",
     "size": 3,
     "offset": 3134640,
@@ -6324,6 +6353,7 @@
     "offset": 3140064,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -6343,7 +6373,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x2fe9e0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "3f9aae7dc39f5abbf59f73f4bf3887802f0e6632f9b8ffb8a96a3e44b432998e"
+      "inputs_sha256": "4c81b995287a6a40dd197a68f865b8930677458f10e7795e88d94eb59e923ced"
     }
   },
   {

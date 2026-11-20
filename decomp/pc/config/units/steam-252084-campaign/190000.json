@@ -506,11 +506,41 @@
     }
   },
   {
+    "id": "add-records-1973b0",
+    "offset": 1668016,
+    "size": 73,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@add_records_r1973b0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7ba17c": {
+        "va": 285974908,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x1973b0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 4 bytes. Advances the count by the requested amount and returns the original count.",
+    "match": {
+      "bytes_sha256": "4d5603415f0a7071d3e4722b879bb8be5cbfa4c3df2651b142de80b4de8c1ed0",
+      "inputs_sha256": "9b710387b7463cba3fe46acc0034a4b7822746007c7be6c98def5e46a86329c5"
+    }
+  },
+  {
     "id": "array-append-197750",
     "size": 82,
     "offset": 1668944,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -530,7 +560,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x197750 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "d4a67fcaeef443dc29c4673c8b6b30f06cab40be381ba9390c50d34719531a8d",
-      "inputs_sha256": "ee31c9abd175826c1e5ffa295ca3c42d7da682a503e7c757271e5a9a33cd7d27"
+      "inputs_sha256": "f69dbc780f50c5bbcc0ce5bf7f94dba7cbb04c47f6ef8655dc8ba7e0171dc4a8"
     }
   }
 ]

@@ -188,6 +188,7 @@
     "offset": 4200128,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -207,7 +208,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x4016c0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "ed653207342ffb646bd9da8d53c223219085e02a1c390ea51c524fc76809a203"
+      "inputs_sha256": "410b4035d77217ee4d67d7548385fbef74e7ae9cd08c28f83a9fa95e16c60514"
     }
   },
   {
@@ -216,6 +217,7 @@
     "offset": 4212208,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -235,7 +237,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x4045f0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "0233f5fe546c1cbb6b836788df5466b2636bedad29b9b976410e41cdc84d7ce2"
+      "inputs_sha256": "de5d592609937d934e290baf1eece83c8b59873365925a29b6f586039f9475a1"
     }
   },
   {
@@ -563,6 +565,7 @@
     "offset": 4242912,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -582,7 +585,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x40bde0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "423242b0520d41e0fee79b22fde669712f1b4daeb5337d93d72bdac03d5d6b99"
+      "inputs_sha256": "f923a6a38d9985b72949eceeeab5f20d2552c8d01c970f60f72696940d76fa8b"
     }
   },
   {
@@ -591,6 +594,7 @@
     "offset": 4243008,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -610,7 +614,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x40be40 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "d6eb0597f9a9df5acefdc40cbe75faba68b9434ff8a2834f8e7e66a3d810a5ea"
+      "inputs_sha256": "8c6ea763bfdcd8d141cbb8752c7b809ee0e09236309b16b469bcfd39e1bb2b4d"
     }
   },
   {
@@ -675,6 +679,7 @@
     "offset": 4249456,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -694,7 +699,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x40d770 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "9b9d5d3be969a22370690dc5e71848e63bd434fbbcea45adc0c59ebe7556833c"
+      "inputs_sha256": "6bdc863fc9d760217efa47f1fea2c743dc375e9095e6059c962f47dfe74b6d98"
     }
   },
   {

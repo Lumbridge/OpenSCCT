@@ -1,5 +1,208 @@
 [
   {
+    "id": "place-record-1508d0",
+    "offset": 1378512,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r1508d0",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x1508d0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 16 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "ccd21856b3206650a7009d5932a8e0d30578049709cdbaf7310230861fa388e4",
+      "inputs_sha256": "62cd7347d9c1e8f693bf7e961c6823f9b42ccaf9257c98a669b5741070aa2353"
+    }
+  },
+  {
+    "id": "place-record-150920",
+    "offset": 1378592,
+    "size": 80,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r150920",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x150920. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 72 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "ee030413951822263cebf5755e729626a946164e5a9ac907097dba63b1ebf57e",
+      "inputs_sha256": "ec70186613e59fcfb5bb3acccc207d1905d146b4eb122f756444e5e0be97fce8"
+    }
+  },
+  {
+    "id": "place-record-150970",
+    "offset": 1378672,
+    "size": 80,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r150970",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x150970. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 12 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "8ff31ce2366b0d946d8625d02fe2bbe5048fc8385c2fa4a9f14c564d3264c49c",
+      "inputs_sha256": "4f2619b8f85afa2260704bd1054401c975798c6677538ed15374ce6f7e4fee1b"
+    }
+  },
+  {
+    "id": "place-record-1509c0",
+    "offset": 1378752,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r1509c0",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x1509c0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 16 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "ccd21856b3206650a7009d5932a8e0d30578049709cdbaf7310230861fa388e4",
+      "inputs_sha256": "aba7ed9c2b493e9a75b1d04eecf9e76382cc15e918212b66f5fd7d2e005a60e0"
+    }
+  },
+  {
+    "id": "place-record-150a10",
+    "offset": 1378832,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r150a10",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x150a10. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 28 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "678944bff36025a5a831369c074797307e1ddae04aa1f0f1448a61290c4702e5",
+      "inputs_sha256": "18d0e1481db367cf2bf30e87b269f806de97a27cb058640fefb86323f58fae0e"
+    }
+  },
+  {
+    "id": "place-record-150a60",
+    "offset": 1378912,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r150a60",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x150a60. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 16 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "ccd21856b3206650a7009d5932a8e0d30578049709cdbaf7310230861fa388e4",
+      "inputs_sha256": "93c950937cee74d1584a236d65ded64066e3b56d21bf5a595372a1e34d3e6eaa"
+    }
+  },
+  {
+    "id": "place-record-150ab0",
+    "offset": 1378992,
+    "size": 74,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r150ab0",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x150ab0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 8 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "6e4b91ee707e2ea7057bfc44c858590c30132dfe4249f3793195a663aca738fc",
+      "inputs_sha256": "62a41f8cba8efa837006dcf7fa9c4e932aa880ae127ff060124c8d281a5249b6"
+    }
+  },
+  {
     "id": "array-remove-150b00",
     "size": 138,
     "offset": 1379072,
@@ -214,6 +417,122 @@
     "match": {
       "bytes_sha256": "ee441d4616238f80672b2bc9d68921c2613f6a7caa439147b59a725bf30a4058",
       "inputs_sha256": "57c4e10c8012063258b7b77369570fd75c1f6636010a2bf7ab384b9dda7c6d91"
+    }
+  },
+  {
+    "id": "append-record-150fa0",
+    "offset": 1380256,
+    "size": 106,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r150fa0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x150fa0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 16 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "b8b4732f88e8d4cf565f083c877cadacc961a3292efbc8ccb094b1a772c06346",
+      "inputs_sha256": "2e1f86ba14641d45efaaea25369f1616b5c7ff06e8bcc5d2183e0af1b906a83b"
+    }
+  },
+  {
+    "id": "append-record-151130",
+    "offset": 1380656,
+    "size": 102,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r151130@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x151130. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 12 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "e5740510ae5e8e32f3772807f1e7e8be3c85ffc323ae73c17d1f16609ef047db",
+      "inputs_sha256": "26bc42c1997e9366d304fbafc0f196823cedb148edd7ad38e3804f7e50cda5c6"
+    }
+  },
+  {
+    "id": "append-record-152910",
+    "offset": 1386768,
+    "size": 95,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r152910@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x152910. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 72 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "ceb2fa92f15582dbe5878f7eccd4b34afd952140defb2ce09d2ac329d8f78ba1",
+      "inputs_sha256": "d792934e4e3d4ed42e3bdcf35d647ddf9dadbbc69ad67b2d96b0a489c27feb27"
+    }
+  },
+  {
+    "id": "append-record-152e30",
+    "offset": 1388080,
+    "size": 93,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r152e30@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x152e30. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 28 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "1b991b3f089d268e8b24592d5fe8c4c0888608ac77cc5969222e6b7dc10273ed",
+      "inputs_sha256": "284e7fb4085cc773e976a121c43fa1e10a8ecb4592fd45c0102e635d813f5ee7"
     }
   },
   {
@@ -597,6 +916,35 @@
     "match": {
       "bytes_sha256": "43f4ddd5fed6a3d69bfe5399d42b405143ec492c9b101688218e945c60f73d5a",
       "inputs_sha256": "22056f26b853320162a9d736afb71917022211cbebd40b026163e0508dbb45bd"
+    }
+  },
+  {
+    "id": "place-record-154ad0",
+    "offset": 1395408,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r154ad0",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x154ad0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 28 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "678944bff36025a5a831369c074797307e1ddae04aa1f0f1448a61290c4702e5",
+      "inputs_sha256": "c84ff6dbb1c4335fef78e7619daf5b4c8382b379aa31723a4de3a729cf5174d2"
     }
   },
   {
@@ -1089,6 +1437,122 @@
     }
   },
   {
+    "id": "place-record-15bc30",
+    "offset": 1424432,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r15bc30",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15bc30. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 60 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "5f732f77e429e819170f4528058b102b2ee79e2be1ba1891fffedcb4ec09149d",
+      "inputs_sha256": "b748b491ba99dcbcaf1f2469ace20ae5768227b9e6a1f8cdbb4a6bdaadb95130"
+    }
+  },
+  {
+    "id": "place-record-15bc80",
+    "offset": 1424512,
+    "size": 80,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r15bc80",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15bc80. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 20 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "f27c4700fbed3edd8b66fcb2282b7a1b7e38acb8c90dc93bf29dca68ac5cca61",
+      "inputs_sha256": "059796c4417b9cb40eb2d62b775f57aae53a47d8917141f6642849fe0d588e50"
+    }
+  },
+  {
+    "id": "place-record-15bcd0",
+    "offset": 1424592,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r15bcd0",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15bcd0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 28 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "678944bff36025a5a831369c074797307e1ddae04aa1f0f1448a61290c4702e5",
+      "inputs_sha256": "79fcaba900b278fd7dc4f77f15be133f7618179ed51994c4c7b914ce880d6289"
+    }
+  },
+  {
+    "id": "place-record-15bd20",
+    "offset": 1424672,
+    "size": 78,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "_place_record_r15bd20",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15bd20. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 16 bytes. Appends an uninitialized slot and returns its address.",
+    "match": {
+      "bytes_sha256": "ccd21856b3206650a7009d5932a8e0d30578049709cdbaf7310230861fa388e4",
+      "inputs_sha256": "a9685197b69d7e613513e0aec51e8078fb93d78cdaf67d7eeb3b103a37d8403b"
+    }
+  },
+  {
     "id": "array-remove-15bdb0",
     "size": 138,
     "offset": 1424816,
@@ -1373,6 +1837,7 @@
     "offset": 1438256,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -1392,7 +1857,36 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x15f230 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "056b721f786676dc823cb94b6373ceaed56cdce3f75041e5785da4ef8018fb66"
+      "inputs_sha256": "b17921650d3ccee36d74225f8a78e5a67950f7b93b03c86c1dcca0b7ea27cf33"
+    }
+  },
+  {
+    "id": "append-record-15fc00",
+    "offset": 1440768,
+    "size": 93,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r15fc00@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15fc00. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 60 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "1de32ae6f3436d51f373f3e881830fd59a92c6d7323962fe304d4ca4595e155a",
+      "inputs_sha256": "08dc92411381d5451103c74fccbb1c05dcef1f36a7dd5b37d43eb91db4e47912"
     }
   },
   {
@@ -1401,6 +1895,7 @@
     "offset": 1440864,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -1420,7 +1915,36 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x15fc60 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "5a261ce1ae0a3f9ede8a9017d702ff6b5fec364592555e1822da13674adbb5bf"
+      "inputs_sha256": "996ea633b1462a1638fa0bcb02e81de236de1b89c4cb3409a423bf1ca20ef1e6"
+    }
+  },
+  {
+    "id": "append-record-15fe50",
+    "offset": 1441360,
+    "size": 93,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r15fe50@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15fe50. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 60 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "1de32ae6f3436d51f373f3e881830fd59a92c6d7323962fe304d4ca4595e155a",
+      "inputs_sha256": "99511e431a860857a798f5b692eecc85584eacc8dd411cff2569423fc39b22e3"
     }
   },
   {
@@ -1429,6 +1953,7 @@
     "offset": 1441456,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -1448,7 +1973,36 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x15feb0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "d6959280a0533f7494d94c1911bd642767a0304c3fae8fe16b6e98018c3b43f9"
+      "inputs_sha256": "e3f7cc8719fd5707c169eb1eddca31577af3ee4fca60c24f1390ddf6ff59b411"
+    }
+  },
+  {
+    "id": "append-record-15ffc0",
+    "offset": 1441728,
+    "size": 93,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@append_record_r15ffc0@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x15ffc0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 28 bytes. Appends a copy of the input record and returns its index.",
+    "match": {
+      "bytes_sha256": "1b991b3f089d268e8b24592d5fe8c4c0888608ac77cc5969222e6b7dc10273ed",
+      "inputs_sha256": "402b392f95294a6caf62e970ad0460d78037144681228212f0782f9b1f7a29fa"
     }
   }
 ]

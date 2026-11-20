@@ -4463,6 +4463,7 @@
     "offset": 3450832,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -4482,7 +4483,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x34a7d0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "8fc7049a98688fe67fa5bc10fcd05139b127d1e2d54f809c904f0f1bac89f515"
+      "inputs_sha256": "8989868b843550a960a34b4158876157f53eba06f88fc17fc55e76640fa0b4fc"
     }
   },
   {

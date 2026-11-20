@@ -206,6 +206,7 @@
     "offset": 2550176,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -225,7 +226,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x26e9a0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "7c450edc55c412663b6a973db49a5db9733e3838b8c9c2888d45f004c7c4c0f8"
+      "inputs_sha256": "2c68c5f42eaf50599545b53109a3dabcb9ed717d1ff8288a5e38102b5665c291"
     }
   },
   {
@@ -401,6 +402,7 @@
     "offset": 2553472,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -420,7 +422,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x26f680 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "350274ebdf7673c20388f13989fb425d1bb4784e90c21d78d2d591cc6235dd8e"
+      "inputs_sha256": "4c85dc43e1d832d505bca43b760cbaf0344a6f85d7042aece201b4187020376c"
     }
   }
 ]

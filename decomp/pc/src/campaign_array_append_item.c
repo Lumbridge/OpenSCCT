@@ -1,18 +1,11 @@
-#include "campaign_array_resize_abi.h"
+#include "campaign_fixed_record_growth.h"
 
 struct ArrayItemRef { const unsigned int *value; };
 
 static __forceinline int append_item(struct Array *array, struct ArrayItemRef item,
                                      const unsigned short *allocation_tag)
 {
-    int index = array->count;
-    if (++array->count > array->capacity) {
-        struct ArrayTag tag;
-        array->capacity = array->count + (3 * array->count) / 8 + 2;
-        tag.text = allocation_tag;
-        array->buffer.bytes = resize_heap->methods->resize(
-            resize_heap, resize_heap->methods, array->buffer, array->capacity * sizeof(unsigned int), tag);
-    }
+    int index = extend_records(array, 1, sizeof(unsigned int), allocation_tag);
     ((unsigned int *)array->buffer.bytes)[index] = *item.value;
     return index;
 }

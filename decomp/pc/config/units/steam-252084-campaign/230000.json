@@ -123,6 +123,7 @@
     "offset": 2319536,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -142,7 +143,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x2364b0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "7c1efb9847b2e1bbe9621cd4a02f1193a669dc45ea588f3b1bb3c4fa7709da4c"
+      "inputs_sha256": "645ab1a107d40600069d27241e2fba9c02e8b34a520f3396b409743cb3203465"
     }
   },
   {
@@ -178,6 +179,7 @@
     "offset": 2319696,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -197,7 +199,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x236550 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "c789bfb8cbc5a7480c7f2f641e2eb13da67ad19e5276a21c73451d0fd7766e6b"
+      "inputs_sha256": "490689df3adab8d6d78f91e329cb8946139082ee38d916c0b5786f630b366924"
     }
   },
   {
@@ -434,6 +436,7 @@
     "offset": 2338832,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -453,7 +456,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x23b010 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "abf65f714d23dccfd25b8976ec0f0bb022f78c063644199525ac4633e5b08814"
+      "inputs_sha256": "80b331ae740ab1a0d7d7a31351f23f2199e755626a72fd5696bd047b98a7a191"
     }
   },
   {

@@ -15287,6 +15287,35 @@
     }
   },
   {
+    "id": "add-records-009590",
+    "offset": 38288,
+    "size": 72,
+    "inputs": [
+      "src/campaign_record_arrays.c",
+      "src/campaign_fixed_record_growth.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_record_arrays.obj src/campaign_record_arrays.c",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "rebuilt_symbol": "@add_records_r009590@8",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; virtual slot 1 receives the old storage and the capacity multiplied by the fixed record size."
+      },
+      "_record_tag_7b78d8": {
+        "va": 285964504,
+        "basis": "Read-only UTF-16 FArray allocation label at an address also recovered from other campaign array operations."
+      }
+    },
+    "identification": "Stock FArray operation at RVA 0x9590. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 2 bytes. Advances the count by the requested amount and returns the original count.",
+    "match": {
+      "bytes_sha256": "f4fc54f044b6e0a1c2c911a73c3a0eb60ea11b4e1937c635d3d527bf209410db",
+      "inputs_sha256": "5c5639363dec025478ba6ffe3efd9c472488ec3138d1e93dcbd83be97f406322"
+    }
+  },
+  {
     "id": "array-resize-009660",
     "size": 37,
     "offset": 38496,
@@ -15768,6 +15797,7 @@
     "offset": 52576,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -15787,7 +15817,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0xcd60 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "94e6d49b4545a418cb68a4bcf4b3c72570fa363f32701ff5713d516ac791744e"
+      "inputs_sha256": "f785eabdf619e64f9b3c23194541b8b54a56b0a72e0946c480d60d55188c1423"
     }
   },
   {
@@ -15796,6 +15826,7 @@
     "offset": 52848,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -15815,7 +15846,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0xce70 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "299dc921c0a323cc55616d9ed8548339ce4744ca883176e60b5e05a93574d774"
+      "inputs_sha256": "66f332637ed11b72b65f0b7756143b5a81b29521f37cdf4f65807991a7d44e75"
     }
   },
   {
@@ -15824,6 +15855,7 @@
     "offset": 53232,
     "inputs": [
       "src/campaign_array_append_item.c",
+      "src/campaign_fixed_record_growth.h",
       "src/campaign_array_resize_abi.h",
       "src/campaign_array_storage.h"
     ],
@@ -15843,7 +15875,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0xcff0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "efb378f777afeabc1e7af6e8f2dbde86c8ae68a9224ab358ced531940d3967bf"
+      "inputs_sha256": "e6e666b07618efb8642665a27b1a5fa258a4f398116ac6e99430109d647eebfa"
     }
   },
   {
