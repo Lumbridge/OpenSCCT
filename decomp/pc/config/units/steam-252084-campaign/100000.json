@@ -4458,6 +4458,56 @@
     }
   },
   {
+    "id": "vector-length-error-10f770",
+    "size": 112,
+    "offset": 1111920,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x10f770. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "fff48b0cb0769482060f06abb80ec4cbacb5281b3ca74f30de14d399f9d27b43",
+      "inputs_sha256": "cf156f600fd17c4c6e4478167a34c6f3fc4c2945efe78e9f737c23f17ec1211e"
+    }
+  },
+  {
     "id": "placement-uscmagmainteraction",
     "offset": 1112032,
     "size": 24,

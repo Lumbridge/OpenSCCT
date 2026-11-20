@@ -1410,6 +1410,56 @@
     }
   },
   {
+    "id": "vector-length-error-389f30",
+    "size": 112,
+    "offset": 3710768,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x389f30. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "e5b24e95d03113bd7e0f5c3839bc8060e64c2649ddbbd7ffbf18df5229dcd368",
+      "inputs_sha256": "59ae47f111b850fdeeaa763ac87fdeab795c450208d8acdf22987f36b99f71db"
+    }
+  },
+  {
     "id": "vector-virtual-12-38a490",
     "size": 83,
     "offset": 3712144,

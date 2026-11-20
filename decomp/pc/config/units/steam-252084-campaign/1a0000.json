@@ -287,6 +287,56 @@
     }
   },
   {
+    "id": "deque-length-error-1a1340",
+    "size": 112,
+    "offset": 1708864,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@deque_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_deque_message": {
+        "va": 286103656,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed deque length-error routine at RVA 0x1a1340. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "cedea295219ab2ef51b2bd34864c3b2e36880b49991898a6e478d8bbe30f2a21",
+      "inputs_sha256": "b3eea59938027ba2717d0a3dfeb05c8b2ef7912d213359566421485e04afd9be"
+    }
+  },
+  {
     "id": "typed-allocator-allocate-1a1e50",
     "size": 38,
     "offset": 1711696,
@@ -891,6 +941,156 @@
     "match": {
       "bytes_sha256": "a594c73f3de22aff381294d9bc4e054823134d74b75c0ffc7132a9292a60e513",
       "inputs_sha256": "8c163fd3dbee9002854ab6fc8f1303dd2fe4e934ae7c94f2bff4d9caf127f9f7"
+    }
+  },
+  {
+    "id": "deque-length-error-1a3220",
+    "size": 112,
+    "offset": 1716768,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@deque_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_deque_message": {
+        "va": 286103656,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed deque length-error routine at RVA 0x1a3220. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "917d2633966c735d42235fefe87f047ba9389ff13bf1f6c54000b481a60885b3",
+      "inputs_sha256": "022c997ed80a1ab9065b60598c547b6ff5c4059ed2450f58c920366855577b97"
+    }
+  },
+  {
+    "id": "deque-length-error-1a3290",
+    "size": 112,
+    "offset": 1716880,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@deque_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_deque_message": {
+        "va": 286103656,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed deque length-error routine at RVA 0x1a3290. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "9c84519c0eb22d7c07c1217fbf008d50d4446e3509df74d56067cd805c247b40",
+      "inputs_sha256": "cc4c157b5d317bbd9f7b99487023fec836cc515f2e0c47d652527af98e77cb0e"
+    }
+  },
+  {
+    "id": "deque-length-error-1a3300",
+    "size": 112,
+    "offset": 1716992,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@deque_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_deque_message": {
+        "va": 286103656,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed deque length-error routine at RVA 0x1a3300. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "30e418618d7537a44fd393d5f3fbacb307eb2a235466d0f7e99231530567e80d",
+      "inputs_sha256": "f90eef7d6d0bf0e729b96febe59d57d0ff68539073448aed50b46477a2aafa12"
     }
   },
   {

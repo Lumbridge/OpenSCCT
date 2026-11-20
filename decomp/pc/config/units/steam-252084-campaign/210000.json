@@ -659,6 +659,106 @@
     }
   },
   {
+    "id": "vector-length-error-213dc0",
+    "size": 112,
+    "offset": 2178496,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x213dc0. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "d46537530bb67d9eacb14cd9fad598576665022977829f272134e5c83b387940",
+      "inputs_sha256": "79368217b0e4dc79784d73f60385f5e4b5a51206296b57bea16364bee13ead6c"
+    }
+  },
+  {
+    "id": "vector-length-error-213e30",
+    "size": 112,
+    "offset": 2178608,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x213e30. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "750f399c5807744178f30f13e5ebee22a8524e7e6b4a7906af8f90ffdefdaaf0",
+      "inputs_sha256": "672c5e97e922cf313deaa1532902ee8d525be783536590c454019121b77fafc7"
+    }
+  },
+  {
     "id": "init-methods-213f10",
     "size": 18,
     "offset": 2178832,
@@ -1721,6 +1821,56 @@
     "match": {
       "bytes_sha256": "9fd32fc1a434618b82e4b6da5b54b977929d368ad262eec75811f71b0997c521",
       "inputs_sha256": "4a93817db51841e975eb224c18f45d05419b35cdda74d37e4228e201af097fc7"
+    }
+  },
+  {
+    "id": "vector-length-error-21d9c0",
+    "size": 112,
+    "offset": 2218432,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x21d9c0. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "e63da86bd528978bcb4e817ceeec1784450e072d868443b86faba39d88582a23",
+      "inputs_sha256": "d8ef5afe11c82d8cb0ba48a963277e63baee580046c04369efb1070234a01bac"
     }
   },
   {

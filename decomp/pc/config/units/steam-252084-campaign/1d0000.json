@@ -1455,6 +1455,56 @@
     }
   },
   {
+    "id": "vector-length-error-1db110",
+    "size": 112,
+    "offset": 1945872,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x1db110. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "bae297932fb8ac27ed98da4391004ce961f33a66be65922c910bd38b645b78a4",
+      "inputs_sha256": "2188266e6e39042000d4360a2b45e7ceed2dcc90d40933590b9862fa07e588c9"
+    }
+  },
+  {
     "id": "vector-checked-16-1db180",
     "size": 81,
     "offset": 1945984,
@@ -2563,6 +2613,56 @@
     "match": {
       "bytes_sha256": "8d1cad589cec39006ef98670ce7c61169aefea9a99316c7ed6d708cdba3c6a8f",
       "inputs_sha256": "a9a7120a772e285fb501991c4ac3dce226af637fcc547ffede05fa27d526deef"
+    }
+  },
+  {
+    "id": "vector-length-error-1dd9b0",
+    "size": 112,
+    "offset": 1956272,
+    "inputs": [
+      "src/campaign_container_length_error.c"
+    ],
+    "rebuilt_symbol": "@vector_length_error@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_container_length_error.obj src/campaign_container_length_error.c",
+    "link_bindings": {
+      "_vector_message": {
+        "va": 286069008,
+        "basis": "NUL-terminated retail container length diagnostic."
+      },
+      "@assign_text@12": {
+        "va": 278273472,
+        "basis": "Assign the literal to the temporary small string."
+      },
+      "@construct_error@4": {
+        "va": 284368643,
+        "basis": "Base exception construction."
+      },
+      "_error_table": {
+        "va": 286609628,
+        "basis": "Base logic-error virtual table installed before message copy."
+      },
+      "@copy_range@16": {
+        "va": 278273232,
+        "basis": "Copy the entire temporary string into the error."
+      },
+      "_length_error_type": {
+        "va": 286773256,
+        "basis": "Type information passed to the C++ exception throw service."
+      },
+      "_length_error_table": {
+        "va": 286609640,
+        "basis": "Final length-error virtual table."
+      },
+      "_throw_error@8": {
+        "va": 284365561,
+        "basis": "Non-returning C++ throw service."
+      }
+    },
+    "identification": "Indexed vector length-error routine at RVA 0x1dd9b0. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
+    "match": {
+      "bytes_sha256": "ae33562cc74442172ab1b70ff24643481b7efac062d5cf07a880408a8c7a003e",
+      "inputs_sha256": "d5512b3d2332e08f664389ea2c112a0c5be53af38204be44d0ee54c07cb9745c"
     }
   },
   {
