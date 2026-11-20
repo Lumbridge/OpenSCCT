@@ -52,6 +52,44 @@
     }
   },
   {
+    "id": "class-metadata-find-typed-outer",
+    "size": 25,
+    "offset": 245280,
+    "inputs": [
+      "src/versus_class_metadata.c"
+    ],
+    "rebuilt_symbol": "@find_typed_outer@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_metadata.obj src/versus_class_metadata.c",
+    "link_bindings": {
+      "_target_type": {
+        "va": 281844504,
+        "basis": "Stock operand for target type."
+      }
+    },
+    "identification": "Indexed whole function and UClass method table slot 25. Follows outer pointers until the class equals the target type.",
+    "match": {
+      "bytes_sha256": "40e08d64399239d56210ee001718db095915759e15156f9c79eef717b8ad689d",
+      "inputs_sha256": "aa249418158059527a6cad0c09fe82553651c3af541e3362ba980d29a05c8d3e"
+    }
+  },
+  {
+    "id": "class-metadata-prepend-child",
+    "size": 16,
+    "offset": 245584,
+    "inputs": [
+      "src/versus_class_metadata.c"
+    ],
+    "rebuilt_symbol": "@prepend_child@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_metadata.obj src/versus_class_metadata.c",
+    "identification": "Indexed whole function and UClass method table slot 22. Prepends a field to the child chain.",
+    "match": {
+      "bytes_sha256": "59e05e2c9334a94c6c752330e7632c65133c0892dbaefde7f9c10390a33d0dca",
+      "inputs_sha256": "75b6d28b206426fbb7a69c14398eec2f8b08b35596ec87699d5cbe648da878ea"
+    }
+  },
+  {
     "id": "place-uobject",
     "offset": 254832,
     "size": 15,

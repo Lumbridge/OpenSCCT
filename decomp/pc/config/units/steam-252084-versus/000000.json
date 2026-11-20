@@ -1219,6 +1219,56 @@
     }
   },
   {
+    "id": "class-metadata-get-cpp-name",
+    "size": 110,
+    "offset": 53344,
+    "inputs": [
+      "src/versus_class_metadata.c"
+    ],
+    "rebuilt_symbol": "@get_cpp_name@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_class_metadata.obj src/versus_class_metadata.c",
+    "link_bindings": {
+      "_names": {
+        "va": 281845340,
+        "basis": "Stock operand for names."
+      },
+      "__imp___wcsicmp": {
+        "va": 280884128,
+        "basis": "Stock operand for imp   wcsicmp."
+      },
+      "_actor_name": {
+        "va": 281496344,
+        "basis": "Stock operand for actor name."
+      },
+      "_actor_prefix": {
+        "va": 281496340,
+        "basis": "Stock operand for actor prefix."
+      },
+      "_object_prefix": {
+        "va": 281496336,
+        "basis": "Stock operand for object prefix."
+      },
+      "_name_format": {
+        "va": 281496324,
+        "basis": "Stock operand for name format."
+      },
+      "_class_name_buffer": {
+        "va": 281530584,
+        "basis": "Stock operand for class name buffer."
+      },
+      "_format_name": {
+        "va": 277935344,
+        "basis": "Stock operand for format name."
+      }
+    },
+    "identification": "Indexed whole function and UClass method table slot 33. Walks the superclass chain to select the A or U prefix and formats the C++ class name.",
+    "match": {
+      "bytes_sha256": "c96ac41042c4bf04e043e5276c208b98fa8136109e33ef74aa437626e28776f6",
+      "inputs_sha256": "1cb004354216a4133ac53a74a2b55c1126ba4fa4fb39494288906abba3dec487"
+    }
+  },
+  {
     "id": "delete-uclass",
     "offset": 53456,
     "size": 33,
