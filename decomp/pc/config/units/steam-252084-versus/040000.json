@@ -1406,6 +1406,358 @@
     }
   },
   {
+    "id": "script-frame-step-049450",
+    "size": 38,
+    "offset": 300112,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281549272,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "c6755964be7db950f325fcd7993ab4d52a8a67ead9b81754d47dcfbb8d422a11",
+      "inputs_sha256": "5a27b95debc398860b7dcb291b0a6a16c3d8b1f0b95a00477380d9c8eaa65a6b"
+    }
+  },
+  {
+    "id": "script-frame-step-049480",
+    "size": 38,
+    "offset": 300160,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281550296,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "40c041f22432bd53af9b02137850068346484a8db23e7e408804aef39fb78ef5",
+      "inputs_sha256": "dd817c29458f5b416b036f2162cb409b82008e15c6179c5d222bf19571b600b0"
+    }
+  },
+  {
+    "id": "script-frame-step-0494b0",
+    "size": 38,
+    "offset": 300208,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281551320,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "b93cf21a24dac1327d881aaad7295bb0a61d3b0d3704bf2536735bed72e8405b",
+      "inputs_sha256": "21fee5ed26998a03f2c23fc0cefed1f44e5a8024c3aa04724ff9c24ed6e9e4bb"
+    }
+  },
+  {
+    "id": "script-frame-step-0494e0",
+    "size": 38,
+    "offset": 300256,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281552344,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "021b30c081a81076eef42385a75e06a4592cfab41f06062a806e02bc5239ac2f",
+      "inputs_sha256": "d74e82c9f20f67f99126888f50f6628333ac6bb181cf609c7ab267fff8930d99"
+    }
+  },
+  {
+    "id": "script-frame-step-049510",
+    "size": 38,
+    "offset": 300304,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281553368,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "faa0c36836160e21f10959f67f11c664ac138170fb6de4c2ec40c2e66ba0e33b",
+      "inputs_sha256": "b434ae195df5dd82a0fa8e3180b865d535eee37cd72958fbb29aa08c25c58fbe"
+    }
+  },
+  {
+    "id": "script-frame-step-049540",
+    "size": 38,
+    "offset": 300352,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281554392,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "d021762796ea5169cfcae692f87b962b8706f6626e28844055a6a18b1fe4d448",
+      "inputs_sha256": "25f8cc5e89cac829991970c9db4405a5ab7f1e5e94805515ec937175a21c2670"
+    }
+  },
+  {
+    "id": "script-frame-step-049570",
+    "size": 38,
+    "offset": 300400,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281555416,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "4f9374928c59c378c72578c5823ffae88c04fd0b0e1204221521a1359ee292ae",
+      "inputs_sha256": "dee0a137b2935de1ba5073ca4b197ebc6b3f2457936fc722121976ef5fd16eac"
+    }
+  },
+  {
+    "id": "script-frame-step-0495a0",
+    "size": 38,
+    "offset": 300448,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281556440,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "2dd52ac77215cad5c2fdba57b1791e30bc336e4f6b4162466f9f7cd627629ecf",
+      "inputs_sha256": "e0127047749b154b0e8f54876b3c4d09d3235361cef312e5bcc3e4ac17b24056"
+    }
+  },
+  {
+    "id": "script-frame-step-0495d0",
+    "size": 38,
+    "offset": 300496,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281557464,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "af294e615cae1496ebad44ecac428f8f6d4abe4774143635b25ed1a4d4c28658",
+      "inputs_sha256": "e5db4108b003980b3b58dae77643801aa3832226fb50181fe4f609e96c9f25ef"
+    }
+  },
+  {
+    "id": "script-frame-step-049600",
+    "size": 38,
+    "offset": 300544,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281558488,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "dcd2e740bd1ee27868a64b4a81c2dbbc7ae08cc49e42fbd18270c74a7c27f0d2",
+      "inputs_sha256": "3038c5c14d68f3a771b12c5007654801d304c8e033411883b96502d52782a5da"
+    }
+  },
+  {
+    "id": "script-frame-step-049630",
+    "size": 38,
+    "offset": 300592,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281559512,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "ba2fea3319c9e5cb621292d450c83753674ac33ad25131f07722a62fccc54168",
+      "inputs_sha256": "401def96e79b6182193665afa977634e9fea025a22e4ffb0fb66a562fadaf196"
+    }
+  },
+  {
+    "id": "script-frame-step-049660",
+    "size": 38,
+    "offset": 300640,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281560536,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "04912daa84b02f81317affba321779eac800ddb84a517722a2c0af650687c931",
+      "inputs_sha256": "521fabcf6f7e8d3be32a456fa5e975c7bc36d567a4a900fd52e7535aa10668d1"
+    }
+  },
+  {
+    "id": "script-frame-step-049690",
+    "size": 38,
+    "offset": 300688,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281561560,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "33477b3e1d7962bbcbbd7383ca9c109c4e8e80f820389138b159eac79618e0e1",
+      "inputs_sha256": "4476ccd32f67bb2d89d04317dd17e3631d912fb16b8a9852b71bc6f4fe0886bb"
+    }
+  },
+  {
+    "id": "script-frame-step-0496c0",
+    "size": 38,
+    "offset": 300736,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281562584,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "848f604f2cbe4eecd61d0651cd3f6750236c03743bcf0ea88997e6250c95dc79",
+      "inputs_sha256": "ac33a281354e0212eee7e8f6ee3f21a1780e2e7c836bbd237a2da39b87c9ce21"
+    }
+  },
+  {
+    "id": "script-frame-step-0496f0",
+    "size": 38,
+    "offset": 300784,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281563608,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "d32624f00ff961eeabb34bd9c0c9237065c4ac7c2691cad91c42377fe9211509",
+      "inputs_sha256": "cddfaf304ba7f9bc0ae7d6db3a58451ef9d44f4448a2bb33c9abc31b5bbe8276"
+    }
+  },
+  {
+    "id": "script-frame-step-049720",
+    "size": 38,
+    "offset": 300832,
+    "inputs": [
+      "src/versus_script_frame_step.c"
+    ],
+    "rebuilt_symbol": "@step@12",
+    "link_bindings": {
+      "_native_table": {
+        "va": 281564632,
+        "basis": "Writable opcode dispatch table indexed by the unsigned byte read from the script frame."
+      }
+    },
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /G5 /Gy /c /Folocal/versus_script_frame_step.obj src/versus_script_frame_step.c",
+    "identification": "Aligned entry bounded by a previous return and compiler padding. Consumes one byte from the script frame and dispatches its opcode with the receiver, frame and result pointer.",
+    "match": {
+      "bytes_sha256": "7c114d92afb63dcfa4091594bc14184f591418c68ec8ace85e5b7fa1c4fc6c3e",
+      "inputs_sha256": "6ceae7f470347498129a7362f46abd77d12c7998b5d6944111542db6caacd39c"
+    }
+  },
+  {
     "id": "vm-is-psx2",
     "offset": 302912,
     "size": 20,
