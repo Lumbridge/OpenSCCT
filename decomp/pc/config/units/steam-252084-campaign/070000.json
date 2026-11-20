@@ -2878,5 +2878,30 @@
       "bytes_sha256": "3759d0757c4c85a3f47d068bcecac22d029c6f498f4e59255f04a1d6ccf44366",
       "inputs_sha256": "87dd653aceb5089b9d8a3d6ea36b634ceeb027055a16d77ee8c226c6a7082b61"
     }
+  },
+  {
+    "id": "append-fsarray-word-07fd30",
+    "size": 38,
+    "offset": 523568,
+    "inputs": [
+      "src/campaign_fsarray_append.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_fsarray_word_07fd30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_append.obj src/campaign_fsarray_append.c",
+    "identification": "The call at RVA 0x7fd3f targets the rebuilt FSArray resizer. The complete routine increments the count and copies one four-byte value to the new slot.",
+    "link_bindings": {
+      "@call_resize_fsarray@8": {
+        "va": 281850816,
+        "basis": "Independently reproduced FSArray resize routine called with four-byte elements."
+      }
+    },
+    "match": {
+      "bytes_sha256": "982719f0b6ace4e157784b2d70e46ec2300ac062f8f84531588838d122b84e54",
+      "inputs_sha256": "c832c53a38d56192f4c3295dbbc620f9608272c5db4c9e53b1b45f6455b4ed7e"
+    }
   }
 ]

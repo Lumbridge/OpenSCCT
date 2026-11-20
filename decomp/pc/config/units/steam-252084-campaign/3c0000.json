@@ -588,6 +588,35 @@
     }
   },
   {
+    "id": "resize-fsarray",
+    "size": 37,
+    "offset": 3978176,
+    "inputs": [
+      "src/campaign_fsarray.c",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h",
+      "src/campaign_fsarray.h"
+    ],
+    "rebuilt_symbol": "@resize_fsarray@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray.obj src/campaign_fsarray.c",
+    "identification": "Direct call at retail VA 0x1097fd3f. The FSArray allocation tag and the use of the count at receiver offset four identify the exact-size resize operation.",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocator also used by FArray; the resize method occupies virtual slot one."
+      },
+      "_fsarray_tag": {
+        "va": 286460520,
+        "basis": "Read-only UTF-16 FSArray tag passed to the allocator."
+      }
+    },
+    "match": {
+      "bytes_sha256": "75bd7ba62d28d40ba8b9e6515d317dd62f2ca9f65e8d335936ef6b7dd80586da",
+      "inputs_sha256": "37947e1c114adba21aaa40117ffe94dda67623cb60ab4f90ad9e1e2643b2a3f6"
+    }
+  },
+  {
     "id": "array-resize-3cde80",
     "size": 37,
     "offset": 3989120,

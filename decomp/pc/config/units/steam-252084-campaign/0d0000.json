@@ -252,6 +252,31 @@
     }
   },
   {
+    "id": "append-fsarray-word-0d7750",
+    "size": 38,
+    "offset": 882512,
+    "inputs": [
+      "src/campaign_fsarray_append.c",
+      "src/campaign_fsarray.h",
+      "src/campaign_array_resize_abi.h",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@append_fsarray_word_0d7750@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fsarray_append.obj src/campaign_fsarray_append.c",
+    "identification": "The call at RVA 0xd775f targets the rebuilt FSArray resizer. The complete routine increments the count and copies one four-byte value to the new slot.",
+    "link_bindings": {
+      "@call_resize_fsarray@8": {
+        "va": 281850816,
+        "basis": "Independently reproduced FSArray resize routine called with four-byte elements."
+      }
+    },
+    "match": {
+      "bytes_sha256": "243c39d5adc572a7edaf3f01e11e50fd2b6616893a6639a3492429aabbb53a9a",
+      "inputs_sha256": "f484a5c819fe71d38e6d5db3840470243fb233b017ebe3d1d24f0d8bf8fea864"
+    }
+  },
+  {
     "id": "array-add-zeroed-0d7aa0",
     "offset": 883360,
     "size": 113,
