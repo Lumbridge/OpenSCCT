@@ -1092,6 +1092,28 @@
     }
   },
   {
+    "id": "range-copy-dispatch-3882c0",
+    "offset": 3703488,
+    "size": 32,
+    "inputs": [
+      "src/campaign_copy_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "@range_3882c0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_copy_range_dispatch.obj src/campaign_copy_range_dispatch.c",
+    "link_bindings": {
+      "_copy_385980": {
+        "va": 281565568,
+        "basis": "Indexed range helper contains a conditional comparison and iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Forwards the range, destination and vector to helper RVA 0x385980 and returns its result.",
+    "match": {
+      "bytes_sha256": "6362acbf7dad30b6e6d91b4bbc5d8cbf324e1fa5df35aa75d6a0c70da850d73c",
+      "inputs_sha256": "1bc315a3ae1ba375d5a8a9c855b77c0133060ebf1a451da5bd94b1ff1d8da59f"
+    }
+  },
+  {
     "id": "array-destroy-3882e0",
     "size": 59,
     "offset": 3703520,

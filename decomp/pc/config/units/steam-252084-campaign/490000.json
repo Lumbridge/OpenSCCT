@@ -191,6 +191,28 @@
     }
   },
   {
+    "id": "range-copy-dispatch-493360",
+    "offset": 4797280,
+    "size": 32,
+    "inputs": [
+      "src/campaign_copy_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "@range_493360@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_copy_range_dispatch.obj src/campaign_copy_range_dispatch.c",
+    "link_bindings": {
+      "_copy_492f00": {
+        "va": 282668800,
+        "basis": "Indexed range helper contains a conditional comparison and iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Forwards the range, destination and vector to helper RVA 0x492f00 and returns its result.",
+    "match": {
+      "bytes_sha256": "f1e7f1a02b21dad24fd543a4454a9c78380ebac664d9d852e4b01f26b0ff1811",
+      "inputs_sha256": "414bdb5d3e0a9a8e2a8f34acfde572788ba3414767747d6088b2d2933e988d16"
+    }
+  },
+  {
     "id": "vector-clear-managed-4933e0",
     "size": 50,
     "offset": 4797408,
@@ -435,6 +457,28 @@
     "match": {
       "bytes_sha256": "ab3e6518ad9f47119da4ecf515c02f08290280a7aeff71ff597ee97446f0716f",
       "inputs_sha256": "ccb443e911f39be6cf6be1bbd120502289d2cd0c0805fc0904e0537be171be58"
+    }
+  },
+  {
+    "id": "range-copy-dispatch-494ce0",
+    "offset": 4803808,
+    "size": 32,
+    "inputs": [
+      "src/campaign_copy_range_dispatch.c"
+    ],
+    "rebuilt_symbol": "@range_494ce0@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_copy_range_dispatch.obj src/campaign_copy_range_dispatch.c",
+    "link_bindings": {
+      "_copy_4949f0": {
+        "va": 282675696,
+        "basis": "Indexed range helper contains a conditional comparison and iteration."
+      }
+    },
+    "identification": "Default Ghidra extent. Forwards the range, destination and vector to helper RVA 0x4949f0 and returns its result.",
+    "match": {
+      "bytes_sha256": "b67a138c94b5078a17418a8bf1a23b6b5a3122e7108f57c8f2f2d91945c0e46b",
+      "inputs_sha256": "4c36d64340b296553730e9c1e9668f7c215e7da45796e52ed3713337122fe1b5"
     }
   },
   {
