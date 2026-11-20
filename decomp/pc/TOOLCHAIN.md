@@ -24,3 +24,25 @@ An exact result for this constant return cannot distinguish the two optimisation
 The [Enhanced build annotations](../../re/ghidra/annotations/game.json) name `UObject::execDot_VectorVector` at preferred VA `0x109467f0`. The SHA-256 of that Enhanced reference is recorded in the [binary lockfile](../../re/binaries.lock.json). Ghidra 12.1.4 on the independently verified Steam payload found a 108-byte function at the same address. The complete routine has the same SHA-256 in the two binaries, `2789f485c74697821d84e0920b20249405600439c9591fe366e460f2eda95c13`. The Steam instructions dispatch two VM operands and compute the three-component dot product with x87 arithmetic. REA export evidence for this payload is `ev_017b93cbbfaa4dd81368ef0f59f67c444f3ac11a1601baa6242fa3ea4048528b`.
 
 The function name transfers from a matching reference body. Its original translation unit, build flags and independently compiled implementation are still open. The study adds a reproducible anchor for Versus contributors.
+
+## Period compiler experiments
+
+The x86 optimizing compiler from Microsoft Visual C++ Toolkit 2003 identifies
+itself as 13.10.3052. Its `cl.exe` has SHA-256
+`9e45887874de83876ada2adc9943daa9094d1c1f1f9c3d93eac5ad57a1cbee2a`.
+It reproduces the campaign audio ASCII case routines, spatial calculations
+and numerous Versus script natives. In a seven-function Versus GUI comparison
+covering 610 bytes, `/O2 /Gy`, `/Ox /Gy` and `/O2 /G6 /Gy` each matched
+all seven. `/O1 /Gy` matched one, and x86 MSVC 19.44 matched none of the
+seven in the tested profiles. The manifest records a working recipe for
+each independently compiled function.
+
+Twelve wide-string and Unicode digit functions in the campaign cover 931 bytes
+and match complete, uniquely
+located sections of named VC7.1 runtime objects. CodeView in the Toolkit
+library identifies its C frontend and backend as 13.10.3052. The corresponding
+VC7.1 RTM objects identify 13.10.3077. Across all 722 paired archive members,
+the initialized non-debug section data agree. The 1,069 paired named code
+contributions also agree in bytes and relocation locations. This identifies
+the runtime family and explains why these twelve units still carry candidate
+receipts. The campaign manifest records the per-member hashes. [CRT makefile](https://github.com/QianNangong/VC6Ultimate/blob/620bdecb834a8d59c576e20fa65086b4c654eb5b/VisualUltimate/WindowsSDKs/vc7/crt/src/makefile.sub#L38-L67)

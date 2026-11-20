@@ -32,6 +32,82 @@
   },
   "units": [
     {
+      "id": "game-load-menus",
+      "offset": 1300176,
+      "size": 113,
+      "rebuilt_symbol": "@game_load_menus@24",
+      "inputs": [
+        "src/campaign_menus.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /c /O2 /Folocal/campaign_menus.obj src/campaign_menus.c",
+      "identification": "Named Steam PE export ?SEC_LoadMenus@UGameEngine@@QAEXW4EMENUPAGE@@W4MENUTYPE@@ABVFURL@@HH@Z at RVA 0x13d6d0. Loops through client viewports, dispatching virtual slots at byte offsets 0x100 and 0x94. Body ends with a 20-byte stack-pop return before alignment.",
+      "match": {
+        "bytes_sha256": "446a278e1266dc2067d0d9e3e0d894f3343f2dccc899c8cca6cad631b788da7f",
+        "inputs_sha256": "73f0a7de55187ea13e7b94cf3f4ddb78d5118529ea85265110447431f191c055"
+      }
+    },
+    {
+      "id": "music-post-begin-play",
+      "offset": 3175184,
+      "size": 168,
+      "rebuilt_symbol": "@music_post_begin_play@4",
+      "inputs": [
+        "src/campaign_music.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_music.obj src/campaign_music.c",
+      "link_bindings": {
+        "@actor_post_begin_play@4": {
+          "va": 279523632,
+          "basis": "Direct base-method call shared by the exported AEMusic, AEGameplayObject, AEInteractObject, and AESurroundAmbience PostBeginPlay overrides."
+        },
+        "_cast_ai_pawn": {
+          "va": 281047712,
+          "basis": "Actor-class ancestry check at RVA 0x3072a0. Its initializer at RVA 0x31e080 names the AEAIPawn class in retail UTF-16 data."
+        },
+        "_engine_allocator": {
+          "va": 287082656,
+          "basis": "Shared allocator object pointer used by the AEAIPawn class construction and FArray resize paths. The second virtual slot resizes an allocation."
+        },
+        "_array_allocation_name": {
+          "va": 285965064,
+          "basis": "Retail UTF-16 FArray allocation tag passed to the allocator on growth of the pointer array."
+        }
+      },
+      "identification": "Named retail export ?PostBeginPlay@AEMusic@@UAEXXZ at RVA 0x307310; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "935755cfccbf90c8db78809fad5254b330bce7fc393acbaa4eba5604d695625e",
+        "inputs_sha256": "323778e6a3e189e768a8ecffb99663fd200b0e5617f0bec02ef732f7dfea9958"
+      }
+    },
+    {
+      "id": "generator-post-begin-play",
+      "offset": 3471152,
+      "size": 65,
+      "rebuilt_symbol": "@generator_post_begin_play@4",
+      "inputs": [
+        "src/campaign_generator.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_generator.obj src/campaign_generator.c",
+      "link_bindings": {
+        "@gameplay_object_post_begin_play@4": {
+          "va": 280945296,
+          "basis": "Direct call to the named campaign PE export ?PostBeginPlay@AEGameplayObject@@UAEXXZ."
+        },
+        "@actor_set_owner@8": {
+          "va": 278462784,
+          "basis": "Direct call at generator RVA 0x34f752. Callee changes the child actor pointer at +0x6c and notifies the old and new actors."
+        }
+      },
+      "identification": "Named retail export ?PostBeginPlay@AEGenerator@@UAEXXZ at RVA 0x34f730; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "73a1be6f414557c0b551a0117cc2b286403c0d6da4edd53ddc33e4ec95bdd0af",
+        "inputs_sha256": "32f6bfd47b46aca349b44316b43a1e9482e76743bd353cac69b167e464f90301"
+      }
+    },
+    {
       "id": "campaign-sha1-digest-width",
       "offset": 6219296,
       "size": 6,
@@ -112,6 +188,394 @@
       }
     },
     {
+      "id": "crt-wcslen",
+      "offset": 6498112,
+      "size": 22,
+      "rebuilt_symbol": "_steam_wcslen",
+      "inputs": [
+        "src/crt_wide_strings.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_wide_strings.pdb /Folocal/crt_wide_strings.obj src/crt_wide_strings.c",
+      "identification": "Signed Visual C++ Toolkit 2003 CRT release member build\\intel\\st_obj\\wcslen.obj (object SHA-256 f594b06e1b3e5c1c9b57b0c6b032792a8bb6ff47612129f1925b274e3dd9ef7d). Its zero-relocation function section matches exactly once in the retail image.",
+      "match": {
+        "bytes_sha256": "ab4bab194aae7751eae686a11b9b3777dd65c29138d9a7d064cc8a88cb137299",
+        "inputs_sha256": "2d6ea4cdcce97ec46bd3bce102d44aefa5a980da44b104723f10227ca820c650"
+      }
+    },
+    {
+      "id": "crt-wcscat",
+      "offset": 6500751,
+      "size": 42,
+      "rebuilt_symbol": "_steam_wcscat",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcscat.obj (COFF SHA-256 c992f3439b38ce66980e8b14dbc8e287a0fe04403b256c3a938c096cc6e2d95a). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "2794a8ea379ab4431435ac317b3ad107f17c73de4f460c280eb765f960249e33",
+        "inputs_sha256": "d98008554dff476cdf5feb09a65036e999c2b6355684d9d4bcd4a8543193b57a"
+      }
+    },
+    {
+      "id": "crt-wcscpy",
+      "offset": 6500793,
+      "size": 28,
+      "rebuilt_symbol": "_steam_wcscpy",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcscat.obj (COFF SHA-256 c992f3439b38ce66980e8b14dbc8e287a0fe04403b256c3a938c096cc6e2d95a). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "400344dea9c2f17d367bb487e75495fffd970dcaa7975ca8d615cb510105d0ce",
+        "inputs_sha256": "70fa7571ba27aefce04b6159325deeb8b14e665ac8b6aecfab0a069cbefafa69"
+      }
+    },
+    {
+      "id": "crt-wcsncpy",
+      "offset": 6502474,
+      "size": 61,
+      "rebuilt_symbol": "_steam_wcsncpy",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcsncpy.obj (COFF SHA-256 9763b371cd6bb7dbb6269417cd681c177247147934581cfc1ce035812eaa9787). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "35235fb5a6f350890633579106299eb2564e42c7f667b4a02839fbba3e31cb39",
+        "inputs_sha256": "57e9e433ae8e8c27d39dc617f5ee12d0fa73bee477ac4194c354ddaaf60c5e66"
+      }
+    },
+    {
+      "id": "crt-wcsstr",
+      "offset": 6502646,
+      "size": 94,
+      "rebuilt_symbol": "_steam_wcsstr",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcsstr.obj (COFF SHA-256 0c15b6a001c14e69a7c4d87e4ce924f451217048896edf392a5ff51c0d703b60). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "1375f1d9e4548ae56a29ece864f13a6fd2d2aafd5945e1fcbdc719e22fe0f6cc",
+        "inputs_sha256": "660891afdf6ade5c7a9e3be5903da21907496fe8c33a6baa4ee9e11ac0e01499"
+      }
+    },
+    {
+      "id": "crt-wcschr",
+      "offset": 6502740,
+      "size": 34,
+      "rebuilt_symbol": "_steam_wcschr",
+      "inputs": [
+        "src/crt_wide_strings.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_wide_strings.pdb /Folocal/crt_wide_strings.obj src/crt_wide_strings.c",
+      "identification": "Signed Visual C++ Toolkit 2003 CRT release member build\\intel\\st_obj\\wcschr.obj (object SHA-256 d5d88e3038388570057d056cb66d5026f5e994d6a849732915705e1884221a34). Its zero-relocation function section matches exactly once in the retail image.",
+      "match": {
+        "bytes_sha256": "2cef2a46aed18bbe9b60645eeb805adc3609c594390b2be35c630df1de97ae10",
+        "inputs_sha256": "a926308a3cb09a988a3e0358630f47a44b1849b55af20b9f138b6511cc5993a0"
+      }
+    },
+    {
+      "id": "crt-wcscmp",
+      "offset": 6502774,
+      "size": 50,
+      "rebuilt_symbol": "_steam_wcscmp",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcscmp.obj (COFF SHA-256 63fd9603b0d08440cd64c3ac91bdcd64b1fa6d210e1d749f6f0999206bed6e2f). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "27b69ac2a74e5cc8348050bc9bc35a46505b9497f71d03833f886ded75409c29",
+        "inputs_sha256": "6d3f71b30fb7ebf9aafeda3b0ab2371cb8e7886ffefebe684c5d45ccb6499b95"
+      }
+    },
+    {
+      "id": "crt-wcsncmp",
+      "offset": 6503865,
+      "size": 53,
+      "rebuilt_symbol": "_steam_wcsncmp",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcsncmp.obj (COFF SHA-256 22c9e8be45eb2836f6fac4389e678da88e95240fe2f4709e65eaf4d68eac8d55). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "ededa41b5aab23d5f0e6d5418bde779046e5ea1aeab8ed69b2a9f91793113b9a",
+        "inputs_sha256": "2e26445d8c1e3ce84116f22d44ba3a208532012f062a367ccab343d265d01ffe"
+      }
+    },
+    {
+      "id": "crt-wcsncat",
+      "offset": 6509858,
+      "size": 61,
+      "rebuilt_symbol": "_steam_wcsncat",
+      "inputs": [
+        "src/crt_string_operations.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_string_operations.pdb /Folocal/crt_string_operations.obj src/crt_string_operations.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wcsncat.obj (COFF SHA-256 ae6e191574432eab9cc129639dc64ad3e852ef824b8587cb9cea0949877640aa). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "e5d84fe788de297e3724ac6466990085984a0f4c618a835dab80b209a16aa24b",
+        "inputs_sha256": "f023f6dc7486a066e64671644fc74ef88dd50a7824776918dcf2bff70e43082f"
+      }
+    },
+    {
+      "id": "crt-wchartodigit",
+      "offset": 6548680,
+      "size": 374,
+      "rebuilt_symbol": "_steam_wchartodigit",
+      "inputs": [
+        "src/crt_unicode_digit.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_unicode_digit.pdb /Folocal/crt_unicode_digit.obj src/crt_unicode_digit.c",
+      "identification": "Microsoft Visual C++ Toolkit 2003 release CRT member build\\intel\\st_obj\\wchtodig.obj (COFF SHA-256 9f759900138b9e51bbd001e2108d1487d3c11d938f46594d16c8e369e263e8fd). Its named complete function also matches the 13.10.3077 reference archive and occurs once in the Steam campaign image.",
+      "match": {
+        "bytes_sha256": "ab061ecd5a973949dd2402d078342213950ccccad26ccb0bac8fe4017c56bbbe",
+        "inputs_sha256": "82213d9f065b612e7f33c0148da776c04a2be4f246702d35ee600dda45a2b9a5"
+      }
+    },
+    {
+      "id": "crt-wcsrchr",
+      "offset": 6563200,
+      "size": 48,
+      "rebuilt_symbol": "_steam_wcsrchr",
+      "inputs": [
+        "src/crt_wide_strings.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_wide_strings.pdb /Folocal/crt_wide_strings.obj src/crt_wide_strings.c",
+      "identification": "Signed Visual C++ Toolkit 2003 CRT release member build\\intel\\st_obj\\wcsrchr.obj (object SHA-256 7081a5f70c2375e7e86397b69aef6db086deccdf1219aacc23d59dcc773f7765). Its zero-relocation function section matches exactly once in the retail image.",
+      "match": {
+        "bytes_sha256": "5b09059c9761d9c8082daa1b91da9b7e9338aba8bf03752cc6422b9ef1e43d64",
+        "inputs_sha256": "0766d98d650ccf049c9d12e621189163918325249794588aa7fdcba5b9ba1527"
+      }
+    },
+    {
+      "id": "crt-wcspbrk",
+      "offset": 6563422,
+      "size": 64,
+      "rebuilt_symbol": "_steam_wcspbrk",
+      "inputs": [
+        "src/crt_wide_strings.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /c /Zelp8 /W3 /WX /GFy /DWIN32 /GB /Gi- /GS /Zc:wchar_t /Zc:forScope /DWIN32_LEAN_AND_MEAN /DNOSERVICE /D_MBCS /D_MB_MAP_DIRECT /D_CRTBLD /O1 /Zi /Wp64 /Fdlocal/crt_wide_strings.pdb /Folocal/crt_wide_strings.obj src/crt_wide_strings.c",
+      "identification": "Signed Visual C++ Toolkit 2003 CRT release member build\\intel\\st_obj\\wcspbrk.obj (object SHA-256 af757f99f5b211ffeab5e5bb7e9fd8074db41ec4f9eb693010c762b92814317f). Its zero-relocation function section matches exactly once in the retail image.",
+      "match": {
+        "bytes_sha256": "8ad650b26e0d1d817ad4833c9c1fd39cedd06acf0db0dff9df92f80e72b6e3fa",
+        "inputs_sha256": "4e8de3d2450673d96c8fa7b31f9435a4f6dd13dac26ce9a405cd9a833c39df3f"
+      }
+    },
+    {
+      "id": "sound-free-aligned",
+      "offset": 7587024,
+      "size": 16,
+      "rebuilt_symbol": "_SND_fn_vFreeSndAligned@8",
+      "inputs": [
+        "src/sound_aligned.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_aligned.obj src/sound_aligned.c",
+      "identification": "Steam PE export _SND_fn_vFreeSndAligned@8 at RVA 0x73c4d0. Loads the raw allocation pointer from four bytes before the user pointer and forwards to the named free export. The alignment argument is unused. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "a2132d3c50a9102f62581804301c2710197604e1e6aeadd7e7c9dd1e888aa3a0",
+        "inputs_sha256": "0bf12df31c1625083d623640a7d82d58e82dce31b3e3f271efea8d27fc806801"
+      }
+    },
+    {
+      "id": "sound-heap-initialize",
+      "offset": 7587200,
+      "size": 64,
+      "rebuilt_symbol": "_SND_fn_bInitMallocSnd@0",
+      "inputs": [
+        "src/sound_heap_init.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_heap_init.obj src/sound_heap_init.c",
+      "identification": "Steam PE export _SND_fn_bInitMallocSnd@0 at RVA 0x73c580. Requires both CPU-detection flags; otherwise reports sound error five and returns false. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_heap_detect_cpu": {
+          "va": 285459680,
+          "basis": "Allocation initialization calls this flag detector; its body tests the EFLAGS ID bit and the CPUID MMX bit."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "09f87ee9c972dae98e2e770dee4768eaf0a61a51f2ed43587b3971ceb330e73c",
+        "inputs_sha256": "502534fb247242b0ddeedf3fce05ec4fcc20aa90d93bce83144670c476c44099"
+      }
+    },
+    {
+      "id": "sound-move-bytes",
+      "offset": 7587376,
+      "size": 26,
+      "rebuilt_symbol": "_SND_fn_vMemMoveSnd@12",
+      "inputs": [
+        "src/sound_memmove.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_memmove.obj src/sound_memmove.c",
+      "identification": "Steam PE export _SND_fn_vMemMoveSnd@12 at RVA 0x73c630. The named export forwards the destination, source and count to the movement helper. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_move_bytes": {
+          "va": 284367760,
+          "basis": "Called directly from the wrapper; its argument order and the export name identify the movement operation."
+        }
+      },
+      "match": {
+        "bytes_sha256": "d884d7d5b07f0c993521829f43df93faa5e5d115038a66a90dc72ac1b826c3ce",
+        "inputs_sha256": "503ffbc0780c865d1902cfe331004590b887ab1cf9f6e32813634b33c11f6bc2"
+      }
+    },
+    {
+      "id": "sound-reallocate-aligned",
+      "offset": 7587536,
+      "size": 97,
+      "rebuilt_symbol": "_SND_fn_pvReAllocSndAligned@12",
+      "inputs": [
+        "src/sound_aligned.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_aligned.obj src/sound_aligned.c",
+      "identification": "Steam PE export _SND_fn_pvReAllocSndAligned@12 at RVA 0x73c6d0. Allocates a replacement, copies the lesser of the old and new sizes and releases the old block. A failed replacement allocation still releases the old block. Zero size releases immediately. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+        },
+        "_SND_fn_pvMallocSndAligned@8": {
+          "va": 285459568,
+          "basis": "Named export _SND_fn_pvMallocSndAligned@8 in the Steam campaign PE."
+        },
+        "_SND_fn_vMemCopySnd@12": {
+          "va": 285459920,
+          "basis": "Named export _SND_fn_vMemCopySnd@12 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "58f7a2407908a4eecf62135fbabac6ceb43759370b94e552e4b14024105638c4",
+        "inputs_sha256": "5ab82335ef8a4449d0223dc8c17c7f035e7cf8deb8c6501a2c0e85cfb62eba8c"
+      }
+    },
+    {
+      "id": "sound-error-shutdown",
+      "offset": 7587696,
+      "size": 5,
+      "rebuilt_symbol": "_SND_fn_vDesInitErrorSnd@0",
+      "inputs": [
+        "src/sound_error_display.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_display.obj src/sound_error_display.c",
+      "identification": "Steam PE export _SND_fn_vDesInitErrorSnd@0 at RVA 0x73c770. Tail-jumps to the error shutdown helper, a separate entry point. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_end_error_display": {
+          "va": 285460656,
+          "basis": "Direct tail target of SND_fn_vDesInitErrorSnd."
+        }
+      },
+      "match": {
+        "bytes_sha256": "48d0f4e1d3ac6ff9cdbc9af0178f55d9978e4fe8b7ad9a58cd40019db9880ef2",
+        "inputs_sha256": "1dc95e7f93b227e992f6efdd127695bb50abb8f061fb9ae9ac1cbd617663d12f"
+      }
+    },
+    {
+      "id": "sound-error-label",
+      "offset": 7587712,
+      "size": 67,
+      "rebuilt_symbol": "_sound_error_label",
+      "inputs": [
+        "src/sound_error_label.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_label.obj src/sound_error_label.c",
+      "identification": "SND_fn_vDisplayError and SND_fn_vDisplayErrorEx both call this helper. Scans eight-byte code/label records. Returns the fallback string for the terminal 0xffff entry. Includes aligned loop code and the final return. Locally assigned C name.",
+      "link_bindings": {
+        "_SOUND_ERRORS": {
+          "va": 287195512,
+          "basis": "The code/label table is indexed directly by the common error helper from the two named display exports."
+        }
+      },
+      "match": {
+        "bytes_sha256": "d8699995640c4c6fedfea57e319535cacbaa1c50f205f93ef685ed611a44784d",
+        "inputs_sha256": "8e57706db12d598ec2221e4e28c80a8e45648907eaac8d92d2a93b9f9ed12762"
+      }
+    },
+    {
+      "id": "sound-error-display",
+      "offset": 7587792,
+      "size": 30,
+      "rebuilt_symbol": "_SND_fn_vDisplayError@8",
+      "inputs": [
+        "src/sound_error_display.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_display.obj src/sound_error_display.c",
+      "identification": "Steam PE export _SND_fn_vDisplayError@8 at RVA 0x73c7d0. Looks up the label for the integer code and passes it with the context to the report helper. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_error_label": {
+          "va": 285460352,
+          "basis": "The two named error-display exports both call this error-code string table lookup."
+        },
+        "_sound_report_error": {
+          "va": 285460608,
+          "basis": "The two named error-display exports both pass the label and context to this routine."
+        }
+      },
+      "match": {
+        "bytes_sha256": "0cb9703d8849864c85ef051edce7d6265985ddd045e8f73d2c13feaf4e70a69d",
+        "inputs_sha256": "d9b738166c5eaaa26ac69e56f57cc8d7de73a765bf644436b7599a8a2841d1d7"
+      }
+    },
+    {
+      "id": "sound-error-display-extended",
+      "offset": 7587824,
+      "size": 54,
+      "rebuilt_symbol": "_SND_fn_vDisplayErrorEx@12",
+      "inputs": [
+        "src/sound_error_display.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_error_display.obj src/sound_error_display.c",
+      "identification": "Steam PE export _SND_fn_vDisplayErrorEx@12 at RVA 0x73c7f0. Gates the report on the indexed error flag then sets it to one. The third argument is not read. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_error_label": {
+          "va": 285460352,
+          "basis": "The two named error-display exports both call this error-code string table lookup."
+        },
+        "_sound_report_error": {
+          "va": 285460608,
+          "basis": "The two named error-display exports both pass the label and context to this routine."
+        }
+      },
+      "match": {
+        "bytes_sha256": "a324abccdeb0eb1eae2b43e3fdaa786632277c9b1f51b09900403b53bd7fafe5",
+        "inputs_sha256": "b8b2149a8051ed89eb9b85594d2221c56a89f1656af4bf24f5cefa042091b59e"
+      }
+    },
+    {
       "id": "sound-allocate",
       "offset": 7587888,
       "size": 23,
@@ -157,6 +621,126 @@
       "match": {
         "bytes_sha256": "d416b7f25a99b31f9c55fdae14c2329234588389dc0c4f2705fa4a85c3a9831c",
         "inputs_sha256": "83cf7c248c2c3aecc9028d61b386d785870f1dbbc5209eb9ea32dc96dfe029af"
+      }
+    },
+    {
+      "id": "sound-bin-resource",
+      "offset": 7624000,
+      "size": 66,
+      "rebuilt_symbol": "_SND_fn_pGetBinRes@4",
+      "inputs": [
+        "src/sound_resource_lookup.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_lookup.obj src/sound_resource_lookup.c",
+      "identification": "Steam PE export _SND_fn_pGetBinRes@4 at RVA 0x745540. Dispatches the ID to the mode-specific backend for modes zero and one. An unsupported mode reports an error and returns null. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        },
+        "_sound_bin_res_mode1@4": {
+          "va": 285464768,
+          "basis": "Observed direct target of mode 1 in the named SND_fn_pGetBinRes retail export."
+        },
+        "_sound_bin_res_mode0@4": {
+          "va": 285529904,
+          "basis": "Observed direct target of mode 0 in the named SND_fn_pGetBinRes retail export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "50d41c9bd1091a383152088dd6950f5d50a2e8d6341d884e9caf2b1b9c99a801",
+        "inputs_sha256": "d476d0045ca96c83e0181a0cbbd9fae7fb226d4449b0e54d38f2b3a7a09f7552"
+      }
+    },
+    {
+      "id": "sound-bin-event",
+      "offset": 7624080,
+      "size": 88,
+      "rebuilt_symbol": "_SND_fn_pGetBinEvent@4",
+      "inputs": [
+        "src/sound_resource_lookup.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_lookup.obj src/sound_resource_lookup.c",
+      "identification": "Steam PE export _SND_fn_pGetBinEvent@4 at RVA 0x745590. Dispatches the ID to the mode-specific backend for modes zero and one. An unsupported mode reports an error and returns null. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        },
+        "_sound_bin_event_mode1": {
+          "va": 285464864,
+          "basis": "Observed direct target of mode 1 in the named SND_fn_pGetBinEvent retail export."
+        },
+        "_sound_bin_event_mode0": {
+          "va": 285529952,
+          "basis": "Observed direct target of mode 0 in the named SND_fn_pGetBinEvent retail export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "7a0bd9593d0ac9e30eef56c850b46cb79ccc0b4004d584373b734aa49400811a",
+        "inputs_sha256": "9a5dd38fcd819b652a491f3979451353c0eade44b4c7804116764a9ab18161fe"
+      }
+    },
+    {
+      "id": "sound-event-handle-by-id",
+      "offset": 7626208,
+      "size": 88,
+      "rebuilt_symbol": "_SND_fn_hGetSoundEventHandleFromEditorId@4",
+      "inputs": [
+        "src/sound_resource_lookup.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_lookup.obj src/sound_resource_lookup.c",
+      "identification": "Steam PE export _SND_fn_hGetSoundEventHandleFromEditorId@4 at RVA 0x745de0. Dispatches the ID to the mode-specific backend for modes zero and one. An unsupported mode reports an error and returns null. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        },
+        "_sound_handle_by_editor_id_mode1": {
+          "va": 285464080,
+          "basis": "Observed direct target of mode 1 in the named SND_fn_hGetSoundEventHandleFromEditorId retail export."
+        },
+        "_sound_handle_by_editor_id_mode0": {
+          "va": 285531328,
+          "basis": "Observed direct target of mode 0 in the named SND_fn_hGetSoundEventHandleFromEditorId retail export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "d54ee3187288a4e31d0e732284b706b229d04fe453c942e58c7f87fe4d6c8771",
+        "inputs_sha256": "e62739b5d6a0a96afe4b79a3fedeb60dbe821203297a04a3764a16a7e85f15d1"
+      }
+    },
+    {
+      "id": "sound-resource-by-editor-id",
+      "offset": 7626720,
+      "size": 40,
+      "rebuilt_symbol": "_SND_fn_pstGetResFromEdIdSnd@4",
+      "inputs": [
+        "src/sound_resource_lookup.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_lookup.obj src/sound_resource_lookup.c",
+      "identification": "Steam PE export _SND_fn_pstGetResFromEdIdSnd@4 at RVA 0x745fe0. Dispatches the ID to the mode-specific backend for modes zero and one. An unsupported mode reports an error and returns null. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        },
+        "_sound_resource_by_editor_id_mode1@4": {
+          "va": 285464608,
+          "basis": "Observed direct target of mode 1 in the named SND_fn_pstGetResFromEdIdSnd retail export."
+        },
+        "_sound_resource_by_editor_id_mode0@4": {
+          "va": 285531232,
+          "basis": "Observed direct target of mode 0 in the named SND_fn_pstGetResFromEdIdSnd retail export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "40f65a22d7f230936082838f8b412e82f8a18ae6db6568aeac38d4ce7d869b19",
+        "inputs_sha256": "4343ea80383ee18b44645c4dd8a5d6d6e15d17e53ba88e580b22fe932ef2809b"
       }
     },
     {
@@ -540,6 +1124,40 @@
       }
     },
     {
+      "id": "sound-load-file-range",
+      "offset": 7628608,
+      "size": 78,
+      "rebuilt_symbol": "_SND_fn_bLoadDataInMem@16",
+      "inputs": [
+        "src/sound_load_range.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_load_range.obj src/sound_load_range.c",
+      "identification": "Steam PE export _SND_fn_bLoadDataInMem@16 at RVA 0x746740. Opens the file, seeks from its beginning, reads the requested bytes, closes it and tests for an exact read length. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_hOpenFileReadSnd@4": {
+          "va": 285820288,
+          "basis": "Named export _SND_fn_hOpenFileReadSnd@4 in the Steam campaign PE."
+        },
+        "_SND_fn_ulSeekFileSnd@12": {
+          "va": 285820400,
+          "basis": "Named export _SND_fn_ulSeekFileSnd@12 in the Steam campaign PE."
+        },
+        "_SND_fn_ulReadFileSnd@12": {
+          "va": 285820336,
+          "basis": "Named export _SND_fn_ulReadFileSnd@12 in the Steam campaign PE."
+        },
+        "_SND_fn_vCloseFileSnd@4": {
+          "va": 285820480,
+          "basis": "Named export _SND_fn_vCloseFileSnd@4 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "42165a4ab0caef5b9e7329ce545fc12a11459a5d14e27a9dbbb27bb97964c82d",
+        "inputs_sha256": "7c3cda9382da9706888ddfe5ee253e05a4608dcd276c5606553ca33f276a55cb"
+      }
+    },
+    {
       "id": "sound-set-language-directory",
       "offset": 7628896,
       "size": 20,
@@ -579,6 +1197,84 @@
       "match": {
         "bytes_sha256": "ed7a356d2182ad5931b8ad0432bfb26c575a238acb22c51e9d6755a9a184d4c5",
         "inputs_sha256": "4725a6ce79e67de0e84f2b342124ade32979632a3213ace67f25e20dd88c8d6b"
+      }
+    },
+    {
+      "id": "sound-is-data-directory",
+      "offset": 7629504,
+      "size": 657,
+      "rebuilt_symbol": "_SND_fn_bIsDataDirectory@4",
+      "inputs": [
+        "src/sound_directory_search.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_directory_search.obj src/sound_directory_search.c",
+      "link_bindings": {
+        "___security_cookie": {
+          "va": 287127248,
+          "basis": "Global used by the retail stack-protection prologue and checked before return."
+        },
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Steam campaign PE named export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Steam campaign PE named export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_sound_master_directory": {
+          "va": 288537432,
+          "basis": "Shared buffer written by the exported master-directory setter and read by the exported getter."
+        },
+        "_SND_fn_lStriCmp@8": {
+          "va": 285512128,
+          "basis": "Steam campaign PE named export _SND_fn_lStriCmp@8 at RVA 0x7491c0."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Steam campaign PE named export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        },
+        "@__security_check_cookie@4": {
+          "va": 284363865,
+          "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+        },
+        "_sound_empty_text": {
+          "va": 285966691,
+          "basis": "Pointer to a zero byte in retail read-only data used for the empty-language test."
+        },
+        "_sound_current_language_directory": {
+          "va": 288540016,
+          "basis": "Address returned by the PE export _SND_fn_szGetCurrentLangDirectory@0; the matching setter copies up to nine bytes there."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Steam campaign PE named export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        },
+        "_SND_fn_cGetDirectorySeparator@0": {
+          "va": 285820496,
+          "basis": "Steam campaign PE named export _SND_fn_cGetDirectorySeparator@0 at RVA 0x794650."
+        },
+        "_sound_path_size_message": {
+          "va": 286733472,
+          "basis": "Read-only directory diagnostic passed to the named sound error export on this function's corresponding error branch."
+        },
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Steam campaign PE named export _SND_fn_vDisplayError@8 at RVA 0x73c7d0."
+        },
+        "_sound_first_directory": {
+          "va": 288539744,
+          "basis": "Exported partial-directory lookup starts its linked traversal at this pointer. The exported removal routine uses the same list."
+        }
+      },
+      "identification": "Named retail export _SND_fn_bIsDataDirectory@4 at RVA 0x746ac0; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "a6b693c937c01cc86da430cd2075281c63a1e33bdd08ec1b19ae477419c20255",
+        "inputs_sha256": "c3c83cffee4869ffc082de58bcc07e15b691cacd8986d47ea73560f20bf0ba8a"
       }
     },
     {
@@ -725,6 +1421,28 @@
       "match": {
         "bytes_sha256": "6d40b46781d525cd6852720886cb834c0534d7cb3eb490ccc0d44c999f774f10",
         "inputs_sha256": "e25afa25c8ab3d2720659c3f690ca67f1f59b2e8b3fcb31506bda503887706aa"
+      }
+    },
+    {
+      "id": "sound-timer-destroy",
+      "offset": 7633280,
+      "size": 25,
+      "rebuilt_symbol": "_SND_fn_vDestroyTimer@4",
+      "inputs": [
+        "src/sound_timer_lifetime.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_timer_lifetime.obj src/sound_timer_lifetime.c",
+      "identification": "Steam PE export _SND_fn_vDestroyTimer@4 at RVA 0x747980. Rejects null and -2; tail-jumps to the named free export for a valid handle. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "b2b3aa99d41f862b9bb9e2a84ec81a4fd6fca0a0582980c3b98d697ee13003f6",
+        "inputs_sha256": "071d2135e309a9b97090c7fccec70c04c5255335dad7a02e593ce98bbf68462f"
       }
     },
     {
@@ -896,6 +1614,28 @@
       }
     },
     {
+      "id": "sound-unload-binary-resource",
+      "offset": 7640736,
+      "size": 37,
+      "rebuilt_symbol": "_SND_fn_vUnLoadResBinarySnd@4",
+      "inputs": [
+        "src/sound_resource_unload.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_unload.obj src/sound_resource_unload.c",
+      "identification": "Steam PE export _SND_fn_vUnLoadResBinarySnd@4 at RVA 0x7496a0. Resource types 1 and 6 call the binary release helper, then every type clears the data and type words. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_release_binary_resource": {
+          "va": 285537840,
+          "basis": "Direct call at RVA 0x7496b1 in the named unload export."
+        }
+      },
+      "match": {
+        "bytes_sha256": "8882e0570d3ad1c408d94d635fa34d35a3b69972662d93c3cc9ed263d5a42e5c",
+        "inputs_sha256": "9c18a6510d021f46d21748a4a1234b83a7f5775e753395755873b2b00b3e8878"
+      }
+    },
+    {
       "id": "sound-fast-fixed-multiply",
       "offset": 7647696,
       "size": 20,
@@ -1005,6 +1745,50 @@
       }
     },
     {
+      "id": "sound-set-rolloff-defaults",
+      "offset": 7648176,
+      "size": 103,
+      "rebuilt_symbol": "_SND_fn_vSetDefaultRollOff@4",
+      "link_bindings": {
+        "_DefaultRollOff": {
+          "va": 287207404,
+          "basis": "Four contiguous fields of the global defaults are referenced by the named rolloff getter and setter."
+        }
+      },
+      "inputs": [
+        "src/sound_set_rolloff_defaults.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Oa /Gy /c /Folocal/sound_set_rolloff_defaults.obj src/sound_set_rolloff_defaults.c",
+      "identification": "Named retail campaign export _SND_fn_vSetDefaultRollOff@4 at VA 0x1104b3b0. The final return ends at 0x1104b417 before alignment or the next named function. Decodes the -2 default sentinel into 0.5 in signed 16.16 for near distance, and -1 for the remaining fields. An invalid maximum below near distance also becomes -1.",
+      "match": {
+        "bytes_sha256": "86a4d26e0840d583968f157f7de866d0e4943a47f8e7957d7e8efb1f0d30d083",
+        "inputs_sha256": "eeafa40274096a90cb21b77285c59f7f346954e1cbe2c006a48d221c282a2f35"
+      }
+    },
+    {
+      "id": "sound-get-rolloff-defaults",
+      "offset": 7648288,
+      "size": 42,
+      "rebuilt_symbol": "_SND_fn_vGetDefaultRollOff@4",
+      "link_bindings": {
+        "_DefaultRollOff": {
+          "va": 287207404,
+          "basis": "Four contiguous fields of the global defaults are referenced by the named rolloff getter and setter."
+        }
+      },
+      "inputs": [
+        "src/sound_rolloff_defaults.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Oa /Gy /c /Folocal/sound_rolloff_defaults.obj src/sound_rolloff_defaults.c",
+      "identification": "Named retail campaign export _SND_fn_vGetDefaultRollOff@4 at VA 0x1104b420. The final return ends at 0x1104b44a before alignment or the next named function. Copies the near/max distance pair and the fade-start/fade-end pair from the campaign globals.",
+      "match": {
+        "bytes_sha256": "66ba1051ebd140c977f7ec3cc07fd56ebf97f2cc04bd3f9ca27fa10801f7c121",
+        "inputs_sha256": "6a9899ff192267754796c5d0179455b73ad06873e45964e6501457fa3b0048ab"
+      }
+    },
+    {
       "id": "sound-distance-to-volume",
       "offset": 7648336,
       "size": 60,
@@ -1028,6 +1812,64 @@
       "match": {
         "bytes_sha256": "476283fe852e854cd1cf1f94145ef0f62720f29d08ef99cc79afa2a434de6cba",
         "inputs_sha256": "398040e2fd9d9f12a232045fae04cc753d9de5698dfc7497aafb4adb8e2ab802"
+      }
+    },
+    {
+      "id": "sound-distance-attenuation-curve",
+      "offset": 7648400,
+      "size": 175,
+      "rebuilt_symbol": "_distance_attenuation",
+      "link_bindings": {
+        "_attenuation_error_site": {
+          "va": 286735364,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Address passed with code 30 and detail 3 to the named error routine."
+        },
+        "_SND_fn_vDisplayErrorEx@12": {
+          "va": 285460464,
+          "basis": "Named export _SND_fn_vDisplayErrorEx@12 in the locked campaign PE."
+        },
+        "_SND_fn_rDivRealRealSnd@8": {
+          "va": 285520368,
+          "basis": "Named export _SND_fn_rDivRealRealSnd@8 in the locked campaign PE."
+        },
+        "_distance_bands": {
+          "va": 287209504,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Four 32-bit upper bounds; the last is checked before scanning the array."
+        },
+        "_slopes": {
+          "va": 287209472,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Four per-band slopes in signed 16.16."
+        },
+        "_SND_fn_rMulRealRealSnd@8": {
+          "va": 285520496,
+          "basis": "Named export _SND_fn_rMulRealRealSnd@8 in the locked campaign PE."
+        },
+        "_intercepts": {
+          "va": 287209488,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Four per-band intercepts in signed 16.16."
+        },
+        "_attenuation_table": {
+          "va": 287207424,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Four consecutive bands of 128 signed 16.16 attenuation values."
+        },
+        "_distant_slope": {
+          "va": 287209520,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Slope used beyond the final band lookup."
+        },
+        "_distant_intercept": {
+          "va": 287209524,
+          "basis": "Operand in the four-band attenuation helper at VA 0x1104b490, reached by two direct calls from the named extended distance-to-volume export. Intercept used beyond the final band lookup."
+        }
+      },
+      "inputs": [
+        "src/sound_distance_attenuation.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_distance_attenuation.obj src/sound_distance_attenuation.c",
+      "identification": "Internal distance attenuation helper at VA 0x1104b490. The final return ends at 0x1104b53f before alignment or the next named function. The extended rolloff export directly calls the helper at 0x1104b60f and 0x1104b66f. A zero or negative near distance returns -96 in 16.16 and reports an error. The helper scales the distance, selects one of four bands and uses a 128-entry table per band; values beyond the last band continue on a straight line.",
+      "match": {
+        "bytes_sha256": "35573c2dfe6c7faf232d292fce5943b1020c8324521d0c589127f278142dac6a",
+        "inputs_sha256": "c14ad64d335311f53702c133900c01184603098779205a68ed669a6e9ff2f53b"
       }
     },
     {
@@ -1224,6 +2066,72 @@
       }
     },
     {
+      "id": "sound-bank-resource-at",
+      "offset": 7657264,
+      "size": 43,
+      "rebuilt_symbol": "_sound_bin_res_mode0@4",
+      "inputs": [
+        "src/sound_bank_records.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_bank_records.obj src/sound_bank_records.c",
+      "identification": "Direct tail-call target of the exported SND_fn_pGetBinRes mode-zero branch at RVA 0x74557d. The bank resource array lies at offset 0x38. Locally assigned C name. Checks manager, bank and array then indexes 104-byte records; includes both returns before alignment.",
+      "link_bindings": {
+        "@sound_current_bank@4": {
+          "va": 285584912,
+          "basis": "Both mode-zero lookup helpers pass the bank manager in ECX and call this fixed internal target."
+        }
+      },
+      "match": {
+        "bytes_sha256": "1cfa92b5707419c4b4755287d3d6b7a91748525c1da5c92f50c5497b2abf9936",
+        "inputs_sha256": "ca1389b4029d7c947fb8c3dfad3bb3fda6d442953f97073dc3c065d272a35ddb"
+      }
+    },
+    {
+      "id": "sound-bank-event-at",
+      "offset": 7657312,
+      "size": 39,
+      "rebuilt_symbol": "_sound_bin_event_mode0",
+      "inputs": [
+        "src/sound_bank_records.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_bank_records.obj src/sound_bank_records.c",
+      "identification": "Direct cdecl call from the exported SND_fn_pGetBinEvent mode-zero branch at RVA 0x7455dd. The bank event array lies at offset 0x34. Locally assigned C name. Checks manager, bank and array then indexes 104-byte records; includes both returns before alignment.",
+      "link_bindings": {
+        "@sound_current_bank@4": {
+          "va": 285584912,
+          "basis": "Both mode-zero lookup helpers pass the bank manager in ECX and call this fixed internal target."
+        }
+      },
+      "match": {
+        "bytes_sha256": "b838ad6168a2fde6734d0e9f5c59edb9ad7635efeee38de19564cb675de3975d",
+        "inputs_sha256": "3bba2016e6026a5fbc1465de9efbeaa65d9f32684175da9e1d74620129678c09"
+      }
+    },
+    {
+      "id": "sound-binary-release-forward",
+      "offset": 7665200,
+      "size": 5,
+      "rebuilt_symbol": "_sound_release_binary_resource",
+      "inputs": [
+        "src/sound_resource_forward.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_resource_forward.obj src/sound_resource_forward.c",
+      "identification": "Direct target of SND_fn_vUnLoadResBinarySnd at RVA 0x7496b1. A single cdecl tail-jump forwards to the resource teardown. Alignment follows. Locally assigned C name.",
+      "link_bindings": {
+        "_sound_release_binary_backend": {
+          "va": 285577904,
+          "basis": "Direct target of the helper tail jump at RVA 0x74f630 assembled from the named unload call chain."
+        }
+      },
+      "match": {
+        "bytes_sha256": "eeb2318ee6dd5db163ff0c4a26712c7c2e742cbf554dfea69df323fdc8846723",
+        "inputs_sha256": "83098694d33da15b9886a811dd1212498cdc984d89b59ada8e7bfc9938407c11"
+      }
+    },
+    {
       "id": "sound-vector-squared-length",
       "offset": 7694080,
       "size": 43,
@@ -1329,6 +2237,330 @@
       }
     },
     {
+      "id": "sound-cpu-pentium",
+      "offset": 7711248,
+      "size": 26,
+      "rebuilt_symbol": "_SND_fn_bTestSnd_Pentium@0",
+      "inputs": [
+        "src/sound_cpu_probes.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cpu_probes.obj src/sound_cpu_probes.c",
+      "identification": "Steam PE export _SND_fn_bTestSnd_Pentium@0 at RVA 0x75aa10. Returns the first word written by the common CPU feature detector. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_detect_cpu": {
+          "va": 285583792,
+          "basis": "Shared call target reached directly by SND_fn_bTestSnd_Pentium and SND_fn_bTestSnd_MMX, returning two feature words."
+        }
+      },
+      "match": {
+        "bytes_sha256": "efae5a1262f89f1d50f9ecb399c9cf53e85d573e4da9d655f574061cc477350d",
+        "inputs_sha256": "2b46d39e9a1767e3fd03c4608396c9f61d74a2aab6aa4474e70b31c0b26e998f"
+      }
+    },
+    {
+      "id": "sound-cpu-mmx",
+      "offset": 7711280,
+      "size": 52,
+      "rebuilt_symbol": "_SND_fn_bTestSnd_MMX@0",
+      "inputs": [
+        "src/sound_cpu_probes.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cpu_probes.obj src/sound_cpu_probes.c",
+      "identification": "Steam PE export _SND_fn_bTestSnd_MMX@0 at RVA 0x75aa30. Requires both words written by the shared detector to be nonzero. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_detect_cpu": {
+          "va": 285583792,
+          "basis": "Shared call target reached directly by SND_fn_bTestSnd_Pentium and SND_fn_bTestSnd_MMX, returning two feature words."
+        }
+      },
+      "match": {
+        "bytes_sha256": "555d36296dcdbe2eb1cc6d24ac8ccb35f1b323fb9a4eaeb5f53803ce15e27838",
+        "inputs_sha256": "a8c8330d741ad8a24ba4f96046072fd1b9ac5d133fcf4a62f914666d7f5ae97d"
+      }
+    },
+    {
+      "id": "sound-test-winmm",
+      "offset": 7711344,
+      "size": 223,
+      "rebuilt_symbol": "_SND_fn_bTestSnd_WinMM@4",
+      "inputs": [
+        "src/sound_windows_support.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+      "link_bindings": {
+        "___security_cookie": {
+          "va": 287127248,
+          "basis": "Global used by the retail stack-protection prologue and checked before return."
+        },
+        "__imp__waveOutGetDevCapsA@12": {
+          "va": 285963844,
+          "basis": "The retail PE import table names waveOutGetDevCapsA at IAT slot VA 0x110b7644."
+        },
+        "@__security_check_cookie@4": {
+          "va": 284363865,
+          "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+        }
+      },
+      "identification": "Named retail export _SND_fn_bTestSnd_WinMM@4 at RVA 0x75aa70; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "21bed59b80dfc41d0bfac6cb2115aa3da133b9340d31b808408cc80a8417ae39",
+        "inputs_sha256": "589db289c6b0407f5f8e6c3928474e19a8eb7580fd7e6db58bad9fd456de4062"
+      }
+    },
+    {
+      "id": "sound-test-win32",
+      "offset": 7711568,
+      "size": 83,
+      "rebuilt_symbol": "_SND_fn_bTestSnd_Win32@0",
+      "inputs": [
+        "src/sound_windows_support.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+      "link_bindings": {
+        "___security_cookie": {
+          "va": 287127248,
+          "basis": "Global used by the retail stack-protection prologue and checked before return."
+        },
+        "_SND_fn_vMemsetSnd@12": {
+          "va": 285460048,
+          "basis": "Steam campaign PE named export _SND_fn_vMemsetSnd@12 at RVA 0x73c650."
+        },
+        "__imp__GetVersionExA@4": {
+          "va": 285962996,
+          "basis": "The retail PE import table names GetVersionExA at IAT slot VA 0x110b72f4."
+        },
+        "@__security_check_cookie@4": {
+          "va": 284363865,
+          "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+        }
+      },
+      "identification": "Named retail export _SND_fn_bTestSnd_Win32@0 at RVA 0x75ab50; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "e6b64b26ec005fd652a6a502a47e87ad64c162c1d13ecaf9c34a65802087a56b",
+        "inputs_sha256": "f98b0e9bdcb16cf500da384535051c42ce35ac4092ef242c4392967be7af8cc9"
+      }
+    },
+    {
+      "id": "sound-test-nt4",
+      "offset": 7711664,
+      "size": 112,
+      "rebuilt_symbol": "_SND_fn_bTestSnd_WinNT4@0",
+      "inputs": [
+        "src/sound_windows_support.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+      "link_bindings": {
+        "___security_cookie": {
+          "va": 287127248,
+          "basis": "Global used by the retail stack-protection prologue and checked before return."
+        },
+        "_SND_fn_vMemsetSnd@12": {
+          "va": 285460048,
+          "basis": "Steam campaign PE named export _SND_fn_vMemsetSnd@12 at RVA 0x73c650."
+        },
+        "__imp__GetVersionExA@4": {
+          "va": 285962996,
+          "basis": "The retail PE import table names GetVersionExA at IAT slot VA 0x110b72f4."
+        },
+        "@__security_check_cookie@4": {
+          "va": 284363865,
+          "basis": "Direct target of the retail stack-cookie epilogues; compares the saved cookie in ECX against the security cookie global."
+        }
+      },
+      "identification": "Named retail export _SND_fn_bTestSnd_WinNT4@0 at RVA 0x75abb0; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "d07d390972a62f5aaeabde59fe84c953c5dcfb7572c36d3c0700c2e39aa02bae",
+        "inputs_sha256": "d18f457c689f54e84af97d182c64e945aabafd2686c36667e285bd42a672468c"
+      }
+    },
+    {
+      "id": "sound-script-mode-used",
+      "offset": 7711776,
+      "size": 3,
+      "rebuilt_symbol": "_SND_fn_bIsScriptModeUsed@0",
+      "inputs": [
+        "src/sound_windows_support.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /GS /c /Folocal/sound_windows_support.obj src/sound_windows_support.c",
+      "identification": "Named retail export _SND_fn_bIsScriptModeUsed@0 at RVA 0x75ac20; whole linked symbol including each return, before alignment or next entry.",
+      "match": {
+        "bytes_sha256": "4bc724f3b1d0caf4fe369c18cba3102e6c4ea057f63fe1587e3973134a7f755e",
+        "inputs_sha256": "75322e1ed9da243fc4da045cd6b763478eeef279308df401e1fda6fd78727e7b"
+      }
+    },
+    {
+      "id": "sound-current-bank",
+      "offset": 7712272,
+      "size": 4,
+      "rebuilt_symbol": "@sound_current_bank@4",
+      "inputs": [
+        "src/sound_current_bank.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_current_bank.obj src/sound_current_bank.c",
+      "identification": "Both confirmed mode-zero bank lookups target this ECX accessor. Returns the current bank pointer at offset twelve; its only return precedes alignment. Locally assigned C name.",
+      "match": {
+        "bytes_sha256": "2e339cdc5de837ec151dbde90057caeabba18ac3ea32e7c2cffc8f95df41a6ff",
+        "inputs_sha256": "8d99928aa91ad0469cc486bb76aa3dabbc31da254458848847c898b65f35a712"
+      }
+    },
+    {
+      "id": "sound-receiver-level",
+      "offset": 7718912,
+      "size": 223,
+      "rebuilt_symbol": "_SND_fn_rGetNormeSxd@4",
+      "link_bindings": {
+        "_SoundReceiverCount": {
+          "va": 288549576,
+          "basis": "Referenced by retail export GetNormeSxd at 0x1105c81e. The internal query at 0x1105c8e0 reads the same value; receiver creation increments it at 0x1105c96a or 0x1105c9b2."
+        },
+        "_FirstSoundReceiver": {
+          "va": 288549564,
+          "basis": "The exported reader starts its list walk at 0x1105c82c. The creator records a new list head at 0x1105c93e."
+        },
+        "_SND_fn_rPseudoNormeVectorSnd@4": {
+          "va": 285566816,
+          "basis": "Named export _SND_fn_rPseudoNormeVectorSnd@4 in the locked campaign PE."
+        },
+        "_SND_fn_rDistanceToVolumeEx@8": {
+          "va": 285521216,
+          "basis": "Named export _SND_fn_rDistanceToVolumeEx@8 in the locked campaign PE."
+        },
+        "_SND_fn_rDistanceToVolume@4": {
+          "va": 285520976,
+          "basis": "Named export _SND_fn_rDistanceToVolume@4 in the locked campaign PE."
+        }
+      },
+      "inputs": [
+        "src/sound_receiver_level.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_level.obj src/sound_receiver_level.c",
+      "identification": "Named retail campaign export _SND_fn_rGetNormeSxd@4 at VA 0x1105c800. The final return ends at 0x1105c8df before alignment or the next named function. Computes the loudest attenuated level among enabled matching receivers in the linked list. Flag 1 returns zero; flag 4 selects the custom rolloff parameter view at offset 0x9c. The position, list links, binding stride and enabled fields are supported by retail loads.",
+      "match": {
+        "bytes_sha256": "e962ff80c0dcf525a90bd1f6959e7c4f801b8914d54da9fe2437a546f078ff3f",
+        "inputs_sha256": "97fdc4277985ef6572535cc1d01eee9545b396aff4ce0bd4c2de41272b8a58b4"
+      }
+    },
+    {
+      "id": "reset-sound-receivers",
+      "offset": 7719152,
+      "size": 28,
+      "rebuilt_symbol": "_reset_sound_receivers",
+      "link_bindings": {
+        "_SoundReceiverCount": {
+          "va": 288549576,
+          "basis": "Global receiver count read at 0x1105c81e by SND_fn_rGetNormeSxd and updated by the receiver lifecycle."
+        },
+        "_SoundReceivers": {
+          "va": 288549564,
+          "basis": "List head, tail and count read or written at 0x1132eabc, 0x1132eac0 and 0x1132eac4. The create function stores the list address in its new node."
+        }
+      },
+      "inputs": [
+        "src/sound_receiver_list.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+      "identification": "Direct call at retail VA 0x1104f436 targets this internal function at 0x1105c8f0. Its last return ends before INT3 alignment at 0x1105c90c. Resets both list endpoints and both counters, and returns success. Its caller passes one argument that the recovered function leaves unused.",
+      "match": {
+        "bytes_sha256": "0fb52139119f54be0009dcd39a9f1f1b6b25a989eb5263f2b2fbb9fa6940d21d",
+        "inputs_sha256": "54440d15fa95c6e6237da3c249a09b74f189f1b179386c408d5812f192fbae50"
+      }
+    },
+    {
+      "id": "create-sound-receiver",
+      "offset": 7719184,
+      "size": 173,
+      "rebuilt_symbol": "_create_sound_receiver",
+      "link_bindings": {
+        "_SND_fn_pvMallocSnd@4": {
+          "va": 285460528,
+          "basis": "Named export _SND_fn_pvMallocSnd@4 in the exact Steam campaign image."
+        },
+        "_SoundReceivers": {
+          "va": 288549564,
+          "basis": "List head, tail and count read or written at 0x1132eabc, 0x1132eac0 and 0x1132eac4. The create function stores the list address in its new node."
+        },
+        "_SoundReceiverCount": {
+          "va": 288549576,
+          "basis": "Global receiver count read at 0x1105c81e by SND_fn_rGetNormeSxd and updated by the receiver lifecycle."
+        },
+        "_SND_fn_vMemCopySnd@12": {
+          "va": 285459920,
+          "basis": "Named export _SND_fn_vMemCopySnd@12 in the exact Steam campaign image."
+        }
+      },
+      "inputs": [
+        "src/sound_receiver_list.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+      "identification": "Direct call at retail VA 0x1104f6c6 targets this internal function at 0x1105c910. Its last return ends before INT3 alignment at 0x1105c9bd. Creates a 68-byte doubly linked receiver node and optionally copies four pose vectors.",
+      "match": {
+        "bytes_sha256": "483eaee71251bd0f86de89ef16b39bae1800b57d739bdc35d6389be2f8eb39e1",
+        "inputs_sha256": "bc19561f93938890814ae069af28f0709da124eb8737a693f02b7f517d2939d3"
+      }
+    },
+    {
+      "id": "update-sound-receiver",
+      "offset": 7719408,
+      "size": 102,
+      "rebuilt_symbol": "_update_sound_receiver",
+      "link_bindings": {
+        "_SoundReceivers": {
+          "va": 288549564,
+          "basis": "List head, tail and count read or written at 0x1132eabc, 0x1132eac0 and 0x1132eac4. The create function stores the list address in its new node."
+        },
+        "_SND_fn_vMemCopySnd@12": {
+          "va": 285459920,
+          "basis": "Named export _SND_fn_vMemCopySnd@12 in the exact Steam campaign image."
+        }
+      },
+      "inputs": [
+        "src/sound_receiver_list.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+      "identification": "Direct call at retail VA 0x1104f6ec targets this internal function at 0x1105c9f0. Its last return ends before INT3 alignment at 0x1105ca56. Looks up the target before enabling it and copying all four pose vectors.",
+      "match": {
+        "bytes_sha256": "2b56d395b6c118496231dbb30e56f41221b9712fde71c064aed4c080037e1659",
+        "inputs_sha256": "d385c4f73a92ff3e0f33ce6d13c76e27f1d22d667edd45830d8b50a3b2c7e265"
+      }
+    },
+    {
+      "id": "destroy-sound-receiver",
+      "offset": 7719520,
+      "size": 96,
+      "rebuilt_symbol": "_destroy_sound_receiver",
+      "link_bindings": {
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Named export _SND_fn_vFreeSnd@4 in the exact Steam campaign image."
+        },
+        "_SoundReceiverCount": {
+          "va": 288549576,
+          "basis": "Global receiver count read at 0x1105c81e by SND_fn_rGetNormeSxd and updated by the receiver lifecycle."
+        }
+      },
+      "inputs": [
+        "src/sound_receiver_list.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_receiver_list.obj src/sound_receiver_list.c",
+      "identification": "Direct call at retail VA 0x1104f716 targets this internal function at 0x1105ca60. Its last return ends before the next one-byte return routine at 0x1105cac0. Removes the node from both list directions, updates list endpoints and counts and frees it.",
+      "match": {
+        "bytes_sha256": "6f0d2fcf30e0f6a4922f6c6c9b4346aabfa65390882772280704371b4e91ddb4",
+        "inputs_sha256": "f05988d4a34514ca3a05716f4b379a6a0ebae59f84932e91b5409919b7747388"
+      }
+    },
+    {
       "id": "sound-file-read",
       "offset": 7947696,
       "size": 60,
@@ -1342,6 +2574,28 @@
       "match": {
         "bytes_sha256": "f9acbd2cf825496be0c60f1e154de8686db858d2a3861e028dd230e0f2e4efc1",
         "inputs_sha256": "af7db26ee9634a88662601de6e55e49f8c623d511f9d16aad3ba7d6fefbe05c4"
+      }
+    },
+    {
+      "id": "sound-file-seek",
+      "offset": 7947760,
+      "size": 80,
+      "rebuilt_symbol": "_SND_fn_ulSeekFileSnd@12",
+      "inputs": [
+        "src/sound_file_range.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_file_range.obj src/sound_file_range.c",
+      "identification": "Steam PE export _SND_fn_ulSeekFileSnd@12 at RVA 0x7945f0. Accepts start, current or end origins; unknown origins report error 13 and use start. Sets the Win32 file pointer, mapping -1 and 131 to -1. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_SND_fn_vDisplayError@8": {
+          "va": 285460432,
+          "basis": "Named export _SND_fn_vDisplayError@8 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "15b47c42b5e55441c928377f7a98685d7e09b2bf5bacb1908cc40b8e853f86cb",
+        "inputs_sha256": "dcfc92bed393ea8631b814c74d9872e1899e5a10b32dbbf8471503a6d4a90a14"
       }
     },
     {
@@ -1374,6 +2628,32 @@
       "match": {
         "bytes_sha256": "843316f2067c905c3f17a526081c3028022d685a1a6652709f90bedbae6c3cd0",
         "inputs_sha256": "fad4352d60430b56a153d75602fc8a8fea1cfb486cc849e9999ae97e262190d3"
+      }
+    },
+    {
+      "id": "sound-file-exists",
+      "offset": 7947872,
+      "size": 97,
+      "rebuilt_symbol": "_SND_fn_bTestFileExistSnd@4",
+      "inputs": [
+        "src/sound_file_exists.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /GS /Gy /c /Folocal/sound_file_exists.obj src/sound_file_exists.c",
+      "identification": "Steam PE export _SND_fn_bTestFileExistSnd@4 at RVA 0x794660. Tests for a successful FindFirstFileA and closes the valid enumeration handle. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "___security_cookie": {
+          "va": 287127248,
+          "basis": "Image cookie loaded by the stack protector at the start of the named Sound file-existence export."
+        },
+        "@__security_check_cookie@4": {
+          "va": 284363865,
+          "basis": "Both returns in the named Sound file-existence export call this guard with the saved cookie in ECX."
+        }
+      },
+      "match": {
+        "bytes_sha256": "9af0e15ffedd09803f22ca0c9e71b482dd9f7d49f35715d2e925ed0322fae980",
+        "inputs_sha256": "6c2b13a977f33503a69017339b26a9ff67f80c731f7ac02460607e9738891d26"
       }
     },
     {
@@ -1430,14 +2710,15 @@
       "size": 41,
       "rebuilt_symbol": "_SND_fn_vAbortLastStreamAsyncSnd@4",
       "inputs": [
-        "src/sound_stream_requests.c"
+        "src/sound_stream_requests.c",
+        "src/sound_stream_request.h"
       ],
       "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
       "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_requests.obj src/sound_stream_requests.c",
       "identification": "Steam PE export _SND_fn_vAbortLastStreamAsyncSnd@4 at RVA 0x794950. A valid stream clears eight request fields. A null handle or -1 returns immediately. File and buffer ownership fields survive the reset. All reachable return paths are included; the following alignment is excluded.",
       "match": {
         "bytes_sha256": "5f03f48086bf0e67ea068314dcdfe5d5fc8b1be1e80d015dfc144232e15dbc3f",
-        "inputs_sha256": "082e03bc08e2cf957aae0b094014cb5c379c55711aff0888582dce5c93dfe6e6"
+        "inputs_sha256": "3506329aec27f5a963d0fccbfad782251cdcbf3d517d8283cccf2c9dd6d47854"
       }
     },
     {
@@ -1446,14 +2727,92 @@
       "size": 33,
       "rebuilt_symbol": "_SND_fn_bIsLastStreamAsyncDoneSnd@4",
       "inputs": [
-        "src/sound_stream_requests.c"
+        "src/sound_stream_requests.c",
+        "src/sound_stream_request.h"
       ],
       "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
       "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_requests.obj src/sound_stream_requests.c",
       "identification": "Steam PE export _SND_fn_bIsLastStreamAsyncDoneSnd@4 at RVA 0x794980. Null and -1 return false; for a valid pointer, state 2 signals completion. All reachable return paths are included; the following alignment is excluded.",
       "match": {
         "bytes_sha256": "7064f383ff0fe2c208d27ffde78be9f2a322c5df767a21786bc8b65c1653cf75",
-        "inputs_sha256": "ac7dda2ee765e280d6aa42d7b4007ad136f05a0df5e412373eb4882d8414d003"
+        "inputs_sha256": "6d1c3c489cb1911bd2cb6810c6f781039f2b407f75b54a190df93df434010878"
+      }
+    },
+    {
+      "id": "sound-stream-destroy",
+      "offset": 7948720,
+      "size": 78,
+      "rebuilt_symbol": "_SND_fn_vDestroyStreamAsyncSnd@4",
+      "inputs": [
+        "src/sound_stream_lifecycle.c",
+        "src/sound_stream_request.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_lifecycle.obj src/sound_stream_lifecycle.c",
+      "identification": "Steam PE export _SND_fn_vDestroyStreamAsyncSnd@4 at RVA 0x7949b0. Clears request state, closes the async file, releases the 32-byte-aligned buffer and releases the stream. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_close_stream_file": {
+          "va": 285825312,
+          "basis": "Direct callee of SND_fn_vDestroyStreamAsyncSnd that releases the async file object."
+        },
+        "_SND_fn_vFreeSndAligned@8": {
+          "va": 285459664,
+          "basis": "Named export _SND_fn_vFreeSndAligned@8 in the Steam campaign PE."
+        },
+        "_SND_fn_vFreeSnd@4": {
+          "va": 285460592,
+          "basis": "Named export _SND_fn_vFreeSnd@4 in the Steam campaign PE."
+        }
+      },
+      "match": {
+        "bytes_sha256": "9f3b99aef32a4e51a7c5e49812d4ec4877898d81951a850e4ba446d7f317e107",
+        "inputs_sha256": "c4be004fc15ac6ae491a7db04148db636e86440e40584085510e1d73b89e10b6"
+      }
+    },
+    {
+      "id": "sound-stream-submit-read",
+      "offset": 7948800,
+      "size": 43,
+      "rebuilt_symbol": "_sound_submit_stream_read",
+      "inputs": [
+        "src/sound_stream_lifecycle.c",
+        "src/sound_stream_request.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_lifecycle.obj src/sound_stream_lifecycle.c",
+      "identification": "The exported start routine calls RVA 0x794a00 with the stream, size/start and buffer. On success the helper records the queued byte count and returns the original result. Locally assigned C name; ends at its return before alignment.",
+      "link_bindings": {
+        "_sound_submit_file_read": {
+          "va": 285824672,
+          "basis": "Direct callee of the stream request submit helper, taking a file handle, byte count, request start and target buffer."
+        }
+      },
+      "match": {
+        "bytes_sha256": "7ab198f58ce8d4c81f0567b8b8ddd122df26266f689be59510462b7517ed80a4",
+        "inputs_sha256": "7532fcd35825f0ffa3f0316a55509bc94e12d22c379b0931558ecf4a508bd1f7"
+      }
+    },
+    {
+      "id": "sound-stream-start",
+      "offset": 7948880,
+      "size": 104,
+      "rebuilt_symbol": "_SND_fn_vStartStreamAsyncSnd@12",
+      "inputs": [
+        "src/sound_stream_lifecycle.c",
+        "src/sound_stream_request.h"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_stream_lifecycle.obj src/sound_stream_lifecycle.c",
+      "identification": "Steam PE export _SND_fn_vStartStreamAsyncSnd@12 at RVA 0x794a50. Starts an accepted request for a nonempty size in an idle or completed stream; the initial chunk fits the buffer. Includes all reachable exits and excludes alignment.",
+      "link_bindings": {
+        "_sound_submit_stream_read": {
+          "va": 285821440,
+          "basis": "Direct call at RVA 0x794aa1 in exported SND_fn_vStartStreamAsyncSnd targets RVA 0x794a00; the locally named helper has its own whole-function comparison."
+        }
+      },
+      "match": {
+        "bytes_sha256": "2ae002cf6fc74f84aca8a7722b448175a88bf89c787dc69bb13341d6e649d8c0",
+        "inputs_sha256": "fc21888adab35187b65dd1c29bdc48970c2038820ff5ee5901b6a94516d93f13"
       }
     }
   ]

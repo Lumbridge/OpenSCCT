@@ -1,6 +1,7 @@
 #include "versus_script_frame.h"
 
 struct AudioDevice;
+struct Sound;
 typedef void (__fastcall *AudioAction)(struct AudioDevice *);
 typedef float (__fastcall *ReadVolume)(struct AudioDevice *);
 typedef int (__fastcall *ReadAudioInt)(struct AudioDevice *);
@@ -8,7 +9,7 @@ typedef unsigned char (__fastcall *ReadAudioByte)(struct AudioDevice *);
 
 struct AudioMethods {
     void *before_current_music[34];
-    ReadAudioInt current_music;
+    struct Sound *(__fastcall *current_music)(struct AudioDevice *);
     void *before_enter_chat[2];
     AudioAction enter_chat;
     AudioAction leave_chat;
@@ -93,7 +94,7 @@ void __fastcall versus_voice_volume(struct AudioActor *self, unsigned reserved_e
 }
 
 void __fastcall versus_current_music(struct AudioActor *self, unsigned reserved_edx,
-                                     struct VersusScriptFrame *frame, int *result) {
+                                     struct VersusScriptFrame *frame, struct Sound **result) {
     struct AudioDevice *device;
     ++frame->code;
     device = self->level->engine->audio;
