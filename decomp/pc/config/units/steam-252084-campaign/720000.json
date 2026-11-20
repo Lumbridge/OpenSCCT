@@ -1,0 +1,28 @@
+[
+  {
+    "id": "finalize-record-r7282a0",
+    "size": 10,
+    "offset": 7504544,
+    "inputs": [
+      "src/campaign_shutdown_callbacks.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shutdown_callbacks.obj src/campaign_shutdown_callbacks.c",
+    "rebuilt_symbol": "_finalize_record_r7282a0",
+    "identification": "Stock exit registration RVA 0x728280 pushes the full callback address RVA 0x7282a0 before calling the reproduced atexit function. Loads the static object into ECX and tail-calls its destructor. Static writable record loaded as the receiver of the cleanup call.",
+    "link_bindings": {
+      "_exit_object_a2b754": {
+        "va": 288536404,
+        "basis": "Static writable record loaded as the receiver of the cleanup call."
+      },
+      "@destroy_record_5ef150@4": {
+        "va": 284094800,
+        "basis": "Executable destructor entry at RVA 0x5ef150 reached by the terminal direct branch."
+      }
+    },
+    "match": {
+      "bytes_sha256": "a2f6417b99adb767f9e0bf5999671795447a2614ce3fb4b1d929364e7c981b16",
+      "inputs_sha256": "4aa0a4a1b542067fb32c475e0d39e100c8ad966e66c0e27e761bc8c8dd9562df"
+    }
+  }
+]

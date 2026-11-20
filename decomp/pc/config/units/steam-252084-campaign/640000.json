@@ -1540,5 +1540,21 @@
       "bytes_sha256": "b3f650f644af9976768ee777ef0b7bbef6644dd5dc670654e7531b57f53d4f12",
       "inputs_sha256": "75894141b0f17398912e11b2e52fad5d7bf3778cfc3462f56fc546579c9f511c"
     }
+  },
+  {
+    "id": "empty-exit-r64bb60",
+    "size": 1,
+    "offset": 6601568,
+    "inputs": [
+      "src/campaign_shutdown_callbacks.c"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shutdown_callbacks.obj src/campaign_shutdown_callbacks.c",
+    "rebuilt_symbol": "_empty_exit_r64bb60",
+    "identification": "Stock exit registration RVA 0x64bb50 pushes the full callback address RVA 0x64bb60 before calling the reproduced atexit function. The registered callback returns immediately and has no instructions before RET.",
+    "match": {
+      "bytes_sha256": "ae3f4619b0413d70d3004b9131c3752153074e45725be13b9a148978895e359e",
+      "inputs_sha256": "b0199a3b97ce658343ec527a3cb7b43e7051e23946152d96af9d2eab8071ad10"
+    }
   }
 ]
