@@ -22,6 +22,28 @@
     }
   },
   {
+    "id": "array-block-cleanup-718b90",
+    "size": 61,
+    "offset": 7441296,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_718b90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 1 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "8d24278c5ead25c829b7d2bb74f5849234c0cab27065c27e04026d2f3612a2ed",
+      "inputs_sha256": "8689238a998ce0bce8ffa23ac6a05925d61fb73ddff38ffa2a22856afa73aaae"
+    }
+  },
+  {
     "id": "delete-pool-718ec0",
     "size": 40,
     "offset": 7442112,
@@ -399,6 +421,28 @@
     "match": {
       "bytes_sha256": "90bbaec7e89d97c62653a807f7e38ddf5299fcf27525667b95fbc4034d80b542",
       "inputs_sha256": "142e2731ad6b29c3605e012b826634111b3df38a97c72652f441a82136f6acb4"
+    }
+  },
+  {
+    "id": "array-block-cleanup-71d1e0",
+    "size": 61,
+    "offset": 7459296,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_71d1e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 1 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "bb30b300ff5ec4e64526e5f7c0f9e9fe4eed0e10cb8dd3d1b25ebc9d43478c80",
+      "inputs_sha256": "37ab189cd48228293820d549d44a18641316fe74a25971b230dacb34964a2c0e"
     }
   },
   {

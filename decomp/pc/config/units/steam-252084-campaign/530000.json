@@ -2046,6 +2046,50 @@
     }
   },
   {
+    "id": "array-block-cleanup-53c0b0",
+    "size": 94,
+    "offset": 5488816,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_53c0b0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 2 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "cdb029e9c974ae61cc57ed7bb9e5c4341c3f24bac5153e933746a00094299c1e",
+      "inputs_sha256": "69925a64f15dac2cc916cb38cea7f9a082a540543b572256a08532f47df70686"
+    }
+  },
+  {
+    "id": "array-block-cleanup-53c4d0",
+    "size": 94,
+    "offset": 5489872,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_53c4d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 2 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "b85032760c952574e6d5ee915b6cd8a317b1d0726abcae12ceef1f4aa33200c1",
+      "inputs_sha256": "8d6d7e48ccca6d02ad46a1508eb4b8e1983f192c3a167653dbfdbc84dc2a7f4e"
+    }
+  },
+  {
     "id": "physics-sized-release-53c5d0",
     "size": 41,
     "offset": 5490128,

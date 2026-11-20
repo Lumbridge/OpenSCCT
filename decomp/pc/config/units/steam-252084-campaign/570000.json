@@ -788,6 +788,28 @@
     }
   },
   {
+    "id": "array-block-cleanup-578d40",
+    "size": 93,
+    "offset": 5737792,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_578d40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 2 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "ed3a8882abc5dabc4226e0b5cd83b11e788f5017c98438e7bef952fba0c51699",
+      "inputs_sha256": "8add29fcafe05eaaf3f35a40233002caba997b501e5e033b4c8cd1bd6a429379"
+    }
+  },
+  {
     "id": "physics-object-allocation-578df0",
     "size": 25,
     "offset": 5737968,
@@ -924,6 +946,28 @@
     }
   },
   {
+    "id": "array-block-cleanup-5792c0",
+    "size": 60,
+    "offset": 5739200,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_5792c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 1 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "defbda6f68e98ab6818169df0aaa73fff32ba6f76c9d643982385eedee93bb1f",
+      "inputs_sha256": "401fe1061478c60c0052045ac085a1309b74a4970261277ccf752509b75a6879"
+    }
+  },
+  {
     "id": "physics-object-allocation-579330",
     "size": 25,
     "offset": 5739312,
@@ -972,6 +1016,28 @@
     }
   },
   {
+    "id": "array-block-cleanup-579630",
+    "size": 93,
+    "offset": 5740080,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_579630@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 2 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "23677299e35fae0665db4edfb6d03fb0add19b6bf679e3287c7c830502934c14",
+      "inputs_sha256": "942e2071b26a5bdda2fdbd02c97b451f28efed3dd8f61db480155a66b3c4fa8f"
+    }
+  },
+  {
     "id": "owned-array-storage-579860",
     "size": 37,
     "offset": 5740640,
@@ -991,6 +1057,28 @@
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
       "inputs_sha256": "a4f5d33782578a1ccdfa4d6d237c54a269ee1aa43ef219785c540c56cf2f7add"
+    }
+  },
+  {
+    "id": "array-block-cleanup-579890",
+    "size": 60,
+    "offset": 5740688,
+    "inputs": [
+      "src/campaign_array_block_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_579890@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_block_cleanup.obj src/campaign_array_block_cleanup.c",
+    "link_bindings": {
+      "_manager": {
+        "va": 288469976,
+        "basis": "Physics allocation manager used for storage and block releases."
+      }
+    },
+    "identification": "Indexed deleting destructor checks ownership and releases 1 embedded array(s) before optional receiver block deallocation.",
+    "match": {
+      "bytes_sha256": "defbda6f68e98ab6818169df0aaa73fff32ba6f76c9d643982385eedee93bb1f",
+      "inputs_sha256": "55b06586dc5a442d1a37f4b3cd8c46a7b9d53ea3452cb962541880bceffab449"
     }
   },
   {
