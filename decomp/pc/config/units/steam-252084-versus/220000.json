@@ -1491,5 +1491,57 @@
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
       "inputs_sha256": "50d9624037828a436f3bfe41c6da28e544268b3efa65ea26d738d0a1ee4bc0d7"
     }
+  },
+  {
+    "id": "simple-table-destroy-2266c0",
+    "size": 31,
+    "offset": 2254528,
+    "inputs": [
+      "src/versus_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_2266c0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_simple_table_destroy.obj src/versus_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_2e0b90": {
+        "va": 280890256,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_150880": {
+        "va": 279251072,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x2e0b90. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "4a712f9cabdd4df6493836adc078a4d4e68f46af5fff52947bda1fbe5655b9e3",
+      "inputs_sha256": "58cda2dc1d0b154aa482581bb39e5165cbe3b628db8a697dccd27a600a0ce2f7"
+    }
+  },
+  {
+    "id": "simple-table-destroy-226790",
+    "size": 31,
+    "offset": 2254736,
+    "inputs": [
+      "src/versus_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_226790@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_simple_table_destroy.obj src/versus_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_2e0b98": {
+        "va": 280890264,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_150880": {
+        "va": 279251072,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x2e0b98. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "264e818c3f76870b2d36b72d9e0f46b817f4808c0b85af26c43171449a4718f2",
+      "inputs_sha256": "dafcc50080e01f43ceb968528185b3e94f4bf6b04a7cb796049ff0b8e1374032"
+    }
   }
 ]

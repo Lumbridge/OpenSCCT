@@ -1993,6 +1993,110 @@
     }
   },
   {
+    "id": "simple-table-destroy-135a50",
+    "size": 31,
+    "offset": 1268304,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_135a50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d416c": {
+        "va": 286081388,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7d416c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "8bf8ea6da1446d238aeb031a899c5148d41d60352d107711c9cd030a7c74ca6b",
+      "inputs_sha256": "a2dc1ca658f690c8e23c21c8f5708fb17b8c4ccc26d978cefadad6f3f98cbf10"
+    }
+  },
+  {
+    "id": "simple-table-destroy-135a90",
+    "size": 31,
+    "offset": 1268368,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_135a90@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d4170": {
+        "va": 286081392,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7d4170. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "cd99b7535d8476c83a47bb817c1d2476e1d301423c7f0f5430668a9b6042d66c",
+      "inputs_sha256": "db037dd4821d82dd2dee5d9cef5963b60dd663c00ee0d716fc4f748419472d83"
+    }
+  },
+  {
+    "id": "simple-table-destroy-135af0",
+    "size": 31,
+    "offset": 1268464,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_135af0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d416c": {
+        "va": 286081388,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7d4174. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "7268a10e86d9b5cbd5ee93d6a3bf64b6e69d64b83cc96e318c1da8d0aa0e5c44",
+      "inputs_sha256": "cb9bd1d9150679975cdfa32e35dddf32493e8c77d42060f58721706878bae939"
+    }
+  },
+  {
+    "id": "simple-table-destroy-135b10",
+    "size": 31,
+    "offset": 1268496,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_135b10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d4170": {
+        "va": 286081392,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x7d4178. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "915499aae11ae6063dedabc3c57df83974ffc09521e32f7dc4e3bfe39d393274",
+      "inputs_sha256": "2573c4b4402fd090233e084404fcdd60b05e0f6901fb2aa79a6aef4c8a5b5064"
+    }
+  },
+  {
     "id": "class-registration-uinput",
     "offset": 1268560,
     "size": 264,

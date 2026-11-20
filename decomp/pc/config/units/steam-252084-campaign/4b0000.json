@@ -394,6 +394,110 @@
     }
   },
   {
+    "id": "simple-table-destroy-4b30f0",
+    "size": 31,
+    "offset": 4927728,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b30f0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d8cdc": {
+        "va": 286100700,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x83fb48. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "0e1cd922218519700eb0b4419d31ade4a82119c68c3b1670ede370a16a38134e",
+      "inputs_sha256": "7e92ed71f0c00b4bb6a2693621de483fdd7073a609f52a82729a72fd8dca46b5"
+    }
+  },
+  {
+    "id": "simple-table-destroy-4b3110",
+    "size": 31,
+    "offset": 4927760,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b3110@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d8cdc": {
+        "va": 286100700,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x83fb60. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "fa98a5c6af6e5259a3538ac38d01937b70a0dde59f6398f026d19b25db0edc38",
+      "inputs_sha256": "176284dba3231ffde1e73c58d6533b28b79ac0c2740e3770d2a6eae309ee4b3a"
+    }
+  },
+  {
+    "id": "simple-table-destroy-4b3130",
+    "size": 31,
+    "offset": 4927792,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b3130@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d8cdc": {
+        "va": 286100700,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x83fb78. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "b2a817e5c5be993c527b87fb798efc0d96babf3683aeb1ef505a233e50c12244",
+      "inputs_sha256": "2b22cd36a4b4f9e23f70c23e1229d895e350d25bebd1a65de90c281b34c75f39"
+    }
+  },
+  {
+    "id": "simple-table-destroy-4b3150",
+    "size": 31,
+    "offset": 4927824,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b3150@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_7d8cdc": {
+        "va": 286100700,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x83fb90. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "066f7b1430f138707a4b78d8d98e1cde0390d443b72ec400b15ebde635353587",
+      "inputs_sha256": "39cd1b643c75a0ec70efb18beb877a67e09115a911270c91d165f149b0c115bf"
+    }
+  },
+  {
     "id": "delete-record-4b3200",
     "offset": 4928000,
     "size": 36,
@@ -808,6 +912,58 @@
     }
   },
   {
+    "id": "simple-table-destroy-4b6600",
+    "size": 31,
+    "offset": 4941312,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b6600@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_83c63c": {
+        "va": 286508604,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x840a0c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "bc67585775fdce9cf8dfc468853a62cfd344f78d0b08bcc52882e78e8fb6a111",
+      "inputs_sha256": "f878b8a6cb771051da324e91d93ab27cf1e5ba224d4b81b160ec1e0a8002f553"
+    }
+  },
+  {
+    "id": "simple-table-destroy-4b6620",
+    "size": 31,
+    "offset": 4941344,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b6620@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_83c63c": {
+        "va": 286508604,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x840a18. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "f4bce91d3f6a76df14e3ac5c18883caabc7aa6759c7e3406912745edcff90166",
+      "inputs_sha256": "c1be4f8dc353c90a6fa1043e5baae035fa62bbd8222627fd6e009fc70e530bc6"
+    }
+  },
+  {
     "id": "managed-list-clear-4b68f0",
     "size": 63,
     "offset": 4942064,
@@ -965,6 +1121,32 @@
     "match": {
       "bytes_sha256": "66192fec521cdf6f5f45c3cdb847d73bf058de02dca1d2e04a063c153a7295f3",
       "inputs_sha256": "a81872ecaba1557301e7dad6b7e84d2b60d134f6135371f18ffb3c74ae54ccce"
+    }
+  },
+  {
+    "id": "simple-table-destroy-4b7640",
+    "size": 31,
+    "offset": 4945472,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4b7640@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_840a54": {
+        "va": 286526036,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x840a54. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "5c15c6d87e481ddd21fa0992425428cc0e0cc6f46ef89104e78e8ce93f9ccf2b",
+      "inputs_sha256": "cbac40ad78646a390c959ae861aa1d694bd82f21806843c46a18b91b6dea496d"
     }
   },
   {
@@ -1710,6 +1892,32 @@
     "match": {
       "bytes_sha256": "ace04a7006f2b5209614e323c6fbba33198489fa73605b706a881fd902397e57",
       "inputs_sha256": "f02f3c9e485d9d2446556fd71f698a395d56eabde50da05cdc712826a37861bf"
+    }
+  },
+  {
+    "id": "simple-table-destroy-4bc3d0",
+    "size": 31,
+    "offset": 4965328,
+    "inputs": [
+      "src/campaign_simple_table_destroy.c"
+    ],
+    "rebuilt_symbol": "@destroy_4bc3d0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_simple_table_destroy.obj src/campaign_simple_table_destroy.c",
+    "link_bindings": {
+      "_methods_8426cc": {
+        "va": 286533324,
+        "basis": "Read-only method table installed in the receiver."
+      },
+      "_release_487b90": {
+        "va": 282622864,
+        "basis": "Indexed function called when the deletion flag is set."
+      }
+    },
+    "identification": "Read-only method pointer at RVA 0x8426cc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
+    "match": {
+      "bytes_sha256": "f7991772458e5623dbad9b8d61df89630a24d4eab39f4dc94440c4cccf372f50",
+      "inputs_sha256": "93c36bc23b0493632609e9717a5e8a63fef9ee28dc35ec0e9593a247d63b527a"
     }
   },
   {
