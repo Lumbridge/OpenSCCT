@@ -208,7 +208,8 @@ internal sealed partial class PlayerPortal
             {
                 foreach (JsonElement target in targets.EnumerateArray())
                     body.Append("<div class=\"home-measure\"><p>").Append(H(target.GetProperty("label").GetString())).Append("</p>")
-                        .Append("<span>").Append(H(Measure(target).Bytes)).Append("</span></div>");
+                        .Append("<span>").Append(H(Measure(target).Bytes)).Append(" verified</span><p>")
+                        .Append(N(target.GetProperty("candidate_bytes").GetInt64())).Append(" byte-identical candidate bytes</p></div>");
             }
             body.Append("</article>");
         }
@@ -237,7 +238,7 @@ internal sealed partial class PlayerPortal
         var body = new StringBuilder("<div class=\"project-site\">");
         body.Append(ProjectHeading("Development", "Progress reports", "Track byte matches for the original executables and playable releases for the Godot and Unreal modernisations."))
             .Append("<header class=\"hub-heading\"><h2>Originals</h2></header>")
-            .Append("<p>Verified bytes come from complete functions rebuilt with the original compiler and flags. A percentage also needs a known total code size for that executable.</p>")
+            .Append("<p>Candidate functions compile to the original bytes. They count as verified once the original compiler and flags are established. A percentage also needs a known total code size for that executable.</p>")
             .Append("<div class=\"hub-link-row report-links\">").Append(Link(DecompGuide, "Reproduction guide"))
             .Append(Link(HubSource + "/blob/main/decomp/reports/progress.json", "Report source")).Append("</div>");
         foreach (JsonElement edition in ProgressReport.Value.RootElement.GetProperty("editions").EnumerateArray())
@@ -252,13 +253,11 @@ internal sealed partial class PlayerPortal
             {
                 var measure = Measure(target);
                 string evidence = HubSource + "/blob/main/" + target.GetProperty("evidence").GetString();
-                rows.Add([Link(evidence, target.GetProperty("label").GetString()!), H(target.GetProperty("scope").GetString()), H(measure.Bytes), H(measure.Percent)]);
+                long units = target.GetProperty("candidate_units").GetInt64();
+                string candidates = N(units) + (units == 1 ? " function" : " functions") + " · " + N(target.GetProperty("candidate_bytes").GetInt64()) + " bytes";
+                rows.Add([Link(evidence, target.GetProperty("label").GetString()!), H(target.GetProperty("scope").GetString()), candidates, H(measure.Bytes), H(measure.Percent)]);
             }
-            if (rows.Count > 0) body.Append(Table(["Executable", "Scope", "Matched code", "Progress"], rows));
-            foreach (JsonElement target in edition.GetProperty("targets").EnumerateArray())
-                if (target.TryGetProperty("candidate_bytes", out var bytes) && bytes.GetInt64() > 0)
-                    body.Append("<p><strong>Compiler experiment</strong> · ").Append(H(target.GetProperty("label").GetString()))
-                        .Append(" has ").Append(N(bytes.GetInt64())).Append(" candidate bytes reproduced with an unverified toolchain. The verified total excludes them.</p>");
+            if (rows.Count > 0) body.Append(Table(["Executable", "Scope", "Byte-identical candidates", "Verified code", "Progress"], rows));
             body.Append("</section>");
         }
         body.Append("<section class=\"hub-section\"><header class=\"hub-heading\"><h2>Modernisations</h2></header>")

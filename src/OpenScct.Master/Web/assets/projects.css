@@ -13,6 +13,9 @@
 .project-home .project-site > :not(.project-hero) { width: min(calc(100% - 3rem), 77rem); margin-inline: auto; }
 .project-hero { position: relative; isolation: isolate; overflow: hidden; background: #101c15; }
 .hero-backdrop { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; }
+@media (min-width: 961px) {
+  .hero-backdrop { transform: scale(1.26); }
+}
 .project-hero::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg,#07120ef5 0%,#0a150ed9 29%,#07110b63 63%,#06110c2e),linear-gradient(0deg,#0b160ffa,transparent 36%); }
 .hero-inner { max-width: 82rem; min-height: clamp(38rem, 78vh, 54rem); margin: auto; padding: clamp(2rem,5vw,5rem) 2.5rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 3rem; }
 .project-hero-copy { max-width: 45rem; }
