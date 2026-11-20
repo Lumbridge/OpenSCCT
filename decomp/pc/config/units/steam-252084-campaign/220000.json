@@ -1964,6 +1964,87 @@
     }
   },
   {
+    "id": "array-allocate-init-22d4d0",
+    "size": 51,
+    "offset": 2282704,
+    "inputs": [
+      "src/campaign_array_allocate_init.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@initialize_22d4d0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_allocate_init.obj src/campaign_array_allocate_init.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "13e5fc4998763bef7d73eaef8b6f8b3c971f73ac8519b1f8f9201aed10352307",
+      "inputs_sha256": "4d7ca89ae0ce447ead34d8c490d9424f0bb59a4f7f69a21c23c3d89a10b7e743"
+    }
+  },
+  {
+    "id": "array-allocate-init-22d510",
+    "size": 51,
+    "offset": 2282768,
+    "inputs": [
+      "src/campaign_array_allocate_init.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@initialize_22d510@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_allocate_init.obj src/campaign_array_allocate_init.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "13e5fc4998763bef7d73eaef8b6f8b3c971f73ac8519b1f8f9201aed10352307",
+      "inputs_sha256": "1a0e4689421159fd173b95cba5592de0acfbe7ad25ec29f8d22099a1e5b98f52"
+    }
+  },
+  {
+    "id": "array-allocate-init-22d550",
+    "size": 51,
+    "offset": 2282832,
+    "inputs": [
+      "src/campaign_array_allocate_init.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@initialize_22d550@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_allocate_init.obj src/campaign_array_allocate_init.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "13e5fc4998763bef7d73eaef8b6f8b3c971f73ac8519b1f8f9201aed10352307",
+      "inputs_sha256": "f76e3cc644de6cefd511f1c42d8378fdd0a4c73fd08dbdf33c8b933eb8b67a8b"
+    }
+  },
+  {
     "id": "aligned-array-growth-22d590",
     "size": 75,
     "offset": 2282896,

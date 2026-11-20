@@ -989,6 +989,33 @@
     }
   },
   {
+    "id": "array-allocate-init-0662a0",
+    "size": 51,
+    "offset": 418464,
+    "inputs": [
+      "src/campaign_array_allocate_init.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@initialize_0662a0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_allocate_init.obj src/campaign_array_allocate_init.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7be9a8": {
+        "va": 285993384,
+        "basis": "Read-only UTF-16 allocation label FArray::BYTE."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray::BYTE.",
+    "match": {
+      "bytes_sha256": "43eaad562333556a2048c7c61066e1a710411ff091be9a43c5e5885010cabe2e",
+      "inputs_sha256": "2ce51f57a39258edf6b0c299abe19d31f9a5dc88fea25f8e4ccb025ed2363638"
+    }
+  },
+  {
     "id": "heap-table-destroy-066310",
     "size": 34,
     "offset": 418576,

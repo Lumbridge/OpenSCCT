@@ -2665,6 +2665,33 @@
     }
   },
   {
+    "id": "array-allocate-init-15a2e0",
+    "size": 51,
+    "offset": 1417952,
+    "inputs": [
+      "src/campaign_array_allocate_init.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@initialize_15a2e0@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_allocate_init.obj src/campaign_array_allocate_init.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7bc158": {
+        "va": 285983064,
+        "basis": "Read-only UTF-16 allocation label FArray::INT."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray::INT.",
+    "match": {
+      "bytes_sha256": "270445e7d5d5103eac1edc7ffd0e94242284a4cef11386700beed327718f1ef9",
+      "inputs_sha256": "74dce2c4ca877379a31efd26ffcd8b2331294f73139b00aaa8b0fecd0fd745f7"
+    }
+  },
+  {
     "id": "array-resize-15a3b0",
     "size": 37,
     "offset": 1418160,
@@ -2998,6 +3025,33 @@
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
       "inputs_sha256": "fc84a4c777f4db552d686937682539d3f889fadb62a7130b98686b6fbfe3e4c9"
+    }
+  },
+  {
+    "id": "array-allocate-init-15b680",
+    "size": 51,
+    "offset": 1422976,
+    "inputs": [
+      "src/campaign_array_allocate_init.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@initialize_15b680@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_allocate_init.obj src/campaign_array_allocate_init.c",
+    "link_bindings": {
+      "_resize_heap": {
+        "va": 287082656,
+        "basis": "Engine allocation manager referenced by the resize call."
+      },
+      "_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation label FArray."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray.",
+    "match": {
+      "bytes_sha256": "13e5fc4998763bef7d73eaef8b6f8b3c971f73ac8519b1f8f9201aed10352307",
+      "inputs_sha256": "b337c507cc30585e1d89e82e76be29c9330a42171f269bf28e594832b6de998c"
     }
   },
   {
