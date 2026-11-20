@@ -730,6 +730,32 @@
     }
   },
   {
+    "id": "animation-update-position",
+    "size": 102,
+    "offset": 873680,
+    "inputs": [
+      "src/campaign_channel_transitions.c"
+    ],
+    "rebuilt_symbol": "@update_position@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_transitions.obj src/campaign_channel_transitions.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Stock operand for zero value."
+      },
+      "_zero_position": {
+        "va": 285965208,
+        "basis": "Stock operand for zero position."
+      }
+    },
+    "identification": "Indexed whole function. Updates the playback position or its alternate field according to sign and writes bit six.",
+    "match": {
+      "bytes_sha256": "e5c5ba21fd6907fc5a51c03939365f19385fc2fc98a8658d7b2246561997c9a0",
+      "inputs_sha256": "7163434f9baf13c2da5f1df0869e8431951f73aafeb3ba7a1640af62829f36d7"
+    }
+  },
+  {
     "id": "channel-float-query-0d5540",
     "size": 41,
     "offset": 873792,
@@ -793,6 +819,28 @@
     "match": {
       "bytes_sha256": "8b6284cd3d883a558e562366bd4643291790ac0987e4b56899057ce9e7f4f784",
       "inputs_sha256": "9ca45bcd2c9fb4f8bd4e47993a1fe3be82ea1fdfe73e09ec52570f70243b4876"
+    }
+  },
+  {
+    "id": "animation-approach-weight",
+    "size": 100,
+    "offset": 873984,
+    "inputs": [
+      "src/campaign_channel_transitions.c"
+    ],
+    "rebuilt_symbol": "@approach_weight@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_channel_transitions.obj src/campaign_channel_transitions.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Stock operand for zero value."
+      }
+    },
+    "identification": "Aligned entry bounded by a preceding return and compiler padding. Moves the channel weight toward a target by a step, snapping within the step distance.",
+    "match": {
+      "bytes_sha256": "57ae3a7ed71de5c567fb0ec8db27efe70927dbb28b8ad90d02b496113abbd198",
+      "inputs_sha256": "550cc2e72c019878feefa0c5731f813570eb414d54f695b9ec07eb1100c55ade"
     }
   },
   {
