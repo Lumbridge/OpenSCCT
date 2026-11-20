@@ -3437,6 +3437,40 @@
     }
   },
   {
+    "id": "block-pool-release-44ea60",
+    "size": 43,
+    "offset": 4516448,
+    "inputs": [
+      "src/campaign_additional_pool_routes.c"
+    ],
+    "rebuilt_symbol": "_release_44ea60",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_additional_pool_routes.obj src/campaign_additional_pool_routes.c",
+    "identification": "Default Ghidra extent. Both branches and their callees identify this active-block release routine. Routes the pointer through its active block pool or directly to the heap.",
+    "link_bindings": {
+      "_pool_a17ef0": {
+        "va": 288456432,
+        "basis": "Same active block pool for the test and counted release."
+      },
+      "@test_block_44ea90@8": {
+        "va": 282389136,
+        "basis": "Verified whole membership test."
+      },
+      "@drop_44ead0@8": {
+        "va": 282389200,
+        "basis": "Drops the reference and pops the last block at zero."
+      },
+      "_free_1dd0d0": {
+        "va": 279826640,
+        "basis": "Independently reconstructed engine heap release."
+      }
+    },
+    "match": {
+      "bytes_sha256": "2b3e6c8db28dcb9c6d8a79a3d05bd56ae74247228f05686a2542a20e0a94767e",
+      "inputs_sha256": "c486664f992023d14cbd24d72a5b97000c22146b9e9d3eb826b8894ed8544357"
+    }
+  },
+  {
     "id": "block-pool-contains-44ea90",
     "size": 53,
     "offset": 4516496,
