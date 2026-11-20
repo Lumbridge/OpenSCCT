@@ -1,5 +1,509 @@
 [
   {
+    "id": "resample-box-filter",
+    "size": 48,
+    "offset": 2746624,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_box_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_minus_one_half": {
+        "va": 281087272,
+        "basis": "Filter coefficient _minus_one_half checked against the retail double."
+      },
+      "_filter_half": {
+        "va": 281086712,
+        "basis": "Filter coefficient _filter_half checked against the retail double."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      }
+    },
+    "identification": "Named box filter table entry at RVA 0x33ebb4 references this complete function.",
+    "match": {
+      "bytes_sha256": "e8b86458f9ec3f141b492ad44c544a546b14f91cfbd95ee336408d15bfb12c53",
+      "inputs_sha256": "98277acdfd95b0c3e9154e76e63432deef1636f454c990b876befe93cf8e424f"
+    }
+  },
+  {
+    "id": "resample-quadratic-filter",
+    "size": 110,
+    "offset": 2746752,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_quadratic_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_minus_three_halves": {
+        "va": 280949048,
+        "basis": "Filter coefficient _minus_three_halves checked against the retail double."
+      },
+      "_minus_one_half": {
+        "va": 281087272,
+        "basis": "Filter coefficient _minus_one_half checked against the retail double."
+      },
+      "_three_halves": {
+        "va": 281088520,
+        "basis": "Filter coefficient _three_halves checked against the retail double."
+      },
+      "_filter_half": {
+        "va": 281086712,
+        "basis": "Filter coefficient _filter_half checked against the retail double."
+      },
+      "_three_quarters": {
+        "va": 281087600,
+        "basis": "Filter coefficient _three_quarters checked against the retail double."
+      },
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      }
+    },
+    "identification": "Named quadratic filter table entry at RVA 0x33ec04 references this complete function.",
+    "match": {
+      "bytes_sha256": "13cbf49bd39a93b06e64c802318d39077a01b754a742fb7700bda8784f9970c8",
+      "inputs_sha256": "f7617a1a065cf730d7ef1b97c2af67f115918f67d6f24cc788291555d460eec2"
+    }
+  },
+  {
+    "id": "resample-cubic-filter",
+    "size": 167,
+    "offset": 2746864,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_cubic_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_minus_two": {
+        "va": 280949080,
+        "basis": "Filter coefficient _minus_two checked against the retail double."
+      },
+      "_minus_one": {
+        "va": 281087864,
+        "basis": "Filter coefficient _minus_one checked against the retail double."
+      },
+      "_filter_two": {
+        "va": 281086488,
+        "basis": "Filter coefficient _filter_two checked against the retail double."
+      },
+      "_one_sixth": {
+        "va": 280949072,
+        "basis": "Filter coefficient _one_sixth checked against the retail double."
+      },
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      },
+      "_filter_three": {
+        "va": 281087544,
+        "basis": "Filter coefficient _filter_three checked against the retail double."
+      },
+      "_minus_six": {
+        "va": 280949064,
+        "basis": "Filter coefficient _minus_six checked against the retail double."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_filter_six": {
+        "va": 280949056,
+        "basis": "Filter coefficient _filter_six checked against the retail double."
+      },
+      "_filter_four": {
+        "va": 281086672,
+        "basis": "Filter coefficient _filter_four checked against the retail double."
+      }
+    },
+    "identification": "Named cubic filter table entry at RVA 0x33ec2c references this complete function.",
+    "match": {
+      "bytes_sha256": "dab484eb8cd87a0ae31a4e15687767e3161b10910c813c44b0a7f310ddc42834",
+      "inputs_sha256": "d69552a1cc32e5a753f486254bff8edd3d17178cfa33fa4933d8da83e256b7f4"
+    }
+  },
+  {
+    "id": "resample-catrom-filter",
+    "size": 191,
+    "offset": 2747040,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_catrom_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_minus_two": {
+        "va": 280949080,
+        "basis": "Filter coefficient _minus_two checked against the retail double."
+      },
+      "_minus_one": {
+        "va": 281087864,
+        "basis": "Filter coefficient _minus_one checked against the retail double."
+      },
+      "_filter_five": {
+        "va": 281086904,
+        "basis": "Filter coefficient _filter_five checked against the retail double."
+      },
+      "_filter_eight": {
+        "va": 280898568,
+        "basis": "Filter coefficient _filter_eight checked against the retail double."
+      },
+      "_filter_four": {
+        "va": 281086672,
+        "basis": "Filter coefficient _filter_four checked against the retail double."
+      },
+      "_filter_half": {
+        "va": 281086712,
+        "basis": "Filter coefficient _filter_half checked against the retail double."
+      },
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      },
+      "_filter_three": {
+        "va": 281087544,
+        "basis": "Filter coefficient _filter_three checked against the retail double."
+      },
+      "_minus_five": {
+        "va": 280949088,
+        "basis": "Filter coefficient _minus_five checked against the retail double."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_filter_two": {
+        "va": 281086488,
+        "basis": "Filter coefficient _filter_two checked against the retail double."
+      }
+    },
+    "identification": "Named catrom filter table entry at RVA 0x33ec54 references this complete function.",
+    "match": {
+      "bytes_sha256": "2b4b149876e58c19aefa72538d13b08f3bf0735eee9d3c7f9c25702a4673cbf6",
+      "inputs_sha256": "16e8638fdfbd6945c65075efd92a9283c967678d5d1ada9e2fc7700074b733b9"
+    }
+  },
+  {
+    "id": "resample-gaussian-filter",
+    "size": 47,
+    "offset": 2747232,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_gaussian_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "__real@c000000000000000": {
+        "va": 280949080,
+        "basis": "Filter coefficient __real@c000000000000000 checked against the retail double."
+      },
+      "_gaussian_normalization": {
+        "va": 280949096,
+        "basis": "Filter coefficient _gaussian_normalization checked against the retail double."
+      }
+    },
+    "identification": "Named gaussian filter table entry at RVA 0x33eca4 references this complete function.",
+    "match": {
+      "bytes_sha256": "ad8d416c20735e3f714f4ac9454c7000491d94c20c10379d90e195aabfce6d6a",
+      "inputs_sha256": "0f82d23a96318592767b2e64bfe5da060bfd91d8630c040b70d55c513a259037"
+    }
+  },
+  {
+    "id": "resample-sinc-filter",
+    "size": 43,
+    "offset": 2747280,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_sinc_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "__real@400921fb54442d18": {
+        "va": 280898504,
+        "basis": "Filter coefficient __real@400921fb54442d18 checked against the retail double."
+      }
+    },
+    "identification": "Named sinc filter table entry at RVA 0x33eccc references this complete function.",
+    "match": {
+      "bytes_sha256": "9dff574faf0f17c97d192b505ae40bb9832169b771f80a695215c0406a7e553a",
+      "inputs_sha256": "ec41ad04d5586edfee81222212ee74d25d47cf61d5ab6fc52bf0b70acfe79278"
+    }
+  },
+  {
+    "id": "resample-bessel-filter",
+    "size": 59,
+    "offset": 2747328,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_bessel_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      },
+      "_bessel_origin": {
+        "va": 280949104,
+        "basis": "Filter coefficient _bessel_origin checked against the retail double."
+      },
+      "__real@400921fb54442d18": {
+        "va": 280898504,
+        "basis": "Filter coefficient __real@400921fb54442d18 checked against the retail double."
+      },
+      "_bessel_j1": {
+        "va": 280770032,
+        "basis": "Direct call in the Bessel filter."
+      }
+    },
+    "identification": "Named bessel filter table entry at RVA 0x33ecf4 references this complete function.",
+    "match": {
+      "bytes_sha256": "734f361e7f2c59034b66b9a0b4c44f4cc6e09578bcc43273fafefde782cca299",
+      "inputs_sha256": "ca8fd1bf75df35d454efe3e315198bfb8964e1bda7e250e18eb5a44a9ac953ba"
+    }
+  },
+  {
+    "id": "resample-mitchell-filter",
+    "size": 166,
+    "offset": 2747392,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_mitchell_filter",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_minus_two": {
+        "va": 280949080,
+        "basis": "Filter coefficient _minus_two checked against the retail double."
+      },
+      "_minus_one": {
+        "va": 281087864,
+        "basis": "Filter coefficient _minus_one checked against the retail double."
+      },
+      "_filter_zero": {
+        "va": 281086752,
+        "basis": "Filter coefficient _filter_zero checked against the retail double."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_filter_two": {
+        "va": 281086488,
+        "basis": "Filter coefficient _filter_two checked against the retail double."
+      }
+    },
+    "identification": "Named mitchell filter table entry at RVA 0x33ec7c references this complete function.",
+    "match": {
+      "bytes_sha256": "fa3f17ca2009c84f68a88426473de5c855fab81a5887e85bd6f6b4048b132d7c",
+      "inputs_sha256": "8f2bbc81d7210d0da34f67a599e99460adbed5e0c0f39420ac2a6e7fb29bcf4c"
+    }
+  },
+  {
+    "id": "resample-hann-window",
+    "size": 25,
+    "offset": 2747760,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_hann_window",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "__real@400921fb54442d18": {
+        "va": 280898504,
+        "basis": "Filter coefficient __real@400921fb54442d18 checked against the retail double."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_filter_half": {
+        "va": 281086712,
+        "basis": "Filter coefficient _filter_half checked against the retail double."
+      }
+    },
+    "identification": "Named hanning filter table entry at RVA 0x33ed1c references this complete function.",
+    "match": {
+      "bytes_sha256": "431e931ffad7a24e4c2aa3d0d9067345311faf888adbc6aa8cfd93ce9b1d7e49",
+      "inputs_sha256": "7494bcc302d2ad8fab21f166eb8d9356b095888477a0b56ceda11411405f6151"
+    }
+  },
+  {
+    "id": "resample-hamming-window",
+    "size": 25,
+    "offset": 2747792,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_hamming_window",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "__real@400921fb54442d18": {
+        "va": 280898504,
+        "basis": "Filter coefficient __real@400921fb54442d18 checked against the retail double."
+      },
+      "_hamming_scale": {
+        "va": 280898496,
+        "basis": "Filter coefficient _hamming_scale checked against the retail double."
+      },
+      "_hamming_offset": {
+        "va": 280898488,
+        "basis": "Filter coefficient _hamming_offset checked against the retail double."
+      }
+    },
+    "identification": "Named hamming filter table entry at RVA 0x33ed44 references this complete function.",
+    "match": {
+      "bytes_sha256": "ec58dda55816b10a404a014113ca5d059e53f4355d1561e8a38fbd5d6bacc26d",
+      "inputs_sha256": "d356c61a7b423137b0508a175659e2ba526257771dc4e7ba90ca00c5aaa5095b"
+    }
+  },
+  {
+    "id": "resample-blackman-window",
+    "size": 45,
+    "offset": 2747824,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_blackman_window",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "__real@400921fb54442d18": {
+        "va": 280898504,
+        "basis": "Filter coefficient __real@400921fb54442d18 checked against the retail double."
+      },
+      "_filter_half": {
+        "va": 281086712,
+        "basis": "Filter coefficient _filter_half checked against the retail double."
+      },
+      "__real@401921fb54442d18": {
+        "va": 280898480,
+        "basis": "Filter coefficient __real@401921fb54442d18 checked against the retail double."
+      },
+      "_blackman_scale": {
+        "va": 280949152,
+        "basis": "Filter coefficient _blackman_scale checked against the retail double."
+      },
+      "_blackman_offset": {
+        "va": 280949144,
+        "basis": "Filter coefficient _blackman_offset checked against the retail double."
+      }
+    },
+    "identification": "Named blackman filter table entry at RVA 0x33ed6c references this complete function.",
+    "match": {
+      "bytes_sha256": "64a9135e70d885a5d4c840a5267c2d795bb68210bdbd2934c1e72cdbf464187d",
+      "inputs_sha256": "48857bae0886f0695e88359cf5dc894b3e24744f9583f2b8ea2a32bf60608d25"
+    }
+  },
+  {
+    "id": "resample-bessel-i0",
+    "size": 88,
+    "offset": 2747872,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_bessel_i0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_filter_quarter": {
+        "va": 281087136,
+        "basis": "Filter coefficient _filter_quarter checked against the retail double."
+      },
+      "_series_tolerance": {
+        "va": 280948848,
+        "basis": "Filter coefficient _series_tolerance checked against the retail double."
+      }
+    },
+    "identification": "Kaiser evaluation and parameter initialization both call this complete modified Bessel series at RVA 0x29ede0.",
+    "match": {
+      "bytes_sha256": "796d6535e89c20aac060fcad2cda0197f2f361201b6183b71289bd8099e469f4",
+      "inputs_sha256": "f54d82ed66f498dd6b01ee6bede271acd339407f1bbb541d3387555cdf203e63"
+    }
+  },
+  {
+    "id": "resample-kaiser-window",
+    "size": 40,
+    "offset": 2747968,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_kaiser_window",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      },
+      "_bessel_i0": {
+        "va": 280620512,
+        "basis": "Direct call to the modified Bessel series shared by both Kaiser routines."
+      }
+    },
+    "identification": "Named kaiser filter table entry at RVA 0x33ed94 references this complete function.",
+    "match": {
+      "bytes_sha256": "ad2d81134cfaf1486729c02ff61504e902c983a46c1e02262d20d96e5e6401dc",
+      "inputs_sha256": "846d575ae88f36ac8dca920dec1b5387b268427dec25ae8823f23af2ac91325a"
+    }
+  },
+  {
+    "id": "resample-initialize-kaiser",
+    "size": 38,
+    "offset": 2748016,
+    "inputs": [
+      "src/versus_filter_kernels.c"
+    ],
+    "rebuilt_symbol": "_initialize_kaiser",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Oi /Gy /c /Folocal/versus_filter_kernels.obj src/versus_filter_kernels.c",
+    "link_bindings": {
+      "_bessel_i0": {
+        "va": 280620512,
+        "basis": "Direct call to the modified Bessel series shared by both Kaiser routines."
+      },
+      "_filter_one": {
+        "va": 281086680,
+        "basis": "Filter coefficient _filter_one checked against the retail double."
+      }
+    },
+    "identification": "Named kaiser setup filter table entry at RVA 0x33edac references this complete function.",
+    "match": {
+      "bytes_sha256": "d88b758bdf6c58c3a0de82e0a4f333137b6198940763dd13ecdc3b688f4b42a9",
+      "inputs_sha256": "6fd14b86bc537c1021e4501d66cf619de6ff17e665cf0813b7cedc7b69d4ab9d"
+    }
+  },
+  {
     "id": "construct-copies-29f610",
     "size": 41,
     "offset": 2749968,
