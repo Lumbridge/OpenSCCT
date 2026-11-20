@@ -2339,6 +2339,22 @@
     }
   },
   {
+    "id": "cursor-offset-4-5eb20",
+    "size": 18,
+    "offset": 387872,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x5eb20 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "418d3d1c8ccbd7828c1f82c170b88a545abee5baabe367fe47f8277850d51285"
+    }
+  },
+  {
     "id": "class-factory-unnetz",
     "offset": 388000,
     "size": 102,

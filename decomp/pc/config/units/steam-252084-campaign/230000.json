@@ -2358,5 +2358,21 @@
       "bytes_sha256": "dedf78c9e04158cc212514c40e759a9b04376dab306f68c253ac29243e5744ad",
       "inputs_sha256": "b621af75cf5f99c9faa9458459c957b51b92ec093cf507d065eccf0bf4a0432c"
     }
+  },
+  {
+    "id": "cursor-offset-32-23fe20",
+    "size": 20,
+    "offset": 2358816,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_32@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x23fe20 with a 32-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "3e492d50392a956f215d89869d86a73b78c33380409c5326a865c8e0045ef585",
+      "inputs_sha256": "61736770abb0c413c0d86552b9b720ab1f0e3730d7773fd83eb5e7bd77c92505"
+    }
   }
 ]

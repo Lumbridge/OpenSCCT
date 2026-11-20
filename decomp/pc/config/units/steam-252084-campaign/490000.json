@@ -201,6 +201,38 @@
     }
   },
   {
+    "id": "cursor-offset-1-492e20",
+    "size": 15,
+    "offset": 4795936,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_1@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x492e20 with a 1-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "47e02e84333adbe1d739023fd1a3af10f08c3bdccd15e8e92b55ed147411f219",
+      "inputs_sha256": "88a5f8df98fd816db0283e920f189bf083f3f6643160b000626173bf1273f964"
+    }
+  },
+  {
+    "id": "cursor-offset-1-492e30",
+    "size": 15,
+    "offset": 4795952,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_1@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x492e30 with a 1-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "47e02e84333adbe1d739023fd1a3af10f08c3bdccd15e8e92b55ed147411f219",
+      "inputs_sha256": "ee7a3b1ad44ef55c17ba5fa68e20f10fb0975a8a8d0cc0f5cb4eedfaac84767b"
+    }
+  },
+  {
     "id": "range-operation-492e60",
     "size": 22,
     "offset": 4796000,
@@ -722,6 +754,22 @@
     }
   },
   {
+    "id": "cursor-offset-4-494560",
+    "size": 18,
+    "offset": 4801888,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x494560 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "2d66f70391f2945c0f191faf2e838da80fd129acec23b108ea430b97e7571ba5"
+    }
+  },
+  {
     "id": "clear-record-494620",
     "offset": 4802080,
     "size": 37,
@@ -765,6 +813,22 @@
     "match": {
       "bytes_sha256": "a1ac14913e402e074bec291c4b40ee821f84ac2a910c0cadf8f65a1b79b6761c",
       "inputs_sha256": "210725a51d22b3aa07089a7a9d6361401d14baaec1c3e5e67cec87126bb6aa67"
+    }
+  },
+  {
+    "id": "cursor-offset-4-494780",
+    "size": 18,
+    "offset": 4802432,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x494780 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "f7fc9f0e0bde016ae4b7e4d88d9cbc7a34e5cc3bf64b5aadec246741360add0d"
     }
   },
   {
@@ -3719,6 +3783,22 @@
     "match": {
       "bytes_sha256": "8de44ff1239c5800f279e2142606ecdbaea9d748bc08545bdc7362b505481d8c",
       "inputs_sha256": "46390eba0ea0a820e9422a505a15837d8af30535cfa0651428457613a237f3d5"
+    }
+  },
+  {
+    "id": "cursor-offset-4-49c2b0",
+    "size": 18,
+    "offset": 4833968,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x49c2b0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "da119244a54ecb4ab4586899bf837d99a1c2191449bf777f51f4a8b34922a043"
     }
   },
   {

@@ -4306,6 +4306,58 @@
     }
   },
   {
+    "id": "native-name-lookup-3ed830",
+    "size": 78,
+    "offset": 4118576,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 287084112,
+        "basis": "Null-terminated table of 262 wide names and corresponding native function addresses, beginning with intUObjectexecLocalVariable."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x3ed830. Scans the table at VA 0x111c8e50 and returns the address of the matching callback slot. The first entry is intUObjectexecLocalVariable.",
+    "match": {
+      "bytes_sha256": "67745d0a8c2043bf9a067031204b5e8de43700b670a6027a94a3c53ac4f819c6",
+      "inputs_sha256": "912f40157c47558c6514386d5de79e5ba64a25dad68b4ec6d8b9cd1d89000e64"
+    }
+  },
+  {
+    "id": "native-name-lookup-3ed880",
+    "size": 78,
+    "offset": 4118656,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 287086216,
+        "basis": "Null-terminated table of 1 wide names and corresponding native function addresses, beginning with intUCommandletexecMain."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x3ed880. Scans the table at VA 0x111c9688 and returns the address of the matching callback slot. The first entry is intUCommandletexecMain.",
+    "match": {
+      "bytes_sha256": "f0556f7f1e2ee53757d08b4918121b128d119ddfd20c3516344ea5af2d6baada",
+      "inputs_sha256": "a764a820596b97dad0ad0a66579ef72de7268d3bdfdbc4e04f5cef9bb2255b34"
+    }
+  },
+  {
     "id": "vm-object-stop",
     "offset": 4118960,
     "size": 14,

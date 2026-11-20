@@ -2925,6 +2925,32 @@
     }
   },
   {
+    "id": "native-name-lookup-10b460",
+    "size": 78,
+    "offset": 1094752,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286988348,
+        "basis": "Null-terminated table of 1 wide names and corresponding native function addresses, beginning with intUInteractionMasterexecTravel."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x10b460. Scans the table at VA 0x111b183c and returns the address of the matching callback slot. The first entry is intUInteractionMasterexecTravel.",
+    "match": {
+      "bytes_sha256": "a7380c00b7b2bb215848e63e62e8d9cc91675e0b50a6e1208f86f6e6a0edaf90",
+      "inputs_sha256": "a235940b27d628d1487ef146576bdfe454f87ca2e564d371bd307a939f6f6b67"
+    }
+  },
+  {
     "id": "init-methods-10b500",
     "size": 18,
     "offset": 1094912,
@@ -3715,6 +3741,32 @@
     }
   },
   {
+    "id": "native-name-lookup-10c870",
+    "size": 78,
+    "offset": 1099888,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286988364,
+        "basis": "Null-terminated table of 4 wide names and corresponding native function addresses, beginning with intUInteractionexecConsoleCommand."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x10c870. Scans the table at VA 0x111b184c and returns the address of the matching callback slot. The first entry is intUInteractionexecConsoleCommand.",
+    "match": {
+      "bytes_sha256": "b212c473dd8cbdde109e4094633667616b63ea0442e92dc9f25d6edd5b0a7d87",
+      "inputs_sha256": "87e3fb58e8fd1badaef7b3f9d9ee5a8356c6d29360b4db9e06ac2b4e19f95892"
+    }
+  },
+  {
     "id": "script-event-initialized",
     "offset": 1099984,
     "size": 32,
@@ -4137,6 +4189,32 @@
     }
   },
   {
+    "id": "native-name-lookup-10d6f0",
+    "size": 78,
+    "offset": 1103600,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286988404,
+        "basis": "Null-terminated table of 4 wide names and corresponding native function addresses, beginning with intUSCMagmaInteractionexecKeyType."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x10d6f0. Scans the table at VA 0x111b1874 and returns the address of the matching callback slot. The first entry is intUSCMagmaInteractionexecKeyType.",
+    "match": {
+      "bytes_sha256": "570e0d411683041cee52f409980f1a3e1013a649aeccf2e381ad61327d833d63",
+      "inputs_sha256": "46b32dd8be3e3bf1e7e6ab90b2714e27ba1e16bcfc4bad09c48893d87ac23920"
+    }
+  },
+  {
     "id": "virtual-uscmagmainteraction-24-10da70",
     "size": 8,
     "offset": 1104496,
@@ -4386,6 +4464,22 @@
     "match": {
       "bytes_sha256": "3e5f1961ab83ce257cba0431c7d9119ecc31d17d45d1bf10493929765a5b76c0",
       "inputs_sha256": "67642ca01548eea0085291dffb05297914628ab61de453f67fbca04f5cee30bf"
+    }
+  },
+  {
+    "id": "cursor-offset-4-10e3d0",
+    "size": 18,
+    "offset": 1106896,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x10e3d0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "c115fced94a58f1dbbc4f54a27228cb75071cc99cc2ae9e9b17cb70ff0084304"
     }
   },
   {

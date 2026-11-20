@@ -420,6 +420,54 @@
     }
   },
   {
+    "id": "cursor-offset-1-4f42c0",
+    "size": 15,
+    "offset": 5194432,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_1@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x4f42c0 with a 1-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "47e02e84333adbe1d739023fd1a3af10f08c3bdccd15e8e92b55ed147411f219",
+      "inputs_sha256": "104b18646724159d7662f2659a50add4b58bb22f6e77ef60dae945bc3078969d"
+    }
+  },
+  {
+    "id": "cursor-offset-1-4f4310",
+    "size": 15,
+    "offset": 5194512,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_1@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x4f4310 with a 1-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "47e02e84333adbe1d739023fd1a3af10f08c3bdccd15e8e92b55ed147411f219",
+      "inputs_sha256": "7c35cad5b3be0a1b6db357edd3959d60089987aabf803050f4b06976aebc05f6"
+    }
+  },
+  {
+    "id": "cursor-offset-1-4f4340",
+    "size": 15,
+    "offset": 5194560,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_1@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x4f4340 with a 1-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "47e02e84333adbe1d739023fd1a3af10f08c3bdccd15e8e92b55ed147411f219",
+      "inputs_sha256": "cf89a1e689eeed8ce598e9e363a65002c164df60b1f5486c33c30fbba417d95b"
+    }
+  },
+  {
     "id": "delete-members-4f4770",
     "size": 46,
     "offset": 5195632,

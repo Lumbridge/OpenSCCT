@@ -1671,6 +1671,32 @@
     }
   },
   {
+    "id": "native-name-lookup-a45a0",
+    "size": 78,
+    "offset": 673184,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987920,
+        "basis": "Null-terminated table of 2 wide names and corresponding native function addresses, beginning with intAEmitterexecKill."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0xa45a0. Scans the table at VA 0x111b1690 and returns the address of the matching callback slot. The first entry is intAEmitterexecKill.",
+    "match": {
+      "bytes_sha256": "e6e07006c246163d77cddc6405dc3e0ebd044fdd854604cb0c58f18f9572fa1a",
+      "inputs_sha256": "15cff8ccfa8ef4fc4d58cd3c2b9e2591a14ac6124388618dc8c0e2525622d3ec"
+    }
+  },
+  {
     "id": "virtual-aemitter-167-0a4620",
     "size": 3,
     "offset": 673312,

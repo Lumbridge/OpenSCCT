@@ -3534,6 +3534,32 @@
     }
   },
   {
+    "id": "native-name-lookup-85b30",
+    "size": 78,
+    "offset": 547632,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286986776,
+        "basis": "Null-terminated table of 5 wide names and corresponding native function addresses, beginning with intAProjectorexecAttachProjector."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x85b30. Scans the table at VA 0x111b1218 and returns the address of the matching callback slot. The first entry is intAProjectorexecAttachProjector.",
+    "match": {
+      "bytes_sha256": "a2d5f332b476c9c4771f8caf1d9e150d514a9ac170e813d003da5a4da32609b7",
+      "inputs_sha256": "732897e65ec01fc22873b951c28826e1449f8013df61c73e37493a7433651c02"
+    }
+  },
+  {
     "id": "init-methods-085d90",
     "size": 18,
     "offset": 548240,
@@ -5712,6 +5738,188 @@
     "match": {
       "bytes_sha256": "a5dc7e85e5b5fa8e01067e4a256c0ab78ba066c16196708fc6670d001ecf9e75",
       "inputs_sha256": "3d2e901286cfe92845e0328023ca5f2e8b97df3d42c2df6539dbf0aa79e2abb3"
+    }
+  },
+  {
+    "id": "native-name-lookup-8d990",
+    "size": 78,
+    "offset": 579984,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286986824,
+        "basis": "Null-terminated table of 97 wide names and corresponding native function addresses, beginning with intAActorexecPollFinishSequence."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8d990. Scans the table at VA 0x111b1248 and returns the address of the matching callback slot. The first entry is intAActorexecPollFinishSequence.",
+    "match": {
+      "bytes_sha256": "b129a50f8f35eb56dc4dcba1f0ddd61d488fc2e2750999671ce57e45194664c5",
+      "inputs_sha256": "abfa7ad9fbb7734aa2bd6f67316ad6fd40935dcfa18531bdfef696e5a83f5242"
+    }
+  },
+  {
+    "id": "native-name-lookup-8d9e0",
+    "size": 78,
+    "offset": 580064,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987608,
+        "basis": "Null-terminated table of 2 wide names and corresponding native function addresses, beginning with intALevelInfoexecGetAddressURL."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8d9e0. Scans the table at VA 0x111b1558 and returns the address of the matching callback slot. The first entry is intALevelInfoexecGetAddressURL.",
+    "match": {
+      "bytes_sha256": "37de9ee0dc312812438a84775ad5d17a8b96fb8f6187a9d5dc417cb3e0ae892c",
+      "inputs_sha256": "9117592a4a8e4d4a44795b9ddf64d54572e958d54035b39dcc3d8de09605f38a"
+    }
+  },
+  {
+    "id": "native-name-lookup-8da30",
+    "size": 78,
+    "offset": 580144,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987632,
+        "basis": "Null-terminated table of 1 wide names and corresponding native function addresses, beginning with intAZoneInfoexecZoneActors."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8da30. Scans the table at VA 0x111b1570 and returns the address of the matching callback slot. The first entry is intAZoneInfoexecZoneActors.",
+    "match": {
+      "bytes_sha256": "236ac58dbb6602102edb5d9ee0a4bfe16b0b7af35c822ec3203d13898221efc7",
+      "inputs_sha256": "eaca568668ee8891ca02b796226ea73adcedcc8295334eb88b708936febae69e"
+    }
+  },
+  {
+    "id": "native-name-lookup-8da80",
+    "size": 78,
+    "offset": 580224,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987648,
+        "basis": "Null-terminated table of 1 wide names and corresponding native function addresses, beginning with intAHUDexecDraw3DLine."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8da80. Scans the table at VA 0x111b1580 and returns the address of the matching callback slot. The first entry is intAHUDexecDraw3DLine.",
+    "match": {
+      "bytes_sha256": "3674eff35d9d37daf60a3e543b1d0c737db02b0f70238b156215c8c2f8737350",
+      "inputs_sha256": "c7b5d843a7f7f78a74c165148f4df162f2dc923ecb4d347ef5baaf36f87b17bf"
+    }
+  },
+  {
+    "id": "native-name-lookup-8dad0",
+    "size": 78,
+    "offset": 580304,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987664,
+        "basis": "Null-terminated table of 19 wide names and corresponding native function addresses, beginning with intAControllerexecMoveTo."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8dad0. Scans the table at VA 0x111b1590 and returns the address of the matching callback slot. The first entry is intAControllerexecMoveTo.",
+    "match": {
+      "bytes_sha256": "0f84709e2178cadf3be54188916d5700f6bfb32fb48455546fa9e267afe79417",
+      "inputs_sha256": "b8ab3ac5627f119ad245a4aca2a6d53da63197370c43fcfc1a382e38d04601e9"
+    }
+  },
+  {
+    "id": "native-name-lookup-8db20",
+    "size": 78,
+    "offset": 580384,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987824,
+        "basis": "Null-terminated table of 9 wide names and corresponding native function addresses, beginning with intAPlayerControllerexecConsoleCommand."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8db20. Scans the table at VA 0x111b1630 and returns the address of the matching callback slot. The first entry is intAPlayerControllerexecConsoleCommand.",
+    "match": {
+      "bytes_sha256": "023d3917a30bd7aee45a01066a8bd6d545e7b654365a7715e7f63ab32211c3ae",
+      "inputs_sha256": "b40942de8f9cf5cca6d96f7f41568021f34e03626d6a51cc067a7c3ac84495cb"
+    }
+  },
+  {
+    "id": "native-name-lookup-8db70",
+    "size": 78,
+    "offset": 580464,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 286987904,
+        "basis": "Null-terminated table of 1 wide names and corresponding native function addresses, beginning with intAVolumeexecEncompasses."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x8db70. Scans the table at VA 0x111b1680 and returns the address of the matching callback slot. The first entry is intAVolumeexecEncompasses.",
+    "match": {
+      "bytes_sha256": "514e542ee1c5fb29ff99b90557ae0c75a8e995d637a3de1c51959f7a4eb898d0",
+      "inputs_sha256": "2feb499b01018cdeb2073f46366d8951e83b5a3774f1f36c52532aa4757f381c"
     }
   },
   {

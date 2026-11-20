@@ -332,6 +332,22 @@
     }
   },
   {
+    "id": "cursor-offset-12-383450",
+    "size": 21,
+    "offset": 3683408,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_12@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x383450 with a 12-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bcbda1657f4eebee809ac951758d2556b911473e6a990e78ff4f1dd17b088e6d",
+      "inputs_sha256": "9a2a6164b05645c16b8543fabe9c128f363cb8cf1737e9dcd9498b262cc6ccf1"
+    }
+  },
+  {
     "id": "rotate-left-3835a0",
     "size": 85,
     "offset": 3683744,

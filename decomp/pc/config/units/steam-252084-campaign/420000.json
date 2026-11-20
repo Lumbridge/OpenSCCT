@@ -210,6 +210,22 @@
     }
   },
   {
+    "id": "cursor-offset-4-421300",
+    "size": 18,
+    "offset": 4330240,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x421300 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "a5c892ba311d2cab6f11cd3b838f0dce0ef808a16ce172ed3f5aca783de8c014"
+    }
+  },
+  {
     "id": "range-operation-421330",
     "size": 22,
     "offset": 4330288,
@@ -970,6 +986,22 @@
     }
   },
   {
+    "id": "cursor-retreat-8-423600",
+    "size": 20,
+    "offset": 4339200,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_8@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x423600 with a 8-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "827470e87a51472bf63747b8af6d4b8b7e84e14a2620424413aaad5cd782a2af",
+      "inputs_sha256": "fcb84293feda3dd89a3a0a97aba191b203756fbf40a2f6077723fef3d953895e"
+    }
+  },
+  {
     "id": "cursor-distance-8-423620",
     "size": 14,
     "offset": 4339232,
@@ -1017,6 +1049,38 @@
     "match": {
       "bytes_sha256": "84a2cae803d15cb5aeb9bc50413e86944f8c026781f6e534471bd4cd3336cd06",
       "inputs_sha256": "4167506ed9e0a176479dbe0499eadd0dd9ffc253af7a0c1e61498ab41dc902f0"
+    }
+  },
+  {
+    "id": "cursor-offset-8-423740",
+    "size": 18,
+    "offset": 4339520,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_8@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x423740 with a 8-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "802dea7f8c5a8139d4772e35cab5462e53963d5b60bff10a30367904fa4639b3",
+      "inputs_sha256": "6815b21a4c42d591b8113407a088cda3d873f3d7321e6b144c39f1544657384d"
+    }
+  },
+  {
+    "id": "cursor-before-8-423770",
+    "size": 24,
+    "offset": 4339568,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_8@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x423770 with a 8-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "c93d0ae145a60902b076ed1ab706bcd97ddec0711b3708bde0513f36443f5fcb",
+      "inputs_sha256": "38621cfd82ab1ae350cf8cd58bc964e3bba7ce1ba34ff787cceb66ef0bc3d2cf"
     }
   },
   {
@@ -1174,6 +1238,38 @@
     "match": {
       "bytes_sha256": "c737de445cda8543e885974053530e1aaa42526958c42ff38ccfe5393fc0a2f7",
       "inputs_sha256": "fb532147a3647a0448dba3ffe93a576fe89d891a7b075e8675ec372e664c9fa0"
+    }
+  },
+  {
+    "id": "cursor-offset-4-424670",
+    "size": 18,
+    "offset": 4343408,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x424670 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "d8236880f190b44ceef0e7e202fd034dd1bb5d77ef6cd3ec75349bea48c2ff37"
+    }
+  },
+  {
+    "id": "cursor-offset-4-424690",
+    "size": 18,
+    "offset": 4343440,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x424690 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "939534bed0fc0b2795384796c618ac25182e4fb24abe09d24e7f8a7b5ff18d9c"
     }
   },
   {
@@ -1571,6 +1667,374 @@
     }
   },
   {
+    "id": "cursor-retreat-16-426470",
+    "size": 20,
+    "offset": 4351088,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426470 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "0f05e3fbf3684553b07aa31b550abe546760d3232bde2e555a80bcdb3063ecff"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4264a0",
+    "size": 20,
+    "offset": 4351136,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4264a0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "53ff10780137d7a358f3d75e19e938b6b65124fb683cae6a011e0bc83008658c"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4264d0",
+    "size": 20,
+    "offset": 4351184,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4264d0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "f9c30208aadde79167f237711f834f0b86c7867ebd2c5e47ae160ba48b25dfcb"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426500",
+    "size": 20,
+    "offset": 4351232,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426500 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "b0596e5325b1021fc1e5c976efc313fc60bcfb7413ceaa8ec77057e118ede356"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426530",
+    "size": 20,
+    "offset": 4351280,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426530 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "bf5f7c3727c13bae05db60f7a6b20d8b31f9a64fe783ced3bf66f5b13300539d"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426560",
+    "size": 20,
+    "offset": 4351328,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426560 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "bc3686a5c113b3984e14d72c74eabbefa8298480fe4248fa150df354eef7cbd2"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426590",
+    "size": 20,
+    "offset": 4351376,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426590 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "7ca4d6314186fc13124a99771339d673617ae6b966719a27162c04f98664c05d"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4265c0",
+    "size": 20,
+    "offset": 4351424,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4265c0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "081165f048095644951a6c18bdb72083297483afe5b08b6837ba4b4be7abf660"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4265f0",
+    "size": 20,
+    "offset": 4351472,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4265f0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "5127aaf71d488b8f141dad5e0559aa702007be798a1b4aa057575ba1007bcd37"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426620",
+    "size": 20,
+    "offset": 4351520,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426620 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "2b9b66e30a12bebb05b8c3b9d22409d2e281d0fb225dbfa5f2343463395acd9b"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426650",
+    "size": 20,
+    "offset": 4351568,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426650 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "6afacf526dadd6a26b4f11c2f1e50b9e6b9a25dfd2be7778a28a71206d5206ba"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426680",
+    "size": 20,
+    "offset": 4351616,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426680 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "57afe00299e1abbba167cc9e443378a002d4afb3d85352a7aedba1a27414b1e0"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4266b0",
+    "size": 20,
+    "offset": 4351664,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4266b0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "e47b454aeb31a42b03f42780835d578ac6352d13b5fe9023b9711b22e9d8152f"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4266e0",
+    "size": 20,
+    "offset": 4351712,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4266e0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "15caee30fe0eeece248c49c74777f78a1a500c71283cc386eaa2e6b65c9837b7"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426710",
+    "size": 20,
+    "offset": 4351760,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426710 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "0480b851a54498c621fc7a53eafbfa4ebfbdabb6681f0373a57b28bb09319589"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426740",
+    "size": 20,
+    "offset": 4351808,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426740 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "c1a93cb41f929c7346e4f7fb72ffe7d2c1327ac028e4c33d9331ff9d2d19c856"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426770",
+    "size": 20,
+    "offset": 4351856,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426770 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "230ede2eb832bf7796afe896a23a94a331a6712d3aac4b2a4c156eff9c8f470d"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4267a0",
+    "size": 20,
+    "offset": 4351904,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4267a0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "33c02543f96c35e97c70f8c82cef343377e34444429eb54cc2fb0df50af5a29c"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-4267d0",
+    "size": 20,
+    "offset": 4351952,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x4267d0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "6ed6dd2dc276e3fd551018de029656de341b0825ecb2310891705220dd14008e"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426800",
+    "size": 20,
+    "offset": 4352000,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426800 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "c7ffdac42f0fe5ce5f4b3b898db4939ebb1cd2b2f269c482c4116a0a0105fd1a"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426830",
+    "size": 20,
+    "offset": 4352048,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426830 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "65caf15350e9d2ffaca7fb842fa681e45a3b00c3204561b65c78a8ba3f79a540"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426860",
+    "size": 20,
+    "offset": 4352096,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426860 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "bdff70c4f36b7383330308a42131855f9df211c4a5e9eef17e1e98365fe0f0dc"
+    }
+  },
+  {
+    "id": "cursor-retreat-16-426890",
+    "size": 20,
+    "offset": 4352144,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_16@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x426890 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
+      "inputs_sha256": "2088e644a16d9dd9c0b5408ce9f494a4b692987b425e4c28c4f29b1afdf5e69f"
+    }
+  },
+  {
     "id": "init-methods-4268b0",
     "size": 18,
     "offset": 4352176,
@@ -1620,6 +2084,374 @@
     "match": {
       "bytes_sha256": "843d80fd8c2bb7b5a32ca0d8a1c1a25a44084574ce098c39799be56f098c30e7",
       "inputs_sha256": "be333475e992affd81ca53be65ab1222f745f7ec6d0cbc6081f1da77426547fd"
+    }
+  },
+  {
+    "id": "cursor-before-16-426aa0",
+    "size": 20,
+    "offset": 4352672,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426aa0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "3aabb7c595a89a71958b048b62fe41c57d2ee2e65d4906f0e1738d7b52719ff6"
+    }
+  },
+  {
+    "id": "cursor-before-16-426ac0",
+    "size": 20,
+    "offset": 4352704,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426ac0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "3fc7cc93bc60dfcb53225a3383403882334256e2a7189bb181eb6e315b42a132"
+    }
+  },
+  {
+    "id": "cursor-before-16-426ae0",
+    "size": 20,
+    "offset": 4352736,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426ae0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "b4eadb2a57210be744494d8fd71b7b3563a2a0f02d83cdc033f568410e863802"
+    }
+  },
+  {
+    "id": "cursor-before-16-426b00",
+    "size": 20,
+    "offset": 4352768,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426b00 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "85f931ec3c620545f9f8d93cf18c20f85fa37e874f19c23f79ebe8bd66897d37"
+    }
+  },
+  {
+    "id": "cursor-before-16-426b20",
+    "size": 20,
+    "offset": 4352800,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426b20 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "087c904bc5fcf08f9b53e3f45467c8d352c063a8f51149ddb2362db4e10b9398"
+    }
+  },
+  {
+    "id": "cursor-before-16-426b40",
+    "size": 20,
+    "offset": 4352832,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426b40 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "a2775f4a1734ee069f18543bec0e4e3c355c9656869d707fab5ebb31653a0556"
+    }
+  },
+  {
+    "id": "cursor-before-16-426b60",
+    "size": 20,
+    "offset": 4352864,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426b60 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "879c06e7297de8d0deb5eac78f63d850e0bda666d95c18b6eee30c6a5584d36f"
+    }
+  },
+  {
+    "id": "cursor-before-16-426b80",
+    "size": 20,
+    "offset": 4352896,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426b80 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "d2394b99998313bf6f570a215c26d8aa44a4dda51ab3f6e202c37d6c5c5371a3"
+    }
+  },
+  {
+    "id": "cursor-before-16-426ba0",
+    "size": 20,
+    "offset": 4352928,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426ba0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "f9b5a95cae481e48c96f857fac853500782ae6b869c65162ac2818dfd897c043"
+    }
+  },
+  {
+    "id": "cursor-before-16-426bc0",
+    "size": 20,
+    "offset": 4352960,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426bc0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "661b30ca7b4fc59819720b7e7b38dc1b4f3cd06ad0ebe506a604de169375a474"
+    }
+  },
+  {
+    "id": "cursor-before-16-426be0",
+    "size": 20,
+    "offset": 4352992,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426be0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "808e7ac6ee4756a19cce2c997b58dcbe28ed8ed19cb9ba8690d23616619b7b6a"
+    }
+  },
+  {
+    "id": "cursor-before-16-426c00",
+    "size": 20,
+    "offset": 4353024,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426c00 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "d17b55f86df84d641823a5f7b3eae40bd3c0c2fb1f1f5e06cc09c254b84c4361"
+    }
+  },
+  {
+    "id": "cursor-before-16-426c20",
+    "size": 20,
+    "offset": 4353056,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426c20 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "e8041df10bb7ab8d51cd9076a7e2a139627c4b493b47c6d5be85fb733695802b"
+    }
+  },
+  {
+    "id": "cursor-before-16-426c40",
+    "size": 20,
+    "offset": 4353088,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426c40 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "7cf30690b470514c90bb1eacb08a6dd9325592459d0f8e09ad7b122031433d87"
+    }
+  },
+  {
+    "id": "cursor-before-16-426c60",
+    "size": 20,
+    "offset": 4353120,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426c60 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "94d4a6944b433dccbb8873800253de53f45ca2bfdcabbd4d1c675256ced56aa8"
+    }
+  },
+  {
+    "id": "cursor-before-16-426c80",
+    "size": 20,
+    "offset": 4353152,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426c80 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "f274d7e2061a2925ebb44b0e06984ccb6eab8506b3c33f72f6220c181362d6f1"
+    }
+  },
+  {
+    "id": "cursor-before-16-426ca0",
+    "size": 20,
+    "offset": 4353184,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426ca0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "88280e9e5a86109272154db3bd96662e795fc98ee0941704407c73025504516c"
+    }
+  },
+  {
+    "id": "cursor-before-16-426cc0",
+    "size": 20,
+    "offset": 4353216,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426cc0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "2ad6419719f49b696f86110fd776b78b03cca1dacb21931a98bf06c41877f1e4"
+    }
+  },
+  {
+    "id": "cursor-before-16-426ce0",
+    "size": 20,
+    "offset": 4353248,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426ce0 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "080c948045ed4ae5d64c2a8aa65957bd9b85bb016f808f25342d68348d24a487"
+    }
+  },
+  {
+    "id": "cursor-before-16-426d00",
+    "size": 20,
+    "offset": 4353280,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426d00 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "3587bc4f9604609bf407d68dc39acc143408425310a04022a9fbc1a6c29f4240"
+    }
+  },
+  {
+    "id": "cursor-before-16-426d20",
+    "size": 20,
+    "offset": 4353312,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426d20 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "07509f16409d72797f85345f80d804d969ec703e00dfb8ece45123bba986f6b1"
+    }
+  },
+  {
+    "id": "cursor-before-16-426d40",
+    "size": 20,
+    "offset": 4353344,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426d40 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "79c61c5b01c682ea78a02fc204ada716b9d842c197293055d10b061cbc366f0e"
+    }
+  },
+  {
+    "id": "cursor-before-16-426d60",
+    "size": 20,
+    "offset": 4353376,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_16@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x426d60 with a 16-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "dd42370ec6f5d17fbbd048e75180e0dd83d56762336ce39e92828fb009aea9f6",
+      "inputs_sha256": "36e7e209aa0935bb2fb79b94265b74b95a5cb434c52e7dd6bc2a4dfe5b368d5a"
     }
   },
   {
@@ -2931,6 +3763,22 @@
     }
   },
   {
+    "id": "cursor-retreat-60-428e70",
+    "size": 18,
+    "offset": 4361840,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@retreat_60@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor retreat routine at RVA 0x428e70 with a 60-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "a79601f8be723ac48d8d2cf3b440106158ce9a5c1ba11c589070d187f8fe1997",
+      "inputs_sha256": "2f051ce0700db8bd34d17f512a3ba64c33d4d7142e6b884926f9246d0e7a5805"
+    }
+  },
+  {
     "id": "construct-range-428eb0",
     "size": 37,
     "offset": 4361904,
@@ -2991,6 +3839,54 @@
     }
   },
   {
+    "id": "cursor-offset-4-4295c0",
+    "size": 18,
+    "offset": 4363712,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x4295c0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "e6507f79a69093aaa4ddb8ef4f0514dcf35181bb49619275540a24db129989d3"
+    }
+  },
+  {
+    "id": "cursor-offset-32-4295f0",
+    "size": 20,
+    "offset": 4363760,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_32@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x4295f0 with a 32-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "3e492d50392a956f215d89869d86a73b78c33380409c5326a865c8e0045ef585",
+      "inputs_sha256": "4dc8b4550cc62fc6c7ca0bd670d926cda4836949b23ec7c1a815e909f8872430"
+    }
+  },
+  {
+    "id": "cursor-offset-4-429610",
+    "size": 18,
+    "offset": 4363792,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x429610 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "f8f22aab6a793f12a012953facaad7af1ac91bd23c49c74dbb7db32255cfaf9f"
+    }
+  },
+  {
     "id": "cursor-distance-4-429670",
     "size": 14,
     "offset": 4363888,
@@ -3004,6 +3900,22 @@
     "match": {
       "bytes_sha256": "a1ac14913e402e074bec291c4b40ee821f84ac2a910c0cadf8f65a1b79b6761c",
       "inputs_sha256": "3a4be75b3dfdd712309471726bbe37548518093f0f89d7d9362562529de0227b"
+    }
+  },
+  {
+    "id": "cursor-offset-4-4296b0",
+    "size": 18,
+    "offset": 4363952,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@offset_4@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor offset routine at RVA 0x4296b0 with a 4-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
+      "inputs_sha256": "aaf6b81e328473fe39681e6e761eaabd9c19265a948011c07e8e852bb40a1f38"
     }
   },
   {
@@ -3070,6 +3982,22 @@
     "match": {
       "bytes_sha256": "def4c21a1d6130d21df9ffc08f48358a9d4a85de3467fffa26457649a37bdc65",
       "inputs_sha256": "32b6f41ecf5cc1d0f89354454034668d0d3e7e996918bb8b2cf2f71ec8921341"
+    }
+  },
+  {
+    "id": "cursor-before-60-429880",
+    "size": 20,
+    "offset": 4364416,
+    "inputs": [
+      "src/campaign_cursor_offsets.c"
+    ],
+    "rebuilt_symbol": "@before_60@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_offsets.obj src/campaign_cursor_offsets.c",
+    "identification": "Aligned complete cursor before routine at RVA 0x429880 with a 60-byte element size and callee cleanup of the stack argument.",
+    "match": {
+      "bytes_sha256": "a4d1e365e8b2ad5bf93c581f111aa7d0fd0d8bf9577b87d7269942f2689b16f7",
+      "inputs_sha256": "5a807001a6173de1c9ac374120d556bf38e4953b17882acba30962e7aadbcd65"
     }
   },
   {

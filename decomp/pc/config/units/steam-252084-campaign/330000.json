@@ -380,6 +380,32 @@
     }
   },
   {
+    "id": "native-name-lookup-3321e0",
+    "size": 78,
+    "offset": 3351008,
+    "inputs": [
+      "src/campaign_named_native_lookup.c"
+    ],
+    "rebuilt_symbol": "_find_handler",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_named_native_lookup.obj src/campaign_named_native_lookup.c",
+    "link_bindings": {
+      "_registrations": {
+        "va": 287057568,
+        "basis": "Null-terminated table of 16 wide names and corresponding native function addresses, beginning with intUECanvasexecBeginScene."
+      },
+      "_compare_names": {
+        "va": 281849376,
+        "basis": "Shared wide-string comparison."
+      }
+    },
+    "identification": "Complete native lookup at RVA 0x3321e0. Scans the table at VA 0x111c26a0 and returns the address of the matching callback slot. The first entry is intUECanvasexecBeginScene.",
+    "match": {
+      "bytes_sha256": "4600a34c0af5c90e4be4e7f8f5a62c6337872b5176a8f0f107c73de936d875c5",
+      "inputs_sha256": "93813db0b482b5be6e13826dbe53589a6b14d132172aa667d5e97a9bbe62bd15"
+    }
+  },
+  {
     "id": "array-release-332260",
     "size": 43,
     "offset": 3351136,
