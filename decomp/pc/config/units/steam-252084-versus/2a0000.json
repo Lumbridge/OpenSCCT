@@ -328,6 +328,36 @@
     }
   },
   {
+    "id": "ui-storage-2a30e0",
+    "size": 39,
+    "offset": 2765024,
+    "inputs": [
+      "src/versus_ui_storage.c"
+    ],
+    "rebuilt_symbol": "_release_service",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_storage.obj src/versus_ui_storage.c",
+    "link_bindings": {
+      "_ui_service": {
+        "va": 281501356,
+        "basis": "Global UI service shared by child updates."
+      },
+      "@destroy_service@4": {
+        "va": 280636672,
+        "basis": "Indexed service destructor."
+      },
+      "_release_memory": {
+        "va": 279251072,
+        "basis": "Shared retail allocation release routine."
+      }
+    },
+    "identification": "Complete Versus routine at RVA 0x2a30e0. Destroys and frees the global UI service before clearing its pointer.",
+    "match": {
+      "bytes_sha256": "69db8a46dbc71a9b25308f4e74a87c969518069803add9c8289348f94de57d81",
+      "inputs_sha256": "6ceed8afecb914398dae18c17a6a8a382970cc89be58521cdb98765207f06539"
+    }
+  },
+  {
     "id": "ui-service-state-2a3110",
     "size": 39,
     "offset": 2765072,
@@ -341,6 +371,54 @@
     "match": {
       "bytes_sha256": "ac0b91455609a09549178c9b0745514ec0b93bca2c1b6c75568dcc35d99941cd",
       "inputs_sha256": "ab5b2e58374fd5aaf8657a5606a967877e3b322b7d65820b680c3561da406dc1"
+    }
+  },
+  {
+    "id": "ui-storage-2a3140",
+    "size": 54,
+    "offset": 2765120,
+    "inputs": [
+      "src/versus_ui_storage.c"
+    ],
+    "rebuilt_symbol": "@initialize_owner@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_storage.obj src/versus_ui_storage.c",
+    "link_bindings": {
+      "@initialize_base@4": {
+        "va": 280721840,
+        "basis": "Indexed base initialization method."
+      },
+      "_owner_methods": {
+        "va": 280956436,
+        "basis": "Method table installed by the retail constructor."
+      }
+    },
+    "identification": "Complete Versus routine at RVA 0x2a3140. Runs base initialization and initializes the method table, mode, count and owned storage.",
+    "match": {
+      "bytes_sha256": "0993e8820489041bbce5532afa2dc85c97ad2a0c2d67f3ff22b0f3f34507ec79",
+      "inputs_sha256": "81a6ee0df2594279e6802dfa60b8410d2ab34ea59e97a2d63e136dfdb1d2116b"
+    }
+  },
+  {
+    "id": "ui-storage-2a3180",
+    "size": 90,
+    "offset": 2765184,
+    "inputs": [
+      "src/versus_ui_storage.c"
+    ],
+    "rebuilt_symbol": "@release_items@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_ui_storage.obj src/versus_ui_storage.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279251072,
+        "basis": "Shared retail allocation release routine."
+      }
+    },
+    "identification": "Complete Versus routine at RVA 0x2a3180. Frees each item and then its owning pointer array.",
+    "match": {
+      "bytes_sha256": "318d7c91599edd340bde1946b6614efecda900c7cf4d749ddc34fd833b7fc876",
+      "inputs_sha256": "e306c0364914f0f93ac4ccb7041828cc172ffbbf3c0a92cb2af5c286ea91ff19"
     }
   },
   {
