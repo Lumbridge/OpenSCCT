@@ -324,6 +324,64 @@
     }
   },
   {
+    "id": "resample-initialize-mitchell",
+    "size": 191,
+    "offset": 2747568,
+    "inputs": [
+      "src/versus_mitchell_setup.c"
+    ],
+    "rebuilt_symbol": "_initialize_mitchell",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_mitchell_setup.obj src/versus_mitchell_setup.c",
+    "link_bindings": {
+      "__real@4018000000000000": {
+        "va": 280949056,
+        "basis": "Double coefficient 6 read from the Mitchell setup routine."
+      },
+      "_one_sixth": {
+        "va": 280949072,
+        "basis": "Double coefficient 0.16666666666666666 read from the Mitchell setup routine."
+      },
+      "__real@4028000000000000": {
+        "va": 281088216,
+        "basis": "Double coefficient 12 read from the Mitchell setup routine."
+      },
+      "__real@4032000000000000": {
+        "va": 281087992,
+        "basis": "Double coefficient 18 read from the Mitchell setup routine."
+      },
+      "__real@4022000000000000": {
+        "va": 280949136,
+        "basis": "Double coefficient 9 read from the Mitchell setup routine."
+      },
+      "__real@4020000000000000": {
+        "va": 280898568,
+        "basis": "Double coefficient 8 read from the Mitchell setup routine."
+      },
+      "__real@4038000000000000": {
+        "va": 280949128,
+        "basis": "Double coefficient 24 read from the Mitchell setup routine."
+      },
+      "__real@c028000000000000": {
+        "va": 280949120,
+        "basis": "Double coefficient -12 read from the Mitchell setup routine."
+      },
+      "__real@4048000000000000": {
+        "va": 280949112,
+        "basis": "Double coefficient 48 read from the Mitchell setup routine."
+      },
+      "__real@403e000000000000": {
+        "va": 280893864,
+        "basis": "Double coefficient 30 read from the Mitchell setup routine."
+      }
+    },
+    "identification": "Named mitchell initialization table entry at RVA 0x33ec94 references this complete function. All seven output coefficients are consumed by the Mitchell evaluation routine.",
+    "match": {
+      "bytes_sha256": "d8b84b36ce3f2a9338987eed1590e5b5a60cad4c89c39300d5fdb0e15f37c371",
+      "inputs_sha256": "4c8d2b78d8f9158abebf922e162f9ce575ade192f00b4b046d20f659a9ce778e"
+    }
+  },
+  {
     "id": "resample-hann-window",
     "size": 25,
     "offset": 2747760,
