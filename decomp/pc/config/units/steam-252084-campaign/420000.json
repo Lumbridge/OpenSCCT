@@ -527,6 +527,268 @@
     }
   },
   {
+    "id": "block-pool-contains-427b50",
+    "size": 53,
+    "offset": 4356944,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@contains_427b50@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427b2b in the independently delineated function at RVA 0x427b20. Checks the address against the half-open range of the last active block.",
+    "match": {
+      "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
+      "inputs_sha256": "827b97c0a7417704988e33037d07e2daa75c03edaa13246b181b89dbe5225f20"
+    }
+  },
+  {
+    "id": "block-pool-pop-427bd0",
+    "size": 30,
+    "offset": 4357072,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@pop_427bd0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427bbd in the independently delineated function at RVA 0x427b90. Pops the last 16-byte block descriptor when the pool is nonempty.",
+    "match": {
+      "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
+      "inputs_sha256": "1c2157171eab638c7b244bbae48bc7068614ed078cf38708b8ca204ec253b45e"
+    }
+  },
+  {
+    "id": "block-pool-release-427c10",
+    "size": 43,
+    "offset": 4357136,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "_release_427c10",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427c00 in the independently delineated function at RVA 0x427bf0. Routes the pointer through its active block pool or directly to the heap.",
+    "link_bindings": {
+      "_pool_a1a294": {
+        "va": 288465556,
+        "basis": "Same active block pool for the test and counted release."
+      },
+      "@test_block_427c40@8": {
+        "va": 282229824,
+        "basis": "Verified whole membership test."
+      },
+      "@drop_427c80@8": {
+        "va": 282229888,
+        "basis": "Drops the reference and pops the last block at zero."
+      },
+      "_free_1dd0d0": {
+        "va": 279826640,
+        "basis": "Independently reconstructed engine heap release."
+      }
+    },
+    "match": {
+      "bytes_sha256": "cf7b43c83af9c04e70c8a9be7ec76a4174afe957a0b81f9c84311ae2eec12a41",
+      "inputs_sha256": "d60a37aed275765b63d04e056e78fc27ff313d24679c7ceddef5fd45318c5f63"
+    }
+  },
+  {
+    "id": "block-pool-contains-427c40",
+    "size": 53,
+    "offset": 4357184,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@contains_427c40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427c1b in the independently delineated function at RVA 0x427c10. Checks the address against the half-open range of the last active block.",
+    "match": {
+      "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
+      "inputs_sha256": "50f7d34c8be011e5c442e78ec34fd281fc64ae33e3d5d1e01dde356932e4ce50"
+    }
+  },
+  {
+    "id": "block-pool-pop-427cc0",
+    "size": 30,
+    "offset": 4357312,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@pop_427cc0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427cad in the independently delineated function at RVA 0x427c80. Pops the last 16-byte block descriptor when the pool is nonempty.",
+    "match": {
+      "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
+      "inputs_sha256": "c356ae5b3f59b1ff095e607e240d31e780a925b10fb28eef7b8c0d32dbc1231f"
+    }
+  },
+  {
+    "id": "block-pool-contains-427d30",
+    "size": 53,
+    "offset": 4357424,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@contains_427d30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427d0b in the independently delineated function at RVA 0x427d00. Checks the address against the half-open range of the last active block.",
+    "match": {
+      "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
+      "inputs_sha256": "86e745356ae3be44261046a77082418ba880cc44ab72f5ba8b00094df1e885c0"
+    }
+  },
+  {
+    "id": "block-pool-pop-427db0",
+    "size": 30,
+    "offset": 4357552,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@pop_427db0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427d9d in the independently delineated function at RVA 0x427d70. Pops the last 16-byte block descriptor when the pool is nonempty.",
+    "match": {
+      "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
+      "inputs_sha256": "2967fa179f7029950b48afc6039639e4f6d246503879269f4ce36c3258841c98"
+    }
+  },
+  {
+    "id": "block-pool-release-427df0",
+    "size": 43,
+    "offset": 4357616,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "_release_427df0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427de0 in the independently delineated function at RVA 0x427dd0. Routes the pointer through its active block pool or directly to the heap.",
+    "link_bindings": {
+      "_pool_a1a2d0": {
+        "va": 288465616,
+        "basis": "Same active block pool for the test and counted release."
+      },
+      "@test_block_427e20@8": {
+        "va": 282230304,
+        "basis": "Verified whole membership test."
+      },
+      "@drop_427e60@8": {
+        "va": 282230368,
+        "basis": "Drops the reference and pops the last block at zero."
+      },
+      "_free_1dd0d0": {
+        "va": 279826640,
+        "basis": "Independently reconstructed engine heap release."
+      }
+    },
+    "match": {
+      "bytes_sha256": "3db4f43fc41e4f09a92710635dcfbd8e65830973fa462ba3f02dc7b87dd82b52",
+      "inputs_sha256": "ff8c7daf292e5bb9ad6931d082ee2a85a1e16acdca19ca2b1077e24a4594c4d5"
+    }
+  },
+  {
+    "id": "block-pool-contains-427e20",
+    "size": 53,
+    "offset": 4357664,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@contains_427e20@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427dfb in the independently delineated function at RVA 0x427df0. Checks the address against the half-open range of the last active block.",
+    "match": {
+      "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
+      "inputs_sha256": "98b1e68dc749b3b65c16b52db75b415668fba77bfb96238ca36f62b95f8fc554"
+    }
+  },
+  {
+    "id": "block-pool-pop-427ea0",
+    "size": 30,
+    "offset": 4357792,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@pop_427ea0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427e8d in the independently delineated function at RVA 0x427e60. Pops the last 16-byte block descriptor when the pool is nonempty.",
+    "match": {
+      "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
+      "inputs_sha256": "36755849fcd54e899ab36406c0baa925759b3609f091051350291b58b1b52d35"
+    }
+  },
+  {
+    "id": "block-pool-release-427ff0",
+    "size": 43,
+    "offset": 4358128,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "_release_427ff0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427fe0 in the independently delineated function at RVA 0x427fd0. Routes the pointer through its active block pool or directly to the heap.",
+    "link_bindings": {
+      "_pool_a1a1e0": {
+        "va": 288465376,
+        "basis": "Same active block pool for the test and counted release."
+      },
+      "@test_block_428020@8": {
+        "va": 282230816,
+        "basis": "Verified whole membership test."
+      },
+      "@drop_428060@8": {
+        "va": 282230880,
+        "basis": "Drops the reference and pops the last block at zero."
+      },
+      "_free_1dd0d0": {
+        "va": 279826640,
+        "basis": "Independently reconstructed engine heap release."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ef783a0e01e7eeae79ff65ed193a74dc39bac5d99c152bf5319fbced93db6690",
+      "inputs_sha256": "397ce3054c40b5db374d42c1309d574677f088033cb03bfd066d9fe012697dad"
+    }
+  },
+  {
+    "id": "block-pool-contains-428020",
+    "size": 53,
+    "offset": 4358176,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@contains_428020@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x427ffb in the independently delineated function at RVA 0x427ff0. Checks the address against the half-open range of the last active block.",
+    "match": {
+      "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
+      "inputs_sha256": "b4afb55b80212852e663a9597378e9110627e7b1c446357fdaa88d4cb460c941"
+    }
+  },
+  {
+    "id": "block-pool-pop-4280a0",
+    "size": 30,
+    "offset": 4358304,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@pop_4280a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x42808d in the independently delineated function at RVA 0x428060. Pops the last 16-byte block descriptor when the pool is nonempty.",
+    "match": {
+      "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
+      "inputs_sha256": "56bd5173b866bf46362e83d08514847a6abae0d3a4cce748cc301cd9ade651b9"
+    }
+  },
+  {
     "id": "assign-range-428bd0",
     "size": 30,
     "offset": 4361168,
@@ -766,6 +1028,72 @@
     "match": {
       "bytes_sha256": "6559b82c2f31d6b452a3a6db1a40f48f1a8d2b38bf1682a1d33cc121151ba7c4",
       "inputs_sha256": "64f7161fa01e6305a580e14d56053b758bc1586a4bd92fb614766208f6065fdf"
+    }
+  },
+  {
+    "id": "block-pool-release-42fa80",
+    "size": 43,
+    "offset": 4389504,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "_release_42fa80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x42fa70 in the independently delineated function at RVA 0x42fa60. Routes the pointer through its active block pool or directly to the heap.",
+    "link_bindings": {
+      "_pool_a17b08": {
+        "va": 288455432,
+        "basis": "Same active block pool for the test and counted release."
+      },
+      "@test_block_42fab0@8": {
+        "va": 282262192,
+        "basis": "Verified whole membership test."
+      },
+      "@drop_42faf0@8": {
+        "va": 282262256,
+        "basis": "Drops the reference and pops the last block at zero."
+      },
+      "_free_1dd0d0": {
+        "va": 279826640,
+        "basis": "Independently reconstructed engine heap release."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0011f57134fb8b5d7ed1894a25f9cbb1115f33b7bd87926538b701d867d99c5a",
+      "inputs_sha256": "b8d0f0f6beb2363f0e7e4c6d327e5939bb61c872e4e14250d68a6053ecc06770"
+    }
+  },
+  {
+    "id": "block-pool-contains-42fab0",
+    "size": 53,
+    "offset": 4389552,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@contains_42fab0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x42fa8b in the independently delineated function at RVA 0x42fa80. Checks the address against the half-open range of the last active block.",
+    "match": {
+      "bytes_sha256": "edc469c846002c2dee494b1a5cd9331e4e1327f7559d407142f5480fb29d6b44",
+      "inputs_sha256": "3be7257489b7e9a74345d5966ba12fc6b7a03bb6669713a80abd94cdebae6ef5"
+    }
+  },
+  {
+    "id": "block-pool-pop-42fb30",
+    "size": 30,
+    "offset": 4389680,
+    "inputs": [
+      "src/campaign_block_pool.c"
+    ],
+    "rebuilt_symbol": "@pop_42fb30@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_block_pool.obj src/campaign_block_pool.c",
+    "identification": "Direct call at RVA 0x42fb1d in the independently delineated function at RVA 0x42faf0. Pops the last 16-byte block descriptor when the pool is nonempty.",
+    "match": {
+      "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
+      "inputs_sha256": "a690ca2a983f5918081dd0af28d0d7e637c6fe01e92315df8451e56c83746c02"
     }
   }
 ]
