@@ -1,0 +1,3436 @@
+[
+  {
+    "id": "destroy-static-record-7b0de0",
+    "size": 49,
+    "offset": 8064480,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b0de0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_8fa804": {
+        "va": 287287300,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7a5f27 pushes callback RVA 0x7b0de0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fa1f0d31cdda8ec175d3673a551e549ac443bb482cd3f6d34945e20a72dac08c",
+      "inputs_sha256": "0bbbff7c8b69217eeb41ea39c168dbaf9076eb3cab153f8792026688b5b2df75"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4ab0",
+    "size": 49,
+    "offset": 8080048,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4ab0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b4a4": {
+        "va": 288470180,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aec86 pushes callback RVA 0x7b4ab0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "5d65f3f50fe1cdc2e33802a1dfd004ee7a9895e5bc76f95cc96ed86f78413692",
+      "inputs_sha256": "7b1046f040f6414ca8eb8797b785eede5bb2def0d47dfc5639ae82137e238033"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4af0",
+    "size": 49,
+    "offset": 8080112,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4af0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b47c": {
+        "va": 288470140,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aec50 pushes callback RVA 0x7b4af0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "028aee8d30f7f15d061da66a64b7182336fc141b36b69969f78353bb7a2449b0",
+      "inputs_sha256": "861fc907558092bbba4fe92066665aa11f4c34573c34a5d9e0d9eadc7e241480"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4b30",
+    "size": 49,
+    "offset": 8080176,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4b30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b4cc": {
+        "va": 288470220,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aecc0 pushes callback RVA 0x7b4b30 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a7dad6f47ea99053d36e3053fecdfbc4af7cbadbdd19651c55bdb4242b67a454",
+      "inputs_sha256": "3821c514e6e0be19743ef51f1ed6aad029a89e61bc8b42080b98fe157b44ed6c"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4b70",
+    "size": 49,
+    "offset": 8080240,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4b70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b4f4": {
+        "va": 288470260,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aecf6 pushes callback RVA 0x7b4b70 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "0f882240ebce835f5ed2139f24e4d0805bde131d7b795eb8881ef4ad96013dbd",
+      "inputs_sha256": "7780f1e85d687adb5af261e86bdaf353f95c7d2adb83204871efa22ac81431d7"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4bb0",
+    "size": 49,
+    "offset": 8080304,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4bb0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b51c": {
+        "va": 288470300,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aed39 pushes callback RVA 0x7b4bb0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fefe17e0ce4ffc280ebc0c469fc49af053ab4415175da61fabcfd38175dd5275",
+      "inputs_sha256": "f0ffd78198728bdf3b9a38591382198a68b7b1ae589199f1230e4014c48db0e1"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4bf0",
+    "size": 49,
+    "offset": 8080368,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4bf0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b544": {
+        "va": 288470340,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aed73 pushes callback RVA 0x7b4bf0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fbd2b8497af5d9c1cc0c155abbc53ad54d64cc026805184e79c324af09f3bf36",
+      "inputs_sha256": "85511536b4a56312c9118e500278cbb817f0db15ed29706dcb45fddb53428a86"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4c30",
+    "size": 49,
+    "offset": 8080432,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4c30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b56c": {
+        "va": 288470380,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aeda6 pushes callback RVA 0x7b4c30 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "8265a2af3d8ef7691f366b8efc66add848a9c8a6ee7da2704c595a74166b3a93",
+      "inputs_sha256": "08b1bf16afffca3f4d2cbc8f2b41a9da0ebe58a85b1f5b66f3c85c22e00af01e"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4c70",
+    "size": 49,
+    "offset": 8080496,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4c70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b594": {
+        "va": 288470420,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aede3 pushes callback RVA 0x7b4c70 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "3e0b45d7fe7af876c861b2abb325513a852f5db197fd2ec91bce9e5c097a09a2",
+      "inputs_sha256": "f8f61528ccb5855ce3ab428b35a9587e3afa58a87695e63fcbeaee2ab4f7a992"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4cb0",
+    "size": 49,
+    "offset": 8080560,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4cb0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b5bc": {
+        "va": 288470460,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aee10 pushes callback RVA 0x7b4cb0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "780e7e0a0d7cb7849e4bacc3e979a1ec7c608daaf41bf3a8a77086f92bb2a0a5",
+      "inputs_sha256": "78ca1f4b163028bcf2c567ce57120c90624aee2160744a1a2e8b121ef0790a8c"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4cf0",
+    "size": 49,
+    "offset": 8080624,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4cf0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b5e4": {
+        "va": 288470500,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aee40 pushes callback RVA 0x7b4cf0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "1e9ec85c44afac113ec5b93c9f087a1e93acf1d8e7a9be753c7bc8a108af48f1",
+      "inputs_sha256": "2de7b1f5892c595f62e63d8f8a15a71ca77753ec4a79cd0209cfc34d435832ec"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4d30",
+    "size": 49,
+    "offset": 8080688,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4d30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b60c": {
+        "va": 288470540,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aee73 pushes callback RVA 0x7b4d30 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "f5b6faf7d10fdfe574f86c78cae447fc28f38ee4982ccc28bdbc4cd9af3cdba0",
+      "inputs_sha256": "d19d71429e4f4a9e02ed757f53381cc2206bf7cba5df6ce59b90c059e6edb8b3"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4d70",
+    "size": 49,
+    "offset": 8080752,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4d70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b634": {
+        "va": 288470580,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aeea6 pushes callback RVA 0x7b4d70 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "f5af13cfaed7dfdcb4779392693fd2a5c640d0e38dfdf6ffcaff9697571b3275",
+      "inputs_sha256": "122f903a5b6bb7f5ae0490945e66636d98f2145cbcf78199a5287732ec43a935"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4db0",
+    "size": 49,
+    "offset": 8080816,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4db0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b65c": {
+        "va": 288470620,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aeee6 pushes callback RVA 0x7b4db0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "f6cc3c25cef6cb93a867f429f0ca428d1bf716782b33c141202922503d8ee8b3",
+      "inputs_sha256": "a0476295e6be066bdea3f111529a92cdd3a1d345b87efca8eb197a5f1b6d1776"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4df0",
+    "size": 49,
+    "offset": 8080880,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4df0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b688": {
+        "va": 288470664,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aef26 pushes callback RVA 0x7b4df0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a2aaf15096aafe1a96f92e0e46aca53f1d10b185b2ecf6593ff94b57dd95e9ba",
+      "inputs_sha256": "cf1e9e083236fd3b2b6947a7f9c0067b3259cc9a25616b2942794feaeb51e5dc"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4e30",
+    "size": 49,
+    "offset": 8080944,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4e30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b6b0": {
+        "va": 288470704,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aef66 pushes callback RVA 0x7b4e30 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a4f1d07ad64738e81527089e551ca7c8ec546a3573f5fec9915d419a277da393",
+      "inputs_sha256": "257e7ace7a8e87f79613aa571fcddc0e5db5c3795e3b208401127b7f0c433a6c"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4e70",
+    "size": 49,
+    "offset": 8081008,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4e70",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b6d8": {
+        "va": 288470744,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aefa6 pushes callback RVA 0x7b4e70 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "168d4a8d0ec7c0bbee98bbba5603eef3530b4e499164b2748611f74419fef0b9",
+      "inputs_sha256": "7ecb44b0cea9b926146aff6a25db680e06b3e70856ab520d97c0597b17d6b20b"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4eb0",
+    "size": 49,
+    "offset": 8081072,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4eb0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b700": {
+        "va": 288470784,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aefe3 pushes callback RVA 0x7b4eb0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "3e2ac173044406cde3389014c2ae5ada1a1b8aec19cf25d3360d37d94dd6166a",
+      "inputs_sha256": "60e07e2ff75ec7be60bd13505c9f6b790ea311fd20dd4c5bed6f7e7587250989"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4ef0",
+    "size": 49,
+    "offset": 8081136,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4ef0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b728": {
+        "va": 288470824,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af016 pushes callback RVA 0x7b4ef0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "777d875ea6b86a09e95091a1be82b39e8116d1e5084ff671d3e8bba8c2453b19",
+      "inputs_sha256": "9a387412e048c51217445b1fae064679f3f5fec696ff86f7111687461007bf72"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4f30",
+    "size": 49,
+    "offset": 8081200,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4f30",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b750": {
+        "va": 288470864,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af056 pushes callback RVA 0x7b4f30 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "6aafe492f69aedd138bc9cfe1b8859bca32fb37d17c1ae0c0d0e6e7b81771b00",
+      "inputs_sha256": "c3c10abf93e8bf580af5db2a68c8d0124f4fc22dcc4ef9db616d8dad49aa616f"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4f80",
+    "size": 49,
+    "offset": 8081280,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4f80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b928": {
+        "va": 288471336,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af0cc pushes callback RVA 0x7b4f80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "1c23f168b90e9afaeed0a994d2420395c3a622ef774919772f7fd5626bd36af5",
+      "inputs_sha256": "1b2b10467f14340c87c2124bcd017c2afc2563b9425a5646cce591857f385a1f"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b4fc0",
+    "size": 49,
+    "offset": 8081344,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b4fc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b950": {
+        "va": 288471376,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af10c pushes callback RVA 0x7b4fc0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a9dce59a3be816c0f820b9726b7b74465487b3407fad479277f4c0cea5391ceb",
+      "inputs_sha256": "7d8c603209a91ef6ed30928017afd07bc6bfb6dd75557eae065ceb57661a7487"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5000",
+    "size": 49,
+    "offset": 8081408,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5000",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b978": {
+        "va": 288471416,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af146 pushes callback RVA 0x7b5000 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "7c4f1dcbdb852c28e802057998d2e65648a00b99099e9c123caf9694f6d20bf3",
+      "inputs_sha256": "6cb9ad885124b11a23c967e14d008a98adb857e272d4db6f15fdfc3351555d09"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5040",
+    "size": 49,
+    "offset": 8081472,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5040",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b9a0": {
+        "va": 288471456,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af186 pushes callback RVA 0x7b5040 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "5a14ba3b7302eb31912d7bcc4cf870121485cf120be5826e8109c11c9a3d7881",
+      "inputs_sha256": "f97382b6e5454bb015bf2295c7dd00e0da4e6ac1f5f5dd52301ca397d8dba5d5"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5080",
+    "size": 49,
+    "offset": 8081536,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5080",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b9c8": {
+        "va": 288471496,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af1c6 pushes callback RVA 0x7b5080 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "b1d319b0aa6d07bb1d82eef37ab238650245f71b10155a392b25b3d19a0455be",
+      "inputs_sha256": "a8964736637995af08f1437db863eb1b8a4b2c700781838d5ece32ebdd788bcc"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b50c0",
+    "size": 49,
+    "offset": 8081600,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b50c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1b9f0": {
+        "va": 288471536,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af206 pushes callback RVA 0x7b50c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "d4ba5baa6413c7c6e11772fd2bad990dcf80c810bf915143e71c0cf2c0db2897",
+      "inputs_sha256": "196b9ca0ee880cc38a6c5e9cb021003894e3459885ef2eabbba8a86a406483d3"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5100",
+    "size": 49,
+    "offset": 8081664,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5100",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1ba18": {
+        "va": 288471576,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af246 pushes callback RVA 0x7b5100 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "b30c7afad6c7801a045ba2522412b8a15705bfc4fe83608dc1dfdad25813657f",
+      "inputs_sha256": "49145f60437ab7c732256e84e29480e2e4f5a7dea24f59eb99c5fb1b5649ceee"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5140",
+    "size": 49,
+    "offset": 8081728,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5140",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1ba40": {
+        "va": 288471616,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af286 pushes callback RVA 0x7b5140 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "0b248cfea9bbdcdb0938aa918c0a4891af7f625fe140b62c4337446cffa19697",
+      "inputs_sha256": "a2842a3f706e71e4a31c024cc4c622fe16d16a3fc710ebab9ad8b90e636cd165"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5180",
+    "size": 49,
+    "offset": 8081792,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5180",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1ba68": {
+        "va": 288471656,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af2c6 pushes callback RVA 0x7b5180 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "194dca24509e944295263d6d150c11df4494af02c1716fa2e36619dfde22a9ea",
+      "inputs_sha256": "4827d38119a5c5937f3d04d8dea7927a8d562d1c7bd4450b119c9726ab425c66"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b51c0",
+    "size": 49,
+    "offset": 8081856,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b51c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1ba90": {
+        "va": 288471696,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af309 pushes callback RVA 0x7b51c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fdaa1cfce106773d84b3525ad3b62ab805ca5df4673150de650a61930b2852cf",
+      "inputs_sha256": "bf9733a5aef755a12f1cd3a8260c51f690ea509719f2164ddf070c4e2277f050"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5200",
+    "size": 49,
+    "offset": 8081920,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5200",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bab8": {
+        "va": 288471736,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af349 pushes callback RVA 0x7b5200 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "9c966eef4503678c0a57f0b27b6c3900f6e4c1c98b3e68df1257b69295f332b8",
+      "inputs_sha256": "49e78062953a1fce631cf61e19c6793a538878ec218c888c8494b802a41daf65"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5240",
+    "size": 49,
+    "offset": 8081984,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5240",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bae0": {
+        "va": 288471776,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af386 pushes callback RVA 0x7b5240 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "da3824d15bee426f279d6ed41d6963f4551b36be1cda7a7c6b5b9ad0bbd3bec3",
+      "inputs_sha256": "b91ae1f32c2f950f847cf2ed2ba46feb56d89dd5a4a1d7f6c5f38abbdfd472fe"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5280",
+    "size": 49,
+    "offset": 8082048,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5280",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bb08": {
+        "va": 288471816,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af3c9 pushes callback RVA 0x7b5280 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fd58ab26ef55f60e15e26642f389a2de99f7a16fe43a8a3603f09b6264394630",
+      "inputs_sha256": "57b5e8a4a93b6fb482383f3d36a1284c145980b520f3b5776f2d5c8dcabc34ea"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b52c0",
+    "size": 49,
+    "offset": 8082112,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b52c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bb30": {
+        "va": 288471856,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af409 pushes callback RVA 0x7b52c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "b8529ca257a285b6caced31659a3914a7587111fcb5bc7aad285a4ae007c8491",
+      "inputs_sha256": "6e39add8ce21df0f6fc9085d38a209b8a0e3dd7e2a4ab42af93cb20e65570c38"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5300",
+    "size": 49,
+    "offset": 8082176,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5300",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bb58": {
+        "va": 288471896,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af449 pushes callback RVA 0x7b5300 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a27567d1dc97ee54c7f2ac74b991a180e123e272824ba94b8b3ac573e858c3c4",
+      "inputs_sha256": "8ff8148a66c3a3c6e6e3d6b1d194066fa862609264085210cbd4fb2da8d8a174"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5340",
+    "size": 49,
+    "offset": 8082240,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5340",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bb80": {
+        "va": 288471936,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af48c pushes callback RVA 0x7b5340 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "2ebab9f0aa1f277e5fbcab1c47acc3227a6f2976a631ad18a0360fa3c97b3371",
+      "inputs_sha256": "f65a32996dd037db89503bc4ebf158d892b5a75fd4d0b2d2d3b83c151079ea14"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5380",
+    "size": 49,
+    "offset": 8082304,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5380",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bba8": {
+        "va": 288471976,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af4c9 pushes callback RVA 0x7b5380 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "d5b2191f4447188f2b690aba1d50e0c001af66dad5ae29aaed161a8da245874e",
+      "inputs_sha256": "a95c83b6e753c32a21d1f1662ff0e1b971d8e4f3000865a63ad8599e72d8ce36"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b53c0",
+    "size": 49,
+    "offset": 8082368,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b53c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bbd0": {
+        "va": 288472016,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af506 pushes callback RVA 0x7b53c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "93b4bc5121ced7f20227458a4dd9a8a00e94e05c9472524b780491416128fc40",
+      "inputs_sha256": "389dd09cfd64451fcd7987b4c529b26eeaf14d841731af2d68558193cf2588f6"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5400",
+    "size": 49,
+    "offset": 8082432,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5400",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bc20": {
+        "va": 288472096,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af576 pushes callback RVA 0x7b5400 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "049c58820e396b86f27ee4c041662d4f5dab41bfcf01186f14e406d8ef931cbc",
+      "inputs_sha256": "be38d98f6437766e7e9c8ad878dc6aebaf174cd1600bad8d80bd610da5384070"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5440",
+    "size": 49,
+    "offset": 8082496,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5440",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bbf8": {
+        "va": 288472056,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af540 pushes callback RVA 0x7b5440 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "812a875d8d7fd53c57c66ba9de87e8112beb78ba9794e53af5edef82f173ebde",
+      "inputs_sha256": "f7d63264aab04bbc789f4598cc6ddf9aec7d4fc4151bed70b019b7c7c8e05574"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5480",
+    "size": 49,
+    "offset": 8082560,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5480",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bc48": {
+        "va": 288472136,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af5b6 pushes callback RVA 0x7b5480 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "01721a1f825b652b03591ef733643ffcddb131866bacd7b75362ad4c851f7ee3",
+      "inputs_sha256": "4e6eefde4db16443358695b18e1411b90858e5f3052dce3f0df3c40b4ad00119"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b54c0",
+    "size": 49,
+    "offset": 8082624,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b54c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bc70": {
+        "va": 288472176,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af5f3 pushes callback RVA 0x7b54c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "1f34a560ed8913803fc0cb667d580bb930b3a83737ca2c7395f4a365b8448a47",
+      "inputs_sha256": "6f274f011a6bfda2e00d96eb6eeb97a5fc5c96e7ca207e848735cf813500fd2f"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5500",
+    "size": 49,
+    "offset": 8082688,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5500",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bc98": {
+        "va": 288472216,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af623 pushes callback RVA 0x7b5500 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "68debb6c0b6a4e4833002b9d44abf643f76f59e6b80bb6bcf73c04408308c3fd",
+      "inputs_sha256": "eec576d51865577beb76461ec41254c929c51caf6549e48a05b97fab96bd1d6e"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5540",
+    "size": 49,
+    "offset": 8082752,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5540",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bcc0": {
+        "va": 288472256,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af650 pushes callback RVA 0x7b5540 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "941064ed1024ce4c5b2cd44cd8559b4748d8c1df4cf363339ae61291a96c73b2",
+      "inputs_sha256": "6f0f9a265e1563b2dbad0b5875c043b3972bbbe31d897744d0fc909714fe6d70"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5580",
+    "size": 49,
+    "offset": 8082816,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5580",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_8cf448": {
+        "va": 287110216,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af660 pushes callback RVA 0x7b5580 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "d2e0a7c1c904723dac609164e54c64b99f6e7d84a61c471b2f87931ba9d9f15e",
+      "inputs_sha256": "9217595e3eb15159ea1c4a2481380ddcdc370ebab366cab9e7ab90a1afc543c0"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b55c0",
+    "size": 49,
+    "offset": 8082880,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b55c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bce8": {
+        "va": 288472296,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af690 pushes callback RVA 0x7b55c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "6d1a4bdd901d0b4c751156b8103e0c60339f876617ce2049e38b727e297ab7af",
+      "inputs_sha256": "eccc880aa9ef22d69dbeabdf599ecba10e31940c90e007e4c6d863b9fdcaa3dd"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5600",
+    "size": 49,
+    "offset": 8082944,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5600",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bd10": {
+        "va": 288472336,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af6c0 pushes callback RVA 0x7b5600 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "e3bb14430dd69b4c6fe9c0a38334c06cf0969fb1660f97936381bff539fc0d01",
+      "inputs_sha256": "e3defd8f018a2264ba3ec288f36b410b16b84a476a58ad471a932842047153f2"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5640",
+    "size": 49,
+    "offset": 8083008,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5640",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bd38": {
+        "va": 288472376,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af6f3 pushes callback RVA 0x7b5640 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "dbbd92b4ff0d9507f978e6cf76efe527f64654e22c7796dfc399bc35691f7c4a",
+      "inputs_sha256": "1a35ef0a90dba2b34e9f9f05701b7c62ef420f9b02f66cd77285c2d7ce42a1e2"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5680",
+    "size": 49,
+    "offset": 8083072,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5680",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bd60": {
+        "va": 288472416,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af720 pushes callback RVA 0x7b5680 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "3eb88bbd77e6c35166c7cbe36d8016b4436b03c09e047b6a5fe3ef53c3e1ad3f",
+      "inputs_sha256": "123640eb54467d5bd14834b84810b1a9e14b6a2cf0bf3475fc6487cc9140cf57"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b56c0",
+    "size": 49,
+    "offset": 8083136,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b56c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bd88": {
+        "va": 288472456,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af750 pushes callback RVA 0x7b56c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "ce650c0a353d057e6892d4d4a4c82906a056a6a5e31d47aac1014cdb6a47b306",
+      "inputs_sha256": "15ecec0c9b26daea08aedcecaabe93dcf64d4ef43a570863d0c818773f421b3b"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5700",
+    "size": 49,
+    "offset": 8083200,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5700",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bdb0": {
+        "va": 288472496,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af780 pushes callback RVA 0x7b5700 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "5c59dc59075acf63f7145fb4df9b7e879c9913247c0b747d31af2cf1501d2f58",
+      "inputs_sha256": "704abd9d16c1a5f4a5b8732b9e995aed6e53504fde355ce6370506aef02da443"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5740",
+    "size": 49,
+    "offset": 8083264,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5740",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bdd8": {
+        "va": 288472536,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af7b3 pushes callback RVA 0x7b5740 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "45777baf6b87095e581270dc301914420fb3faf99c32bf66a1894f315434186c",
+      "inputs_sha256": "b594ff23c8685501e396eaaf0aea1ccce6a934454af5b1e97f67673677aaaf99"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5780",
+    "size": 49,
+    "offset": 8083328,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5780",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1be00": {
+        "va": 288472576,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af7e6 pushes callback RVA 0x7b5780 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "12651d00383c0103072a99842b6bb99f70d53cdcac9eb832d85df535ca67d506",
+      "inputs_sha256": "379ac33c29b6cc43ce0c6a8585df7f83f2988a214652bc107cc9335f3d2b0370"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b57c0",
+    "size": 49,
+    "offset": 8083392,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b57c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1be40": {
+        "va": 288472640,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af826 pushes callback RVA 0x7b57c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "f61bbbc195d590dd458c66c4dd1993b186c7092714ed0dac4c124736ce0e993e",
+      "inputs_sha256": "2696663784c3ef74cc260fc53d89bec2f5be53cb2eceb91e7382b2d8abff0443"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5800",
+    "size": 49,
+    "offset": 8083456,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5800",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1befc": {
+        "va": 288472828,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af886 pushes callback RVA 0x7b5800 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "37c145df10690d1088f2f7e47a0dcef8662007994445b0f726b6742ec7111b3f",
+      "inputs_sha256": "7e9c5362afb1dba8d371550a827557e343c0c83deb7b73b4f2f342470eeed2d6"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5840",
+    "size": 49,
+    "offset": 8083520,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5840",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bf24": {
+        "va": 288472868,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af8c6 pushes callback RVA 0x7b5840 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "0ae4a51827cb50419d19a455e05f9a4e948b95816331f919850db9d5bcd06457",
+      "inputs_sha256": "df50ef693f95d17b86f5fd45ad13bea46eac2a544a00bad0761ccabf0f415c0f"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5880",
+    "size": 49,
+    "offset": 8083584,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5880",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bf4c": {
+        "va": 288472908,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af906 pushes callback RVA 0x7b5880 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "e152af663299752393b205788cb0ce1d9b3659d9f98317f748f8ef3bc71442b9",
+      "inputs_sha256": "0d0aa90a539d0b29833e4b120effd01dc4b9a8a600a5d2de780dba1bbbc1c11b"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b58c0",
+    "size": 49,
+    "offset": 8083648,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b58c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bf74": {
+        "va": 288472948,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af946 pushes callback RVA 0x7b58c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fac44711d6656536fbed22fae797939d319eeb5c6a6a59df766cd8ffd36f7797",
+      "inputs_sha256": "325efa1ba980cdde1fb4ad57bad796c2ca9762d44eab8c6bd5b002864c7066c1"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5900",
+    "size": 49,
+    "offset": 8083712,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5900",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bf9c": {
+        "va": 288472988,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af986 pushes callback RVA 0x7b5900 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "295a2b5c7206206cf76be1e7a369961e60b0b8eacba89b3a2f203011256e6c60",
+      "inputs_sha256": "55e2b8b960a57db0bcc171f2ff860b94fb21d41fa0234016e53b59945a023508"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5940",
+    "size": 49,
+    "offset": 8083776,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5940",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bfc4": {
+        "va": 288473028,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7af9c6 pushes callback RVA 0x7b5940 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "397aabbd1d1e5e19c26ab25c4843df524c201a7e89041668ef0bfe1e757a58ac",
+      "inputs_sha256": "3d4971a8d1d4355b4ddd09b16156140a0dbfd120a0e66e9668e4a4208086f214"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5980",
+    "size": 49,
+    "offset": 8083840,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5980",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1bfec": {
+        "va": 288473068,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afa06 pushes callback RVA 0x7b5980 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "6796d208f6bdd26ceb107c3fd299f1a4430fe53465c2ede2359753057fc20774",
+      "inputs_sha256": "eed60976665c77240cc96f381c160ba10c65e0b2df4d122ace3c2081be6f4020"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b59c0",
+    "size": 49,
+    "offset": 8083904,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b59c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c014": {
+        "va": 288473108,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afa46 pushes callback RVA 0x7b59c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "bab7132bc3b5d65bdeb6d1134d5d553beef54d17a7367f8c6fe6add850c5a70f",
+      "inputs_sha256": "466f4178461022849dbb6a299bde982f0622213c51e88f53f76c9b6070cfd79d"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5a00",
+    "size": 49,
+    "offset": 8083968,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5a00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c03c": {
+        "va": 288473148,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afa89 pushes callback RVA 0x7b5a00 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "0f5b6a918f1df7c6823daca6416228733a7f607e0f5c70c931c574246f19957c",
+      "inputs_sha256": "72c2877d475ebe7c363863cd7e03105a1a416222c6e3a95b3c2dc80c5bd506bb"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5a40",
+    "size": 49,
+    "offset": 8084032,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5a40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c064": {
+        "va": 288473188,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afac6 pushes callback RVA 0x7b5a40 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "6be328597daf8ce34e684b1311e8bdb8ecf1e2c2118b338c9463a8fe5020ee09",
+      "inputs_sha256": "6bae85185661ea6f36be6c197e92f189e201309163279a539471b4839e7e72cb"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5a80",
+    "size": 49,
+    "offset": 8084096,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5a80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c0f4": {
+        "va": 288473332,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afb46 pushes callback RVA 0x7b5a80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "87902261d449d1139ada9d6f3400845fd40bd26c3738aab62b22ce3941e6f3f8",
+      "inputs_sha256": "5f02b3eb6cdd2f8f8679f4c5cd43da7a81438752ff2d1630bba3517123231733"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5ac0",
+    "size": 49,
+    "offset": 8084160,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5ac0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c11c": {
+        "va": 288473372,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afb86 pushes callback RVA 0x7b5ac0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "9e6951c5564f68267d7fa34512ae3d24733a205932801adca1cc4cca89824a40",
+      "inputs_sha256": "1e2c8a4a9ddc96c75d0ac7ad14797a01b1b2b15b6c2b6b5e85532443d5fdc318"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5b00",
+    "size": 49,
+    "offset": 8084224,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5b00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c144": {
+        "va": 288473412,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afbc6 pushes callback RVA 0x7b5b00 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "3f44b546e6552929d0a5ccb5c3c183b1b612364d4f0e5581b0639f9fd15e83a8",
+      "inputs_sha256": "20d4ccf7ff064922c6b0cde4a81b8abaa7355dc095a9f11c08a897624fc1afdb"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5b40",
+    "size": 49,
+    "offset": 8084288,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5b40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c16c": {
+        "va": 288473452,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afc06 pushes callback RVA 0x7b5b40 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fef9170f16a4b3c25eda8fd267dd5a262a9a7495ae7608d0f0f130d716ef71ae",
+      "inputs_sha256": "6c20f3a6ab632044beb767474696684ff3ab9c91266862823f045637df3dbf83"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5b80",
+    "size": 49,
+    "offset": 8084352,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5b80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c194": {
+        "va": 288473492,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afc46 pushes callback RVA 0x7b5b80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "cd4fd9be4153db311264e1151ab294a5ab9f1d4ee58fd603e34504ba30027254",
+      "inputs_sha256": "faac5b71bff3a755addda49f38ae4e5dd581043bb45c57060568b641c20db15a"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5bc0",
+    "size": 49,
+    "offset": 8084416,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5bc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c1bc": {
+        "va": 288473532,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afc86 pushes callback RVA 0x7b5bc0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "edc646dd0d9d1621446e3c81ce3e29009a48008ae3f65c6949127461c7cb7918",
+      "inputs_sha256": "d680d75f0a57eae3794ff12ab4bb93d7f7757bf3fc9329ba4bed03a4d2a610db"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5c00",
+    "size": 49,
+    "offset": 8084480,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5c00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c1e4": {
+        "va": 288473572,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afcc6 pushes callback RVA 0x7b5c00 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "88b8babdf1b0147afcc3481af134cd58b0a8e48bcb940838d425727cf1b500ee",
+      "inputs_sha256": "8f56e00fb170e5e8061e7058ad211d6fffc18ade4ec0ca917f5f5a02765d4d8f"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5c40",
+    "size": 49,
+    "offset": 8084544,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5c40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c20c": {
+        "va": 288473612,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afd06 pushes callback RVA 0x7b5c40 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "b416c60816c29598fef6e150354fe9aaf47539d5357fa92a6077a1adaafe2743",
+      "inputs_sha256": "17a688566ab514a9e55fd1a18d878d660ba13e62b47405851cc091d1b3b81b7b"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5c80",
+    "size": 49,
+    "offset": 8084608,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5c80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c234": {
+        "va": 288473652,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afd46 pushes callback RVA 0x7b5c80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "e1c18239f010d8a5f4178c9ce178d9dbfdb30a28edfedc071e3633eaf2b23f0b",
+      "inputs_sha256": "f8feff37ed06b7cf984e6c915f24a3507b6a71ddbdfdc638d03a6f5094cb6c51"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5cc0",
+    "size": 49,
+    "offset": 8084672,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5cc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c25c": {
+        "va": 288473692,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afd83 pushes callback RVA 0x7b5cc0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "2505df2db66250eb5907dfd84b525d6c1ed8a09d35b3da0ff303c4e4610d6ad5",
+      "inputs_sha256": "b2268fd36b2df863801542b7747e4505182c0db8fff20adb8e882cbb439518eb"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5d00",
+    "size": 49,
+    "offset": 8084736,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5d00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c284": {
+        "va": 288473732,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afdb3 pushes callback RVA 0x7b5d00 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "1d7d87b53db99f7fdbcc90e88f46ba5ab26914ae97e043e2a7732b4c6c30542a",
+      "inputs_sha256": "96a7e124f7bce44499df7f75a192d2b8b5fb20e8c533c22205ec004fa8802c77"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5d40",
+    "size": 49,
+    "offset": 8084800,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5d40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c2ac": {
+        "va": 288473772,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afde3 pushes callback RVA 0x7b5d40 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "8f20a7816595924106f23eefcbe059c0a96500ff893e2f383487762e295afc93",
+      "inputs_sha256": "218aed659e731e6edf09727abf51cc09b2519729ca6a985e36a540cd6be7a0e2"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5d80",
+    "size": 49,
+    "offset": 8084864,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5d80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c2d4": {
+        "va": 288473812,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afe13 pushes callback RVA 0x7b5d80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "fb3d1a228200bc152c27fa399ca4c993e090510e017ade89ab0e47b2603e802a",
+      "inputs_sha256": "cc29704016e5fe812ae37ad2a2fd0171eee6558fcb6db72243399e4608a2df15"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5dc0",
+    "size": 49,
+    "offset": 8084928,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5dc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c2fc": {
+        "va": 288473852,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afe43 pushes callback RVA 0x7b5dc0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "886f38a2ed8ba5a9f96413b8e43443c1914d703ebd79017e0aa31a87a6d7a616",
+      "inputs_sha256": "0fd3e1c330aa4fea14542eb024f6466f22d61330dd499cd947b342d70c5b694e"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5e00",
+    "size": 49,
+    "offset": 8084992,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5e00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c324": {
+        "va": 288473892,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afe70 pushes callback RVA 0x7b5e00 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "cbbc88877f62f6aa4d36f5ba1e976b814122ea75e7dcf83c744588f62990a84a",
+      "inputs_sha256": "7ceea193e364a8d1b20eb24d1796e6eeaf35bfde0471d4859bc6e700f2369201"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5e40",
+    "size": 49,
+    "offset": 8085056,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5e40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c34c": {
+        "va": 288473932,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afea6 pushes callback RVA 0x7b5e40 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "daa1289eec806c40506b2c08e1314dbac94857262b89ff4a56f134f2f6e04ce8",
+      "inputs_sha256": "05fa0c4ccd27527cac0b6de0dbd13c143354edd15e12ae399f09b78d898d14ff"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5e80",
+    "size": 49,
+    "offset": 8085120,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5e80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c374": {
+        "va": 288473972,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7afee3 pushes callback RVA 0x7b5e80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "531bbc09326a8dfb30d46f873f4fbdfa20663c37191b39472eb87e3fd721747b",
+      "inputs_sha256": "45289a8b154fcbc8d160bd414a795af88a82c240e417cee0a88b749c3f028734"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5ec0",
+    "size": 49,
+    "offset": 8085184,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5ec0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c39c": {
+        "va": 288474012,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aff16 pushes callback RVA 0x7b5ec0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "72b274c08f5ea4e65db338eabf7e324193736d966533d8b921432e14a556e56f",
+      "inputs_sha256": "70628b0f5695193abf137ea12efb2ef6b96e5083f52ef613fbe351432dcaa377"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5f00",
+    "size": 49,
+    "offset": 8085248,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5f00",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c3c4": {
+        "va": 288474052,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aff56 pushes callback RVA 0x7b5f00 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "7762305fda24e7661af7c4d45f8b61e110bd85d6c8a3693006c18e658b77afa8",
+      "inputs_sha256": "991aa4a593df7e9b3a5af1ac9a9023baa8a4a6cccb6bdc0dbff85345da627f55"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5f40",
+    "size": 49,
+    "offset": 8085312,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5f40",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c3ec": {
+        "va": 288474092,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7aff93 pushes callback RVA 0x7b5f40 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "94c8fbbd8d3c30f0eff4104e3a2eb706d703542d55966698b395eb50f4a2cc0b",
+      "inputs_sha256": "b2335d430918bd024b5eaa7196f3e9c62c550720ca71355f7d6f982826e862ae"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5f80",
+    "size": 49,
+    "offset": 8085376,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5f80",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c414": {
+        "va": 288474132,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7affc6 pushes callback RVA 0x7b5f80 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a5b9713911d17466ffeae34369eb9bc21b95dff5e9ce2c44a6a47e67eccba002",
+      "inputs_sha256": "b03d9069a4edec3efb8672549fed41d4571089263f6e8de182ab7ee864698385"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b5fc0",
+    "size": 49,
+    "offset": 8085440,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b5fc0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c43c": {
+        "va": 288474172,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0006 pushes callback RVA 0x7b5fc0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "4f31f5dde400887c847de4383f6ac59c2c21899db1dc0d7736a4e4e60d938706",
+      "inputs_sha256": "6de8708330713b840b18a58950fe0dfa5af65f3df6653d660f31b5582497ce67"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6000",
+    "size": 49,
+    "offset": 8085504,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6000",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a1c464": {
+        "va": 288474212,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0049 pushes callback RVA 0x7b6000 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "48807444d2e862a96ef178c6bb9ae774c13250f3b44abc505a72efb8b0031b0f",
+      "inputs_sha256": "3c8907ad2349a91facc9ae610b8ff9ceecd4fcf7594bece82ea7d2aa70ef79f3"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6040",
+    "size": 49,
+    "offset": 8085568,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6040",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b4ec": {
+        "va": 288535788,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b00a3 pushes callback RVA 0x7b6040 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "c0cd5f7d75699fa0f48dc5be52fb059600a5487d62f39f5c06bd2a2561499ac4",
+      "inputs_sha256": "effda5682115b65eb6cc1c7e8de075a138876102ebf5449b46c91a7924755dda"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6080",
+    "size": 49,
+    "offset": 8085632,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6080",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b514": {
+        "va": 288535828,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b00dc pushes callback RVA 0x7b6080 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "f9c7b8b2de1a8f080351a11667c700738aed48d671bd07d71747b85086467f58",
+      "inputs_sha256": "060fca9bf4a79fd9b590dace9d08de71c1efbc6833b40bd09f2f61251ad07307"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b60c0",
+    "size": 49,
+    "offset": 8085696,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b60c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b53c": {
+        "va": 288535868,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0110 pushes callback RVA 0x7b60c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "6a690165d0ad8d11d94b7827b3c5c26f00729ac75b474ddc3cfccfa236eb66ea",
+      "inputs_sha256": "b4692ce065416274fe4c90b1e91591895c01c835c2b0240f330443ca2f1f9098"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6100",
+    "size": 49,
+    "offset": 8085760,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6100",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b564": {
+        "va": 288535908,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0146 pushes callback RVA 0x7b6100 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "c68e8ab4177d584c2c53234c3a0b855515d54f17d4839166f1f7fc6cada4d9ba",
+      "inputs_sha256": "5e9b387641bb44779f761c192f5220b39763d0bc99a3282851346fcee9758df4"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6140",
+    "size": 49,
+    "offset": 8085824,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6140",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b58c": {
+        "va": 288535948,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0186 pushes callback RVA 0x7b6140 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "b8ff9ed258a7df77b24da0507b278e98d548adeb072166b509890d9ed9519b29",
+      "inputs_sha256": "f4b0e82cc5e7b1a8efbc526016cffb220aa556949406bee5819b1b4076e22213"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6180",
+    "size": 49,
+    "offset": 8085888,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6180",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b5b4": {
+        "va": 288535988,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b01c6 pushes callback RVA 0x7b6180 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "d97f5d9e8aa057f44265915a616061d9244b5174bf9861fd3cbdc2522d83963e",
+      "inputs_sha256": "78028d85ce1ea26b2b3c05ee69a6394f9dcf77be900f7147a108cfd26ce00c14"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b61c0",
+    "size": 49,
+    "offset": 8085952,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b61c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b5dc": {
+        "va": 288536028,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0206 pushes callback RVA 0x7b61c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "c08a71917f69294c7420d2fd3d873343d6bdbc51b14229e98d8dcc8fcfa18e12",
+      "inputs_sha256": "de13f2d53f914ce1e0cc4efa7407cd66ca77c6090672d357d5a4130dc75756a5"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6200",
+    "size": 49,
+    "offset": 8086016,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6200",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b604": {
+        "va": 288536068,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0246 pushes callback RVA 0x7b6200 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "6856c332a7d3a6b1b158e86d47be378e8558817401fa182774020b1c1a1b108e",
+      "inputs_sha256": "168006ed5ac3d36f48e67412a8cddd85575a5982f9dc02355d5dbe60e33ad202"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6240",
+    "size": 49,
+    "offset": 8086080,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6240",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b62c": {
+        "va": 288536108,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0280 pushes callback RVA 0x7b6240 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "dc02d50dcfd696c28e7b765c2d023c57a36e3199141131e8da931c7e11a07cd4",
+      "inputs_sha256": "f3aabbc25c5033c9f60d116d1fbde5037de443d2f577ed656bce3d187ac504b4"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6280",
+    "size": 49,
+    "offset": 8086144,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6280",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b654": {
+        "va": 288536148,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b02b6 pushes callback RVA 0x7b6280 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "750b693373c7914ae83271ece1f5e5fb85ecae5050cbdea851c077ca9c946f9d",
+      "inputs_sha256": "c0a7c03203a21f4aa76408d1cdf68a31197719e09366e35192fb6139c0eadbaf"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b62c0",
+    "size": 49,
+    "offset": 8086208,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b62c0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b6a0": {
+        "va": 288536224,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b02f6 pushes callback RVA 0x7b62c0 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "446754735de1f602362f022deff3db0faabbf6c8f6448bc59fd3fda7fe235ceb",
+      "inputs_sha256": "87f917a91243001a1a8bdf22e1d09e7859b8054531a72840c3180378c05453a5"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6300",
+    "size": 49,
+    "offset": 8086272,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6300",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b6c8": {
+        "va": 288536264,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0333 pushes callback RVA 0x7b6300 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "a92f46f7bfb227e9e77d6be89dc28e813e94faa55d2a7d945185a48addaecd57",
+      "inputs_sha256": "e72d96a9eda408070b1a3b738747171a377587fec74c79ef19546566dd0bf43a"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6340",
+    "size": 49,
+    "offset": 8086336,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6340",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b6f0": {
+        "va": 288536304,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b0366 pushes callback RVA 0x7b6340 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "09a97fbe7ea9658874b1a7ebc86fc3e996983bdc7734c4696a45a5fcbac01ea9",
+      "inputs_sha256": "519bfac95dfaa82517e5e5c16b49cd9f270418f0237b5614ff03d0cff4483e25"
+    }
+  },
+  {
+    "id": "destroy-static-record-7b6380",
+    "size": 49,
+    "offset": 8086400,
+    "inputs": [
+      "src/campaign_static_records.c"
+    ],
+    "rebuilt_symbol": "_destroy_static_record_r7b6380",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_static_records.obj src/campaign_static_records.c",
+    "link_bindings": {
+      "@set_registered@8": {
+        "va": 283099712,
+        "basis": "Shared member routine at RVA 0x4fc240 updates the registry and sets or clears bit 7 at receiver offset 5 according to the passed state."
+      },
+      "_static_record_a2b718": {
+        "va": 288536344,
+        "basis": "Writable static record. The callback reads its flag word at +4 and changes bit 7 of its byte at +5."
+      },
+      "_methods_7c1d64": {
+        "va": 286006628,
+        "basis": "Initial methods table written before unregistering the record. Its first slot points to stock executable code."
+      },
+      "_methods_7c1d60": {
+        "va": 286006624,
+        "basis": "Final methods table written before returning from the termination callback. Its first slot points to stock executable code."
+      }
+    },
+    "identification": "The stock instruction at RVA 0x7b03a6 pushes callback RVA 0x7b6380 immediately before calling the independently reproduced atexit function. The callback conditionally unregisters the static record and installs its final methods table. The stock function ends at RET.",
+    "match": {
+      "bytes_sha256": "8fdd639fbf5911a7bb98f7c9ab7d4bb1fa4c40153ced40fb6d68b67457d679e4",
+      "inputs_sha256": "00a4478545798c1128702339761f46b7a372b7d043bdab7c61c2853af4e753ed"
+    }
+  }
+]
