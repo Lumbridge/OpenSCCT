@@ -60,7 +60,10 @@ internal sealed class ProjectProgressReport(string path)
                     || !HasText(target, "label") || !HasText(target, "scope") || !HasText(target, "evidence")) return false;
                 long matched = target.GetProperty("matched_bytes").GetInt64();
                 long candidates = target.GetProperty("candidate_bytes").GetInt64();
-                if (matched < 0 || candidates < 0) return false;
+                long matchedUnits = target.GetProperty("matched_units").GetInt64();
+                long candidateUnits = target.GetProperty("candidate_units").GetInt64();
+                if (matchedUnits < 0 || matchedUnits > matched || candidateUnits < 0 || candidateUnits > candidates)
+                    return false;
                 JsonElement total = target.GetProperty("total_bytes");
                 if (total.ValueKind != JsonValueKind.Null && checked(matched + candidates) > total.GetInt64()) return false;
                 matchedTotal = checked(matchedTotal + matched);

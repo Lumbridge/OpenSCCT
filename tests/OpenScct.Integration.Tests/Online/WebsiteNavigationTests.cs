@@ -59,7 +59,9 @@ public sealed class WebsiteNavigationTests
             target["matched_bytes"] = 732;
             Replace(report.ToJsonString());
             Assert.Contains("732 / ", await http.GetStringAsync("/", ct), StringComparison.Ordinal);
-            foreach (string invalid in new[] { "{", "{}", """{"schema_version":1,"editions":[]}""" })
+            target["matched_bytes"] = 733;
+            target.AsObject().Remove("candidate_units");
+            foreach (string invalid in new[] { "{", "{}", """{"schema_version":1,"editions":[]}""", report.ToJsonString() })
             {
                 Replace(invalid);
                 Assert.Contains("732 / ", await http.GetStringAsync("/progress", ct), StringComparison.Ordinal);
