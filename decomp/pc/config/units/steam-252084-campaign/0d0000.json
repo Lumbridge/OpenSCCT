@@ -252,6 +252,60 @@
     }
   },
   {
+    "id": "array-add-zeroed-0d7aa0",
+    "offset": 883360,
+    "size": 113,
+    "inputs": [
+      "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_add_zeroed.obj src/campaign_array_add_zeroed.c",
+    "rebuilt_symbol": "@add_zeroed_r0d7aa0@12",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7bc158": {
+        "va": 285983064,
+        "basis": "Read-only UTF-16 allocation name 'FArray::INT' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xd7aa0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "e468295a2c971600312c2bd504ec684294b1405544d0d5478489e123153b21e6",
+      "inputs_sha256": "fe67f7857967ee18a674a9561d385a94a3bd4e4d69f0beaa6083145cc27c18a8"
+    }
+  },
+  {
+    "id": "array-add-zeroed-0d7b20",
+    "offset": 883488,
+    "size": 113,
+    "inputs": [
+      "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_add_zeroed.obj src/campaign_array_add_zeroed.c",
+    "rebuilt_symbol": "@add_zeroed_r0d7b20@12",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7bc180": {
+        "va": 285983104,
+        "basis": "Read-only UTF-16 allocation name 'FArray::FVector' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xd7b20. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "29ef4d64af54bffb50ee3ddc5009a0bba058ab192b7935bb0abd538ed3fca828",
+      "inputs_sha256": "8a9dc17fd8d6bc4782f8590c68f6bed33738129146d6227e360ddf77a5cb283f"
+    }
+  },
+  {
     "id": "array-remove-0d8230",
     "size": 138,
     "offset": 885296,
@@ -893,6 +947,87 @@
     "match": {
       "bytes_sha256": "f24c8bb43bbf7ab0f63ab2842f26fda5591923983e4c08a6a768da73ce67fa3f",
       "inputs_sha256": "a7460ff04212df8a48474a4e7925fd1612da5e38c7607b1964e945cce8eb59b5"
+    }
+  },
+  {
+    "id": "array-add-zeroed-0dd0b0",
+    "offset": 905392,
+    "size": 113,
+    "inputs": [
+      "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_add_zeroed.obj src/campaign_array_add_zeroed.c",
+    "rebuilt_symbol": "@add_zeroed_r0dd0b0@12",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xdd0b0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
+      "inputs_sha256": "8071e78dc10892c6d99cb31d0c468bd2ab099b2edb09f7e3ebe52b00ceb00863"
+    }
+  },
+  {
+    "id": "array-add-zeroed-0dd170",
+    "offset": 905584,
+    "size": 113,
+    "inputs": [
+      "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_add_zeroed.obj src/campaign_array_add_zeroed.c",
+    "rebuilt_symbol": "@add_zeroed_r0dd170@12",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7b7b08": {
+        "va": 285965064,
+        "basis": "Read-only UTF-16 allocation name 'FArray' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xdd170. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
+      "inputs_sha256": "f8a19e59132077ea35faa886023eadb7250cf1bb52ee331d3dc465cec58375f9"
+    }
+  },
+  {
+    "id": "array-add-zeroed-0dd5a0",
+    "offset": 906656,
+    "size": 113,
+    "inputs": [
+      "src/campaign_array_add_zeroed.c",
+      "src/campaign_array_storage.h"
+    ],
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_add_zeroed.obj src/campaign_array_add_zeroed.c",
+    "rebuilt_symbol": "@add_zeroed_r0dd5a0@12",
+    "link_bindings": {
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Shared engine allocator; its slot 1 resizes the array when the new count exceeds capacity."
+      },
+      "_array_add_tag_7cf82c": {
+        "va": 286062636,
+        "basis": "Read-only UTF-16 allocation name 'FArray::AnalogTrack' in the Steam campaign."
+      }
+    },
+    "identification": "Complete FArray zeroed insertion at default-analysis RVA 0xdd5a0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
+    "match": {
+      "bytes_sha256": "8d5d4c5a9c841150caaa5a77bbe57fee64487964da844602853bfee25132516f",
+      "inputs_sha256": "003190a34315131dceab110943908f8578979acb526a527bdd3247297d6a6e85"
     }
   },
   {
