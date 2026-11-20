@@ -6,7 +6,7 @@ namespace OpenScct.Master.Player;
 internal sealed partial class PlayerPortal
 {
     private IResult Download(HttpContext c) => Show(c, "Download OpenSCCT", "download",
-        PageHeader("DOWNLOAD OPENSCCT", "Download OpenSCCT", "Get the launcher for your platform. Playing the PS2 or PC original requires your own disc image or installed game.") +
+        PageHeader("DOWNLOAD OPENSCCT", "Download OpenSCCT", "Get the launcher for your platform. Choose a PS2 ISO or a PC installation for the originals. OpenSCCT Godot builds its content from your installed Steam copy of Chaos Theory.") +
         """
         <div class="download-platforms">
           <section class="panel platform-card" aria-labelledby="download-windows">
@@ -15,8 +15,8 @@ internal sealed partial class PlayerPortal
               <span class="platform-kind">Native launcher</span>
             </div>
             <h2 id="download-windows">Windows</h2>
-            <p class="platform-summary">Open the original PS2 and PC editions, or install OpenSCCT Unreal and its map packs.</p>
-            <ul class="platform-features"><li>Reference game and optional map editor</li><li>Downloads game files and extra maps</li><li>Website Join links</li></ul>
+            <p class="platform-summary">Play the PS2 and PC originals or choose a modernisation built in Godot or Unreal.</p>
+            <ul class="platform-features"><li>Steam-built Godot maps and optional downloads</li><li>Unreal client and map editor</li><li>Website Join links</li></ul>
             <p class="platform-requirements">Windows · Intel/AMD 64-bit</p>
             <div class="platform-actions">
               <a class="button wide" href="https://github.com/OpenSCCT/OpenSCCT/releases/latest/download/OpenSCCT.Launcher.exe">Download for Windows ↓</a>
@@ -31,8 +31,8 @@ internal sealed partial class PlayerPortal
               <span class="platform-kind">Native launcher</span>
             </div>
             <h2 id="download-linux">Linux</h2>
-            <p class="platform-summary">Launch your PS2 disc or Steam installation, or install the native OpenSCCT reference game.</p>
-            <ul class="platform-features"><li>Automatic game and launcher updates</li><li>Native Classic game and updater</li><li>App menu entry and website Join links</li></ul>
+            <p class="platform-summary">Open a PS2 disc image, launch the original PC game or play OpenSCCT Godot natively.</p>
+            <ul class="platform-features"><li>Automatic game and launcher updates</li><li>Build Godot content from Steam</li><li>App menu entry and website Join links</li></ul>
             <p class="platform-requirements">Intel/AMD 64-bit · X11 or XWayland<br>Ubuntu 22.04+, Debian 12+, Fedora, Arch</p>
             <div class="platform-actions">
               <a class="button wide" href="https://github.com/OpenSCCT/OpenSCCT/releases/latest/download/OpenSCCT.Launcher-linux-x64.tar.gz">Download for Linux ↓</a>
@@ -46,8 +46,8 @@ internal sealed partial class PlayerPortal
               <span class="platform-kind">Flatpak package</span>
             </div>
             <h2 id="download-flatpak">Linux / Steam Deck</h2>
-            <p class="platform-summary">The Flatpak package runs the OpenSCCT reference game directly.</p>
-            <ul class="platform-features"><li>Downloads game content on first launch</li><li>Set up in Desktop Mode on Steam Deck</li><li>Install a newer bundle for game updates</li></ul>
+            <p class="platform-summary">The alternative Flatpak runs OpenSCCT Godot using content prepared by the native Linux launcher.</p>
+            <ul class="platform-features"><li>Requires a local Steam content build</li><li>Set up in Desktop Mode on Steam Deck</li><li>Install a newer bundle for game updates</li></ul>
             <p class="platform-requirements">Intel/AMD 64-bit · Flatpak required<br>Steam Deck hardware testing pending</p>
             <div class="platform-actions">
               <a class="button secondary wide" href="https://github.com/OpenSCCT/OpenSCCT/releases/latest/download/OpenSCCT-linux-x86_64.flatpak">Download Flatpak ↓</a>
@@ -65,8 +65,8 @@ internal sealed partial class PlayerPortal
           <details id="install-windows">
             <summary>Install on Windows</summary>
             <ol class="download-steps">
-              <li><strong>Open the launcher</strong><p>Save OpenSCCT.Launcher.exe in a writable folder, such as Downloads, and run it.</p></li>
-              <li><strong>Install OpenSCCT</strong><p>Choose the edition you want. For a retail game, select your local files. For an OpenSCCT build, choose Install.</p></li>
+              <li><strong>Open the launcher</strong><p>Save OpenSCCT.Launcher.exe in a writable folder, and run it.</p></li>
+              <li><strong>Install OpenSCCT</strong><p>Under Originals, choose your PS2 disc or PC installation. Under Modernisations, choose Godot to build maps and game assets from your Steam installation, or choose Unreal to install its client and use the local Steam content build.</p></li>
               <li><strong>Launch the game</strong><p>Choose Play after setup. Each edition starts its own game or runtime.</p></li>
             </ol>
             <a class="text-link" href="/wiki/getting-started">Installation guide →</a>
@@ -74,29 +74,29 @@ internal sealed partial class PlayerPortal
           <details id="install-editor">
             <summary>Install the optional map editor on Windows</summary>
             <ol class="download-steps">
-              <li><strong>Select the map editor</strong><p>Open the Windows launcher and choose OpenSCCT Editor under Tools &amp; legacy.</p></li>
-              <li><strong>Choose Set up Editor</strong><p>The launcher installs the editor and any missing game files and shared content.</p></li>
-              <li><strong>Choose Open Editor</strong><p>Game and Editor have separate updates. Both use the same downloaded game content.</p></li>
+              <li><strong>Select the map editor</strong><p>Open the Windows launcher and choose OpenSCCT Editor under Tools.</p></li>
+              <li><strong>Choose Set up Editor</strong><p>Install the editor and use the content built locally from your Steam installation.</p></li>
+              <li><strong>Choose Open Editor</strong><p>Open your project or choose a map to edit. The editor updates separately from the game.</p></li>
             </ol>
             <a class="text-link" href="/wiki/editor-getting-started">Editor setup and updates →</a>
           </details>
           <details id="install-linux">
             <summary>Install the native Linux launcher</summary>
-            <p>Open a terminal in the folder where you saved the archive, then run:</p>
+            <p>Open a terminal in the folder where you saved the archive, then run these commands.</p>
             <pre><code>tar -xzf OpenSCCT.Launcher-linux-x64.tar.gz
         cd OpenSCCT-Launcher
         ./install.sh</code></pre>
-            <p>This adds <strong>OpenSCCT Launcher</strong> to your application menu and enables website Join links. Select your PS2 ISO and configured PCSX2 for the console edition. Start a detected Steam campaign through Steam. Manual PC installs and Versus use Wine. For the native Classic game, select <strong>Install</strong>, then <strong>Play</strong>.</p>
+            <p>This adds <strong>OpenSCCT Launcher</strong> to your application menu and enables website Join links. Select your PS2 ISO and configured PCSX2 for the console edition. Start a detected Steam campaign through Steam. Manual PC installs and Versus use Wine. Under <strong>Modernisations</strong>, choose <strong>OpenSCCT Godot</strong> and select your installed Steam copy when prompted. Setup builds the original Versus maps. Use <strong>Maps</strong> for additional downloads.</p>
             <p class="account-side-note">Use a desktop with X11 or XWayland and working graphics drivers. ARM and Alpine/musl are not supported. Fedora 45 also needs <code>openssl3-libs</code>; see the guide for dependencies.</p>
             <a class="text-link" href="/wiki/linux">Linux setup guide →</a>
           </details>
           <details id="install-flatpak">
             <summary>Install Flatpak / set up Steam Deck</summary>
-            <p>On Steam Deck, switch to Desktop Mode first. Open a terminal in the folder containing the downloaded bundle:</p>
+            <p>On Steam Deck, switch to Desktop Mode. Complete Godot setup with the <a href="#install-linux">native launcher</a> first. Then open a terminal in the folder containing the Flatpak bundle.</p>
             <pre><code>flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         flatpak install --user ./OpenSCCT-linux-x86_64.flatpak
         flatpak run io.github.Lumbridge.OpenSCCT</code></pre>
-            <p>On first launch, choose <strong>Download and play</strong>. Install a newer Flatpak bundle when you want to update the game.</p>
+            <p>The Flatpak reads the Steam content built by the native launcher. Install a newer Flatpak bundle to update the game.</p>
             <p class="account-side-note">Steam Deck hardware validation is still pending. The guide covers adding OpenSCCT to Steam and setting up controllers.</p>
             <a class="text-link" href="/wiki/linux">Flatpak &amp; Steam Deck guide →</a>
           </details>

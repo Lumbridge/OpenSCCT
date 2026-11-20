@@ -18,7 +18,7 @@ namespace OpenScct.Master.Player;
 /// <summary>The public player site and its independent, account-scoped browser session.</summary>
 internal sealed partial class PlayerPortal(MasterOptions options, AccountStore store, ServerRegistry registry, Func<HttpContext, IPAddress> clientIp,
     ReleaseChangelog releases, string? browserGameRoot = null, TicketSigner? browserTickets = null,
-    string? browserContentRoot = null)
+    string? browserContentRoot = null, bool enableBrowserPrototype = false)
 {
     internal const string SessionCookie = "svm_player";
     private const string StateCookie = "svm_player_state";
@@ -36,9 +36,12 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
 
     public void Map(WebApplication app)
     {
-        Get(app, "/", ProjectHome);
+        app.MapGet("/", (Func<HttpContext, Task<IResult>>)ProjectHome);
+        Get(app, "/search", ProjectSearch);
         Get(app, "/community", Community);
         Get(app, "/projects/{edition}", Edition);
+        Get(app, "/projects/{edition}/decomp", ReconstructionGuide);
+        Get(app, "/legal", Legal);
         Get(app, "/mods", Mods);
         Get(app, "/tools", Tools);
         Get(app, "/progress", ProjectProgress);
@@ -53,7 +56,8 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         });
         MapWiki(app);
         Get(app, "/help/report-screenshots/{id}.png", PublishedScreenshot);
-        MapBrowserGame(app);
+        if (enableBrowserPrototype)
+            MapBrowserGame(app);
         Get(app, "/improvements", Improvements);
         app.MapGet("/changelog", (Func<HttpContext, Task<IResult>>)Changelog);
         Get(app, "/servers", Servers);
@@ -192,7 +196,7 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
             "</main></body></html>", "text/html; charset=utf-8");
     }
 
-    private static string ReadLoginReturn(HttpContext c, string expected)
+    private string ReadLoginReturn(HttpContext c, string expected)
     {
         string? value = ReturnCookies.GetRequestCookie(c, ReturnCookie);
         if (expected.Length != 64 || value is not { Length: > 65 and <= 5700 } ||
@@ -202,14 +206,14 @@ internal sealed partial class PlayerPortal(MasterOptions options, AccountStore s
         catch (FormatException) { return "/account"; }
     }
 
-    private static string LoginDestination(string? requested) => requested switch
+    private string LoginDestination(string? requested) => !enableBrowserPrototype ? "/account" : requested switch
     {
         "/play" or "/play/" => "/play/",
         "/play/?lesson=spy-grab" or "/play/?lesson=vision-cancelling" or "/play/?lesson=merc" => requested,
         _ => "/account",
     };
 
-    private static string LoginLink(string? returnTo) => LoginDestination(returnTo) is { } destination && destination != "/account"
+    private string LoginLink(string? returnTo) => LoginDestination(returnTo) is { } destination && destination != "/account"
         ? "/auth/player/login?returnTo=" + U(destination) : "/auth/player/login";
 
     private CookieOptions Cookie(HttpContext c, string path, SameSiteMode sameSite, TimeSpan? maxAge) => new()

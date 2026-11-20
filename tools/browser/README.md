@@ -1,4 +1,6 @@
-# Chrome / WebGPU prototype
+# Local Chrome / WebGPU prototype
+
+The production master has retired the browser game. The loopback lab explicitly enables its routes for development.
 
 The existing C# client and server simulation run in WebAssembly through 2dog
 4.7.2.186 (native payload 4.7.2.175). The default scene is TestRange. The native
@@ -50,19 +52,15 @@ Godot's duplicate request coalesced. Fullscreen keeps the toolbar and coach avai
 
 ## Accounts and hosting
 
-The master serves a bundle at `/play/` when `SVM_BROWSER_GAME_ROOT` points to its
-directory (or an adjacent `browser` directory exists). It negotiates precompressed
-gzip siblings with the correct WASM MIME type and same-origin embedding policy.
-Production sign-in uses the website's existing Discord flow and HttpOnly session
-cookie. `/play/profile` uses that session, CSRF protection, account identity and an
-atomic profile revision check. No account bearer token enters browser storage.
+The loopback lab serves its bundle at `/play/` and provides synthetic website sessions.
+It negotiates precompressed gzip siblings with the correct WASM MIME type.
+`/play/profile` uses the lab session, CSRF protection, account identity and an
+atomic profile revision check.
 
 Settings use the existing desktop `ProfileSync` format, including both role
 binding files. Browser-local files and unsynced edits are separated by account.
 Offline edits stay local and retry; conflicting revisions pause before overwriting
 another device's changes. The player can explicitly choose the account version.
-The live Discord authorization flow has completed successfully on the website.
-The hosted game/profile check is recorded separately from local synthetic tests.
 
 Multiplayer uses the existing online client, lobby, travel and prediction through
 a bounded binary WebSocket transport and a same-origin gateway to registered,
@@ -71,11 +69,11 @@ account tickets are server-scoped. Origin, CSRF, private-master invite keys,
 account bans, queue limits and connection limits are checked. Server passwords
 remain normal game login options. No client-selected UDP address is accepted.
 
-The browser content mirror lives outside versioned game bundles. Run
-`python tools/browser/sync_content.py --output /opt/svm/browser-content` on the host
+The browser content mirror lives outside versioned game bundles. Use
+`python tools/browser/sync_content.py --output local/browser-content --maps Entry AquaE` in the lab
 to fetch the official index, verify published archive sizes and SHA-256 hashes,
 and publish a same-origin map index only after every archive is ready. `--maps
-Entry AquaE` selects a small local fixture. The host serves only `index.json` and
+Entry AquaE` selects a small local fixture. The lab serves only `index.json` and
 hash-addressed ZIPs at `/play/content/`, with range requests and immutable archive
 caching. `SVM_BROWSER_CONTENT_ROOT` overrides the directory. Shared runtime data
 stays in the initial browser bundle; the desktop character archive is over 1 GB.
@@ -91,9 +89,7 @@ navigation build. Tutorial progress is kept in the account's browser-local files
 
 ## Lessons
 
-The wiki's `/wiki/vision-cancelling` and `/wiki/spy-grab` pages load the game on
-demand. Their separate-tab links use `/play/?lesson=vision-cancelling` and
-`/play/?lesson=spy-grab`.
+In the local lab, open `/play/?lesson=vision-cancelling` or `/play/?lesson=spy-grab`.
 
 Vision practice starts on the TestRange tower. The normal physics, goggle input
 and landing states drive feedback. The Walk off button holds forward through the
@@ -198,9 +194,7 @@ Known limits:
   source shelf filters, retaining separate direct/room sends, distance gains,
   authored zone strength and tail lifetime. Its room response approximates EAX.
   TestRange has no map reverb table.
-- The preview is hosted at `https://master.lumbridge.co.uk/play/`.
-  Desktop tutorial changes are tested and committed on this prototype branch, not released.
-  Official-server play needs its exact map version. The preview uses published
+- Official-server play needs its exact map version. The preview uses published
   SteeE 1.0.4, content hash `82760242e4ae1618`, from OpenSCCT-Content; the checkout's
   newer conversion differs. Pass its extracted folder with `-SteeEFolder` to
   Build-Prototype or `--map-source SteeE=FOLDER` to prepare_content.py.

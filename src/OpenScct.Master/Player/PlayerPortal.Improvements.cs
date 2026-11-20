@@ -24,7 +24,7 @@ internal sealed partial class PlayerPortal
     private static string ImprovementsPreview() => """
         <section class="improvements-preview" aria-labelledby="improvements-preview-title">
           <div><p class="eyebrow">FEATURES AND DEVELOPMENT</p>
-            <h2 id="improvements-preview-title">OpenSCCT improvements</h2>
+            <h2 id="improvements-preview-title">OpenSCCT Godot improvements</h2>
             <p>Scoreboards, unlockables, offline bots, replays, community hubs and the map editor.</p>
           </div>
           <a class="button secondary" href="/improvements">View features and improvements →</a>
@@ -36,9 +36,9 @@ internal sealed partial class PlayerPortal
         var body = new StringBuilder("""
             <div class="improvements-page">
             <header class="improvements-heading">
-              <p class="eyebrow">OPENSCCT / FEATURES</p>
-              <h1>OpenSCCT improvements</h1>
-              <p class="lead">Features and settings for matches, equipment, practice, hubs, recordings and player accounts. Each section links to the relevant guide.</p>
+              <p class="eyebrow">MODERNISATIONS / GODOT</p>
+              <h1>OpenSCCT Godot improvements</h1>
+              <p class="lead">Explore features and settings for matches, equipment, practice, recordings and player accounts in the Godot edition.</p>
               <div class="button-row"><a class="text-link" href="/changelog">Latest update notes →</a><a class="text-link" href="/wiki">Read the wiki →</a><a class="text-link" href="/download">Download OpenSCCT →</a></div>
             </header>
             <div class="showcase-strip" aria-label="Screenshots from OpenSCCT">
@@ -108,7 +108,7 @@ internal sealed partial class PlayerPortal
             </dialog>
             </div>
             """);
-        return Show(c, "OpenSCCT improvements", "improvements", body.ToString());
+        return Show(c, "OpenSCCT Godot improvements", "improvements", body.ToString());
     }
 
     private static void AppendStripImage(StringBuilder body, string file, string alt, string label, string caption) =>

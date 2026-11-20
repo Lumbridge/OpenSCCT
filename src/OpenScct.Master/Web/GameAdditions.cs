@@ -136,7 +136,7 @@ internal static class GameAdditions
         [
             // README.md; committed docs/LAUNCHER.md; launcher Install and Update workflows.
             new("launcher", "Windows and Linux launchers", "Native launchers install the game and keep it up to date on Windows and Linux.",
-                ["Download the game, required content and additional maps from the launcher.", "Updates download changed files where available, and the launcher updates itself.", "On Windows, install and update the optional map editor from the separate Editor tab."],
+                ["Build the original Versus maps and assets from your Steam installation. Download additional maps through the launcher.", "Updates download changed files where available, and the launcher updates itself.", "On Windows, install and update the optional map editor under Tools."],
                 "/download", "Download OpenSCCT"),
 
             // docs/CONTENT-PACKS.md; ContentScreen; MapPickerView; committed docs/ONLINE.md, Missing maps.

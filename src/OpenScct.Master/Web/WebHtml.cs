@@ -50,27 +50,28 @@ internal static class WebHtml
             .Append($"<script src=\"{H(AssetUrl("/web/assets/site.js"))}\" defer></script>");
         if (active is "community" or "leaderboards" or "help" or "improvements")
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/community.css"))}\">");
-        if (active is "home" or "projects" or "mods" or "progress" or "tools")
+        if (active is "home" or "projects" or "mods" or "progress" or "tools" or "legal" or "search")
             html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/projects.css"))}\">");
         if (active == "wiki") html.Append($"<link rel=\"stylesheet\" href=\"{H(AssetUrl("/web/assets/wiki.css"))}\">");
         if (active is "home" or "help" or "wiki" or "improvements")
             html.Append("<meta name=\"description\" content=\"").Append(H(active switch
             {
-                "home" => "Play, mod and follow the reconstruction of Splinter Cell: Chaos Theory across PlayStation 2, PC and OpenSCCT Unreal.",
+                "home" => "Play, mod and follow the reconstruction of Splinter Cell: Chaos Theory on PlayStation 2 and PC, and explore the Godot and Unreal modernisations.",
                 "wiki" when editorTheme => "OpenSCCT Editor documentation for map projects, geometry, events, lighting and playtesting.",
                 "wiki" => "OpenSCCT documentation for gameplay, gadgets, hosting, controls and map editing.",
                 "help" => "OpenSCCT installation, troubleshooting and contribution guides.",
                 _ => "OpenSCCT equipment, practice, replays, player statistics and configuration options.",
             })).Append("\">");
         if (active == "account") html.Append("<meta name=\"robots\" content=\"noindex, nofollow\">");
-        html.Append("</head><body class=\"player-site").Append(editorTheme ? " editor-theme" : "").Append("\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
+        html.Append("</head><body class=\"player-site").Append(editorTheme ? " editor-theme" : active == "home" ? " project-home" : "").Append("\"><a class=\"skip-link\" href=\"#main\">Skip to content</a>")
             .Append($"<header class=\"site-header\"><div class=\"header-inner\"><a class=\"site-brand\" href=\"{(editorTheme ? "/wiki/editor" : "/")}\"><img src=\"{H(mark)}\" alt=\"\" width=\"36\" height=\"36\"><span class=\"brand-copy\">{Wordmark}<small>{(editorTheme ? "MAP EDITOR" : "CHAOS THEORY PROJECTS")}</small></span></a>")
+            .Append(active == "home" ? "<form class=\"home-search\" method=\"get\" action=\"/search\" role=\"search\"><label class=\"sr-only\" for=\"home-query\">Search OpenSCCT</label><input id=\"home-query\" name=\"q\" type=\"search\" maxlength=\"96\" placeholder=\"Search projects, tools or guides\"><button type=\"submit\">Search</button></form>" : "")
             .Append("<button class=\"menu-toggle button secondary\" type=\"button\" aria-expanded=\"false\" aria-controls=\"primary-navigation\">Menu</button><nav id=\"primary-navigation\" class=\"primary-nav\" aria-label=\"Main navigation\">");
         foreach ((string url, string label, string key) in new[] { ("/", "Projects", "home"), ("/progress", "Progress", "progress"),
             ("/mods", "Mods", "mods"), ("/tools", "Tools", "tools"), ("/community", "Player hub", "community"),
             ("/wiki", "Wiki", "wiki"), ("/changelog", "Updates", "changelog"), ("/help", "Help", "help") })
             html.Append("<a href=\"").Append(url).Append('"').Append(active == key ? " aria-current=\"page\"" : "").Append('>').Append(label).Append("</a>");
-        html.Append("</nav><div class=\"header-actions\">").Append(Link("/download", "Download", "button compact header-download"));
+        html.Append("</nav><div class=\"header-actions\">").Append(active == "home" ? Link("/mods", "Mods", "button secondary compact home-mods") : "").Append(Link("/download", "Download", "button compact header-download"));
         html.Append(name is not null ? "<a href=\"/account\" class=\"account-link\" aria-label=\"" + H("My account: " + name) + "\">" + H(name) + "</a>" : Link("/account", "Sign in", "account-link"));
         if (isAdmin && name is not null) html.Append(Link("/admin", "Admin", "button secondary compact header-admin"));
         if (name is not null && !string.IsNullOrEmpty(csrf))
@@ -82,7 +83,7 @@ internal static class WebHtml
         html.Append(body).Append("</main><footer class=\"site-footer\"><div><span class=\"footer-brand\">").Append(Wordmark).Append("</span><p>")
             .Append(editorTheme ? "Map creation for OpenSCCT." : "Splinter Cell: Chaos Theory community projects.").Append("</p></div>")
             .Append("<nav aria-label=\"Footer\"><a href=\"/download\">Download</a><a href=\"/wiki\">Wiki</a><a href=\"/improvements\">Improvements</a><a href=\"/changelog\">Updates</a><a href=\"/help\">Help &amp; feedback</a><a href=\"https://github.com/OpenSCCT/OpenSCCT\">Source code</a>")
-            .Append("<a href=\"https://github.com/OpenSCCT/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/OpenSCCT/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
+            .Append("<a href=\"/legal\">Legal</a><a href=\"https://github.com/OpenSCCT/OpenSCCT/blob/main/docs/legal/PRIVACY.md\">Privacy</a><a href=\"https://github.com/OpenSCCT/OpenSCCT/blob/main/docs/legal/TERMS.md\">Terms</a></nav>")
             .Append("<small>Community project. Not affiliated with Ubisoft.</small></footer></body></html>");
         return Results.Content(html.ToString(), "text/html; charset=utf-8", Encoding.UTF8, status);
     }

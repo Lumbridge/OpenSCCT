@@ -63,10 +63,8 @@ public sealed class MasterHost : IAsyncDisposable
         {
             _portal = new Admin.AdminPortal(options, store, registry, ClientIp, () => (RelayForwarded, Introductions), _demos);
             _accounts.AdminCallback = _portal.CallbackAsync;
-            _players = new Player.PlayerPortal(options, store, registry, ClientIp, releases, browserTickets: signer);
+            _players = new Player.PlayerPortal(options, store, registry, ClientIp, releases);
             _accounts.PlayerCallback = _players.CallbackAsync;
-            _accounts.BrowserAuthenticate = _players.AuthenticateGameApi;
-            _accounts.BrowserSignOut = _players.SignOutGameApi;
         }
         _limiter = new RateLimiter(options.RequestsPerMinute);
         _webLimiter = new RateLimiter(options.RequestsPerMinute);
@@ -211,6 +209,12 @@ public sealed class MasterHost : IAsyncDisposable
     {
         _app.Use(async (context, next) =>
         {
+            // Obsolete game clients may retry many assets. Retire the entire prefix before spending a page request.
+            if (context.Request.Path.StartsWithSegments("/play", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Response.StatusCode = StatusCodes.Status410Gone;
+                return;
+            }
             if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase) &&
                 !context.Request.Path.Equals(MasterApi.StatusPath, StringComparison.OrdinalIgnoreCase))
             {
@@ -238,9 +242,6 @@ public sealed class MasterHost : IAsyncDisposable
             }
             else if (!context.Request.Path.StartsWithSegments("/web/assets", StringComparison.OrdinalIgnoreCase) &&
                 !context.Request.Path.StartsWithSegments("/admin/assets", StringComparison.OrdinalIgnoreCase) &&
-                !((HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsHead(context.Request.Method)) &&
-                    context.Request.Path.StartsWithSegments("/play", StringComparison.OrdinalIgnoreCase) &&
-                    System.IO.Path.HasExtension(context.Request.Path.Value)) &&
                 !context.Request.Path.Equals(MasterApi.StatusPath, StringComparison.OrdinalIgnoreCase))
             {
                 // Browsers never receive the game invite key. Their independent budget cannot starve game heartbeats.

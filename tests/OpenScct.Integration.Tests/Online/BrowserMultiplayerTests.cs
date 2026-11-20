@@ -24,18 +24,18 @@ namespace OpenScct.Integration.Tests.Online;
 public sealed class BrowserMultiplayerTests
 {
     [Fact]
-    public async Task BrowserFrameworkDownloadsDoNotExhaustTheDynamicPageBudget()
+    public async Task RetiredBrowserRequestsDoNotExhaustTheDynamicPageBudget()
     {
         CancellationToken ct = TestContext.Current.CancellationToken;
         var options = MasterTests.LocalOptions();
         options.RequestsPerMinute = 2;
         await using var master = await MasterHost.StartAsync(options, cancellationToken: ct);
         using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
-        // This host has no bundle installed. Its missing static asset still must not consume dynamic-page quota.
+        // Stale game clients can retry the same bundle repeatedly after the public game has been retired.
         for (int i = 0; i < 6; i++)
         {
             using var asset = await http.GetAsync("/play/_framework/GodotSharp.dll", ct);
-            Assert.Equal(HttpStatusCode.NotFound, asset.StatusCode);
+            Assert.Equal(HttpStatusCode.Gone, asset.StatusCode);
         }
         for (int i = 0; i < 3; i++)
         {
@@ -63,7 +63,7 @@ public sealed class BrowserMultiplayerTests
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         builder.Logging.ClearProviders();
         await using var app = builder.Build();
-        new PlayerPortal(options, store, registry, _ => IPAddress.Loopback, new ReleaseChangelog()).Map(app);
+        new PlayerPortal(options, store, registry, _ => IPAddress.Loopback, new ReleaseChangelog(), enableBrowserPrototype: true).Map(app);
         await app.StartAsync(ct);
         string origin = app.Urls.Single();
         options.PublicUrl = origin;

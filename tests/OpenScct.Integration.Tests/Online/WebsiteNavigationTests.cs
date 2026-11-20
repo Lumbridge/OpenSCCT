@@ -39,11 +39,12 @@ public sealed class WebsiteNavigationTests
             using var http = new HttpClient { BaseAddress = new Uri(master.HttpAddress) };
             var guides = new HashSet<string>(StringComparer.Ordinal);
             var assets = new HashSet<string>(StringComparer.Ordinal);
-            foreach (string route in new[] { "/", "/community", "/projects/ps2", "/projects/pc", "/projects/unreal",
-                "/progress", "/mods", "/tools", "/help", "/download", "/improvements", "/leaderboards", "/wiki", "/wiki/game", "/wiki/editor" })
+            foreach (string route in new[] { "/", "/community", "/projects/ps2", "/projects/pc", "/projects/godot", "/projects/unreal",
+                "/progress", "/mods", "/tools", "/legal", "/projects/ps2/decomp", "/projects/pc/decomp", "/help", "/download", "/improvements", "/leaderboards", "/wiki", "/wiki/game", "/wiki/editor" })
             {
                 string html = await http.GetStringAsync(route, ct);
                 Assert.Contains("href=\"/wiki\"", html, StringComparison.Ordinal);
+                Assert.Contains("href=\"/legal\"", html, StringComparison.Ordinal);
                 foreach (Match match in Regex.Matches(html, "(?:href|src)=\"([^\"]+)\""))
                 {
                     string target = WebUtility.HtmlDecode(match.Groups[1].Value);
@@ -79,12 +80,32 @@ public sealed class WebsiteNavigationTests
             string home = await http.GetStringAsync("/", ct);
             string progress = await http.GetStringAsync("/progress", ct);
             string mods = await http.GetStringAsync("/mods", ct);
-            foreach (string edition in new[] { "ps2", "pc", "unreal" })
+            foreach (string edition in new[] { "ps2", "pc", "godot", "unreal" })
             {
                 Assert.Contains("href=\"/projects/" + edition + "\"", home, StringComparison.Ordinal);
                 Assert.Contains("id=\"" + edition + "\"", progress, StringComparison.Ordinal);
                 Assert.Contains("id=\"" + edition + "\"", mods, StringComparison.Ordinal);
             }
+            string originals = Regex.Match(home, "<section[^>]+id=\"originals\".*?</section>", RegexOptions.Singleline).Value;
+            string modernisations = Regex.Match(home, "<section[^>]+id=\"modernisations\".*?</section>", RegexOptions.Singleline).Value;
+            Assert.Contains("/projects/ps2", originals, StringComparison.Ordinal);
+            Assert.Contains("/projects/pc", originals, StringComparison.Ordinal);
+            Assert.DoesNotContain("/projects/godot", originals, StringComparison.Ordinal);
+            Assert.Contains("/projects/godot", modernisations, StringComparison.Ordinal);
+            Assert.Contains("/projects/unreal", modernisations, StringComparison.Ordinal);
+            string godot = await http.GetStringAsync("/projects/godot", ct);
+            Assert.Contains("11 match maps", godot, StringComparison.Ordinal);
+            Assert.Contains("your installed Steam copy", godot, StringComparison.Ordinal);
+            Assert.Contains("optional Enhanced variants", godot, StringComparison.Ordinal);
+            foreach (string step in new[] { "Disassemble", "Rewrite", "Verify" })
+                Assert.Contains("<h3>" + step + "</h3>", home, StringComparison.Ordinal);
+            foreach (string title in new[] { "Unofficial", "No game files", "Your own copy" })
+                Assert.Contains("<h3>" + title + "</h3>", home, StringComparison.Ordinal);
+            string search = await http.GetStringAsync("/search?q=spimdisasm", ct);
+            Assert.Contains("href=\"/tools#decomp-tools\"", search, StringComparison.Ordinal);
+            string searchMiss = await http.GetStringAsync("/search?q=%3Cscript%3E", ct);
+            Assert.Contains("No results", searchMiss, StringComparison.Ordinal);
+            Assert.DoesNotContain("<script>", searchMiss, StringComparison.Ordinal);
             Assert.Contains("Full report and sources", home, StringComparison.Ordinal);
             Assert.Contains("Report source", progress, StringComparison.Ordinal);
             Assert.Equal(HttpStatusCode.NotFound, (await http.GetAsync("/projects/unknown", ct)).StatusCode);

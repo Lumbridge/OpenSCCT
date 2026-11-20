@@ -19,6 +19,52 @@ namespace OpenScct.Integration.Tests.Online;
 public sealed class BrowserAccountApiTests
 {
     [Fact]
+    public async Task ProductionRetiresBrowserTransportAndKeepsDesktopAndWebsiteAccountsIndependent()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var directory = Directory.CreateTempSubdirectory("OpenSCCT-retired-browser-");
+        try
+        {
+            var options = MasterTests.LocalOptions();
+            options.Introducer = options.Relay = options.Probe = false;
+            options.Database = Path.Combine(directory.FullName, "accounts.db");
+            options.TicketKeyFile = Path.Combine(directory.FullName, "tickets.pem");
+            options.Discord.ClientId = "fixture-client";
+            options.Discord.ClientSecret = "fixture-secret";
+            await using var master = await MasterHost.StartAsync(options, cancellationToken: ct);
+            using var store = AccountStore.Open(options.Database);
+            var account = store.GetOrCreate("retired-browser-fixture");
+            store.ClaimName(account.Id, "DesktopPlayer", false, out _);
+            string cookie = store.CreatePlayerWebSession(account.Id);
+            using var http = new HttpClient(new HttpClientHandler { UseCookies = false }) { BaseAddress = new Uri(master.HttpAddress) };
+            http.DefaultRequestHeaders.Add("Cookie", "svm_player=" + cookie);
+            http.DefaultRequestHeaders.Add("Origin", master.HttpAddress);
+            http.DefaultRequestHeaders.Add("X-CSRF-Token", store.PlayerWebSession(cookie)!.Csrf);
+            http.DefaultRequestHeaders.Add("X-OpenSCCT-Account", account.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+            foreach (string path in new[] { "/play", "/play/", "/play/content/index.json", "/play/_framework/game.wasm", "/play/profile", "/play/servers", "/play/socket/retired" })
+            {
+                using var result = await http.GetAsync(path, ct);
+                Assert.Equal(HttpStatusCode.Gone, result.StatusCode);
+            }
+            foreach (string path in new[] { "/play/join", "/play/profile" })
+            {
+                using var result = await http.PostAsJsonAsync(path, new { }, ct);
+                Assert.Equal(HttpStatusCode.Gone, result.StatusCode);
+            }
+            using (var asset = await http.SendAsync(new HttpRequestMessage(HttpMethod.Head, "/play/content/old.zip"), ct))
+                Assert.Equal(HttpStatusCode.Gone, asset.StatusCode);
+            using (var gameAccount = await http.GetAsync(MasterApi.AccountPath, ct))
+                Assert.Equal(HttpStatusCode.Unauthorized, gameAccount.StatusCode);
+            Assert.Contains("DesktopPlayer", await http.GetStringAsync("/account", ct), StringComparison.Ordinal);
+            http.DefaultRequestHeaders.Authorization = new("Bearer", store.CreateSession(account.Id));
+            using (var desktop = await http.GetAsync(MasterApi.AccountPath, ct)) desktop.EnsureSuccessStatusCode();
+            using (var health = await http.GetAsync(MasterApi.StatusPath, ct)) health.EnsureSuccessStatusCode();
+        }
+        finally { directory.Delete(recursive: true); }
+    }
+
+    [Fact]
     public async Task NativeAccountPagesUseCookieCsrfAndExpectedAccountWithoutIssuingBearerTokens()
     {
         var ct = TestContext.Current.CancellationToken;
@@ -37,7 +83,7 @@ public sealed class BrowserAccountApiTests
             builder.WebHost.UseUrls(options.HttpUrl);
             builder.Logging.ClearProviders();
             await using var app = builder.Build();
-            var players = new PlayerPortal(options, store, registry, _ => IPAddress.Loopback, new ReleaseChangelog());
+            var players = new PlayerPortal(options, store, registry, _ => IPAddress.Loopback, new ReleaseChangelog(), enableBrowserPrototype: true);
             players.Map(app);
             new AccountApi(options, store, signer, registry, _ => IPAddress.Loopback, TimeProvider.System)
             {

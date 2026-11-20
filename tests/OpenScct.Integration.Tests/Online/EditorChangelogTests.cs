@@ -82,7 +82,7 @@ public sealed class EditorChangelogTests
             Assert.Equal(editorNewer, cards[0].Contains("editor-theme", StringComparison.Ordinal));
             string game = Assert.Single(cards, card => card.Contains("id=\"v1.0.0\"", StringComparison.Ordinal));
             string editor = Assert.Single(cards, card => card.Contains("id=\"editor-v1.0.0\"", StringComparison.Ordinal));
-            Assert.Contains("Game changelog", game, StringComparison.Ordinal);
+            Assert.Contains("Godot and launcher changelog", game, StringComparison.Ordinal);
             Assert.Contains("<h2>OpenSCCT 1.0.0</h2>", game, StringComparison.Ordinal);
             Assert.Contains("Editor changelog", editor, StringComparison.Ordinal);
             Assert.Contains("<h2>OpenSCCT Editor 1.0.0</h2>", editor, StringComparison.Ordinal);

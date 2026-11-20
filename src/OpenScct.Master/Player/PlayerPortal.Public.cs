@@ -39,7 +39,7 @@ internal sealed partial class PlayerPortal
         body.Append("<section class=\"hero community-hero\"><div><p class=\"eyebrow\">OPENSCCT</p><h1>Spies vs.<br><span>Mercenaries</span></h1><p class=\"lead\">")
             .Append(H(welcome)).Append("</p><div class=\"button-row\">").Append(Link("/download", "Download", "button"))
             .Append(Link("/servers", "Servers", "button secondary"))
-            .Append("</div><p class=\"hero-note\">Windows &amp; Linux · No original game required</p><p class=\"hero-guide\">")
+            .Append("</div><p class=\"hero-note\">OpenSCCT Godot · Windows &amp; Linux · Requires Chaos Theory on Steam</p><p class=\"hero-guide\">")
             .Append(Link("/wiki/getting-started", "Getting started", "text-link")).Append("</p></div>")
             .Append(HomeShowcase()).Append("</section>")
             .Append("<div data-live=\"home-stats\"><div class=\"stats-grid\">")
@@ -56,7 +56,7 @@ internal sealed partial class PlayerPortal
         body.Append(Section("Games and hubs online", "<div data-live=\"home-servers\">" + ServerTable(servers.Take(4)) + "</div>",
             "<div class=\"button-row\">" + LiveStatus + Link("/servers", "All games and hubs", "text-link") + "</div>"));
         body.Append(Section("Getting started", "<div class=\"grid-three\">" +
-            Feature("01", "Install", "Download the launcher for your platform. It installs the game and content and checks for updates.", "/download", "Downloads") +
+            Feature("01", "Install", "Download the launcher for your platform. Choose OpenSCCT Godot to build its assets and original Versus maps from your Steam installation.", "/download", "Downloads") +
             Feature("02", "Practice", "Offline bots and practice settings are available for testing controls, gadgets and map objectives.", "/wiki/practice", "Tutorials and practice") +
             Feature("03", "Join a session", "The server browser lists games and social hubs. Sign in inside the game when a server requires an account.", "/servers", "Games and hubs") + "</div>"));
         body.Append(ImprovementsPreview());

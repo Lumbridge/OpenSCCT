@@ -30,7 +30,7 @@ public sealed class BrowserContentTests
         string json = Index("/play/content/" + new string('a', 64) + ".zip");
         Assert.Empty(ContentIndex.Parse(json).Maps);
         var browser = ContentIndex.Parse(json, new Uri("https://master.example/play/content/index.json"));
-        Assert.Equal("https://master.example/play/content/" + new string('a', 64) + ".zip", Assert.Single(browser.Maps).Full.Url);
+        Assert.Equal("https://master.example/play/content/" + new string('a', 64) + ".zip", Assert.Single(browser.Maps).Full!.Url);
         Assert.Single(ContentIndex.Parse(json, new Uri("http://127.0.0.1:8878/play/content/index.json")).Maps);
         Assert.Empty(ContentIndex.Parse(json, new Uri("http://master.example/play/content/index.json")).Maps);
         Assert.Empty(ContentIndex.Parse(Index("//other.example/archive.zip"), new Uri("https://master.example/")).Maps);
@@ -57,7 +57,7 @@ public sealed class BrowserContentTests
             builder.Logging.ClearProviders();
             await using var app = builder.Build();
             new PlayerPortal(options, store, new ServerRegistry(options), _ => IPAddress.Loopback,
-                new ReleaseChangelog(), browserContentRoot: root.FullName).Map(app);
+                new ReleaseChangelog(), browserContentRoot: root.FullName, enableBrowserPrototype: true).Map(app);
             await app.StartAsync(ct);
             using var client = new HttpClient { BaseAddress = new Uri(app.Urls.Single()) };
             using (var index = await client.GetAsync("/play/content/index.json", ct))

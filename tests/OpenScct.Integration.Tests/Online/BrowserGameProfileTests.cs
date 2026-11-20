@@ -86,7 +86,7 @@ public sealed class BrowserGameProfileTests
             builder.Logging.ClearProviders();
             await using var app = builder.Build();
             new PlayerPortal(options, store, new ServerRegistry(options), _ => IPAddress.Loopback,
-                new ReleaseChangelog(), browserGameRoot: root.FullName).Map(app);
+                new ReleaseChangelog(), browserGameRoot: root.FullName, enableBrowserPrototype: true).Map(app);
             await app.StartAsync(ct);
             using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { BaseAddress = new Uri(app.Urls.Single()) };
             using var redirect = await client.GetAsync("/play", ct);
@@ -134,7 +134,7 @@ public sealed class BrowserGameProfileTests
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         builder.Logging.ClearProviders();
         await using var app = builder.Build();
-        new PlayerPortal(options, store, new ServerRegistry(options), _ => IPAddress.Loopback, new ReleaseChangelog()).Map(app);
+        new PlayerPortal(options, store, new ServerRegistry(options), _ => IPAddress.Loopback, new ReleaseChangelog(), enableBrowserPrototype: true).Map(app);
         await app.StartAsync(ct);
         using var guest = new HttpClient { BaseAddress = new Uri(app.Urls.Single()) };
         using var guestState = JsonDocument.Parse(await guest.GetStringAsync("/play/profile", ct));
