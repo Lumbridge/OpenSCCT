@@ -5738,6 +5738,22 @@
     }
   },
   {
+    "id": "cursor-advance-448d80",
+    "size": 23,
+    "offset": 4492672,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_16@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x448d80. Increments the count, advances the cursor by 16 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "684bae566db877489ff1fbed56b7629db8e1a39d852ed478045b44704ca22317",
+      "inputs_sha256": "32abd428a1a6957c343b37786be3709105ff1222be72bd1008e08906c3c3d70f"
+    }
+  },
+  {
     "id": "vector-insert-one-448e00",
     "size": 72,
     "offset": 4492800,

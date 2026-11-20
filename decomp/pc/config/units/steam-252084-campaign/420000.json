@@ -2455,6 +2455,374 @@
     }
   },
   {
+    "id": "cursor-advance-426ef0",
+    "size": 23,
+    "offset": 4353776,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_36@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426ef0. Increments the count, advances the cursor by 36 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "53a9138ce53e9bb931f64dcfdfdab6ec66bcb97b86e753c7849665621f8f8edc",
+      "inputs_sha256": "fcfca73073dab7d7bfd54f4b2dc567a24dddc2010ba9fcb1000bea52182c9e13"
+    }
+  },
+  {
+    "id": "cursor-advance-426f10",
+    "size": 23,
+    "offset": 4353808,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_64@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426f10. Increments the count, advances the cursor by 64 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "42a205b7a1df0a8ace4748f1855ce7cdd983638057110af7467955c492dbedb1",
+      "inputs_sha256": "5770721508ebd8e4e47e6a7abcfbd0e5b6dc30813ab0f1b0feb6a1f48b4b83a6"
+    }
+  },
+  {
+    "id": "cursor-advance-426f30",
+    "size": 23,
+    "offset": 4353840,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_12@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426f30. Increments the count, advances the cursor by 12 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "64c5f3b0bc9259066fdf393716b8bf18754c96c6ad417b4ed9ac852016c697bc",
+      "inputs_sha256": "bf95201197a549ecd27207eb1880675093afd6639cce359e600763a093f6febe"
+    }
+  },
+  {
+    "id": "cursor-advance-426f50",
+    "size": 23,
+    "offset": 4353872,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426f50. Increments the count, advances the cursor by 80 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "5ef375cc11e173ae93411953196a0253e05497335d3e2ce1f3b2273d99b99078",
+      "inputs_sha256": "e979e6a41d7f5f85db4b0bb5f874484821edb5dfef50cc10c04ee8837bcd620a"
+    }
+  },
+  {
+    "id": "cursor-advance-426f70",
+    "size": 23,
+    "offset": 4353904,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_52@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426f70. Increments the count, advances the cursor by 52 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "f379a55f1b33726dba7a33626170bfae189fdce76b82c9ecfd98875248708b5d",
+      "inputs_sha256": "957d41900497990872757fd1d761676292fa54d3c09ddf5f4aa3f0c6a239c6a6"
+    }
+  },
+  {
+    "id": "cursor-advance-426f90",
+    "size": 23,
+    "offset": 4353936,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_88@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426f90. Increments the count, advances the cursor by 88 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "2b92ceed1167b7bf1385851cbaa1b873712cbd82459909415b2f218130186290",
+      "inputs_sha256": "f0e0c322435ff6a312624bfd61571f04e36f9f440c8e85eae2a3b3036de9718d"
+    }
+  },
+  {
+    "id": "cursor-advance-426fb0",
+    "size": 23,
+    "offset": 4353968,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_92@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426fb0. Increments the count, advances the cursor by 92 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "d60f8e01040fd4b87dac0c672ebc522209c8e6f7181291ed7f71641f57b5f529",
+      "inputs_sha256": "400a5f373e7ae320c1c84e23d82073af28565a0dd5b78ca91aeb7d9448bfc4aa"
+    }
+  },
+  {
+    "id": "cursor-advance-426fd0",
+    "size": 23,
+    "offset": 4354000,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_28@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426fd0. Increments the count, advances the cursor by 28 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "e697c1baeb19d4ff2023e55b2a6fc04f3429a268516ceb3588a4959d89e8ce97",
+      "inputs_sha256": "2125a88e79326828fa8745caab4e65d8831345118e47fda267ed24b047074ae8"
+    }
+  },
+  {
+    "id": "cursor-advance-426ff0",
+    "size": 23,
+    "offset": 4354032,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_80@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x426ff0. Increments the count, advances the cursor by 80 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "5ef375cc11e173ae93411953196a0253e05497335d3e2ce1f3b2273d99b99078",
+      "inputs_sha256": "d8e2403373cf1aa75a97e5237a5e5afa3f4e1f4dfabb166ae62e9bdecb65a42f"
+    }
+  },
+  {
+    "id": "cursor-advance-427010",
+    "size": 23,
+    "offset": 4354064,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_84@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427010. Increments the count, advances the cursor by 84 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "97d7f4bb774d9e7b69b7903a137785c802009820c3ffb71d60593da60d23067f",
+      "inputs_sha256": "ebd7c78a691efbabeef293362dacfe2265bb69b81f9a4f25ce3bf2627e7d575a"
+    }
+  },
+  {
+    "id": "cursor-advance-427030",
+    "size": 23,
+    "offset": 4354096,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_52@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427030. Increments the count, advances the cursor by 52 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "f379a55f1b33726dba7a33626170bfae189fdce76b82c9ecfd98875248708b5d",
+      "inputs_sha256": "6add5afbe1047a216a1e1cf242cad0f95d5d69e602a29cc01c6b79ad806f9860"
+    }
+  },
+  {
+    "id": "cursor-advance-427050",
+    "size": 23,
+    "offset": 4354128,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_92@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427050. Increments the count, advances the cursor by 92 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "d60f8e01040fd4b87dac0c672ebc522209c8e6f7181291ed7f71641f57b5f529",
+      "inputs_sha256": "68b3708057b2a365ece446d89f82d50a6b451ffa392e4a26379d5197235e0b6c"
+    }
+  },
+  {
+    "id": "cursor-advance-427070",
+    "size": 23,
+    "offset": 4354160,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_40@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427070. Increments the count, advances the cursor by 40 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "92a3377cceade994b4f267273db9dec3082d520f107bad41433a2ebf030b273d",
+      "inputs_sha256": "463f10b6a724bd53574635b00521fd32c6b14c129815b6f233f3678f49b44591"
+    }
+  },
+  {
+    "id": "cursor-advance-427090",
+    "size": 26,
+    "offset": 4354192,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_204@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427090. Increments the count, advances the cursor by 204 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "5fb10d20ce44522ab01d8d077e5a493f041c1e1b9e6206fc7916c92d54453d2c",
+      "inputs_sha256": "8b6b5b02674e371b90d3a559c24c022d19d3cdc521b678407fcdfbac8b7a03a6"
+    }
+  },
+  {
+    "id": "cursor-advance-4270b0",
+    "size": 23,
+    "offset": 4354224,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_16@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x4270b0. Increments the count, advances the cursor by 16 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "684bae566db877489ff1fbed56b7629db8e1a39d852ed478045b44704ca22317",
+      "inputs_sha256": "5de227d2c106816cce47a07d1f1b1e090c33724a0ee905edbaaa9c13e6b19057"
+    }
+  },
+  {
+    "id": "cursor-advance-4270d0",
+    "size": 23,
+    "offset": 4354256,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_28@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x4270d0. Increments the count, advances the cursor by 28 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "e697c1baeb19d4ff2023e55b2a6fc04f3429a268516ceb3588a4959d89e8ce97",
+      "inputs_sha256": "8aeed85a496fcd788ad3b430318a1c8bfb89a74f2a3be460029534558c2ff41c"
+    }
+  },
+  {
+    "id": "cursor-advance-4270f0",
+    "size": 26,
+    "offset": 4354288,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_208@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x4270f0. Increments the count, advances the cursor by 208 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "9722c47d8be21683a3d22b8210005c3054e04c7f2f37e4b870efdc5d1788663e",
+      "inputs_sha256": "5eb1b0de56a1bff8275b70444a62933ff6dc8c0443487b7844be61dab45d913a"
+    }
+  },
+  {
+    "id": "cursor-advance-427110",
+    "size": 23,
+    "offset": 4354320,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_36@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427110. Increments the count, advances the cursor by 36 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "53a9138ce53e9bb931f64dcfdfdab6ec66bcb97b86e753c7849665621f8f8edc",
+      "inputs_sha256": "a5b001a9357da6c62365ef1bcca8fb8f967c4120c1ae8b6e622a6d76ed5e66d9"
+    }
+  },
+  {
+    "id": "cursor-advance-427130",
+    "size": 26,
+    "offset": 4354352,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_192@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427130. Increments the count, advances the cursor by 192 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "d40acd066f2463432846fb4f9ab10c92facf8633c3ba38f4f8d7a264ca67efcf",
+      "inputs_sha256": "205f1920ebf16583db8655f1b41f0471a6b83c95614e7bcd1bf197ba79a5f883"
+    }
+  },
+  {
+    "id": "cursor-advance-427150",
+    "size": 23,
+    "offset": 4354384,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_84@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427150. Increments the count, advances the cursor by 84 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "97d7f4bb774d9e7b69b7903a137785c802009820c3ffb71d60593da60d23067f",
+      "inputs_sha256": "9c671f8ee796b3412295fde91e8f35b25dcc1b59dcdeccbe9306af8600fda74d"
+    }
+  },
+  {
+    "id": "cursor-advance-427170",
+    "size": 23,
+    "offset": 4354416,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_84@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427170. Increments the count, advances the cursor by 84 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "97d7f4bb774d9e7b69b7903a137785c802009820c3ffb71d60593da60d23067f",
+      "inputs_sha256": "bc7f990d25e38f192c59c59a0cfbddd219bcf1b00405d48fda597fb5044a32ae"
+    }
+  },
+  {
+    "id": "cursor-advance-427190",
+    "size": 23,
+    "offset": 4354448,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_92@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x427190. Increments the count, advances the cursor by 92 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "d60f8e01040fd4b87dac0c672ebc522209c8e6f7181291ed7f71641f57b5f529",
+      "inputs_sha256": "9aaa9a9b0d1684210431f0ef90e01ec5c20c0b56b5db7b48fdc9bd8ef337bc29"
+    }
+  },
+  {
+    "id": "cursor-advance-4271b0",
+    "size": 23,
+    "offset": 4354480,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_28@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x4271b0. Increments the count, advances the cursor by 28 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "e697c1baeb19d4ff2023e55b2a6fc04f3429a268516ceb3588a4959d89e8ce97",
+      "inputs_sha256": "c7fa9bb3f2b52daa812a2ca62f0a2ee578910c7e1e32cf36e24eaa4b1e19853e"
+    }
+  },
+  {
     "id": "pool-take-4271d0",
     "size": 51,
     "offset": 4354512,

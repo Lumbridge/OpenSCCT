@@ -1917,6 +1917,22 @@
     }
   },
   {
+    "id": "cursor-advance-463480",
+    "size": 23,
+    "offset": 4600960,
+    "inputs": [
+      "src/campaign_cursor_advance.c"
+    ],
+    "rebuilt_symbol": "@advance_16@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_cursor_advance.obj src/campaign_cursor_advance.c",
+    "identification": "Complete cursor method at RVA 0x463480. Increments the count, advances the cursor by 16 bytes and returns its previous position.",
+    "match": {
+      "bytes_sha256": "684bae566db877489ff1fbed56b7629db8e1a39d852ed478045b44704ca22317",
+      "inputs_sha256": "5626d7c33bfafda929591f0fe3374af4f9d7f3690a467ab7605d296b4588df43"
+    }
+  },
+  {
     "id": "clear-owned-storage-4634e0",
     "size": 42,
     "offset": 4601056,
