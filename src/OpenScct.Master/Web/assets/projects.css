@@ -200,3 +200,7 @@
 .home-suggestions[hidden] { display: none; }
 .home-suggestions a { display: block; padding: .55rem .7rem; border-radius: 5px; color: #f3f6ef; text-decoration: none; line-height: 1.2; }
 .home-suggestions a:focus, .home-suggestions a:hover { background: #343c33; }
+.home-suggestions { max-height: min(50dvh, 23rem); overflow-y: auto; }
+.home-suggestions small { display: block; margin-top: .25rem; color: #bac6b8; }
+.home-suggestions [aria-selected="true"] { background: #343c33; }
+.home-suggestions .search-hint { padding: .55rem .7rem; color: #bac6b8; }

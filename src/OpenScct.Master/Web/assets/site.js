@@ -361,50 +361,86 @@
   const form = input.form;
   let timer;
   let request;
+  let selected = -1;
   function hide() {
     clearTimeout(timer);
     request?.abort();
+    selected = -1;
     results.hidden = true;
     results.replaceChildren();
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
   }
-  input.addEventListener("input", () => {
+  function message(text) {
+    const row = document.createElement("li");
+    row.textContent = text;
+    row.className = "search-hint";
+    results.append(row);
+  }
+  function refresh() {
     hide();
     const query = input.value.trim();
-    if (query.length < 2) return;
+    results.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    if (query.length < 2) {
+      message("Type at least two letters. Use the arrow keys to choose a result.");
+      return;
+    }
+    message("Searching.");
     timer = setTimeout(async () => {
       request = new AbortController();
       const signal = request.signal;
       try {
         const response = await fetch("/search/suggestions?q=" + encodeURIComponent(query), { signal });
-        if (!response.ok) return;
+        if (!response.ok) throw new Error();
         const items = await response.json();
-        if (signal.aborted || !form.contains(document.activeElement)) return;
+        if (signal.aborted || document.activeElement !== input) return;
+        results.replaceChildren();
         for (const item of items) {
           const row = document.createElement("li");
+          row.setAttribute("role", "presentation");
           const link = document.createElement("a");
           link.href = item.url;
+          link.id = "search-option-" + results.children.length;
+          link.setAttribute("role", "option");
+          link.tabIndex = -1;
           link.textContent = item.name;
+          const detail = document.createElement("small");
+          detail.textContent = item.detail;
+          link.append(detail);
           row.append(link);
           results.append(row);
         }
-        results.hidden = items.length === 0;
+        if (!items.length) message("No matches. Try a different search.");
       } catch {
-        // The regular search form works when suggestions are unavailable.
+        if (!signal.aborted) {
+          results.replaceChildren();
+          message("Suggestions unavailable. Press Enter to search.");
+        }
       }
     }, 140);
-  });
-  form.addEventListener("keydown", (event) => {
+  }
+  input.addEventListener("input", refresh);
+  input.addEventListener("focus", refresh);
+  input.addEventListener("click", () => { if (results.hidden) refresh(); });
+  input.addEventListener("keydown", event => {
+    if (event.isComposing || results.hidden) return;
+    const links = results.querySelectorAll("a");
     if (event.key === "Escape") {
-      input.focus();
+      event.preventDefault();
       hide();
-      return;
+    } else if (links.length && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+      event.preventDefault();
+      links[selected]?.setAttribute("aria-selected", "false");
+      selected = event.key === "ArrowDown" ? (selected + 1) % links.length :
+        (selected <= 0 ? links.length - 1 : selected - 1);
+      links[selected].setAttribute("aria-selected", "true");
+      input.setAttribute("aria-activedescendant", links[selected].id);
+      links[selected].scrollIntoView({ block: "nearest" });
+    } else if (event.key === "Enter" && links.length) {
+      event.preventDefault();
+      links[Math.max(selected, 0)].click();
     }
-    if (results.hidden || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
-    const links = Array.from(results.querySelectorAll("a"));
-    const index = links.indexOf(document.activeElement);
-    const next = index + (event.key === "ArrowDown" ? 1 : -1);
-    event.preventDefault();
-    (links[next] || input).focus();
   });
   form.addEventListener("focusout", () => {
     requestAnimationFrame(() => {
