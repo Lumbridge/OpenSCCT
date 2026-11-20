@@ -252,6 +252,76 @@
     }
   },
   {
+    "id": "mesh-sequence-first-group",
+    "size": 38,
+    "offset": 859280,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_first_group@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcc0. Reconstructs the sequence first group accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "9f281990092b89e69091d28f76c12f727cbe6634d29b5744d8a7b85d1a57b2d5",
+      "inputs_sha256": "0b66eb82f16a7f77fb1ce939c9e16c426c8baffdda0c44c70162efde15259f1f"
+    }
+  },
+  {
+    "id": "mesh-sequence-notify-count",
+    "size": 19,
+    "offset": 859456,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_notify_count@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcd0. Reconstructs the sequence notify count accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "14e68269fa9c5dee16a26dcf4d7e176956d737507a403ac117de13cf390d5a00",
+      "inputs_sha256": "3e887f85164a5474879c0d1001a522c4beefbf4d468af3a39d59b963be0a98a0"
+    }
+  },
+  {
+    "id": "mesh-sequence-notify-time",
+    "size": 33,
+    "offset": 859488,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_notify_time@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float returned for a missing sequence."
+      }
+    },
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcd4. Reconstructs the sequence notify time accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "af9754d9f4d2b9e95cb6d14f5a171a9880764b9025b1c74f654926bca977504b",
+      "inputs_sha256": "a77279ba64ce9d8694612becacfc7408ac5989b7592f102a3e2a3b01bc173d48"
+    }
+  },
+  {
+    "id": "mesh-sequence-notify-name",
+    "size": 44,
+    "offset": 859632,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_notify_name@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcdc. Reconstructs the sequence notify name accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "5361fd27d517dda6538744ee1a170c739126362f079cdb59ff8896491cf97784",
+      "inputs_sha256": "5285eb983e4bc9923bd25bb60327cd6da3f4b5b375e2f58d615af19c12a2fc4a"
+    }
+  },
+  {
     "id": "append-fsarray-word-0d7750",
     "size": 38,
     "offset": 882512,

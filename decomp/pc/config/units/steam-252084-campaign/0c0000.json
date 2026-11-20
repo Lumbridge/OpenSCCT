@@ -2283,6 +2283,82 @@
     }
   },
   {
+    "id": "mesh-sequence-name",
+    "size": 32,
+    "offset": 820256,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_name@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcb8. Reconstructs the sequence name accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "f5f71d2d1831928e1d58782d88646ab6e9857ea2080926d59ef2cc059fa009db",
+      "inputs_sha256": "115e4de367e87dab3db73743309c9f5aa0b5fb07e5b0d9e8de965a683c407c7d"
+    }
+  },
+  {
+    "id": "mesh-sequence-field-28",
+    "size": 19,
+    "offset": 820288,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_field_28@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcbc. Reconstructs the sequence field 28 accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "e5c0c99c59be13175e4fdda4dc37d17afdb8ab222d7660f8ecb1b3f419e3943b",
+      "inputs_sha256": "37a6287b915d91f2ad40f015199e32f5e69eb8c7c997f39e0df70fafa4d31355"
+    }
+  },
+  {
+    "id": "mesh-sequence-frame-count",
+    "size": 23,
+    "offset": 820320,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_frame_count@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float returned for a missing sequence."
+      }
+    },
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfcc8. Reconstructs the sequence frame count accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "8395c44c621c94d72cd138d37f37091b683f976ab386a514c7dfb702bfe50912",
+      "inputs_sha256": "d5dba89eb318a8db5876cdb4cc8c6e8b5e40ee7214cec7cb526f087897c0c088"
+    }
+  },
+  {
+    "id": "mesh-sequence-rate",
+    "size": 23,
+    "offset": 820384,
+    "inputs": [
+      "src/campaign_animation_sequences.c"
+    ],
+    "rebuilt_symbol": "@sequence_rate@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_animation_sequences.obj src/campaign_animation_sequences.c",
+    "link_bindings": {
+      "_zero_value": {
+        "va": 285966880,
+        "basis": "Read-only zero float returned for a missing sequence."
+      }
+    },
+    "identification": "Campaign mesh animation method pointer at RVA 0x7cfccc. Reconstructs the sequence rate accessor from its complete retail body.",
+    "match": {
+      "bytes_sha256": "51ad8afcd352330bb89e0a2371538d9d3c1cfc472122f80baf954009f6774da8",
+      "inputs_sha256": "d876c32e1a044f2df84557caa758b309b9061f1a2d085f90966885d531aba2ba"
+    }
+  },
+  {
     "id": "class-registration-uaniminfo",
     "offset": 828576,
     "size": 264,
