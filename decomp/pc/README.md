@@ -74,6 +74,8 @@ applies the compiler's i386 DIR32 and REL32 relocations at the function's
 retail address. It compares the entire linked section, including address
 operands and call displacements. Microsoft's linker independently reproduced
 the campaign vector-product, stereo panning and directory-function bodies.
+When the compiler emits a pooled constant, the verifier first compares its
+complete object section to read-only data at the declared retail address.
 The object shows where an address is needed. The locked reference supplies
 the bytes used only in the final equality check.
 

@@ -15,7 +15,7 @@ def section(name, offset, size, address, code, data):
     return dict(name=name, offset=offset, size=size, address=address, code=code)
 
 
-def pe_sections(data):
+def pe_file_sections(data):
     header, = struct.unpack_from("<I", data, 60)
     if data[header:header + 4] != b"PE\0\0":
         raise ValueError("invalid PE signature")
@@ -30,9 +30,25 @@ def pe_sections(data):
         name, virtual_size, rva, raw_size, offset = struct.unpack_from("<8s4I", data, at)
         flags, = struct.unpack_from("<I", data, at + 36)
         size = min(raw_size, virtual_size or raw_size)
-        if flags & 0x20000000 and size:
+        if size:
+            yield name, offset, size, base + rva, flags
+
+
+def pe_sections(data):
+    for name, offset, size, address, flags in pe_file_sections(data):
+        if flags & 0x20000000:
             code = bool(flags & 0x20) and not (flags & 0x80000000)
-            yield section(name.strip(b"\0").decode("ascii"), offset, size, base + rva, code, data)
+            yield section(name.strip(b"\0").decode("ascii"), offset, size, address, code, data)
+
+
+def readonly_pe_data(data, address, size):
+    """Read a complete constant from file-backed, non-executable, read-only PE data."""
+    for _, offset, length, base, flags in pe_file_sections(data):
+        relative = address - base
+        if 0 <= relative and relative + size <= length and flags & 0xe0000040 == 0x40000040:
+            first, end = span(offset + relative, size, len(data))
+            return data[first:end]
+    raise ValueError("constant lies outside a file-backed read-only data section")
 
 
 def elf_sections(data):

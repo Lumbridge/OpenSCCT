@@ -9,7 +9,7 @@ import struct
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from images import coff_symbol_offset, inspect, span
+from images import coff_symbol_offset, inspect, readonly_pe_data, span
 from link_x86 import link_function
 
 
@@ -161,14 +161,16 @@ def verify(target, original):
     return data
 
 
-def built_unit_bytes(target, unit, output):
+def built_unit_bytes(target, unit, output, original=None):
     """Obtain the complete function at its specified position in the linked image."""
     if "link_bindings" in unit:
         a, b = span(unit["offset"], unit["size"], target["image"]["size"])
         for s in target["image"]["executable_sections"]:
             if s["code"] and s["offset"] <= a < b <= s["offset"] + s["size"]:
                 address = s["address"] + a - s["offset"]
-                return link_function(output, unit["rebuilt_symbol"], unit["size"], address, unit["link_bindings"])
+                read_constant = None if original is None else lambda va, size: readonly_pe_data(original, va, size)
+                return link_function(output, unit["rebuilt_symbol"], unit["size"], address, unit["link_bindings"],
+                                     read_constant=read_constant)
         raise ValueError("link address outside a measured code section")
     offset = (coff_symbol_offset(output, unit["rebuilt_symbol"], unit["size"])
               if "rebuilt_symbol" in unit else unit["rebuilt_offset"])
@@ -179,7 +181,7 @@ def built_unit_bytes(target, unit, output):
 def compare_unit(folder, target, unit, original, output):
     """Compare a complete built unit against an already verified reference image."""
     a, b = span(unit["offset"], unit["size"], len(original))
-    body = built_unit_bytes(target, unit, output)
+    body = built_unit_bytes(target, unit, output, original)
     if original[a:b] != body:
         raise ValueError(f"{unit['id']}: compiler output differs from retail")
     return dict(bytes_sha256=hashlib.sha256(body).hexdigest(),

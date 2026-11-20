@@ -97,7 +97,7 @@ def compare(manifest, data, unit_id, rebuilt, objdiff):
     out.mkdir(parents=True, exist_ok=True)
     target, report = out / "retail.obj", out / "objdiff.json"
     target.write_bytes(retail_coff(symbol, body))
-    compiled = built_unit_bytes(manifest, unit, candidate)
+    compiled = built_unit_bytes(manifest, unit, candidate, data)
     if "link_bindings" in unit:
         rebuilt = out / "linked.obj"
         rebuilt.write_bytes(retail_coff(symbol, compiled))

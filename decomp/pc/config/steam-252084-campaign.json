@@ -78,7 +78,7 @@
       "identification": "Named retail export ?PostBeginPlay@AEMusic@@UAEXXZ at RVA 0x307310; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "935755cfccbf90c8db78809fad5254b330bce7fc393acbaa4eba5604d695625e",
-        "inputs_sha256": "323778e6a3e189e768a8ecffb99663fd200b0e5617f0bec02ef732f7dfea9958"
+        "inputs_sha256": "49f3bca51b0296468550f1b9184e0629dd6f9f95380b825fa85798a85e65bf82"
       }
     },
     {
@@ -104,7 +104,7 @@
       "identification": "Named retail export ?PostBeginPlay@AEGenerator@@UAEXXZ at RVA 0x34f730; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "73a1be6f414557c0b551a0117cc2b286403c0d6da4edd53ddc33e4ec95bdd0af",
-        "inputs_sha256": "32f6bfd47b46aca349b44316b43a1e9482e76743bd353cac69b167e464f90301"
+        "inputs_sha256": "f992f8f069a0b3c4bfb4b4a6b22f9028f965a11a12dc9b66b23a9466d16227e9"
       }
     },
     {
@@ -398,7 +398,7 @@
       },
       "match": {
         "bytes_sha256": "a2132d3c50a9102f62581804301c2710197604e1e6aeadd7e7c9dd1e888aa3a0",
-        "inputs_sha256": "0bf12df31c1625083d623640a7d82d58e82dce31b3e3f271efea8d27fc806801"
+        "inputs_sha256": "9ea2fe1e4a66b27815f7bb88aa3758438b2c61b4f4bd78675f4c1f667c42a8c5"
       }
     },
     {
@@ -424,7 +424,7 @@
       },
       "match": {
         "bytes_sha256": "09f87ee9c972dae98e2e770dee4768eaf0a61a51f2ed43587b3971ceb330e73c",
-        "inputs_sha256": "502534fb247242b0ddeedf3fce05ec4fcc20aa90d93bce83144670c476c44099"
+        "inputs_sha256": "8b7b933d42a5a14023a5a8cea3c1c76f772c0581865e12fb7bedf01bee86c690"
       }
     },
     {
@@ -446,7 +446,7 @@
       },
       "match": {
         "bytes_sha256": "d884d7d5b07f0c993521829f43df93faa5e5d115038a66a90dc72ac1b826c3ce",
-        "inputs_sha256": "503ffbc0780c865d1902cfe331004590b887ab1cf9f6e32813634b33c11f6bc2"
+        "inputs_sha256": "dce426be622e6644174b73482cdbb0ce428c9fe2fff83a45d42c99327953b07b"
       }
     },
     {
@@ -476,7 +476,7 @@
       },
       "match": {
         "bytes_sha256": "58f7a2407908a4eecf62135fbabac6ceb43759370b94e552e4b14024105638c4",
-        "inputs_sha256": "5ab82335ef8a4449d0223dc8c17c7f035e7cf8deb8c6501a2c0e85cfb62eba8c"
+        "inputs_sha256": "047f5f2997b84dfe2f556ae4baea79a0a2300cb86e0eb852578ba2023d8c83a6"
       }
     },
     {
@@ -498,7 +498,7 @@
       },
       "match": {
         "bytes_sha256": "48d0f4e1d3ac6ff9cdbc9af0178f55d9978e4fe8b7ad9a58cd40019db9880ef2",
-        "inputs_sha256": "1dc95e7f93b227e992f6efdd127695bb50abb8f061fb9ae9ac1cbd617663d12f"
+        "inputs_sha256": "779e4af637b5661897536e00d3f3b6a9c4f13440cd264c5159f0bdeefa23a510"
       }
     },
     {
@@ -520,7 +520,7 @@
       },
       "match": {
         "bytes_sha256": "d8699995640c4c6fedfea57e319535cacbaa1c50f205f93ef685ed611a44784d",
-        "inputs_sha256": "8e57706db12d598ec2221e4e28c80a8e45648907eaac8d92d2a93b9f9ed12762"
+        "inputs_sha256": "05f0f77c1c09e54a0246fa0da78b45b50e449b5ceb399a430a424a413f58161f"
       }
     },
     {
@@ -546,7 +546,7 @@
       },
       "match": {
         "bytes_sha256": "0cb9703d8849864c85ef051edce7d6265985ddd045e8f73d2c13feaf4e70a69d",
-        "inputs_sha256": "d9b738166c5eaaa26ac69e56f57cc8d7de73a765bf644436b7599a8a2841d1d7"
+        "inputs_sha256": "c1f7029bd78331d3670fd66f57b09bd5eab954b33edc03e7985eeefa2fe477d6"
       }
     },
     {
@@ -572,7 +572,7 @@
       },
       "match": {
         "bytes_sha256": "a324abccdeb0eb1eae2b43e3fdaa786632277c9b1f51b09900403b53bd7fafe5",
-        "inputs_sha256": "b8b2149a8051ed89eb9b85594d2221c56a89f1656af4bf24f5cefa042091b59e"
+        "inputs_sha256": "bf330c71de9219dd9e5b673bf85c7c74d7784b404cc4b18856fdd5105b976616"
       }
     },
     {
@@ -650,7 +650,7 @@
       },
       "match": {
         "bytes_sha256": "50d41c9bd1091a383152088dd6950f5d50a2e8d6341d884e9caf2b1b9c99a801",
-        "inputs_sha256": "d476d0045ca96c83e0181a0cbbd9fae7fb226d4449b0e54d38f2b3a7a09f7552"
+        "inputs_sha256": "dfff8922e0dd68a5e2a985aeb966178fe76b68103fa14ebb0ad0376eaa18fc98"
       }
     },
     {
@@ -680,7 +680,7 @@
       },
       "match": {
         "bytes_sha256": "7a0bd9593d0ac9e30eef56c850b46cb79ccc0b4004d584373b734aa49400811a",
-        "inputs_sha256": "9a5dd38fcd819b652a491f3979451353c0eade44b4c7804116764a9ab18161fe"
+        "inputs_sha256": "cc0c6a5753576a25a04ca41ba05ce4277506a61ebe0c8c95a5c35b8923011ba8"
       }
     },
     {
@@ -710,7 +710,7 @@
       },
       "match": {
         "bytes_sha256": "d54ee3187288a4e31d0e732284b706b229d04fe453c942e58c7f87fe4d6c8771",
-        "inputs_sha256": "e62739b5d6a0a96afe4b79a3fedeb60dbe821203297a04a3764a16a7e85f15d1"
+        "inputs_sha256": "567ea3602260b59b2386adb0463147048cf52ae14fae65afdac36412bc0f5f4d"
       }
     },
     {
@@ -740,7 +740,7 @@
       },
       "match": {
         "bytes_sha256": "40f65a22d7f230936082838f8b412e82f8a18ae6db6568aeac38d4ce7d869b19",
-        "inputs_sha256": "4343ea80383ee18b44645c4dd8a5d6d6e15d17e53ba88e580b22fe932ef2809b"
+        "inputs_sha256": "2b1441f780550aedc8d95228bfa46472e77e20f28ebac4190a4f252620ab2058"
       }
     },
     {
@@ -870,7 +870,7 @@
       "identification": "Named retail export _SND_fn_bGetMasterDirectory@8 at RVA 0x746330; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "342f930c234ecf43d091090c8565c4b1c996a3c381cdcaeca00904ba2577c10f",
-        "inputs_sha256": "bdd16f791e0e0924c12ebf5da6d12a47f50e3708c6f5ded87f9f86b4c1a0fbc1"
+        "inputs_sha256": "ba00ea012c4b6daf5f4318dd6ef04a1b638bbf3c5d10ffe4c44d8ec829b1fe96"
       }
     },
     {
@@ -928,7 +928,7 @@
       "identification": "Named retail export _SND_fn_bGetOnePartialDirectory@12 at RVA 0x746380; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "8dde1e64b7e154e6e24543b69f39a5bfc32c85e4d71949edcd802510dd205586",
-        "inputs_sha256": "41b5dcc4d7c4cb7a992c2e365a0fc2b8c03aca49de0041a766c226170e20895f"
+        "inputs_sha256": "4ae46d07fa3c123f6edb7341f522b1ba3199166192e9dd543863307087dd9f8a"
       }
     },
     {
@@ -974,7 +974,7 @@
       "identification": "Named retail export _SND_fn_vRemovePartialDirectory@4 at RVA 0x746400; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "2cc77460078e2a288615cca0de960b798c3912a91a8a0923bc0813f485fb7c52",
-        "inputs_sha256": "0d9009951d991fe9cd8c0bdf3ef069813ae4c82edff1551c0bf639e42cce4f78"
+        "inputs_sha256": "16771c2df83d5fe10918ca03c76b2636a113b6b1fb2e01f4df43fee64c7a3f0a"
       }
     },
     {
@@ -1024,7 +1024,7 @@
       "identification": "Named retail export _SND_fn_vPurgeAllDirectories@0 at RVA 0x7464e0; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "4288a61cf6793afce74b578e9b635be94582fab8a19e33ea31c38b590cf3b587",
-        "inputs_sha256": "b5ffdeebd49f6ea59054bd98333dc26afb44b2f3af10be1aaea494d18792ea0b"
+        "inputs_sha256": "c22094a31c1e39425605790c78fed7a05370721aed5fd4ac9f51f77e8851d5b2"
       }
     },
     {
@@ -1062,7 +1062,7 @@
       "identification": "Named retail export _SND_fn_ulGetNumberOfPartialDirectory@0 at RVA 0x7465b0; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "3401881b559ed883cbbcec2b49aff024dc645a67f9c42f8dd8de487f18c28e20",
-        "inputs_sha256": "1cf74aed19273990d2a5464b5949a9f9dcfb185e38d5fbaa8c7940c8edf8dd9b"
+        "inputs_sha256": "df8b196397ede5c67dad1306ac44fef1e347d73a25b052372b2e7f81de05f0f5"
       }
     },
     {
@@ -1120,7 +1120,7 @@
       "identification": "Named retail export _SND_fn_vSetSoftDirectory@4 at RVA 0x7465f0; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "9de928107c30d019df7f53f1d13d5ae4fbd896da28ff2322def0202974f7ff5f",
-        "inputs_sha256": "2a9cec347f4d61be7c156159c80bde6e5c53f0069b98765ee07b7122fbf55e8c"
+        "inputs_sha256": "d2dffcc1e0ac74e4ab40dd4e27ff775693c4f37c1a9593ee5710f9e139cde6dc"
       }
     },
     {
@@ -1154,7 +1154,7 @@
       },
       "match": {
         "bytes_sha256": "42165a4ab0caef5b9e7329ce545fc12a11459a5d14e27a9dbbb27bb97964c82d",
-        "inputs_sha256": "7c3cda9382da9706888ddfe5ee253e05a4608dcd276c5606553ca33f276a55cb"
+        "inputs_sha256": "f3108b2af3f513241526537a79e8659518a54d79386601bc0dee0f934a126022"
       }
     },
     {
@@ -1180,7 +1180,7 @@
       "identification": "Named retail export _SND_fn_vSetCurrentLangDirectory@4 at RVA 0x746860; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "305e3b2355848df8a5be39d9069bd783b8b61fd2ee4e402cf06e35ea70124a44",
-        "inputs_sha256": "2f5da26af696eed0ab939d3950c5fe783f4b7be8792d198eb04cf78fd192c505"
+        "inputs_sha256": "f460b52e37e9237b13c59434b9e2624ecf029b7eca51fbb273741707760ef6ee"
       }
     },
     {
@@ -1274,7 +1274,61 @@
       "identification": "Named retail export _SND_fn_bIsDataDirectory@4 at RVA 0x746ac0; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "a6b693c937c01cc86da430cd2075281c63a1e33bdd08ec1b19ae477419c20255",
-        "inputs_sha256": "c3c83cffee4869ffc082de58bcc07e15b691cacd8986d47ea73560f20bf0ba8a"
+        "inputs_sha256": "22501d7a6ff33265403da123b7e856271d99e79067966155b8cc105f0264e0e1"
+      }
+    },
+    {
+      "id": "sound-set-current-language",
+      "offset": 7630176,
+      "size": 106,
+      "rebuilt_symbol": "_SND_fn_vSetCurrentLanguage@4",
+      "inputs": [
+        "src/sound_language_change.c"
+      ],
+      "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+      "build_command": "cl /nologo /Gy /O2 /c /Folocal/sound_language_change.obj src/sound_language_change.c",
+      "identification": "Named Steam campaign export at RVA 0x746d60. The two paths that update the directory differ in whether the previous language was empty. All exits occur before alignment.",
+      "link_bindings": {
+        "_sound_directory_source": {
+          "va": 286732832,
+          "basis": "Read-only diagnostic file path in this image ends in dare/private/engine/common/src/snddata.c; passed as the file argument to the exported diagnostic hook."
+        },
+        "_sound_current_language_directory": {
+          "va": 288540016,
+          "basis": "Address returned by the PE export _SND_fn_szGetCurrentLangDirectory@0; the matching setter copies up to nine bytes there."
+        },
+        "_SND_fn_vEnterCriticalSectionThreadSnd_@0": {
+          "va": 285504640,
+          "basis": "Named retail PE export _SND_fn_vEnterCriticalSectionThreadSnd_@0 at RVA 0x747480."
+        },
+        "_SND_fn_vQuitCriticalSectionThreadSnd@0": {
+          "va": 285504848,
+          "basis": "Named retail PE export _SND_fn_vQuitCriticalSectionThreadSnd@0 at RVA 0x747550."
+        },
+        "_SND_fn_vMouchardThreadsnd@8": {
+          "va": 285504592,
+          "basis": "Named retail PE export _SND_fn_vMouchardThreadsnd@8 at RVA 0x747450."
+        },
+        "_SND_fn_vStrncpy@12": {
+          "va": 285512256,
+          "basis": "Named retail PE export _SND_fn_vStrncpy@12 at RVA 0x749240."
+        },
+        "_SND_fn_lStriCmp@8": {
+          "va": 285512128,
+          "basis": "Named retail PE export _SND_fn_lStriCmp@8 at RVA 0x7491c0."
+        },
+        "_sound_on_language_changed": {
+          "va": 285499408,
+          "basis": "Direct call at the end of the nonempty language-change path, after the bounded copy and before releasing the sound-thread lock."
+        },
+        "??_C@_00CNPNBAHC@?$AA@": {
+          "va": 285966691,
+          "basis": "Read-only pooled empty string passed to the inlined strcmp. Microsoft LINK independently placed the compiled literal at this VA and reproduced the entire caller."
+        }
+      },
+      "match": {
+        "bytes_sha256": "5c93e06fe0f4569f57406c1e5353b7e6e5b13392786b5d8e9df7131e2f88ecee",
+        "inputs_sha256": "c8da6be37d954b35c04a677376f9d86d7507cdc90dbacbfcb134062b159c7c1c"
       }
     },
     {
@@ -1356,7 +1410,7 @@
       "identification": "Named retail export _SND_fn_vAddPartialDirectory@4 at RVA 0x747240; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "a0802ec8213529ac281fbcd7d4f3b87f1cbff83b3ae5ca827c054d8fa40c9800",
-        "inputs_sha256": "832100bc2f451a26d0de8e7c21ee1a94cc4a798522c31f788a8b8f5416d21e66"
+        "inputs_sha256": "0c4bcc29c41a36714ff14eb4fe6f3d918294b9c76cc741e2c7381a76feb979d4"
       }
     },
     {
@@ -1442,7 +1496,7 @@
       },
       "match": {
         "bytes_sha256": "b2b3aa99d41f862b9bb9e2a84ec81a4fd6fca0a0582980c3b98d697ee13003f6",
-        "inputs_sha256": "071d2135e309a9b97090c7fccec70c04c5255335dad7a02e593ce98bbf68462f"
+        "inputs_sha256": "288f371327569b68f83d60bde321f9ea60a08f441c865f228a8fafecdb4cc9e7"
       }
     },
     {
@@ -1580,7 +1634,7 @@
       "identification": "Named retail export _SND_fn_vStrncpy@12 at RVA 0x749240; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "22c2a0a3c68906d4f821e4fdc958301bca95ef65d3827980be6690a9403d9c3c",
-        "inputs_sha256": "8ec5a7b402313ad979201013ff9116b6630d092aacbe9f43a8a3680ae4149e21"
+        "inputs_sha256": "993a06da624c3a110fd5d206d5477df4a37de24fe94dbfc814a016267a1ae991"
       }
     },
     {
@@ -1610,7 +1664,7 @@
       "identification": "Named retail export _SND_fn_vStrncat@12 at RVA 0x7492a0; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "a907ea81ed200ac3851bc71252c364722e142b3d8ab0fe1376b15ff479823f32",
-        "inputs_sha256": "704bbaab769940c3ac54aab0cb86a7b48e0db62640ab64163347e11dadcd8bad"
+        "inputs_sha256": "6f6efac512e9720af20a23f70433828264c0e42a33006eb8a9d35eea40a48a18"
       }
     },
     {
@@ -1632,7 +1686,7 @@
       },
       "match": {
         "bytes_sha256": "8882e0570d3ad1c408d94d635fa34d35a3b69972662d93c3cc9ed263d5a42e5c",
-        "inputs_sha256": "9c18a6510d021f46d21748a4a1234b83a7f5775e753395755873b2b00b3e8878"
+        "inputs_sha256": "1afdf9b70f60c1aca11aa581bd9daaee479faa19142fda9eeebafc221556d2a6"
       }
     },
     {
@@ -1763,7 +1817,7 @@
       "identification": "Named retail campaign export _SND_fn_vSetDefaultRollOff@4 at VA 0x1104b3b0. The final return ends at 0x1104b417 before alignment or the next named function. Decodes the -2 default sentinel into 0.5 in signed 16.16 for near distance, and -1 for the remaining fields. An invalid maximum below near distance also becomes -1.",
       "match": {
         "bytes_sha256": "86a4d26e0840d583968f157f7de866d0e4943a47f8e7957d7e8efb1f0d30d083",
-        "inputs_sha256": "eeafa40274096a90cb21b77285c59f7f346954e1cbe2c006a48d221c282a2f35"
+        "inputs_sha256": "efd774398ac9a373e7da8f3a2a0045545917ad3a330e114bc911cee4c29955ad"
       }
     },
     {
@@ -1785,7 +1839,7 @@
       "identification": "Named retail campaign export _SND_fn_vGetDefaultRollOff@4 at VA 0x1104b420. The final return ends at 0x1104b44a before alignment or the next named function. Copies the near/max distance pair and the fade-start/fade-end pair from the campaign globals.",
       "match": {
         "bytes_sha256": "66ba1051ebd140c977f7ec3cc07fd56ebf97f2cc04bd3f9ca27fa10801f7c121",
-        "inputs_sha256": "6a9899ff192267754796c5d0179455b73ad06873e45964e6501457fa3b0048ab"
+        "inputs_sha256": "8c2ad28c358299b566aa59ce6aa033833ebf22c9736622095f8bd72bbefc5f9e"
       }
     },
     {
@@ -1811,7 +1865,7 @@
       "identification": "Named retail campaign export _SND_fn_rDistanceToVolume@4 at VA 0x1104b450. The final return ends at 0x1104b48c before alignment or the next named function. Copies the four global defaults to a local rolloff structure and evaluates the distance with the named extended attenuation function.",
       "match": {
         "bytes_sha256": "476283fe852e854cd1cf1f94145ef0f62720f29d08ef99cc79afa2a434de6cba",
-        "inputs_sha256": "398040e2fd9d9f12a232045fae04cc753d9de5698dfc7497aafb4adb8e2ab802"
+        "inputs_sha256": "8b0b6856ed6867b6cc4079969e0109b8475a47633ef3008c6e6e80f48040a567"
       }
     },
     {
@@ -1869,7 +1923,7 @@
       "identification": "Internal distance attenuation helper at VA 0x1104b490. The final return ends at 0x1104b53f before alignment or the next named function. The extended rolloff export directly calls the helper at 0x1104b60f and 0x1104b66f. A zero or negative near distance returns -96 in 16.16 and reports an error. The helper scales the distance, selects one of four bands and uses a 128-entry table per band; values beyond the last band continue on a straight line.",
       "match": {
         "bytes_sha256": "35573c2dfe6c7faf232d292fce5943b1020c8324521d0c589127f278142dac6a",
-        "inputs_sha256": "c14ad64d335311f53702c133900c01184603098779205a68ed669a6e9ff2f53b"
+        "inputs_sha256": "f88a16c94904d8e41a503b9553625346d6448a952f2cb0119bf43fed8c7d035b"
       }
     },
     {
@@ -1903,7 +1957,7 @@
       "identification": "Named retail campaign export _SND_fn_rDopplerPitch@16 at VA 0x1104b680. The final return ends at 0x1104b73c before alignment or the next named function. Computes the signed 16.16 pitch ratio from source and listener velocity projections. Returns unity for a disabled, zero- or over-range case or projection at or above the scaled speed.",
       "match": {
         "bytes_sha256": "282591e4428902b6fbda49c45b4cb897a1efbcff0b2871dd802c3c461111e520",
-        "inputs_sha256": "2ade7b0f510090963f8274ff8d123a29e1fae232bffe420e7fc5e0044b08d8d8"
+        "inputs_sha256": "cdc74584c008502f35714ca07be91f817a76ce9a0c1b9cfbb763d3e447be8474"
       }
     },
     {
@@ -1929,7 +1983,7 @@
       "identification": "Retail named export _SND_fn_vSetDopplerFactor@4 at VA 0x1104b740. Both return paths end before INT3 padding at VA 0x1104b76b. Retail export _SND_fn_rDivRealRealSnd@8 at 0x1104b1f0 is a fixed-point division call target; both exports access the same data at 0x111e6fe8.",
       "match": {
         "bytes_sha256": "e28788ee9c1c2b65b2554eadfda4e34d3216ce246446369b53b38be1e2888a18",
-        "inputs_sha256": "1eef036f8af463714bec8755e0ba8b42131d5316525eabd44408668ad6182693"
+        "inputs_sha256": "0a45553d4e71d4374af481e327085bc9629fd338ae89b4b97687e446465b831a"
       }
     },
     {
@@ -1955,7 +2009,7 @@
       "identification": "Retail named export _SND_fn_rGetDopplerFactor@0 at VA 0x1104b770. Both return paths end before INT3 padding at VA 0x1104b78b. Retail export _SND_fn_rDivRealRealSnd@8 at 0x1104b1f0 is a fixed-point division call target; both exports access the same data at 0x111e6fe8.",
       "match": {
         "bytes_sha256": "95f11f361470ec6c5aab0e71fee7e32cb59ac97d148d0c67c72f1fd8dbabcd66",
-        "inputs_sha256": "81524d7006fc277c974bb48e298c0b7e2e4894af2c4095b6f5d80d4ddec5883b"
+        "inputs_sha256": "bf8d09bafebb207135130cfe76fa2040d09161016d2a655490dbbd36a7409166"
       }
     },
     {
@@ -1981,7 +2035,7 @@
       "identification": "Retail named export _SND_fn_ucPositionToPan@16 begins at 0x1104b790. The last return ends at 0x1104b83f, followed by INT3 alignment. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
       "match": {
         "bytes_sha256": "2a88a3fb6061fb2586d9cdfc70d92157455303505c79e18ecca833fad524f57a",
-        "inputs_sha256": "70f1db4dd1a6ede65b276c0fa89c6c15d721f1df04d057ff862b5735a668e49b"
+        "inputs_sha256": "06e3581402a7bd57e131f1ad7d38527b49316c1d816918aa2772782d73c39044"
       }
     },
     {
@@ -2007,7 +2061,7 @@
       "identification": "Retail named export _SND_fn_ucPositionToDolby@12 begins at 0x1104b840. The last return ends at 0x1104b8fe, followed by INT3 alignment. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
       "match": {
         "bytes_sha256": "b72e79e162b521ace95455abd598fd2a97ba000a2287b4af3174449f52a0dfca",
-        "inputs_sha256": "9bacf31085c365e0b32458cb98fb669998b21c7295856d2584ddae6f7a9ae465"
+        "inputs_sha256": "3eef73273eacc05ce74ac8e20200864c4758dd8f357913c8ab0cb55d5751b958"
       }
     },
     {
@@ -2029,7 +2083,7 @@
       "identification": "Retail export _SND_fn_vVolPanToVolLR@16 at 0x1104b900, last return ends at 0x1104b956 before INT3 alignment. The constant table at VA 0x111e8378 is indexed by pan and 128 minus pan, then both outputs are clamped to -96 in signed 16.16 units. The absolute linker symbol locates the table; its data is outside the measured function.",
       "match": {
         "bytes_sha256": "6bcb2c2d00cd991073b73a6f7392593ac83b790d3033f23f71ef3a08bdafebda",
-        "inputs_sha256": "cd2e790b2e5c16727222d0693ca4469f11b116e7ae49d7084eca9286620bc5cc"
+        "inputs_sha256": "5c3fddedb6471b20ddc758ddc3ce84ada9c12fba75fbc124d47388e1db7b86e0"
       }
     },
     {
@@ -2084,7 +2138,7 @@
       },
       "match": {
         "bytes_sha256": "1cfa92b5707419c4b4755287d3d6b7a91748525c1da5c92f50c5497b2abf9936",
-        "inputs_sha256": "ca1389b4029d7c947fb8c3dfad3bb3fda6d442953f97073dc3c065d272a35ddb"
+        "inputs_sha256": "1dd47fc5935807e2576439e90ed351083fa641bb1eb0d29bbc701805254f8244"
       }
     },
     {
@@ -2106,7 +2160,7 @@
       },
       "match": {
         "bytes_sha256": "b838ad6168a2fde6734d0e9f5c59edb9ad7635efeee38de19564cb675de3975d",
-        "inputs_sha256": "3bba2016e6026a5fbc1465de9efbeaa65d9f32684175da9e1d74620129678c09"
+        "inputs_sha256": "c81edcea0bebdd127258f1680b90d2610ecf034d0da1b4874bb1fe60826c9a23"
       }
     },
     {
@@ -2128,7 +2182,7 @@
       },
       "match": {
         "bytes_sha256": "eeb2318ee6dd5db163ff0c4a26712c7c2e742cbf554dfea69df323fdc8846723",
-        "inputs_sha256": "83098694d33da15b9886a811dd1212498cdc984d89b59ada8e7bfc9938407c11"
+        "inputs_sha256": "b33f03b186d4a8ad73bd106d2603b4b02bb6261c82981829435b62e48086f7bf"
       }
     },
     {
@@ -2167,7 +2221,7 @@
       "identification": "Retail named export _SND_fn_rPseudoNormeVectorSnd@4 begins at 0x11056760. The last return ends at 0x110567d0, followed by the exported vector dot product. Entry VAs in the linked comparison image match retail. The layout reserves space for the absolute-value and approximate-dot-product exports; only these recovered function bodies are measured.",
       "match": {
         "bytes_sha256": "aa4210c7c47c4c4b990c44affa250194948d477b67a7a97f13819f5e96435f92",
-        "inputs_sha256": "71a0e740e84731c328d6c0bf8aed6137a18ffcdb91ae4d6c0dfd0d970182c315"
+        "inputs_sha256": "b1559b21ba578c31c3434b109119bd448608490bb53dfb3ddaa2c3a20528d544"
       }
     },
     {
@@ -2189,7 +2243,7 @@
       "identification": "Retail export _SND_fn_rScalaireVectorSnd@8 begins at VA 0x110567d0; the final return ends at 0x1105680c before INT3 alignment. Computes the sum of the three component products with fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
       "match": {
         "bytes_sha256": "a2304aa4e3688900519a25259b6a7471cc9aab8198e453bf4cf674e6208f288b",
-        "inputs_sha256": "c871df7cf353c45b218836bed07024a6572b2b6d1e6b72893c9c289206dadf69"
+        "inputs_sha256": "54300091ec0818ba1707f6f38807d63354a991e8dfb56efd83704b9a182124b9"
       }
     },
     {
@@ -2211,7 +2265,7 @@
       "identification": "Retail export _SND_fn_rPseudoScalaireNormeVectorSnd@8 begins at VA 0x11056810; the final return ends at 0x1105684c before INT3 alignment. Computes the same sum with the lower-precision fixed-point multiply. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
       "match": {
         "bytes_sha256": "36d1c9cc2217b1bd9261b7323e08cef5fd29bae72e8a1d8c85ca9e42a5d25bed",
-        "inputs_sha256": "992e3b3933d786a0e9685a9a9724f50f881718f09393d03a64f9997cad58ed5a"
+        "inputs_sha256": "79a13cdc0ddab0358b814ccab2ecb327c563aac5a3e1a57550b4cc6b731d4ca2"
       }
     },
     {
@@ -2233,7 +2287,7 @@
       "identification": "Retail export _SND_fn_vProduitVectorSnd@12 begins at VA 0x11056850; the final return ends at 0x110568c5 before INT3 alignment. Writes the three differences of component products in cross-product order. Linker layout reserves the named multiply helper VAs 0x1104b1d0 and 0x1104b270, with padding and helper bodies excluded from the count.",
       "match": {
         "bytes_sha256": "a42f0e593f098c266b22b13c2d248804360267725d3a8cf9366277a8afd728ce",
-        "inputs_sha256": "cc57cca8944b21746dad3f67c0c387d877d7d64cd0be3490fa7a2a001ebeb8ba"
+        "inputs_sha256": "4028f2a1ed5aa6ff370b8350ae9c6c31004724bdc75425b909b72be140274851"
       }
     },
     {
@@ -2255,7 +2309,7 @@
       },
       "match": {
         "bytes_sha256": "efae5a1262f89f1d50f9ecb399c9cf53e85d573e4da9d655f574061cc477350d",
-        "inputs_sha256": "2b46d39e9a1767e3fd03c4608396c9f61d74a2aab6aa4474e70b31c0b26e998f"
+        "inputs_sha256": "3fc4c26d08051d39ebbb70a734ff0a63812ad5d9d7127bf21b0a8783fdac3a33"
       }
     },
     {
@@ -2277,7 +2331,7 @@
       },
       "match": {
         "bytes_sha256": "555d36296dcdbe2eb1cc6d24ac8ccb35f1b323fb9a4eaeb5f53803ce15e27838",
-        "inputs_sha256": "a8c8330d741ad8a24ba4f96046072fd1b9ac5d133fcf4a62f914666d7f5ae97d"
+        "inputs_sha256": "014f837def156e4b0902508936c7d59a8d4ab7d9e30e99a9ea69c8be46c8f0f4"
       }
     },
     {
@@ -2307,7 +2361,7 @@
       "identification": "Named retail export _SND_fn_bTestSnd_WinMM@4 at RVA 0x75aa70; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "21bed59b80dfc41d0bfac6cb2115aa3da133b9340d31b808408cc80a8417ae39",
-        "inputs_sha256": "589db289c6b0407f5f8e6c3928474e19a8eb7580fd7e6db58bad9fd456de4062"
+        "inputs_sha256": "7fb84103f402345098113ec8192ba5830e4866a00966f7b1e5024bc9bd7a20a8"
       }
     },
     {
@@ -2341,7 +2395,7 @@
       "identification": "Named retail export _SND_fn_bTestSnd_Win32@0 at RVA 0x75ab50; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "e6b64b26ec005fd652a6a502a47e87ad64c162c1d13ecaf9c34a65802087a56b",
-        "inputs_sha256": "f98b0e9bdcb16cf500da384535051c42ce35ac4092ef242c4392967be7af8cc9"
+        "inputs_sha256": "d6be22c7e1ef19bf5cca3182a4959d457dc4932f57c01837d67d4a9f5b6f77fa"
       }
     },
     {
@@ -2375,7 +2429,7 @@
       "identification": "Named retail export _SND_fn_bTestSnd_WinNT4@0 at RVA 0x75abb0; whole linked symbol including each return, before alignment or next entry.",
       "match": {
         "bytes_sha256": "d07d390972a62f5aaeabde59fe84c953c5dcfb7572c36d3c0700c2e39aa02bae",
-        "inputs_sha256": "d18f457c689f54e84af97d182c64e945aabafd2686c36667e285bd42a672468c"
+        "inputs_sha256": "865945e177e8f5559c18ed19379f830ab200c317a9f78e9419f187ab248ae914"
       }
     },
     {
@@ -2445,7 +2499,7 @@
       "identification": "Named retail campaign export _SND_fn_rGetNormeSxd@4 at VA 0x1105c800. The final return ends at 0x1105c8df before alignment or the next named function. Computes the loudest attenuated level among enabled matching receivers in the linked list. Flag 1 returns zero; flag 4 selects the custom rolloff parameter view at offset 0x9c. The position, list links, binding stride and enabled fields are supported by retail loads.",
       "match": {
         "bytes_sha256": "e962ff80c0dcf525a90bd1f6959e7c4f801b8914d54da9fe2437a546f078ff3f",
-        "inputs_sha256": "97fdc4277985ef6572535cc1d01eee9545b396aff4ce0bd4c2de41272b8a58b4"
+        "inputs_sha256": "293c48b21e4e4e5167f7cadfe9976c01e4a76e25ab9689d6c79eb87c794bd6fe"
       }
     },
     {
@@ -2471,7 +2525,7 @@
       "identification": "Direct call at retail VA 0x1104f436 targets this internal function at 0x1105c8f0. Its last return ends before INT3 alignment at 0x1105c90c. Resets both list endpoints and both counters, and returns success. Its caller passes one argument that the recovered function leaves unused.",
       "match": {
         "bytes_sha256": "0fb52139119f54be0009dcd39a9f1f1b6b25a989eb5263f2b2fbb9fa6940d21d",
-        "inputs_sha256": "54440d15fa95c6e6237da3c249a09b74f189f1b179386c408d5812f192fbae50"
+        "inputs_sha256": "e9a9c1272adbe20b90b91dd1b4723b221b3136365b7ae8e893682a7b3a712ed1"
       }
     },
     {
@@ -2505,7 +2559,7 @@
       "identification": "Direct call at retail VA 0x1104f6c6 targets this internal function at 0x1105c910. Its last return ends before INT3 alignment at 0x1105c9bd. Creates a 68-byte doubly linked receiver node and optionally copies four pose vectors.",
       "match": {
         "bytes_sha256": "483eaee71251bd0f86de89ef16b39bae1800b57d739bdc35d6389be2f8eb39e1",
-        "inputs_sha256": "bc19561f93938890814ae069af28f0709da124eb8737a693f02b7f517d2939d3"
+        "inputs_sha256": "5af063e412806bf2bc03871327402f6fe5f59f41840d4909527a2e281b9a1fcd"
       }
     },
     {
@@ -2531,7 +2585,7 @@
       "identification": "Direct call at retail VA 0x1104f6ec targets this internal function at 0x1105c9f0. Its last return ends before INT3 alignment at 0x1105ca56. Looks up the target before enabling it and copying all four pose vectors.",
       "match": {
         "bytes_sha256": "2b56d395b6c118496231dbb30e56f41221b9712fde71c064aed4c080037e1659",
-        "inputs_sha256": "d385c4f73a92ff3e0f33ce6d13c76e27f1d22d667edd45830d8b50a3b2c7e265"
+        "inputs_sha256": "323e105e02559374c7a9975e807025c1411566ecf315e4e97c07f1708075b9c8"
       }
     },
     {
@@ -2557,7 +2611,7 @@
       "identification": "Direct call at retail VA 0x1104f716 targets this internal function at 0x1105ca60. Its last return ends before the next one-byte return routine at 0x1105cac0. Removes the node from both list directions, updates list endpoints and counts and frees it.",
       "match": {
         "bytes_sha256": "6f0d2fcf30e0f6a4922f6c6c9b4346aabfa65390882772280704371b4e91ddb4",
-        "inputs_sha256": "f05988d4a34514ca3a05716f4b379a6a0ebae59f84932e91b5409919b7747388"
+        "inputs_sha256": "0a45bf6da6d74725e351462757d2cb518148cec1e032707aed19253d40715611"
       }
     },
     {
@@ -2595,7 +2649,7 @@
       },
       "match": {
         "bytes_sha256": "15b47c42b5e55441c928377f7a98685d7e09b2bf5bacb1908cc40b8e853f86cb",
-        "inputs_sha256": "dcfc92bed393ea8631b814c74d9872e1899e5a10b32dbbf8471503a6d4a90a14"
+        "inputs_sha256": "67cb72d31011a54dd46332e3cbe6644b2fef4c9180d902d40e34678a7057d602"
       }
     },
     {
@@ -2653,7 +2707,7 @@
       },
       "match": {
         "bytes_sha256": "9af0e15ffedd09803f22ca0c9e71b482dd9f7d49f35715d2e925ed0322fae980",
-        "inputs_sha256": "6c2b13a977f33503a69017339b26a9ff67f80c731f7ac02460607e9738891d26"
+        "inputs_sha256": "b76d9ce1e94e3b322463a9421ec2d44206e726a4175bfc8bdf5b8db4a4052dad"
       }
     },
     {
@@ -2766,7 +2820,7 @@
       },
       "match": {
         "bytes_sha256": "9f3b99aef32a4e51a7c5e49812d4ec4877898d81951a850e4ba446d7f317e107",
-        "inputs_sha256": "c4be004fc15ac6ae491a7db04148db636e86440e40584085510e1d73b89e10b6"
+        "inputs_sha256": "aac59f175fc66c8b12503ac523994281dbe47f4f302d6a51638f1e0758f79213"
       }
     },
     {
@@ -2789,7 +2843,7 @@
       },
       "match": {
         "bytes_sha256": "7ab198f58ce8d4c81f0567b8b8ddd122df26266f689be59510462b7517ed80a4",
-        "inputs_sha256": "7532fcd35825f0ffa3f0316a55509bc94e12d22c379b0931558ecf4a508bd1f7"
+        "inputs_sha256": "cf0165a2d40ee86deac95b7d325395a6ba270581f6c600fb8765285697a50aa7"
       }
     },
     {
@@ -2812,7 +2866,7 @@
       },
       "match": {
         "bytes_sha256": "2ae002cf6fc74f84aca8a7722b448175a88bf89c787dc69bb13341d6e649d8c0",
-        "inputs_sha256": "fc21888adab35187b65dd1c29bdc48970c2038820ff5ee5901b6a94516d93f13"
+        "inputs_sha256": "ce90d84f80f802c8a7cd8c645bd0e222b92d180629ab83745c35537e07fba88b"
       }
     }
   ]

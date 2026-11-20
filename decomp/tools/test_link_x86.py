@@ -25,6 +25,25 @@ class LinkTests(unittest.TestCase):
         linked = link_function(object_file(), "_unit", 8, 0x41000, self.bindings)
         self.assertEqual(struct.unpack("<Ii", linked), (0x400008, -0x104))
 
+    def test_pooled_constant_requires_exact_readonly_contents(self):
+        text = object_file()
+        header = struct.pack("<HHIIIHH", 0x14c, 2, 0, 130, 3, 0, 0)
+        code = struct.pack("<8sIIIIIIHHI", b".text", 0, 0, 8, 100, 108, 0, 2, 0, 0x60000020)
+        const = struct.pack("<8sIIIIIIHHI", b".rdata", 0, 0, 2, 128, 0, 0, 0, 0, 0x40001040)
+        obj = bytearray(header + code + const + text[60:88] + b"x\0" + text[88:])
+        struct.pack_into("<h", obj, 130 + 18 + 12, 2)
+        def read(va, size):
+            self.assertEqual((va, size), (0x400000, 2))
+            return b"x\0"
+        linked = link_function(obj, "_unit", 8, 0x41000, self.bindings, read_constant=read)
+        self.assertEqual(struct.unpack("<Ii", linked), (0x400008, -0x104))
+        obj[128] = ord("y")
+        with self.assertRaisesRegex(ValueError, "differs from retail"):
+            link_function(obj, "_unit", 8, 0x41000, self.bindings, read_constant=read)
+        struct.pack_into("<I", obj, 96, 0xc0000040)
+        with self.assertRaisesRegex(ValueError, "read-only"):
+            link_function(obj, "_unit", 8, 0x41000, self.bindings, read_constant=read)
+
     def test_rejects_incomplete_and_unexplained_links(self):
         for obj, bindings in [
             (object_file(second_relocation=3), self.bindings),

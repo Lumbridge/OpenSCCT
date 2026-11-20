@@ -9,7 +9,7 @@ def region(data, offset, size):
     return data[offset:offset + size]
 
 
-def link_function(obj, name, length, address, bindings):
+def link_function(obj, name, length, address, bindings, *, read_constant=None):
     """Return the fully linked section. The retail function bytes are never an input."""
     machine, sections, _, table, entries, optional, _ = struct.unpack_from("<HHIIIHH", obj)
     if machine != 0x14c or optional or not entries or not bindings:
@@ -51,9 +51,8 @@ def link_function(obj, name, length, address, bindings):
     fields = set()
     for position, sym_index, relocation in struct.iter_unpack("<IIH", relocation_data):
         symbol, value, sym_section, kind, storage = symbols[sym_index]
-        external_function = 1 <= sym_section <= sections and kind == 0x20
-        if value != 0 or storage != 2 or (sym_section != 0 and not external_function):
-            raise ValueError("binding requires an external symbol or a named function entry")
+        if value != 0 or storage != 2 or not 0 <= sym_section <= sections:
+            raise ValueError("expected an external symbol at the start of its contribution")
         symbol = symbol.decode("ascii")
         if symbol not in bindings:
             raise ValueError(f"missing link address for {symbol}")
@@ -61,6 +60,15 @@ def link_function(obj, name, length, address, bindings):
         dest = binding["va"]
         if type(dest) is not int or not 0 < dest <= 0xffffffff or not binding["basis"].strip():
             raise ValueError(f"invalid address or missing evidence for {symbol}")
+        if sym_section and kind != 0x20:
+            const_header = 20 + (sym_section - 1) * 40
+            const_size, const_start = struct.unpack_from("<II", obj, const_header + 16)
+            const_relocs, _, const_flags = struct.unpack_from("<HHI", obj, const_header + 32)
+            if (kind != 0 or not const_size or const_relocs or const_flags & 0xe0000040 != 0x40000040
+                    or read_constant is None):
+                raise ValueError(f"expected an initialized read-only constant for {symbol}")
+            if region(obj, const_start, const_size) != read_constant(dest, const_size):
+                raise ValueError(f"compiled constant differs from retail for {symbol}")
         field = set(range(position, position + 4))
         if position + 4 > size or fields & field:
             raise ValueError("invalid or overlapping relocation fields")

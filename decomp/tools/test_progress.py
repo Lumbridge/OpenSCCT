@@ -6,7 +6,7 @@ import struct
 import tempfile
 import unittest
 
-from images import coff_symbol_offset, inspect
+from images import coff_symbol_offset, inspect, readonly_pe_data
 from progress import match, summary, verify
 
 
@@ -101,6 +101,17 @@ class ProgressTests(unittest.TestCase):
     def test_file_padding_is_excluded(self):
         item = target(pe())
         self.assertEqual(summary(Path("pc"), item)["total_bytes"], 100)
+
+    def test_original_constants_must_fit_in_readonly_data(self):
+        data = pe()
+        for flags in [0x60000020, 0xc0000040, 0x60000040]:
+            struct.pack_into("<I", data, 412, flags)
+            with self.assertRaises(ValueError):
+                readonly_pe_data(data, 4096, 4)
+        struct.pack_into("<I", data, 412, 0x40000040)
+        self.assertEqual(readonly_pe_data(data, 4096, 4), b"TEST")
+        with self.assertRaises(ValueError):
+            readonly_pe_data(data, 4195, 2)
 
     def test_coff_function_bounds_and_relocations(self):
         data = bytearray(110)
