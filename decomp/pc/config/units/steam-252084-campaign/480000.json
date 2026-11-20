@@ -447,6 +447,40 @@
     }
   },
   {
+    "id": "rotate-right-488e30",
+    "size": 89,
+    "offset": 4754992,
+    "inputs": [
+      "src/campaign_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_right_488e30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_rotations.obj src/campaign_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10d8a375. The full right rotation updates the root or the parent link and tests the node sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "fd16811cb23c7a5fd672a77c5f377f33622b6a7902656ee8e7d3afcea62ee93d",
+      "inputs_sha256": "5947922242a5b2931ac209369d854f4761323fd06bd5f8bd4474b46f657d253e"
+    }
+  },
+  {
+    "id": "rotate-left-489370",
+    "size": 85,
+    "offset": 4756336,
+    "inputs": [
+      "src/campaign_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_left_489370@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_rotations.obj src/campaign_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10d8a357. The full left rotation updates the root or the parent link and tests the node sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "9e049d0ddda44e40b70b3cdeac482542e5d658f23193c4d9ef5b5ab28b8c3c8c",
+      "inputs_sha256": "d20e13f0680471e65c485859ec6dbdd0d87ef25d27546654595e1fdbc6a031da"
+    }
+  },
+  {
     "id": "delete-record-48b700",
     "offset": 4765440,
     "size": 36,
@@ -478,6 +512,23 @@
     }
   },
   {
+    "id": "rotate-right-48b9a0",
+    "size": 89,
+    "offset": 4766112,
+    "inputs": [
+      "src/campaign_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_right_48b9a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_rotations.obj src/campaign_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10d8d4e5. The full right rotation updates the root or the parent link and tests the node sentinel at offset 25.",
+    "match": {
+      "bytes_sha256": "35f4120a6cb66c21b83d5f46a43f56feb3fc1c87ff450e4d0dd920c8406a7414",
+      "inputs_sha256": "be6ee8b4811c812cf86f774fe78009bbe940f216991bda77ff32061f897dbf5c"
+    }
+  },
+  {
     "id": "clear-record-48c2b0",
     "offset": 4768432,
     "size": 37,
@@ -505,6 +556,23 @@
     "match": {
       "bytes_sha256": "c164444847d292bad905ec9d8eaf72e87e041a407ac93386222a2673eed7dd2b",
       "inputs_sha256": "1c6130a5250acc68fafaa36b28bb0d14a9e2b4e874c24af2c29d98fd81bca5bc"
+    }
+  },
+  {
+    "id": "rotate-left-48c2e0",
+    "size": 85,
+    "offset": 4768480,
+    "inputs": [
+      "src/campaign_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_left_48c2e0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_rotations.obj src/campaign_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10d8d4c7. The full left rotation updates the root or the parent link and tests the node sentinel at offset 25.",
+    "match": {
+      "bytes_sha256": "3e14d7cdcb5da53346ae1d56e8569202c6c8455b74f59d77c377afb8520651b7",
+      "inputs_sha256": "a91202b0ac7785bf88235e952a840e24142fd7b385714714f4e59b423ce3e606"
     }
   },
   {

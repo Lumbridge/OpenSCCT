@@ -1,5 +1,73 @@
 [
   {
+    "id": "rotate-right-2a0300",
+    "size": 89,
+    "offset": 2753280,
+    "inputs": [
+      "src/versus_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_right_2a0300@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_rotations.obj src/versus_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10ba5fe6. The full right rotation updates the root or the parent link and tests the node sentinel at offset 45.",
+    "match": {
+      "bytes_sha256": "56ef33daa3b448da50bb8029623fd3f015d6acd5c9c6ed2d79d8a3c44c45abd8",
+      "inputs_sha256": "952e92fae3cc0f1d1d43530c1e6fa9809db862a54df947cac4f302be25ac8824"
+    }
+  },
+  {
+    "id": "rotate-right-2a03a0",
+    "size": 89,
+    "offset": 2753440,
+    "inputs": [
+      "src/versus_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_right_2a03a0@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_rotations.obj src/versus_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10ba0a98. The full right rotation updates the root or the parent link and tests the node sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "fd16811cb23c7a5fd672a77c5f377f33622b6a7902656ee8e7d3afcea62ee93d",
+      "inputs_sha256": "3f07ef8aeb558cedee8adf36b2d9fd29e3e5656502e3d6e6faecd94e602443f4"
+    }
+  },
+  {
+    "id": "rotate-left-2a0710",
+    "size": 85,
+    "offset": 2754320,
+    "inputs": [
+      "src/versus_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_left_2a0710@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_rotations.obj src/versus_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10ba5fc8. The full left rotation updates the root or the parent link and tests the node sentinel at offset 45.",
+    "match": {
+      "bytes_sha256": "de6e8161ed7abb86fa91472c0d5a24d1193f085b8c49628599309cbfc2155326",
+      "inputs_sha256": "9bc4d256bc593e0f51eaa5971f294a3ac2c7ba5a776ef2d9bf81b4a718c6907f"
+    }
+  },
+  {
+    "id": "rotate-left-2a0770",
+    "size": 85,
+    "offset": 2754416,
+    "inputs": [
+      "src/versus_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_left_2a0770@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_rotations.obj src/versus_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10ba0a66. The full left rotation updates the root or the parent link and tests the node sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "9e049d0ddda44e40b70b3cdeac482542e5d658f23193c4d9ef5b5ab28b8c3c8c",
+      "inputs_sha256": "d8c006c39f0e1811860c4ca23df6c2add836d80302c50ec92d582085686f136e"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,

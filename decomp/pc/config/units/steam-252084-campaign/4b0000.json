@@ -1068,5 +1068,22 @@
       "bytes_sha256": "73b515ce2cb66621e376f2aa7897cb492e6937fc6a48aebd91f2c0f0b0f5e5c3",
       "inputs_sha256": "792b5b5b71614a3fc3abbf2729a33d11796ec18bb193936c444ad69ace992ef9"
     }
+  },
+  {
+    "id": "rotate-right-4bfc40",
+    "size": 89,
+    "offset": 4979776,
+    "inputs": [
+      "src/campaign_tree_rotations.c",
+      "src/tree_rotation.h"
+    ],
+    "rebuilt_symbol": "@rotate_right_4bfc40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_rotations.obj src/campaign_tree_rotations.c",
+    "identification": "Direct call at retail VA 0x10dc071c. The full right rotation updates the root or the parent link and tests the node sentinel at offset 21.",
+    "match": {
+      "bytes_sha256": "fd16811cb23c7a5fd672a77c5f377f33622b6a7902656ee8e7d3afcea62ee93d",
+      "inputs_sha256": "30f12f3d49a3c5b35a316683723e88072dc7f7945153e00684097b44c9c4b8a3"
+    }
   }
 ]
