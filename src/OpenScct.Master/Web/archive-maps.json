@@ -1138,15 +1138,15 @@
   {
     "Title": "Enhanced Aquarius",
     "Code": "AquaE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/AquaE.sdc",
     "Image": "showcase-archive-stock-packages-maps-aquae-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Enhanced Aquarius 3V3",
+    "Title": "Enhanced Aquarius 3v3",
     "Code": "AquaT",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/AquaT.sdc",
     "Image": "showcase-archive-stock-packages-maps-aquat-sdc.webp",
     "Kind": "Map preview"
@@ -1160,9 +1160,9 @@
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Bank",
+    "Title": "Phoenix's Bank",
     "Code": "BankP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/BankP.sdc",
     "Image": "showcase-archive-stock-packages-maps-bankp-sdc.webp",
     "Kind": "Map preview"
@@ -1170,7 +1170,7 @@
   {
     "Title": "Enhanced Cinema",
     "Code": "CineE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/CineE.sdc",
     "Image": "showcase-archive-stock-packages-maps-cinee-sdc.webp",
     "Kind": "Map preview"
@@ -1178,15 +1178,15 @@
   {
     "Title": "Enhanced Cinema Sabotage",
     "Code": "CineS",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/CineS.sdc",
     "Image": "showcase-archive-stock-packages-maps-cines-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ump Cinema",
+    "Title": "UMP Cinema",
     "Code": "CineU",
-    "Category": "Stock collection",
+    "Category": "UMP maps",
     "Path": "stock/Packages/Maps/CineU.sdc",
     "Image": "showcase-archive-stock-packages-maps-cineu-sdc.webp",
     "Kind": "Map preview"
@@ -1202,7 +1202,7 @@
   {
     "Title": "Enhanced Club House",
     "Code": "ClubE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/ClubE.sdc",
     "Image": "showcase-archive-stock-packages-maps-clube-sdc.webp",
     "Kind": "Map preview"
@@ -1210,15 +1210,15 @@
   {
     "Title": "Shadow House",
     "Code": "ClubS",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/ClubS.sdc",
     "Image": "showcase-archive-stock-packages-maps-clubs-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Enhanced Club House 3V3",
+    "Title": "Enhanced Club House 3v3",
     "Code": "ClubT",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/ClubT.sdc",
     "Image": "showcase-archive-stock-packages-maps-clubt-sdc.webp",
     "Kind": "Map preview"
@@ -1226,7 +1226,7 @@
   {
     "Title": "Snake Cpusa",
     "Code": "CpusS",
-    "Category": "Stock collection",
+    "Category": "Snake maps",
     "Path": "stock/Packages/Maps/CpusS.sdc",
     "Image": "showcase-archive-stock-packages-maps-cpuss-sdc.webp",
     "Kind": "Map preview"
@@ -1242,7 +1242,7 @@
   {
     "Title": "Snake Deftech Belew",
     "Code": "DeftS",
-    "Category": "Stock collection",
+    "Category": "Snake maps",
     "Path": "stock/Packages/Maps/DeftS.sdc",
     "Image": "showcase-archive-stock-packages-maps-defts-sdc.webp",
     "Kind": "Map preview"
@@ -1266,23 +1266,23 @@
   {
     "Title": "Enhanced Factory",
     "Code": "FactE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/FactE.sdc",
     "Image": "showcase-archive-stock-packages-maps-facte-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Factory",
+    "Title": "Phoenix's Factory",
     "Code": "FactP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/FactP.sdc",
     "Image": "showcase-archive-stock-packages-maps-factp-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Enhanced Factory 3V3",
+    "Title": "Enhanced Factory 3v3",
     "Code": "FactT",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/FactT.sdc",
     "Image": "showcase-archive-stock-packages-maps-factt-sdc.webp",
     "Kind": "Map preview"
@@ -1290,7 +1290,7 @@
   {
     "Title": "Snake Ghost Town",
     "Code": "GhosS",
-    "Category": "Stock collection",
+    "Category": "Snake maps",
     "Path": "stock/Packages/Maps/GhosS.sdc",
     "Image": "showcase-archive-stock-packages-maps-ghoss-sdc.webp",
     "Kind": "Level layout"
@@ -1298,15 +1298,15 @@
   {
     "Title": "Enhanced Krauser Lab",
     "Code": "KrauE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/KrauE.sdc",
     "Image": "showcase-archive-stock-packages-maps-kraue-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ump Krauser Lab",
+    "Title": "UMP Krauser Lab",
     "Code": "KrauU",
-    "Category": "Stock collection",
+    "Category": "UMP maps",
     "Path": "stock/Packages/Maps/KrauU.sdc",
     "Image": "showcase-archive-stock-packages-maps-krauu-sdc.webp",
     "Kind": "Map preview"
@@ -1330,15 +1330,15 @@
   {
     "Title": "Enhanced Missile Strike",
     "Code": "MissE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/MissE.sdc",
     "Image": "showcase-archive-stock-packages-maps-misse-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Missile Strike",
+    "Title": "Phoenix's Missile Strike",
     "Code": "MissP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/MissP.sdc",
     "Image": "showcase-archive-stock-packages-maps-missp-sdc.webp",
     "Kind": "Map preview"
@@ -1346,7 +1346,7 @@
   {
     "Title": "Enhanced Mount Hospital",
     "Code": "MounE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/MounE.sdc",
     "Image": "showcase-archive-stock-packages-maps-moune-sdc.webp",
     "Kind": "Map preview"
@@ -1354,15 +1354,15 @@
   {
     "Title": "Enh Mount Hospital Sabo",
     "Code": "MounS",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/MounS.sdc",
     "Image": "showcase-archive-stock-packages-maps-mouns-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ump Mount Hospital",
+    "Title": "UMP Mount Hospital",
     "Code": "MounU",
-    "Category": "Stock collection",
+    "Category": "UMP maps",
     "Path": "stock/Packages/Maps/MounU.sdc",
     "Image": "showcase-archive-stock-packages-maps-mounu-sdc.webp",
     "Kind": "Map preview"
@@ -1378,15 +1378,15 @@
   {
     "Title": "Enhanced Museum",
     "Code": "MuseE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/MuseE.sdc",
     "Image": "showcase-archive-stock-packages-maps-musee-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Museum 3V3",
+    "Title": "Museum 3v3",
     "Code": "MuseT",
-    "Category": "Stock collection",
+    "Category": "3v3 variants",
     "Path": "stock/Packages/Maps/MuseT.sdc",
     "Image": "showcase-archive-stock-packages-maps-muset-sdc.webp",
     "Kind": "Map preview"
@@ -1402,23 +1402,23 @@
   {
     "Title": "Enhanced Orphanage",
     "Code": "OrphE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/OrphE.sdc",
     "Image": "showcase-archive-stock-packages-maps-orphe-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ps2 Orphanage",
+    "Title": "PS2 Orphanage",
     "Code": "OrphS",
-    "Category": "Stock collection",
+    "Category": "PS2 variants",
     "Path": "stock/Packages/Maps/OrphS.sdc",
     "Image": "showcase-archive-stock-packages-maps-orphs-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Enhanced Orphanage 3V3",
+    "Title": "Enhanced Orphanage 3v3",
     "Code": "OrphT",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/OrphT.sdc",
     "Image": "showcase-archive-stock-packages-maps-orpht-sdc.webp",
     "Kind": "Map preview"
@@ -1426,7 +1426,7 @@
   {
     "Title": "Panama Bank",
     "Code": "PanaD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/PanaD.sdc",
     "Image": "showcase-archive-stock-packages-maps-panad-sdc.webp",
     "Kind": "Map preview"
@@ -1434,7 +1434,7 @@
   {
     "Title": "Snake Panama Bank",
     "Code": "PanaS",
-    "Category": "Stock collection",
+    "Category": "Snake maps",
     "Path": "stock/Packages/Maps/PanaS.sdc",
     "Image": "showcase-archive-stock-packages-maps-panas-sdc.webp",
     "Kind": "Map preview"
@@ -1442,7 +1442,7 @@
   {
     "Title": "Polar Base",
     "Code": "PolaD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/PolaD.sdc",
     "Image": "showcase-archive-stock-packages-maps-polad-sdc.webp",
     "Kind": "Map preview"
@@ -1450,23 +1450,23 @@
   {
     "Title": "Enhanced Polar Base",
     "Code": "PolaE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/PolaE.sdc",
     "Image": "showcase-archive-stock-packages-maps-polae-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Polar Base",
+    "Title": "Phoenix's Polar Base",
     "Code": "PolaP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/PolaP.sdc",
     "Image": "showcase-archive-stock-packages-maps-polap-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Enhanced Polar Base 3V3",
+    "Title": "Enhanced Polar Base 3v3",
     "Code": "PolaT",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/PolaT.sdc",
     "Image": "showcase-archive-stock-packages-maps-polat-sdc.webp",
     "Kind": "Map preview"
@@ -1474,7 +1474,7 @@
   {
     "Title": "Prison",
     "Code": "PrisD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/PrisD.sdc",
     "Image": "showcase-archive-stock-packages-maps-prisd-sdc.webp",
     "Kind": "Map preview"
@@ -1482,7 +1482,7 @@
   {
     "Title": "Pyrocryptic",
     "Code": "PyroD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/PyroD.sdc",
     "Image": "showcase-archive-stock-packages-maps-pyrod-sdc.webp",
     "Kind": "Map preview"
@@ -1498,15 +1498,15 @@
   {
     "Title": "Enhanced River Mall",
     "Code": "RiveE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/RiveE.sdc",
     "Image": "showcase-archive-stock-packages-maps-rivee-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S River Mall",
+    "Title": "Phoenix's River Mall",
     "Code": "RiveP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/RiveP.sdc",
     "Image": "showcase-archive-stock-packages-maps-rivep-sdc.webp",
     "Kind": "Map preview"
@@ -1514,7 +1514,7 @@
   {
     "Title": "Sanctuary",
     "Code": "SancD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/SancD.sdc",
     "Image": "showcase-archive-stock-packages-maps-sancd-sdc.webp",
     "Kind": "Map preview"
@@ -1522,7 +1522,7 @@
   {
     "Title": "Enhanced Sanctuary",
     "Code": "SancE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/SancE.sdc",
     "Image": "showcase-archive-stock-packages-maps-sance-sdc.webp",
     "Kind": "Map preview"
@@ -1530,15 +1530,15 @@
   {
     "Title": "Enhanced Schermerhorn",
     "Code": "ScheE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/ScheE.sdc",
     "Image": "showcase-archive-stock-packages-maps-schee-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ump Schermerhorn",
+    "Title": "UMP Schermerhorn",
     "Code": "ScheU",
-    "Category": "Stock collection",
+    "Category": "UMP maps",
     "Path": "stock/Packages/Maps/ScheU.sdc",
     "Image": "showcase-archive-stock-packages-maps-scheu-sdc.webp",
     "Kind": "Map preview"
@@ -1546,15 +1546,15 @@
   {
     "Title": "Shadow Moses",
     "Code": "ShadD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/ShadD.sdc",
     "Image": "showcase-archive-stock-packages-maps-shadd-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Shadow Moses",
+    "Title": "Phoenix's Shadow Moses",
     "Code": "ShadP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/ShadP.sdc",
     "Image": "showcase-archive-stock-packages-maps-shadp-sdc.webp",
     "Kind": "Map preview"
@@ -1562,15 +1562,15 @@
   {
     "Title": "Skyscraper",
     "Code": "SkysD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/SkysD.sdc",
     "Image": "showcase-archive-stock-packages-maps-skysd-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Skyscraper",
+    "Title": "Phoenix's Skyscraper",
     "Code": "SkysP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/SkysP.sdc",
     "Image": "showcase-archive-stock-packages-maps-skysp-sdc.webp",
     "Kind": "Map preview"
@@ -1578,7 +1578,7 @@
   {
     "Title": "Snake Slaughterhouse",
     "Code": "SlauS",
-    "Category": "Stock collection",
+    "Category": "Snake maps",
     "Path": "stock/Packages/Maps/SlauS.sdc",
     "Image": "showcase-archive-stock-packages-maps-slaus-sdc.webp",
     "Kind": "Map preview"
@@ -1594,15 +1594,15 @@
   {
     "Title": "Enhanced Station",
     "Code": "StatE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/StatE.sdc",
     "Image": "showcase-archive-stock-packages-maps-state-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ps2 Station",
+    "Title": "PS2 Station",
     "Code": "StatS",
-    "Category": "Stock collection",
+    "Category": "PS2 variants",
     "Path": "stock/Packages/Maps/StatS.sdc",
     "Image": "showcase-archive-stock-packages-maps-stats-sdc.webp",
     "Kind": "Map preview"
@@ -1610,7 +1610,7 @@
   {
     "Title": "Steel Squat",
     "Code": "SteeD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/SteeD.sdc",
     "Image": "showcase-archive-stock-packages-maps-steed-sdc.webp",
     "Kind": "Map preview"
@@ -1618,23 +1618,23 @@
   {
     "Title": "Enhanced Steel Squat",
     "Code": "SteeE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/SteeE.sdc",
     "Image": "showcase-archive-stock-packages-maps-steee-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Steel Squat",
+    "Title": "Phoenix's Steel Squat",
     "Code": "SteeP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/SteeP.sdc",
     "Image": "showcase-archive-stock-packages-maps-steep-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Enhanced Steel Squat 3V3",
+    "Title": "Enhanced Steel Squat 3v3",
     "Code": "SteeT",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/SteeT.sdc",
     "Image": "showcase-archive-stock-packages-maps-steet-sdc.webp",
     "Kind": "Map preview"
@@ -1642,7 +1642,7 @@
   {
     "Title": "Stronghold",
     "Code": "StroD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/StroD.sdc",
     "Image": "showcase-archive-stock-packages-maps-strod-sdc.webp",
     "Kind": "Map preview"
@@ -1714,7 +1714,7 @@
   {
     "Title": "Terminus",
     "Code": "TermD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/TermD.sdc",
     "Image": "showcase-archive-stock-packages-maps-termd-sdc.webp",
     "Kind": "Map preview"
@@ -1722,15 +1722,15 @@
   {
     "Title": "Enhanced Vertigo Plaza",
     "Code": "VertE",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/VertE.sdc",
     "Image": "showcase-archive-stock-packages-maps-verte-sdc.webp",
     "Kind": "Map preview"
   },
   {
-    "Title": "Ump Vertigo Plaza",
+    "Title": "UMP Vertigo Plaza",
     "Code": "VertU",
-    "Category": "Stock collection",
+    "Category": "UMP maps",
     "Path": "stock/Packages/Maps/VertU.sdc",
     "Image": "showcase-archive-stock-packages-maps-vertu-sdc.webp",
     "Kind": "Map preview"
@@ -1738,7 +1738,7 @@
   {
     "Title": "Enh Vertigo Plaza Extraction",
     "Code": "VertX",
-    "Category": "Stock collection",
+    "Category": "Enhanced variants",
     "Path": "stock/Packages/Maps/VertX.sdc",
     "Image": "showcase-archive-stock-packages-maps-vertx-sdc.webp",
     "Kind": "Map preview"
@@ -1752,9 +1752,9 @@
     "Kind": "Map preview"
   },
   {
-    "Title": "Phoenix'S Warehouse",
+    "Title": "Phoenix's Warehouse",
     "Code": "WareP",
-    "Category": "Stock collection",
+    "Category": "Phoenix maps",
     "Path": "stock/Packages/Maps/WareP.sdc",
     "Image": "showcase-archive-stock-packages-maps-warep-sdc.webp",
     "Kind": "Map preview"
@@ -1762,7 +1762,7 @@
   {
     "Title": "Zioplex",
     "Code": "ZiopD",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/ZiopD.sdc",
     "Image": "showcase-archive-stock-packages-maps-ziopd-sdc.webp",
     "Kind": "Map preview"
@@ -1770,7 +1770,7 @@
   {
     "Title": "Zioplex Sabotage",
     "Code": "ZiopS",
-    "Category": "Stock collection",
+    "Category": "Additional PC maps",
     "Path": "stock/Packages/Maps/ZiopS.sdc",
     "Image": "showcase-archive-stock-packages-maps-ziops-sdc.webp",
     "Kind": "Map preview"
