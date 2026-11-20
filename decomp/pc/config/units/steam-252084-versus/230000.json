@@ -435,6 +435,38 @@
     }
   },
   {
+    "id": "insert-node-23b310",
+    "offset": 2339600,
+    "size": 450,
+    "coff_alignment": 16,
+    "inputs": [
+      "src/versus_tree_insert_rebalance.c",
+      "src/linked_tree_insert.h"
+    ],
+    "rebuilt_symbol": "@insert_node_23b310@24",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_insert_rebalance.obj src/versus_tree_insert_rebalance.c",
+    "link_bindings": {
+      "@make_node_23ba70@8": {
+        "va": 280214128,
+        "basis": "Both insertion branches call the same node creation routine."
+      },
+      "_rotate_right_call": {
+        "va": 280192032,
+        "basis": "Independently matched red-black tree rotation."
+      },
+      "_rotate_left_call": {
+        "va": 280191952,
+        "basis": "Independently matched red-black tree rotation."
+      }
+    },
+    "identification": "Direct call at retail VA 0x10b39382. Inserts an unsigned key using placement hints, updates root and extreme links, then recolors and rotates the tree.",
+    "match": {
+      "bytes_sha256": "a60913ee2b4e6e9564ff796b0cfdbe62daaf0bde3e23e0d2538c8566d48fafba",
+      "inputs_sha256": "357e289d2c6f10cd5fa952114383d9cdab6cceaf400f0f1045f3dd6331e3d043"
+    }
+  },
+  {
     "id": "delete-record-23c1b0",
     "offset": 2343344,
     "size": 27,
