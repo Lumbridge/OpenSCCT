@@ -34,6 +34,12 @@ internal sealed partial class PlayerPortal
             $"<img class=\"mod-shot\" src=\"{H(url)}\" alt=\"View of {H(map.Title)}\" width=\"640\" height=\"360\"{(lazy ? " loading=\"lazy\"" : "")}>";
     }
 
+    private static string SourceDownloadLink(CommunityMap map)
+    {
+        string id = "source-" + map.Code.ToLowerInvariant();
+        return Downloads.Maps.ContainsKey(id) ? Link("/mods/download/" + U(id), "Download map source", "map-download") : "";
+    }
+
     private static string MapSize(long bytes) => bytes >= 1024 * 1024
         ? (bytes / (1024d * 1024)).ToString("0.#", CultureInfo.InvariantCulture) + " MiB"
         : Math.Max(1, (bytes + 1023) / 1024).ToString(CultureInfo.InvariantCulture) + " KiB";
@@ -79,6 +85,7 @@ internal sealed partial class PlayerPortal
                         <article class="mod-card">{MapImage(map, lazy: true)}<div class="mod-card-copy">
                           <h3>{Link(MapPage(map), map.Title)}</h3><p>{H(string.Join(" · ", map.Modes))}</p>
                           <small>Godot &amp; Unreal <span>{MapSize(map.DownloadBytes)} source download</span></small>
+                          {SourceDownloadLink(map)}
                         </div></article>
                         """);
                 body.Append("</div></section>");
@@ -123,7 +130,7 @@ internal sealed partial class PlayerPortal
                   <p>Requires your Steam copy of Chaos Theory and OpenSCCT Godot or Unreal. The launcher downloads {MapSize(map.DownloadBytes)} of map source and builds it using your local game files.</p>
                   <div class="hub-actions">{Link("openscct://maps/" + U(map.Code), "Open map in launcher", "hub-primary")}</div>
                   <p>With launcher 0.9.4 or newer, the button selects the map for review. You can also open Maps in the launcher and select {H(map.Title)}.</p>
-                  {Link("/download", "Get the launcher", "hub-secondary")}
+                  {Link("/download", "Get the launcher", "hub-secondary")} {SourceDownloadLink(map)}
                 </section>
               </div>
               <section class="mod-section"><h2>Credits</h2><p>{H(map.Credits)}</p>{Link(map.Source, "View the map source record", "hub-secondary")}</section>

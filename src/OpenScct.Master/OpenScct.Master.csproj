@@ -7,7 +7,7 @@
       The master's own version (MasterBuildInfo, the status answer's masterVersion, shown in the game under its own
       version). Bump it when the master changes; it is apart from the game's VersionPrefix and a release's -p:Version.
     -->
-    <MasterVersion>1.1.42</MasterVersion>
+    <MasterVersion>1.1.43</MasterVersion>
   </PropertyGroup>
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
@@ -32,6 +32,7 @@
     <EmbeddedResource Include="Admin/assets/*" LogicalName="admin/%(Filename)%(Extension)" />
     <EmbeddedResource Include="Web/assets/*.css;Web/assets/*.woff2;Web/assets/site.js;Web/assets/mark*.svg" LogicalName="web/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../../decomp/reports/progress.json" LogicalName="project-progress.json" />
+    <EmbeddedResource Include="Web/map-downloads.json" LogicalName="map-downloads.json" />
     <EmbeddedResource Include="Web/archive-maps.json" LogicalName="archive-maps.json" />
     <EmbeddedResource Include="Web/community-maps.json" LogicalName="community-maps.json" />
     <!-- Screenshots stay in the approved documentation media folder; public asset names remain unchanged. -->

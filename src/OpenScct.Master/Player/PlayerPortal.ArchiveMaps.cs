@@ -10,7 +10,7 @@ namespace OpenScct.Master.Player;
 
 internal sealed partial class PlayerPortal
 {
-    private sealed record ArchiveMap(string Title, string Code, string Category, string Path, string Image, string Kind)
+    private sealed record ArchiveMap(string Title, string Code, string Category, string Path, string Image, string Kind, string? DownloadId = null)
     {
         public string Url => "https://github.com/OpenSCCT/SCCT-Maps/" +
             (Path.EndsWith(".sdc", StringComparison.OrdinalIgnoreCase) ? "blob/" : "tree/") +
@@ -34,7 +34,7 @@ internal sealed partial class PlayerPortal
         if (maps.Length == 0) return 0;
         body.Append("<section class=\"mod-section map-archive\"><h2>Original PC map library</h2><p>")
             .Append(N(maps.Length)).Append(maps.Length == 1 ? " map" : " maps")
-            .Append(" for PC Versus and the Reloaded Editor. Each entry links to its package or installation notes. ")
+            .Append(" for PC Versus and the Reloaded Editor. Download optional maps as ZIP files. Open a map title for its requirements and installation notes. ")
             .Append(Link("https://github.com/OpenSCCT/SCCT-Map-Manager/releases/latest", "Get SCCT Map Manager"))
             .Append("</p>");
         foreach (var group in maps.GroupBy(map => map.Category).OrderBy(group => group.Key switch
@@ -49,7 +49,7 @@ internal sealed partial class PlayerPortal
             {
                 body.Append($"""
                     <article class="mod-card"><a href="{H(map.Url)}" tabindex="-1" aria-hidden="true"><img class="mod-shot" loading="lazy" decoding="async" width="480" height="270" src="{H(AssetUrl("/web/assets/" + map.Image))}" alt=""></a>
-                      <div class="mod-card-copy"><h4>{Link(map.Url, map.Title)}</h4><small>{H(map.Code)} <span>{H(map.Kind)}</span></small></div></article>
+                      <div class="mod-card-copy"><h4>{Link(map.Url, map.Title)}</h4><small>{H(map.Code)} <span>{H(map.Kind)}</span></small>{(map.DownloadId is null ? "" : Link("/mods/download/" + U(map.DownloadId), "Download ZIP", "map-download"))}</div></article>
                     """);
             }
             body.Append("</div></details>");

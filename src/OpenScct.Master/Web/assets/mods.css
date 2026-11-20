@@ -28,3 +28,5 @@
 .map-archive .mod-shot { object-fit: contain; background: #131813; }
 .map-archive h4 { margin: 0 0 .4rem; font-size: 1.07rem; }
 .map-archive h4 a { color: #b7efa8; }
+.mod-card .map-download, .mod-install .map-download { display:inline-flex; align-items:center; width:fit-content; margin-top:.75rem; padding:.45rem .7rem; border-radius:6px; background:#303d31; color:#c3f0b9; font-weight:650; text-decoration:none; }
+.map-download:hover, .map-download:focus-visible { text-decoration:underline; }
