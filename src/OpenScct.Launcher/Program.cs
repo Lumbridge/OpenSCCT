@@ -18,16 +18,19 @@ internal static class Program
     private static int Main(string[] args)
     {
         string? joinServerId = null;
+        string? mapCode = null;
         bool afterUpdate = false;
         bool openUnreal = false;
         foreach (string arg in args)
         {
+            bool hasTarget = openUnreal || joinServerId is not null || mapCode is not null;
             if (arg == AfterUpdateArg && !afterUpdate) afterUpdate = true;
-            else if (!openUnreal && joinServerId is null && string.Equals(arg, "openscct://edition/unreal", StringComparison.OrdinalIgnoreCase)) openUnreal = true;
-            else if (!openUnreal && joinServerId is null && WebJoinRequest.TryParse(arg, out string? id)) joinServerId = id;
+            else if (!hasTarget && string.Equals(arg, "openscct://edition/unreal", StringComparison.OrdinalIgnoreCase)) openUnreal = true;
+            else if (!hasTarget && WebJoinRequest.TryParse(arg, out string? id)) joinServerId = id;
+            else if (!hasTarget && WebMapRequest.TryParse(arg, out string? code)) mapCode = code;
             else
             {
-                MessageBox.Show("This OpenSCCT link is invalid. Open the website's Servers page and choose Join again.", "OpenSCCT", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("This OpenSCCT link is invalid. Open the project website and try the link again.", "OpenSCCT", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return 2;
             }
         }
@@ -50,6 +53,11 @@ internal static class Program
         {
             if (openUnreal)
                 return WebJoinPipe.SendAsync(WebJoinPipe.EditionName, "Unreal").GetAwaiter().GetResult() ? 0 : 1;
+            if (mapCode is not null && !WebJoinPipe.SendAsync(WebJoinPipe.MapsName, mapCode).GetAwaiter().GetResult())
+            {
+                MessageBox.Show("The running launcher could not open this map. Close it, open the latest launcher, then try the map link again.", "OpenSCCT", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return 1;
+            }
             if (joinServerId is not null && !WebJoinPipe.SendAsync(WebJoinPipe.LauncherName, joinServerId).GetAwaiter().GetResult())
             {
                 MessageBox.Show("The running launcher could not receive this Join request. Close it, open the latest launcher, then choose Join again.", "OpenSCCT", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -79,14 +87,16 @@ internal static class Program
         using var form = new MainForm(joinServerId, WebJoinRegistration.Register(ExePath));
         _ = form.Handle;
         if (openUnreal) form.ShowEdition("Unreal");
+        if (mapCode is not null) form.Shown += (_, _) => form.BeginInvoke(() => form.OpenMapRequest(mapCode));
         using var lifetime = new CancellationTokenSource();
         Task listener = WebJoinPipe.ListenAsync(form.QueueWebJoin, lifetime.Token);
         Task editions = WebJoinPipe.ListenAsync(form.ShowEdition, lifetime.Token, WebJoinPipe.EditionName);
+        Task maps = WebJoinPipe.ListenAsync(form.OpenMapRequest, lifetime.Token, WebJoinPipe.MapsName);
         try { Application.Run(form); }
         finally
         {
             lifetime.Cancel();
-            Task.WhenAll(listener, editions).GetAwaiter().GetResult();
+            Task.WhenAll(listener, editions, maps).GetAwaiter().GetResult();
             single.ReleaseMutex();
         }
         return 0;

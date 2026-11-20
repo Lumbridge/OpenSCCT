@@ -77,6 +77,11 @@ internal static class Program
         Application.SetCompatibleTextRenderingDefault(false);
         string output = Path.GetFullPath(args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal)) ?? "local/launcher-smoke/artifacts");
         Directory.CreateDirectory(output);
+        if (args.Contains("--map-links", StringComparer.Ordinal))
+        {
+            MapLinkChecks.Run(MainType.Assembly, output);
+            return 0;
+        }
         if (args.Contains("--library", StringComparer.Ordinal))
         {
             LibraryChecks(output);

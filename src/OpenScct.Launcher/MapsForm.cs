@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OpenScct.Launcher.Launch;
 using OpenScct.Maps;
 
 namespace OpenScct.Launcher.App;
@@ -47,6 +48,7 @@ internal sealed class MapsForm : Form
     private readonly Button _close = Theme.Button("Close");
 
     private ContentIndex? _index;
+    private string? _requestedMap;
     private CancellationTokenSource? _work;
     private bool _closeAfterWork;
 
@@ -279,6 +281,31 @@ internal sealed class MapsForm : Form
 
     private List<Row> SelectedRows() => _list.SelectedItems.Cast<ListViewItem>().Select(i => (Row)i.Tag!).ToList();
 
+    internal void ReviewMap(string code)
+    {
+        if (!WebMapRequest.IsValidCode(code)) return;
+        _requestedMap = code;
+        if (_index is not null) SelectRequestedMap();
+    }
+
+    private void SelectRequestedMap()
+    {
+        if (_requestedMap is not { } code) return;
+        _requestedMap = null;
+        _search.Clear();
+        _list.SelectedIndices.Clear();
+        foreach (ListViewItem item in _list.Items)
+        {
+            if (item.Tag is not Row { Map: { } map } || !string.Equals(map.Code, code, StringComparison.OrdinalIgnoreCase)) continue;
+            item.Selected = true;
+            item.Focused = true;
+            item.EnsureVisible();
+            _list.Focus();
+            return;
+        }
+        SetStatus($"Map {code} is unavailable in the community catalogue.", Theme.Warning);
+    }
+
     private void RefreshButtons()
     {
         bool busy = _work is not null;
@@ -339,6 +366,7 @@ internal sealed class MapsForm : Form
             string problem = _index.Problem is { } p ? " " + p : string.Empty;
             SetStatus($"{_index.PlayableMaps().Count(m => IncludeMap(m.Code))} maps" + (downloaded > 0 ? $", {downloaded} downloaded." : ".") + problem,
                 _index.Problem is null ? Theme.Muted : Theme.Warning);
+            SelectRequestedMap();
         });
     }
 
