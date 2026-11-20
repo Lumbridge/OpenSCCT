@@ -204,6 +204,22 @@
     }
   },
   {
+    "id": "vector-release-range-2a1a90",
+    "size": 52,
+    "offset": 2759312,
+    "inputs": [
+      "src/versus_shared_object_release.c"
+    ],
+    "rebuilt_symbol": "_release_range",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_shared_object_release.obj src/versus_shared_object_release.c",
+    "identification": "Complete Versus range release at RVA 0x2a1a90. Skips null elements, decrements shared references and invokes the virtual destructor for the last reference.",
+    "match": {
+      "bytes_sha256": "2cdf6716514b48cec40ae3c058d3ff707b1a4ff1fb7f0aea6bdef7a4968e3bdf",
+      "inputs_sha256": "fa505bd0df2a803bea0336d5532c1b0bdb5f94a7a762956bb80a1fb1df94aafd"
+    }
+  },
+  {
     "id": "vector-fill-references-2a1ad0",
     "size": 42,
     "offset": 2759376,
@@ -290,6 +306,50 @@
     "match": {
       "bytes_sha256": "6b369df11ce9c9da0c6514a530c9b3e91a17f8257f2cb7f5aee0773e13787d96",
       "inputs_sha256": "0e21dd5a85623659343d8fdfd94967e55a8345f6fdbe9345a9e3f09e51962ba3"
+    }
+  },
+  {
+    "id": "owner-dispatch-2a6f20",
+    "size": 42,
+    "offset": 2780960,
+    "inputs": [
+      "src/versus_owner_dispatch.c"
+    ],
+    "rebuilt_symbol": "@dispatch_8@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_owner_dispatch.obj src/versus_owner_dispatch.c",
+    "link_bindings": {
+      "@prepare_entries@4": {
+        "va": 280653152,
+        "basis": "Shared indexed owner helper called before reloading the selected entry."
+      }
+    },
+    "identification": "Complete selected-entry dispatch at RVA 0x2a6f20. Calls handler slot 8 after preparing the entries, or returns zero when the owner has no selected entry.",
+    "match": {
+      "bytes_sha256": "95bc0712d239acebbdb580dc1f3f7dc58df776896632155883a5050a84f8db8d",
+      "inputs_sha256": "14936e52c64c9b29ccbef3c3374e0da5d33690db16f0b2a6eabaa35042e97543"
+    }
+  },
+  {
+    "id": "owner-dispatch-2a6f50",
+    "size": 42,
+    "offset": 2781008,
+    "inputs": [
+      "src/versus_owner_dispatch.c"
+    ],
+    "rebuilt_symbol": "@dispatch_9@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_owner_dispatch.obj src/versus_owner_dispatch.c",
+    "link_bindings": {
+      "@prepare_entries@4": {
+        "va": 280653152,
+        "basis": "Shared indexed owner helper called before reloading the selected entry."
+      }
+    },
+    "identification": "Complete selected-entry dispatch at RVA 0x2a6f50. Calls handler slot 9 after preparing the entries, or returns zero when the owner has no selected entry.",
+    "match": {
+      "bytes_sha256": "cf2616b25e82b82722c9abd3fd6debd9b73a124871fa550626acdfaa0b8fb4c0",
+      "inputs_sha256": "5b34b442feae2390669fcc09b374e07b12497e2e65177b74bd5e8e28e06ecf06"
     }
   },
   {
