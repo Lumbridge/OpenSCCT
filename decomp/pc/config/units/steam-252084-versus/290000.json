@@ -1,5 +1,52 @@
 [
   {
+    "id": "ordered-tree-begin-tree",
+    "size": 14,
+    "offset": 2742720,
+    "rebuilt_symbol": "@begin_tree@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_erase.obj src/versus_tree_erase.c",
+    "inputs": [
+      "src/versus_tree_erase.c"
+    ],
+    "identification": "Called by tree destruction at RVA 0x29d4b0. Complete indexed begin iterator accessor.",
+    "match": {
+      "bytes_sha256": "7ab906a72e142566903a032ad9387b921670ff0d8218b4270b5dcc8dc647701f",
+      "inputs_sha256": "84a139f5b3946e6c1b6fb893d36088e99080d949cdaae71b38c158563c784e34"
+    }
+  },
+  {
+    "id": "ordered-tree-erase-subtree",
+    "size": 59,
+    "offset": 2745168,
+    "rebuilt_symbol": "@erase_subtree@8",
+    "toolchain": "Microsoft C/C++ 12.00.8804 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_tree_erase.obj src/versus_tree_erase.c",
+    "inputs": [
+      "src/versus_tree_erase.c"
+    ],
+    "identification": "Called by tree destruction at RVA 0x29d4b0. Recursive right subtree removal and iterative left subtree removal end at the callee-pop return and alignment.",
+    "link_bindings": {
+      "_nil": {
+        "va": 281500920,
+        "basis": "Retail operand for nil."
+      },
+      "@erase_subtree@8": {
+        "va": 280617808,
+        "basis": "Retail operand for @erase_subtree@8."
+      },
+      "_release_node": {
+        "va": 279251072,
+        "basis": "Retail operand for release_node."
+      }
+    },
+    "coff_alignment": 16,
+    "match": {
+      "bytes_sha256": "ce38b97e91da8b5838cac5388cf9bdecd0841f92f7e77d7e109c4c5911488496",
+      "inputs_sha256": "196fa74ac6e906eb5d8358b04718dffe11d483e25fc14e09815bea4acd4d10c8"
+    }
+  },
+  {
     "id": "fill-dwords-indexed-29e680",
     "size": 37,
     "offset": 2745984,
