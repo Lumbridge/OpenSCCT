@@ -52,6 +52,28 @@
     }
   },
   {
+    "id": "collision-reverse-contacts-524b90",
+    "size": 102,
+    "offset": 5393296,
+    "inputs": [
+      "src/campaign_reversed_contacts.c"
+    ],
+    "rebuilt_symbol": "@collide_reversed@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reversed_contacts.obj src/campaign_reversed_contacts.c",
+    "link_bindings": {
+      "@collide@20": {
+        "va": 283242512,
+        "basis": "Direct call to indexed forward-order method at RVA 0x51f010; outer method exchanges the first two arguments."
+      }
+    },
+    "identification": "Aligned reversed collision method at RVA 0x524b90; captures initial count, swaps pair arguments, and negates four floats in each new 48-byte contact. Full body ends in ret 16.",
+    "match": {
+      "bytes_sha256": "3240b612e5795cb0ed98616c3292cebf9f0450818416f557e159e66fea6c70f7",
+      "inputs_sha256": "74cb8342cb30d1487626aeda948578143b82a2b0c136bc65751e4a60175b3a12"
+    }
+  },
+  {
     "id": "physics-sized-release-524c00",
     "size": 41,
     "offset": 5393408,
@@ -208,6 +230,28 @@
     }
   },
   {
+    "id": "collision-reverse-contacts-529e80",
+    "size": 102,
+    "offset": 5414528,
+    "inputs": [
+      "src/campaign_reversed_contacts.c"
+    ],
+    "rebuilt_symbol": "@collide_reversed@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reversed_contacts.obj src/campaign_reversed_contacts.c",
+    "link_bindings": {
+      "@collide@20": {
+        "va": 283283088,
+        "basis": "Direct call to indexed forward-order method at RVA 0x528e90; outer method exchanges the first two arguments."
+      }
+    },
+    "identification": "Aligned reversed collision method at RVA 0x529e80; captures initial count, swaps pair arguments, and negates four floats in each new 48-byte contact. Full body ends in ret 16.",
+    "match": {
+      "bytes_sha256": "88f13df939a388fdb4a10c084681adfbb03a4790a19abdfc9610a99a75a32f4a",
+      "inputs_sha256": "a24cedf68cae84ac1b3146cd00c9b6f4cc698d74a9171739c0bf803b7022f75a"
+    }
+  },
+  {
     "id": "physics-sized-release-52a190",
     "size": 41,
     "offset": 5415312,
@@ -283,6 +327,28 @@
     "match": {
       "bytes_sha256": "11c6b9bf72b66b104dddcf86f07a4c1ef250eb73276dc4be90bd00293af6183d",
       "inputs_sha256": "feef93680623a76a6348591a511c75050b851c5465072a3be45087fc6b68c8ed"
+    }
+  },
+  {
+    "id": "collision-reverse-contacts-52b130",
+    "size": 102,
+    "offset": 5419312,
+    "inputs": [
+      "src/campaign_reversed_contacts.c"
+    ],
+    "rebuilt_symbol": "@collide_reversed@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reversed_contacts.obj src/campaign_reversed_contacts.c",
+    "link_bindings": {
+      "@collide@20": {
+        "va": 283289104,
+        "basis": "Direct call to indexed forward-order method at RVA 0x52a610; outer method exchanges the first two arguments."
+      }
+    },
+    "identification": "Aligned reversed collision method at RVA 0x52b130; captures initial count, swaps pair arguments, and negates four floats in each new 48-byte contact. Full body ends in ret 16.",
+    "match": {
+      "bytes_sha256": "70cb873019a3d8255b5d6f1be09f40cb575b182a26e0e3b85ee61a8a3165c46d",
+      "inputs_sha256": "ea9e1b2b375559ccec68f7a21a5f4eecdf2c522899d3256f0a194386e0fbe0f0"
     }
   },
   {
@@ -387,6 +453,28 @@
     "match": {
       "bytes_sha256": "a3190d57e7b0d0e0efdce9ef6d5a1137bf69a74bf3716df33f1ad89e10073a7b",
       "inputs_sha256": "5d43c7c385de9205f62c2c56fd02667b12a5975087f8a8813b034e50a86edebb"
+    }
+  },
+  {
+    "id": "collision-reverse-contacts-52c870",
+    "size": 102,
+    "offset": 5425264,
+    "inputs": [
+      "src/campaign_reversed_contacts.c"
+    ],
+    "rebuilt_symbol": "@collide_reversed@20",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_reversed_contacts.obj src/campaign_reversed_contacts.c",
+    "link_bindings": {
+      "@collide@20": {
+        "va": 283294368,
+        "basis": "Direct call to indexed forward-order method at RVA 0x52baa0; outer method exchanges the first two arguments."
+      }
+    },
+    "identification": "Aligned reversed collision method at RVA 0x52c870; captures initial count, swaps pair arguments, and negates four floats in each new 48-byte contact. Full body ends in ret 16.",
+    "match": {
+      "bytes_sha256": "70e425193654c6bbfd86fb44f898b26dfd5bb9f334d64ee186e96b4607a26952",
+      "inputs_sha256": "e8fdb74d2ecd6682fd7f8d6b954c8f6e17882a3cfe9817b30484e7a39f4ba94b"
     }
   },
   {
