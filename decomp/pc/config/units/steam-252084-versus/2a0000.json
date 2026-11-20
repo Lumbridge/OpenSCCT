@@ -325,6 +325,22 @@
     }
   },
   {
+    "id": "reference-slot-release-2a6d40",
+    "size": 26,
+    "offset": 2780480,
+    "inputs": [
+      "src/versus_reference_slot.c"
+    ],
+    "rebuilt_symbol": "@release_slot@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_reference_slot.obj src/versus_reference_slot.c",
+    "identification": "Complete indexed single-slot release at RVA 0x2a6d40. Checks the reference count, invokes the deleting destructor on the last reference and decrements a shared reference.",
+    "match": {
+      "bytes_sha256": "350df632fcda7d02ab1af9d017ed75439307814ccd9adca00ba6819ea27b42b5",
+      "inputs_sha256": "8716076ae11e235bf2f74e17b580ba640bd26639fc2680827086e4551cc2a3c4"
+    }
+  },
+  {
     "id": "select-eligible-entry-2a6d60",
     "size": 68,
     "offset": 2780512,
@@ -344,6 +360,28 @@
     "match": {
       "bytes_sha256": "e1e8ea80200d54eeab53eac71b867eec50c0ddc52b27ce8bfe17a71b37628dda",
       "inputs_sha256": "20480a247d0cd5448f118f929173e9e28a4565c799d23cf5b109951cd6e774da"
+    }
+  },
+  {
+    "id": "entry-hit-test-2a6e70",
+    "size": 173,
+    "offset": 2780784,
+    "inputs": [
+      "src/versus_entry_hit_test.c"
+    ],
+    "rebuilt_symbol": "@hit_test@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_hit_test.obj src/versus_entry_hit_test.c",
+    "link_bindings": {
+      "_eligible": {
+        "va": 280651824,
+        "basis": "Shared entry type predicate also used by the selection routine."
+      }
+    },
+    "identification": "Complete reverse-order hit test at RVA 0x2a6e70. Asks eligible enabled entries for their bounds, tests both inclusive signed coordinates and returns the first hit or a null pointer.",
+    "match": {
+      "bytes_sha256": "2e2c8e5277a3fa89efbc6a6a74cc43be014fe456486da274e73d644d15458e80",
+      "inputs_sha256": "62a34e7e9323feaf305de1ded4a3240520cd958fe0e055acbaf0c22a1dba6937"
     }
   },
   {
