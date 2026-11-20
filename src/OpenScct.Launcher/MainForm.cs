@@ -76,8 +76,6 @@ internal sealed partial class MainForm : Form
     private Panel? _releasePreview;
     private TableLayoutPanel? _releaseNotes;
     private FlowLayoutPanel? _tools;
-    private bool _initialSizeSet;
-    private bool _initialFitQueued;
     private readonly Label _heading = Theme.Wrapping(Theme.Label("Install OpenSCCT", Theme.Status));
     private readonly Label _installedInfo = Theme.Wrapping(Theme.Label(string.Empty, Theme.Small, Theme.Muted));
     private readonly Label _launchDetail = Theme.Wrapping(Theme.Label(string.Empty, Theme.Body, Theme.Muted));
@@ -346,19 +344,18 @@ internal sealed partial class MainForm : Form
                 : !HasChecked(_selected) ? "Check for updates to load release notes."
                 : release is null ? "No release information available." : "No release notes available.";
         }
-        QueueInitialFit();
     }
 
-    private void QueueInitialFit()
+    // Native child windows share one composited frame during library layout changes.
+    protected override CreateParams CreateParams
     {
-        if (_initialSizeSet || _initialFitQueued || !IsHandleCreated || IsDisposed || Disposing
-            || _work is not null || SelectedRelease is null || _page != LibraryPage.Games || IsOriginalEdition) return;
-        _initialFitQueued = true;
-        BeginInvoke(() =>
+        get
         {
-            _initialFitQueued = false;
-            FitUpdateHeight();
-        });
+            const int WS_EX_COMPOSITED = 0x02000000;
+            var parameters = base.CreateParams;
+            parameters.ExStyle |= WS_EX_COMPOSITED;
+            return parameters;
+        }
     }
 
     protected override void OnLoad(EventArgs e)
@@ -368,71 +365,6 @@ internal sealed partial class MainForm : Form
         Rectangle work = Screen.FromControl(this).WorkingArea;
         MinimumSize = new Size(Math.Min(MinimumSize.Width, work.Width), Math.Min(MinimumSize.Height, work.Height));
         Size = new Size(Math.Min(Width, work.Width), Math.Min(Height, work.Height));
-        QueueInitialFit();
-    }
-
-    protected override void OnResizeBegin(EventArgs e)
-    {
-        // A user move or resize takes precedence even if the startup fit is still queued.
-        _initialSizeSet = true;
-        base.OnResizeBegin(e);
-    }
-
-    /// <summary>Choose the initial shared height once; subsequent layout changes use scrolling.</summary>
-    private void FitUpdateHeight()
-    {
-        if (_initialSizeSet || IsDisposed || Disposing || _work is not null || SelectedRelease is null
-            || WindowState != FormWindowState.Normal
-            || _mainLayout is null || _releasePreview is null || _releaseNotes is null || _tools is null) return;
-        _initialSizeSet = true;
-        Product selected = _selected;
-        Control? focused = ActiveControl;
-        Point previewScroll = _releasePreview.AutoScrollPosition;
-        SuspendLayout();
-        try
-        {
-            int height = new[] { Product.Game, Product.Editor, Product.Unreal }.Max(MeasureProductHeight);
-            Rectangle work = Screen.FromControl(this).WorkingArea;
-            int maximum = Math.Max(1, work.Height - (Height - ClientSize.Height));
-            int minimum = Math.Max(1, MinimumSize.Height - (Height - ClientSize.Height));
-            int target = Math.Min(Math.Max(ClientSize.Height, Math.Max(height, minimum)), maximum);
-            // Keep the startup width and use scrolling when the working area cannot fit the content.
-            if (target != ClientSize.Height) ClientSize = new Size(ClientSize.Width, target);
-            if (Bottom > work.Bottom) Top = Math.Max(work.Top, work.Bottom - Height);
-        }
-        finally
-        {
-            _selected = selected;
-            SetProductCopy(selected);
-            RefreshLocal();
-            RefreshReleasePreview();
-            ResumeLayout(true);
-            _releasePreview.AutoScrollPosition = new Point(-previewScroll.X, -previewScroll.Y);
-            if (focused is { IsDisposed: false, CanFocus: true } && ActiveControl != focused) focused.Focus();
-        }
-    }
-
-    private int MeasureProductHeight(Product product)
-    {
-        // Render each product synchronously while painting/layout of the form is suspended. This does
-        // not select a tab, save settings, start a request, or change operation ownership.
-        _selected = product;
-        SetProductCopy(product);
-        RefreshLocal();
-        RefreshReleasePreview();
-        _mainLayout!.PerformLayout();
-        int notesWidth = Math.Max(1, _releasePreview!.Width - _releasePreview.Padding.Horizontal);
-        int height = Padding.Vertical + _mainLayout.Padding.Vertical + _mainLayout.Margin.Vertical
-            + _tools!.GetPreferredSize(new Size(Math.Max(1, ClientSize.Width - Padding.Horizontal), 0)).Height
-            + _tools.Margin.Vertical + _releasePreview.Margin.Vertical + _releasePreview.Padding.Vertical
-            + _releaseNotes!.GetPreferredSize(new Size(notesWidth, 0)).Height + LogicalToDeviceUnits(6);
-        foreach (Control row in _mainLayout.Controls)
-        {
-            if (row == _releasePreview || !row.Visible) continue;
-            int width = Math.Max(1, _mainLayout.ClientSize.Width - _mainLayout.Padding.Horizontal - row.Margin.Horizontal);
-            height += row.GetPreferredSize(new Size(width, 0)).Height + row.Margin.Vertical;
-        }
-        return height;
     }
 
     protected override async void OnShown(EventArgs e)
@@ -506,7 +438,6 @@ internal sealed partial class MainForm : Form
 
         if (_selected == Product.Game) RefreshMainButton(current, busy);
         UpdateLibraryState(busy);
-        QueueInitialFit();
     }
 
     private void RefreshLaunchPanel(SemVersion? current, bool busy)

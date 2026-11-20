@@ -1054,7 +1054,7 @@ internal static class Program
                 // no release checks, protocol registration, process launch, or editor installation.
                 form.Show();
                 Settle(form);
-                Check(!Field<bool>(form, "_initialSizeSet"), label + " waits for populated changelog before fitting");
+                Size beforeRelease = form.ClientSize;
                 var gameRelease = new ReleaseInfo { TagName = "v0.8.94", Name = "OpenSCCT 0.8.94", Body = PublicGameNotes,
                     PublishedAt = new DateTimeOffset(2026, 11, 5, 15, 20, 30, TimeSpan.Zero) };
                 var editorRelease = new ReleaseInfo { TagName = "v0.1.1", Name = "OpenSCCT Editor 0.1.1", Body = PublicEditorNotes,
@@ -1074,7 +1074,7 @@ internal static class Program
                 Settle(form);
                 int commonHeight = form.ClientSize.Height;
                 int commonWidth = form.ClientSize.Width;
-                Check(Field<bool>(form, "_initialSizeSet"), label + " populated changelog triggers initial fit");
+                Check(form.ClientSize == beforeRelease, label + " arriving release data preserves the viewport");
                 CheckPreviewFits(form, label + " Game populated changelog");
                 Call(form, "SelectProduct", true);
                 Settle(form);
@@ -1104,30 +1104,30 @@ internal static class Program
                 Call(form, "OnResizeBegin", EventArgs.Empty);
                 form.ClientSize = new Size(commonWidth, (int)(100 * scale));
                 Settle(form);
-                TableLayoutPanel outer = Field<TableLayoutPanel>(form, "_mainLayout");
+                var outer = (Panel)Field<TableLayoutPanel>(form, "_mainLayout").Parent!;
                 Check(outer.AutoScroll, label + " extremely short fixture exercises outer scrolling mode");
                 int shortHeight = form.ClientSize.Height;
                 Call(form, "OnResizeEnd", EventArgs.Empty);
-                Call(form, "FitUpdateHeight");
+                Call(form, "RefreshReleasePreview");
                 Settle(form);
                 Check(form.ClientSize.Height == shortHeight, label + " preserves a user-chosen short Editor window");
                 Check(outer.AutoScroll, label + " short window retains scrolling after resize ends");
                 int editorHeight = form.ClientSize.Height;
-                Call(form, "FitUpdateHeight");
+                Call(form, "RefreshReleasePreview");
                 Settle(form);
-                Check(form.ClientSize.Height == editorHeight, label + " first fit accounts for outer scrollbar removal");
+                Check(form.ClientSize.Height == editorHeight, label + " release refresh preserves the scrolled viewport height");
                 Call(form, "SelectProduct", false);
                 Settle(form);
                 Check(form.ClientSize.Height == editorHeight, label + " switching back to Game does not resize");
 
-                Call(form, "FitUpdateHeight");
+                Call(form, "RefreshReleasePreview");
                 Settle(form);
-                Check(form.ClientSize.Height == editorHeight, label + " repeated fitting stays stable after scrollbars clear");
+                Check(form.ClientSize.Height == editorHeight, label + " repeated release refresh preserves window height");
                 Check(Field<object?>(form, "_work") is null, label + " sizing started no update operation");
                 if (commonHeight + (int)(40 * scale) < screenMaximum)
                 {
                     form.ClientSize = new Size(commonWidth, commonHeight + (int)(40 * scale));
-                    Call(form, "FitUpdateHeight");
+                    Call(form, "RefreshReleasePreview");
                     Settle(form);
                     Check(form.ClientSize.Height == commonHeight + (int)(40 * scale), label + " preserves a larger window after startup");
                 }
@@ -1176,25 +1176,29 @@ internal static class Program
             Settle(form);
             Button defer = Field<Button>(form, "_playCurrent");
             Check(defer.Visible && defer.Focus(), "Game update deferral can receive keyboard focus");
-            Call(form, "FitUpdateHeight");
+            Call(form, "RefreshReleasePreview");
             Settle(form);
-            Check(form.ActiveControl == defer || defer.ContainsFocus, "Measuring Editor does not steal focus from Game update deferral");
+            Check(form.ActiveControl == defer || defer.ContainsFocus, "Refreshing release notes preserves focus on Game update deferral");
             form.Hide();
         });
     }
 
     private static void CheckPreviewFits(Form form, string label)
     {
-        Panel preview = Field<Panel>(form, "_releasePreview");
-        int maximum = Screen.FromControl(form).WorkingArea.Height - (form.Height - form.ClientSize.Height);
-        if (preview.VerticalScroll.Visible && form.ClientSize.Height >= maximum - 2)
+        var viewport = (Panel)Field<TableLayoutPanel>(form, "_mainLayout").Parent!;
+        var preview = Field<Panel>(form, "_releasePreview");
+        foreach (Control item in new Control[] { Field<Button>(form, "_whatsNew"),
+            Field<Label[]>(form, "_previewItems").Last(c => c.Visible) })
         {
-            Console.WriteLine(label + ": scrolling retained because the physical working area is full.");
-            return;
+            viewport.ScrollControlIntoView(preview);
+            preview.ScrollControlIntoView(item);
+            Settle(form);
+            Point top = viewport.PointToClient(item.PointToScreen(Point.Empty));
+            viewport.AutoScrollPosition = new Point(0, top.Y - viewport.AutoScrollPosition.Y);
+            Settle(form);
+            Check(IsInClient(form, item), $"{label} {item.Name} reachable: {item.RectangleToScreen(item.ClientRectangle)} in {viewport.RectangleToScreen(viewport.ClientRectangle)} preview {preview.RectangleToScreen(preview.ClientRectangle)}");
         }
-        Check(!preview.VerticalScroll.Visible, label + " has no vertical changelog scrollbar when the working area has room");
-        Check(IsInClient(form, Field<Button>(form, "_whatsNew")), label + " changelog action fits");
-        Check(IsInClient(form, Field<Label[]>(form, "_previewItems").Last(c => c.Visible)), label + " last release highlight fits");
+        viewport.AutoScrollPosition = Point.Empty;
     }
 
     private static void PumpUntil(Task task)

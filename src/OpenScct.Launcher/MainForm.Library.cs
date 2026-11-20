@@ -141,8 +141,8 @@ internal sealed partial class MainForm
         preview.Dock = DockStyle.Top;
         var content = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 0, Margin = new Padding(0),
-            BackColor = Color.Transparent, AutoScroll = true,
+            Dock = DockStyle.Top, ColumnCount = 1, RowCount = 0, Margin = new Padding(0),
+            BackColor = Color.Transparent, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink,
         };
         content.ColumnStyles.Add(Theme.Fill);
         foreach (Control row in new Control[] { _compactPicker, _launcherBanner, _sourceCard, launch, _details, tools, preview })
@@ -153,7 +153,7 @@ internal sealed partial class MainForm
         }
         content.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         content.RowCount++;
-        var detailPane = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
+        var detailPane = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0), AutoScroll = true };
         detailPane.Controls.Add(content);
         var body = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) };
         body.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 250));
@@ -532,6 +532,7 @@ internal sealed class LibraryBanner : TableLayoutPanel
     public LibraryBanner()
     {
         DoubleBuffered = true;
+        ResizeRedraw = true;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
         Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
