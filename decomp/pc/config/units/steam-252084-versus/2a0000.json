@@ -683,6 +683,28 @@
     }
   },
   {
+    "id": "entry-storage-2a5730",
+    "offset": 2774832,
+    "size": 42,
+    "inputs": [
+      "src/versus_entry_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_list@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_storage.obj src/versus_entry_storage.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279251072,
+        "basis": "Direct call to retail memory release or entry cleanup."
+      }
+    },
+    "identification": "Complete indexed Versus container storage cleanup at RVA 0x2a5730.",
+    "match": {
+      "bytes_sha256": "54ac5d49952aa38febf1ed11d8eeba3557399e16d3a605e27ef5aae0b5149008",
+      "inputs_sha256": "ac33d22e0b6b3ee292ebc940485f4c7335381fb0ce1b2ea60b3e26324d78bbcd"
+    }
+  },
+  {
     "id": "entry-type-2a6830",
     "size": 63,
     "offset": 2779184,
@@ -1694,6 +1716,76 @@
     "match": {
       "bytes_sha256": "356c6a52800833d5d632cbcd80878f8674afe16e85f8f4082e345f1618dfeac5",
       "inputs_sha256": "a2e86fba4773acc53ae8115403dd53832e2083500d2fb6e2dc29d863941905a8"
+    }
+  },
+  {
+    "id": "entry-storage-2aa100",
+    "offset": 2793728,
+    "size": 42,
+    "inputs": [
+      "src/versus_entry_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_entry@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_storage.obj src/versus_entry_storage.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279251072,
+        "basis": "Direct call to retail memory release or entry cleanup."
+      }
+    },
+    "identification": "Complete indexed Versus container storage cleanup at RVA 0x2aa100.",
+    "match": {
+      "bytes_sha256": "b5bd9624a1523df2304b388a943dd64a6f68adf268c74f49e724652deb61f4b3",
+      "inputs_sha256": "081eb014a3fa0e76febcfcc1c1d1d6c47d9f142feb6d3141b0a7850bd60a5926"
+    }
+  },
+  {
+    "id": "entry-storage-2aa3d0",
+    "offset": 2794448,
+    "size": 35,
+    "inputs": [
+      "src/versus_entry_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_entries@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_storage.obj src/versus_entry_storage.c",
+    "link_bindings": {
+      "@clear_entry@4": {
+        "va": 280666368,
+        "basis": "Direct call to retail memory release or entry cleanup."
+      }
+    },
+    "identification": "Complete indexed Versus container storage cleanup at RVA 0x2aa3d0.",
+    "match": {
+      "bytes_sha256": "adb8f341213d21a54d6e471da598a5179f2c47a7932114126067c03b9b06a545",
+      "inputs_sha256": "d61311631bd4b358ea3cd90a22d0b75d79d0bce4e9f76e4cdbc1a2ae87ce3c29"
+    }
+  },
+  {
+    "id": "entry-storage-2aa400",
+    "offset": 2794496,
+    "size": 70,
+    "inputs": [
+      "src/versus_entry_storage.c"
+    ],
+    "rebuilt_symbol": "@clear_entry_list@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_entry_storage.obj src/versus_entry_storage.c",
+    "link_bindings": {
+      "@clear_entry@4": {
+        "va": 280666368,
+        "basis": "Direct call to retail memory release or entry cleanup."
+      },
+      "_release_memory": {
+        "va": 279251072,
+        "basis": "Direct call to retail memory release or entry cleanup."
+      }
+    },
+    "identification": "Complete indexed Versus container storage cleanup at RVA 0x2aa400.",
+    "match": {
+      "bytes_sha256": "d82e4e05be3cf90377a350d484cce60d5af85b0cd930d36f1132087ba18611ee",
+      "inputs_sha256": "210de8edd545476819227edec8439c0a89d3094188da14fbf47b1a3b877f64d5"
     }
   },
   {
