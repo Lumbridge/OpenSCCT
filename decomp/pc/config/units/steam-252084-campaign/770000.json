@@ -27,6 +27,66 @@
     }
   },
   {
+    "id": "indexed-scalar-delete-7710c0",
+    "size": 36,
+    "offset": 7803072,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286748912,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x7710c0. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "739570ad92745282f0cc3e96a81227b50970938c40799767f7cc74e95037a4c5",
+      "inputs_sha256": "a08d628b57c4a77f478791d9159fc8fb3ba19ebf497d1660599737a07e7233e6"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-771540",
+    "size": 36,
+    "offset": 7804224,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286748984,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x771540. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "1fb8bebb0dc5a707794415b9f611ffd3400be9fa244e5cbe70a31e577e239148",
+      "inputs_sha256": "6a5615753fb90e773be0638db2f46c78d4b1b856c4d78a9f23266365e491f76b"
+    }
+  },
+  {
     "id": "delete-members-772290",
     "size": 30,
     "offset": 7807632,

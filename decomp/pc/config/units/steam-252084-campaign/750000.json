@@ -75,6 +75,32 @@
     }
   },
   {
+    "id": "indexed-scalar-delete-750440",
+    "size": 30,
+    "offset": 7668800,
+    "inputs": [
+      "src/table_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_scalar_delete.obj src/table_scalar_delete.c",
+    "link_bindings": {
+      "@destroy_object@4": {
+        "va": 285593952,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285594160,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x750440. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "e72c4c50471c6ccbb6bbbd885b36165dfecf4ee4ed9e7ad20d75803e1155aad9",
+      "inputs_sha256": "14508fba931abe14aff7c803c9fd59f1528128bea47ab88fc6baf402155d7b50"
+    }
+  },
+  {
     "id": "delete-members-750460",
     "size": 30,
     "offset": 7668832,

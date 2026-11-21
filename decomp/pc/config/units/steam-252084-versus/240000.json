@@ -112,6 +112,32 @@
     }
   },
   {
+    "id": "indexed-scalar-delete-241a80",
+    "size": 30,
+    "offset": 2366080,
+    "inputs": [
+      "src/table_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_scalar_delete.obj src/table_scalar_delete.c",
+    "link_bindings": {
+      "@destroy_object@4": {
+        "va": 280238752,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 279251072,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed versus scalar deleting destructor RVA 0x241a80. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "95c3cd1ae4f1e6296e93f806bf4d6b9b6524fc97b98ab7d76a852c698b1643c5",
+      "inputs_sha256": "febbc4404f75a67e1134bbdae063781977ccd4d4332ffd42311b9281b03ed935"
+    }
+  },
+  {
     "id": "versus-data-format-via-slot-1",
     "offset": 2392928,
     "size": 5,

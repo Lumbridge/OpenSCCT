@@ -377,6 +377,36 @@
     }
   },
   {
+    "id": "indexed-scalar-delete-765050",
+    "size": 36,
+    "offset": 7753808,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286745768,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x765050. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "0200d2c4ca8db1bd1637f112c81dc307421313ec18d83f7bd9fbe6f320420d26",
+      "inputs_sha256": "268ebd41e3481ab21dc3324ace05cc2f4c1307c441b8f7110dfc9716f5b23a72"
+    }
+  },
+  {
     "id": "release-route-7653d0",
     "offset": 7754704,
     "size": 11,
@@ -1057,6 +1087,96 @@
     }
   },
   {
+    "id": "indexed-scalar-delete-768bc0",
+    "size": 36,
+    "offset": 7769024,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286746240,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x768bc0. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "b0f5792e17c87e7ec2ba8e61252041e16efc5ebb056143fe2709eb17d456e192",
+      "inputs_sha256": "884f9e407eaa07f8f964e4b157e1b4a3b7003ea13fe20dfddab1f1fad17df094"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-768c60",
+    "size": 36,
+    "offset": 7769184,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286746240,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x768c60. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "70f2c6476521c385442e533c75598e8d9e58ff038dd93d7ef53db365b600f9b9",
+      "inputs_sha256": "d8f66730a67c5057980e3e35dd4897ba46f7df3573762bf7cfbdfddb071f449b"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-768d10",
+    "size": 36,
+    "offset": 7769360,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286746240,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x768d10. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "a7988683b50518b9cac1fdaf42f8b871c3a41c58f4f3a6e651771a754529a0cc",
+      "inputs_sha256": "3f7aaff9d83e317ec2eec394d270124095ba0bc7e743ea4f1c775ea225b12516"
+    }
+  },
+  {
     "id": "delete-members-768da0",
     "size": 30,
     "offset": 7769504,
@@ -1112,6 +1232,126 @@
     "match": {
       "bytes_sha256": "9fc39361e43afbfb0dd1b57db6abbdcc4b5fbbe55d95ef1a608823c3ef2736fd",
       "inputs_sha256": "cb7298a7f9130d757cfe95455753e67e3ff4073dbc6da968c0f0eae50b9585c1"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-76acb0",
+    "size": 36,
+    "offset": 7777456,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286746968,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285618016,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285637136,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76acb0. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "83df4e08eaeb759faa466a061c0ce9f38f0266ea590fe89676144e2f8b23a17e",
+      "inputs_sha256": "d24c9a0dd58345b2a03b053e1ce9e05d1948725fcb0d7702f589257c73dca424"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-76bd50",
+    "size": 36,
+    "offset": 7781712,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286747144,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285618016,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285637136,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76bd50. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "1df17cbc4aad3df0f30604fb50687a5d3365ecb2af2ebca43c768980e69aa510",
+      "inputs_sha256": "5ea20f9c69e6ca7a109682fb5c8d85b4ffadc1dc49bf89d4e49af69431bdaba8"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-76c5b0",
+    "size": 36,
+    "offset": 7783856,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286747320,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285618016,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285637136,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76c5b0. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "3133d6d5f114ca6e8f73ddf83c5a5c70da0ca4a1c84b9656d091c7ce8eff361c",
+      "inputs_sha256": "c2636a90bd614a182148c2cc4d9214dbb1c6bfe5991d326b04aa0acc22d7758c"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-76cfb0",
+    "size": 36,
+    "offset": 7786416,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286747472,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285601504,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76cfb0. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "a1971c7c308bcddec9ba6f08cfc54133aedf17e24a172b9c79052c3552fe9949",
+      "inputs_sha256": "b43c93f8166854f5984a40c76c0fcfab9fbe6ea828689dd836d21bdde9763f65"
     }
   },
   {
@@ -1433,6 +1673,36 @@
     "match": {
       "bytes_sha256": "538472e6920fd3c551a08250672fb7082583546f5ad0b34a852146bea7aa372f",
       "inputs_sha256": "de2b4373cc67987b702214e7f4932bca178636960f112f1f16844df409aee147"
+    }
+  },
+  {
+    "id": "indexed-scalar-delete-76f770",
+    "size": 36,
+    "offset": 7796592,
+    "inputs": [
+      "src/table_reset_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_reset_scalar_delete.obj src/table_reset_scalar_delete.c",
+    "link_bindings": {
+      "_class_methods": {
+        "va": 286748224,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "@destroy_object@4": {
+        "va": 285626432,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      },
+      "_release_storage": {
+        "va": 285601312,
+        "basis": "Immediate methods-table address or direct indexed call target in the complete retail body."
+      }
+    },
+    "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76f770. Its destructor and conditional storage release target are indexed separately.",
+    "match": {
+      "bytes_sha256": "9714befa9ced99244bfe9100d4ec732d777252f75a286cbce0fb3089aa585c87",
+      "inputs_sha256": "b16d52e7347365570acbc1adbb8e4656624384f37254c02ea0a3b94227939fa6"
     }
   },
   {
