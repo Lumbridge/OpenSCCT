@@ -1825,6 +1825,22 @@
     }
   },
   {
+    "id": "child-range-2ab810",
+    "size": 33,
+    "offset": 2799632,
+    "inputs": [
+      "src/versus_child_range.c"
+    ],
+    "rebuilt_symbol": "@child_count@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_child_range.obj src/versus_child_range.c",
+    "identification": "Complete indexed Versus child pointer range routine at RVA 0x2ab810.",
+    "match": {
+      "bytes_sha256": "1d526446073a3cc9b086129cd756c53fd486bc7df8aa14fe1c254f8f30fef7f5",
+      "inputs_sha256": "9c99b52fbbb014a0b277ac7a7fe40ec5271944bf5f8e6645eb21b2e03161f799"
+    }
+  },
+  {
     "id": "construct-copies-2ab840",
     "size": 35,
     "offset": 2799680,
@@ -1839,6 +1855,22 @@
     "match": {
       "bytes_sha256": "7b03083fc5a70e857d53690b899f60dbd945430880af3eaef2791598b0c12536",
       "inputs_sha256": "a0111b0c1ab70cd2a6a5c247f3cec19aded0b5241914129880c8450813743822"
+    }
+  },
+  {
+    "id": "child-range-2ab8a0",
+    "size": 21,
+    "offset": 2799776,
+    "inputs": [
+      "src/versus_child_range.c"
+    ],
+    "rebuilt_symbol": "@child_at@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_child_range.obj src/versus_child_range.c",
+    "identification": "Complete indexed Versus child pointer range routine at RVA 0x2ab8a0.",
+    "match": {
+      "bytes_sha256": "3f2f535d0207f0cdfe878d8bf8ce20d7481bef2a850edfcf1667f15b046eb8dc",
+      "inputs_sha256": "40aeab6e5db4251735edabb07daf3b4bfb460a4c2f9e39f7d233c98f73233ebe"
     }
   },
   {
