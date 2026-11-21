@@ -158,6 +158,22 @@
     }
   },
   {
+    "id": "visitor-method-4607c0",
+    "size": 15,
+    "offset": 4589504,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_16@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x4607c0. Passes the original receiver as the argument and tail-calls visitor slot 16.",
+    "match": {
+      "bytes_sha256": "324848cfd9b91baefaa334e29d6bbb4e3890da78a19abdb60f2bb381008d9fb6",
+      "inputs_sha256": "cce4cf6142db3925a3a226160869d835883e8018c203590c15316d3856c4eaea"
+    }
+  },
+  {
     "id": "element-buffer-4-460840",
     "size": 29,
     "offset": 4589632,
@@ -587,6 +603,38 @@
     }
   },
   {
+    "id": "visitor-method-461240",
+    "size": 15,
+    "offset": 4592192,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x461240. Passes the original receiver as the argument and tail-calls visitor slot 21.",
+    "match": {
+      "bytes_sha256": "8077a2a178633f3937e98c239d4e4dc44fb15299500edfaf2729547d23735115",
+      "inputs_sha256": "73cb0da51c99f6559851b3fe7e7d279b0b55dde7c12a67ced35fafd3a8da6877"
+    }
+  },
+  {
+    "id": "visitor-method-4612c0",
+    "size": 15,
+    "offset": 4592320,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_23@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x4612c0. Passes the original receiver as the argument and tail-calls visitor slot 23.",
+    "match": {
+      "bytes_sha256": "297f5e26632cbe9bc40f523e13fdbeeeebc91ea026f03a275c653fde21ec5293",
+      "inputs_sha256": "7f67716c1d5acad8ccaa08afcbed2abcead566df6eb41c9c0a83bd6c0a2d6c2d"
+    }
+  },
+  {
     "id": "vector-init-16-461390",
     "size": 74,
     "offset": 4592528,
@@ -698,6 +746,22 @@
     "match": {
       "bytes_sha256": "f8f96f5d0b82ab856cd730bd90d93daa835a241e27c74e17de620b0d48e684e8",
       "inputs_sha256": "f60f594f71564f588af3c004d36517cb839fd703976cf999a919fd0c11bd6b34"
+    }
+  },
+  {
+    "id": "visitor-method-461570",
+    "size": 15,
+    "offset": 4593008,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_22@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x461570. Passes the original receiver as the argument and tail-calls visitor slot 22.",
+    "match": {
+      "bytes_sha256": "5d550d1c967ccaeca62b33e1a05422792596e9115e9d96b11ef40af0de122e24",
+      "inputs_sha256": "7b2678bbd9379b5089781f9ed7848384f16f5cfffaee6b0a689e7a0209c544a4"
     }
   },
   {
@@ -815,6 +879,22 @@
     }
   },
   {
+    "id": "visitor-method-4618c0",
+    "size": 15,
+    "offset": 4593856,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_18@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x4618c0. Passes the original receiver as the argument and tail-calls visitor slot 18.",
+    "match": {
+      "bytes_sha256": "69c7ca73385a1bbf26e7f85fd904b49290de97106c527afeee152f85760ddfcc",
+      "inputs_sha256": "cd2a6235a68bce40643eb3e77617dc3778d5f6ffa354fe1991fd7cc371e4c86f"
+    }
+  },
+  {
     "id": "vector-init-16-461970",
     "size": 74,
     "offset": 4594032,
@@ -926,6 +1006,22 @@
     "match": {
       "bytes_sha256": "3750c44cbbbc7900f0d8f08a8bc3106dc31231f9aca9bb9dc07db36d49bf3b33",
       "inputs_sha256": "808964b67b0a4cf0e63c1f94c8afda698957319557e38f874ddcccabe9429e91"
+    }
+  },
+  {
+    "id": "visitor-method-461ae0",
+    "size": 15,
+    "offset": 4594400,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_11@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x461ae0. Passes the original receiver as the argument and tail-calls visitor slot 11.",
+    "match": {
+      "bytes_sha256": "f1608a3b9c58fe50785fe6956a149dfe9a977579be52fff8503c93665ddc0af8",
+      "inputs_sha256": "db70e3ad8dfaeb440e6850835c47fc171af360ec3d7adcbddbbce14daa6be484"
     }
   },
   {
@@ -1135,6 +1231,22 @@
     }
   },
   {
+    "id": "visitor-method-462270",
+    "size": 15,
+    "offset": 4596336,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_10@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x462270. Passes the original receiver as the argument and tail-calls visitor slot 10.",
+    "match": {
+      "bytes_sha256": "bb0a76aa9192b0b1d56e6a741ab117b0b1927b19bc546d19b065dafb6bb7712d",
+      "inputs_sha256": "79c136603249212880754a9b6cc3551eefbaf0e72741f10054803bc34fdb6b0a"
+    }
+  },
+  {
     "id": "vector-init-16-462330",
     "size": 74,
     "offset": 4596528,
@@ -1341,6 +1453,22 @@
     }
   },
   {
+    "id": "visitor-method-462570",
+    "size": 15,
+    "offset": 4597104,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_12@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x462570. Passes the original receiver as the argument and tail-calls visitor slot 12.",
+    "match": {
+      "bytes_sha256": "b2acaeaa0534c6cdcff24b191ad9171ff522ec7b2fa53970b7ea9235deae6d95",
+      "inputs_sha256": "31abfb03034031067fdd997283a63ccb900952466890600982cad6a2f7095e55"
+    }
+  },
+  {
     "id": "vector-init-16-4625b0",
     "size": 74,
     "offset": 4597168,
@@ -1452,6 +1580,22 @@
     "match": {
       "bytes_sha256": "ea67eabf895810a1431b0c87361134f5a7413d452313dbe9ebae6e0770ff39ee",
       "inputs_sha256": "84d573a076a5293e12c8977ebb3f4a003ac080e9a7eafb0045687d6b36912f4d"
+    }
+  },
+  {
+    "id": "visitor-method-462700",
+    "size": 15,
+    "offset": 4597504,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_13@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x462700. Passes the original receiver as the argument and tail-calls visitor slot 13.",
+    "match": {
+      "bytes_sha256": "3f3e130e7b1e3378f22ab13018737ea0f7aa763cbe5e26a54d877cb36c161963",
+      "inputs_sha256": "42b785754a7882131eca9b8ecd79ecb62a0201174303e58f526caafab4921be5"
     }
   },
   {
@@ -2143,6 +2287,22 @@
     }
   },
   {
+    "id": "visitor-method-463c50",
+    "size": 15,
+    "offset": 4602960,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_28@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x463c50. Passes the original receiver as the argument and tail-calls visitor slot 28.",
+    "match": {
+      "bytes_sha256": "f61cfd66c1138c38bdf2deaa36116b199f1215dee04d490a0daed1acc103da47",
+      "inputs_sha256": "9d47248e085b91c50a79ecbdc518e313435c9105fea722fc4bd1e960ecbe1153"
+    }
+  },
+  {
     "id": "vector-init-16-463d20",
     "size": 74,
     "offset": 4603168,
@@ -2349,6 +2509,22 @@
     }
   },
   {
+    "id": "visitor-method-463f60",
+    "size": 15,
+    "offset": 4603744,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_17@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x463f60. Passes the original receiver as the argument and tail-calls visitor slot 17.",
+    "match": {
+      "bytes_sha256": "ae61c52c8c67a007917f231695f8f4fcd50a288530141b2dc2d30afc928e3403",
+      "inputs_sha256": "7fa2ac00beb7db572c28bd7c2fcc6dcf01e58dd939f009040c2db57a25ba50e0"
+    }
+  },
+  {
     "id": "vector-init-16-463fa0",
     "size": 74,
     "offset": 4603808,
@@ -2552,6 +2728,22 @@
     "match": {
       "bytes_sha256": "7de6d23eceae7841f4b21a27b9ab8f16fdbe8e7297128d2a7be59a19f42d9f9b",
       "inputs_sha256": "acf2574bd0331d45abe40c4ab5e81f8d7e38d84309f653f06be04b708f951cc4"
+    }
+  },
+  {
+    "id": "visitor-method-464280",
+    "size": 15,
+    "offset": 4604544,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_24@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x464280. Passes the original receiver as the argument and tail-calls visitor slot 24.",
+    "match": {
+      "bytes_sha256": "3099744d4d429fcfaefb62a3d730ef008539c09a4cd98cb4c9f154ae31897e77",
+      "inputs_sha256": "651d1e605720dc8e877bdd6b6473cb16eb48cd00f73537a4abb79b2d8a245596"
     }
   },
   {
@@ -2784,6 +2976,22 @@
     "match": {
       "bytes_sha256": "55339b8f73b4a4d1f0d5f67a758e50a0355045c3931c36daa94f7bad7ea81384",
       "inputs_sha256": "b41167f1c601c408d2016e96aaaaeac78daa1785ce7cfa58d6b477fe8c94b57f"
+    }
+  },
+  {
+    "id": "visitor-method-4646e0",
+    "size": 15,
+    "offset": 4605664,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_29@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x4646e0. Passes the original receiver as the argument and tail-calls visitor slot 29.",
+    "match": {
+      "bytes_sha256": "40797cd3ae827008825e5946d2901e9fe457962e145119cb64097dc9868a17c8",
+      "inputs_sha256": "2757579f72fa4719b423f776d621c11afd119a10cfb1ad2e206db0f806556bdb"
     }
   },
   {
@@ -3490,6 +3698,22 @@
     }
   },
   {
+    "id": "visitor-method-465c60",
+    "size": 15,
+    "offset": 4611168,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_7@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x465c60. Passes the original receiver as the argument and tail-calls visitor slot 7.",
+    "match": {
+      "bytes_sha256": "a0adf4fafa62f203972a32f6be47f13a4d66cd66c5562b8a99c87e274a15ec3a",
+      "inputs_sha256": "15baa38add8dcd331ec62c7e8b5f491ad73a583b7be8344d302e7461e5b5468b"
+    }
+  },
+  {
     "id": "vector-init-16-465d00",
     "size": 74,
     "offset": 4611328,
@@ -3696,6 +3920,22 @@
     }
   },
   {
+    "id": "visitor-method-465f50",
+    "size": 15,
+    "offset": 4611920,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x465f50. Passes the original receiver as the argument and tail-calls visitor slot 4.",
+    "match": {
+      "bytes_sha256": "42eb1b31892a4620f9ff7326a4cdab1fc13224dea7161203388989e55724b684",
+      "inputs_sha256": "0ac6ef73110d0987b1b07efcb7b50f7a7f99f693b54605f5097c8ddd7f21a84e"
+    }
+  },
+  {
     "id": "vector-init-16-465fe0",
     "size": 74,
     "offset": 4612064,
@@ -3899,6 +4139,22 @@
     "match": {
       "bytes_sha256": "93f18de40baef9b19a0f3a1d4413931babe801ab5e96e0aaed6e5d808b996653",
       "inputs_sha256": "81383394822e26a6d96880568bf8bcd10400193ed9b448e5c056f6b1c6f5f1b0"
+    }
+  },
+  {
+    "id": "visitor-method-466260",
+    "size": 15,
+    "offset": 4612704,
+    "inputs": [
+      "src/versus_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_20@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_methods.obj src/versus_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x466260. Passes the original receiver as the argument and tail-calls visitor slot 20.",
+    "match": {
+      "bytes_sha256": "9542551c1abd20278f1f947ad0ee4ad67b059a9f7fae96486a5feb2bea3dda63",
+      "inputs_sha256": "b75143db3d5191b76097fd7bf810fc17291da6fa1a51f95a800b5f9d2b556eb5"
     }
   },
   {
@@ -4131,6 +4387,22 @@
     "match": {
       "bytes_sha256": "968c822f49847d44a79fc1216bfd42cb7671e08b3831413da22873f94e1a9b71",
       "inputs_sha256": "8dc1288c8fa803e3183cbcf0bb369ecd133f54be7e77bcf4a45362a39a4a6017"
+    }
+  },
+  {
+    "id": "visitor-method-4667f0",
+    "size": 18,
+    "offset": 4614128,
+    "inputs": [
+      "src/campaign_visitor_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_38@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_visitor_methods.obj src/campaign_visitor_methods.c",
+    "identification": "Complete table-referenced Campaign method at RVA 0x4667f0. Passes the original receiver as the argument and tail-calls visitor slot 38.",
+    "match": {
+      "bytes_sha256": "d4e3eea53dc0fbf1b68def3dfde30e661256cea90e7aa1382ad12ef1509fe677",
+      "inputs_sha256": "88f20d1800a12484b4cc80c6d669c18f0257d546f1b012a816a1d94b9c803b2d"
     }
   },
   {
