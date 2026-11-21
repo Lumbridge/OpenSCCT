@@ -214,9 +214,37 @@ internal sealed partial class PlayerPortal
             return ("Code boundaries under study", "Unmeasured");
         long total = bytes.GetInt64();
         long matched = target.GetProperty("matched_bytes").GetInt64();
-        decimal percent = 100m * matched / total;
-        string rate = percent is > 0 and < 0.01m ? "<0.01%" : percent.ToString("0.##", CultureInfo.InvariantCulture) + "%";
-        return (N(matched) + " / " + N(total) + " bytes", rate);
+        return (N(matched) + " / " + N(total) + " bytes", CoverageRate(matched, total));
+    }
+
+    private static string CoverageRate(long bytes, long total)
+    {
+        decimal percent = 100m * bytes / total;
+        return percent is > 0 and < 0.01m ? "<0.01%" : percent.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+    }
+
+    private static string CoverageCard(JsonElement target)
+    {
+        long bytes = target.GetProperty("candidate_bytes").GetInt64() + target.GetProperty("matched_bytes").GetInt64();
+        long functions = target.GetProperty("candidate_units").GetInt64() + target.GetProperty("matched_units").GetInt64();
+        JsonElement denominator = target.GetProperty("total_bytes");
+        long total = denominator.ValueKind == JsonValueKind.Number ? denominator.GetInt64() : 0;
+        string label = target.GetProperty("label").GetString()!;
+        string[] title = label.Split(" · ", 2, StringSplitOptions.None);
+        string platform = title.Length == 2 ? $"<small>{H(title[0])}</small>" : "";
+        string meter = total > 0
+            ? $"<progress aria-label='{H(label)} byte-identical coverage' value='{bytes}' max='{total}'></progress>"
+            : "";
+        string description = total > 0 ? $"{N(bytes)} of {N(total)} code bytes" : $"{N(bytes)} code bytes · total under study";
+        string rate = total > 0 ? CoverageRate(bytes, total) : "Unmeasured";
+        return $"""
+            <article class="coverage-card">
+              {platform}<h3>{H(title[^1])}</h3>
+              <strong class="coverage-rate{(total > 0 ? "" : " pending")}">{H(rate)}</strong>
+              {meter}<p>{description}</p>
+              <footer><span>{N(functions)} {(functions == 1 ? "function" : "functions")}</span>{Link(HubSource + "/blob/main/" + target.GetProperty("evidence").GetString(), "Evidence ↗")}</footer>
+            </article>
+            """;
     }
 
     private IResult ProjectProgress(HttpContext c)
@@ -224,26 +252,36 @@ internal sealed partial class PlayerPortal
         var body = new StringBuilder("<div class=\"project-site\">");
         body.Append(ProjectHeading("Development", "Progress reports", "Track byte matches for the original executables and playable releases for the Godot and Unreal modernisations."))
             .Append("<header class=\"hub-heading\"><h2>Originals</h2></header>")
-            .Append("<p>Candidate functions compile to the original bytes. They count as verified once the original compiler and flags are established. A percentage also needs a known total code size for that executable.</p>")
+            .Append("<p>Coverage measures code rebuilt byte for byte against each original executable. Compiler verification also requires evidence of the original compiler and flags.</p>")
             .Append("<div class=\"hub-link-row report-links\">").Append(Link(DecompGuide, "Reproduction guide"))
             .Append(Link(HubSource + "/blob/main/decomp/reports/progress.json", "Report source")).Append("</div>");
-        foreach (JsonElement edition in _progressReport.ReadEditions().EnumerateArray())
+        var editions = _progressReport.ReadEditions().EnumerateArray();
+        foreach (JsonElement edition in editions.OrderByDescending(e => e.GetProperty("targets").EnumerateArray()
+                     .Any(t => t.GetProperty("total_bytes").ValueKind == JsonValueKind.Number && t.GetProperty("total_bytes").GetInt64() > 0)))
         {
             string? id = edition.GetProperty("id").GetString();
             ProjectEdition project = Editions.First(e => e.Id == id);
-            body.Append("<section id=\"").Append(H(id)).Append("\" class=\"hub-section\"><header class=\"hub-heading\"><h2>")
-                .Append(H(project.Name)).Append("</h2>").Append(Link("/projects/" + id, "Edition setup")).Append("</header>");
-            body.Append("<p>").Append(H(edition.GetProperty("stage").GetString())).Append("</p>");
+            body.Append($"""
+                <section id="{H(id)}" class="hub-section coverage-edition">
+                  <header class="coverage-banner"><img src="{H(EditionImage(project))}" alt="" loading="lazy">
+                    <div><p class="edition-platform">{H(edition.GetProperty("stage").GetString())}</p><h2>{H(project.Name)}</h2></div>
+                    {Link("/projects/" + id, "Edition setup ↗")}
+                  </header><div class="coverage-grid">
+                """);
             var rows = new List<string[]>();
             foreach (JsonElement target in edition.GetProperty("targets").EnumerateArray())
             {
+                body.Append(CoverageCard(target));
                 var measure = Measure(target);
                 string evidence = HubSource + "/blob/main/" + target.GetProperty("evidence").GetString();
                 long units = target.GetProperty("candidate_units").GetInt64();
                 string candidates = N(units) + (units == 1 ? " function" : " functions") + " · " + N(target.GetProperty("candidate_bytes").GetInt64()) + " bytes";
                 rows.Add([Link(evidence, target.GetProperty("label").GetString()!), H(target.GetProperty("scope").GetString()), candidates, H(measure.Bytes), H(measure.Percent)]);
             }
-            if (rows.Count > 0) body.Append(Table(["Executable", "Scope", "Byte-identical candidates", "Verified code", "Progress"], rows));
+            body.Append("</div>");
+            if (rows.Count > 0)
+                body.Append("<details class='coverage-proof'><summary>Compiler verification &amp; byte counts</summary>")
+                    .Append(Table(["Executable", "Scope", "Byte-identical candidates", "Verified code", "Verified progress"], rows)).Append("</details>");
             body.Append("</section>");
         }
         body.Append("<section class=\"hub-section\"><header class=\"hub-heading\"><h2>Modernisations</h2></header>")
