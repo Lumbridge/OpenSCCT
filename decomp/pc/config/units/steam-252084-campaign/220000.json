@@ -1267,6 +1267,28 @@
     }
   },
   {
+    "id": "adjusted-deleting-destructor-227e00",
+    "size": 8,
+    "offset": 2260480,
+    "inputs": [
+      "src/campaign_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_and_destroy@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_adjusted_destructors.c -o local/campaign_adjusted_destructors.obj",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280133888,
+        "basis": "Direct tail target tests stack deletion flags, dispatches allocator release at slot 2 and returns with four stack bytes consumed."
+      }
+    },
+    "identification": "Campaign method table points to RVA 0x227e00. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x228100.",
+    "match": {
+      "bytes_sha256": "2591caf46997869f5c60b41ce19e01951597939bf9eafeb66e3b692a30051c32",
+      "inputs_sha256": "114c6f59bb86861ced4fcf4ee967d6c9c143f2a73588e202168e2cb6f5bac3ce"
+    }
+  },
+  {
     "id": "script-parameters-pausegamenotsound",
     "offset": 2260608,
     "size": 66,
@@ -1329,6 +1351,28 @@
     "match": {
       "bytes_sha256": "571110887e19a375a6e757504b3d83cfb8d394a8d6a410940269d293d9a6bb67",
       "inputs_sha256": "6ec119f16df31489f409b5e6e4a06fa34b490a1223c079de52ca9ad5fb7faae4"
+    }
+  },
+  {
+    "id": "adjusted-deleting-destructor-228a40",
+    "size": 8,
+    "offset": 2263616,
+    "inputs": [
+      "src/campaign_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_and_destroy@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_adjusted_destructors.c -o local/campaign_adjusted_destructors.obj",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280136656,
+        "basis": "Direct tail target tests stack deletion flags, dispatches allocator release at slot 2 and returns with four stack bytes consumed."
+      }
+    },
+    "identification": "Campaign method table points to RVA 0x228a40. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x228bd0.",
+    "match": {
+      "bytes_sha256": "937ce34f4b30537dd8b09fdac0578db10d8f81f1616c2ee1e1673bb53e1ea332",
+      "inputs_sha256": "7fdcb3763c0242b3182ed4731df14519552e1eb90a2900ba8fe481b3cfbcfe1a"
     }
   },
   {

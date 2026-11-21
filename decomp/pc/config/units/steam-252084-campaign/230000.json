@@ -1013,6 +1013,28 @@
     }
   },
   {
+    "id": "adjusted-deleting-destructor-238e00",
+    "size": 8,
+    "offset": 2330112,
+    "inputs": [
+      "src/campaign_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_and_destroy@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_adjusted_destructors.c -o local/campaign_adjusted_destructors.obj",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280203120,
+        "basis": "Direct tail target tests stack deletion flags, dispatches allocator release at slot 2 and returns with four stack bytes consumed."
+      }
+    },
+    "identification": "Campaign method table points to RVA 0x238e00. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x238f70.",
+    "match": {
+      "bytes_sha256": "c871b11e3260710d8d5de233c04c3bc3e82a7fe31818478a1f555bf9b27f49ea",
+      "inputs_sha256": "f9a4001cbf677532ef72c28cfbf0f6b6fad9e3e8fd35c69f1fe5ce0093667d37"
+    }
+  },
+  {
     "id": "register-names-238e90",
     "size": 210,
     "offset": 2330256,
@@ -2132,6 +2154,28 @@
     }
   },
   {
+    "id": "adjusted-deleting-destructor-23e7e0",
+    "size": 8,
+    "offset": 2353120,
+    "inputs": [
+      "src/campaign_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_and_destroy@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_adjusted_destructors.c -o local/campaign_adjusted_destructors.obj",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280226192,
+        "basis": "Direct tail target tests stack deletion flags, dispatches allocator release at slot 2 and returns with four stack bytes consumed."
+      }
+    },
+    "identification": "Campaign method table points to RVA 0x23e7e0. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x23e990.",
+    "match": {
+      "bytes_sha256": "e5f2f0968d5536109f860df7cde24d5e6d46dab6c42499193ddfa08c24a7f355",
+      "inputs_sha256": "bcf162cfc0a3d9d6ce41e130d4b2aaa0f16ec6cf6b249f53797be6e736b9f0a8"
+    }
+  },
+  {
     "id": "register-names-23ec10",
     "size": 140,
     "offset": 2354192,
@@ -2199,6 +2243,28 @@
     "match": {
       "bytes_sha256": "ce607f1e525d8ec102cb4bb083c5c5df9d8f30f1fcfdc6fa2ad083613a7fefc0",
       "inputs_sha256": "48445ceda4bc2603676328f664e25e4f652e968fe1751f8be15d823a71372a4c"
+    }
+  },
+  {
+    "id": "adjusted-deleting-destructor-23f9d0",
+    "size": 8,
+    "offset": 2357712,
+    "inputs": [
+      "src/campaign_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_and_destroy@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_adjusted_destructors.c -o local/campaign_adjusted_destructors.obj",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280231488,
+        "basis": "Direct tail target tests stack deletion flags, dispatches allocator release at slot 2 and returns with four stack bytes consumed."
+      }
+    },
+    "identification": "Campaign method table points to RVA 0x23f9d0. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x23fe40.",
+    "match": {
+      "bytes_sha256": "95447c81fae242fa9d2583d6a876f3411ec7adb9f6ed9f740ae4c28b8fbcb3ba",
+      "inputs_sha256": "b24bd09c04e2d7186ba33f960d0ede485dc6bc7ca8fb6d09b51f96bdc0e4c937"
     }
   },
   {
