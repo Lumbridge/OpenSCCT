@@ -243,7 +243,7 @@ internal sealed partial class PlayerPortal
               {platform}<h3>{H(title[^1])}</h3>
               <strong class="coverage-rate{(total > 0 ? "" : " pending")}">{H(rate)}</strong>
               {meter}<p>{description}</p>
-              <footer><span>{N(functions)} {(functions == 1 ? "function" : "functions")}</span>{Link(HubSource + "/blob/main/" + target.GetProperty("evidence").GetString(), "Evidence ↗")}</footer>
+              <footer><span>{N(functions)} {(functions == 1 ? "function" : "functions")}</span>{Link(DecompSource + "/blob/main/" + target.GetProperty("evidence").GetString(), "Evidence ↗")}</footer>
             </article>
             """;
     }
@@ -274,7 +274,7 @@ internal sealed partial class PlayerPortal
             {
                 body.Append(CoverageCard(target));
                 var measure = Measure(target);
-                string evidence = HubSource + "/blob/main/" + target.GetProperty("evidence").GetString();
+                string evidence = DecompSource + "/blob/main/" + target.GetProperty("evidence").GetString();
                 long units = target.GetProperty("candidate_units").GetInt64();
                 string candidates = N(units) + (units == 1 ? " function" : " functions") + " · " + N(target.GetProperty("candidate_bytes").GetInt64()) + " bytes";
                 rows.Add([Link(evidence, target.GetProperty("label").GetString()!), H(target.GetProperty("scope").GetString()), candidates, H(measure.Bytes), H(measure.Percent)]);

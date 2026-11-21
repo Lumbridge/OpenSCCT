@@ -160,6 +160,12 @@ public sealed class WebsiteNavigationTests
             Assert.DoesNotContain("<script>", searchMiss, StringComparison.Ordinal);
             Assert.Contains("Full report and sources", home, StringComparison.Ordinal);
             Assert.Contains("Report source", progress, StringComparison.Ordinal);
+            // The matching decompilation and its evidence live in OpenSCCT/scct-decomp, not the hub.
+            foreach (string page in new[] { progress, await http.GetStringAsync("/projects/pc", ct), await http.GetStringAsync("/projects/ps2", ct) })
+            {
+                Assert.DoesNotMatch("github\\.com/OpenSCCT/OpenSCCT/(blob|tree)/main/(decomp|pc|ps2)\\b", page);
+                Assert.Contains("https://github.com/OpenSCCT/scct-decomp/", page, StringComparison.Ordinal);
+            }
             Assert.Equal(HttpStatusCode.NotFound, (await http.GetAsync("/projects/unknown", ct)).StatusCode);
             string help = await http.GetStringAsync("/help", ct);
             Assert.Contains("<details>", help, StringComparison.Ordinal);
