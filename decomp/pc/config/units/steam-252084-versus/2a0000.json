@@ -1386,6 +1386,70 @@
     }
   },
   {
+    "id": "visiting-elements-2a8630",
+    "size": 41,
+    "offset": 2786864,
+    "inputs": [
+      "src/versus_visitor_groups.c"
+    ],
+    "rebuilt_symbol": "@visit_group@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_groups.obj src/versus_visitor_groups.c",
+    "identification": "Complete table-referenced Versus traversal at RVA 0x2a8630. Visits the elements in order and passes the visitor to virtual slot 1.",
+    "match": {
+      "bytes_sha256": "15b1e1bb2277492de77391a3a8095e8725787adcfe9fa03f97f0fe3a94650c04",
+      "inputs_sha256": "92844d84f5c0c029d90abcefb42ad0e863b11c2bee25d68d860490912aeb7ed2"
+    }
+  },
+  {
+    "id": "visiting-elements-2a8660",
+    "size": 60,
+    "offset": 2786912,
+    "inputs": [
+      "src/versus_visitor_groups.c"
+    ],
+    "rebuilt_symbol": "@visit_owner@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_visitor_groups.obj src/versus_visitor_groups.c",
+    "identification": "Complete table-referenced Versus traversal at RVA 0x2a8660. Visits the elements in order and passes the visitor to virtual slot 1.",
+    "match": {
+      "bytes_sha256": "b1548be4ee80da6c8260786527b881a8062012c601eea822555af5d8a0bb8532",
+      "inputs_sha256": "66689e85dd51903fa2ba65e3b40037ed3e6922da7386ea2018620f581666171e"
+    }
+  },
+  {
+    "id": "rectangle-position-2a8710",
+    "size": 65,
+    "offset": 2787088,
+    "inputs": [
+      "src/versus_rectangle_position.c"
+    ],
+    "rebuilt_symbol": "@move_point@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_rectangle_position.obj src/versus_rectangle_position.c",
+    "identification": "Complete indexed Versus rectangle method at RVA 0x2a8710. Sets the top-left corner and recomputes both endpoints while retaining the original width and height.",
+    "match": {
+      "bytes_sha256": "d3bd6c42ed38c4f1bdeb939de25b4f466e5653e31162ba9a87b00f92f3ca6a81",
+      "inputs_sha256": "66ecfac95ddc5e3e0211f33dda7328db1436999d7a83dc1e04ee5d1f5c31a216"
+    }
+  },
+  {
+    "id": "rectangle-position-2a8760",
+    "size": 53,
+    "offset": 2787168,
+    "inputs": [
+      "src/versus_rectangle_position.c"
+    ],
+    "rebuilt_symbol": "@move_xy@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_rectangle_position.obj src/versus_rectangle_position.c",
+    "identification": "Complete indexed Versus rectangle method at RVA 0x2a8760. Sets the top-left corner and recomputes both endpoints while retaining the original width and height.",
+    "match": {
+      "bytes_sha256": "a9f9ac80ff8ec96f140364e11b727a6fd707110123b6d2f0275a17305407bf30",
+      "inputs_sha256": "b1cc01fff224b25a2447473f2876fc1fbf4fb9aeb98ea0fa26993f2c8017b315"
+    }
+  },
+  {
     "id": "visitor-method-2a87a0",
     "size": 15,
     "offset": 2787232,
