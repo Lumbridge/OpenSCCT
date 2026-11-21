@@ -64,19 +64,35 @@ internal sealed partial class MainForm
         _modsPage.Click += (_, _) => SelectPage(LibraryPage.Mods);
         FlowLayoutPanel pages = Theme.Flow(false, _gamesPage, _modsPage, _settingsButton, _launcherButton);
         pages.Anchor = AnchorStyles.Left;
-        foreach (Button button in pages.Controls) button.Margin = new Padding(0, 0, 6, 0);
-        SetGlyph(_gamesPage, "games");
-        SetGlyph(_modsPage, "mods");
-        SetGlyph(_settingsButton, "settings");
+        pages.BackColor = Palette.Background;
+        foreach (Button button in new[] { _gamesPage, _modsPage, _settingsButton })
+        {
+            button.AutoSize = false;
+            button.MinimumSize = Size.Empty;
+            button.Size = new Size(88, 38);
+            button.Padding = Padding.Empty;
+            button.Margin = Padding.Empty;
+            button.Anchor = AnchorStyles.Left;
+            button.FlatAppearance.BorderSize = 0;
+            button.Paint += (_, e) =>
+            {
+                bool selected = button == (_page switch
+                {
+                    LibraryPage.Mods => _modsPage,
+                    LibraryPage.Settings => _settingsButton,
+                    _ => _gamesPage,
+                });
+                if (!selected) return;
+                int inset = button.Width / 5;
+                int height = Math.Max(2, button.LogicalToDeviceUnits(2));
+                using var brush = new SolidBrush(Palette.Accent);
+                e.Graphics.FillRectangle(brush, inset, button.Height - height, button.Width - 2 * inset, height);
+            };
+        }
+        _launcherButton.Margin = new Padding(8, 0, 0, 0);
+        _launcherButton.Anchor = AnchorStyles.Left;
         SetGlyph(_website, "website");
         SetGlyph(_help, "help");
-        foreach (Button button in pages.Controls)
-        {
-            button.Padding = new Padding(10, 4, 10, 4);
-            button.MinimumSize = new Size(100, 38);
-            button.Anchor = AnchorStyles.Left;
-            LibraryVisuals.Round(button, 7);
-        }
 
         using Icon mark = Theme.LoadIcon(48);
         _brandLogo = new PictureBox
@@ -242,9 +258,16 @@ internal sealed partial class MainForm
         _installedInfo.Visible = !IsOriginalEdition || busy;
         _sourcePick.Enabled = !busy;
         RefreshSourceAndSteps();
-        Theme.SetButtonEmphasis(_gamesPage, games, Palette);
-        Theme.SetButtonEmphasis(_modsPage, _page == LibraryPage.Mods, Palette);
-        Theme.SetButtonEmphasis(_settingsButton, _page == LibraryPage.Settings, Palette);
+        void StyleTab(Button button, bool selected)
+        {
+            button.BackColor = Palette.Background;
+            button.ForeColor = selected ? Palette.Accent : Palette.Text;
+            button.FlatAppearance.MouseOverBackColor = Palette.Panel;
+            button.FlatAppearance.MouseDownBackColor = Palette.Border;
+        }
+        StyleTab(_gamesPage, games);
+        StyleTab(_modsPage, _page == LibraryPage.Mods);
+        StyleTab(_settingsButton, _page == LibraryPage.Settings);
         _launchCard.Visible = games || busy;
         _releasePreview!.Visible = games && !IsOriginalEdition && SelectedRelease != null;
         _releasePreview.Height = Math.Max(LogicalToDeviceUnits(76), _releaseNotes!.GetPreferredSize(

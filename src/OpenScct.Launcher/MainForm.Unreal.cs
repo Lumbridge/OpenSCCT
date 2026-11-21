@@ -65,7 +65,7 @@ internal sealed partial class MainForm
                 _progress.Visible = true;
                 _progress.Fraction = (double)done / total;
                 _progressText.Visible = true;
-                _progressText.Text = $"{done} of {total} jobs  ·  {fields[1]}";
+                _progressText.Text = $"{done} of {total} jobs  Â·  {fields[1]}";
             }
             await setup.WaitForExitAsync(cancel);
         }
