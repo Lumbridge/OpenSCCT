@@ -2979,6 +2979,32 @@
     }
   },
   {
+    "id": "paired-member-354730",
+    "size": 16,
+    "offset": 3491632,
+    "inputs": [
+      "src/campaign_paired_member_calls.c"
+    ],
+    "rebuilt_symbol": "@call_pair@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_paired_member_calls.obj src/campaign_paired_member_calls.c",
+    "link_bindings": {
+      "@first_method@4": {
+        "va": 280945296,
+        "basis": "Indexed receiver method with a plain return and no stack argument cleanup."
+      },
+      "@final_method@4": {
+        "va": 281363360,
+        "basis": "Indexed receiver method with a plain return and no stack argument cleanup."
+      }
+    },
+    "identification": "Indexed complete Campaign member at RVA 0x354730. Calls the first method, restores its receiver and tail-calls the second.",
+    "match": {
+      "bytes_sha256": "22c30ab7a31ad822577525ce6d8a3cb0acba5c4711cb97f45cb5df3943cb47b7",
+      "inputs_sha256": "1b88ab56ce4bbbdd8ed391ae6f2379b8d7434e54618ee02c45cda7a804e747e1"
+    }
+  },
+  {
     "id": "construct-actor-aeirsensor",
     "offset": 3491648,
     "size": 48,

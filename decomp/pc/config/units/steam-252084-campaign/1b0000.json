@@ -290,6 +290,54 @@
     }
   },
   {
+    "id": "forwarded-property-1b4650",
+    "size": 25,
+    "offset": 1787472,
+    "inputs": [
+      "src/campaign_forwarded_properties.c"
+    ],
+    "rebuilt_symbol": "@set_80_420_68@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_forwarded_properties.obj src/campaign_forwarded_properties.c",
+    "identification": "Complete table-referenced setter at RVA 0x1b4650. Stores the argument at offset 80 and forwards it to the member at offset 420 through slot 68.",
+    "match": {
+      "bytes_sha256": "14c11c1232640373a6f25fb47436625327f3f41e207a65f3397496b08e0f6a5b",
+      "inputs_sha256": "07f1f8b9c7b7ee3c78a7e3ab47820c04d09d788f4406b09b5899499e5d707214"
+    }
+  },
+  {
+    "id": "forwarded-property-1b4670",
+    "size": 25,
+    "offset": 1787504,
+    "inputs": [
+      "src/campaign_forwarded_properties.c"
+    ],
+    "rebuilt_symbol": "@set_84_420_58@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_forwarded_properties.obj src/campaign_forwarded_properties.c",
+    "identification": "Complete table-referenced setter at RVA 0x1b4670. Stores the argument at offset 84 and forwards it to the member at offset 420 through slot 58.",
+    "match": {
+      "bytes_sha256": "10152cd6d80345c7b9ba11f228709eb5cbafe58d4b1048a8c710ebabe68295ce",
+      "inputs_sha256": "34e1bf101ef23a6b617c063e8c5227b6b153e960e7f3d8f2f2f9ee4feca9004c"
+    }
+  },
+  {
+    "id": "forwarded-property-1b4720",
+    "size": 28,
+    "offset": 1787680,
+    "inputs": [
+      "src/campaign_forwarded_properties.c"
+    ],
+    "rebuilt_symbol": "@set_280_420_62@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_forwarded_properties.obj src/campaign_forwarded_properties.c",
+    "identification": "Complete table-referenced setter at RVA 0x1b4720. Stores the argument at offset 280 and forwards it to the member at offset 420 through slot 62.",
+    "match": {
+      "bytes_sha256": "0b1e752cc9b92573a3bc10b120faf0a9757e62aaeadcc310b22ca30b4d231d31",
+      "inputs_sha256": "29bf69832c452d79d804c5a3fbe1ae1788f033b076241f0e7d231c02bf7d1f59"
+    }
+  },
+  {
     "id": "array-remove-1b5780",
     "size": 138,
     "offset": 1791872,

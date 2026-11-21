@@ -4544,6 +4544,32 @@
     }
   },
   {
+    "id": "paired-member-348910",
+    "size": 16,
+    "offset": 3442960,
+    "inputs": [
+      "src/campaign_paired_member_calls.c"
+    ],
+    "rebuilt_symbol": "@call_pair@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_paired_member_calls.obj src/campaign_paired_member_calls.c",
+    "link_bindings": {
+      "@first_method@4": {
+        "va": 281315264,
+        "basis": "Indexed receiver method with a plain return and no stack argument cleanup."
+      },
+      "@final_method@4": {
+        "va": 280932112,
+        "basis": "Indexed receiver method with a plain return and no stack argument cleanup."
+      }
+    },
+    "identification": "Indexed complete Campaign member at RVA 0x348910. Calls the first method, restores its receiver and tail-calls the second.",
+    "match": {
+      "bytes_sha256": "40aa9b3ddb772c3ac2b2ebe890453b00b0bc97d54dbb540c0aa612203e125e7f",
+      "inputs_sha256": "c59c7e7dbcd318e0b54d9bb759ce9a6f51ce5b8f5bfcb29ce3cf3de63bdccbe1"
+    }
+  },
+  {
     "id": "game-echeloningredient-edetonator-detonate",
     "offset": 3443392,
     "size": 46,

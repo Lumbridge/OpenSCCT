@@ -5331,6 +5331,32 @@
     }
   },
   {
+    "id": "paired-member-8b400",
+    "size": 16,
+    "offset": 570368,
+    "inputs": [
+      "src/campaign_paired_member_calls.c"
+    ],
+    "rebuilt_symbol": "@call_pair@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_paired_member_calls.obj src/campaign_paired_member_calls.c",
+    "link_bindings": {
+      "@first_method@4": {
+        "va": 281901552,
+        "basis": "Indexed receiver method with a plain return and no stack argument cleanup."
+      },
+      "@final_method@4": {
+        "va": 278441264,
+        "basis": "Indexed receiver method with a plain return and no stack argument cleanup."
+      }
+    },
+    "identification": "Indexed complete Campaign member at RVA 0x8b400. Calls the first method, restores its receiver and tail-calls the second.",
+    "match": {
+      "bytes_sha256": "58af1b7967f249e42220524e5efa855654cef4697f0c08a2a87c41878bc2966c",
+      "inputs_sha256": "caa41d44df958316ba1100a9657b8af7eff7f7f004aabbc7b3ccf69ffc79eb3c"
+    }
+  },
+  {
     "id": "physics-sized-release-08b480",
     "size": 41,
     "offset": 570496,
