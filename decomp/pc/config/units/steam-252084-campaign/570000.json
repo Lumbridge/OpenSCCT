@@ -410,6 +410,44 @@
     }
   },
   {
+    "id": "campaign-registered-holder-deletion-577150",
+    "size": 100,
+    "offset": 5730640,
+    "inputs": [
+      "src/campaign_registered_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_registered_holder_30@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_holder_deletion.obj src/campaign_registered_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286581952,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_registered_methods": {
+        "va": 286006628,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@set_registration@8": {
+        "va": 283099712,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x577150: drops the counted object at offset 0x30, clears a set registration bit, restores the base table and conditionally releases the sized allocation in category 34.",
+    "match": {
+      "bytes_sha256": "b17114901129bef25133926b28dd5da57893c949b4f1c429ed183a779908a22e",
+      "inputs_sha256": "61ae0c08a389a9e0204fc5f0cd6a378cd58ba091eb44d7dc430abdfd30dfc063"
+    }
+  },
+  {
     "id": "physics-object-allocation-577380",
     "size": 25,
     "offset": 5731200,

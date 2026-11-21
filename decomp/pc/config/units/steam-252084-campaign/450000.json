@@ -160,6 +160,32 @@
     }
   },
   {
+    "id": "campaign-string-deletion-452b30",
+    "size": 58,
+    "offset": 4533040,
+    "inputs": [
+      "src/campaign_string_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_named_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_string_deletion.obj src/campaign_string_deletion.c",
+    "link_bindings": {
+      "_release": {
+        "va": 279826640,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_release_record": {
+        "va": 277877920,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x452b30: record holding basic_string storage at offset 0xc; releases a heap buffer, resets the small-string state and conditionally releases the record through its class deallocator.",
+    "match": {
+      "bytes_sha256": "edb5fac3e83795c27a64977ac53c4449d74d9df7747ddb590dbeab3f89864231",
+      "inputs_sha256": "de00f186de2a64318186c778e02d76e2ccb964490e4c7c37933f39c6e41ee386"
+    }
+  },
+  {
     "id": "clear-owned-storage-452b80",
     "size": 42,
     "offset": 4533120,

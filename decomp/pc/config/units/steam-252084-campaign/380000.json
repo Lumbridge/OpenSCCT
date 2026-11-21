@@ -1709,6 +1709,96 @@
     }
   },
   {
+    "id": "campaign-interface-owner-deletion-38d670",
+    "size": 68,
+    "offset": 3724912,
+    "inputs": [
+      "src/campaign_interface_owner_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_interface_owner_deletion.obj src/campaign_interface_owner_deletion.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286329936,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@destroy_base@4": {
+        "va": 281593008,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x38d670: decrements the use count, releases and clears the owned interface, runs the base destructor and conditionally releases through the allocator.",
+    "match": {
+      "bytes_sha256": "7a514f2b108dad3a319c1012a8557fc02de6ee4099336ccd081fda804a892f91",
+      "inputs_sha256": "11a82f7c9011f9538be021aa0eb2a64b832891eca74cb6d766d18f1a2e600474"
+    }
+  },
+  {
+    "id": "campaign-interface-owner-deletion-38d6c0",
+    "size": 68,
+    "offset": 3724992,
+    "inputs": [
+      "src/campaign_interface_owner_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_interface_owner_deletion.obj src/campaign_interface_owner_deletion.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286329936,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@destroy_base@4": {
+        "va": 281593008,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x38d6c0: decrements the use count, releases and clears the owned interface, runs the base destructor and conditionally releases through the allocator.",
+    "match": {
+      "bytes_sha256": "bc9b1cabcac55722cb98d212b97689bd4f2262a463a8a3f1122b6b508a8df22d",
+      "inputs_sha256": "fa0321ab9c46ecb202b2ee78cc59067d80c1bd18797d3a780d8f22063ff1622d"
+    }
+  },
+  {
+    "id": "campaign-interface-owner-deletion-38d710",
+    "size": 68,
+    "offset": 3725072,
+    "inputs": [
+      "src/campaign_interface_owner_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_interface_owner_deletion.obj src/campaign_interface_owner_deletion.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286329960,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@destroy_base@4": {
+        "va": 281593008,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x38d710: decrements the use count, releases and clears the owned interface, runs the base destructor and conditionally releases through the allocator.",
+    "match": {
+      "bytes_sha256": "f921b74f8fa3a2ab36eba483f8fa4478d7847a9e6cb4956efb5caeea2f16f3fc",
+      "inputs_sha256": "dff90ee8163afaa93b6c257cf2b11bd58e719efb53c4684fac97f89ccc27c9db"
+    }
+  },
+  {
     "id": "delete-record-38d760",
     "offset": 3725152,
     "size": 33,

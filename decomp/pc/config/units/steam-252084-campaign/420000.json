@@ -781,6 +781,32 @@
     }
   },
   {
+    "id": "campaign-string-deletion-422360",
+    "size": 58,
+    "offset": 4334432,
+    "inputs": [
+      "src/campaign_string_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_named_record@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_string_deletion.obj src/campaign_string_deletion.c",
+    "link_bindings": {
+      "_release": {
+        "va": 279826640,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_release_record": {
+        "va": 277877920,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x422360: record holding basic_string storage at offset 0xc; releases a heap buffer, resets the small-string state and conditionally releases the record through its class deallocator.",
+    "match": {
+      "bytes_sha256": "7694767934c3b70a5387c15b154c2b056b573a28a08a339627120842e972de0a",
+      "inputs_sha256": "4deb63eeaba614c651fea08c3be9ad3659948ac68bf3854966c394c9fff66e69"
+    }
+  },
+  {
     "id": "vector-insert-one-4223d0",
     "size": 70,
     "offset": 4334544,

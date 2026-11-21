@@ -27,6 +27,66 @@
     }
   },
   {
+    "id": "campaign-counted-holder-deletion-6ed670",
+    "size": 71,
+    "offset": 7263856,
+    "inputs": [
+      "src/campaign_counted_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_optional_holder_21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_holder_deletion.obj src/campaign_counted_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286719100,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x6ed670: drops one reference to an optional held object, restores the base method table and conditionally releases the sized allocation in category 21.",
+    "match": {
+      "bytes_sha256": "ed229a772572c8179d5914b1622a9662d497ee9793b192961f73b8ad24d2d16d",
+      "inputs_sha256": "c60462d917fd9a2e3d52ef8aca29a4fca0de9338edb9f027c80590281add2281"
+    }
+  },
+  {
+    "id": "campaign-counted-holder-deletion-6edeb0",
+    "size": 66,
+    "offset": 7265968,
+    "inputs": [
+      "src/campaign_counted_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_holder_21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_holder_deletion.obj src/campaign_counted_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286719104,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x6edeb0: drops one reference to the held object, restores the base method table and conditionally releases the sized allocation in category 21.",
+    "match": {
+      "bytes_sha256": "7673832fd9892c12c922687a8ee1bdfb1d782e3327e78eeff50737db4e23ecb7",
+      "inputs_sha256": "febe269ceb97a01ec7d37c4bf6d2ad1ad6bb68d3ab550a330f5e08d5629b7ce5"
+    }
+  },
+  {
     "id": "physics-heap-forward-6ee240",
     "size": 17,
     "offset": 7266880,

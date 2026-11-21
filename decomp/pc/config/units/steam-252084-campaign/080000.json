@@ -3373,6 +3373,32 @@
     }
   },
   {
+    "id": "campaign-array-owner-deletion-84ea0",
+    "size": 84,
+    "offset": 544416,
+    "inputs": [
+      "src/campaign_array_owner_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_array_owner_70@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_array_owner_deletion.obj src/campaign_array_owner_deletion.c",
+    "link_bindings": {
+      "@remove_items@12": {
+        "va": 278412064,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x84ea0: removes every element of the array at offset 0x70, releases and clears its storage and conditionally releases the object.",
+    "match": {
+      "bytes_sha256": "281af9ae97aadd739c753cba4bdcaae9e6fdbac05a1fbe5b35b1dd641c336c08",
+      "inputs_sha256": "3d21944d01eb88d4222296be2484e51cf976cc69e87e257019dee4849319de01"
+    }
+  },
+  {
     "id": "typed-array-destroy-0850e0",
     "size": 54,
     "offset": 544992,

@@ -66,6 +66,36 @@
     }
   },
   {
+    "id": "campaign-counted-holder-deletion-5010d0",
+    "size": 71,
+    "offset": 5247184,
+    "inputs": [
+      "src/campaign_counted_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_optional_holder_21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_holder_deletion.obj src/campaign_counted_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286563056,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x5010d0: drops one reference to an optional held object, restores the base method table and conditionally releases the sized allocation in category 21.",
+    "match": {
+      "bytes_sha256": "f81734bc101d7a02778a7e2b0e714d34f6a0588bedd79a30809311cc8aa89421",
+      "inputs_sha256": "e77c1d7171a0c242674aa825481bc7303cd480d6b96f298a933bd8f48db988a0"
+    }
+  },
+  {
     "id": "owned-array-storage-501120",
     "size": 34,
     "offset": 5247264,
@@ -129,6 +159,36 @@
     "match": {
       "bytes_sha256": "d4810cc10bdca747a394782ffd2e24af0338e1fbaa6384d84145791c79f83085",
       "inputs_sha256": "368883f2b778abb4c6686d7d8a916d42d763c3c305e8ceee73e5c80d6a21bb40"
+    }
+  },
+  {
+    "id": "campaign-counted-holder-deletion-501dc0",
+    "size": 71,
+    "offset": 5250496,
+    "inputs": [
+      "src/campaign_counted_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_optional_holder_21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_holder_deletion.obj src/campaign_counted_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286563092,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x501dc0: drops one reference to an optional held object, restores the base method table and conditionally releases the sized allocation in category 21.",
+    "match": {
+      "bytes_sha256": "8d7f80254ec280081bd47bab05e2928fa8396fa703c9cd1cbfe9de1b658f2e89",
+      "inputs_sha256": "1827a23cf8b191d95c5c5f27b8d8fab9abe28d13c565e01a53fd30f463d7e8d0"
     }
   },
   {
@@ -1098,6 +1158,36 @@
     }
   },
   {
+    "id": "campaign-counted-holder-deletion-506740",
+    "size": 66,
+    "offset": 5269312,
+    "inputs": [
+      "src/campaign_counted_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_holder_6@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_holder_deletion.obj src/campaign_counted_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286564816,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x506740: drops one reference to the held object, restores the base method table and conditionally releases the sized allocation in category 6.",
+    "match": {
+      "bytes_sha256": "d6d736caeab612745d91d5bd6c93a2baec61d8b4485633144b358d5fc0662e3f",
+      "inputs_sha256": "434602ee78402f0ab7e9aed8073e9ba863607e92296987a12473deafb6b7e167"
+    }
+  },
+  {
     "id": "delete-pool-506cb0",
     "size": 40,
     "offset": 5270704,
@@ -1285,6 +1375,44 @@
     "match": {
       "bytes_sha256": "634b12433fced640c56d77624136c4fef7f48cde80f6c650cefdfa0b825bdbeb",
       "inputs_sha256": "a8f1e369da3be875db2d3d61a3f981156e2807bf8e62fa95c03dfc0b23b3cc00"
+    }
+  },
+  {
+    "id": "campaign-registered-holder-deletion-507890",
+    "size": 100,
+    "offset": 5273744,
+    "inputs": [
+      "src/campaign_registered_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_registered_holder_0c@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_holder_deletion.obj src/campaign_registered_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286564972,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_registered_methods": {
+        "va": 286006628,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@set_registration@8": {
+        "va": 283099712,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x507890: drops the counted object at offset 0xc, clears a set registration bit, restores the base table and conditionally releases the sized allocation in category 34.",
+    "match": {
+      "bytes_sha256": "4c2e4e3f84efbac18796b4a2768b0a02201a5e35d1f8044332d41c642ddcb45a",
+      "inputs_sha256": "dff56aba7638aaaeb57e7ddc33327ee6b8cdd35ec766d5cb168280fc7ebc6de0"
     }
   },
   {

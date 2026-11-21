@@ -448,6 +448,36 @@
     }
   },
   {
+    "id": "campaign-counted-holder-deletion-7934d0",
+    "size": 66,
+    "offset": 7943376,
+    "inputs": [
+      "src/campaign_counted_holder_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_holder_21@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_counted_holder_deletion.obj src/campaign_counted_holder_deletion.c",
+    "link_bindings": {
+      "_holder_methods": {
+        "va": 286751728,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x7934d0: drops one reference to the held object, restores the base method table and conditionally releases the sized allocation in category 21.",
+    "match": {
+      "bytes_sha256": "8bc9ed6689da512fed16c6d7809e1abc08427f92ba9c9a8b163c5027b4e495bb",
+      "inputs_sha256": "7f367ceeebcb4cc40ca8ea890e188cac225aa5ebc873f30680d31dfeaeebdf3b"
+    }
+  },
+  {
     "id": "sound-file-read",
     "offset": 7947696,
     "size": 60,

@@ -482,6 +482,48 @@
     }
   },
   {
+    "id": "campaign-registered-multibase-deletion-2647f0",
+    "size": 67,
+    "offset": 2508784,
+    "inputs": [
+      "src/campaign_registered_multibase_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_multibase_deletion.obj src/campaign_registered_multibase_deletion.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286153880,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_second_methods": {
+        "va": 286153856,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_third_methods": {
+        "va": 286153844,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@unregister_object@4": {
+        "va": 280385568,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@destroy_base@4": {
+        "va": 280386288,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x2647f0: installs three method tables, unregisters when flagged, runs the base destructor and conditionally releases through the allocator.",
+    "match": {
+      "bytes_sha256": "9bfae4d462f2d4184654dae00ed5e71da235eec8a9fa251b3a6ad3bf1c86eb90",
+      "inputs_sha256": "eb9e5d94b139273a07d5820d36ae0ea56be4ae9325a81b16103fb54e6f7ee906"
+    }
+  },
+  {
     "id": "heap-table-destroy-264960",
     "size": 34,
     "offset": 2509152,
