@@ -851,6 +851,10 @@ internal static class Program
             Check(Selected(form) == "Ps2" && IsInClient(form, Field<Button>(form, "_main")), "Compact PS2 setup action fits");
             var updateButton = Field<Button>(form, "_launcherButton");
             var settingsButton = Field<Button>(form, "_settingsButton");
+            Check(!updateButton.Visible, "Launcher update action stays hidden without an available update");
+            updateButton.Text = "Update launcher";
+            updateButton.Visible = true;
+            Settle(form);
             Check(updateButton.Parent == settingsButton.Parent && updateButton.Left >= settingsButton.Right
                 && updateButton.Top < settingsButton.Bottom && IsInClient(form, updateButton),
                 "Launcher updates fit directly beside Settings in the compact header");

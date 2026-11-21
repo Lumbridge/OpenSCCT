@@ -70,7 +70,13 @@ internal sealed partial class MainForm
         SetGlyph(_settingsButton, "settings");
         SetGlyph(_website, "website");
         SetGlyph(_help, "help");
-        foreach (Button button in pages.Controls) LibraryVisuals.Round(button, 7);
+        foreach (Button button in pages.Controls)
+        {
+            button.Padding = new Padding(10, 4, 10, 4);
+            button.MinimumSize = new Size(100, 38);
+            button.Anchor = AnchorStyles.Left;
+            LibraryVisuals.Round(button, 7);
+        }
 
         using Icon mark = Theme.LoadIcon(48);
         _brandLogo = new PictureBox

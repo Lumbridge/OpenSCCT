@@ -99,6 +99,8 @@ internal sealed partial class MainForm : Form
     private readonly Button _settingsButton = Theme.QuietButton("Settings");
     private readonly Button _launcherButton = Theme.Button("Restart to finish");
     private readonly System.Windows.Forms.Timer _pendingTimer = new() { Interval = 3000 };
+    private readonly System.Windows.Forms.Timer _updateTimer = new() { Interval = 10 * 60 * 1000 };
+    private CancellationTokenSource? _backgroundUpdate;
     private readonly ToolTip _tips = new();
 
     public MainForm(string? joinServerId = null, string? protocolProblem = null)
@@ -139,6 +141,7 @@ internal sealed partial class MainForm : Form
 
         BuildUi();
         ApplyProductTheme();
+        _updateTimer.Tick += async (_, _) => await PollLauncherUpdateAsync();
         _pendingTimer.Tick += (_, _) => OnPendingTick();
     }
 
@@ -167,6 +170,7 @@ internal sealed partial class MainForm : Form
         _launcherButton.Text = "Updates";
         _launcherButton.Anchor = AnchorStyles.Right;
         _launcherButton.Name = "UpdateLauncher";
+        _launcherButton.Visible = false;
 
         _heading.Name = "LaunchHeading";
         _heading.Font = Theme.Heading;
@@ -376,6 +380,7 @@ internal sealed partial class MainForm : Form
         FinishUnrealSwitch();
         RefreshLocal();
         _pendingTimer.Start();
+        _updateTimer.Start();
         Product started = _selected;
         bool checkedOnStart = SelectedCheckOnStart;
         if (checkedOnStart)
@@ -735,6 +740,26 @@ internal sealed partial class MainForm : Form
 
     // ---- the work ----------------------------------------------------------------------------------------------
 
+    private async Task PollLauncherUpdateAsync()
+    {
+        if (_work is not null || _backgroundUpdate is not null || _closeAfterWork || _swap is { HasStaged: true }) return;
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        _backgroundUpdate = timeout;
+        var previous = _lastCheck;
+        try
+        {
+            var check = await _service.CheckAsync(_settings.IncludePrereleases, _launcherVersion, timeout.Token);
+            if (!IsDisposed && !Disposing && !_closeAfterWork && _work is null &&
+                ReferenceEquals(previous, _lastCheck) && check.Feed.Problem is null)
+                ShowReleaseCheck(check);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException or IOException or UnauthorizedAccessException)
+        {
+            // Leave the current page and the last successful check in place until the next poll.
+        }
+        finally { _backgroundUpdate = null; }
+    }
+
     private void ShowReleaseCheck(UpdateCheck check)
     {
         _lastCheck = check;
@@ -768,7 +793,7 @@ internal sealed partial class MainForm : Form
         else if (_swap is not { HasStaged: true })
         {
             _launcherButton.Text = "Updates";
-            _launcherButton.Visible = true;
+            _launcherButton.Visible = false;
             _tips.SetToolTip(_launcherButton, check.Feed.Problem ?? $"OpenSCCT Launcher {_launcherVersion}");
         }
     }
@@ -1274,6 +1299,8 @@ internal sealed partial class MainForm : Form
         if (disposing)
         {
             _editionActions.Dispose();
+            _updateTimer.Dispose();
+            _backgroundUpdate?.Cancel();
             _pendingTimer.Dispose();
             _tips.Dispose();
             if (_brandLogo is { } logo)
