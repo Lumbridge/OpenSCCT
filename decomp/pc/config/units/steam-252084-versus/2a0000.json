@@ -1466,6 +1466,38 @@
     }
   },
   {
+    "id": "widget-navigation-2a87b0",
+    "size": 55,
+    "offset": 2787248,
+    "inputs": [
+      "src/versus_widget_navigation.c"
+    ],
+    "rebuilt_symbol": "@advance_position@16",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_navigation.obj src/versus_widget_navigation.c",
+    "identification": "Complete indexed Versus widget navigation routine at RVA 0x2a87b0.",
+    "match": {
+      "bytes_sha256": "4b06ba293a0019aa22e3291d05dbcf6f1ee16650d30cdf52c7ecd44259288f97",
+      "inputs_sha256": "4f4f63a64d2cc31ff79523b3a0e9be126aec6e604bcd0524c72e0dc40640e3ef"
+    }
+  },
+  {
+    "id": "widget-navigation-2a8ab0",
+    "size": 61,
+    "offset": 2788016,
+    "inputs": [
+      "src/versus_widget_navigation.c"
+    ],
+    "rebuilt_symbol": "@previous_item@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_navigation.obj src/versus_widget_navigation.c",
+    "identification": "Complete indexed Versus widget navigation routine at RVA 0x2a8ab0.",
+    "match": {
+      "bytes_sha256": "916e95c448ecbb5e749b82edcca8e9fc61ec60c6687793af7d54bbab246b8252",
+      "inputs_sha256": "5b868965a73f1da06ec7402c7c6d262a22f4f6d4cbec5647958a4aab63f96277"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,
