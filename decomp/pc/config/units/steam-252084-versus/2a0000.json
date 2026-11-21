@@ -1482,6 +1482,32 @@
     }
   },
   {
+    "id": "page-entries-2a8920",
+    "size": 264,
+    "offset": 2787616,
+    "inputs": [
+      "src/versus_page_entries.c"
+    ],
+    "rebuilt_symbol": "@hit_entry@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_page_entries.obj src/versus_page_entries.c",
+    "identification": "Complete Versus page routine at RVA 0x2a8920. Tests a point against the visible rows and returns the selected row index or -1.",
+    "link_bindings": {
+      "@measure@8": {
+        "va": 280644272,
+        "basis": "Retail direct call to the indexed selection, bounds measurement, or rectangle positioning routine."
+      },
+      "@move_bounds@16": {
+        "va": 280659808,
+        "basis": "Retail direct call to the indexed selection, bounds measurement, or rectangle positioning routine."
+      }
+    },
+    "match": {
+      "bytes_sha256": "7a7dddff851e427c92ef851c4297bc4cda7289a94e22bbf017342f211accef6e",
+      "inputs_sha256": "867a6d9bf9a32bc5b21b57b79b23805f8af6b2a2d59d60cda9b34bb26803c1fc"
+    }
+  },
+  {
     "id": "widget-navigation-2a8ab0",
     "size": 61,
     "offset": 2788016,
@@ -1537,6 +1563,22 @@
     }
   },
   {
+    "id": "page-entries-2a9370",
+    "size": 39,
+    "offset": 2790256,
+    "inputs": [
+      "src/versus_page_entries.c"
+    ],
+    "rebuilt_symbol": "_copy_pairs",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_page_entries.obj src/versus_page_entries.c",
+    "identification": "Complete Versus page routine at RVA 0x2a9370. Copies two-word records and returns the output end.",
+    "match": {
+      "bytes_sha256": "101859f50e598fabeff04eaea45fdd8b60ac20a344d25da237cc3a336459ee3c",
+      "inputs_sha256": "7666d6bf21cc65541e796fa5eeca03a7db1c3e2a2551cc73eb3f89ec0799c846"
+    }
+  },
+  {
     "id": "controller-refresh-index",
     "size": 45,
     "offset": 2791120,
@@ -1564,6 +1606,50 @@
     "match": {
       "bytes_sha256": "7b771be9e7d3ac3ff4846b1831530b3191c2b3591b21d7e07e69556736d9c8fd",
       "inputs_sha256": "b8941ed2a80c80813c6a70b0a66ac811ed6b84d2270293fd14de64335da70ea2"
+    }
+  },
+  {
+    "id": "page-entries-2a9720",
+    "size": 41,
+    "offset": 2791200,
+    "inputs": [
+      "src/versus_page_entries.c"
+    ],
+    "rebuilt_symbol": "@previous_entry@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_page_entries.obj src/versus_page_entries.c",
+    "identification": "Complete Versus page routine at RVA 0x2a9720. Selects the previous entry.",
+    "link_bindings": {
+      "@select_entry@16": {
+        "va": 280663600,
+        "basis": "Retail direct call to the indexed selection, bounds measurement, or rectangle positioning routine."
+      }
+    },
+    "match": {
+      "bytes_sha256": "b51d2028486c494d7ce2e8726e0c35adcf4f2cbefd1766253c412fd3f05d108c",
+      "inputs_sha256": "6f0ba8cf6f31582b447ee3aa099ce57030719dc4f50fbe17bc2916e1d268312b"
+    }
+  },
+  {
+    "id": "page-entries-2a9790",
+    "size": 41,
+    "offset": 2791312,
+    "inputs": [
+      "src/versus_page_entries.c"
+    ],
+    "rebuilt_symbol": "@first_entry@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_page_entries.obj src/versus_page_entries.c",
+    "identification": "Complete Versus page routine at RVA 0x2a9790. Selects the first entry.",
+    "link_bindings": {
+      "@select_entry@16": {
+        "va": 280663600,
+        "basis": "Retail direct call to the indexed selection, bounds measurement, or rectangle positioning routine."
+      }
+    },
+    "match": {
+      "bytes_sha256": "ba060adf6f25492b89f6c394aed57409984afd95a39e024d67007a20e6bab71d",
+      "inputs_sha256": "d3abdce700cfc2af3a6cec8f18a382779173d36928a89886c79d1e1e9f8fff6e"
     }
   },
   {
