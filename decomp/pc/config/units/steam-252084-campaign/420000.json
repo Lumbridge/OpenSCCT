@@ -342,6 +342,28 @@
     }
   },
   {
+    "id": "shared-holder-4216e0",
+    "size": 51,
+    "offset": 4331232,
+    "inputs": [
+      "src/campaign_shared_holder.c"
+    ],
+    "rebuilt_symbol": "@delete_holder@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_holder.obj src/campaign_shared_holder.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279826640,
+        "basis": "Direct retail storage release called on this holder."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x4216e0. Drops one held reference, calls virtual deletion for the last reference and conditionally frees the holder.",
+    "match": {
+      "bytes_sha256": "810d6d551c7706523a9bd16d10f543d4e6fd3f91ef12107356828c91216fa8e6",
+      "inputs_sha256": "a7aacd6c4924558cf84930372618d5839afbec03c3f1e931861f0fc60da6b969"
+    }
+  },
+  {
     "id": "construct-copies-421750",
     "size": 35,
     "offset": 4331344,

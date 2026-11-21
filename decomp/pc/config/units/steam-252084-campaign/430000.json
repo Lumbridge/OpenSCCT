@@ -836,6 +836,28 @@
     }
   },
   {
+    "id": "shared-holder-431890",
+    "size": 51,
+    "offset": 4397200,
+    "inputs": [
+      "src/campaign_shared_holder.c"
+    ],
+    "rebuilt_symbol": "@delete_holder@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_holder.obj src/campaign_shared_holder.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279826640,
+        "basis": "Direct retail storage release called on this holder."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x431890. Drops one held reference, calls virtual deletion for the last reference and conditionally frees the holder.",
+    "match": {
+      "bytes_sha256": "d773c39efdf0deb78514df6062d9b8a00b07998f845ac8a2adacff8ef3da60a1",
+      "inputs_sha256": "3e625d45901485751c3072b6ce9413fe38bb9335ac9aa94df197130bdeba3674"
+    }
+  },
+  {
     "id": "vector-init-4-431930",
     "size": 76,
     "offset": 4397360,
@@ -1399,6 +1421,28 @@
     "match": {
       "bytes_sha256": "d876a8d5e657d5e038e25575ebbc9283644e5a0a769b823037f2cbfeb99ccaad",
       "inputs_sha256": "0acc9361ed18c4651b64599958b9228871fa8b1fb94cd81699b853e54a93fe1f"
+    }
+  },
+  {
+    "id": "shared-holder-4333e0",
+    "size": 51,
+    "offset": 4404192,
+    "inputs": [
+      "src/campaign_shared_holder.c"
+    ],
+    "rebuilt_symbol": "@delete_holder@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_holder.obj src/campaign_shared_holder.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279826640,
+        "basis": "Direct retail storage release called on this holder."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x4333e0. Drops one held reference, calls virtual deletion for the last reference and conditionally frees the holder.",
+    "match": {
+      "bytes_sha256": "e096026fdf50763091e38093376786b55ae2e42948f91e6cb940f339d149f0d0",
+      "inputs_sha256": "77467364c3062c7dadd3345e4237ca805cb976d71e8c6cb80de0b1172fc36f39"
     }
   },
   {
@@ -2473,6 +2517,28 @@
     "match": {
       "bytes_sha256": "bd82d52f08b0408fe221aa428ff464c1bac863a34be6cabd8878ea51b948b102",
       "inputs_sha256": "7a3c036c5326610a9bf2f394d07d935d4f376897245c3c71947d10be0b7a73a4"
+    }
+  },
+  {
+    "id": "shared-holder-436370",
+    "size": 51,
+    "offset": 4416368,
+    "inputs": [
+      "src/campaign_shared_holder.c"
+    ],
+    "rebuilt_symbol": "@delete_holder@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_shared_holder.obj src/campaign_shared_holder.c",
+    "link_bindings": {
+      "_release_memory": {
+        "va": 279826640,
+        "basis": "Direct retail storage release called on this holder."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x436370. Drops one held reference, calls virtual deletion for the last reference and conditionally frees the holder.",
+    "match": {
+      "bytes_sha256": "1686d98417216784fd42afdbe4cbcebbeeec3cf2cb925e725dc6937decf74583",
+      "inputs_sha256": "4ed3cf1657a1f4d64189132623a292c9f72c9446099fe9bbd396d98ac5947533"
     }
   },
   {

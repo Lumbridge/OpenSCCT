@@ -1630,6 +1630,32 @@
     }
   },
   {
+    "id": "sized-delete-6ff3a0",
+    "size": 37,
+    "offset": 7336864,
+    "inputs": [
+      "src/campaign_sized_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_112_34@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sized_deletion.obj src/campaign_sized_deletion.c",
+    "link_bindings": {
+      "@destroy@4": {
+        "va": 285209552,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x6ff3a0. Calls the object destructor and conditionally releases 112 bytes in allocation category 34.",
+    "match": {
+      "bytes_sha256": "1ac0c018372ac5a91a40533807a10477e4d1f544003fed7e7fac388833f58051",
+      "inputs_sha256": "7944c0219d767cb9decfbb86f1a7cf873be66c72b8e969104adc2601a625517a"
+    }
+  },
+  {
     "id": "delete-pool-6ff560",
     "size": 40,
     "offset": 7337312,

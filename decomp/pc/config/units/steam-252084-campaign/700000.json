@@ -176,5 +176,31 @@
       "bytes_sha256": "1ab0760870ef0ed81bac1fd347f7f3dc3f9cbe42b0cc1d595a724740163afb33",
       "inputs_sha256": "22305f98e9011e215e2b6979c77d1af400eea6b238b026b98c7e07e0d273a770"
     }
+  },
+  {
+    "id": "sized-delete-701430",
+    "size": 37,
+    "offset": 7345200,
+    "inputs": [
+      "src/campaign_sized_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_112_34@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sized_deletion.obj src/campaign_sized_deletion.c",
+    "link_bindings": {
+      "@destroy@4": {
+        "va": 285209552,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x701430. Calls the object destructor and conditionally releases 112 bytes in allocation category 34.",
+    "match": {
+      "bytes_sha256": "e46963bbbfac9351bab64fc52669d067d1ab9d0bfded089dd929fb423ab03dce",
+      "inputs_sha256": "f4f519f00518adb52ca6c799e3c4d9ccface9dec936e5e1f7cf5e7a1fef304b1"
+    }
   }
 ]

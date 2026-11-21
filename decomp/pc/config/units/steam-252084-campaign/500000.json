@@ -924,6 +924,32 @@
     }
   },
   {
+    "id": "sized-delete-506120",
+    "size": 37,
+    "offset": 5267744,
+    "inputs": [
+      "src/campaign_sized_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_12_23@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sized_deletion.obj src/campaign_sized_deletion.c",
+    "link_bindings": {
+      "@destroy@4": {
+        "va": 285137712,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x506120. Calls the object destructor and conditionally releases 12 bytes in allocation category 23.",
+    "match": {
+      "bytes_sha256": "2a97f96b28f9dce7221f44a9eb972ce0fbfe0e24860d00b4cac1c7da50900ee8",
+      "inputs_sha256": "866873e92124380a7fa8bc7b14571c1391467ef38ce43e23bce12db01cb11595"
+    }
+  },
+  {
     "id": "delete-pool-506260",
     "size": 40,
     "offset": 5268064,
@@ -969,6 +995,32 @@
     "match": {
       "bytes_sha256": "961181aaaa90af6ed2cfc284c54342a531022e85ef68986f83e3e028ad4b893e",
       "inputs_sha256": "24446a56021ec2f22690259d7cb7cdf8a2b896fbc2ee95a504b2866ff22696d1"
+    }
+  },
+  {
+    "id": "sized-delete-506380",
+    "size": 37,
+    "offset": 5268352,
+    "inputs": [
+      "src/campaign_sized_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_12_23@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_sized_deletion.obj src/campaign_sized_deletion.c",
+    "link_bindings": {
+      "@destroy@4": {
+        "va": 283137456,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail manager pointer or indexed direct call to destructor."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x506380. Calls the object destructor and conditionally releases 12 bytes in allocation category 23.",
+    "match": {
+      "bytes_sha256": "3cc6a7b902a9c7ea2a0b66c4d8e8e586bf9f65f79fb3387f9e9ee49c9cd297fc",
+      "inputs_sha256": "7b826709062b063b2a5e363dbd8076ed81ca8cc687be5bf271fcbac3b3dcadfe"
     }
   },
   {
