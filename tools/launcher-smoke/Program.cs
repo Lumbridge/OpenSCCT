@@ -811,6 +811,13 @@ internal static class Program
             form.ShowInTaskbar = false;
             form.Show();
             Settle(form);
+            Control artwork = Field<Control>(form, "_launchCard");
+            int idleInvalidations = 0;
+            InvalidateEventHandler recordInvalidation = (_, _) => idleInvalidations++;
+            artwork.Invalidated += recordInvalidation;
+            for (int tick = 0; tick < 3; tick++) Call(form, "OnPendingTick");
+            artwork.Invalidated -= recordInvalidation;
+            Check(idleInvalidations == 0, "Idle install checks leave the edition artwork untouched");
             Save(form, output, "library-ps2-games");
             Check(Field<Button>(form, "_main").Text == "Choose disc image", "Owned-disc setup action");
             ComboBox editions = Field<ComboBox>(form, "_compactPicker");

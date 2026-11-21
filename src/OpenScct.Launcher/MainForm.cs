@@ -414,11 +414,14 @@ internal sealed partial class MainForm : Form
 
     // ---- launch state ---------------------------------------------------------------------------------------------
 
+    private bool _unrealWasRunning;
+
     private void RefreshLocal()
     {
         SemVersion? current = _store.Current();
         bool busy = _work is not null;
 
+        _unrealWasRunning = _unreal.IsRunning;
         _steamContentRoot = _steamContent.ActiveRoot();
         RenderProductStatus();
         _retailSecondary.Visible = false;
@@ -1170,20 +1173,26 @@ internal sealed partial class MainForm : Form
             return;
         }
 
+        var previousGameStatus = _gameStatus;
+        var previousUnrealStatus = _unrealStatus;
+        bool activated = false;
         try
         {
             if (_service.TryFinishPending() == InstallOutcome.Activated)
             {
                 _gameStatus = new($"Now on version {_store.Current()}.", StatusKind.Success);
-                RefreshLocal();
+                activated = true;
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             _gameStatus = new("Could not switch versions yet: " + ex.Message, StatusKind.Warning);
         }
+        bool unrealPending = _unreal.Pending is not null;
         FinishUnrealSwitch();
-        RefreshLocal();
+        if (activated || previousGameStatus != _gameStatus || previousUnrealStatus != _unrealStatus ||
+            (unrealPending && _unreal.Pending is null) || _unrealWasRunning != _unreal.IsRunning)
+            RefreshLocal();
     }
 
     private Progress<DownloadProgress> ProgressReporter()
