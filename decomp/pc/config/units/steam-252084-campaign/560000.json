@@ -972,6 +972,108 @@
     }
   },
   {
+    "id": "registered-storage-568300",
+    "offset": 5669632,
+    "size": 73,
+    "inputs": [
+      "src/campaign_registered_storage.c"
+    ],
+    "rebuilt_symbol": "@release_category_38@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_storage.obj src/campaign_registered_storage.c",
+    "link_bindings": {
+      "_derived_methods": {
+        "va": 286006628,
+        "basis": "First methods table stored by this destructor."
+      },
+      "@set_registration@12": {
+        "va": 283099712,
+        "basis": "Direct call to the method that updates the registration bit."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Base methods table stored after clearing registration."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer read before size-aware release."
+      }
+    },
+    "identification": "Complete Campaign physics destructor at RVA 0x568300. Clears the high registration bit and unregisters when set, installs base methods, then conditionally releases storage using the remaining size and category 38.",
+    "match": {
+      "bytes_sha256": "78bc4164a99b04abb0a5a4e1104fb2e30ac60d8fdc8b3e7f6a7b32807fb43c3e",
+      "inputs_sha256": "8e277424ede26e56e3e5c7dc8e8a7902012e649af03663c473ffe8b330b7d7cc"
+    }
+  },
+  {
+    "id": "registered-storage-568360",
+    "offset": 5669728,
+    "size": 73,
+    "inputs": [
+      "src/campaign_registered_storage.c"
+    ],
+    "rebuilt_symbol": "@release_category_38@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_storage.obj src/campaign_registered_storage.c",
+    "link_bindings": {
+      "_derived_methods": {
+        "va": 286006628,
+        "basis": "First methods table stored by this destructor."
+      },
+      "@set_registration@12": {
+        "va": 283099712,
+        "basis": "Direct call to the method that updates the registration bit."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Base methods table stored after clearing registration."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer read before size-aware release."
+      }
+    },
+    "identification": "Complete Campaign physics destructor at RVA 0x568360. Clears the high registration bit and unregisters when set, installs base methods, then conditionally releases storage using the remaining size and category 38.",
+    "match": {
+      "bytes_sha256": "4d19fda7deb0dd6c1d8e158d8ae41da0a385d5045178cf8237e6d60a54acae02",
+      "inputs_sha256": "c88e3cf8a33080b206b4cbd6ce32e5fc4ae243ca13e44246a9f8360e0438e2f3"
+    }
+  },
+  {
+    "id": "registered-storage-5683d0",
+    "offset": 5669840,
+    "size": 73,
+    "inputs": [
+      "src/campaign_registered_storage.c"
+    ],
+    "rebuilt_symbol": "@release_category_38@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_storage.obj src/campaign_registered_storage.c",
+    "link_bindings": {
+      "_derived_methods": {
+        "va": 286006628,
+        "basis": "First methods table stored by this destructor."
+      },
+      "@set_registration@12": {
+        "va": 283099712,
+        "basis": "Direct call to the method that updates the registration bit."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Base methods table stored after clearing registration."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer read before size-aware release."
+      }
+    },
+    "identification": "Complete Campaign physics destructor at RVA 0x5683d0. Clears the high registration bit and unregisters when set, installs base methods, then conditionally releases storage using the remaining size and category 38.",
+    "match": {
+      "bytes_sha256": "07a86adc447a80d583485c43acb04a2d95424ebf0af06e9ce1deab6bf2d9902b",
+      "inputs_sha256": "3a0b1c9cc42f5518c84348fdc23f1ebbdce76c0e2b904bf39b70c1557dfe409a"
+    }
+  },
+  {
     "id": "read-word-568500",
     "offset": 5670144,
     "size": 7,

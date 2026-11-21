@@ -118,6 +118,40 @@
     }
   },
   {
+    "id": "registered-storage-700cd0",
+    "offset": 7343312,
+    "size": 73,
+    "inputs": [
+      "src/campaign_registered_storage.c"
+    ],
+    "rebuilt_symbol": "@release_category_34@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_registered_storage.obj src/campaign_registered_storage.c",
+    "link_bindings": {
+      "_derived_methods": {
+        "va": 286006628,
+        "basis": "First methods table stored by this destructor."
+      },
+      "@set_registration@12": {
+        "va": 283099712,
+        "basis": "Direct call to the method that updates the registration bit."
+      },
+      "_base_methods": {
+        "va": 286006624,
+        "basis": "Base methods table stored after clearing registration."
+      },
+      "_manager": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer read before size-aware release."
+      }
+    },
+    "identification": "Complete Campaign physics destructor at RVA 0x700cd0. Clears the high registration bit and unregisters when set, installs base methods, then conditionally releases storage using the remaining size and category 34.",
+    "match": {
+      "bytes_sha256": "ea62147c677e0951e23cb96a3e6806b046f8a4399ec2dbb8ac6dbe47fc10a8cd",
+      "inputs_sha256": "b52c7b549310681fc798bf8ce33af192f117cb53e410dabbca81e190249e5e8d"
+    }
+  },
+  {
     "id": "delete-pool-700df0",
     "size": 40,
     "offset": 7343600,
