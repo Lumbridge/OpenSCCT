@@ -440,6 +440,32 @@
     }
   },
   {
+    "id": "table-scalar-delete-430f80",
+    "size": 30,
+    "offset": 4394880,
+    "inputs": [
+      "src/table_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_scalar_delete.obj src/table_scalar_delete.c",
+    "link_bindings": {
+      "@destroy_object@4": {
+        "va": 282266432,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      },
+      "_release_storage": {
+        "va": 282267552,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      }
+    },
+    "identification": "Method table references RVA 0x430f80, which calls the destructor at RVA 0x430b40 and, when deletion flag 1 is set, releases the same pointer through RVA 0x430fa0.",
+    "match": {
+      "bytes_sha256": "260a6746c500df92e232c7562737cf410c9b7be05f8e785db2bb16df7811ed67",
+      "inputs_sha256": "36f1d8aaf24b1e8b5e43b500366aa5d50651822b91edc492c037e895cbd3b30f"
+    }
+  },
+  {
     "id": "block-pool-release-430fa0",
     "size": 43,
     "offset": 4394912,
@@ -1680,6 +1706,32 @@
     }
   },
   {
+    "id": "table-scalar-delete-4341b0",
+    "size": 30,
+    "offset": 4407728,
+    "inputs": [
+      "src/table_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_scalar_delete.obj src/table_scalar_delete.c",
+    "link_bindings": {
+      "@destroy_object@4": {
+        "va": 282279872,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      },
+      "_release_storage": {
+        "va": 282280400,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      }
+    },
+    "identification": "Method table references RVA 0x4341b0, which calls the destructor at RVA 0x433fc0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x4341d0.",
+    "match": {
+      "bytes_sha256": "556183f86ecf2437b5a18615f9d4c57b0b039706218a13ce6639d121ced5d251",
+      "inputs_sha256": "880223557bb6d1c83528b388b230c033f7bfd872f5f8bdf273b016091044b716"
+    }
+  },
+  {
     "id": "block-pool-release-4341d0",
     "size": 43,
     "offset": 4407760,
@@ -1941,6 +1993,32 @@
     "match": {
       "bytes_sha256": "27b296d268aa331a12f174ef3be7670e80d351edef14a4cba6c3c17e0f46c47c",
       "inputs_sha256": "7b8b3fe82bb124bd041701fd6ecb645a9d5c1e24b2e0e76c8417fda471338497"
+    }
+  },
+  {
+    "id": "table-scalar-delete-4353b0",
+    "size": 30,
+    "offset": 4412336,
+    "inputs": [
+      "src/table_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_scalar_delete.obj src/table_scalar_delete.c",
+    "link_bindings": {
+      "@destroy_object@4": {
+        "va": 282285216,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      },
+      "_release_storage": {
+        "va": 282285008,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      }
+    },
+    "identification": "Method table references RVA 0x4353b0, which calls the destructor at RVA 0x4354a0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x4353d0.",
+    "match": {
+      "bytes_sha256": "dd405b0c75bde3f975de9b14753d41308eaffb5c72276671794746c40b430340",
+      "inputs_sha256": "399b2b641b9f20d8c826c4b1e975b8d94d3d22453d204f7da44e9c3c3d2b573a"
     }
   },
   {
@@ -3005,6 +3083,32 @@
     "match": {
       "bytes_sha256": "97fb1614b064b896629cf41c00f732c2dcaa4615f2253a4f2d1d027e83044da9",
       "inputs_sha256": "860fc871137eac90731979fe3ca708006599262d7d39968f61ab8fd354089974"
+    }
+  },
+  {
+    "id": "table-scalar-delete-437d80",
+    "size": 30,
+    "offset": 4423040,
+    "inputs": [
+      "src/table_scalar_delete.c"
+    ],
+    "rebuilt_symbol": "@delete_object@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/table_scalar_delete.obj src/table_scalar_delete.c",
+    "link_bindings": {
+      "@destroy_object@4": {
+        "va": 282295440,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      },
+      "_release_storage": {
+        "va": 282295712,
+        "basis": "Indexed retail object destructor or storage release called directly by this method-table entry."
+      }
+    },
+    "identification": "Method table references RVA 0x437d80, which calls the destructor at RVA 0x437c90 and, when deletion flag 1 is set, releases the same pointer through RVA 0x437da0.",
+    "match": {
+      "bytes_sha256": "6e751912048d2e3977d1793e0913e5c7e6c164cea748bff3cdd6032749f63842",
+      "inputs_sha256": "1a8172b2f207db97b316492e750decf3a4eaaa36537d892e23345a4d54289fbd"
     }
   },
   {
