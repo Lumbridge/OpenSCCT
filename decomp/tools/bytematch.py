@@ -23,7 +23,7 @@ def build_report(folder, target):
         verified = "match" in unit and unit.get("recipe_evidence") is not None
         measures = byte_measures(size, size if verified else 0)
         measures.update(total_functions=1, matched_functions=int(verified))
-        source = next(path for path in unit["inputs"] if path.lower().endswith(".c"))
+        source = next(path for path in unit["inputs"] if path.lower().endswith((".c", ".cpp")))
         function = dict(name=unit.get("rebuilt_symbol", unit["id"]), size=str(size),
                         fuzzy_match_percent=100 if verified else 0)
         units.append(dict(name=f'{folder.name}/{unit["id"]}', measures=measures, functions=[function],
