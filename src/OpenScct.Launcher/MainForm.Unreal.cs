@@ -44,17 +44,41 @@ internal sealed partial class MainForm
     private async Task SetUpUnrealContentAsync(CancellationToken cancel, bool rebuild)
     {
         SetOperation("Building Unreal game files");
-        SetStatus("Follow the Unreal setup window to convert your Steam installation.", Theme.Muted);
-        using var setup = Process.Start(_unreal.SetupInfo(_steamSource.Value, rebuild))
-            ?? throw new IOException("The Unreal setup tool could not start.");
-        try { await setup.WaitForExitAsync(cancel); }
+        SetStatus("Reading your Steam installation.", Theme.Muted);
+        var info = _unreal.SetupInfo(_steamSource.Value, rebuild);
+        info.ArgumentList.Add("--non-interactive");
+        info.CreateNoWindow = true;
+        info.RedirectStandardOutput = true;
+        info.RedirectStandardError = true;
+        using var setup = Process.Start(info) ?? throw new IOException("The Unreal setup tool could not start.");
+        var errors = setup.StandardError.ReadToEndAsync();
+        try
+        {
+            while (await setup.StandardOutput.ReadLineAsync(cancel) is { } line)
+            {
+                // The bundled converter reports one line per completed job: "12/49  characters ...".
+                var fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (fields.Length < 2) continue;
+                var counts = fields[0].Split('/');
+                if (counts.Length != 2 || !int.TryParse(counts[0], out int done) ||
+                    !int.TryParse(counts[1], out int total) || total <= 0 || done < 0 || done > total) continue;
+                _progress.Visible = true;
+                _progress.Fraction = (double)done / total;
+                _progressText.Visible = true;
+                _progressText.Text = $"{done} of {total} jobs  ·  {fields[1]}";
+            }
+            await setup.WaitForExitAsync(cancel);
+        }
         catch (OperationCanceledException)
         {
             if (!setup.HasExited) setup.Kill(entireProcessTree: true);
+            await setup.WaitForExitAsync();
+            await errors;
             throw;
         }
+        string error = (await errors).Trim();
         if (setup.ExitCode == 2) { SetStatus("Unreal setup cancelled.", Theme.Muted); return; }
-        if (setup.ExitCode != 0) throw new IOException("Unreal setup could not finish. See its message and build log.");
+        if (setup.ExitCode != 0) throw new IOException(error.Length > 0 ? error : "Unreal setup could not finish.");
         SetStatus("Unreal game files are ready.", Theme.Accent);
     }
 
