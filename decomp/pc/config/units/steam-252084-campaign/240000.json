@@ -252,6 +252,28 @@
     }
   },
   {
+    "id": "fixed-adjusted-destructor-243fb0",
+    "offset": 2375600,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280248816,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x243fb0 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x2441f0.",
+    "match": {
+      "bytes_sha256": "686e593ae8e316824187778e861d00891a3a3d5163329506d823a8d9b1e97b5d",
+      "inputs_sha256": "3753eced81cb0a695f510658316320f51fdee3c37a2c420ba2518e31acce6225"
+    }
+  },
+  {
     "id": "register-names-244f70",
     "size": 163,
     "offset": 2379632,
@@ -371,6 +393,28 @@
     "match": {
       "bytes_sha256": "02ee6c6bb0c7b928c6096564060074fbd46ceb60fe2def4746eb0fe696a39459",
       "inputs_sha256": "b39aeba1d0d786798db5e167a7ca47d00bfa692f74277c702bf430199bc3053f"
+    }
+  },
+  {
+    "id": "fixed-adjusted-destructor-245f30",
+    "offset": 2383664,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280257024,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x245f30 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x246200.",
+    "match": {
+      "bytes_sha256": "d2b6d8db4f30e4d7f58f6555c1add8a856c4e3e0bd5d3e7075c49b76c06e67e5",
+      "inputs_sha256": "35849f3125b85194d4b5742e7d61ed5610520a21cb69a98100cf237b82d5a60a"
     }
   },
   {
@@ -979,6 +1023,28 @@
     }
   },
   {
+    "id": "fixed-adjusted-destructor-248180",
+    "offset": 2392448,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280265856,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x248180 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x248480.",
+    "match": {
+      "bytes_sha256": "ce5663e53376c095446f96faad13aa76ab392c184371a8b4bb936cb45f068c1d",
+      "inputs_sha256": "42199ec09ee4078308345af94647be711006b7e391e6889028c7922b0753895e"
+    }
+  },
+  {
     "id": "virtual-base-event-248200",
     "size": 8,
     "offset": 2392576,
@@ -1064,6 +1130,28 @@
     "match": {
       "bytes_sha256": "bcd6e212de880175627baf7423c94d0296ccba9d56e470b7c6b45b5e603fd42d",
       "inputs_sha256": "1e36f7c82d030179a6f287c1beb42075c7cd4bdf876eb4b777da17dd5e267149"
+    }
+  },
+  {
+    "id": "fixed-adjusted-destructor-24aa30",
+    "offset": 2402864,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280275856,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x24aa30 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x24ab90.",
+    "match": {
+      "bytes_sha256": "120e902fae60c992fb40fcf115bd22c37118667a4a551d067402dd9f27f0f334",
+      "inputs_sha256": "8b1b106053bf1450d2aef0f8b647d6e2d3aafd94c72272a0508deea31d76bdfe"
     }
   },
   {
@@ -1283,6 +1371,28 @@
     "match": {
       "bytes_sha256": "e4ca08307dfbcce8971c4ff26f02a37207f44cf771e188440f84e0863cf3ae87",
       "inputs_sha256": "1715d15f95894472d6df9cb5ae078e054e1cdb1e1e2547509fa4871bf75cfac2"
+    }
+  },
+  {
+    "id": "fixed-adjusted-destructor-24c1b0",
+    "offset": 2408880,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280281968,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x24c1b0 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x24c370.",
+    "match": {
+      "bytes_sha256": "30246a074b3a5972b947bb006339c97fed21532917f12922319f4f5959e1745f",
+      "inputs_sha256": "09c390a46686920ce707ed93d73508a2f7b3122cf1957029ff13f37e47be716e"
     }
   },
   {
@@ -1732,6 +1842,28 @@
     "match": {
       "bytes_sha256": "2ecab2f707f3703d2a532ebb6e454dcb1407d549546abf0f13bbd9ccbe9a34ed",
       "inputs_sha256": "83e6060ec342b9cba5d8b6088d73b9fcf51c62845d7e1d6ce1799067ec1d17cb"
+    }
+  },
+  {
+    "id": "fixed-adjusted-destructor-24f9a0",
+    "offset": 2423200,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280296400,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x24f9a0 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x24fbd0.",
+    "match": {
+      "bytes_sha256": "428cf9a1a1153213918fd12f366dd46500abaa3d3805ca7d8d7f1516237b2fda",
+      "inputs_sha256": "a4522b6dd5012be4845b6a600fa5739e36a7e85c3169f2f4148588d068afc430"
     }
   }
 ]

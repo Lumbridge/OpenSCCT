@@ -168,6 +168,28 @@
     }
   },
   {
+    "id": "fixed-adjusted-destructor-2519c0",
+    "offset": 2431424,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280304720,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x2519c0 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x251c50.",
+    "match": {
+      "bytes_sha256": "e2a28f60469c7ecb1c48a2ed09be6a50362ded6c2f3e83a7f756053da45d3b40",
+      "inputs_sha256": "9a62d4b04a8a916f50666ba43c866fe95aa05741e9fb62bc8119d00b95c56844"
+    }
+  },
+  {
     "id": "register-names-2519d0",
     "size": 95,
     "offset": 2431440,
@@ -394,6 +416,28 @@
     "match": {
       "bytes_sha256": "d96d058192ceea90ef8c0a67afc521defed30ff74405d7371627e49336203088",
       "inputs_sha256": "9c212ed56ced274c33dc8dcee7821ee49636dea358fa025974b54a5ddc9ffdb4"
+    }
+  },
+  {
+    "id": "fixed-adjusted-destructor-252670",
+    "offset": 2434672,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_adjusted_destructors.c"
+    ],
+    "rebuilt_symbol": "@adjust_12_8@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_adjusted_destructors.obj src/campaign_fixed_adjusted_destructors.c",
+    "link_bindings": {
+      "@destroy_adjusted@8": {
+        "va": 280307456,
+        "basis": "Tail target conditionally releases the object through its allocator, then returns the object address and pops its flag word."
+      }
+    },
+    "identification": "Method table entry RVA 0x252670 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x252700.",
+    "match": {
+      "bytes_sha256": "b3307a407ece48caf2e99c3976e4b3b6ae2fbcac50a1f32adf4542578d9a4003",
+      "inputs_sha256": "363de95e9e7e2f133a3593cc4eb37d12bdf9b8400b0309bc3b33f2f4d3ce3fca"
     }
   },
   {
