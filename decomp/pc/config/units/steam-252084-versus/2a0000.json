@@ -1498,6 +1498,28 @@
     }
   },
   {
+    "id": "widget-control-hit-2a8db0",
+    "size": 167,
+    "offset": 2788784,
+    "inputs": [
+      "src/versus_widget_hit_control.c"
+    ],
+    "rebuilt_symbol": "@hit_control@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_widget_hit_control.obj src/versus_widget_hit_control.c",
+    "link_bindings": {
+      "@hit_entry@8": {
+        "va": 280660256,
+        "basis": "Direct retail call to indexed point hit test."
+      }
+    },
+    "identification": "Complete indexed Versus control hit test. Checks two rectangles and selection bounds before falling back to the entry hit test.",
+    "match": {
+      "bytes_sha256": "f0f6ec3a95b1efc6843a579a9939b1017fa488b5179da16998233996f2745547",
+      "inputs_sha256": "79a247a9dc5e729eeb141e0087e896b8119c91a7096e58ccef7a298c89090aab"
+    }
+  },
+  {
     "id": "construct-range-2a9140",
     "size": 43,
     "offset": 2789696,
