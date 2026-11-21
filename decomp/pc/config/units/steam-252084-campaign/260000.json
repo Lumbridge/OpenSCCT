@@ -646,6 +646,22 @@
     }
   },
   {
+    "id": "view-state-265820",
+    "size": 18,
+    "offset": 2512928,
+    "inputs": [
+      "src/campaign_view_state.c"
+    ],
+    "rebuilt_symbol": "@clear_active@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_view_state.obj src/campaign_view_state.c",
+    "identification": "Complete indexed Campaign view-state method RVA 0x265820. Clears two words when active and returns true.",
+    "match": {
+      "bytes_sha256": "487b9daa052dffdd1add49a4f1b7fd6dd5da382326e120f03b95de13ad7cd47b",
+      "inputs_sha256": "e30d46657168ff73b9bddfe734b9f423b50ae0e3ab14db7673cf9e525e1e33e4"
+    }
+  },
+  {
     "id": "register-pair-2658e0",
     "size": 49,
     "offset": 2513120,
@@ -719,6 +735,28 @@
     "match": {
       "bytes_sha256": "41218382abac1fc67efa1cd7151b9c3b0bc622de673e158608730a72db167fa6",
       "inputs_sha256": "a2b8a7e0e245979e4a25e9d2e8b1a2354a0096c74c743b3bff9330372f57c9dd"
+    }
+  },
+  {
+    "id": "view-state-265d20",
+    "size": 25,
+    "offset": 2514208,
+    "inputs": [
+      "src/campaign_view_state.c"
+    ],
+    "rebuilt_symbol": "@dismiss@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_view_state.obj src/campaign_view_state.c",
+    "identification": "Complete indexed Campaign view-state method RVA 0x265d20. Clears the active control flag and passes zero to the target.",
+    "link_bindings": {
+      "@set_target@12": {
+        "va": 282265712,
+        "basis": "Indexed target update method called with a zero stack argument."
+      }
+    },
+    "match": {
+      "bytes_sha256": "bebf078c5383a8e701c22729d8e6c225f099d56a593c8eb39e74b703e008cdc2",
+      "inputs_sha256": "751b3c79d6e3307cec259521324b5209b9b92a520b8332d68829fb256a7f41bf"
     }
   },
   {
