@@ -1267,6 +1267,28 @@
     }
   },
   {
+    "id": "virtual-base-event-227d70",
+    "size": 40,
+    "offset": 2260336,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@finish_if_active@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_virtual_base_events.obj src/campaign_virtual_base_events.c",
+    "link_bindings": {
+      "@finish_operation@4": {
+        "va": 280303936,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Complete indexed method at RVA 0x227d70. Calls cleanup for an active subobject, clears its active byte and returns true.",
+    "match": {
+      "bytes_sha256": "7ed78a612b08fb847277752ef51d52936fcbbd4f566ec68a6adb321144c349c4",
+      "inputs_sha256": "8122ce3e6f714ea2bf4f503535994fc7319ea4bc704383bd5ebbef5eaac1507d"
+    }
+  },
+  {
     "id": "virtual-flag-227de0",
     "offset": 2260448,
     "size": 18,
@@ -1324,6 +1346,28 @@
     "match": {
       "bytes_sha256": "71c66e0c63d0080d29c852b7931baa4b554ec87ffa9f1452618a431ecae0b8bc",
       "inputs_sha256": "32e1defc3f5695f0f4b1f8917dbb3ef18ad362e5cd5b52efb707c602c15f211b"
+    }
+  },
+  {
+    "id": "virtual-base-event-227e40",
+    "size": 8,
+    "offset": 2260544,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_no_arg@4",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_without_argument@4": {
+        "va": 280132976,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x227e40. Its tail target RVA 0x227d70 produces a byte return and consumes 0 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "bcd6e212de880175627baf7423c94d0296ccba9d56e470b7c6b45b5e603fd42d",
+      "inputs_sha256": "0395e7e8d1e81c4f6ace6f20ef0c2b914733d8ef1d0590fa82a1bdc2bdefd164"
     }
   },
   {
@@ -1389,6 +1433,50 @@
     "match": {
       "bytes_sha256": "571110887e19a375a6e757504b3d83cfb8d394a8d6a410940269d293d9a6bb67",
       "inputs_sha256": "6ec119f16df31489f409b5e6e4a06fa34b490a1223c079de52ca9ad5fb7faae4"
+    }
+  },
+  {
+    "id": "virtual-base-event-228250",
+    "size": 8,
+    "offset": 2261584,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280133936,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x228250. Its tail target RVA 0x228130 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "b7ee10b65895398fd39df8b2921de13285e477ef4a5cac5da679c8d393f1cecc",
+      "inputs_sha256": "2a842f4cbb55e6ea6354d0ecd9960223e3267edfe8498ef49f89daacc47d3c1d"
+    }
+  },
+  {
+    "id": "virtual-base-event-228750",
+    "size": 8,
+    "offset": 2262864,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280135088,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x228750. Its tail target RVA 0x2285b0 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "0a0b2559c5ae1cd64d45330dca4616d592e27f8f473550bf4e10332d45d05b08",
+      "inputs_sha256": "bf6e0271e9e0709a91e9bf81595f9b4a4b552fb42d177ad99dac99373223be24"
     }
   },
   {
@@ -1528,6 +1616,28 @@
     }
   },
   {
+    "id": "virtual-base-event-228aa0",
+    "size": 8,
+    "offset": 2263712,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_no_arg@4",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_without_argument@4": {
+        "va": 280135792,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x228aa0. Its tail target RVA 0x228870 produces a byte return and consumes 0 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "0e94e23cb63f20571548d34c6cfb58926cdd0097fb8c4d40343722d4d7744c02",
+      "inputs_sha256": "c57136397b82d5feed272e4172ca073473768c95f23c31d143272b831f7cae8f"
+    }
+  },
+  {
     "id": "virtual-flag-228ab0",
     "offset": 2263728,
     "size": 8,
@@ -1625,6 +1735,28 @@
     "match": {
       "bytes_sha256": "ab57403838cafd34dfed275a9457ce8a241e696867e11d633051d8534c46f456",
       "inputs_sha256": "53bfd79d6f69c1a023aefae2cd9fa0d8cafcab6c269429078f2c03db52b1a221"
+    }
+  },
+  {
+    "id": "virtual-base-event-22a030",
+    "size": 8,
+    "offset": 2269232,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280141600,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x22a030. Its tail target RVA 0x229f20 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "af1a57781a37f2fc0a312319d3f98cb21af2a20cb9b37458e9ffd2c795778b21",
+      "inputs_sha256": "786151033fa681650782fd7e73d77e401ea5d1528cf999872721e10cff4a562b"
     }
   },
   {

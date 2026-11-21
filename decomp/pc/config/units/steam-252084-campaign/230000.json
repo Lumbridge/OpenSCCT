@@ -1035,6 +1035,28 @@
     }
   },
   {
+    "id": "virtual-base-event-238e20",
+    "size": 8,
+    "offset": 2330144,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280202256,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x238e20. Its tail target RVA 0x238c10 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "9964d460dcf11b284e6f9d9882f71b868d3c83e0387c28d09ea681f5e66df31c",
+      "inputs_sha256": "6001e50a9535e339ff1e24b7e2013364aa85fdb9298fc2fc05731dd2cf9b10a9"
+    }
+  },
+  {
     "id": "register-names-238e90",
     "size": 210,
     "offset": 2330256,
@@ -2173,6 +2195,28 @@
     "match": {
       "bytes_sha256": "e5f2f0968d5536109f860df7cde24d5e6d46dab6c42499193ddfa08c24a7f355",
       "inputs_sha256": "bcf162cfc0a3d9d6ce41e130d4b2aaa0f16ec6cf6b249f53797be6e736b9f0a8"
+    }
+  },
+  {
+    "id": "virtual-base-event-23e870",
+    "size": 8,
+    "offset": 2353264,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280223536,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x23e870. Its tail target RVA 0x23df30 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "4dc66f1082e63e7e014bc38ad2a60454fd8a32c1b7a042110c083cc2fdafd88b",
+      "inputs_sha256": "b8f44bc3f3b0fb83221fa46c33c5061c90ac6a55e3a903f6276375949e8d4c90"
     }
   },
   {

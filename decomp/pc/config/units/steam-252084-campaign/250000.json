@@ -222,6 +222,94 @@
     }
   },
   {
+    "id": "virtual-base-event-251c00",
+    "size": 8,
+    "offset": 2432000,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280304272,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x251c00. Its tail target RVA 0x251a90 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "740c243515b1aa46f2d55aed7cd6079848bb2e545b9389128df3cf47d1c3fcd4",
+      "inputs_sha256": "87159aa2f960e044ae65944431e4b79803752035587cdf12082e4d60da75fdb1"
+    }
+  },
+  {
+    "id": "virtual-base-event-251c10",
+    "size": 8,
+    "offset": 2432016,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280304352,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x251c10. Its tail target RVA 0x251ae0 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "b842583d92cc70472dd76e5603222d8fff06ffb53420bdd49cbe15adea3d4a19",
+      "inputs_sha256": "7905d33f06889d5fac3e31771a103791cd7fbb0834624755b5013fcface0ca7a"
+    }
+  },
+  {
+    "id": "virtual-base-event-251c20",
+    "size": 8,
+    "offset": 2432032,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_one_arg@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_with_argument@8": {
+        "va": 280304176,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x251c20. Its tail target RVA 0x251a30 produces a byte return and consumes 4 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "f86f97e4d0c32f48eb6b2ad48c0dd098cad8863d4da908c60ef852aa206959a7",
+      "inputs_sha256": "2125f48e9bccd57442457156480d24dfc5055fc75281dfb6133867e6de83e67e"
+    }
+  },
+  {
+    "id": "virtual-base-event-251e90",
+    "size": 8,
+    "offset": 2432656,
+    "inputs": [
+      "src/campaign_virtual_base_events.c"
+    ],
+    "rebuilt_symbol": "@adjust_no_arg@4",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_events.c -o local/campaign_virtual_base_events.obj",
+    "link_bindings": {
+      "@method_without_argument@4": {
+        "va": 280304768,
+        "basis": "Indexed retail method reached by the direct transfer."
+      }
+    },
+    "identification": "Method table references RVA 0x251e90. Its tail target RVA 0x251c80 produces a byte return and consumes 0 stack bytes on every reachable return path.",
+    "match": {
+      "bytes_sha256": "9964d460dcf11b284e6f9d9882f71b868d3c83e0387c28d09ea681f5e66df31c",
+      "inputs_sha256": "3c33ea6deaf8d547896b6e94f69ff1f96ce241ac3e669aa331e37d02eedc4ff8"
+    }
+  },
+  {
     "id": "register-pair-252370",
     "size": 49,
     "offset": 2433904,
