@@ -27,4 +27,4 @@ If you move a selected image, select its new path in the launcher. OpenSCCT stor
 
 ## Reconstruction
 
-The disc launcher runs the shipped executables. Contributors can inventory the disc's boot, offline and online programs and track byte comparisons for each. [PS2 reconstruction instructions](../../decomp/ps2/)
+The disc launcher runs the shipped executables. Contributors can inventory the disc's boot, offline and online programs and track byte comparisons for each. [PS2 reconstruction instructions](https://github.com/OpenSCCT/scct-decomp/tree/main/ps2)

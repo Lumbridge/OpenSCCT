@@ -4,7 +4,7 @@ You can help by reporting bugs, testing a release, improving a guide or sending 
 
 Use the [repository directory](docs/PROJECTS.md) to find the code that owns your
 change. For original executable research, start with the [builds, tools and
-matching workflow](decomp/README.md). For Unreal client changes, use
+matching workflow](https://github.com/OpenSCCT/scct-decomp). For Unreal client changes, use
 [OpenSCCT-Unreal](https://github.com/OpenSCCT/OpenSCCT-Unreal).
 
 ## Report a problem

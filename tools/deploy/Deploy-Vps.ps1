@@ -143,6 +143,11 @@ if (($PackageOnly -and $FromPackage) -or ($SkipBuild -and ($PackageOnly -or $Fro
 }
 $commit = & git -C $root rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Could not determine the deployment commit.' }
+if (-not $FromPackage) {
+    # The master embeds the progress feed from the scct-decomp submodule at the pinned commit.
+    & git -C $root submodule update --init decomp
+    if ($LASTEXITCODE -ne 0) { throw 'Could not fetch the decomp submodule.' }
+}
 if ($PackageOnly) {
     $dirty = & git -C $root status --porcelain
     if ($LASTEXITCODE -ne 0 -or $dirty) { throw 'Build a deploy package from a clean checkout.' }

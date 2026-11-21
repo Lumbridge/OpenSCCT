@@ -31,6 +31,7 @@
     <None Update="svm-master.example.json" CopyToOutputDirectory="PreserveNewest" />
     <EmbeddedResource Include="Admin/assets/*" LogicalName="admin/%(Filename)%(Extension)" />
     <EmbeddedResource Include="Web/assets/*.css;Web/assets/*.woff2;Web/assets/site.js;Web/assets/mark*.svg" LogicalName="web/%(Filename)%(Extension)" />
+    <!-- The progress feed comes from the scct-decomp submodule; publish_progress.py replaces it live. -->
     <EmbeddedResource Include="../../decomp/reports/progress.json" LogicalName="project-progress.json" />
     <EmbeddedResource Include="Web/map-downloads.json" LogicalName="map-downloads.json" />
     <EmbeddedResource Include="Web/archive-maps.json" LogicalName="archive-maps.json" />
@@ -38,4 +39,7 @@
     <!-- Screenshots stay in the approved documentation media folder; public asset names remain unchanged. -->
     <EmbeddedResource Include="../../docs/images/website/showcase-*" LogicalName="web/%(Filename)%(Extension)" />
   </ItemGroup>
+  <Target Name="RequireDecompSubmodule" BeforeTargets="PrepareForBuild" Condition="!Exists('../../decomp/reports/progress.json')">
+    <Error Text="decomp/ is a submodule: run 'git submodule update --init decomp' to fetch the progress feed." />
+  </Target>
 </Project>

@@ -37,7 +37,7 @@ The modernisations rebuild Versus with new engines, graphics and features.
 | **OpenSCCT Unreal** | Shared Versus simulation with Unreal Engine 5 rendering on Windows | Build retail maps and shared assets locally from the Steam game. Enable additional maps built with OpenSCCT Editor. |
 
 [Launcher setup](docs/LAUNCHER.md) · [Repositories and tools](docs/PROJECTS.md) ·
-[Original executable progress](decomp/README.md) · [Unreal releases](https://github.com/OpenSCCT/OpenSCCT-Unreal/releases)
+[Original executable progress](https://github.com/OpenSCCT/scct-decomp) · [Unreal releases](https://github.com/OpenSCCT/OpenSCCT-Unreal/releases)
 
 ### Install OpenSCCT Godot
 
@@ -95,7 +95,7 @@ See [testing and CI](docs/TESTING.md) for commands, artifacts and the limits of 
 
 This table tracks the original Versus inventory studied for the C# simulation. A unit
 can have a specification, a marked port or a passing comparison scenario. For progress on
-rebuilding the original machine code, use the [per-executable report](decomp/README.md).
+rebuilding the original machine code, use the [per-executable report](https://github.com/OpenSCCT/scct-decomp).
 
 <!-- coverage:start -->
 Snapshot: **2026-10-28**. Generated from the checked-in coverage report.

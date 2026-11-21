@@ -24,11 +24,6 @@ __pycache__/
 # Original game file types (guarded again in CI)
 *.[iI][sS][oO]
 *.[cC][hH][dD]
-/decomp/**/*.[eE][lL][fF]
-/decomp/**/*.[eE][xX][eE]
-/decomp/**/*.[eE][xX]
-/decomp/**/*.[oO][bB][jJ]
-/decomp/**/[sS][clCL][eEpP][sSuUmM]_[0-9][0-9][0-9].[0-9][0-9]
 *.sdc
 *.usx
 *.utx

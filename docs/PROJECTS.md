@@ -8,8 +8,8 @@ with each platform. The Godot and Unreal modernisations focus on Spies vs. Merce
 
 | Project | Working source | Starting point |
 |---|---|---|
-| PlayStation 2 | [PS2 executable research](../decomp/ps2/) | Use the [disc setup guide](editions/ps2.md) to identify the original disc, then select the executable for the mode you are investigating. The launcher can also boot a local ISO in PCSX2. |
-| Original PC / Steam | [PC executable research](../decomp/pc/) | Identify the campaign or Versus binary for the installed build. Use a separate folder for an optional Versus mod. |
+| PlayStation 2 | [PS2 executable research](https://github.com/OpenSCCT/scct-decomp/tree/main/ps2) | Use the [disc setup guide](editions/ps2.md) to identify the original disc, then select the executable for the mode you are investigating. The launcher can also boot a local ISO in PCSX2. |
+| Original PC / Steam | [PC executable research](https://github.com/OpenSCCT/scct-decomp/tree/main/pc) | Identify the campaign or Versus binary for the installed build. Use a separate folder for an optional Versus mod. |
 
 ## Modernisations
 
@@ -43,7 +43,7 @@ Each mod should identify its edition, required build, install format, and how to
 
 | Question | Evidence |
 |---|---|
-| Which original executable has been identified, and which bytes have been rebuilt? | [Matching workflow and build reports](../decomp/README.md). Record the region or distribution, executable hash, measured code size and byte comparison for that build. |
+| Which original executable has been identified, and which bytes have been rebuilt? | [Matching workflow and build reports](https://github.com/OpenSCCT/scct-decomp). Record the region or distribution, executable hash, measured code size and byte comparison for that build. |
 | Which Versus behaviours have been specified, ported or checked? | [Simulation inventory](progress/COVERAGE.md), [specifications](../spec/README.md) and [comparison scenarios](../tests/scenarios/README.md). |
 | What changed in a playable build? | [OpenSCCT releases](https://github.com/OpenSCCT/OpenSCCT/releases), [Unreal releases](https://github.com/OpenSCCT/OpenSCCT-Unreal/releases) and [Editor releases](https://github.com/OpenSCCT/OpenSCCT-Editor/releases). |
 

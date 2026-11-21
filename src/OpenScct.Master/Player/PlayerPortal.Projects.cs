@@ -17,7 +17,8 @@ internal sealed partial class PlayerPortal
     private const string HubSource = "https://github.com/OpenSCCT/OpenSCCT";
     private const string UnrealSource = "https://github.com/OpenSCCT/OpenSCCT-Unreal";
     private const string EditorSource = "https://github.com/OpenSCCT/OpenSCCT-Editor";
-    private const string DecompGuide = HubSource + "/tree/main/decomp";
+    private const string DecompSource = "https://github.com/OpenSCCT/scct-decomp";
+    private const string DecompGuide = DecompSource + "/tree/main";
     private const string EnhancedSource = "https://github.com/Joshhhuaaa/EnhancedSCCTVersus";
     private const string ReloadedFeatures = "https://allypal.github.io/SCCT_Versus_Reloaded/features/";
 
@@ -73,7 +74,7 @@ internal sealed partial class PlayerPortal
               """)
             .Append(Resource("/changelog#game-latest", releaseLabel + releaseDate, "Changes to OpenSCCT Godot, the launcher and the tools for building content from Steam."))
             .Append(Resource(UnrealSource + "/releases", "Unreal releases", "Windows builds, engine changes and the history of the Unreal modernisation."))
-            .Append(Resource(HubSource + "/tree/main/decomp/reports", "Reconstruction reports", "Read the measurements and compiler evidence behind each original target."))
+            .Append(Resource(DecompSource + "/tree/main/reports", "Reconstruction reports", "Read the measurements and compiler evidence behind each original target."))
             .Append("</div></section></div></div><div class=\"legal-band\"><div class=\"band-inner\">").Append(LegalSection()).Append("</div></div></div>");
         return Show(c, "Chaos Theory projects", "home", body.ToString());
     }
@@ -254,7 +255,7 @@ internal sealed partial class PlayerPortal
             .Append("<header class=\"hub-heading\"><h2>Originals</h2></header>")
             .Append("<p>Coverage measures code rebuilt byte for byte against each original executable. Compiler verification also requires evidence of the original compiler and flags.</p>")
             .Append("<div class=\"hub-link-row report-links\">").Append(Link(DecompGuide, "Reproduction guide"))
-            .Append(Link(HubSource + "/blob/main/decomp/reports/progress.json", "Report source")).Append("</div>");
+            .Append(Link(DecompSource + "/blob/main/reports/progress.json", "Report source")).Append("</div>");
         var editions = _progressReport.ReadEditions().EnumerateArray();
         foreach (JsonElement edition in editions.OrderByDescending(e => e.GetProperty("targets").EnumerateArray()
                      .Any(t => t.GetProperty("total_bytes").ValueKind == JsonValueKind.Number && t.GetProperty("total_bytes").GetInt64() > 0)))
