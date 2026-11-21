@@ -418,6 +418,28 @@
     }
   },
   {
+    "id": "fixed-event-method-245f50",
+    "offset": 2383696,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_12_20_8@12",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_8@12": {
+        "va": 280307504,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x245f50 adjusts the incoming receiver twice and forwards 8 stack bytes to RVA 0x252730.",
+    "match": {
+      "bytes_sha256": "d78408d8fb1b8dfaad2d74b662073bba5a156a21abe3a0758a3ceb042eaefd9d",
+      "inputs_sha256": "fdb4ce243fe990b7b4009f6e58c9c7e52981a0733905b2a440eaa780468ae4fe"
+    }
+  },
+  {
     "id": "register-pair-245f80",
     "size": 49,
     "offset": 2383744,
@@ -1371,6 +1393,50 @@
     "match": {
       "bytes_sha256": "e4ca08307dfbcce8971c4ff26f02a37207f44cf771e188440f84e0863cf3ae87",
       "inputs_sha256": "1715d15f95894472d6df9cb5ae078e054e1cdb1e1e2547509fa4871bf75cfac2"
+    }
+  },
+  {
+    "id": "fixed-event-method-24c160",
+    "offset": 2408800,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4_48_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304272,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x24c160 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251a90.",
+    "match": {
+      "bytes_sha256": "d61ecd9b89612314d515e3bbe963938791fd1ed24580e83dfba0c6341bd66198",
+      "inputs_sha256": "f276d086054ac72079c7baabd1bfd31f6ca2fbd625aca5236082b60a57cee572"
+    }
+  },
+  {
+    "id": "fixed-event-method-24c170",
+    "offset": 2408816,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4_48_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304352,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x24c170 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251ae0.",
+    "match": {
+      "bytes_sha256": "27124a69f2a0426ce4f776d8f3d1b0ca5f4717c00ab80ba71c76a1eecd849cc5",
+      "inputs_sha256": "e61889a4627bdc4f916e96615457ef24d8b711b8663cdfe1ae8d66ad96654717"
     }
   },
   {

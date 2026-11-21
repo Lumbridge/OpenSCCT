@@ -1327,6 +1327,50 @@
     }
   },
   {
+    "id": "fixed-event-method-227e10",
+    "offset": 2260496,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4_8_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304272,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x227e10 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251a90.",
+    "match": {
+      "bytes_sha256": "3f3ac53bd68d271912233313c9b5e85c3768ecdc458f46a1e764c3c0e2e789b7",
+      "inputs_sha256": "fd95ade233c16e9c4684583bcf1bf2a80f7c99a06ba545c7dce257e2826a196c"
+    }
+  },
+  {
+    "id": "fixed-event-method-227e20",
+    "offset": 2260512,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4_8_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304352,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x227e20 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251ae0.",
+    "match": {
+      "bytes_sha256": "66d6f69b63e578618a8bc4dfaade0b78009a5d3c35adcd825bf7e0d1ca62f6be",
+      "inputs_sha256": "a7f86335fc902e8c4b1265d08873e125fcf48a0546c1470fa40cdcd8ea132d83"
+    }
+  },
+  {
     "id": "virtual-flag-227e30",
     "offset": 2260528,
     "size": 8,
@@ -1390,6 +1434,50 @@
     "match": {
       "bytes_sha256": "3bd1117a0d7e219e2dba3c33608a6fd4092b1ca51b36b7a7c8d8e90aaa3e6a4a",
       "inputs_sha256": "eaab6f6e3f24946f8d5c26e1cb9fdf693494bcbba14679ff52bc3439a646befc"
+    }
+  },
+  {
+    "id": "fixed-event-method-227e60",
+    "offset": 2260576,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_12_8_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304576,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x227e60 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251bc0.",
+    "match": {
+      "bytes_sha256": "7fecffc8240fa53d693a9c04af07daa3e77ed557d9b1e9c9cc33d2150f179ee4",
+      "inputs_sha256": "c091d499244d6164977f56001be48d0122658fd886ad9dfad0532afff9b86921"
+    }
+  },
+  {
+    "id": "fixed-event-method-227e70",
+    "offset": 2260592,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_12_8_8@12",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_8@12": {
+        "va": 280305312,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x227e70 adjusts the incoming receiver twice and forwards 8 stack bytes to RVA 0x251ea0.",
+    "match": {
+      "bytes_sha256": "77af5f023fc7d0c6bca7c8ec5fb2ead77592a15527b7f471a71737335321fa7a",
+      "inputs_sha256": "239c81f735d4f0f41ebd330cf7ab4e5bdf62f8c40db408c9c63871ba4b2b2389"
     }
   },
   {
@@ -1569,6 +1657,50 @@
     "match": {
       "bytes_sha256": "937ce34f4b30537dd8b09fdac0578db10d8f81f1616c2ee1e1673bb53e1ea332",
       "inputs_sha256": "7fdcb3763c0242b3182ed4731df14519552e1eb90a2900ba8fe481b3cfbcfe1a"
+    }
+  },
+  {
+    "id": "fixed-event-method-228a50",
+    "offset": 2263632,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4_28_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304272,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x228a50 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251a90.",
+    "match": {
+      "bytes_sha256": "949c22ee1a3b891fdcc8452513e8de214ae61bc1a6a91e47840f198c74fc138c",
+      "inputs_sha256": "b2d2f878c7bb66d2b314fb156101d168337bb30a1289a8ec7773d68739e59e14"
+    }
+  },
+  {
+    "id": "fixed-event-method-228a60",
+    "offset": 2263648,
+    "size": 11,
+    "inputs": [
+      "src/campaign_fixed_event_methods.c"
+    ],
+    "rebuilt_symbol": "@forward_4_28_4@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_fixed_event_methods.obj src/campaign_fixed_event_methods.c",
+    "link_bindings": {
+      "@method_4@8": {
+        "va": 280304352,
+        "basis": "Direct tail transfer to indexed byte-returning method with independently traced stack cleanup."
+      }
+    },
+    "identification": "Method-table entry RVA 0x228a60 adjusts the incoming receiver twice and forwards 4 stack bytes to RVA 0x251ae0.",
+    "match": {
+      "bytes_sha256": "e909d74dbf240038cf73f1c15fa2558a30968da4a1016e652a4ea42883c3cd45",
+      "inputs_sha256": "e53c3eae17e4d45e5d03cb55979aad709f3b57fd2c389b500b5e3e1dc4e3a908"
     }
   },
   {
