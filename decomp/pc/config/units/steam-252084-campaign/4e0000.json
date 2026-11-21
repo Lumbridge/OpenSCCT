@@ -53,6 +53,40 @@
     }
   },
   {
+    "id": "campaign-owned-child-cleanup-4e04f0",
+    "size": 63,
+    "offset": 5113072,
+    "inputs": [
+      "src/campaign_owned_child_cleanup.c"
+    ],
+    "rebuilt_symbol": "@destroy_owner@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_child_cleanup.obj src/campaign_owned_child_cleanup.c",
+    "link_bindings": {
+      "_owner_methods": {
+        "va": 286551132,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "@destroy_child@4": {
+        "va": 282637024,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "@destroy_base@4": {
+        "va": 282984176,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "_release": {
+        "va": 282622864,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor RVA 0x4e04f0: installs the class table, destroys and releases the owned child at offset 0xc, runs the base destructor and conditionally releases storage.",
+    "match": {
+      "bytes_sha256": "3953d16ea80132ce79f0ea1979c58ae03c6733d60d49774b6e0f932a6dbf51d7",
+      "inputs_sha256": "6424d6b547d60a12a46887cb986ae453edd5ef8ea7230697de06663705990805"
+    }
+  },
+  {
     "id": "read-word-4e0540",
     "offset": 5113152,
     "size": 4,
@@ -141,6 +175,74 @@
     "match": {
       "bytes_sha256": "b08103e156d3eece27bcbc855c1b33c285d3ef1d264548e669fdf24ae61a3973",
       "inputs_sha256": "be6345976eb34624b397bd1b0b81c43473363bd2ec49043c2b84ca81c6a3dc81"
+    }
+  },
+  {
+    "id": "campaign-owned-child-cleanup-b8-4e0b00",
+    "size": 66,
+    "offset": 5114624,
+    "inputs": [
+      "src/campaign_owned_child_cleanup_b8.c"
+    ],
+    "rebuilt_symbol": "@destroy_owner@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_child_cleanup_b8.obj src/campaign_owned_child_cleanup_b8.c",
+    "link_bindings": {
+      "_owner_methods": {
+        "va": 286551512,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "@destroy_child@4": {
+        "va": 283031936,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "@destroy_base@4": {
+        "va": 282986320,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "_release": {
+        "va": 282622864,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor RVA 0x4e0b00: installs the class table, destroys and releases the owned child at offset 0xb8, runs the base destructor and conditionally releases storage.",
+    "match": {
+      "bytes_sha256": "eb9e3ac315130b20c658d82169062bbe422da0dc65231d01807d43bd2f2e84bc",
+      "inputs_sha256": "1ab6a0671f903f08f51ae688ff8531ff53f3900da81f28a30a915c6ef22bb098"
+    }
+  },
+  {
+    "id": "campaign-owned-child-cleanup-230-4e1210",
+    "size": 66,
+    "offset": 5116432,
+    "inputs": [
+      "src/campaign_owned_child_cleanup_230.c"
+    ],
+    "rebuilt_symbol": "@destroy_owner@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_owned_child_cleanup_230.obj src/campaign_owned_child_cleanup_230.c",
+    "link_bindings": {
+      "_owner_methods": {
+        "va": 286551660,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "@destroy_child@4": {
+        "va": 282637024,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "@destroy_base@4": {
+        "va": 282987792,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      },
+      "_release": {
+        "va": 282622864,
+        "basis": "Retail cleanup call, installed class method table or allocator reference."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor RVA 0x4e1210: installs the class table, destroys and releases the owned child at offset 0x230, runs the base destructor and conditionally releases storage.",
+    "match": {
+      "bytes_sha256": "a9db187503b518bce6a40f27978bd5642805cf3360a29143f951b518a6b660cc",
+      "inputs_sha256": "3422534ea38f938a31f8304a486124b2a2902d0c24a078426ed89091af635f3d"
     }
   },
   {
