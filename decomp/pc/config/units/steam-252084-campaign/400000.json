@@ -971,6 +971,74 @@
     }
   },
   {
+    "id": "derived-scalar-delete-407f70",
+    "size": 46,
+    "offset": 4226928,
+    "inputs": [
+      "src/campaign_derived_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_derived@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_derived_deletions.obj src/campaign_derived_deletions.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286496112,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct@4": {
+        "va": 277901952,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct_base@4": {
+        "va": 277932928,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x407f70. Installs the method table, invokes two cleanup routines on the same receiver, and conditionally releases it at allocator slot 2.",
+    "match": {
+      "bytes_sha256": "2a4bed7666220819cf38f77825089d331802aa5bf336f39c106ad8866e3c32b6",
+      "inputs_sha256": "f8e7ad563ed939e796246245f2487cf187ba55023f240c1199a355e4fe8f129e"
+    }
+  },
+  {
+    "id": "derived-scalar-delete-408030",
+    "size": 46,
+    "offset": 4227120,
+    "inputs": [
+      "src/campaign_derived_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_derived@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_derived_deletions.obj src/campaign_derived_deletions.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286496344,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct@4": {
+        "va": 277901952,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct_base@4": {
+        "va": 277932928,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x408030. Installs the method table, invokes two cleanup routines on the same receiver, and conditionally releases it at allocator slot 2.",
+    "match": {
+      "bytes_sha256": "b7d9a058f4c91633cf30f227a4a6a4215c809e178a2e5ad534dd5b06add56e9b",
+      "inputs_sha256": "30a2b2ecfde9befbc299c7e2641c2f1b3368320cdb7f63bf0f37a36b39056ba1"
+    }
+  },
+  {
     "id": "word-index-40ad30",
     "size": 37,
     "offset": 4238640,
@@ -1266,6 +1334,74 @@
     "match": {
       "bytes_sha256": "6564ba7217135770d1708b6bd3aaec4212afb48b5ff56230721e1905e5f57780",
       "inputs_sha256": "396820311bf5f699913e7c2c1359e8c13e15ed25a52fba5077f096a2e6dcb06f"
+    }
+  },
+  {
+    "id": "derived-scalar-delete-40bf50",
+    "size": 46,
+    "offset": 4243280,
+    "inputs": [
+      "src/campaign_derived_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_derived@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_derived_deletions.obj src/campaign_derived_deletions.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286496664,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct@4": {
+        "va": 277901952,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct_base@4": {
+        "va": 277934752,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x40bf50. Installs the method table, invokes two cleanup routines on the same receiver, and conditionally releases it at allocator slot 2.",
+    "match": {
+      "bytes_sha256": "76c82a08a710aec3bd54d3587424eb7890445c12ff7495933d84e4c7080a35e3",
+      "inputs_sha256": "bc434b9d4c145869f1e4b8c1ed51cbc23ba80de7c865ac9338d47a1341e4a39c"
+    }
+  },
+  {
+    "id": "derived-scalar-delete-40bfe0",
+    "size": 46,
+    "offset": 4243424,
+    "inputs": [
+      "src/campaign_derived_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_derived@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_derived_deletions.obj src/campaign_derived_deletions.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286496896,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct@4": {
+        "va": 277901952,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct_base@4": {
+        "va": 277934752,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x40bfe0. Installs the method table, invokes two cleanup routines on the same receiver, and conditionally releases it at allocator slot 2.",
+    "match": {
+      "bytes_sha256": "04474aac1dd6dfb5f53816b8d0adb0d404daf4ddad52437ec2bcfb0be8f21ed4",
+      "inputs_sha256": "259fd79882c027a1bc2ea119e6858bfac7aec0c59382362ad67c6165e7e78848"
     }
   },
   {

@@ -768,6 +768,32 @@
     }
   },
   {
+    "id": "allocator-scalar-delete-71ec40",
+    "size": 33,
+    "offset": 7466048,
+    "inputs": [
+      "src/campaign_allocator_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_from_allocator@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocator_deletions.obj src/campaign_allocator_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 285338544,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      },
+      "_allocator": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar destructor RVA 0x71ec40. Conditionally releases the destructed object using allocator slot 1.",
+    "match": {
+      "bytes_sha256": "8d4486680cb5c16151a744af82a2ec9f137344b021989e911cf416d69abc13f2",
+      "inputs_sha256": "df768600b0a0543a557146b47ade9e90857bdf61f47889b81e99befcd6de73c2"
+    }
+  },
+  {
     "id": "delete-through-heap-71f480",
     "size": 27,
     "offset": 7468160,

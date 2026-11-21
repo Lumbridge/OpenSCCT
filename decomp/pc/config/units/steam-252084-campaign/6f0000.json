@@ -1190,6 +1190,32 @@
     }
   },
   {
+    "id": "allocator-scalar-delete-6fdcc0",
+    "size": 33,
+    "offset": 7331008,
+    "inputs": [
+      "src/campaign_allocator_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_from_allocator@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocator_deletions.obj src/campaign_allocator_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 285203216,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      },
+      "_allocator": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar destructor RVA 0x6fdcc0. Conditionally releases the destructed object using allocator slot 1.",
+    "match": {
+      "bytes_sha256": "4007427b6b64226201efba210275982a030fb13055e9c85cb46cda8daafdd04e",
+      "inputs_sha256": "cfbabfa3b16b491e2197c652275e90fbc475e1a0aeadbb8378ffdf99985e8102"
+    }
+  },
+  {
     "id": "physics-object-factory-6fdd50",
     "size": 37,
     "offset": 7331152,
@@ -1361,6 +1387,32 @@
     "match": {
       "bytes_sha256": "f066360e9e7e432497c935001f38de7052c5f556bdd035171d331641507d889c",
       "inputs_sha256": "2c311725853c1b89ed3cc9a122f499768ef6ead75acb58f8e55d49ca36b44b54"
+    }
+  },
+  {
+    "id": "allocator-scalar-delete-6fe380",
+    "size": 33,
+    "offset": 7332736,
+    "inputs": [
+      "src/campaign_allocator_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_from_allocator@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocator_deletions.obj src/campaign_allocator_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 285203216,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      },
+      "_allocator": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar destructor RVA 0x6fe380. Conditionally releases the destructed object using allocator slot 1.",
+    "match": {
+      "bytes_sha256": "f5212a260ae159d97c0fde575d602c60204e19e278fbbfac63528f68115806bc",
+      "inputs_sha256": "15a3c0470d14edde83d05930de7755ade7f6e45e23c44fd0e6e7ed3123a6690d"
     }
   },
   {

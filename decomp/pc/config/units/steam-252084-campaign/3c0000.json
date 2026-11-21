@@ -310,6 +310,40 @@
     }
   },
   {
+    "id": "derived-scalar-delete-3c68e0",
+    "size": 46,
+    "offset": 3959008,
+    "inputs": [
+      "src/campaign_derived_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_derived@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_derived_deletions.obj src/campaign_derived_deletions.c",
+    "link_bindings": {
+      "_object_methods": {
+        "va": 286457528,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct@4": {
+        "va": 277901952,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "@destruct_base@4": {
+        "va": 277932928,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Immediate method table, direct cleanup call, or allocator pointer observed in retail code."
+      }
+    },
+    "identification": "Complete indexed Campaign destructor at RVA 0x3c68e0. Installs the method table, invokes two cleanup routines on the same receiver, and conditionally releases it at allocator slot 2.",
+    "match": {
+      "bytes_sha256": "44c5b929ec3b98c67392e9065bcf785f13f4598cac937fb029ea23dd6a4c515a",
+      "inputs_sha256": "7cdd8f187d75cbf3166454d135f6d3d09e8bd407cb3d2d39bd690ddeeb7abe9a"
+    }
+  },
+  {
     "id": "class-factory-uwindowsviewport",
     "offset": 3961296,
     "size": 106,

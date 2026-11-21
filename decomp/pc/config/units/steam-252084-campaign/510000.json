@@ -52,6 +52,32 @@
     }
   },
   {
+    "id": "allocator-scalar-delete-5126e0",
+    "size": 33,
+    "offset": 5318368,
+    "inputs": [
+      "src/campaign_allocator_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_from_allocator@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_allocator_deletions.obj src/campaign_allocator_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 283190896,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      },
+      "_allocator": {
+        "va": 288469976,
+        "basis": "Retail allocator pointer or indexed direct destructor call."
+      }
+    },
+    "identification": "Complete indexed Campaign scalar destructor RVA 0x5126e0. Conditionally releases the destructed object using allocator slot 1.",
+    "match": {
+      "bytes_sha256": "e14820b05adfe7e224ea15046e34ae2ffdd3d94a8e20ddb7f2269872dd84ae31",
+      "inputs_sha256": "59c2765419287d1c637e0e7153640f9838e506c220acb12e1db0f3c394fc7207"
+    }
+  },
+  {
     "id": "empty-physics-array-5127b0",
     "size": 23,
     "offset": 5318576,
