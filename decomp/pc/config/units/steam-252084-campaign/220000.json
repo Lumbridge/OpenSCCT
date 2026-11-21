@@ -1267,6 +1267,22 @@
     }
   },
   {
+    "id": "virtual-flag-227de0",
+    "offset": 2260448,
+    "size": 18,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@mark_one@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_virtual_base_flags.obj src/campaign_virtual_base_flags.c",
+    "identification": "Campaign method-table entry RVA 0x227e30 adjusts the receiver and tail-calls flag method RVA 0x227de0. The fixed stack cleanup and byte return are visible at the destination.",
+    "match": {
+      "bytes_sha256": "10e08c369a578c9e60ed2a687b4515f96a4b4ece531bf7b74bbf6008a3a4d06a",
+      "inputs_sha256": "ca2a611cd3980e31d4c75bef25dd72aafe6dc6e608391f6341e49ab18c226389"
+    }
+  },
+  {
     "id": "adjusted-deleting-destructor-227e00",
     "size": 8,
     "offset": 2260480,
@@ -1286,6 +1302,28 @@
     "match": {
       "bytes_sha256": "2591caf46997869f5c60b41ce19e01951597939bf9eafeb66e3b692a30051c32",
       "inputs_sha256": "114c6f59bb86861ced4fcf4ee967d6c9c143f2a73588e202168e2cb6f5bac3ce"
+    }
+  },
+  {
+    "id": "virtual-flag-227e30",
+    "offset": 2260528,
+    "size": 8,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@adjust_mark_one@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_flags.c -o local/campaign_virtual_base_flags.obj",
+    "identification": "Campaign method-table entry RVA 0x227e30 adjusts the receiver and tail-calls flag method RVA 0x227de0. The fixed stack cleanup and byte return are visible at the destination.",
+    "link_bindings": {
+      "@target_mark_one@8": {
+        "va": 280133088,
+        "basis": "Direct tail call to the associated retail flag method."
+      }
+    },
+    "match": {
+      "bytes_sha256": "71c66e0c63d0080d29c852b7931baa4b554ec87ffa9f1452618a431ecae0b8bc",
+      "inputs_sha256": "32e1defc3f5695f0f4b1f8917dbb3ef18ad362e5cd5b52efb707c602c15f211b"
     }
   },
   {
@@ -1354,6 +1392,54 @@
     }
   },
   {
+    "id": "virtual-flag-2289f0",
+    "offset": 2263536,
+    "size": 5,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@accept@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_virtual_base_flags.obj src/campaign_virtual_base_flags.c",
+    "identification": "Campaign method-table entry RVA 0x228a70 adjusts the receiver and tail-calls flag method RVA 0x2289f0. The fixed stack cleanup and byte return are visible at the destination.",
+    "match": {
+      "bytes_sha256": "f4c6d7ae520f88aecb3ea65952e885437fa4a6ce4b5c3439a161d1c5d8e42863",
+      "inputs_sha256": "ab9dbcdb2bc33f2308c8fcedac007c35df275d9d1dac8a7541420a50fd5c0eda"
+    }
+  },
+  {
+    "id": "virtual-flag-228a00",
+    "offset": 2263552,
+    "size": 18,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@mark_two@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_virtual_base_flags.obj src/campaign_virtual_base_flags.c",
+    "identification": "Campaign method-table entry RVA 0x228a80 adjusts the receiver and tail-calls flag method RVA 0x228a00. The fixed stack cleanup and byte return are visible at the destination.",
+    "match": {
+      "bytes_sha256": "50b0b9b525b6a6166713e66d0fcf0933c1bd02490075f1773bc21b0bb4b7df35",
+      "inputs_sha256": "3d0ef554c0b88b53d180a9ce196da296009ac3a2afdc03f1e1e0363b5c3457aa"
+    }
+  },
+  {
+    "id": "virtual-flag-228a20",
+    "offset": 2263584,
+    "size": 18,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@mark_two@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_virtual_base_flags.obj src/campaign_virtual_base_flags.c",
+    "identification": "Campaign method-table entry RVA 0x228a90 adjusts the receiver and tail-calls flag method RVA 0x228a20. The fixed stack cleanup and byte return are visible at the destination.",
+    "match": {
+      "bytes_sha256": "50b0b9b525b6a6166713e66d0fcf0933c1bd02490075f1773bc21b0bb4b7df35",
+      "inputs_sha256": "c604f788e8ad1f315c82ab902e59bb18e383e49913426d89020fd23b19f90532"
+    }
+  },
+  {
     "id": "adjusted-deleting-destructor-228a40",
     "size": 8,
     "offset": 2263616,
@@ -1373,6 +1459,110 @@
     "match": {
       "bytes_sha256": "937ce34f4b30537dd8b09fdac0578db10d8f81f1616c2ee1e1673bb53e1ea332",
       "inputs_sha256": "7fdcb3763c0242b3182ed4731df14519552e1eb90a2900ba8fe481b3cfbcfe1a"
+    }
+  },
+  {
+    "id": "virtual-flag-228a70",
+    "offset": 2263664,
+    "size": 8,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@adjust_accept@8",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_flags.c -o local/campaign_virtual_base_flags.obj",
+    "identification": "Campaign method-table entry RVA 0x228a70 adjusts the receiver and tail-calls flag method RVA 0x2289f0. The fixed stack cleanup and byte return are visible at the destination.",
+    "link_bindings": {
+      "@target_accept@8": {
+        "va": 280136176,
+        "basis": "Direct tail call to the associated retail flag method."
+      }
+    },
+    "match": {
+      "bytes_sha256": "890069a35f6caf19f9248e55a3df8ac4a320794bd20e5cea8ebfd282121b90a2",
+      "inputs_sha256": "fc4215c0705ba9df76d8b3835eff75c465e744e1330fd41420eb2aceb5d5f693"
+    }
+  },
+  {
+    "id": "virtual-flag-228a80",
+    "offset": 2263680,
+    "size": 8,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@adjust_mark_two@12",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_flags.c -o local/campaign_virtual_base_flags.obj",
+    "identification": "Campaign method-table entry RVA 0x228a80 adjusts the receiver and tail-calls flag method RVA 0x228a00. The fixed stack cleanup and byte return are visible at the destination.",
+    "link_bindings": {
+      "@target_mark_two@12": {
+        "va": 280136192,
+        "basis": "Direct tail call to the associated retail flag method."
+      }
+    },
+    "match": {
+      "bytes_sha256": "890069a35f6caf19f9248e55a3df8ac4a320794bd20e5cea8ebfd282121b90a2",
+      "inputs_sha256": "3f451e9da384212ab71dbec276c0d34babadc6fd56804516db9de353b7d06c84"
+    }
+  },
+  {
+    "id": "virtual-flag-228a90",
+    "offset": 2263696,
+    "size": 8,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@adjust_mark_two@12",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_flags.c -o local/campaign_virtual_base_flags.obj",
+    "identification": "Campaign method-table entry RVA 0x228a90 adjusts the receiver and tail-calls flag method RVA 0x228a20. The fixed stack cleanup and byte return are visible at the destination.",
+    "link_bindings": {
+      "@target_mark_two@12": {
+        "va": 280136224,
+        "basis": "Direct tail call to the associated retail flag method."
+      }
+    },
+    "match": {
+      "bytes_sha256": "946489ead7fc4caa00db27bd68b8440f9bb802633ee0c41784467f28656095af",
+      "inputs_sha256": "38ff33e2aada694d88a04183eef9d78020333bd9dee64ce82e57e16a5cf22c05"
+    }
+  },
+  {
+    "id": "virtual-flag-228ab0",
+    "offset": 2263728,
+    "size": 8,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@adjust_read_flag@4",
+    "toolchain": "Clang 19.1.0 (2cfe42ea4a7fe364dcb197beca469af8edec0ad6) for i686-pc-windows-msvc",
+    "build_command": "clang --target=i686-pc-windows-msvc -O2 -ffunction-sections -c src/campaign_virtual_base_flags.c -o local/campaign_virtual_base_flags.obj",
+    "identification": "Campaign method-table entry RVA 0x228ab0 adjusts the receiver and tail-calls flag method RVA 0x228ac0. The fixed stack cleanup and byte return are visible at the destination.",
+    "link_bindings": {
+      "@target_read_flag@4": {
+        "va": 280136384,
+        "basis": "Direct tail call to the associated retail flag method."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c9741a8d2c7d2403e8eab7355f7ec8c4484b6ad78e600242e2bc4b8e90253da9",
+      "inputs_sha256": "082bcb9c91604bbda49ac5ca9d94489606b1d162d488945e9499b2f475135c99"
+    }
+  },
+  {
+    "id": "virtual-flag-228ac0",
+    "offset": 2263744,
+    "size": 4,
+    "inputs": [
+      "src/campaign_virtual_base_flags.c"
+    ],
+    "rebuilt_symbol": "@read_flag@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_virtual_base_flags.obj src/campaign_virtual_base_flags.c",
+    "identification": "Campaign method-table entry RVA 0x228ab0 adjusts the receiver and tail-calls flag method RVA 0x228ac0. The fixed stack cleanup and byte return are visible at the destination.",
+    "match": {
+      "bytes_sha256": "c0f754b55bee9ea79b1d37a4e297c43fea667b1fd6160e389d33a6c443655d78",
+      "inputs_sha256": "06010f3454c250e82d1cb7984ddd21a17389d6e281de9afe11ea5f904c732af2"
     }
   },
   {
