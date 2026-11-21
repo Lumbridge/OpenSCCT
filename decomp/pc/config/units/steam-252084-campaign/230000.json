@@ -1079,6 +1079,28 @@
     }
   },
   {
+    "id": "virtual-command-238e80",
+    "offset": 2330240,
+    "size": 11,
+    "inputs": [
+      "src/campaign_code_dispatch.c"
+    ],
+    "rebuilt_symbol": "@adjust_command_20_48@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_code_dispatch.obj src/campaign_code_dispatch.c",
+    "identification": "Campaign command dispatcher or table entry at RVA 0x238e80. Command 47 forwards a zero to virtual slot 15 after resolving the virtual base.",
+    "link_bindings": {
+      "@code_method@8": {
+        "va": 280307184,
+        "basis": "Complete retail command handler is independently reconstructed in this source file."
+      }
+    },
+    "match": {
+      "bytes_sha256": "c8e783dc1307bc3b95a55abb2c586901cb227db6d8cdc2ead51bc13f743cc45e",
+      "inputs_sha256": "bc797124a98b92a221ef48dd21c954c7a3dc82c235bba791d20fab6636cdcc19"
+    }
+  },
+  {
     "id": "register-names-238e90",
     "size": 210,
     "offset": 2330256,
@@ -2261,6 +2283,28 @@
     "match": {
       "bytes_sha256": "f1efc3cabb572075b21c4ceb5d6733c5b9bcbb952317b6a66b88be409c17f9e0",
       "inputs_sha256": "2901d6faf1ba3df782c52913085849b607bb2eac40c13d6ea8a042e957f5da7c"
+    }
+  },
+  {
+    "id": "virtual-command-23e850",
+    "offset": 2353232,
+    "size": 11,
+    "inputs": [
+      "src/campaign_code_dispatch.c"
+    ],
+    "rebuilt_symbol": "@adjust_command_20_100@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_code_dispatch.obj src/campaign_code_dispatch.c",
+    "identification": "Campaign command dispatcher or table entry at RVA 0x23e850. Command 47 forwards a zero to virtual slot 15 after resolving the virtual base.",
+    "link_bindings": {
+      "@code_method@8": {
+        "va": 280307184,
+        "basis": "Complete retail command handler is independently reconstructed in this source file."
+      }
+    },
+    "match": {
+      "bytes_sha256": "0aaa81fa95b6c27f017e457087d6583fc17f11844debc959dd8b05c53bb7410b",
+      "inputs_sha256": "396719909d67cc21717e22316c9b14480683db9de589dfb1bd632c6e136b9149"
     }
   },
   {

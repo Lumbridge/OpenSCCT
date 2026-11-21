@@ -274,6 +274,28 @@
     }
   },
   {
+    "id": "virtual-command-243fc0",
+    "offset": 2375616,
+    "size": 11,
+    "inputs": [
+      "src/campaign_code_dispatch.c"
+    ],
+    "rebuilt_symbol": "@adjust_command_20_112@8",
+    "toolchain": "Microsoft C/C++ 19.44.35229.0 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_code_dispatch.obj src/campaign_code_dispatch.c",
+    "identification": "Campaign command dispatcher or table entry at RVA 0x243fc0. Command 47 forwards a zero to virtual slot 15 after resolving the virtual base.",
+    "link_bindings": {
+      "@code_method@8": {
+        "va": 280307184,
+        "basis": "Complete retail command handler is independently reconstructed in this source file."
+      }
+    },
+    "match": {
+      "bytes_sha256": "428ea13addaaafacf6e5d322cd36f3e7f2fca6b9d2386bcb0db56fcb7d21563f",
+      "inputs_sha256": "550629a63ad4a56ef783fc01d700cbdd874bcc336f53876956727f07c29d2456"
+    }
+  },
+  {
     "id": "register-names-244f70",
     "size": 163,
     "offset": 2379632,

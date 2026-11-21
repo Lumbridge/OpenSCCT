@@ -397,6 +397,22 @@
     }
   },
   {
+    "id": "virtual-command-2525f0",
+    "offset": 2434544,
+    "size": 35,
+    "inputs": [
+      "src/campaign_code_dispatch.c"
+    ],
+    "rebuilt_symbol": "@dispatch_code@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_code_dispatch.obj src/campaign_code_dispatch.c",
+    "identification": "Campaign command dispatcher or table entry at RVA 0x2525f0. Command 47 forwards a zero to virtual slot 15 after resolving the virtual base.",
+    "match": {
+      "bytes_sha256": "e0cf9991f15dfa609402b1dcf31a0504db6dea2268398a420f0aad564ca4befc",
+      "inputs_sha256": "85c8f52d83e9105700d3d393af7f9bb97e48ec37f5d86b3a69f1943b4fd21af2"
+    }
+  },
+  {
     "id": "adjusted-deleting-destructor-252650",
     "size": 8,
     "offset": 2434640,
