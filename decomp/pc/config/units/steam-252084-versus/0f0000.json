@@ -222,7 +222,7 @@
     "identification": "The read-only pointer at RVA 0x30402c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "61e6353fc46f12296eacec901aea563dbff27164bb360e9871932dc0df50d469"
+      "inputs_sha256": "828ca6947ae8a9854f79da3569e1820848c5ed8f7aea778dc19a51c88988955e"
     }
   },
   {
@@ -280,7 +280,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "de66cc4b5a459228c9c99b126edb18064d09e246ba1fb37bf05f72867d2ddbcf"
+      "inputs_sha256": "ee4d3140b7ee42bab77345aa84cb4a11a800ef170b2f135a0779e8244efcf379"
     }
   },
   {
@@ -306,7 +306,7 @@
     },
     "match": {
       "bytes_sha256": "33f930caabbe7aba1fe9b67ce3282046edfd02e8f99648078bd5f24b7ab64e55",
-      "inputs_sha256": "eaefbaecaaa9b497171d0cff63b79c60ad8bb584630fb4b8e974c3e29b7f3d15"
+      "inputs_sha256": "95705d1a4300b5ffc57f142538c063c22246d7703f2f9213a39f02e58134c526"
     }
   },
   {
@@ -366,7 +366,7 @@
     "identification": "The read-only pointer at RVA 0x303ec4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "6bdaa31558a5f26dbf13bd8b16e9b843640cd7e34c8b145a10b766b2cf0bdf1a",
-      "inputs_sha256": "060bf351b3e1999bd5a1f7332a1c0b1aad313c76adb41a96506d672a06aa30a3"
+      "inputs_sha256": "e5a94c6f524e3c492db4eeb61120f7559a169e5b79daf4b8dc771e3a9d5e42aa"
     }
   },
   {
@@ -393,7 +393,7 @@
     "identification": "The read-only pointer at RVA 0x303ea4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "38eba6a6d40ed7833d238fa52f24448c0ff337eb159f94ac36fbc7c91fcfee5f",
-      "inputs_sha256": "9110b4c719e6122063e71b0f321f6484cb080bb054d5715ebae112a829496165"
+      "inputs_sha256": "725ce1d0788ed10877d4f9e05e93582ea4e36d422d810c2d0acb471e761b5ac0"
     }
   },
   {
@@ -420,7 +420,7 @@
     "identification": "The read-only pointer at RVA 0x303e64 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "c86ed096845b2e5fbb56389692270bb6b623a53a0e7a8a2a7743d08da9f99d48"
+      "inputs_sha256": "d1c7ef570360b6ae8d005e7c3ac16f7988ab5100973c46106f8c523321b73038"
     }
   },
   {
@@ -446,7 +446,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a477cf65100ba1375a6b8787934b4efd21866d764ac22abf8bd03a82479ed488"
+      "inputs_sha256": "7df5f8a41b302797fefe08fd70111f5c8180d448954970efcf075d51371f6b3c"
     }
   },
   {
@@ -473,7 +473,7 @@
     "identification": "Read-only method pointer at RVA 0x303dc0. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "2e1dddccf4952898e81b2f048506425f42cc6c94be868f392446e6d0661d93e5",
-      "inputs_sha256": "8c65ca682d9cb9525d9a6ac986654219ca960a9e045c572be5341c7515ae44f0"
+      "inputs_sha256": "7dc05330fc023d4fe3296070c9f97945b1ba5039cf638f397cfca7dd5913258d"
     }
   },
   {
@@ -496,7 +496,7 @@
     "identification": "Complete indexed Versus function RVA 0xff2f0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "fc37885c9ca9be4d29e34e61bdb754bd946341d60dfb6b25b3b889516f5e5d65",
-      "inputs_sha256": "faf6ed4eb550b8263fc2d1f5a4c40628c4f427911a39cfd1ecdfefc59ba9fbc1"
+      "inputs_sha256": "f8193a4a9aeaf5da5505edcf2f9b0c6b0fba1c367d61b136be79c85fd4705395"
     }
   }
 ]

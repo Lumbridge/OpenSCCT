@@ -34,7 +34,7 @@
     "identification": "Default Ghidra extent. Initializes the identifiers for P_MenuRoomCreateLan and B_LoadGame using the rebuilt name CRC.",
     "match": {
       "bytes_sha256": "ebd7656781b23e57f11ea7cca35d198385acb913c787f638839e2a45c29dbdcd",
-      "inputs_sha256": "63084a64bb3310ae026075dfc07faa557c40659a183301123273cbcf2bbc230e"
+      "inputs_sha256": "cf2aeaacb1a227dea7cf10ba56630101dd1e0a2c6268e156ebc91fc98e03238d"
     }
   },
   {
@@ -61,7 +61,7 @@
     "identification": "The read-only pointer at RVA 0x7e3060 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4936dd44906d4864e9067dd268e37fd484e36eb54431e5584544480fec62a824",
-      "inputs_sha256": "f0f11228e7ec54e98b36412c833d2f83f48f1e166253260857ad5fe25723f9b2"
+      "inputs_sha256": "faef807c4453a79596d59882c94b5b7a4f4f7e45c97e813e4ed42f9bb7a9f323"
     }
   },
   {
@@ -88,7 +88,7 @@
     "identification": "Read-only method pointer at RVA 0x7e30ac. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "9b8913a2fa02ed22a2d99fee89640b7a300d1ad36c2cd3d2c87d28be3bd63e53",
-      "inputs_sha256": "f884b6438735ee554abc5413180254d2bd9c112f30d3ac010303d6e3291cf3be"
+      "inputs_sha256": "e073a40456998bc9606d551540dba6947f1e8b0422ae4f83afd52c88bf9a5577"
     }
   },
   {
@@ -115,7 +115,7 @@
     "identification": "Complete indexed Campaign function RVA 0x251600. Its masked instruction shape equals matched unit sound-construct-crc, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "baa6609578bb7354ba062c078d57ec5d7785631aec181eafe8f16605e0a84c53",
-      "inputs_sha256": "7f7431efd65a5299f3ed7103a1a17e9793d43cf2072c6399930ee2b05b809fb5"
+      "inputs_sha256": "76f2f26b249c39bfab8cf4abf128a84e7b991ccde2c19e175a39f53b88669930"
     }
   },
   {
@@ -169,7 +169,7 @@
     "identification": "Default Ghidra extent. Computes 4 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "2afdada0325d2ba7ea3fcd46a9352e29416dfac2543a17ee99b86dd4d0f5eb99",
-      "inputs_sha256": "c241ca19992bb4a6da0ede11abebdea291e727fc0aa9af0891d65c6202cdb02c"
+      "inputs_sha256": "2f9e4adcbeba750ad23fa20165044ba668d58849ec8e0c50e2f7182c915d2518"
     }
   },
   {
@@ -191,7 +191,7 @@
     "identification": "Campaign method table points to RVA 0x251990. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x251c50.",
     "match": {
       "bytes_sha256": "fac3d6966bd854b9784b7f813a806ddbf4ec3e446293d38297b07ea0af1e448c",
-      "inputs_sha256": "b191bfd920565c5a0a61b0c55d74769faea1e29ae958fb97f96d8280539e8165"
+      "inputs_sha256": "7e9cf68692e10a90c0f4193afa6e83091caf95b344db665cea54c0d9832ed90c"
     }
   },
   {
@@ -213,7 +213,7 @@
     "identification": "Method table entry RVA 0x2519c0 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x251c50.",
     "match": {
       "bytes_sha256": "e2a28f60469c7ecb1c48a2ed09be6a50362ded6c2f3e83a7f756053da45d3b40",
-      "inputs_sha256": "9a62d4b04a8a916f50666ba43c866fe95aa05741e9fb62bc8119d00b95c56844"
+      "inputs_sha256": "31c3602cff0a286009301b2c8c5dbf00614cafc73078442e41ab8a59678e88e0"
     }
   },
   {
@@ -267,7 +267,7 @@
     "identification": "Default Ghidra extent. Computes 4 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "ea2fa6aa1004b38ccea2e10e80c78402d31a76bf70cb921975bd0f3612a44fc6",
-      "inputs_sha256": "e078e270e3eecc507866761baab56860c7d4bab5e092b3d94c9eedd7658cd140"
+      "inputs_sha256": "038699e63cecd9d4518f5a5dd8eb0807789b8181c0e83e0f0f57ede1bfc8a66a"
     }
   },
   {
@@ -289,7 +289,7 @@
     "identification": "Method table references RVA 0x251c00. Its tail target RVA 0x251a90 produces a byte return and consumes 4 stack bytes on every reachable return path.",
     "match": {
       "bytes_sha256": "740c243515b1aa46f2d55aed7cd6079848bb2e545b9389128df3cf47d1c3fcd4",
-      "inputs_sha256": "87159aa2f960e044ae65944431e4b79803752035587cdf12082e4d60da75fdb1"
+      "inputs_sha256": "64fa4a78d55a0b9a460aac2c2b38075d9a13da1182800674451a4c7c988a9e37"
     }
   },
   {
@@ -311,7 +311,7 @@
     "identification": "Method table references RVA 0x251c10. Its tail target RVA 0x251ae0 produces a byte return and consumes 4 stack bytes on every reachable return path.",
     "match": {
       "bytes_sha256": "b842583d92cc70472dd76e5603222d8fff06ffb53420bdd49cbe15adea3d4a19",
-      "inputs_sha256": "7905d33f06889d5fac3e31771a103791cd7fbb0834624755b5013fcface0ca7a"
+      "inputs_sha256": "8088132b9971b3d342d7f59ed915529dc47bd7d60fb6f1e34d0d0504453ecd01"
     }
   },
   {
@@ -333,7 +333,7 @@
     "identification": "Method table references RVA 0x251c20. Its tail target RVA 0x251a30 produces a byte return and consumes 4 stack bytes on every reachable return path.",
     "match": {
       "bytes_sha256": "f86f97e4d0c32f48eb6b2ad48c0dd098cad8863d4da908c60ef852aa206959a7",
-      "inputs_sha256": "2125f48e9bccd57442457156480d24dfc5055fc75281dfb6133867e6de83e67e"
+      "inputs_sha256": "326eb57efcd1c7abdf225ab29fcf7b13e8a3a5092313455a2f31a109da5a54f6"
     }
   },
   {
@@ -363,7 +363,7 @@
     "identification": "Campaign method at RVA 0x251c50 obtains the containing allocation 40 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
     "match": {
       "bytes_sha256": "1ff0d8e22f044e9548e088e467150aa78d8dd859b26f8cff424c151e15e15687",
-      "inputs_sha256": "1cb1844c37348ba1799ce435bd693661f7330e9438606d8d7fdc3755ad36a54d"
+      "inputs_sha256": "a33ddedc436445962317823a711dc73911873ea5a87b7b03b88fb252bb852e08"
     }
   },
   {
@@ -385,7 +385,7 @@
     "identification": "Method table references RVA 0x251e90. Its tail target RVA 0x251c80 produces a byte return and consumes 0 stack bytes on every reachable return path.",
     "match": {
       "bytes_sha256": "9964d460dcf11b284e6f9d9882f71b868d3c83e0387c28d09ea681f5e66df31c",
-      "inputs_sha256": "3c33ea6deaf8d547896b6e94f69ff1f96ce241ac3e669aa331e37d02eedc4ff8"
+      "inputs_sha256": "c37c00a93c7d7f653534ff1d4fbb8ffef4ef94ab6bab00fe34e9e43996c389f8"
     }
   },
   {
@@ -423,7 +423,7 @@
     "identification": "Default Ghidra extent. Initializes the identifiers for P_MenuCoop and Lst_menu using the rebuilt name CRC.",
     "match": {
       "bytes_sha256": "809a6bfe22496bbba9c22f5b57ea0402c332f7886e7ffe1c0057035551424ab2",
-      "inputs_sha256": "6c21a0acd901ad507aa827269601274b46d5f6c0fad52937db534c7e9c7c6fe6"
+      "inputs_sha256": "8f0548e4eb4a9f2c7eb5d3fa575d5ad20820d6ec39e646cfb6ba865c41f26a1b"
     }
   },
   {
@@ -450,7 +450,7 @@
     "identification": "The read-only pointer at RVA 0x7e3278 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "3a146c2ee07ea952f9caaff0e176113fd3ad9095b10b2eef24c0af4ec3c83a83",
-      "inputs_sha256": "a382c401ea1300bbae726661ce8e6badec349bf692e7baf920a4f49a7de8bc0e"
+      "inputs_sha256": "8da634b64d8e2ef5859c9ede3062c5d23a0db189b4d4ba653dce94097805d134"
     }
   },
   {
@@ -488,7 +488,7 @@
     "identification": "Campaign method table points to RVA 0x252650. Adjusts the receiver using its virtual base displacement before forwarding deletion flags to RVA 0x252700.",
     "match": {
       "bytes_sha256": "d96d058192ceea90ef8c0a67afc521defed30ff74405d7371627e49336203088",
-      "inputs_sha256": "9c212ed56ced274c33dc8dcee7821ee49636dea358fa025974b54a5ddc9ffdb4"
+      "inputs_sha256": "f7f1f375be6d5483d83c0611f996586a1e1d41fbbcef75a52c5a9a47aae0533d"
     }
   },
   {
@@ -510,7 +510,7 @@
     "identification": "Method table entry RVA 0x252670 adjusts the receiver by its virtual displacement and 8 additional bytes, then forwards its deletion flags to RVA 0x252700.",
     "match": {
       "bytes_sha256": "b3307a407ece48caf2e99c3976e4b3b6ae2fbcac50a1f32adf4542578d9a4003",
-      "inputs_sha256": "363de95e9e7e2f133a3593cc4eb37d12bdf9b8400b0309bc3b33f2f4d3ce3fca"
+      "inputs_sha256": "f803494b80de02cb8b0b869f0f92f87f5cdeb501dc37cbc3f92e85227ac6e115"
     }
   },
   {
@@ -540,7 +540,7 @@
     "identification": "Default Ghidra extent. Computes 1 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "35270b24cc842a684623aba91bdde7512e73cefb4fc9ed2eb491ff83ee46d628",
-      "inputs_sha256": "5053a4872826d6fb43bbed075f9f1a0468b8cbb58afbc5fde929246e18d53856"
+      "inputs_sha256": "78d2e3376398efa0dd49687f9bd17777113629adacb8799123bc5bbb9aca2e62"
     }
   },
   {
@@ -586,7 +586,7 @@
     "identification": "Default Ghidra extent. Computes 1 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "63dc9a9d753ce35732c40b729b6fb30d4dd3a5ebd02c10ef729c4bb4d94a1aa0",
-      "inputs_sha256": "a38ee6624ab67fdeef0a25d3dae6c7e17fa2c9affed3f86eadfd7879a3c3ac0f"
+      "inputs_sha256": "734aba5fb77dbe024f713e7b44494fc73c95251b923fa85e7620e78170e9044b"
     }
   },
   {
@@ -648,7 +648,7 @@
     "identification": "Default Ghidra extent. Computes 5 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "d0da3d54cd212d5c727f485e4c4374b0d24e6d50b6524b028df8a2c0dac9aecf",
-      "inputs_sha256": "8732bc23a2ff15bab8f73672f15de5434d0a601bbcff4f0077f89143f8e5f723"
+      "inputs_sha256": "fff56cf3f64b183229e98af27c1d2aa6d04e452a037b85dbc76621aebfe17917"
     }
   },
   {
@@ -686,7 +686,7 @@
     "identification": "Default Ghidra extent. Initializes the identifiers for P_MusicsBio and L_Infos using the rebuilt name CRC.",
     "match": {
       "bytes_sha256": "4be447e5defa17e31de0a9eae63c72cdadd1863953e4465eaa5ba09a9239dfeb",
-      "inputs_sha256": "d789dc05909c075267ebde611a5730bcdb56e4e7fb99064b3e51641855aecbf1"
+      "inputs_sha256": "a6cae4b193dced59113e7dac1675cb350ad17d524639aa0620df9c4c301e80e2"
     }
   },
   {
@@ -728,7 +728,7 @@
     "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x253600: installs three method tables, unregisters when flagged, runs the base destructor and conditionally releases through the allocator.",
     "match": {
       "bytes_sha256": "a7c49fcdf8cc9ed0fdba39aa615702e047b3ccef1da4321ffaf4a330c9e2beb3",
-      "inputs_sha256": "ccb6d557343316d56c9363dc0550d1bc6429b709115a92db3cb0f6c333535f08"
+      "inputs_sha256": "80b87f8dc189afda6422058d160413f28feaf0cb864a252a90647606f71a1954"
     }
   },
   {
@@ -766,7 +766,7 @@
     "identification": "Default Ghidra extent. Initializes the identifiers for P_Extras and Lst_Menu using the rebuilt name CRC.",
     "match": {
       "bytes_sha256": "c6747497490dbd2b27b07031f2910a27d10a32e9e14a7cf60f02defc6995cee9",
-      "inputs_sha256": "7c4f6042d82756e371ef03be0c927fb62cd4e098f97e3e4f7caa698c22cbdb52"
+      "inputs_sha256": "1ede6b98de199a2b653e08218a0374ac19c72aaf828b3d2b4848eef8ddf0a46c"
     }
   },
   {
@@ -793,7 +793,7 @@
     "identification": "The read-only pointer at RVA 0x7e3670 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "5ed25e137b3395dec927377341658ef68ffd8f700cf80d4a0d02e43d258025a7",
-      "inputs_sha256": "29a4c4ee45b491bbf87fc55f7777bed9ccbe578eac1377f921f06ce2faff07d4"
+      "inputs_sha256": "8a5ec1ef0057680eea8e9c9c98d09c5936725c7d82acc73794f84a09f93fd4b1"
     }
   },
   {
@@ -831,7 +831,7 @@
     "identification": "Default Ghidra extent. Initializes the identifiers for P_TrainingVideo and L_Title using the rebuilt name CRC.",
     "match": {
       "bytes_sha256": "26ad1116cb9031f71c2b0ecefe92000355dfabe32300abdba12c3b1700c4a1a1",
-      "inputs_sha256": "1197eb56943f0df026f54567c007c01b806ba5312cf87d8a0dad3c4f8903a853"
+      "inputs_sha256": "c4da25583d1d06a4c8da6b8ed52fa33830e25f1ee9f385a258105e231e84e8f1"
     }
   },
   {
@@ -858,7 +858,7 @@
     "identification": "The read-only pointer at RVA 0x7e3820 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "52a868b3ec7103f55906865fc6a861e7220b73ce09019fa490399a0db08e2cbd",
-      "inputs_sha256": "f52d3f9995b43dd1f06133719b76a54a8ff2e864d056abcaf4d881ed7004609b"
+      "inputs_sha256": "35cf6b4b63d477881bb0c01e0b4b0a863906d2cb1a2a4184acddff485f8e8360"
     }
   },
   {
@@ -896,7 +896,7 @@
     "identification": "Default Ghidra extent. Initializes the identifiers for P_TrainingVideoMain and Lst_Video using the rebuilt name CRC.",
     "match": {
       "bytes_sha256": "26ff1e9862bab08476479b70a15c76f6a5c64b0e34a979554800d78cfc2a4a59",
-      "inputs_sha256": "d4b8acc326db505d0e861d48d233875ab237cb99a06c50c271fe936316b596a3"
+      "inputs_sha256": "f49670e2e78acecb069967ed46fcc1a6c99bb750acc076c649e519a27d80d8e4"
     }
   },
   {
@@ -923,7 +923,7 @@
     "identification": "The read-only pointer at RVA 0x7e3948 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "fbecd72dc5cbe2488f7f1574026e0d8e31324f6cc239fb0fb7277ded9fc72cee",
-      "inputs_sha256": "063a4db611540ada633a78a499d36d2f0b055ff0bb207eb54b0212cb6d1818e2"
+      "inputs_sha256": "9fa0c952dc0d98c7601b09746119602c8c88d6701dc441e8ad7ab6b26c69e46e"
     }
   },
   {
@@ -969,7 +969,7 @@
     "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "21846d5b5a90cc5bca08e4fcd8945705b8f3b2005afd5d2594152f9e9f5b3eba",
-      "inputs_sha256": "3b2c94cb1b778dc27654bafb3dde1895c73cd7a58e55c8f4042651232b022dd6"
+      "inputs_sha256": "72c9297ce04c59442a4fbf52da55177b5ed4f090b77b1fbf56620af61fd50212"
     }
   },
   {
@@ -1015,7 +1015,7 @@
     "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "e928fa890ce2aefc782843a795fce1c63b9498469287398945b488877b39d60e",
-      "inputs_sha256": "ac757d279df70a8e5a6ba7fb3e37a7c45d623d2ffe38606762dcf28aec45162f"
+      "inputs_sha256": "ca23d49d0b4299beb59c3db738d1ab12801cb00f0ce50c97187843fa2f16bdee"
     }
   },
   {
@@ -1125,7 +1125,7 @@
     "identification": "Default Ghidra extent. Computes 11 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "7ed5740f1cd0b1788561ae184ab3fbf155fe19235d84e6192179bc1e5bab2de3",
-      "inputs_sha256": "7055faf117e72550b4a02e74af15890e01b51cce3255f57638022abfc4d5c2e3"
+      "inputs_sha256": "4edf29281bd38c4a08f12327b96db4c12f28f1bd0b26096d70b1e702ebaae5eb"
     }
   },
   {
@@ -1152,7 +1152,7 @@
     "identification": "The read-only pointer at RVA 0x7e3d20 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "e52ab9b4fde608dc63a37c1a751a395919455b62366661df0768ed5199516edd",
-      "inputs_sha256": "c739477aab3c343f591a0c75760b7d28fce4eb25615651f08a2a00e7440d4d19"
+      "inputs_sha256": "aab9e9be151dbe83b2ac651be67e2404273e939bf5bf1f7d64101df247c009e5"
     }
   },
   {
@@ -1238,7 +1238,7 @@
     "identification": "Default Ghidra extent. Computes 8 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "64607ff419fb553654549d0abf5110336cb85889d3e7627d5d86d4d57bdc3f9d",
-      "inputs_sha256": "665855003b0f96ad1559e2c26f91d0b56bf1558619fb6f389779a1cfe1cb847b"
+      "inputs_sha256": "a5aff452eb452c4d02e8cb5b7cfb62c20c0165610c85275d0083383d7ba7dce3"
     }
   },
   {
@@ -1265,7 +1265,7 @@
     "identification": "The read-only pointer at RVA 0x7e3e30 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "cf7c9d8b601fdc10055816eb63db9fc0e763e06e7202f5a4c3ac819172044f66",
-      "inputs_sha256": "448f3503ee04181aae83c11c6fe0fc6f866a5993e4981649ae8dc02189a6334f"
+      "inputs_sha256": "ce4ac565d05b6483bd83bffbaf93ebec4c0076a28072a5759a23e422aa7a121c"
     }
   },
   {
@@ -1311,7 +1311,7 @@
     "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "e6c6ced689061abfadfea287739919f13856941d88ac69dd5040e8b843d7f52c",
-      "inputs_sha256": "fa75334f8ce103e6d8f46b4f0e7940167a1fe84cad2cf92760018ea483aa85a8"
+      "inputs_sha256": "d7b64fbd7375adeee94f513caa380c1454284f25d9b18f9a885730ca4d75dd52"
     }
   },
   {
@@ -1357,7 +1357,7 @@
     "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "fe91216c63a03ce8d226afd360aff880775b4d41ac13fb52f8fa2ed26a9ea417",
-      "inputs_sha256": "6bdcc723a10c586401ce722b6ea12178e96cccb5a6a33e492d902c34258867b4"
+      "inputs_sha256": "0dbdb80a8cba35a222b22c2327e15e407aed98aec3275f2423a1f2c88fadc1c8"
     }
   },
   {
@@ -1384,7 +1384,7 @@
     "identification": "The read-only pointer at RVA 0x7e3fb8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "f8aa7179c8b330b02c9f881b21bab60402f59fded578edb1f1de0aa3463a0b8c",
-      "inputs_sha256": "edaeb423acda5a1b8e1f132c708d0512d75cb5795132cd12f185d82c8bae6d96"
+      "inputs_sha256": "04f6ae8fb9ef3ed054b79e5214e7d6be8bc9740f1edfd22cdf11a8021bddb83c"
     }
   },
   {
@@ -1430,7 +1430,7 @@
     "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "bd2f44d9034740e4d615b71e90ce3f3d1c7358100bf6464e2151e6ae321abf45",
-      "inputs_sha256": "23ccac4c3ca1ff9aa9b181f22d108bd34533ce6d9b1b229e671b8137839237e8"
+      "inputs_sha256": "c9ecc59e31808ca0ef6ef40dcba3fc51acfcae0b3ca15ed3586749cfc061cae6"
     }
   },
   {
@@ -1457,7 +1457,7 @@
     "identification": "The read-only pointer at RVA 0x7e4208 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "68fb46a8cac7cdf5cc28a84694f3651db118567210cf1324e1b43c5436bd46f7",
-      "inputs_sha256": "7660981afab8642ae421453754c11f63db79cbb3094b5a49db2c94f6ad90aeee"
+      "inputs_sha256": "377aa07dfb237a58bafdb252652a0cf5dd80725e4e2de194b3e0f369c00dacda"
     }
   },
   {
@@ -1484,7 +1484,7 @@
     "identification": "Read-only method pointer at RVA 0x7e43dc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "135ec21c6d4a010d91b3990e17b90404e98325ac6c20165d7e5d4be03371294f",
-      "inputs_sha256": "91cec2c65b1c705ff8069038632e1f01c08c010a58054b31ec763e77d44488f1"
+      "inputs_sha256": "620bc21a9a1ba0fb4bf0020b363d69aae48f6bd64c96ffbe28e472bc33930a06"
     }
   },
   {
@@ -1507,7 +1507,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "38b259b1f9912e81cba0c0e48ad1aa428198b974a93da09fc603b82c90ee5c75"
+      "inputs_sha256": "98f6a97d11509520135c72aef967d54187d68494a7876c259b919c3f6f5aa490"
     }
   },
   {
@@ -1641,7 +1641,7 @@
     "identification": "Default Ghidra extent. Computes 14 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "2bde36a546f128f03466ca82235109ef73e26c295f7913b043822f7da5487c6e",
-      "inputs_sha256": "ab80952c9805071ac14ab28e2891f7f67040b2aae647d87341e4e81c4bf1a5bb"
+      "inputs_sha256": "c243b94db73a95e57d8582e77c839922d2e023be6da00c5492c936394588a9b3"
     }
   },
   {
@@ -1669,7 +1669,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "f2a1f9d1a5b6656a1807a262365cc039cbc1491b9eb72d22aed8b27205871fc1"
+      "inputs_sha256": "898419923c3fad0e1e814908a4e792165e030dc5e6049dd9a8359899be20f17b"
     }
   },
   {
@@ -1700,7 +1700,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x259620, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2597ab, 0x259a48, 0x26315c. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "aaa8d5a70bb1aeb94482e130d02520858dc55f1eb410f492ac24cc4a2a9ae1b2",
-      "inputs_sha256": "7012045c3e0605459ed81ae41e1ba7483ce8f31d08854156d794567757cde43d"
+      "inputs_sha256": "662293edbfbc6c9088292d974d93c20f6bf1bf5dad5dea99bc43ec46d824bc57"
     }
   },
   {
@@ -1728,7 +1728,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
-      "inputs_sha256": "d96f8143bda852082db61de334fe9f316f6fd5eddebd7a63c6175aacb7143a67"
+      "inputs_sha256": "72241d32760677efe0f1c6881553e1f29d01982809f6e27c1fd3fc24d035e068"
     }
   },
   {
@@ -1750,7 +1750,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "45d6ffc7bbdb2f232dd033d396d3ec76d71ddb52fd86904ea52b99a90f777b10",
-      "inputs_sha256": "15a2483a713dcc1c373a5a385fb10c4e6b877f1cd144cae3fa5bd9bba8e76502"
+      "inputs_sha256": "f2380a54a56862dcade0edb9b6df99018b09acd4cca112b27d07c03d6458088b"
     }
   },
   {
@@ -1777,7 +1777,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x2597a0, 0x2597d8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x259620. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "a8d9b2d2f0398f0beb98f41c210aac61e9fde7857ba9ac413413ea79cd4815c1",
-      "inputs_sha256": "a32486b90e7cbe44bb79607056e451d54a16395a0417ad608b811f6949985a04"
+      "inputs_sha256": "547e28db3cd8eb31c3e528a6fdb6b9ad5bebc22335e9a845b5808ea23afb96fe"
     }
   },
   {
@@ -1804,7 +1804,7 @@
     "identification": "The read-only pointer at RVA 0x7e45c8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a66fd0c23f7034a59e58dfd18fad3270672aa6d9a113949bec3d984d448a7885",
-      "inputs_sha256": "caa95b1564a374916f5ed7e16f7efdb7f7875a4d87f17c1e6de70df0046c7598"
+      "inputs_sha256": "709883ab724494d03cc44006b0f2a2f8b62443d83f79adf67a9cfabac157a48f"
     }
   },
   {
@@ -1978,7 +1978,7 @@
     "identification": "Default Ghidra extent. Computes 15 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "f0d6e2cc7646e975adf9c1d62ad588bedff300b9da1976175405b496e0ce3b09",
-      "inputs_sha256": "31f6e973400baed735f55b085da6a9fcb8915458ceb7b16b01e5406a0ff10ddd"
+      "inputs_sha256": "a6186b170f8309b50de7feb50a0f032bfbef3c1fec9a0dca067f6ac9bb88e7b4"
     }
   },
   {
@@ -2005,7 +2005,7 @@
     "identification": "The read-only pointer at RVA 0x7e48d0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "e52ab9b4fde608dc63a37c1a751a395919455b62366661df0768ed5199516edd",
-      "inputs_sha256": "b63d9997b9bfbb4486c1553890de652f25b03abaea38f29698e37cd3b98e127a"
+      "inputs_sha256": "50ebd0b260b5cf3ccd18ed091d884323323badfcdecb414cd02885bc6db37134"
     }
   },
   {
@@ -2051,7 +2051,7 @@
     "identification": "Default Ghidra extent. Computes 3 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "a2fb3927a25ef4d02e9e59d2ef4b3fcd2a176c43aaab5d6dc90de92bc1d79584",
-      "inputs_sha256": "e1fddd2c065c5fd66f38e5093c716cb6eb8e21b9f3f0c34ec9dc23a52118f7a7"
+      "inputs_sha256": "9e5ff2744e53ce242a97065055d5f5468f4f34cc0ac7063bd2d5a654a4fc15a7"
     }
   },
   {
@@ -2177,7 +2177,7 @@
     "identification": "Default Ghidra extent. Computes 13 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "6dca785f5c39f0fc3a5854e089903a39e8828e032bda97e32d4a97e9ebb4dd82",
-      "inputs_sha256": "06457fb41cfe62354f5440834480ca149d13c48a30499ca3dd357180e19738d5"
+      "inputs_sha256": "e18496a8b52d494cc38c913167b9ef58c093491b5d90538a8632d67fa6906c96"
     }
   },
   {
@@ -2204,7 +2204,7 @@
     "identification": "The read-only pointer at RVA 0x7e4c48 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "23d0b7535f4cc5133b974798325fe93ed759c754e7cea6c53ebbad1d47197c46",
-      "inputs_sha256": "0805159c5f40ef7e97d3e8744d054d55284b31185a52f87df2a4cf16f5682b08"
+      "inputs_sha256": "1aa3342bf91e4b19dcba5d22b46dfd710c41fc839542492c12e79b398c79ab77"
     }
   },
   {
@@ -2266,7 +2266,7 @@
     "identification": "Default Ghidra extent. Computes 5 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "ee306bd8da6a4de3ad3384e8cddb834056df3e6e1b885b8eb4772d72110aad53",
-      "inputs_sha256": "b331d5ddcf7188155d0ee196bca60907b427cc9b244d82ac480fe72a1dce5128"
+      "inputs_sha256": "451a378a6d45eebc20ccb4720f69c13e4dddef31262455ac99a1a727867df1a6"
     }
   },
   {
@@ -2293,7 +2293,7 @@
     "identification": "The read-only pointer at RVA 0x7e4f00 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "2f0a212ccb859eab633cb28c5fbb772d09a0ff97bce22081bee8ae6f69b4c63e",
-      "inputs_sha256": "b859c88db7435be5ec0621ea14fe9245f93d93a0de308ad98fae7165ab2f52cb"
+      "inputs_sha256": "e7f7f43695a76eb5fcec0e4aa9c31609e9bf5ce0e7de6ef51a0db7dec9d9e90b"
     }
   },
   {
@@ -2316,7 +2316,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "c5f35c657852630c10664fa5d1aaf04f0b50edc1653c4d32faeb720fc7258d12"
+      "inputs_sha256": "e7e232d18dad16ecb31fbffc0a5d72888f8a84bf64f996192e99c80f2d2b417a"
     }
   },
   {
@@ -2410,7 +2410,7 @@
     "identification": "Default Ghidra extent. Computes 9 static identifiers from their original name strings using the rebuilt CRC routine.",
     "match": {
       "bytes_sha256": "ef6773fa441fcdb3883faa4c49fbf9d44dcacb2b1d4ad5db7f8102e52151fb03",
-      "inputs_sha256": "5fbed2e81948c949551faecef31f1c0f56ccea3975150e8f5fdfdbc476ddd72c"
+      "inputs_sha256": "d7012fd2a82acb80c9ee9058e145fb231b480d14a5676268b0381d0a900c2c00"
     }
   },
   {
@@ -2438,7 +2438,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x25e430 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "944030dcdb4b98f67e3fc90e11481c443ab715cb4637ddf585e421a6a305c5f8"
+      "inputs_sha256": "701f0b5f4ba249e62c982fa1c4a3ba9c3ebe67a7506d653a940d4e8718f1215e"
     }
   },
   {
@@ -2466,7 +2466,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "b844d0ba6d7630a68d0599cb45ba33fd553ab66f0560a69fc8218b259bb9e0e7"
+      "inputs_sha256": "025ee797314bfa7646adc11a756929312bb805d5c2a3b60e1575eac1fb38d908"
     }
   },
   {
@@ -2494,7 +2494,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "ed3c749bb4795e67b4d47b54e8bb18df66579ecb023c34ec609652e5e1c67601"
+      "inputs_sha256": "14727e8453928dbc2cf8b17d13f385bf10a7621974ae1e408ff1e82540b565a8"
     }
   },
   {
@@ -2525,7 +2525,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x25e610, including RET. Incoming transfer decoded within analyzed function code at RVA 0x25e9dd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "bcc2c5edbc3cd0cc9f848dcc927ff045a7dec23f9fad06dbfd5a09f4f282d9d2",
-      "inputs_sha256": "c9626a7c08b619706defcff910e94489c0e8e484f787dea476866778ee29a24d"
+      "inputs_sha256": "42962a91b141a435b37e91f9fb4d97afdaae7aba205737678f41457bc4511d11"
     }
   },
   {
@@ -2552,7 +2552,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 8, frees remaining storage, and clears its fields.",
     "match": {
       "bytes_sha256": "362774486dd6d13048f3392cfa7b775320bc27a8cf5d3a994a258f7d898806dc",
-      "inputs_sha256": "6d8129a7c555b3f70ff4fc9fe0fd401ef26f97c7a6da8843b5283ee84b83107c"
+      "inputs_sha256": "d0448ff862bdaa95aeea012a2d52722f066f2bf979f00e554286a2941a012305"
     }
   },
   {
@@ -2578,7 +2578,7 @@
     "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x29170. Clears the array at receiver offset 8 using stride 4, releases its allocation, and conditionally releases the receiver.",
     "match": {
       "bytes_sha256": "f15df989529be7c7bfdd4581358ec678ecc48a7ccc51330824fc0330feb2b534",
-      "inputs_sha256": "aa869ca64fe0cd48603fadee4acd0eb41c8e71b70cc59d902e2e68b936755f71"
+      "inputs_sha256": "0e173e23455e35f2643fb583038ec2568e3224d4eeb9b76e2a7b8b293035b557"
     }
   },
   {
@@ -2605,7 +2605,7 @@
     "identification": "Complete array destructor at RVA 0x25f4b0; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 20 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "2c98ee86e100afce0d3a0fb072037b8df543c9aa111bb4ed66fb4cb8aeff20dd",
-      "inputs_sha256": "d018c0812249fd019759c84107eea38d130ac1da7f5ca8677532efe1fb85d963"
+      "inputs_sha256": "4831db0430e386a6aa53e73a0d54100bbc3c1863435a64d191862cd31ae079ea"
     }
   },
   {
@@ -2632,7 +2632,7 @@
     "identification": "The read-only pointer at RVA 0x7e5328 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "f2bd4daaa1491ab23d4c5f60ac5be77ef4185d9412d38833be11386ad144a2c0",
-      "inputs_sha256": "8e78c3acc97ee1c76c5c008f1a5c7d47d8023feaf910d0fb32a0cb722a1f68ef"
+      "inputs_sha256": "40679cb924d040c62b6b1cb74d0ea3a41ceda0b9afffee93c02f73508eb0edb2"
     }
   }
 ]

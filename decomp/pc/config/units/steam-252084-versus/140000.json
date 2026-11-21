@@ -26,7 +26,7 @@
     "identification": "Complete indexed Versus scalar deleting destructor RVA 0x146700: installs the class table, deletes the next node in the chain through this same routine and conditionally releases through the allocator.",
     "match": {
       "bytes_sha256": "1d58df6a3367a3537671deb3a8d8c9dc11b2932a5cdca3150ac70248fcf348b0",
-      "inputs_sha256": "26a216beeba6f4491dce69a22aef132b59c5df26e9fe07bdc83aef28bd9948db"
+      "inputs_sha256": "35010053874ac8b40747247375b4d94be0436ebb8f87700d04406fa6bd909b77"
     }
   },
   {
@@ -69,7 +69,7 @@
     "identification": "Read-only method pointer at RVA 0x3034b4. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "b7e3162c1e06c874ce61fc912324240b17671cc54ad7c9049ead9420a6bc0770",
-      "inputs_sha256": "1cffd90947fb1f2e7600be2db09557c9e5796e1376bfff408692a1567a86b5f4"
+      "inputs_sha256": "51ca6a13afe88bda6ae41f7b65d2e190a9bf73ef505b1b5978e7914180508f99"
     }
   },
   {
@@ -96,7 +96,7 @@
     "identification": "The read-only pointer at RVA 0x30348c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "d82989dadd57e970c5611100971e1307a0846832be6c73df92ee39a39be0e37f",
-      "inputs_sha256": "359e1022c0d7d2b2d1f46a0ca64b7c3f5b41229f83ad2fd4ce980d05882a4e36"
+      "inputs_sha256": "f3eee31ff5a2b337528ef3e594eb27ad1c6f719fa581ea001260abdcd2075816"
     }
   }
 ]

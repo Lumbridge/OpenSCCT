@@ -18,7 +18,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460370, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c7dddb4c522c67eaa0f3f5ba0ccc5e99dd433f5ba527e7f814f563ef264b5abe",
-      "inputs_sha256": "af982030869de1938472c8f128551ee792e7a2ceaea1fa93aa55e0ae19800131"
+      "inputs_sha256": "93d534c1f9c619dd4fea8499dc12a21d05d07b8335451c45d11bb25517b7a22f"
     }
   },
   {
@@ -40,7 +40,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4603b0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "596a55c89fc5916fe5c63f2bc970b76419d168bb1f7ec5899c205e497ba37c51",
-      "inputs_sha256": "79ec1acf99c95449fca6feaa85ce7ead5f0595161a9c5541ec81825d77b66b98"
+      "inputs_sha256": "f9c32a07ce9530e2b4beca39a7fe8a5aeddc05b896b41f4504f82bd62ddd03ab"
     }
   },
   {
@@ -62,7 +62,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460400, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "f64759141b1a9f534e2806011198050da55ce28cf4afa97d1c82bc758af8f4fe",
-      "inputs_sha256": "ee4f14c900ff7ba0fadfbd70ddc42e7138679e5b171d84f12532f6ca3a486d90"
+      "inputs_sha256": "006a3e8efbc68dfe885409593fb0df8a497af96a5676863690bfe84c3f42151f"
     }
   },
   {
@@ -88,7 +88,7 @@
     "identification": "Method table references RVA 0x4606c0, which calls the destructor at RVA 0x460590 and, when deletion flag 1 is set, releases the same pointer through RVA 0x4606e0.",
     "match": {
       "bytes_sha256": "f675d64e06eded0405e1c640cda72b36039b3733085388edde4334760b59b454",
-      "inputs_sha256": "625b37dcdc87ac4be8960c80483eec199469036ecd1c0b6a064dfaf56bf4ca7b"
+      "inputs_sha256": "3542551433b4315e260802e0f99152ccbedd955737b344ffe795fbbae48d32d9"
     }
   },
   {
@@ -122,7 +122,7 @@
     },
     "match": {
       "bytes_sha256": "5dc3b0aa9612238d9cbbfcdd39821b9ec1500f43acc1cba2e5bb1bb7b038a511",
-      "inputs_sha256": "b2033341a327bad8a2a92ae6d6ab9ffaea412b7a8787d991f8b180d6dc671b17"
+      "inputs_sha256": "d4763f9ee3e58db34c015a1de900e149ff1d7fd4e5bfedddc15c02a174f61513"
     }
   },
   {
@@ -164,7 +164,7 @@
     "identification": "Direct call at RVA 0x4606fa. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "fa238244dea6159553ee5250fa6aa82e3dea02145b90567a252d0a273618f65c",
-      "inputs_sha256": "627c53c6faff22db42af0247a163cf56aad4c1058bfa5d9cd8374ceb7f190369"
+      "inputs_sha256": "bb098e14fd388cd884f782b1dffe321707d98824111f2af9d64e91468806d419"
     }
   },
   {
@@ -222,7 +222,7 @@
     "identification": "Complete aligned typed allocation method at RVA 0x460840; converts the element count into bytes at a stride of 4, loads the allocation label and returns the shared allocator result.",
     "match": {
       "bytes_sha256": "6424740641d56c44b62abd49df3fbc6720590bdf20ef96d1f05dcdd2b68705ca",
-      "inputs_sha256": "2af9239251572a226f8bc47b1a0b9cf47561888f0415ad0f0f9d4a31db021b80"
+      "inputs_sha256": "ee9cd4546ed0b83bd555c2587d5576caebd1e5dc780f4c007166c51ef709b6de"
     }
   },
   {
@@ -331,7 +331,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x460a60. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "6090d3f2f7b8573cd8dc8a6fae97454c7cbf8b576f39f54f091fce4961e47be1",
-      "inputs_sha256": "ee6221f7b44a05de02cce79938d8bb8c982822553ac4763d71b172bce44ff1aa"
+      "inputs_sha256": "d235407516bb7deafc1069d813c7e687876b0010042c2d41cecc509e2d87304b"
     }
   },
   {
@@ -357,7 +357,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x460ac0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "b194dc6d121004d33eeecad3301c3763c98e2faa2d2e8bcef89b2a342fc1ba69",
-      "inputs_sha256": "9452b4f1f3afffae88b99a47c08f5e254292b4ec0baee3e24498106791a64a0c"
+      "inputs_sha256": "5ff13d5d8790910f6f6d7070ee4eec046a2fcbaf944d42d0257afa83b965aaa3"
     }
   },
   {
@@ -379,7 +379,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460bc0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "57d2fd8c44508289e406eab85f27697472786f749bebe2f1425c429c8d2f77c9",
-      "inputs_sha256": "5e98362e3874f7ffc50de084b3c784f05eee56ba24db9251b5c4cc508e1168db"
+      "inputs_sha256": "cc5d68040bc3f8080e668a8c7c04955b25fe8e835ebda0bb938f7eb8df51f493"
     }
   },
   {
@@ -401,7 +401,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460c60, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "bfbda71f67939740b7cde90dc71b87bfc2cfc68b5718a5b8b2259bc4f808dd6a",
-      "inputs_sha256": "86ca6cebb98edcd8c09af3578028aa52ea23fe4689fe3c098b550ed52e940004"
+      "inputs_sha256": "fa6fd05afeb4c6c5062400eaacd0fc60e932aea5dc0305b76404a1ad1d9b3698"
     }
   },
   {
@@ -423,7 +423,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460c90, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "fea77c28a6323c0a10c89cf2a4ebc74b9f3cb2e716fe0e30e848b1986409c995",
-      "inputs_sha256": "fac74d2f842c6bacecf9fbef2d9580b3995ac5d87d6842470eb5aa488c609699"
+      "inputs_sha256": "41f31a78a83dc944b1d257e5d5a42d7eeb8f2bf0e2025e5a8b3752c1735d97c4"
     }
   },
   {
@@ -445,7 +445,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460ec0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "2e610f6f7e71155ba5e9e1c3932a203cc5db51ff1ace25ed16603b414ac4837b",
-      "inputs_sha256": "d43f726eabbdf26e5f199f60d8416f131111748963738e9f71c899e9f20c746d"
+      "inputs_sha256": "7c24d3f35b17d88b8139742357b105f1ad11c6bde92d2ec54def1ff40b1f62e7"
     }
   },
   {
@@ -467,7 +467,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460f00, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "5b8ec59ca2b5f014a6cc53b969d2cd9d3099e41d28402d0cb3e56c7361d693f1",
-      "inputs_sha256": "600f71236a32b780e52be007f192fb51aa689c9853a9941864f3a235115d1e65"
+      "inputs_sha256": "640fc5822db3d190048cf90161a602cee428b26dad4bf310b370accc93aef160"
     }
   },
   {
@@ -489,7 +489,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "a4ec80f8cca95f9a6b11756840d24de1c55847680cbf460b7dec8b3a5862a143",
-      "inputs_sha256": "1be6c6be72eaeb9ab9ebf3586abea5a9e9ba3cc059f8cd2581441ab3f0fbafbe"
+      "inputs_sha256": "2a4c18b5657b90a70fe82e21b98e5874f69abdf806565bcc018aeb58d6ca2109"
     }
   },
   {
@@ -511,7 +511,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x460f90, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "f2e2720b059e68e4182969bf7ffaf3f879a55fa8eb3d388da67b35a7d973cfe5",
-      "inputs_sha256": "b80cab8e32635eb5b27df51e41e586c4a63817a590c6ced81bd24c8488c77a84"
+      "inputs_sha256": "542eb64aa0cbbcc4dd3da0c1c75b4b1c256f788d4b39420bc5326659c5d89f4c"
     }
   },
   {
@@ -533,7 +533,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461040, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "7b35ed2650afac2207592dc30fc09aded054a71ac70872f147ff270f82c9101a",
-      "inputs_sha256": "85e943c5dd9423f78090707873e674c93963a0c61c7b7e68b231cf2a8aeb7529"
+      "inputs_sha256": "aa3b3f2a6b7edf589caa256159595ae521b910b0a6f86f396570858c3a1e60af"
     }
   },
   {
@@ -567,7 +567,7 @@
     },
     "match": {
       "bytes_sha256": "252cf1095a14c4a2feb04d1771eda6e00d46be37287744e5905e9682cd505c61",
-      "inputs_sha256": "b1d393264f4dfc4b3e3b1aefb6bba9098aa6f64fde8d5f440880fa1e3b4a2f9e"
+      "inputs_sha256": "a557f2258fd30885aa4a9a36a961388bbdfdeaebbeb5644980615e3231be9578"
     }
   },
   {
@@ -609,7 +609,7 @@
     "identification": "Direct call at RVA 0x46117a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "020ae671ef73377c448670eab8f5c366ec2eaca216414bc272a90d62291a48c5",
-      "inputs_sha256": "8e23d487a9dd2ce7e22d96e4b4cd14cc0cf12e9d4a1d615ed1dfabf0e51821a7"
+      "inputs_sha256": "f1eb14d5158d29589dbbd7c850a98deeee5559c3cf59312a0dd0317e57b172f0"
     }
   },
   {
@@ -683,7 +683,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x461390. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "2840df409aa46042a6387da7a5cb79fe3d2725c40fe49b70dda09f1223c62470",
-      "inputs_sha256": "1793b59e4ff747401e10accc72c53cf343dc7667b272835c952b33f3dea30112"
+      "inputs_sha256": "d84b4d1e979f915cc277801dfdbbfe8c65bfe335d0e4fc3834b8203c1ef7092d"
     }
   },
   {
@@ -705,7 +705,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4613f0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "1a64ff6fc0298aa9539238ecd18cdcb5e01e10c41fdafc9954de3ae7b7a4e462",
-      "inputs_sha256": "0a05f3147357c03f6e878e135ea2fd294c78325b949922754f05584598360ea5"
+      "inputs_sha256": "691db012e1b0f7eb4e800d68efa3a8d4e2bb84f2db146e7d2441ab3fc9188137"
     }
   },
   {
@@ -727,7 +727,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461420, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3f22cb9bfc97952e7c1b5c4df518028cc9d7c4105515d407ca958675715a5c68",
-      "inputs_sha256": "992ede08f6bfb6d77693d6399d7c69253583588122464ea93013c9b91d93f4dd"
+      "inputs_sha256": "a1774c2e73bee596577e5d0f7facbdb516780cd6fcb1e313ff5c14af30943dc2"
     }
   },
   {
@@ -749,7 +749,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461460, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "19eaffe599a7abe4e8dfe9e787d46e4ba40ef1e8b1642c26ef9d530b0331fae1",
-      "inputs_sha256": "091886f042241a0bced91d6c4c2591043d19332ea7ea8198150cc5e41d6ff82c"
+      "inputs_sha256": "b1a6b5116e14312490d03fde7bbfb1c11c3ed900d0df400acb09c1efe2148277"
     }
   },
   {
@@ -771,7 +771,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4614b0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "f8f96f5d0b82ab856cd730bd90d93daa835a241e27c74e17de620b0d48e684e8",
-      "inputs_sha256": "f60f594f71564f588af3c004d36517cb839fd703976cf999a919fd0c11bd6b34"
+      "inputs_sha256": "de20139c214c8aad66a2937da43d2f13fb7eee104e8c38579c34c2dbcaac9927"
     }
   },
   {
@@ -813,7 +813,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x4616b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "0b0706c15b6c18d936097718a8625c9126434771a082118136a97b15906e651b",
-      "inputs_sha256": "894d6a593ed41b8c5242fde97a6bc6580506db07bbcc8ee70f2065a331ee81a3"
+      "inputs_sha256": "b77b77f321b3404acea67c85eb541b5f5957d376421443c13f29621bc0131213"
     }
   },
   {
@@ -835,7 +835,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461710, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "8d507d820a46719a073900f976f2eac77af95295feb4526e5f821e3a709a8f3b",
-      "inputs_sha256": "ef657b5a79af16ebfa630e2cbb978190cc80a3ac3dc532b6d0ec302c93200954"
+      "inputs_sha256": "8db2972f25767509d7189d65cc4b651f933d6172d2956a7d9491e6a49a9c0a38"
     }
   },
   {
@@ -857,7 +857,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461740, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "cd17751f253b6f9cfd57b9ea10f0e9d86b6ecf99a12e5ca89d4d933d07f0c0bc",
-      "inputs_sha256": "a32369a982d106a68a0120cb7f2f68773b4de05bafcdb45aaf40b76340b0746a"
+      "inputs_sha256": "b95431f457f03dbf42edd46aaa427fb14e16a5a41cd6b7483f3c14600b31b4f4"
     }
   },
   {
@@ -879,7 +879,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461780, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "507ef16e1eeab238ce93086c87d3cfa5afc7c980404f3e9f46d1cb55d948dae5",
-      "inputs_sha256": "02fb51183ac21080e6b168722a58f9e92dfa00b9c7daf51aa9f07eae323c600a"
+      "inputs_sha256": "ae30e2871af6de19657f2e81effa5fa1e087a7fdb9d5a65115694809564e21e5"
     }
   },
   {
@@ -901,7 +901,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4617d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "8946cd050985ae5e0198c386f0bd38c0379b52c64d3d780dc111cdc26e781464",
-      "inputs_sha256": "71f454fe5496b77519bcf5fcc23a47481d037ab62af3b4cb2fc18a532c0324aa"
+      "inputs_sha256": "9757d8acf3cf576a9e8479b6f9eb8effff5b3ca9232cff05e013ceacf3d4a0de"
     }
   },
   {
@@ -943,7 +943,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x461970. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "0c98dd28390627aa563bb81e6a0d12c189c72939adccd47fd88b7e7e07703f21",
-      "inputs_sha256": "80a24a3af709e1e17e156595454042f1954f256252e811c4bd6ece7c5cec615a"
+      "inputs_sha256": "b4865e2cdcb34cfd4eddf707442442d7380906128c9c1287f69459c94349aef6"
     }
   },
   {
@@ -965,7 +965,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4619d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "7460cea0dd206de8b7103c508aeac98f99c94e4606b15378c5b8583b725763ca",
-      "inputs_sha256": "9797db844812f0b5bed9d312cc8a2c7ba55f8e29de1f4876fe8460806c9950b6"
+      "inputs_sha256": "4ea69e65c31eccc70e01f768171700c470c080cdd005c815fa34e9241a882a1a"
     }
   },
   {
@@ -987,7 +987,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461a00, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "2c1e19825e556c50c3204c06ff897377c82af87d83e19b14fe6ef40e4bef30fa",
-      "inputs_sha256": "097ead45facea39aaed2afde298a149a2e659c3794af846930c0b4208c60e8f7"
+      "inputs_sha256": "be1c33803ea6c1f8459727e4913d3a2b8d931775a1e44e52136ecb99b855abae"
     }
   },
   {
@@ -1009,7 +1009,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461a40, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3cf310f06c4e0b64691775b0025638e3cb0431a0b43109e1172d1af3b50c4d1b",
-      "inputs_sha256": "2cc83fa412c1f9536d30f8bc7cdba56f098884aedf2205767bf7286e709f3867"
+      "inputs_sha256": "adfb18740b54b645447eca73219ce24cfd72ea929c4d1eb10edaefd615851674"
     }
   },
   {
@@ -1031,7 +1031,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x461a90, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3750c44cbbbc7900f0d8f08a8bc3106dc31231f9aca9bb9dc07db36d49bf3b33",
-      "inputs_sha256": "808964b67b0a4cf0e63c1f94c8afda698957319557e38f874ddcccabe9429e91"
+      "inputs_sha256": "4fc58285324a4d2bb6ba91193b2a89e1c1a1e8c00088ee1a1e6594d055ad08f7"
     }
   },
   {
@@ -1073,7 +1073,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x461ff0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "b8ccfdd7df8c8573c2e01469c6d34f4f51022dc60b7967d7d4ad5a9a11ee0948",
-      "inputs_sha256": "f593f704e0e1ac9cea8d83f0694c89bd89ff2bc2c4de5cc9b0685e7e0bf1fb30"
+      "inputs_sha256": "6b41f28a63cfda49ecfeed71837857bf19aa9ec99de9497502d38ca18ea22b31"
     }
   },
   {
@@ -1095,7 +1095,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462050, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "342e188aa16d29957e57268bc1772014fdf998edd2eaaacee845b8cf193b9fe3",
-      "inputs_sha256": "88946411114c2925f38f4bd036cc055c93b0bef7c72cd021614272d6bbc233a8"
+      "inputs_sha256": "93020f2f347898862ce94d1a8f025836f897435d0554e5fddbd56130bb9069b5"
     }
   },
   {
@@ -1117,7 +1117,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462080, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3bdf32fdc2485a4dcd487c3f358de91041632c8da2b01c41a8cf9d91d255a979",
-      "inputs_sha256": "709c99214970ffd706dbcf4112e9f82862a7388a9bef4802f5cea34f57f2f0ac"
+      "inputs_sha256": "1368a37362990389e4ebc880946b669e78407ef29a5385b7002a5d7213a66af1"
     }
   },
   {
@@ -1139,7 +1139,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4620c0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "cd47a4a8b01f504504ebabe562169c6ea6caf6b062210de594cccf60c5f8c306",
-      "inputs_sha256": "279fe0f02375e19680d4b8ff9091163fa1ce1c5039e994f210aaa12d24d1f11c"
+      "inputs_sha256": "2c6bfc232333e9b575ad3c4c4365043185da9b0538055de5b2e9fe0b30a9513a"
     }
   },
   {
@@ -1165,7 +1165,7 @@
     "identification": "Method table references RVA 0x4620f0, which calls the destructor at RVA 0x45b760 and, when deletion flag 1 is set, releases the same pointer through RVA 0x462110.",
     "match": {
       "bytes_sha256": "cee91c5852a8a6022a833ee742033e17b86820a205c2a793c2f8d26a531ef673",
-      "inputs_sha256": "950800c3d1800ec3962ee7f5480c56e752466e016df8451aa2f6a3e4caf6e67a"
+      "inputs_sha256": "eb225739cc7433ec4ce16b3322a22adce2e34de3469ca0f60be3b118931fc1b1"
     }
   },
   {
@@ -1199,7 +1199,7 @@
     },
     "match": {
       "bytes_sha256": "7360dabeb52abec90f52130b041a39afe587434a574c8c840249c979ed32b346",
-      "inputs_sha256": "a84cd2aaf8148c29bf061dc619c2600de47d062d98a372520dac4fd3f3fdfc81"
+      "inputs_sha256": "54cac0054daeadfc3934b15c613c9bd8e4a2c7e1f6a2cfcb8c25430f596eed59"
     }
   },
   {
@@ -1241,7 +1241,7 @@
     "identification": "Direct call at RVA 0x46212a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "e9cf3d9789c2e3443cb263bf53a1004506587bb76d52ff66f3204ab7db0cd52f",
-      "inputs_sha256": "5363bed029574deca3633fbe9b572eb122d6b2d483fe5c477e73ce19c67ac6b8"
+      "inputs_sha256": "2840158c8d6fa6222e5af85b581259c585bdf01f9a4ae2d7b62eb2cf075a0944"
     }
   },
   {
@@ -1279,7 +1279,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462200, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "9ac9777df25afa8d2e507f1f9408b20bab5793823217be5ab6f86823c76b090f",
-      "inputs_sha256": "59aad9ad6fef2fdbeb89c06e2035ad96934c96bbd9437e721aeb00fef46afc90"
+      "inputs_sha256": "2c313e92b1128ecd52d4c53eafc1b794902a3b21a0f4105330550a23dc032fc8"
     }
   },
   {
@@ -1321,7 +1321,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x462330. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "76502a101455dd0d22695685944ed2950eb2d0e1eeb826298a2990d210b1e2b0",
-      "inputs_sha256": "d541e818e906e04b950578d7f613c6d01e4c39d5cbca85b714eac1d6292171e7"
+      "inputs_sha256": "bc57d0e2903222e6841d2c5243d816747256ecaf97fc9e7f73577a7ac9732043"
     }
   },
   {
@@ -1343,7 +1343,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462390, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c9fb75ab3795e1d94086ca0c641b027d63c836b844df5f9048b61fa59d64c956",
-      "inputs_sha256": "4fd5702681d31a8a914f85a9b4feec9ae023d27f918315edcbcc50bb37d1d003"
+      "inputs_sha256": "3dab00923123304658f40ef996f084040dab284697db18e8f2214674194cb6d9"
     }
   },
   {
@@ -1365,7 +1365,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4623c0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "afa0dff2efe21ec7f0a7b26a2d3cfbe4f1e11ea72e7f8c546131a55277f700cc",
-      "inputs_sha256": "00543e37233181b3b09b6175a0a491088cb3f19dfa2e98f1ddec717edb8bac47"
+      "inputs_sha256": "33815fa3683e04dc21f48af8843fc73622c8143fcc59dbe25373134a8696ddca"
     }
   },
   {
@@ -1387,7 +1387,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462400, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "ac4f362079e8b8f3c99262cc84fe8079e861f35c16270b2c5da31adacafde768",
-      "inputs_sha256": "8d9c8bcdc19006357147b2dfc041034f13c2710f18a002b631c8a98403e0ba19"
+      "inputs_sha256": "af22db0a671b55c73d9d2f092a10261b15fc390cc2304a17bdac87d356bdbe82"
     }
   },
   {
@@ -1413,7 +1413,7 @@
     "identification": "Method table references RVA 0x462430, which calls the destructor at RVA 0x45b760 and, when deletion flag 1 is set, releases the same pointer through RVA 0x462450.",
     "match": {
       "bytes_sha256": "6c8b2350dbe23ee3ca024264a44b7fb9e3f40de11c175fb2e1bc503facc9d090",
-      "inputs_sha256": "bff4f6e2681c19ff7a82fb3b0594021bb8a120cb6b6a3e52e9992daecda499dd"
+      "inputs_sha256": "3ddfb363ef9963794b6ff54f142f14b090922eea32328ef006f1c06dc9524aca"
     }
   },
   {
@@ -1447,7 +1447,7 @@
     },
     "match": {
       "bytes_sha256": "86a90aee7401bf245d3aadf9cde582e84f7de0d5a067a71300ce1d9ddb5b709e",
-      "inputs_sha256": "34520b9733959cd18c0cd8b10d3ddd3a155eb4a5acee548f4cabff68dc1a0030"
+      "inputs_sha256": "a7fa7c322426c76ceb803d3f4379bc9db487ecb61c35588db869ad861ce767c9"
     }
   },
   {
@@ -1489,7 +1489,7 @@
     "identification": "Direct call at RVA 0x46246a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "e4477e9bf8b8b30225ce4563b39fe32f5303b5e4e2c8fa6bdb9a70fccda7359a",
-      "inputs_sha256": "1927914232efbd229e8944c890ed57ce6d04a9e129192e6c8941488e380e0b18"
+      "inputs_sha256": "6eb64bf976413e92de636807f134fff22b0e557b73e3195f459ec3e064bd4c32"
     }
   },
   {
@@ -1527,7 +1527,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462540, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "65265ad2f8d6172151f46ff9c065051a348ff7acfb88750aafd977c3ed8e39c2",
-      "inputs_sha256": "dee31963a5c572fc3cce3f819aabeafb893216c35fe8dd1436b401a456f472e9"
+      "inputs_sha256": "c399740d61d375b53cb1131558e77ea80a02ba864b376ef61884875de730f921"
     }
   },
   {
@@ -1569,7 +1569,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x4625b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "7076b890ea423f028137532a53c37368fc197c372de0a438c91c23564b429f2d",
-      "inputs_sha256": "a2f7eab0caf3fd008b34339558f94d3e4a533ac2c137427238bb76b66b794fb0"
+      "inputs_sha256": "4676bbb239f365e1d64d7c20cedfb45ea437747c264ad53419a019eed38fc830"
     }
   },
   {
@@ -1591,7 +1591,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462610, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "26abb631021c64fb60d9e599bf3cac2fd412e320bb5f99170eeef3a7dc7b4bdd",
-      "inputs_sha256": "79014854c4ad1b6a8ac839bea599ed00fd0256c2a07819183e5b178fb0add4dc"
+      "inputs_sha256": "814d98c71f411fcedf3befec83320c73c3642c77dbafd65e543be57ec18149fd"
     }
   },
   {
@@ -1613,7 +1613,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462640, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "cafd1ea948dba2ac8b2d9f953d7e6e997259be7d4742444de47ad37a6ef9e147",
-      "inputs_sha256": "2c7c896a6438f35c8aa2e4566ff0dd9d914d29da26e850b5bfad3680409e4c70"
+      "inputs_sha256": "ae8a3ea87fe396cd3770f81d903a8a66ae95e87105a1a9b933e53d65e3eed965"
     }
   },
   {
@@ -1635,7 +1635,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462680, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "59cf9fcc74e57ae8f21359d1e6a2cabd9a70d2a4222d9b98e5bf970c2bc095f2",
-      "inputs_sha256": "11bd75db60058bc568014db6f4ce2e5e870decd6d16acdf6c3c48c4eabc5d321"
+      "inputs_sha256": "d27e3044e4b7775167c21683cc0cc800e5278eee2ea4fb74e26bb7a625be127c"
     }
   },
   {
@@ -1657,7 +1657,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4626d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "ea67eabf895810a1431b0c87361134f5a7413d452313dbe9ebae6e0770ff39ee",
-      "inputs_sha256": "84d573a076a5293e12c8977ebb3f4a003ac080e9a7eafb0045687d6b36912f4d"
+      "inputs_sha256": "7c942c26a54801b033b34151b6d6a5201765a210744a73c3e9d25017b7d28c77"
     }
   },
   {
@@ -1699,7 +1699,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x462740. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "6bb228653629e47c9e5ac19be43234d1e4616c55ae5380d3ecd6b7069ad46c94",
-      "inputs_sha256": "68235e04011639a13c9e609460258d8af2b65044bb8216ff4c1ad466bf3cf05f"
+      "inputs_sha256": "5f3f6e9c7f26aa465e0bf33defe61a523ca25e7ebec142a49ff79ead747010bb"
     }
   },
   {
@@ -1721,7 +1721,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4627a0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "b02772fa0f529eb88cdf8cdfa6b278c609792ef80bf5da0ebee1322c5f7dc660",
-      "inputs_sha256": "f757223233ca9ac7a470ca5b98f2ae929195180ef43afcea12251db8af2498f2"
+      "inputs_sha256": "8ccf35065580b89f576643c23f3804b66bf9422fd9a8c40a78a79476b16eb9d5"
     }
   },
   {
@@ -1743,7 +1743,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4627d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "5cf7cfb7037fd252a8694801cbf53a9267fd1ea54bc7aeadc19006a447bf3a86",
-      "inputs_sha256": "16e95f002b620d2228ad36a63e757a9ffccff408c2c4bff7496d96308368a113"
+      "inputs_sha256": "bdac46d3a8fec06ee33792508f14b69653fa047d109b8a31b8e32e505e96177b"
     }
   },
   {
@@ -1765,7 +1765,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462810, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "df9832f84d9870d397a30b14c8d5e42839c29db6f0f68e74477d5904441b35d8",
-      "inputs_sha256": "108f02bf6dc2665be56d15be2d1594e7df4cf7da1f61f8afdf135535aa606b4e"
+      "inputs_sha256": "24ae7d013a52e5f4daedebc9a31aac69b5399b8c0ec3f4ba16e8a2f58ac4e2c3"
     }
   },
   {
@@ -1787,7 +1787,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462860, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "eb615a4ce588438c0b96f92a3277845133e9fd66a0b9f35b2a34069664b9b47c",
-      "inputs_sha256": "5f9f25f0a48cd1e97290f5e83df3948459beeb2c7c594874a119007dec9b9a72"
+      "inputs_sha256": "aabc6cd6bb757d0af5cb02be25e7a257ad569160d9d7e83f4399c3d512eeb637"
     }
   },
   {
@@ -1813,7 +1813,7 @@
     "identification": "Complete aligned typed allocation method at RVA 0x462980; converts the element count into bytes at a stride of 4, loads the allocation label and returns the shared allocator result.",
     "match": {
       "bytes_sha256": "8996964e93233174ba8494fad15ffcf24adadee49cd1b9ae8d42afaf8bd36a7a",
-      "inputs_sha256": "a82c8786377c9fd8f0cbb3a45add8d991854de93a2f1e8194b7a2eccd469bc13"
+      "inputs_sha256": "d73e1b5f0de09e8fc88ebe9c9b39bc3153306b82d5b105ad758f7228014fbb46"
     }
   },
   {
@@ -1905,7 +1905,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x462be0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "509fa6b79937774b6c61ba46987ec7abc57bcd7f276e49d41d6b8b013f525340",
-      "inputs_sha256": "e337c6038e0e174ffa465b12cbf741f963b6fbb1cc663d0ebc7172e4726c1a48"
+      "inputs_sha256": "f6d502847e0d6210c5f97924a20f47dd2c59f2856dc712826055254359d4c61e"
     }
   },
   {
@@ -1993,7 +1993,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462e20, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "d9cd223684409627c805a41be4a4541d5f450b1eb4b2552ffff00ed87946b8c2",
-      "inputs_sha256": "3764c1ebbcc5dc6ba4b3165248d2966ce44cf8acca74c5e0caaaf18b037c8a2f"
+      "inputs_sha256": "e2f2d11701974a3bcc2a6c05b06fdb4d508ff50d624410377dfd71990242ebab"
     }
   },
   {
@@ -2019,7 +2019,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x462e50. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "360bf739f529a508d514ba1cb016c13bbc4478f855d3d81879961ce8f9d9eb37",
-      "inputs_sha256": "89ae24ab66d7fbf0f16bfa667cb15e07357b6efd17c0c1c7b7e96c128f6e6ce1"
+      "inputs_sha256": "f05ec69104a2895ac7b39031193c9a60adc911c0c979a4c0b599daa38b5d77b3"
     }
   },
   {
@@ -2057,7 +2057,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x462fb0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c003aa55acaacffd15759dc74216b3ec920a0ba7714d2d6384d4ea9963758031",
-      "inputs_sha256": "62e040ac33675ebca53e6279054d4089b32b1cc951584fdc06431c1d1cff5815"
+      "inputs_sha256": "a8c0c394469ed8d62aa4d86175a67003f92eb02a22aec9c19f7b981aff37db00"
     }
   },
   {
@@ -2079,7 +2079,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4630c0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "0d17981a2d2f50a7c7d2096b946f3894a2c66f242e53be29a5201e33a404ab9a",
-      "inputs_sha256": "0c958f896d1628cfe79371c63889a6ff0d785724d0bdf08c0611bc4e1137befa"
+      "inputs_sha256": "a697015b322abef375fa31ac15dbee87197da48becec9e740bebd8131a6592c1"
     }
   },
   {
@@ -2101,7 +2101,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4631b0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "b644c0aaf8cfe4b55ff29faa56fee546a9abad6fbcb031349e145400906f8f19",
-      "inputs_sha256": "8eb305591468aa6068e094c60f1d4324c9e3ef34e192545b3abc43047dc64094"
+      "inputs_sha256": "f64cda6da6e30dd64113bf82fa6f24237bb78d5d9114544d73bb54924a8dd0c5"
     }
   },
   {
@@ -2135,7 +2135,7 @@
     "identification": "Direct call at RVA 0x4636b9. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x463010.",
     "match": {
       "bytes_sha256": "061ec4bdc128e0e2653a8f5b12a794a45b2013df2d55ff8455fb5d8f25eb27f1",
-      "inputs_sha256": "51c72c4b3db47bb6aeeb2773ead82bae94594fa670166a3e2eb1299618f8a4df"
+      "inputs_sha256": "82f0d9a27489adeb84d39ae42e1f02d6a1b3df03ecd5551ae96ffa3808dec43a"
     }
   },
   {
@@ -2173,7 +2173,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4634e0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "946f89a1b48d9a667f6e819da64b1a69b1d6726e4da557a653a119cccba14b87",
-      "inputs_sha256": "5965d5eecaef4a69aa1cfbaec83be49c2a60633e8d22ce52edb26f3f101c2f2e"
+      "inputs_sha256": "01bc830ff5074330b6de682ee4551680dc7367dedbe434f0d4b45626133c2a6e"
     }
   },
   {
@@ -2203,7 +2203,7 @@
     "identification": "Complete allocation method at RVA 0x463530. Uses a 16-byte cursor increment when enabled and falls back to the shared allocation helper otherwise.",
     "match": {
       "bytes_sha256": "461bf95eae600f9da69606f15112e041b62e2ecf0c7849e37beaeb7ca50580c5",
-      "inputs_sha256": "5ef40524780803d774ab7484a271a7864c31fca82224181fb72da53c7e458ddb"
+      "inputs_sha256": "275abb1cd43fbd6aa7dcee5c17b2bb097f7968772e819c8385e454478139c6ad"
     }
   },
   {
@@ -2225,7 +2225,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "d50f1cca885790d75d29f5de98d85c7ef7bbad1d7c2ea5e2379f62174f0c7a43",
-      "inputs_sha256": "22765392712cbde04c46fbb413e02be887e68d982d5ffe34ad6c9162f6d896eb"
+      "inputs_sha256": "0c867afaac40bca2964f4f94350c1b6aa1758619164078363f3ba8939f21835b"
     }
   },
   {
@@ -2247,7 +2247,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x463620, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "92b43693514b636ae684778a3e0701bb7eb24496745978dfa234487a1e679ab4",
-      "inputs_sha256": "3ffb373a140c3cdd42fd8c5e7c35f744e5d66daeeca5904d86184295252deaec"
+      "inputs_sha256": "8ace760aafb822d8bf5fa550e769fe91491280abe33abf64d87a879f204d6c38"
     }
   },
   {
@@ -2269,7 +2269,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4637b0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "a1ab39d9e43c11e279966db98e7c19a1969b0b11be8357f6ff85e3b2d59c0c19",
-      "inputs_sha256": "05311bfcc9309325c7ebb295135453bba6b2a1bcc1066a664df245f7bd30a6bc"
+      "inputs_sha256": "8638b83404789541ef2d91e3ca970f945ba7d0935a9427b9104f2297ca177525"
     }
   },
   {
@@ -2295,7 +2295,7 @@
     "identification": "Method table references RVA 0x463b20, which calls the destructor at RVA 0x463a20 and, when deletion flag 1 is set, releases the same pointer through RVA 0x463b40.",
     "match": {
       "bytes_sha256": "0d1c2e9588502e38d99b24a33cb1187ae8c3805a205179d549e5aff37c54f72f",
-      "inputs_sha256": "8253a772fa9bf3265494b039bc59c61a517c9e7f16f882757e62d58eeecd1073"
+      "inputs_sha256": "f7aa6debffaeffd0bff431a300de876ee529831c20913521a042dd826aa9b408"
     }
   },
   {
@@ -2329,7 +2329,7 @@
     },
     "match": {
       "bytes_sha256": "7e023416a48f728a6c9ea9220a7720324bd81686c012d01850a10c91b66c7041",
-      "inputs_sha256": "5a1054a27124acedd76a58788e569c54cb6054ddd992b1832ffdb02436e70218"
+      "inputs_sha256": "901aa2cd7c48cdf855f2a2e825fa62872c3ce8714ca2d18522ebab7838bb034b"
     }
   },
   {
@@ -2371,7 +2371,7 @@
     "identification": "Direct call at RVA 0x463b5a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "c0b7cae320bf2113d2be832b26e8fbbfce2c14c3f1f3ec2ef1f0af9d8c42d07e",
-      "inputs_sha256": "3e2bef5041d7fc622e417f54f06e59ac6055b428d7f0edc449f1bb6a5325a893"
+      "inputs_sha256": "2c1cb47408ab88f897563e0d25421307192103dda8cf13778eea6b381a0ce586"
     }
   },
   {
@@ -2429,7 +2429,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x463d20. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "139ca1cc6048c6dc8de7e1f3293bc3bcbdb39072a9ec1b547c49da9bb44c852c",
-      "inputs_sha256": "f3a7344db37f8722739e2c7fe51c017f44b69fc9f2d7ad9317c0e0d986d39871"
+      "inputs_sha256": "7116dd2ff73a40e9fedc16a675caa437708c7cbdaf3cc98ab9348f63c1ae413d"
     }
   },
   {
@@ -2451,7 +2451,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x463d80, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3899d855a7aabe93c9b3183ba94487854f2efff6773c37474febce02bb3a160e",
-      "inputs_sha256": "93ee8a92f75a8053e05e7feaf25bbcdee86e64b0c463dd07a6500fd83189e47e"
+      "inputs_sha256": "a1e1e4c69cf2ce515b22e951b73f40fe71ff35a83942c47c3594f8b6126b2d7c"
     }
   },
   {
@@ -2473,7 +2473,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x463db0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "92bbe41c874d213d3e0d297c1ddb77092824a32d6af1fea2319089634ca2ddc6",
-      "inputs_sha256": "19d39483fe4a5c025faa05a4c561a74c4e66b9d87f228095909335ab18a01b9f"
+      "inputs_sha256": "3221c500930d0ddf97229c6eff3019d9add6b6fa00e44d164266b4cedfb7cf20"
     }
   },
   {
@@ -2495,7 +2495,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x463df0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "d0b4ffe947d75055ebafd9b3f3ca40aba1cb5935235b702aaa958730881f9ccd",
-      "inputs_sha256": "09b9c7bbc2dc652e9b4e47ecbd0b180c84629917cbfb0200a9de4d935c6374f5"
+      "inputs_sha256": "03b1ca2693ef9c6c04cd69505d27c6bb6691601ee72237002da2c8731359dfb4"
     }
   },
   {
@@ -2521,7 +2521,7 @@
     "identification": "Method table references RVA 0x463e20, which calls the destructor at RVA 0x433fc0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x463e40.",
     "match": {
       "bytes_sha256": "d15094a27a02f5d5686b7dec78915f4cab7e0932b22b45c2dc3eacd12ed63818",
-      "inputs_sha256": "999df4fddff5f4f8c212c9a4ec281cf970351771dab5b55fc081d0a8c0d2869d"
+      "inputs_sha256": "5359f9c84dfb65d08926b0b55d66ef3cc37e35af859b8f8a6f32da8aa545be93"
     }
   },
   {
@@ -2555,7 +2555,7 @@
     },
     "match": {
       "bytes_sha256": "ad205a5fea1399c13926360e9161cf499e401c3844101fb2e31c0f9f2bfb5fcf",
-      "inputs_sha256": "afba5b7d231efc23f8d60c12ab299cf7562c4520c773c654108dfee0adc1fb66"
+      "inputs_sha256": "4c9976add8ea7ace7cd949a75a815a2bb776fded817a2aac92613b1db456b6d3"
     }
   },
   {
@@ -2597,7 +2597,7 @@
     "identification": "Direct call at RVA 0x463e5a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "bdb4e8bf07f7f259bc04c586b839816862e63ba4073d84a51fe48a4e9dd5e008",
-      "inputs_sha256": "8c6084fb5f35a2487a03142f4bd68c50f660805eb268bd0f5da523a73f221176"
+      "inputs_sha256": "5da45b717518875bb632d7d4d2bcffa7f123d1a2499e58cdc7fac21b1810aee2"
     }
   },
   {
@@ -2635,7 +2635,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x463f30, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "1a5e725b48122265a4f6da95c5342580c645837132e83e666b4183170ce58d73",
-      "inputs_sha256": "512a9be085fc52c95d4a5dbb1a38850c9e8c9e11684f8f7cb130ba88e947d4e2"
+      "inputs_sha256": "82123c2c0dad4428835d5540bda2b05eb2a7c33c1ee4db6c55aec0d189292202"
     }
   },
   {
@@ -2677,7 +2677,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x463fa0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "b1bbda3ba428bb0c8267f56dc44b01f739f944a805fc453766f1293dc6d2db4c",
-      "inputs_sha256": "3a93107d7af1c189bd9e4003bc886aee56e5adc0ecc7ff3540ce994b7547abb9"
+      "inputs_sha256": "933d9154ebf57b4a12cbbc3c0aaeaf33743f4e639e2c9bbed24093710018a0bd"
     }
   },
   {
@@ -2699,7 +2699,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464000, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "b8738088392d576324dcce1aef20d3a0cc5e6f198047cfc5a26e983c7de970e6",
-      "inputs_sha256": "d47902bf021a2c9c6cb15a01a5d19b767f52a4cfb1e57b7197bc35801c49caff"
+      "inputs_sha256": "d57ca839605c328189e0f70bda98bd7329b126048eee49f51e88371138ee59bb"
     }
   },
   {
@@ -2721,7 +2721,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464030, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "b16ea9b18ba7731fcc4b7730934ad0802c829bb832249d3920672585aeff0a30",
-      "inputs_sha256": "188b67d53e045d7af12e423163d04b53a303b02bdb0f74228b84c5281da4285d"
+      "inputs_sha256": "690a6180926012e58b9ed19e60cf7bbe0370d4d42b7e16b5fa5b6c5c0245d40b"
     }
   },
   {
@@ -2743,7 +2743,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464070, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "7cce39ca42b55b669ede9def9cefe75f448e6c68b39791ba6513226f73d1d1e1",
-      "inputs_sha256": "591e87f36cebfaeb1ec163d7f4e34c181ae91263b496e3515b348336fb4fe567"
+      "inputs_sha256": "15d7dc79c79e183b14860fa532a3cf3c7f1f6f34a211e0ef42164f4bc672de08"
     }
   },
   {
@@ -2765,7 +2765,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4640f0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "01c9532e6efadfb0d5463c551590c5f49d518cc032abf7d795959af4de7f6913",
-      "inputs_sha256": "9ccd55cd8370277fd777ae7b03589a9ba6ddd599e9cf92f55f8be614364635a5"
+      "inputs_sha256": "cc3fc01c638bf12466a38b442c075e18fde280fbde9a6b961f1d5190c355782f"
     }
   },
   {
@@ -2791,7 +2791,7 @@
     "identification": "Method table references RVA 0x464190, which calls the destructor at RVA 0x4640a0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x4641b0.",
     "match": {
       "bytes_sha256": "6e751912048d2e3977d1793e0913e5c7e6c164cea748bff3cdd6032749f63842",
-      "inputs_sha256": "f9a933cd16b1c7c7e03fa08b3e1e72402f1bab4e2cb74ffe42910937a2a0d888"
+      "inputs_sha256": "052909bee254c22b728666a02e5c23d49d95148bcc72e97de9890847ec8202ea"
     }
   },
   {
@@ -2825,7 +2825,7 @@
     },
     "match": {
       "bytes_sha256": "0f1d9547de163720ea5cdf00344a6c412763f5c34441ebc695cde887859ac2ab",
-      "inputs_sha256": "c3d81f10e79cec3241fa90d7187a7330e51aa50c500b214b08bc4406271d6ebe"
+      "inputs_sha256": "8840e307d3ec9e6e039672e6416d0144ef4ea42d2d3993af9cb36526efc2fe10"
     }
   },
   {
@@ -2867,7 +2867,7 @@
     "identification": "Direct call at RVA 0x4641ca. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "4dfca0f5197578b648c8344356fe60012442d5af34091320c188270c766bffff",
-      "inputs_sha256": "20b30afeb96d3c55ba0eec0b0d328a1fd79a035d879aa4a41d360fea08aafd19"
+      "inputs_sha256": "6f4ee62121b6cd4bb6c7c93d4cedc17836e5a4ba5ceaed4198a4fe84b4632fa1"
     }
   },
   {
@@ -2925,7 +2925,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x464490. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "831ce9fc235f374e16efdf648f316337fecde523886b18de70019d461f7f7db7",
-      "inputs_sha256": "17b817e7e195d3188951d79b7df5030d9f58f2083b6c54b57a116f4d103e2387"
+      "inputs_sha256": "8fe71ceb9182ff347445783b9a2cd2228b2ff15396343e67c85580460ad7e584"
     }
   },
   {
@@ -2947,7 +2947,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4644f0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "87afba32b0cd43d3026e1df2171da20d5fe2d4fc8d2f5e039b429bbceec61777",
-      "inputs_sha256": "7284adc6e09caa4a257dd879857facd7ed86714d262c3c13d829eadd158a99fd"
+      "inputs_sha256": "d94db06d500783e3be38e58f9412302e01169636169573fe7841661ce898de92"
     }
   },
   {
@@ -2969,7 +2969,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464520, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "e4e0f1c58a3bb39a1b3c6de06749c38d2e4358610f1f3ed1d7fab2b05b7f95ca",
-      "inputs_sha256": "c7eedb0e607f803aca9ff5962ac82a94fa4c92f867df462a521f4df89688a3b8"
+      "inputs_sha256": "2b4d819682f3aa7ca081756f433b92e48f27af51f834b4f021128bf0cd2538fc"
     }
   },
   {
@@ -2991,7 +2991,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464560, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "049a7c3cbaa83218e2ae0e7169d3fd1d3d8179151d8c0b18c2a4378e521d2027",
-      "inputs_sha256": "9b4c5f3bd1179f1489a1bfe9f8e98c77f4c04e11d1b53c3e0be39e6acd51d01b"
+      "inputs_sha256": "17467eda466c57f36b02fe0791dbf52933da6f336a5f58b856ec50c4a772d0a4"
     }
   },
   {
@@ -3017,7 +3017,7 @@
     "identification": "Read-only method pointer at RVA 0x83b7f4. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "dabd17b70504a47180bc1a65a5518461611e848dc4fb25055904758db0dd22be",
-      "inputs_sha256": "04957567029b91bd5ee6d7449280df1885d9566550be03708723dd10fb44f187"
+      "inputs_sha256": "4c9fb296dac944724a40b04af0bdf9c5514229e4ff642873c598e2d5c686dd20"
     }
   },
   {
@@ -3051,7 +3051,7 @@
     },
     "match": {
       "bytes_sha256": "6a516c774ef5f3cf827948505b268102132fa57f57cac064e4dbe77f8c36962e",
-      "inputs_sha256": "23bec9595423e849db93c40faec80e4e6617ab29a431d7f1c43bc74895434ab7"
+      "inputs_sha256": "1db224025f95e23d36e391cde6ab83359d38afb51698dacbea2a975a3781d7c2"
     }
   },
   {
@@ -3093,7 +3093,7 @@
     "identification": "Direct call at RVA 0x4645ca. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "df6499992de7b87cac8ff90bccc63ac20f81458f5934df8d57078cbdafccc107",
-      "inputs_sha256": "c0dc64cd1499b4f33e1e026bea3b5ea603a309f46263dbfe8bf555d18e6facb8"
+      "inputs_sha256": "59848baef80b224910cb3faeb83d0cc7a616efb1a0ba5f55969574a215ef7861"
     }
   },
   {
@@ -3131,7 +3131,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4646a0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "55339b8f73b4a4d1f0d5f67a758e50a0355045c3931c36daa94f7bad7ea81384",
-      "inputs_sha256": "b41167f1c601c408d2016e96aaaaeac78daa1785ce7cfa58d6b477fe8c94b57f"
+      "inputs_sha256": "772c631238e42844a8e164282ad4ab84018df0d993fe9a44e4655bfa70c3d0fd"
     }
   },
   {
@@ -3173,7 +3173,7 @@
     "identification": "Complete aligned typed allocation method at RVA 0x4647a0; converts the element count into bytes at a stride of 4, loads the allocation label and returns the shared allocator result.",
     "match": {
       "bytes_sha256": "0c1e05a1726c785cd6e2b93165db9eae6476f00b3a90ae6310807228fab65d8a",
-      "inputs_sha256": "86527ca1766926f6e243c332cc60acfcacd92c297e655b2eee1a827cd62ca402"
+      "inputs_sha256": "cf3cae8129f07fdad8c856cc747551c9d0997a50221cb7c9979a95ab8601f16e"
     }
   },
   {
@@ -3330,7 +3330,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x464ab0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "70ca97244de78b468c0f375e4e17eb41658587c68961a7ffb44cce784bdd46d9",
-      "inputs_sha256": "cfda65a609c62c901c6529416bfe387099f0c2371e9a799f555d849335083b2d"
+      "inputs_sha256": "f6db77ce6cbdae2081dabb38a025b117d82011fb059103e78daaf17a38883ed5"
     }
   },
   {
@@ -3356,7 +3356,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x464b40. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "249c8dd81217a4ced5a1f5a6325e278d31dfafc48aa3abb5a31915e222f54809",
-      "inputs_sha256": "a56d71b8e49fa5767932ed2185a2edc836d57a8b58fb695ac68e560f7f0a15d5"
+      "inputs_sha256": "9cd279141e3d9741d36ee8386a7bf9d584facf2c98c180aff25403d85de7480d"
     }
   },
   {
@@ -3378,7 +3378,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464c00, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c6d7b17d705252338d5dda0e3eef3ebd8bd3b79cfbf36dcf5323637be7275f97",
-      "inputs_sha256": "1fffeba3a337216430cbc37e1edb7d38c76061e544161b0b330f4e6e2fa26586"
+      "inputs_sha256": "2f7a05aac340b16ee6c187b6b402aac7f95213535200177cedf56a0d536d7c6a"
     }
   },
   {
@@ -3400,7 +3400,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464ca0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3481bb2fb0bc1d746e2ce6f35739c3f8b1ba2ebc67570313f88833cad8efa885",
-      "inputs_sha256": "c63f91af09929efaf6686961018930f7e60526a6801e7abae8fa6d36ee83d4c1"
+      "inputs_sha256": "e4a3d907230e5d23a6458244f541cbb695ce4b3c0a02865ef3acd52afc3eeca4"
     }
   },
   {
@@ -3422,7 +3422,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464cd0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "2098876297349b8009b82702bf9beada2b6b2eae9fd5121b53a8d581d6745c10",
-      "inputs_sha256": "8d0e5395a855573abf5a752465fbd88ff174858ba120cfca95fdae66265551f1"
+      "inputs_sha256": "da004242dceb6b6a090d5bcb6419e799a818f395550ae3732a1de5ecb821bec3"
     }
   },
   {
@@ -3444,7 +3444,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464f00, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "d35abe4e9d5cb10b6cf40e5b7eb9efba641e7fb7517d627ef62f238414837c21",
-      "inputs_sha256": "b6412951c20f88c931fd9f8f937fc7176956eeddea851d3587cb218a34c5c333"
+      "inputs_sha256": "cbdeef3c5a01191cff9a6bd31bcb2c0e85931db0d325d55b3075cc63d7da587a"
     }
   },
   {
@@ -3466,7 +3466,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464f40, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "670e9d4d27a8d63ca4ed6daddf6060130279a1b964b4712df8c92e3c8b74b938",
-      "inputs_sha256": "8874a8a80e9f78f0407444c9dd2839a928ddc9f6b4c14c7b0aa6f72e082f6fa2"
+      "inputs_sha256": "3ce12e503299fe68473148de3f16fa8fefcdae0ce220c5967961258303d932df"
     }
   },
   {
@@ -3488,7 +3488,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "a4ec80f8cca95f9a6b11756840d24de1c55847680cbf460b7dec8b3a5862a143",
-      "inputs_sha256": "0d6db7b782a4a0571bf38732f483f41b9b5ad2fe0a05231131ad7a03cb257ad2"
+      "inputs_sha256": "91bf9658ec7b492ff03dfa7d36d608cf88c0119c50a527172aa85ce47ef29bb2"
     }
   },
   {
@@ -3510,7 +3510,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x464fd0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "116dae19e31881078160d4cdfc541a8a80a6e40586fbb3eac9c991a2321152aa",
-      "inputs_sha256": "d54c0bb4edd831ee56f9603a8251cb711f675292086bea77e11b7e7766b6df1e"
+      "inputs_sha256": "fa3ae064492fe608fa2fac39e48d2a40eea618d6b48c5e1ee86fd879b6963881"
     }
   },
   {
@@ -3536,7 +3536,7 @@
     "identification": "Method table references RVA 0x465000, which calls the destructor at RVA 0x433fc0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x465020.",
     "match": {
       "bytes_sha256": "aa87841a5958dd595018f510f460014d80377fb10b73a11303e85686e352b673",
-      "inputs_sha256": "85df6b38594794d845187525d991d8b0ea0042546d90395f1ff8b0dc65a272c0"
+      "inputs_sha256": "c6df622c1f38341f84163d59daba090455b54809c6ef318382a3d63882ae557d"
     }
   },
   {
@@ -3570,7 +3570,7 @@
     },
     "match": {
       "bytes_sha256": "5fdcf01880385333802861fa5ce822c8970f4aede3cff3b38588200bec4d2949",
-      "inputs_sha256": "2a5b0ffaf891ed9e828a355e5398f6dc932debb39f2c852897348784e3cd1397"
+      "inputs_sha256": "619bc308d55550981fbad37c9cae7cccfd3b7ddf59bd482f7b487454ac4e42cb"
     }
   },
   {
@@ -3612,7 +3612,7 @@
     "identification": "Direct call at RVA 0x46503a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "19d67f1fadd1f58d0a042f06d21307a0772a0a6fa414539cd2f6d64fff88733a",
-      "inputs_sha256": "a15941d2102f3c5ff58bb85fbc4f9bb2311ef4b214ebae53c64c49aa7f4888fb"
+      "inputs_sha256": "e977d715d191f5e1e1a90f3cb3293df7c16d9acdd6ba570fe4a240282d433d72"
     }
   },
   {
@@ -3650,7 +3650,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x465170, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "d2a1cf4a0924da5da8c330ccc1af9cfeee0a5858586e1b5a86e10c7324b68ae4",
-      "inputs_sha256": "9d823f86de05b44cf8bd8c3e9f8f208cf2be5cbaaae5f74134add25aca1785ba"
+      "inputs_sha256": "8e39c5c68e11267d88f0163063c1da77e58ed38292ff85734dfa66133480724e"
     }
   },
   {
@@ -3676,7 +3676,7 @@
     "identification": "Read-only method pointer at RVA 0x83b830. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "72144abb90422f536bb04d733ad768c630624a8822c8a3c86062ac5983150d7a",
-      "inputs_sha256": "5085563994cedca23854c30d19c77caa849703cd1fd1ee96a00cb9dfe8068fa5"
+      "inputs_sha256": "7e251d517da57940ea0e86d335c8fd76fe695652cc4c7360dd9fc86b077a8d25"
     }
   },
   {
@@ -3702,7 +3702,7 @@
     "identification": "Read-only method pointer at RVA 0x83b84c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "7e2c5dd7481399178219c1324cce8aa7bd776d0aa619c9eaf26a318f2a165e57",
-      "inputs_sha256": "821c8083169457db50596523a4e0a7cbbbd6de835b4b86adffcaba55f90b6a3f"
+      "inputs_sha256": "58dd1092077e697bd471cff518394acbad54f01f9ed27aaf71664491c171a90c"
     }
   },
   {
@@ -3728,7 +3728,7 @@
     "identification": "Read-only method pointer at RVA 0x83b868. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "cdcfe2478663a2dfffab7bf1e1fff4fdbe91adbf44ed76bdb6751605e57c9f84",
-      "inputs_sha256": "fc478719db2648895021efde670399758e7a2c30e4f2741680fb8a1cbe76625f"
+      "inputs_sha256": "cb0655f93d9a67ca70987d39183011cc6825c6b9e8eb116af03096bd8dd42f07"
     }
   },
   {
@@ -3754,7 +3754,7 @@
     "identification": "Read-only method pointer at RVA 0x83b884. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "c1eff620b1f89f6c1554100c86fef13f13b149feb5eab4d032b31a32a6ce73cb",
-      "inputs_sha256": "c0b2ab76c3c59b3aecc9e02a705b16c918f744bbe15b6f14d00e43214b32c47c"
+      "inputs_sha256": "e209d43acda23912c1b931247bcab94695b0403c6eb33ee95c60de185a283bd1"
     }
   },
   {
@@ -3777,7 +3777,7 @@
     "identification": "Complete indexed Campaign function RVA 0x4655d0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "77447f0b7cb0cbd731cfe9b22fba432b5f9ca115886c90919b0ca98ee1d4ebf9",
-      "inputs_sha256": "760d0c083202843574feadfd61755d01cb46e73ce68c1e35ed164fa148b05551"
+      "inputs_sha256": "ad8ae8e47f14845eb87660eaf1a5538be92640b1090ec6b6f956d151169d6d6c"
     }
   },
   {
@@ -3899,7 +3899,7 @@
     "identification": "Read-only method pointer at RVA 0x83b8a0. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "489ab43026791bc1631817b17ae1343bdd905df198694238d764cb90fca9fd62",
-      "inputs_sha256": "fbbaab732f5e7be07aa9e8528fca5dec7ea143eec9d07b603ccde429b167c50a"
+      "inputs_sha256": "cee312905dae1f693fae6b1be6322adfc1b7c88cf7abecfa739d0fb635899de8"
     }
   },
   {
@@ -3941,7 +3941,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x465d00. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "d942c9767f381dd31ae1d9f18aeb51de4d583e52b45d2e4862d5ebfefda88398",
-      "inputs_sha256": "4e86a22f86fbe369fd1a10dea7113c2959e2cca9f128e607702e05bfb9ecdfdc"
+      "inputs_sha256": "5032073ee58e7ed705e25d8f1cac9eea8e72cc3aa850c1923bd2c3bfc327aaba"
     }
   },
   {
@@ -3963,7 +3963,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x465d60, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "7c9c921f8a398f62b405f6d5f42962dce9c6d034dfe69855c35fd6270188eefb",
-      "inputs_sha256": "3c30aa7cab8ca56fb13dd039e03c9fae6f0a60c1dd2155e987d4030070785f45"
+      "inputs_sha256": "0679a4d4abf57bef08231e306263d9a510f1be7b19593c30f1f5dc45c16aafee"
     }
   },
   {
@@ -3985,7 +3985,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x465d90, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "16b074535e472c0e302e8d6b8e68c9bbf1440b3a6a030c6e9b6965acbaab0c25",
-      "inputs_sha256": "20dff6c4f4c0d36136a3289002c1171e386495db610d0e9fd02e7cc07f48eec7"
+      "inputs_sha256": "4f0b7fa9da1567b034219f7969ae8b10ee9e10225a1166a7e8d36a748562cef0"
     }
   },
   {
@@ -4007,7 +4007,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x465dd0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "8da70e510c9ad2dffb0d08f9ad10350cdd469cdbaf85e4886faa2a205d2097d4",
-      "inputs_sha256": "6a0cc93551a60e620f1ca8bc3384993de9a21c6c9e5a87885871d627944c10e0"
+      "inputs_sha256": "707be6561fa078f2da32941cca9ce905a96d5f784cb7ddf93fce910cd53eeb76"
     }
   },
   {
@@ -4041,7 +4041,7 @@
     },
     "match": {
       "bytes_sha256": "13401e0932074313de09e1d587675fa05b849a09953fdd64aa1ce34493b776df",
-      "inputs_sha256": "48590c1d766e5d9967bf8e3c39b26391889d1d44e5186fdac0e9208c42e7d5fc"
+      "inputs_sha256": "f70680e98fd5fe706b45a85d3ca2171b9da325d806f74b029da0abc1cccb6470"
     }
   },
   {
@@ -4083,7 +4083,7 @@
     "identification": "Direct call at RVA 0x465e4a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "ae8d3dc5ba1c57e66de1a003c2c22b659c8495cc0dd2fa5c43af8cca077d5a53",
-      "inputs_sha256": "e2f83f6a505df6e4f321edd0b724343bed247dd80b51e4d941d28dc841e98891"
+      "inputs_sha256": "0d49ddb4d3df866303a1f611855b93aa7763cf574649f43416165e4c0b36081b"
     }
   },
   {
@@ -4121,7 +4121,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x465f20, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "0e4118db1037a3c4d465e32e1a550ded5cc0950402c851509b8f6c011b02a32f",
-      "inputs_sha256": "34eaa0153a84a8d78d5eff2d0061422a9dfe7ad9ffebc90631545bd0e22043f6"
+      "inputs_sha256": "f64ae2fa9dd5543d67dc61cda09fe860f7c326e5a657993372cc3bf1753951f1"
     }
   },
   {
@@ -4163,7 +4163,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x465fe0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "7e8300a693f23b0325e1db9301ec2e7dddc4501788ff587336f2b461a9581183",
-      "inputs_sha256": "4fd02393b54ad7490b684f428d49ee9f3300e308e88241ee00c3fbc1ddd57cb8"
+      "inputs_sha256": "c4c510b57769f57a7becba62ad5b11295909e03264102abea2866268d05f868b"
     }
   },
   {
@@ -4185,7 +4185,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466040, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "ee599f0f6c2c5bee35cc51623d00548b8b6ee7a3c6a101acbc79a66065e07488",
-      "inputs_sha256": "1bb9d45e6a46637df8d062fc9fe9d9a97692d39b7c8b0d9eb1258c2e8433411e"
+      "inputs_sha256": "d7b317ac36676a1cd198ac3d5a4c055eaa26dd98891d01c3fd75c23512004342"
     }
   },
   {
@@ -4207,7 +4207,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466070, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3f66d0a9b9c8f2f0577a1110cf42eaeaa23a3b8cd62c0146aa5c52505d42aa4d",
-      "inputs_sha256": "c47ebf19e330556c72878f1a393ad816ab1a2589a4c98555153ba48b76c86613"
+      "inputs_sha256": "58b63c5de9a0d7bcdd9d53118326e7905517c7407009f1754408611110e9894a"
     }
   },
   {
@@ -4229,7 +4229,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x4660b0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "b72b8b251dc08c2c36488631ac8902c973d00d01e5c72310dd0e728a14b4f804",
-      "inputs_sha256": "03cf537684b6abec2286016c6436c5658c7a19e652fd090a8ab2f5a080e1d7ed"
+      "inputs_sha256": "f2e6f30902650d47f94ed2d1aee39bd46ccdfa8e9b108b3bfbd7ae57adf54f56"
     }
   },
   {
@@ -4263,7 +4263,7 @@
     },
     "match": {
       "bytes_sha256": "a4039d79b056e304963f8d6cd26778c1ba699f04c6b6dd5c8ef6d8a69fc8e379",
-      "inputs_sha256": "e1eb247835a9130a9f5004dd464e9c07771a55298589e777f8c3a829c8a43930"
+      "inputs_sha256": "871809dfe0bf910f4cdd7991d339431342308ecd48f02b2d0277b44ac0fa9993"
     }
   },
   {
@@ -4305,7 +4305,7 @@
     "identification": "Direct call at RVA 0x46612a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "7f152f657369f21ad084ce57db16511f2a1fa8c08db996a60dae846cd2704d88",
-      "inputs_sha256": "66503ae5d6c26bb1d20d1848f16433827c80c6675ded5226b979cf98acbe956c"
+      "inputs_sha256": "0bd55ff19e6aa9310e404a34fdec0b002bac684f5ac3a9e2e4cfe9dba8efbe34"
     }
   },
   {
@@ -4343,7 +4343,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466200, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "93f18de40baef9b19a0f3a1d4413931babe801ab5e96e0aaed6e5d808b996653",
-      "inputs_sha256": "81383394822e26a6d96880568bf8bcd10400193ed9b448e5c056f6b1c6f5f1b0"
+      "inputs_sha256": "d8181ba8369ed21b03ec7efc67e7f34107b94486a4ac80ce4ebe87e0746e64e8"
     }
   },
   {
@@ -4385,7 +4385,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x4662b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "66f9e751bae5b4c774f1a4f0f0e346df09f99c7aff23bb7c3b987009dfc0f494",
-      "inputs_sha256": "31cd82191a530df6a82cd7d10e63e0420505abbf4adc8cd4eba3a29536241d97"
+      "inputs_sha256": "fd8d7cecad051444e242e6dcaa1a22ae69259e57932dd413caeef6764a064f36"
     }
   },
   {
@@ -4407,7 +4407,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466310, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "fb6692e8cc534da9719a853f756f665b869d5babea0f522d2424b75f5e7c2d94",
-      "inputs_sha256": "d43ca103d1e8bbb8f6740c1fef9bf32ef43e3cd0adbb8ad1d3ac4a3222f11116"
+      "inputs_sha256": "9b26ed7184497cc77a10b6c85d97c50274fbcf9422696ecbfc1e76dbaf0f7cec"
     }
   },
   {
@@ -4429,7 +4429,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466340, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "696154e93b2bb13253bb182ef596984a6d580d9887aedceab9e21bbdac4597c5",
-      "inputs_sha256": "3ad2cdaf5204c5de028f0cd0cc26feb673c57827f3655290914ca522c1a24572"
+      "inputs_sha256": "7731ca14032570ab9a323fcbac281c32135ef11f48a9dba38eda0cce59adaf95"
     }
   },
   {
@@ -4451,7 +4451,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466380, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "29e083f0adcfa2045a5ac44c20f9d4b8d796b2ffcc792ac23612d4087d626b1f",
-      "inputs_sha256": "55ba0a46b15c6cc069d05341b865c8ce412631fddc623d758ffd08cb6ef1fb75"
+      "inputs_sha256": "253cfb938f27bac8a1285c2124aa614b313b74bb34340134c82a1e20bc737257"
     }
   },
   {
@@ -4473,7 +4473,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x466450, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "9bcb3c98f064c35d36cf05416d8cef1b250191f3cadc385e26a1909a8bb6e820",
-      "inputs_sha256": "d8ea2afd9f52102cf710f8fe02f6c42e2a003e06bcdd693e9e0364e1bec6341e"
+      "inputs_sha256": "fe8a78b77afd27d963c2fa4e16d5ae08aac685a5b68f86c1f56f0657dec67fdc"
     }
   },
   {
@@ -4499,7 +4499,7 @@
     "identification": "Method table references RVA 0x466680, which calls the destructor at RVA 0x4665c0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x4666a0.",
     "match": {
       "bytes_sha256": "701fcc49a7943adbf57b741016445a66b132d27b706b5d2df07bb44b428ed901",
-      "inputs_sha256": "54bfaa1070e72ffae0206a9f47f61976b08f13599abff6a4983b2edf0d78e4b0"
+      "inputs_sha256": "846bc927e6b92a3d983d25b56ae203c485468f8d621d20836ca3303042c16e6a"
     }
   },
   {
@@ -4533,7 +4533,7 @@
     },
     "match": {
       "bytes_sha256": "652b25c1e7c6b8b371feb2a502eb412efd0bd25ae479d6876966e4a864686904",
-      "inputs_sha256": "83ebeab40d8c404d11bcc9b1f70a9cdb4381198ec673fc7d8362bbb30ce5d6f8"
+      "inputs_sha256": "11496a28e9e5ec69cbbf5063db3e5c22876e72a95e5b75af81812e3dbb4b0031"
     }
   },
   {
@@ -4575,7 +4575,7 @@
     "identification": "Direct call at RVA 0x4666ba. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "016563e0f5baa30136bf5166cb2e7dfc1eb04595072cd9194144d3f8fa28d486",
-      "inputs_sha256": "44455441b25f470297fd617d8c3ad5dd0954e7c0726130d2852d6e18ceee01f2"
+      "inputs_sha256": "7be715c4c12b8d245538900476225468a60128c033143b583aa4d6f26ef33034"
     }
   },
   {
@@ -4617,7 +4617,7 @@
     "identification": "Read-only method pointer at RVA 0x83b954. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "968c822f49847d44a79fc1216bfd42cb7671e08b3831413da22873f94e1a9b71",
-      "inputs_sha256": "8dc1288c8fa803e3183cbcf0bb369ecd133f54be7e77bcf4a45362a39a4a6017"
+      "inputs_sha256": "ac5daeb763f463129e280b8fca5f4a20f76e45e8fab169d9f7e22adb76342348"
     }
   },
   {
@@ -4659,7 +4659,7 @@
     "identification": "Read-only method pointer at RVA 0x83b978. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "8538fc39ebbf0d7226abb47a141760a0e9c48870e5409fc6ba54556bbcbcefe9",
-      "inputs_sha256": "9f25d78a8db44ff4b4bf751165b3e99e23c1815dfb5c0a73a139c957620a4ea7"
+      "inputs_sha256": "1a590912a7b5efbf3bd3aac1d799c7f0ec7cea421c3c89d5606159c56768be26"
     }
   },
   {
@@ -4685,7 +4685,7 @@
     "identification": "Read-only method pointer at RVA 0x83b988. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "6b175ca4df3daa1be7303cb4d51c4b4f70de1675e177e8045567512b9f2947c1",
-      "inputs_sha256": "217450434dc4c1ec3f97573952b0218c5dbab9bd778f574527f2c71a297d2f2c"
+      "inputs_sha256": "0bdf9c29f727b5f8a15480fba385bc05af928d9f728706cb850234e6e102ef21"
     }
   },
   {
@@ -4727,7 +4727,7 @@
     "identification": "Read-only method pointer at RVA 0x83b9b0. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "43c42b9793f3386e0c42323ad7f5dbc2ea3bd9cf5892361c1e3ad32eaffb73fe",
-      "inputs_sha256": "957c7605ea2039a0e07daff9a0ce4566477ebfac72505a451ca7bb24e0b0ae66"
+      "inputs_sha256": "c60ebac113e52d1f939fb0ce99150e1af2697119f8a9c5fe2089b4ad587d663f"
     }
   },
   {
@@ -4753,7 +4753,7 @@
     "identification": "Read-only method pointer at RVA 0x83ba58. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "715925ad1882a78b5ad18b2107d06aefe3aef917c4a881d867c69a604d4c20da",
-      "inputs_sha256": "d3baf4be040e5436a0fe982509ce8bb489b47c4df3c6c8d7c19aa4c93c3d8033"
+      "inputs_sha256": "102c6dc2ffeb4bc259832a0faa9e24def58cfe6da5ca314e733b1301d20e12b6"
     }
   },
   {
@@ -4791,7 +4791,7 @@
     "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
     "match": {
       "bytes_sha256": "fad08db9d53a005bc9a55a2e061c44abcea8512ee75100a59821d037f5a4b739",
-      "inputs_sha256": "d7ceafe9cb90216fa69ac6a3e0ea6cc1c9df9fdb803805e948ccdd1c6099d269"
+      "inputs_sha256": "de221eecdbbdcaa25f823a6f47befcf6e7e73ebd7b31659221c0bc9803ae7770"
     }
   },
   {
@@ -4814,7 +4814,7 @@
     "identification": "Complete indexed Campaign function RVA 0x467470. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "2bf700c48a0ab4795449bd934e542761f9e9fd721746c7155ecbd7032fd640c8",
-      "inputs_sha256": "031a18590b156806e517e5e14283a0c0d66d6daf2eed4cfc1dc91ce745bfaa75"
+      "inputs_sha256": "97e9f4a104705e7e3963c9d8fbb637329916c1806a0ae7bf295a8d965f809b41"
     }
   },
   {
@@ -4840,7 +4840,7 @@
     "identification": "Read-only method pointer at RVA 0x83bafc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "96bba7071436f743216889e403ed77a49656ff6a35af6b0f8c3d73741619fdb4",
-      "inputs_sha256": "e1b269f9d74fbdd9aa77cdf15d6718311239f19509ea78dc2a8fb188feaeccc8"
+      "inputs_sha256": "473271f1523b181e41f614beed8df6c1f7b5389e309d85f1ccdf7f703275e4f7"
     }
   },
   {
@@ -4867,7 +4867,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "fd2961b8b73bf57dd7ff76e756c849ae237ad72780d60813d64c1f6b5997b565",
-      "inputs_sha256": "0e525724ff3ba4c7057c6d3c793a3db8da7ae5714a024f96bf6b9d91c1606a07"
+      "inputs_sha256": "9549be36364e0de8cc00d0bff5aca136ec7d95badf4c15fd1fdccdd5378ad46f"
     }
   },
   {
@@ -4889,7 +4889,7 @@
     "identification": "Complete Campaign method at RVA 0x467cd0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "978da91fff5e52c2438120233343be88f4f871fad99775144843a283744275a4",
-      "inputs_sha256": "ec9acdb3e0d0fe0a28fe3671fdb429339c5c6dfe8618d46ceed1cc5f9820936a"
+      "inputs_sha256": "e141a1b4cc20f88b1842fb91b69863b9144cd2bb34b8fb0a9890101d7a4a071e"
     }
   },
   {
@@ -4911,7 +4911,7 @@
     "identification": "Complete Campaign method at RVA 0x467d00. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "ac470fcb0b228b327132c1aad758da842068a22e7bb028d4b8a72f32969ec376",
-      "inputs_sha256": "13212c79ce65bcd1fe953e0ea143ea535a811f3c591a6620384b4b6ca0e6219a"
+      "inputs_sha256": "171b3bc9ccd6631109809d304451fa1b3a3e9cf2bd224c9fb6db2c704f15034b"
     }
   },
   {
@@ -4934,7 +4934,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x467eb0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "f078c50e76bc92f1bf2e6b7050a143d1c8609b6145226caee5281e0da604a4db",
-      "inputs_sha256": "22b05575c436e2a4645508eb71c6f0dcea25caeaf6785e493ab7bb23fbf35391"
+      "inputs_sha256": "2f5fdc894c66a0def3787877a9330c76de816359844dd8fb3f266378ab2172dc"
     }
   },
   {
@@ -4957,7 +4957,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x467ef0. Removes the last node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "2c60b44314eb01f1680dedc7f9dec06a95c0f6a99887e53dbe9d2283e855af1c",
-      "inputs_sha256": "cb72f0f0350c3d43860c15187d0be3e2f82966bddfa5821752d90b5bda409337"
+      "inputs_sha256": "03cf66e0fc6e97fa027f54aa47d1009e05acff39ef974e4dab14901a94baa707"
     }
   },
   {
@@ -4979,7 +4979,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x467f80. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "79b8fe64bf0aa82bd2b38555aa243297cb226b012445d00ed18e72a11019e288",
-      "inputs_sha256": "5e413406fa745ad18c020a59c4c5273410b46643f4c79d6830b3f66a36bac228"
+      "inputs_sha256": "b233254edcbeb0745eaab0ed7d98b579cab176bbb0e10223434a05adef4f6b2f"
     }
   },
   {
@@ -5001,7 +5001,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x467ff0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "e596ad03768334c5ade5e9bc2d570b119b10ee540e13edd0cffb322f5015a8c0",
-      "inputs_sha256": "f51fdac907a72892b94d5ab34a560bef14f820d3061649d2641f116e79f6bd0a"
+      "inputs_sha256": "4600d1e5474faa065411b1c860c6d09fa9f59d470325f939c85cd9b1409a1a71"
     }
   },
   {
@@ -5028,7 +5028,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "b87ae875f12587771838a62fb5ff430959e83db13932fe7274a88b18bdc22bc0",
-      "inputs_sha256": "7beb8980c74c31627ee3c454816d1f9e092b3366ba69dbc26e14f2b6564da4e8"
+      "inputs_sha256": "fa690f4ab41a43bd1385691c95ec637fa30cb544ff704286be619b348e8a626e"
     }
   },
   {
@@ -5050,7 +5050,7 @@
     "identification": "Complete Campaign method at RVA 0x468c80. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "d1befda06023d2a0f92ebb5ad9c8a1f00f02a7f017c09536b38acbf13266e473",
-      "inputs_sha256": "6991c7fe61b065384a41a418a09c9c6c964123caccb128cc09ff92d6bfccdb8b"
+      "inputs_sha256": "6c5bb53be982952abe7dc10af93c39cd60584bb3248639a62ff4a1331206fa3e"
     }
   },
   {
@@ -5072,7 +5072,7 @@
     "identification": "Complete Campaign method at RVA 0x468cb0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "fc86a2aedc8171e75070be8eed75860f7621c211749a3b5bac96dc89a639eb31",
-      "inputs_sha256": "1c1a5b2ec2f674293081f671c6489de71778c36211bcf4c7e5da54708db2354e"
+      "inputs_sha256": "17e3f7606cbd743a4752a54de1511bf007165310857685262dd62d939270ff1a"
     }
   },
   {
@@ -5094,7 +5094,7 @@
     "identification": "Complete Campaign method at RVA 0x468ce0. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "294e7bf787e6833c6bc6927c56656ec59c5f82a0d8f2cede18d5943f9e2cea47",
-      "inputs_sha256": "203c6c46a0e9bc635dee8f22e51ec08b1d67e9d93aa90531902d7187cc865b10"
+      "inputs_sha256": "f5c7fc248ac6c6f84067e068853b7f3d73e42d2c42d3065b4f4973585263cd45"
     }
   },
   {
@@ -5116,7 +5116,7 @@
     "identification": "Complete Campaign method at RVA 0x468d20. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "3ded9bd0b92a46b1c9f5ba1530690f03d30c959d84407aceb6d3677529e7255a",
-      "inputs_sha256": "33b39282999c29338ee277d43d8d5a038adbb7376b0bf022051e666ed9aabd8e"
+      "inputs_sha256": "4b3b43be4708ef15fc28decdd458054a50d321c9e4e54ccb64739e7fa296e731"
     }
   },
   {
@@ -5138,7 +5138,7 @@
     "identification": "Complete Campaign method at RVA 0x468d60. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "a944dbece5b066b200d60b4576b85c4a932b4c869bf8b843bca7934617c0db19",
-      "inputs_sha256": "db2d2b3806b4eff996b67f7f6f369215ce48ab2081c280c18e81a57f19fa6e3c"
+      "inputs_sha256": "fcf1186c31fb3521962d5670b9c98439e3043d2fba9018441c84749d8fdce756"
     }
   },
   {
@@ -5160,7 +5160,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x4690e0. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "f6b5cf2f4213e0235edc1fe754e8589976e61c5f2b83cb67abdb413816284af2",
-      "inputs_sha256": "78284a562663d0efb9350217c79ba093777598ca44762e32dc84b0fc35e9d8d8"
+      "inputs_sha256": "dca2ed6c6c5a327b1e4c051900037c665a60af511463bc8927fc893af05f1211"
     }
   },
   {
@@ -5183,7 +5183,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x469150. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "2a9ca14bbdf86cbac379ee6aa11f336efd8e4f54f370f11685fcd58292e11b6d",
-      "inputs_sha256": "2feb2b44ac6f025625138ee85bc9b2b12e06b754ae35da664184a12e786b1dbd"
+      "inputs_sha256": "ef646253871f74b6aa004320b0e857beebc96caf6063c338d55b57d6bdc7aa78"
     }
   },
   {
@@ -5206,7 +5206,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x469200. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "a87fe3eeb323e6683d0fd4d1efcb34086415133eea165329015f3d3116678ef7",
-      "inputs_sha256": "2f03ca014b53be68d44b5110ce6ce1e26f7c950e36009e68576e58e5d28bbf56"
+      "inputs_sha256": "40b1eb10cc087abb8f4c8864782252c59741391dba12223bbf9d594c6260aa4a"
     }
   },
   {
@@ -5228,7 +5228,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x469240. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "2332e5491c4e896e7e83fee49cd9701f667a71c7ac33c4d66b1fa5cfa3e62336",
-      "inputs_sha256": "d1ab0b358c1159e01b66ed6b3b1e5bf8dce8c1e10a67be119acc75ecaef02412"
+      "inputs_sha256": "c4a415d71c9b133f5039b72790a9f31fc255b1d47a97cfbd8e38e5af089a4050"
     }
   },
   {
@@ -5250,7 +5250,7 @@
     "identification": "Complete indexed Campaign function RVA 0x469660. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "b6a07bf1e0cd1ff23676e2055a35ba6c85d3a897dbac9082ad004631b828483e",
-      "inputs_sha256": "ccecc82cc784b9136cd89c2cc62d9ca959cddb45d959c772815ad8d8a491b373"
+      "inputs_sha256": "4f269b604a5a9985cc2ef883126f8bae07dcdf9f15546b188d2942c764af0bb7"
     }
   },
   {
@@ -5272,7 +5272,7 @@
     "identification": "Direct call at RVA 0x467a90 in the independently delineated function at RVA 0x467a80. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "5a1bf13fafc4a878ffc6d73a9b86d66061b55b43ecb6f461041b533ea348b137",
-      "inputs_sha256": "aea9a822b1bfd863932a93b9a71aeb0242f14089e6905bcb8fd9b08a31d359f1"
+      "inputs_sha256": "763fc7257896911743440ee9fc1572b0c89826a911f3154ed987d34311d55871"
     }
   },
   {
@@ -5294,7 +5294,7 @@
     "identification": "Complete Campaign method at RVA 0x46a4b0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "9e11240cfcf9e275d6de0f23eaf94c8e5dc5ad00fee80f30755f501e855a0008",
-      "inputs_sha256": "3b821e9cea51bb30bd42932327586d773bdd3e64c606678ba6870bd43b63e101"
+      "inputs_sha256": "48db496870925c4d7b6b3357f6c4254bda39d347a0266ffdc7ff733c43b709d6"
     }
   },
   {
@@ -5316,7 +5316,7 @@
     "identification": "Complete Campaign method at RVA 0x46a4e0. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "a96868851abbae63cda32d178566689bebe643b87f6dd07175a76ce151b74b2e",
-      "inputs_sha256": "9e3a8484d6ec79cfb950cba28ba7fa928f5298c08fca4e35587b5b9f89ec171d"
+      "inputs_sha256": "fcfaefa772ee9c976d64deb747a7c35e546c4f6e9abf2931112827a330cfdfb0"
     }
   },
   {
@@ -5339,7 +5339,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46a8c0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "157ba65e046e7d75b9c33a3224f71f832ceb1f854fd31d9b6b88f49265152990",
-      "inputs_sha256": "6403b833b12c11151f82af42946159345a3332c86be748514878b8ce0f00fe2b"
+      "inputs_sha256": "9cfe11e214e0d774c7ee17d105bbd713261fdbb66c2c2ce321e4e1070ef09c8d"
     }
   },
   {
@@ -5361,7 +5361,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46a990. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "04628ad1776e3a99898fca4e81fb4d445c9f1870dbb7e70fa5e7af37a4561c31",
-      "inputs_sha256": "42f8d3b04180a81b9c6ec97dfe00acb5071a95f36aaa5b882356f6de64acee2d"
+      "inputs_sha256": "2472052edea368274ef94d9742324bb6b09bb1344bc5b8e8711b651a89863f8b"
     }
   },
   {
@@ -5383,7 +5383,7 @@
     "identification": "Complete Campaign method at RVA 0x46cdc0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "8fcf32948fc229cf664d8f566e5dab6d433dbbd2360b6d377f3b61fba5963759",
-      "inputs_sha256": "8c177f3ef3438a833ec41d748128cf148a1bc7d48525077d4338e8c9b223f172"
+      "inputs_sha256": "2affe6df5da00254707049117433675b28988735e400ec688e7f2bceb0dfd0cc"
     }
   },
   {
@@ -5405,7 +5405,7 @@
     "identification": "Complete Campaign method at RVA 0x46cdf0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "d1d18e51669b13cc4ea2a068ffa8a4ab413434928c8358af7dfa170afa705e60",
-      "inputs_sha256": "dcd2dcb45a41bbf7f7dabdfc7d4e3510c6283c67c5621a749c8c652c5c259eb7"
+      "inputs_sha256": "1401a624cf904afd6f0339ae26a8bd6d377da77e705cb5689d37a155d98c46e6"
     }
   },
   {
@@ -5427,7 +5427,7 @@
     "identification": "Complete Campaign method at RVA 0x46ce20. Allocates a 16-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "0356c1731e75458b3a7e56ea9e9d35b5c0a13b6ed56a7a333d1543315234a533",
-      "inputs_sha256": "018fb614865b7f1497d172961696de39aef68d1de22439b01fe55fda5d35665a"
+      "inputs_sha256": "506236bc1d8a68a46d6e6c88602d6b4baa78190e971c2ff26f8694f435ccc622"
     }
   },
   {
@@ -5449,7 +5449,7 @@
     "identification": "Complete Campaign method at RVA 0x46ce50. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "b73426480f7dae5cba93173a3e60501317cc6e62003fb7ab0a1c6461b6e9380e",
-      "inputs_sha256": "4df3afc9ef5e07d69288998b8970214f2d0563cba16ccdcfca4280d91bb3e2e3"
+      "inputs_sha256": "5c1b23b128912a2669b9cc56686b659a4be3e9b496ad04b6df99e11734a7f236"
     }
   },
   {
@@ -5471,7 +5471,7 @@
     "identification": "Complete Campaign method at RVA 0x46ce80. Allocates a 16-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "c1bf3072c80d267dc0b845be0692186ea7ea75dbed02a08ef9d9d0754ae69d33",
-      "inputs_sha256": "8207b5bfba3b89ec8c9c25a196664b041528f1e5c3b7a8240c3abd79be685d90"
+      "inputs_sha256": "0a9be932abc0c6f62d7e27a324bc5f67f173d705eb297ddb230463accbc5fcc2"
     }
   },
   {
@@ -5493,7 +5493,7 @@
     "identification": "Complete Campaign method at RVA 0x46ceb0. Allocates a 40-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "5fb4c152222c743f86aa15315da81d89973da4e47455be089b4e8cec57f0403e",
-      "inputs_sha256": "2eca4518bbf66726aa18205daa69c9c512cd0b2c3b733f6795e9cd3202f2ee8d"
+      "inputs_sha256": "4ddb268beb6bc2e881ed17498aa62bec1b44db7728344735409d3907dee32fff"
     }
   },
   {
@@ -5515,7 +5515,7 @@
     "identification": "Complete Campaign method at RVA 0x46cee0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "ea5cdc1dd36e77c9245a61b0e4f912c9bfd000ae180831442266b520c585a6bb",
-      "inputs_sha256": "92d0294a18d6db930fdb2f20637504c206ade5bd871cbcdbc01ae3cdd4ba3089"
+      "inputs_sha256": "83512bceb23226fa8fa450e616cb8f3ab14c4ba5c69a3709cd899cb8cc49379d"
     }
   },
   {
@@ -5537,7 +5537,7 @@
     "identification": "Complete Campaign method at RVA 0x46cf10. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "9cc771940a2709db19c1ed1fab32e8a00c787442dcb8f23595e60fd94e9a690a",
-      "inputs_sha256": "cfff722d05d1ed2ea4e887230ddcb56f8b6f590ae8aba4ffda064a57b39c21d7"
+      "inputs_sha256": "390f78af3a72ead1943d2178c03a525952fcfc355b6370b8a445fa946fe93d57"
     }
   },
   {
@@ -5560,7 +5560,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46cf60. Prepends a pointer-sized item and updates the first node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "88daa311c9c21b08edaf61c9185b9d24518a35cca6b276d40e97047b6bc80340",
-      "inputs_sha256": "664a47b3f9498e47cca402b475326e976e57bb8d4c7ef720c6b362f647d93642"
+      "inputs_sha256": "ca5bead86a69da73a5f4966114b15fb7870b9edcdb2a71dcdc820fb517e60e6b"
     }
   },
   {
@@ -5582,7 +5582,7 @@
     "identification": "Complete Campaign method at RVA 0x46cff0. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "d77b23b0eb865cf4f9936f8a4fa667a3f35ed46da473b63177d0d2e3715e67e9",
-      "inputs_sha256": "b040275e229771377878259aa675d959f7e6503934a87200ef04cfbece973de6"
+      "inputs_sha256": "b63137587f83983fd20d4b945bd68cad507c9c637bf0feed2d056b31592bde0e"
     }
   },
   {
@@ -5604,7 +5604,7 @@
     "identification": "Complete Campaign method at RVA 0x46d020. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "efe72c3d0670b5cbcf9900d0673703035c9d8c4129c5c3061e07b7747b0111fc",
-      "inputs_sha256": "127a704723a944d9d5df2f691fe40c993fbd816138b5b718cb9aa96ae919b829"
+      "inputs_sha256": "b59323c51ba1f9768077d393fa6f34e64bb63fc6431393eb370c04f320ecf1df"
     }
   },
   {
@@ -5626,7 +5626,7 @@
     "identification": "Complete Campaign method at RVA 0x46d040. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "84d1888dd87d56628e20010f43dcec89383c0920a3bef2882daf02c6ce8e70d4",
-      "inputs_sha256": "011bce94f90f0584e481084d391f3e3813993a7b798a56e9c2a9d80bb34d7cf6"
+      "inputs_sha256": "67f23a56ed11cd58130e23df5db16f911113a47d1864a064e0a91ed6cd04c310"
     }
   },
   {
@@ -5648,7 +5648,7 @@
     "identification": "Complete Campaign method at RVA 0x46d080. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "175a3140103a65ce6beadd205cfaf8c49f935d26869161692bd25fe41213b011",
-      "inputs_sha256": "80afbdb3d8f781353a1ba0218ddd729698249083595f9a61080069d579b0b798"
+      "inputs_sha256": "648079b0a517bccb5c6f61f0b69dcc1ca50459714a62910b83913c6227bd56d6"
     }
   },
   {
@@ -5670,7 +5670,7 @@
     "identification": "Complete Campaign method at RVA 0x46d0a0. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "da28ee398c390c2a5ac9e883495988a1a45fad1ae98c56d4183275db44a343e6",
-      "inputs_sha256": "fc689efc7df91000a5de0715c4115e657013c8c8565fec617d811359ae8af683"
+      "inputs_sha256": "4b9828f922c62edd9f414737dc44ba86bb1e2cfb41d31b3f4c7260e8e6572279"
     }
   },
   {
@@ -5692,7 +5692,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46d0d0. Removes the first node and copies its two-word payload to the output. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "0c906e911b1507f384a1ac89ba9ca0d35de5864b0862adf2438ebf70350ef5db",
-      "inputs_sha256": "866554f1eae487be30375403aad855933ceb4074e842e5d6d64bedc354dd159f"
+      "inputs_sha256": "44f880401f5366473b9d2bfa87aaabd96b409de6fd39786e324916c619cea599"
     }
   },
   {
@@ -5714,7 +5714,7 @@
     "identification": "Complete Campaign method at RVA 0x46d150. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "63d8f90e48e096bdf2c07f7e97ca72bc380c067e890067dc82dca39d82d4ed7d",
-      "inputs_sha256": "585697ea0184199161c418df2ae1d316f7930d421a336206e1cbe82bde38c721"
+      "inputs_sha256": "f3506ded874fc919b7e2fabc617acd4136c6bd5a15be734257feded6a8096103"
     }
   },
   {
@@ -5737,7 +5737,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e680. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "8096e37c4e4213720828a8872405ca94b4a686280335dea403f9b8875cbd4342",
-      "inputs_sha256": "404ae88d3c24137d29acb4487a9cb19a388f2b531d34ad6ba67dffda51b3123c"
+      "inputs_sha256": "d85cdb9f11f2c9ba8d6e2d9ca820be172c965a8cda0deb9a65c121013dba177f"
     }
   },
   {
@@ -5760,7 +5760,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e6c0. Removes the last node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "381c860ac1e6b1a856fe0785db46c825a6f2f260ab5baa1e82b0673e291e9e83",
-      "inputs_sha256": "ad2a17ed1f0f25837abf9723ff6138c97b80ddd03f18ad30fe4266f933425523"
+      "inputs_sha256": "7bf7a0fb2eed75589724cbfa6cba2acca0ed8e50ea6593c89424942ec16c552f"
     }
   },
   {
@@ -5783,7 +5783,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e700. Prepends a pointer-sized item and updates the first node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "b324c6c8ec1a9e3c4a2ef438c92527c48adf31c8e233ae3bc3554c2b4b08740b",
-      "inputs_sha256": "6acc13b7c424a5ccf4c6e8a41e22612d54025c3e05caf936c8c7c451934976d2"
+      "inputs_sha256": "e9f6386cb0e759a05079cf25ff677a64f29c49bda2c64c4cc9d641fcd24606be"
     }
   },
   {
@@ -5806,7 +5806,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e740. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "75a57dc684ee3b22ffdbdba91aaa23a60de8e23beb63380922b513be84ce1156",
-      "inputs_sha256": "65ca0e8b819075fb01a541f49720ffa4b51acf4c6513d73fa9da9a4f01fd8d12"
+      "inputs_sha256": "18bd8eb803b485ae362105a94ed22ed1ff7c70f6b34fe33627f0716b9bbf1bbb"
     }
   },
   {
@@ -5828,7 +5828,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e780. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "1d81df2fadbf44c12b4555c1565426ad6f9b6bb170ac982138b91a110b86e8ec",
-      "inputs_sha256": "e6354c77ceb3994685be71869cfb22dff28c9c51bc7877048ee838d68510b64f"
+      "inputs_sha256": "cde6626863a0c2554dabab1175479ab7c980d2b2bf8423fad73a0bc38dd6746d"
     }
   },
   {
@@ -5851,7 +5851,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e7c0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "2d4a7b1c44534311024c6712cc4a45a5807a35deeac1e4398e90f8add0fcb544",
-      "inputs_sha256": "9c080c9ed246a4360f98cb3faf1ee1a1af865d1aebd0d69ef3db07c4c3905e08"
+      "inputs_sha256": "a1087fcbb07df688c122c505319014c7590e78ff83f7a0a1537523d09e8f8cd7"
     }
   },
   {
@@ -5873,7 +5873,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e800. Appends a two-word payload. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "4342ffff6d7a0d447446f8e90ab652dd55724bebf93dd6161cfdd05f259d3c30",
-      "inputs_sha256": "193cdeead8ab48e17228d38183a8f74b25d101db01ed48e43b1d5e9c01a6f10f"
+      "inputs_sha256": "d3f7f55de4b528be16b3bf0171ed41664b4902d8e63415c866cc735f193d5f87"
     }
   },
   {
@@ -5896,7 +5896,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e8a0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "b2735d3ccdbf46531fa9a52300e4a19fe990c0e83e928952e52e1b8dacb6619b",
-      "inputs_sha256": "6352da63c12fe430f3bdf3541faf333925fd23034a0488eac0ec88010a3a8dd4"
+      "inputs_sha256": "65c667a7cb3c119aef1e8387de325d78329fc0c1378dd0c26214b46bb99a86e5"
     }
   },
   {
@@ -5918,7 +5918,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e910. Appends a two-word payload. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "46fad84ca478f5e0a8617029ea1df09b85264f4d85346d61556b03ebda90bf24",
-      "inputs_sha256": "102c15bac75be94f1236878b1d34f8f1fdc3067b72e2dd8eb5371ea4b2ba564f"
+      "inputs_sha256": "44cdaf1c1b3c45223dd64315fcbc46182b7182e1c73b2aed8346c7e159fff6a9"
     }
   },
   {
@@ -5940,7 +5940,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46e960. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "5eb43a03397d6655070998af92996826dd6f88c0451a9b615a5fe211f7f74ca8",
-      "inputs_sha256": "bd7b022830c66026270c7860c03659b81658e72607fc12167b8c4922454b8cf8"
+      "inputs_sha256": "e9f7fa1eb70785e2062bfd196cc86411367b944520de619837a96806d0accd9d"
     }
   },
   {
@@ -5962,7 +5962,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ea40. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "4e9e1ade47f21a0e50d965bac7eac97e554de40794506b738ec3fd4345d473fd",
-      "inputs_sha256": "7212c5a58f1ce530689cd1b9c70ae85667c07bd0719294c925025b6aa3478ea3"
+      "inputs_sha256": "53d977ccf866a75fd5e5e2cb5358b73dab3b3c258af5a75fa83a11a1a7fdaa80"
     }
   },
   {
@@ -5985,7 +5985,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ea80. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "e5da76e32229c7e8a4f8c963b24e32292170d606bd66fe28dd676b9db38e038d",
-      "inputs_sha256": "32d02aa594eeaebdb85147dccbde72d6a24112760aa52db545ef4747421a0144"
+      "inputs_sha256": "6ff2573c04a5177bebb05ef66264daf29027cb44dbcc89469908fc5a083e1caa"
     }
   },
   {
@@ -6008,7 +6008,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46eac0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "448234e8c808d7a98574a7f3ac23efd0b6439cb073b11eb3be573df44bc3fda9",
-      "inputs_sha256": "42ab09a43045ac8d7ba65997dc53579db7709fd0c16104896ff9ecd6c4441886"
+      "inputs_sha256": "4ec149eadb3e5de22100b56be84b9171806838559139e3321d5a1de94c61841b"
     }
   },
   {
@@ -6030,7 +6030,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46eb00. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c8dfb5918192ae51d6dada7bae509ecb6160a1a3b178147c85702a52dd40ee3b",
-      "inputs_sha256": "392c5710644fee0977e463bf13dc575e96942d62fbd6c905fb0eb1d63f760ffc"
+      "inputs_sha256": "3cba147b154c9f04d4feaa79fc2997dbb187a3c748fff8bb2c02c5e56b6eb145"
     }
   },
   {
@@ -6053,7 +6053,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46eb70. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "2d62193ea8df4f70e669b96ee1cd8f11aca7c9dd3506639f2a3d7b62346d74af",
-      "inputs_sha256": "c29564bd559511bf3d0d808a8752939c019de04b7f71f61f7bf00207ec0cdcae"
+      "inputs_sha256": "cdb7bdba739e7d447d14fcfc5fd33a5b566ffea1ddde418a55c1de56e72094c7"
     }
   },
   {
@@ -6076,7 +6076,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ebb0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "2a11e622775f562bcbaa04399ce06e74b190464ca933c0a55638579bd19c5f72",
-      "inputs_sha256": "a970317e055ea387d885c6719da42d0990e06aa8000067039d459131b6ec6e16"
+      "inputs_sha256": "b1e23549d3f18a993b3f73e460143c73f8916c1107fee0d5a2ded6a890101664"
     }
   },
   {
@@ -6098,7 +6098,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ebf0. Removes the first node and copies its two-word payload to the output. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "8c440758f2a23102d9fab5d31cc1edfcd4af8af6c6449449ddccf483cc8e9486",
-      "inputs_sha256": "b8f0312e519aa7395a2e804b69e55c4409c150000c6faf7d6b5f7d39ca193f7a"
+      "inputs_sha256": "c068dbc9412231007db398207e1e7069214c9fcce9a2aa75b28dbba5d149decb"
     }
   },
   {
@@ -6121,7 +6121,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ec30. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "1712a8e5a1c1dce979a49aaf0fa3e97cf95b9079a14538bf4c078c3acd5dc355",
-      "inputs_sha256": "2d4d4cb06204e65a53aa79d0775600130bdcfb5ae2711d55c836b7c78b546a79"
+      "inputs_sha256": "1ad7a5f813a8a72eec03eef5c12ec97f48abfab1a523ecbd87cee8515a92ccf1"
     }
   },
   {
@@ -6143,7 +6143,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ec70. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "7b540a78417e8c4be3f9ea1aa23152b21625f3c035d245d3b0aa5cef36c0cfde",
-      "inputs_sha256": "42dee758d3274fb2b7901b7bf265990a0f94fb864bac6d12ea037e81bebfdb09"
+      "inputs_sha256": "dd6a564ca114274cbe8ba8955453409c1a2729f16d63a3e9942bcb507db74866"
     }
   },
   {
@@ -6165,7 +6165,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ecb0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "1ba540675479df5693c5b74df8b3fb60545b06637d4350981c9ca8677eea47c9",
-      "inputs_sha256": "bd59cbac59080e2ba7e4f663cbf54345919349d320b58e9c1e9d6829621a75bd"
+      "inputs_sha256": "d6333bab0b75f366d72e4b7e1d9d8e3faad2665bd3470f868376912b4340c836"
     }
   },
   {
@@ -6187,7 +6187,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ecf0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "e7aabb5e9eb39ab1a54f200bb5c9591d55b353baaae03cdbe15608944409cacf",
-      "inputs_sha256": "ad4f0b2adca5607398892ad880645c31602df945a2c7fe589b3dbbe3f555ac6b"
+      "inputs_sha256": "6ff00df330ebb16252f1e0949e366085befbf2e68843bd39aba313c5144e157e"
     }
   },
   {
@@ -6210,7 +6210,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ed30. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c211b635dc3e4c968b0d7a7ebeea1e1749c72a24ba917b5beec446827efe627d",
-      "inputs_sha256": "3d76f02aedd1975c8f4137ae38a2d05b574c234261a7584dec437856777a7e25"
+      "inputs_sha256": "c93bd87b5a59a549d4e5113f3ddf54763df4a27b2033f08116e3095a5bcfa5ab"
     }
   },
   {
@@ -6233,7 +6233,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ed70. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "979250db4e11d90528dcd6f4e3be4f479acc8029b24c606bf7768e973c77af5b",
-      "inputs_sha256": "7ed21840107cad99eec165b2ea0f157af83803f5a58630214bba424f7fbb80ae"
+      "inputs_sha256": "9df01c9d5ed225f522698096d09bed1b5ccbca7e52c29662b35f2676652d6741"
     }
   },
   {
@@ -6255,7 +6255,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46feb0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "504161bb24fb0169966429b6fe6dbede48a1466c1859f0c182f514267362144c",
-      "inputs_sha256": "f4906f79e04ea844385ac22f121a4dc9d4ec72cda30fb29744151653d05513ad"
+      "inputs_sha256": "efbc06b5e66be5453079f314bc83ef8c5cbccd56649e04e1ce8d5744207a04d1"
     }
   },
   {
@@ -6277,7 +6277,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46fef0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "dd2ae96b3d83058d9ce7b60f93bd413741e2d3f733f500b5752700d54c64ea07",
-      "inputs_sha256": "c9979ced51d1481f86ee4519234ca05095374d0275fa14187853436ed3ccccad"
+      "inputs_sha256": "78534f1f51360f7afb8d16255ccb6b2a355fb9fecca81fcdf892c52cb67992c4"
     }
   },
   {
@@ -6299,7 +6299,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ff30. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "4b9d598e64cd3ec4c3158754aa3a4fae91170c0d91957c8139897d541342da65",
-      "inputs_sha256": "c5427f0407be8b0b6a2704316d7baec1d4fcf4d323bb04ced9a6da0aa577e4ae"
+      "inputs_sha256": "f486510ea9296d54f06433d859b4d81fab275f038e397c630dabd32d7831da34"
     }
   },
   {
@@ -6321,7 +6321,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46ffb0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "f97c58452bd89ff50e8c6377fdfa47bf19b133b5d249cdaedf576ae044b7548f",
-      "inputs_sha256": "1d56b59fe2ad36afee6621b146f57e474f908f54eb31e9eadff4cc3bc1cd038f"
+      "inputs_sha256": "6ce92d49459b4308896f34fb1fdee243bebbed18800caa16fa1303d006a82b63"
     }
   },
   {
@@ -6343,7 +6343,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x46fff0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "410b8bd6cc66efc9d4ae938e0e993bb28b5426d400148435946a6eeccc9ce615",
-      "inputs_sha256": "b63ea35f233e92e0af1ccce76335fe63fd126677f6a7a529fc3ed48d7f5124cb"
+      "inputs_sha256": "f1437e262949578bab8c8669fc57b4dbfa6cf91d4842fa215a39132e423581be"
     }
   }
 ]

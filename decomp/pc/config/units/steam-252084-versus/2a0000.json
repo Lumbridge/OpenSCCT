@@ -124,7 +124,7 @@
     "identification": "Method table references RVA 0x2a04c0, which calls the destructor at RVA 0x150a40 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "581ce18ee789e46b4b9be9a72273e42c2a08a3b101a645413b1b40c01baeb985",
-      "inputs_sha256": "e0282c992b00ca74d6e42e6aa68d829e5acc43fa77881c030a7765c82891febc"
+      "inputs_sha256": "964f6c402a120dcb7c2448c1e9cead279a801bb1ff779a09f148a91c7a854caa"
     }
   },
   {
@@ -150,7 +150,7 @@
     "identification": "Method table references RVA 0x2a0520, which calls the destructor at RVA 0x2a0030 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "481b225b504c7c663b8175fea578234cc7f44482f1e5c839c96742f4a5843b32",
-      "inputs_sha256": "f5b26a098f1cbafe2e1af94ee1c156ac1848d08171a0c5f385f9319a68e1e9de"
+      "inputs_sha256": "c71767640fc894d5154a46582c2b0b43967b783e81f621a3ad6828e053eae859"
     }
   },
   {
@@ -176,7 +176,7 @@
     "identification": "Method table references RVA 0x2a06a0, which calls the destructor at RVA 0x2a06c0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "cbfb1bad509119aa2e82b899f562e20588437a57ea4d66ec9ce670cd5537bc67",
-      "inputs_sha256": "a12b54a6343660f23cd1774ffe7f8c50e445bafee963bd52db123b9a589646c2"
+      "inputs_sha256": "d5b504064f3ef454a6b38d9a05e026f0f0a7407d87e8b997eb4f9373ce8bfd7b"
     }
   },
   {
@@ -236,7 +236,7 @@
     "identification": "Method table references RVA 0x2a10b0, which calls the destructor at RVA 0x2a0cd0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "0bbfb54776fc804ab22245c3ec6651cc5d346648ca8b7aeb2510fd70236bbac0",
-      "inputs_sha256": "2a976bb5c54e3aae83de073732fd34230c4bdfbaf72047ef69a8df24cfae7c44"
+      "inputs_sha256": "b3a84215a032480197a8b9e965ff4a3986db4a8515b4c3532133e1eb13719e47"
     }
   },
   {
@@ -262,7 +262,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x2ac8b0 before installing the methods table at RVA 0x2f0d08. Its first slot points to function RVA 0x2ac8e0. Returns the original receiver.",
     "match": {
       "bytes_sha256": "29251693c2856642ab4ddf172c2e74697e11a6ccc84663302796c2787df95293",
-      "inputs_sha256": "3b8b6ef68ebcb0ea42e573ceab3ed8d5c490254c66225eb0f03910c641a36ab0"
+      "inputs_sha256": "feb946dec2914a2417bc24641cd1e61956f4f027423d543fa774ea62480785fb"
     }
   },
   {
@@ -288,7 +288,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x2ac8b0 before installing the methods table at RVA 0x2f0d58. Its first slot points to function RVA 0x2ac8e0. Returns the original receiver.",
     "match": {
       "bytes_sha256": "1ac205e2374290cc49f8a3f2cc80536d9e258d9e2617b45917616607ae64e006",
-      "inputs_sha256": "9f5353564ff2e3ddc51dc6bf2a4d501427b3a66210d934f3b59204efb4859909"
+      "inputs_sha256": "db7989f38acb2b65384bec79604f1237466e184ec14125448c64d334fce98353"
     }
   },
   {
@@ -311,7 +311,7 @@
     "identification": "Complete indexed Versus function RVA 0x2a17d0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "5d9499ed79284f8db94598c7c7e55a8225b57a6ce6b78abe081bab9f344f17a1",
-      "inputs_sha256": "87b428aa73afce118179accce9626e21bb6c1cf5d97a4c14c44501bea6db1fc5"
+      "inputs_sha256": "d6e5fcddeddfead512c11f79b87d4adf146bb8f510ad8123c98c26dd5a21c283"
     }
   },
   {
@@ -337,7 +337,7 @@
     "identification": "Method table references RVA 0x2a1850, which calls the destructor at RVA 0x2a17d0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "39bbd8739034c9a8871e7141d8c540c442c0eea520592ff8ae01f01f322a2395",
-      "inputs_sha256": "d596e43f7eb3bf6359537ea0890c1aee752a565592484cea59ac2aa63be93109"
+      "inputs_sha256": "7e7aa3dbee4f98f4604c3758045b0cf9b4c1313f7d749309be5c1d890929ed02"
     }
   },
   {
@@ -411,7 +411,7 @@
     "identification": "Method table references RVA 0x2a2a80, which calls the destructor at RVA 0x2a2aa0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "923869986508f7f2a712c79ee0f67de4eb001b8f3dba9beb7785736258991112",
-      "inputs_sha256": "991dbb37d83cf40d329275d1d8ddded5be39bb7da5309a774b29db64727d32ce"
+      "inputs_sha256": "93b1dab5271becc705827db324e4beade749fdceed8de11547e1533f090e04c9"
     }
   },
   {
@@ -453,7 +453,7 @@
     "identification": "Method table references RVA 0x2a2c70, which calls the destructor at RVA 0x150c40 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "a11448bbfd7569b7bae3d22367db48fdfb3d82d956a906de0069bc06f773dfb6",
-      "inputs_sha256": "db7238753a331ed149e4786a50fbe374f71153ecc888bd7954f2abb547b8c4f2"
+      "inputs_sha256": "6d27fb23a31773570ffc64accb4ecbdce7e5b41abcd9f1ade4e59d1e4205ee3d"
     }
   },
   {
@@ -507,7 +507,7 @@
     },
     "match": {
       "bytes_sha256": "fb17382bd7500a90e6d84176500e81aaa2c3dae4bf4b1802ea1fd96b973f42af",
-      "inputs_sha256": "4adf22d6842203f28e8987347eb694d5cbf6f107e820bd4237b7ff2bd49c4cba"
+      "inputs_sha256": "e1dbdfc50ecc61231367e7f61d02ee66046e3e373b41d95a3054c0445a00f584"
     }
   },
   {
@@ -529,7 +529,7 @@
     },
     "match": {
       "bytes_sha256": "7f1e076e651e6cabd5437bb05c0a9af2b955bc8d56326c8c2898c86669037c00",
-      "inputs_sha256": "1e7d98fcf1ac5e6939053eff35ad91b0aed140902de8b279045906cf0ad4e813"
+      "inputs_sha256": "61bec01a84e6d922d322cb0abf2b368859b3e76897d8d74a685109692e646928"
     }
   },
   {
@@ -575,7 +575,7 @@
     "identification": "Complete Versus routine at RVA 0x2a30e0. Destroys and frees the global UI service before clearing its pointer.",
     "match": {
       "bytes_sha256": "69db8a46dbc71a9b25308f4e74a87c969518069803add9c8289348f94de57d81",
-      "inputs_sha256": "6ceed8afecb914398dae18c17a6a8a382970cc89be58521cdb98765207f06539"
+      "inputs_sha256": "3b5d21b13ec350213c1cd37693227f7e952baddbf3526d4e3d8aa962d5a7019f"
     }
   },
   {
@@ -617,7 +617,7 @@
     "identification": "Complete Versus routine at RVA 0x2a3140. Runs base initialization and initializes the method table, mode, count and owned storage.",
     "match": {
       "bytes_sha256": "0993e8820489041bbce5532afa2dc85c97ad2a0c2d67f3ff22b0f3f34507ec79",
-      "inputs_sha256": "81a6ee0df2594279e6802dfa60b8410d2ab34ea59e97a2d63e136dfdb1d2116b"
+      "inputs_sha256": "d8b40ff9fa8f375fa503b0e06f7c1c8d3845a2e635ab8373188152a09ef26783"
     }
   },
   {
@@ -639,7 +639,7 @@
     "identification": "Complete Versus routine at RVA 0x2a3180. Frees each item and then its owning pointer array.",
     "match": {
       "bytes_sha256": "318d7c91599edd340bde1946b6614efecda900c7cf4d749ddc34fd833b7fc876",
-      "inputs_sha256": "e306c0364914f0f93ac4ccb7041828cc172ffbbf3c0a92cb2af5c286ea91ff19"
+      "inputs_sha256": "abb1b84c8d7c0b1238a1762011d101ba3f61f44a511397f166d4a20ade802a8d"
     }
   },
   {
@@ -661,7 +661,7 @@
     },
     "match": {
       "bytes_sha256": "04e774645e5018936a623b5f20a71d929fd47101c027dbefe59015368d792094",
-      "inputs_sha256": "ec0b761f7cb64a3a677b715ae2daf778c18c171d20318ab4f20828166c283ebc"
+      "inputs_sha256": "f51271678d50336aa39eff4680f46ded941a4e4b9da07b8d44a6933a58df12f3"
     }
   },
   {
@@ -703,7 +703,7 @@
     "identification": "Method table references RVA 0x2a3770, which calls the destructor at RVA 0x2a3700 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "fb55121d885ac34d9e164a3a0acd0e8ddfff34e75fc1115451a285d5e3fa5fc6",
-      "inputs_sha256": "0266ea2404b75567e8a48acc3e902d51ac086ae7b7b6c99272f00ddd793d93bc"
+      "inputs_sha256": "c0f02daf086c394b4673a769944d637605a6edec04ef4940ecab3cc560c7179d"
     }
   },
   {
@@ -745,7 +745,7 @@
     "identification": "Method table references RVA 0x2a4400, which calls the destructor at RVA 0x2a4220 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "3068aaaf8cf834ac9995a5d2a62e31f476a22fa2f266193e99c3e721e593f154",
-      "inputs_sha256": "a3ce1ca945e9e78069d0bada387ad813996c01568ff830227c2f3ca12f2b3736"
+      "inputs_sha256": "5be4b3dac19b58f83bfad493e0c5055ddfc3e1da596e4241b3aacb249cdafcc0"
     }
   },
   {
@@ -787,7 +787,7 @@
     "identification": "Method table references RVA 0x2a44a0, which calls the destructor at RVA 0x2b7660 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "e4d7f10295ab14cb1c682e7b76eecdd8c10ddc7e9d627d2eb5017dca1a58ecfc",
-      "inputs_sha256": "0709c7bc1747f69abe966b3d2f5a95720464e82d67a8f05e4513644e3df34b40"
+      "inputs_sha256": "81b5d922ca9c09ce1d00aaab3d7a6a77c93fbc4ecd44c0e98038ca5b419371de"
     }
   },
   {
@@ -857,7 +857,7 @@
     },
     "match": {
       "bytes_sha256": "b52150c24c572b740db854007400f4cf35c0f267dac927501bd06c5c64979754",
-      "inputs_sha256": "8189edd2b12323e66d298708d43b6135d940aca1b32c5e9b5f867e41e2652f5a"
+      "inputs_sha256": "b613be7a2d16584ae6be5704efa5d9c10d10a81b7a5453ae5092675f3fe9d886"
     }
   },
   {
@@ -899,7 +899,7 @@
     "identification": "Method table references RVA 0x2a4ff0, which calls the destructor at RVA 0x2a4e90 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "8edd0211231bf571500cfbe3985f0f41c83c08daf1f1a2098d66d1594ccc8b00",
-      "inputs_sha256": "3f0fdcfe596e46a006edb1869222e6cfead66770be930dd1b5e2935f33219796"
+      "inputs_sha256": "d3b8e1fbb37a61b9b33b370640494e16b64a6b28a19a4a77df1b74d6a5513e66"
     }
   },
   {
@@ -988,7 +988,7 @@
     },
     "match": {
       "bytes_sha256": "6b369df11ce9c9da0c6514a530c9b3e91a17f8257f2cb7f5aee0773e13787d96",
-      "inputs_sha256": "0e21dd5a85623659343d8fdfd94967e55a8345f6fdbe9345a9e3f09e51962ba3"
+      "inputs_sha256": "20b8817bd66747a4cf3a6dcedc977688e2539cf438648d5d05446c4e30a9f78e"
     }
   },
   {
@@ -1010,7 +1010,7 @@
     "identification": "Complete indexed Versus container storage cleanup at RVA 0x2a5730.",
     "match": {
       "bytes_sha256": "54ac5d49952aa38febf1ed11d8eeba3557399e16d3a605e27ef5aae0b5149008",
-      "inputs_sha256": "ac33d22e0b6b3ee292ebc940485f4c7335381fb0ce1b2ea60b3e26324d78bbcd"
+      "inputs_sha256": "11589adae524bc7578c9f086b8758b36811170a5d3e074c565a538e85a7f43b5"
     }
   },
   {
@@ -1036,7 +1036,7 @@
     "identification": "Method table references RVA 0x2a6720, which calls the destructor at RVA 0x2a6330 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "499eaec50163d111fec6722a7ec795c7286c0b82e007a41d8fddda42a944c5af",
-      "inputs_sha256": "4dc73b0001b637f98d7296793de1848335981010b5e09cd009885cac6114dce8"
+      "inputs_sha256": "6659b91fa5d5f464c1e4edae7e5c9c2f2ea16ee915221904e311ab9349b87dfd"
     }
   },
   {
@@ -1053,7 +1053,7 @@
     "identification": "Indexed type predicate at RVA 0x2a6830. Calls method slot 3 and accepts type IDs [1, 2, 3, 7, 8, 10]. The complete code contribution includes both compiler-generated lookup tables.",
     "match": {
       "bytes_sha256": "2f2827fb71923afa6411597b002be29050368e6a693b228f9df9adecfcc07a4b",
-      "inputs_sha256": "6dfb797c7792b9c2cb6c68ad5dc0e28bcf887261fb0f0d941f2f668cb1970c91"
+      "inputs_sha256": "04f0dabd32504e1d0f31e86788b906a82adac294c71d1d2b69433c81ff670425"
     }
   },
   {
@@ -1070,7 +1070,7 @@
     "identification": "Indexed type predicate at RVA 0x2a6870. Calls method slot 3 and accepts type IDs [3]. The complete code contribution includes both compiler-generated lookup tables.",
     "match": {
       "bytes_sha256": "fd319af5825d296d31af6b27df6621aa01f4a5d21eb69285593e8f7ae9e9e729",
-      "inputs_sha256": "8a4c687d565b4fd9eb92cde3b86b5da242365653e0eede13187dfc6f4cd62b7c"
+      "inputs_sha256": "b77a884650b45eb77be86937766feaad371b2b9b1ee35c95b780d9b6fa023665"
     }
   },
   {
@@ -1092,7 +1092,7 @@
     "identification": "Complete indexed Versus function at RVA 0x2a68b0. Returns a UI name from a thirty-slot row.",
     "match": {
       "bytes_sha256": "ae755d828abdd1c5c5ebefb55be653253bd69e5975b2471b5e9cce14d297babb",
-      "inputs_sha256": "70ef62e4c49e93d236eb6e1cd30a0ce1805eb5b70878d1633890eac758fdf899"
+      "inputs_sha256": "79f4f83d2c0b6c0c744060a60c8e14aa5b24109b46b245f17313748fe5dbdc63"
     }
   },
   {
@@ -1122,7 +1122,7 @@
     "identification": "Complete indexed Versus function at RVA 0x2a68d0. Performs case-insensitive lookup within a UI name category and returns -1 on a miss.",
     "match": {
       "bytes_sha256": "57383b2ecd51b20ce76d635873918b4768c9ae6a7d5baae60cb7713949a99cc9",
-      "inputs_sha256": "96734f17c12a3ecb60b4f00a5c1cf206125ea39cceab41e22c09758fb679a5b8"
+      "inputs_sha256": "48bad218df75f997641bdf198f238571b1140116930884a0beba74ba90a7d0b7"
     }
   },
   {
@@ -1139,7 +1139,7 @@
     "identification": "Complete indexed Versus function at RVA 0x2a6930. Tests the type ID against cases 4, 6 and 9 using two local branch tables.",
     "match": {
       "bytes_sha256": "02e457792304fe9517f118a47acbb03e025081c50a1b638fbdebb39a3a6aa834",
-      "inputs_sha256": "b9f2a63fc902f9b0754d484f48cc077653b602413699a293004c2d7d17abfe03"
+      "inputs_sha256": "cfdb6f447dfbbf426c7c3ac80ce9704077a595dc86fc640a3bc8d6601b470ac9"
     }
   },
   {
@@ -1161,7 +1161,7 @@
     "identification": "Complete indexed Versus routine at RVA 0x2a6970. Searches a sentinel list by case-insensitive entry name, handling inline and heap string storage.",
     "match": {
       "bytes_sha256": "c61104801f0b7c940c1592b896dc786f9378687ba7bd3f5d4029b7ec9e0ac807",
-      "inputs_sha256": "4f1b0ec22f5a2d987522a1966605672ef7bbecea89d179eeb22093ace18902df"
+      "inputs_sha256": "841077b3e1c03f380f4036caddfc9c191276bca085b9653e7a0d184820a3cafc"
     }
   },
   {
@@ -1231,7 +1231,7 @@
     "identification": "Complete indexed entry-selection routine at RVA 0x2a6d60. Stores the first eligible entry with flag 8 set.",
     "match": {
       "bytes_sha256": "e1e8ea80200d54eeab53eac71b867eec50c0ddc52b27ce8bfe17a71b37628dda",
-      "inputs_sha256": "20480a247d0cd5448f118f929173e9e28a4565c799d23cf5b109951cd6e774da"
+      "inputs_sha256": "35ad159a51470c8d8df46503666f13ae09ac0bd30a5fed727365c3788d637d08"
     }
   },
   {
@@ -1253,7 +1253,7 @@
     "identification": "Complete reverse-order hit test at RVA 0x2a6e70. Asks eligible enabled entries for their bounds, tests both inclusive signed coordinates and returns the first hit or a null pointer.",
     "match": {
       "bytes_sha256": "2e2c8e5277a3fa89efbc6a6a74cc43be014fe456486da274e73d644d15458e80",
-      "inputs_sha256": "62a34e7e9323feaf305de1ded4a3240520cd958fe0e055acbaf0c22a1dba6937"
+      "inputs_sha256": "7e121b71689a4bfcde067deab097298ec34961b4ac5f2f2467e8792960c535db"
     }
   },
   {
@@ -1275,7 +1275,7 @@
     "identification": "Complete selected-entry dispatch at RVA 0x2a6f20. Calls handler slot 8 after preparing the entries, or returns zero when the owner has no selected entry.",
     "match": {
       "bytes_sha256": "95bc0712d239acebbdb580dc1f3f7dc58df776896632155883a5050a84f8db8d",
-      "inputs_sha256": "14936e52c64c9b29ccbef3c3374e0da5d33690db16f0b2a6eabaa35042e97543"
+      "inputs_sha256": "12fb19c413833bd2c429b9d9571661db34065831a2b322d3a8372f54c30f0152"
     }
   },
   {
@@ -1297,7 +1297,7 @@
     "identification": "Complete selected-entry dispatch at RVA 0x2a6f50. Calls handler slot 9 after preparing the entries, or returns zero when the owner has no selected entry.",
     "match": {
       "bytes_sha256": "cf2616b25e82b82722c9abd3fd6debd9b73a124871fa550626acdfaa0b8fb4c0",
-      "inputs_sha256": "5b34b442feae2390669fcc09b374e07b12497e2e65177b74bd5e8e28e06ecf06"
+      "inputs_sha256": "f2e26e4f4183d13dc3f7d82721753ac5b9f82107b8ef096743111d4374b883b2"
     }
   },
   {
@@ -1367,7 +1367,7 @@
     },
     "match": {
       "bytes_sha256": "ddced988de5a63a916cc120c146070c3d8cd729efca02c156b6c7056b7e39af3",
-      "inputs_sha256": "79cabbb785bbf8a5764ba92d9b7c23cb6021df7cd04573e366a29a37c12bb334"
+      "inputs_sha256": "8426473988eef0e5306bcdc8ff3153dd31334c78726e837e4ccf2c82b6dae755"
     }
   },
   {
@@ -1393,7 +1393,7 @@
     "identification": "Method table references RVA 0x2a7710, which calls the destructor at RVA 0x2a7730 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "95815c415970a8f852e2109cb8854c79c1cc19f32aba00ff7f5eaef7633015aa",
-      "inputs_sha256": "ca7cca5b491677244e0cf22fca0c4b5a5f333b2bff4ed736356944c1004b276c"
+      "inputs_sha256": "1b14c4ab1b33a97283d71f009625a5473d1b15398f01c1edbf0d4b213cf71641"
     }
   },
   {
@@ -1691,7 +1691,7 @@
     "identification": "Complete indexed Versus widget action at RVA 0x2a7e30. Updates widget or service state before invoking the corresponding listener dispatch.",
     "match": {
       "bytes_sha256": "7aa6ce8719981c81c273c073db5ae8de2a7e9099ebf368f8c55381459ff4298e",
-      "inputs_sha256": "778382c5d46ea7df31932cacdae27132d189ab61025c19e17e8c17884e217d6c"
+      "inputs_sha256": "99598bb65a7ec910cdddff627169e982b292478904da17040e81391828f1f1dd"
     }
   },
   {
@@ -1713,7 +1713,7 @@
     "identification": "Complete indexed Versus widget action at RVA 0x2a7e80. Updates widget or service state before invoking the corresponding listener dispatch.",
     "match": {
       "bytes_sha256": "df94ba0576d7a2a86e2acf3f40bfbdaac33fa7bbcfb372c284a5bff6a03185ec",
-      "inputs_sha256": "a3bf0e2559a92709ab168ea9745b44324837c4117446f0b2eccf352b0e5ff009"
+      "inputs_sha256": "e094c284688d00dfffb58cfa98d0bce29477e2a2c3fec1cac6d8e78ed6fefab7"
     }
   },
   {
@@ -1739,7 +1739,7 @@
     "identification": "Complete indexed Versus widget action at RVA 0x2a7eb0. Updates widget or service state before invoking the corresponding listener dispatch.",
     "match": {
       "bytes_sha256": "191a232329317fb766d878e87d2e1078b4c70317f86eba370a94d83dec4b0237",
-      "inputs_sha256": "8fbc55dd363dee5de745217a6f064c118b1444aa681d28e90fead5a1ed70e6ad"
+      "inputs_sha256": "132f149866c06e495230fbb2cb17da47280c7bd40c8c7bef365d914dc38ed10b"
     }
   },
   {
@@ -1765,7 +1765,7 @@
     "identification": "Complete indexed Versus widget action at RVA 0x2a7ee0. Updates widget or service state before invoking the corresponding listener dispatch.",
     "match": {
       "bytes_sha256": "06af59a543803f5f1ab4b9fd58f27081bd1cde2269bf6f4823ae7e812f91b4b8",
-      "inputs_sha256": "a936c5b378494e53343cf8a1d214ee4df760b53214763077478888cdc220b85e"
+      "inputs_sha256": "428c96e7b74e0c15977f76073b73e5f4ac74192a7de5b777b27032e7d8656601"
     }
   },
   {
@@ -1791,7 +1791,7 @@
     "identification": "Method table references RVA 0x2a85c0, which calls the destructor at RVA 0x2a8490 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "a046616a70efba26b276736afc7e53bf78b4726b43b3e5acae0850f89156adb0",
-      "inputs_sha256": "acf8f5359e2e0e53354cdc6135da91a5bf14a151cd34198f1cded2b3bc0270ee"
+      "inputs_sha256": "4c04a45f8ed10962c0d7ecbed5a4573a8e3fc123bbb90176140c1dbd53bfce9c"
     }
   },
   {
@@ -1913,7 +1913,7 @@
     },
     "match": {
       "bytes_sha256": "7a7dddff851e427c92ef851c4297bc4cda7289a94e22bbf017342f211accef6e",
-      "inputs_sha256": "867a6d9bf9a32bc5b21b57b79b23805f8af6b2a2d59d60cda9b34bb26803c1fc"
+      "inputs_sha256": "d261c85626fd6f3ef14bec16da43dea65134d37cbdd81449255cd3c8df3a2495"
     }
   },
   {
@@ -1951,7 +1951,7 @@
     "identification": "Complete indexed Versus control hit test. Checks two rectangles and selection bounds before falling back to the entry hit test.",
     "match": {
       "bytes_sha256": "f0f6ec3a95b1efc6843a579a9939b1017fa488b5179da16998233996f2745547",
-      "inputs_sha256": "79a247a9dc5e729eeb141e0087e896b8119c91a7096e58ccef7a298c89090aab"
+      "inputs_sha256": "0163e0408b1c0d12e54a7e61688fa772f0b14a007db30ee6ae35b4f7879c3479"
     }
   },
   {
@@ -2014,7 +2014,7 @@
     "identification": "Complete Versus controller index refresh at RVA 0x2a96d0. Routes nonnegative indices and special values -2 and -3 to their corresponding helpers.",
     "match": {
       "bytes_sha256": "7b771be9e7d3ac3ff4846b1831530b3191c2b3591b21d7e07e69556736d9c8fd",
-      "inputs_sha256": "b8941ed2a80c80813c6a70b0a66ac811ed6b84d2270293fd14de64335da70ea2"
+      "inputs_sha256": "b3dfcfd4e70d848525a0e343e53bc1ac799d1ad817b55589cbe33d78c5835783"
     }
   },
   {
@@ -2036,7 +2036,7 @@
     },
     "match": {
       "bytes_sha256": "b51d2028486c494d7ce2e8726e0c35adcf4f2cbefd1766253c412fd3f05d108c",
-      "inputs_sha256": "6f0ba8cf6f31582b447ee3aa099ce57030719dc4f50fbe17bc2916e1d268312b"
+      "inputs_sha256": "88d47f8f61d502fc2df106e59314d68b1a0bce6b97eac26baf206271461a6125"
     }
   },
   {
@@ -2058,7 +2058,7 @@
     },
     "match": {
       "bytes_sha256": "ba060adf6f25492b89f6c394aed57409984afd95a39e024d67007a20e6bab71d",
-      "inputs_sha256": "d3abdce700cfc2af3a6cec8f18a382779173d36928a89886c79d1e1e9f8fff6e"
+      "inputs_sha256": "2f35465d4b376945cd4cdc2e2f98c2fad20b31d25a9f7e851f96fc2f2e704df5"
     }
   },
   {
@@ -2080,7 +2080,7 @@
     "identification": "Complete controller index update at RVA 0x2a9a80. Refreshes the old and new indices when the second index changes.",
     "match": {
       "bytes_sha256": "842b7dc13d720f3e892420e90ba3213248bc34b26105b1b035a97d9224bce11a",
-      "inputs_sha256": "ae8ffa8e3ec4449017d5f3156807adfef84986d4d4040d2612f48ea2d5ad5842"
+      "inputs_sha256": "0f6d83b02fb7a5a2356c544f11c1e05dd5ff8370cbffb0de38f037a24dfd331c"
     }
   },
   {
@@ -2102,7 +2102,7 @@
     "identification": "Complete controller index update at RVA 0x2a9ab0. Refreshes the old and new indices when the first index changes.",
     "match": {
       "bytes_sha256": "356c6a52800833d5d632cbcd80878f8674afe16e85f8f4082e345f1618dfeac5",
-      "inputs_sha256": "a2e86fba4773acc53ae8115403dd53832e2083500d2fb6e2dc29d863941905a8"
+      "inputs_sha256": "038c24734aaa29d18d59c46c0e67811221f8b93ef6691410fe58db1ab1dc5a13"
     }
   },
   {
@@ -2124,7 +2124,7 @@
     "identification": "Complete indexed Versus container storage cleanup at RVA 0x2aa100.",
     "match": {
       "bytes_sha256": "b5bd9624a1523df2304b388a943dd64a6f68adf268c74f49e724652deb61f4b3",
-      "inputs_sha256": "081eb014a3fa0e76febcfcc1c1d1d6c47d9f142feb6d3141b0a7850bd60a5926"
+      "inputs_sha256": "557cb40b72abe70f4e6bea5fa653eb407b216651f6575dc8a1178bbd6593d3de"
     }
   },
   {
@@ -2146,7 +2146,7 @@
     "identification": "Complete indexed Versus container storage cleanup at RVA 0x2aa3d0.",
     "match": {
       "bytes_sha256": "adb8f341213d21a54d6e471da598a5179f2c47a7932114126067c03b9b06a545",
-      "inputs_sha256": "d61311631bd4b358ea3cd90a22d0b75d79d0bce4e9f76e4cdbc1a2ae87ce3c29"
+      "inputs_sha256": "e2f20d23eb52c99ad2b75d38335192ea996d8d50623783a30f328451a794cd9f"
     }
   },
   {
@@ -2172,7 +2172,7 @@
     "identification": "Complete indexed Versus container storage cleanup at RVA 0x2aa400.",
     "match": {
       "bytes_sha256": "d82e4e05be3cf90377a350d484cce60d5af85b0cd930d36f1132087ba18611ee",
-      "inputs_sha256": "210de8edd545476819227edec8439c0a89d3094188da14fbf47b1a3b877f64d5"
+      "inputs_sha256": "767a10302b523352fd07d76c9f33edfd6846f281d3a997d8ee0c3918e13d99ad"
     }
   },
   {
@@ -2194,7 +2194,7 @@
     },
     "match": {
       "bytes_sha256": "3bdb36014f7401251852415a396e774bae5c919bb82d172094840eacdd5c6d2d",
-      "inputs_sha256": "f8f3f6e1e059adb72084490dc142e9860b2557ccf9e26474711b055ed91a1e1f"
+      "inputs_sha256": "a8d66c0af3f1adb18373634d530674fb82d55b96767a82b7cfba6f2d36f4d810"
     }
   },
   {
@@ -2220,7 +2220,7 @@
     "identification": "Method table references RVA 0x2aa9c0, which calls the destructor at RVA 0x2aa9e0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "4c8d5c491cc61a64b1dae8aca1ba05bcec843263cafb822bdafe731346c1e958",
-      "inputs_sha256": "cff57b4fc3c73e4878373c8d8cb59a4fbac52ed8f05fd555c291c711e79f9803"
+      "inputs_sha256": "8f9d997c5222e05af8a1c4c76a2b4c33641bcac91471cd5f829ad55f97f5aafd"
     }
   },
   {
@@ -2246,7 +2246,7 @@
     "identification": "Read-only method pointer at RVA 0x2f149c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "11aa3d228af45db685e690892bccaf8233e4fdb6ecb31cd531e4e1c06d49d784",
-      "inputs_sha256": "dd048612a6e6874ec3f8ae3c899d2425d2e4cc7428142837b3428775c9d137f7"
+      "inputs_sha256": "f2303b7a30f5a18b8364322cd97707c9d951a780e83dd698191787f4749d8d28"
     }
   },
   {
@@ -2272,7 +2272,7 @@
     "identification": "Method table references RVA 0x2aac70, which calls the destructor at RVA 0x2aac90 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "8b591a34f89cf408487d3c850320d1fd8cc50aa44f70ef7b1b04d7385b688195",
-      "inputs_sha256": "c2e5081602e4232eb72c55eb0981bb2772909b527848c8a0a64dc6fa77876a9c"
+      "inputs_sha256": "a2408ed155bc48566ec9cca10468a6ee4f70f4fe017cac821fe6143d189d6776"
     }
   },
   {
@@ -2295,7 +2295,7 @@
     "identification": "Complete indexed Versus function RVA 0x2aac90. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "9af9da395a084e52dd088e7e43c1d22aecb2f5d954a0ef2a111bc5b56412b313",
-      "inputs_sha256": "81818c4fe056ea269ef3bfdb1220218b04ff02c55923c8da03ee6ad5233ab2aa"
+      "inputs_sha256": "0ee8474484b34cecdb11252a035ce115939fe2d7bfd092822e650dcab7b0ecf9"
     }
   },
   {
@@ -2401,7 +2401,7 @@
     "identification": "Method table references RVA 0x2ab7d0, which calls the destructor at RVA 0x2ab6c0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "ab753995a7e7dab59c2ccf2162c3fec37de90beaa1ed3448faf97392b7611a46",
-      "inputs_sha256": "00e26a6d5aa857baef0a7ff0fcfe90048caeff91e092273f3cf0295805c710ae"
+      "inputs_sha256": "73334d41adca6c9bd816a2f1a959db2981b8f0eff851aa4b26200e291f8c43c9"
     }
   },
   {
@@ -2476,7 +2476,7 @@
     "identification": "Method table references RVA 0x2abd70, which calls the destructor at RVA 0x2abb70 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "4c99a29dbd516a5a2f8bf6410402f26dc625c078473934650b8871b686d31ecb",
-      "inputs_sha256": "0f096b5acbae37d1cc8606345e30acdb6af58329b363ea7e07c4e16886c7bc76"
+      "inputs_sha256": "2e71107cd4c58c99c03b2182b19104397dcb7e00a0b05fb548ea7f91e1c0e6f4"
     }
   },
   {
@@ -2518,7 +2518,7 @@
     "identification": "Method table references RVA 0x2ac2e0, which calls the destructor at RVA 0x2ac300 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "3733a7d0b99f5fba2c4e85dfeb4715f908322e462a642cc5543126e0e3fe8663",
-      "inputs_sha256": "ba01c3df2e7e1717785da2bd1e1de0e7f7f2825ee184e1af349620e93ce70516"
+      "inputs_sha256": "5295be62741c44c6403e90ba088eca7eb594edd484132f2f8005f0a5f8e11acc"
     }
   },
   {
@@ -2560,7 +2560,7 @@
     "identification": "Method table references RVA 0x2ac440, which calls the destructor at RVA 0x2ac1d0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "dabf24170491ab32ac35f3a8bb2db2abb23bcf1ce9b35435b6186cd5a63e809c",
-      "inputs_sha256": "cc7b4f078eb8c82aea2f293c669584e9f242fb01538479b2930dc13e36933f87"
+      "inputs_sha256": "0803a9137b038bc60e2465044e32175f5e9bb8e6d78246e0bec5a7fb2e43c87d"
     }
   },
   {
@@ -2618,7 +2618,7 @@
     "identification": "Method table references RVA 0x2ac8e0, which calls the destructor at RVA 0x2a13e0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "e66c29121c4d3fec95175ce973a59d5299fa9e7b91c12ecf73769101d0b8ab3c",
-      "inputs_sha256": "c366c7fa45e36ea4126f985480a7260565c73ec514c2024c9949a371f918abb7"
+      "inputs_sha256": "35fffd00052a1f90678e935ca7c82932f1f888653931e154fa74561566912fd6"
     }
   },
   {
@@ -2688,7 +2688,7 @@
     },
     "match": {
       "bytes_sha256": "6c5f09be4217dbccd6dfbeb5630ab44354a169d68384573a15b0d76a61e3ae7e",
-      "inputs_sha256": "dfe85799932ddbff76804b067951465907f8cfe30239ea90fbf58a8702013ede"
+      "inputs_sha256": "46d156b0a67aa8cd6baabcffc5726bc80fc824f4cfe781c05643d0ec6f492b3f"
     }
   },
   {
@@ -2714,7 +2714,7 @@
     "identification": "Method table references RVA 0x2ae450, which calls the destructor at RVA 0x2ae3d0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "8e3a50c55359929d8283975bd10b3624ca30f216a40f97c7a561a2e11ce6fda3",
-      "inputs_sha256": "0508a45bfb3cf80e385f554af952adb55e5d0ad1ac9f063cea960a771c8f1987"
+      "inputs_sha256": "a37dd2a998d2e0f448834688decd44b96f3733c2f26f08ac8aeef3b7a475be85"
     }
   },
   {
@@ -2756,7 +2756,7 @@
     "identification": "Method table references RVA 0x2af270, which calls the destructor at RVA 0x2af290 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "59124974cec99b9f706ec62a9e12cc76ff6044e1069157eb54009dd0a6331825",
-      "inputs_sha256": "98b60c903ed7455d4334888302bd281e9b6c50dd9661c95a87fd06e6d5025c51"
+      "inputs_sha256": "210292e556d557c9d4449622b8a4d2b356d6ec646e7bb388098ddddc485ae609"
     }
   },
   {
@@ -2798,7 +2798,7 @@
     "identification": "Method table references RVA 0x2afc80, which calls the destructor at RVA 0x2a12f0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "0c2f3507bd191e21b337132f137e8dc9b38dc457ee5ade302075fdf68c94ac18",
-      "inputs_sha256": "82f90a9c15e614de6b76f0d0ba69aa485e3b63c6f0be780b2153e2a96060b17d"
+      "inputs_sha256": "ec9aa6bd2038a99b01642cf385cc7c6924948d51bdec994c91d9764706d945be"
     }
   },
   {

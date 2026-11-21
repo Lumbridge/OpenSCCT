@@ -53,8 +53,8 @@ def inputs_digest(folder, unit, image_hash, file_cache=None):
     if file_cache is None:
         file_cache = {}
     inputs = unit["inputs"]
-    if not isinstance(inputs, list) or not any(Path(p).suffix.lower() == ".c" for p in inputs):
-        raise ValueError("a matching unit requires its independently written C source")
+    if not isinstance(inputs, list) or not any(Path(p).suffix.lower() in (".c", ".cpp") for p in inputs):
+        raise ValueError("a matching unit requires its independently written C or C++ source")
     if not unit["toolchain"].strip() or not unit["build_command"].strip():
         raise ValueError("record the compiler version and reproducible build command")
     evidence = unit.get("recipe_evidence")

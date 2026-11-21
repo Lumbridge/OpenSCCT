@@ -19,7 +19,7 @@
     "identification": "Complete indexed Versus function RVA 0xc3ac0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "6f57d307d5f2d05d946ec668af603be6e67a3228cb7c880e8f0dde89bb68141c",
-      "inputs_sha256": "5a417b260d849d495a2840a879a6d0b4ce665a7f8b0a808a303d9af0ad8fbc3c"
+      "inputs_sha256": "d7d5cd58f8932d19b55232333b102b4086be68831dbb5f150f54e0d90d2f316d"
     }
   },
   {
@@ -46,7 +46,7 @@
     "identification": "Read-only method pointer at RVA 0x3049cc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "760b57dab057a9001f72c5a5be46d41b9d84da946bf3da22f0ded4f0fda02cdf",
-      "inputs_sha256": "e484475548c8e89f814acc8a333e775a4b114c7dd623d04407c7dd902f755c9f"
+      "inputs_sha256": "2289556d46de282e262b8f17d6e9bd9018078be6582b547caf5e0698421a5f3c"
     }
   },
   {
@@ -72,7 +72,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d0a44765478493bcd8e2ae4d09aaaf9088e7abeb088f059d05e1726b0a73773b"
+      "inputs_sha256": "e43c77e2caaf6aa8f680c6e113cb70ab2d60d160f749bf31c9f82c6bbafc0ecb"
     }
   },
   {
@@ -162,7 +162,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1b5dc4df78eb821b111657e29e890af04699b30eaf1c5920d9f91fadcba5a052"
+      "inputs_sha256": "9c2d1dfac34d61a96b970e76ac448037bd02462cfc4e41e822d0d6c0b336bd6b"
     }
   }
 ]

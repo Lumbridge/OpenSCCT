@@ -34,7 +34,7 @@
     "identification": "Complete indexed Campaign function RVA 0x760fd0. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "6460728926ef73880e5b1fab61eeb78ae70febcb1ae4891468715806516a90c8",
-      "inputs_sha256": "9524bfdc7dbdd98cd6444bf2300fc4074bc3ab5cb086324934d29b6ce4aa7d66"
+      "inputs_sha256": "66cecbd6fd4b0135ad04519638d28fc66d930e5efc5f70fa6f98adebc122fde7"
     }
   },
   {
@@ -56,7 +56,7 @@
     "identification": "Direct call at RVA 0x755150 in the independently delineated function at RVA 0x755140. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "e8b7a50b968a8df2a8d8f93e737d008e36a48b2c5dca560ba74779c3836ab73c",
-      "inputs_sha256": "08828690f4b943058879ab3c96b015d05f5d3d1ac4bd7cb3bffa58475837a703"
+      "inputs_sha256": "e8559030b2c7fe8508a475111976d44edf13b3e61b37ecc64b6a1477c6f88ff5"
     }
   },
   {
@@ -83,7 +83,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "7feef34a8d2cde2e7f864775984fdeb2c57f02bebaa8249a4d3acfbdbcfcec14",
-      "inputs_sha256": "a0850f4bb8727a3a2ee65ff3571b9b549c81e37e1d7a2a1ef22409445e56b104"
+      "inputs_sha256": "db5f91ac4042b82b7cf916645bec4e09db0e00c4bad85ffcc40320228dc079c3"
     }
   },
   {
@@ -105,7 +105,7 @@
     "identification": "Complete Campaign method at RVA 0x7610a0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "f877dc4909385c28a554495d7fdbed53297af541a6000b9406671ebc3ceca8dc",
-      "inputs_sha256": "fcd749a07fffc7546821a4f6cfa25ba8fc90a332d90871d2f670abcebeb48e6f"
+      "inputs_sha256": "7682a5a32558a1fc7e1329833a52593dd7521c672b82c8d458853b87146e0470"
     }
   },
   {
@@ -127,7 +127,7 @@
     "identification": "Complete Campaign method at RVA 0x7610d0. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "c3909d927be1839b8f47c70e4d731d1850ea4a7c7ee527ac1fbbbaa40ec4e505",
-      "inputs_sha256": "61d9b4b89122871b386c54b14f97023077c2cfa65ff914106abe39c2ca48bc40"
+      "inputs_sha256": "6cebb24da31308e2469e41c5d8910b0ad29a88e2af93ea5736383aa11c1611d2"
     }
   },
   {
@@ -150,7 +150,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x761120. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c9db575db5cd33a8a2ac7029dddf2c2822750867967a2cb2528fffbc553cfb13",
-      "inputs_sha256": "21d1d003b215c877ec82c7de7eace45284918cdedc5002e32cdcbfbd6592b669"
+      "inputs_sha256": "0410204f178bb88b4ef9a90603807a099365297286c82dba30cf41c68ff49360"
     }
   },
   {
@@ -173,7 +173,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x7613f0. Prepends a pointer-sized item and updates the first node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "8991ed0ef238fdabab0b0d464b2731a7da4239c4bdaa3ea767a7767ad222413f",
-      "inputs_sha256": "818b5917fe14f78c5413f1fad81302ab457539578140d70d95d31193ec91cb79"
+      "inputs_sha256": "a703af9c9875cdad15aeb60e06b43915281aea385d56ecbeb607fbf9054df036"
     }
   },
   {
@@ -195,7 +195,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x761430. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "73c09d31129a7413da2ceb761853cb88e192b6b06d73d7b1a309cca18b30f8be",
-      "inputs_sha256": "463bbeccfd9da36f4d6c8eaeecea15b4f735e70787b3a80e2da0e8ab8cf71cd3"
+      "inputs_sha256": "c844d9258f7c3023aa78dc4355a00ec19222a6b87abd2f1d11b73092b3629edf"
     }
   },
   {
@@ -217,7 +217,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x7614a0. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "a0c2c690ed6a8e2d05e7fc3a2d21acd75a502e44bbe0a4760fad8615b4e399ef",
-      "inputs_sha256": "657d8350e4a898550204ce31a95f22bf94ea4210681dc926255cc92f4b8d98d9"
+      "inputs_sha256": "b3ee26e2eabe0924779334f391c092a21e0d9350fcdbcbccca01c7adebc16462"
     }
   },
   {
@@ -243,7 +243,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "1c11090551325465f9c6cbd67ebad976f7ef2724c05e3d50f9e5acddb3fa50ec",
-      "inputs_sha256": "e2edffa317b0c3805a42ef7cae6a7d9ed1f18a5b30a3f73d55a8ba6c75f40738"
+      "inputs_sha256": "89110d0e055c569ef0d5f175ff77078bf2cf465c5228bc4c2d61efafee1ddea0"
     }
   },
   {
@@ -274,7 +274,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "3e9e79e2e4f4fed9d0d92b2f22b4b3bce1dab40889f8b2099c103ea72fddc7f4",
-      "inputs_sha256": "50cbf6624cf431aacf28988c5bc7abfa892364660f1450b0cdd2f713a721075f"
+      "inputs_sha256": "5dfce8b90a6bdb7617bc2a49e3ec12f508ca345572cffdce9ee1f82d7b602fab"
     }
   },
   {
@@ -301,7 +301,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "66ee9d1f003fb8bfb79e1c5f8910252c0e600089a50bc0deb4cde95ff27ccbf5",
-      "inputs_sha256": "48d490beb203e320ddff312f5a2dda8b4b9dec8edb9aaba6c2fbdc14540a6827"
+      "inputs_sha256": "409d31147932ed7479b1fedcb654a8b16e98b5e5c033867229f37ef4c837d5a0"
     }
   },
   {
@@ -324,7 +324,7 @@
     "identification": "Complete indexed Campaign function RVA 0x762f60. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "b572142ed155bde3640dcc94aca951c0c8a812b5c704ea79f2c57e139aab0d63",
-      "inputs_sha256": "6572e8535f40b8a657f6ccbaf2835de89345d439fcdf0787391b2ebd92f9830e"
+      "inputs_sha256": "d9414a777f798665a269f5926f1ff30fe903b7eba27f3d58c8a213ca716829f0"
     }
   },
   {
@@ -350,7 +350,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "4da40c16d52ad87e4136cb88d86b43742c8a76f787dd4a3805bb3a95a679d041",
-      "inputs_sha256": "01f7441e734d9f4bb171238fef04b650cf8e55e96a176e8bf73ce2bf9964fa46"
+      "inputs_sha256": "551fdfe0699123cc09b8a94b1a43e97431a055e4629c33b1f5b17f7f611fe1a8"
     }
   },
   {
@@ -376,7 +376,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "334f7a6fd1e1ab5b8657c5783a87af0863ac4fdcb1d25e27ce62c0728ed032a4",
-      "inputs_sha256": "d0b0f2e6a25f59457c3fdae2004373e9e5ff303e9db876c1f19a85ad158aceb4"
+      "inputs_sha256": "a5b22654bf07aed3d9d5a1696a3060a38c900cc808150eb3aa7399f81030c288"
     }
   },
   {
@@ -418,7 +418,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "5eb0aa1c567325e72599baa2f3e33392b1dead4636911c5d0d9ba5ba3943413a",
-      "inputs_sha256": "b11e4eaba6b597c994acd6e65cd5fade306c94df48a67c7a20bcf827a23d02a3"
+      "inputs_sha256": "7d6e95361c1590ba15796a7643f3e09f80c7575de32e8c472a448f8cc682e103"
     }
   },
   {
@@ -448,7 +448,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x765050. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "0200d2c4ca8db1bd1637f112c81dc307421313ec18d83f7bd9fbe6f320420d26",
-      "inputs_sha256": "268ebd41e3481ab21dc3324ace05cc2f4c1307c441b8f7110dfc9716f5b23a72"
+      "inputs_sha256": "83cff8bc179f65251be7004b79d9db467346c5833b37cd7c6cdffe77389cb9c4"
     }
   },
   {
@@ -470,7 +470,7 @@
     "identification": "Complete indexed Campaign function RVA 0x7653c0. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "d09cea2f5e94d051c660a9c8cf4749c95ed8c92d9f174da8d18db0c3ef1eee72",
-      "inputs_sha256": "7733b5cb88a51da186a887ffcb05c03cff3b51f775d8fd4ce33bc4762cbacf9d"
+      "inputs_sha256": "682af37a6e795fc2977b3aa713be2306fa574dbb4a4b075713731854b7f3e842"
     }
   },
   {
@@ -492,7 +492,7 @@
     "identification": "Direct call at RVA 0x75e270 in the independently delineated function at RVA 0x75e260. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "f344abb7defb118fccbd790447df5ce517d4a07832adf1ee338021eda57377ba",
-      "inputs_sha256": "6561c69eb9cd2f8c9e64eb82e6915ee6995d1728e8cd7bfe5b5b51291c18f3c4"
+      "inputs_sha256": "502e6a9608aac30060bef46f2deefff90fef2500fdb119fdfe1dd5d6c761c28e"
     }
   },
   {
@@ -514,7 +514,7 @@
     "identification": "Complete indexed Campaign function RVA 0x765e40. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "3bbefdce240b51259f4aaf6e43909c25639f6c2b7a3bbb48966ba1935a8b2a25",
-      "inputs_sha256": "72c44932897ec93276da6d8b9531937aada50fff6e0baf6ee9e9d90f8bb8c53a"
+      "inputs_sha256": "e3da04626a5379dcac9442c19e9c0e4cba20595b61afbf9d1a013e53013125e3"
     }
   },
   {
@@ -536,7 +536,7 @@
     "identification": "Direct call at RVA 0x761060 in the independently delineated function at RVA 0x761050. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "e7e59d174ec0550dadf26124ceccb93bdc6e119e48cfdf18671d6a8396a9f47d",
-      "inputs_sha256": "98e17ae72d209184dd88a1bc8c9e279bd9c0f417179183e9e84b5ed84c8c53eb"
+      "inputs_sha256": "5104614f95d328feafbf680fd40b44cdc0c20eb6608c85681eacf46f2ab50472"
     }
   },
   {
@@ -563,7 +563,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "7cd133e79f4e4ee4e2f69dc799413f4aabca661bdf9b0599fb0d85284ffc98dc",
-      "inputs_sha256": "2a28eb776386af25496c363e3db4b2c9971a4f61b1f535a3932badf610983003"
+      "inputs_sha256": "368e4b138f247d379f41be215026388f70142d2a822bf2fbc59eba495d6831ab"
     }
   },
   {
@@ -617,7 +617,7 @@
     "identification": "Complete Campaign method at RVA 0x766390. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "3b57cc0b13372f8cd78b34fa4b4eac84c6e5614c01b074d44b5b71617e6569b3",
-      "inputs_sha256": "0310ebc61f37e714556d2f5619d1e05da9ecd70a4481ca30311a6581a02605bb"
+      "inputs_sha256": "ae2724b240792c4882a59481174b6ae7f07c9e78530081e6ba76ec077e4383ee"
     }
   },
   {
@@ -639,7 +639,7 @@
     "identification": "Complete Campaign method at RVA 0x7663c0. Allocates a 16-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "b4630cb9395ce81a9fd6e3957bca7390391fcfc1fe0b22f883418aa520659ad1",
-      "inputs_sha256": "0984717d45bcf188180f58e78e32d28f8506734032c5806e809a424f4bba4a8e"
+      "inputs_sha256": "164dabb8c1c80a70b78357523c802480b7aa0dedb8b745ed823eab0e81f7fc85"
     }
   },
   {
@@ -661,7 +661,7 @@
     "identification": "Complete Campaign method at RVA 0x7663f0. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "121ad4ae2b37690d0ccbc5a8875b47e271fd0b26a2c2944f3958328a2838f10c",
-      "inputs_sha256": "558bb4b67888fbbed85dfd20e5d7c05a85a2def7edf3a26fe5e2f5e4d9d089f7"
+      "inputs_sha256": "5e9257e05d40425ec713c11791fa65d6a2e619a506be6cbf0fd8d637c01de7c5"
     }
   },
   {
@@ -683,7 +683,7 @@
     "identification": "Complete Campaign method at RVA 0x766440. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "38c6d216c11222176869da11197330b219a2686c6c96a98bde662bac40f9f958",
-      "inputs_sha256": "5b718e80f711ac3dfdfed33bd628f5d82d8bd14c8bfecd913f215cf25c74864c"
+      "inputs_sha256": "d61c7c8c4b2b7ba3192e0c146582dfab743196e1454214ebd24ef0d47b4fcc60"
     }
   },
   {
@@ -706,7 +706,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x766470. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "862714bba32554e05ff7d1067987e926e770102d87adaddb18e7c7ac0011ffa5",
-      "inputs_sha256": "6d3f04064dec6ca640797b1fe100950e5b5fd9ac73c5f554ec54f6806cbe93f5"
+      "inputs_sha256": "90319941dd502b073a84603f6db4b4301feeaf7578ab0728395156d3eb7132c3"
     }
   },
   {
@@ -729,7 +729,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x7666a0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "693783a4b69c268e160dc10d6b71d057667f418239925fa5eb3204cf2d661859",
-      "inputs_sha256": "f8ba56070f931a509683c9634612a48a831213c18eaeffeba8adfe40cb7daef1"
+      "inputs_sha256": "4fea786a050cdfb69315b5e37bca31eb2e7342146534fbc61d9ec0f0c65ecdbc"
     }
   },
   {
@@ -751,7 +751,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x7666e0. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c462cbb952b4bc4fb1e45cd28345a33bf1a26a709f954607c47cd233c7fd48bf",
-      "inputs_sha256": "80d4fbff5797556d9628501b948b693a42cee645641a889628511bb1dc042f7b"
+      "inputs_sha256": "c998c80f71ea91f988265530b5b50416ca19d57584a012dbd0ed3740fff7a3eb"
     }
   },
   {
@@ -773,7 +773,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x7667e0. Unlinks the specified node, releases it and decrements the count. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "86897c2ae1e10a82689d4659e5016dc5bdee155791ff2620e31d634bc4c7742f",
-      "inputs_sha256": "e2426bd9da0d8d114b5be67e6f830514723edb7c2003c5895ea3e371587b6b7d"
+      "inputs_sha256": "f36b5ef9709d01d9220dc67d4151362f78743c843cf7f00b5a508359697541d2"
     }
   },
   {
@@ -795,7 +795,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x766820. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "02b5f565a83c6d28ef3c45bd6305ec21ac6b2f2f0c16f0faba1f440f4e8b41ff",
-      "inputs_sha256": "9ebe4b899ae02a6fbd3e555874aa5d03a4ca523ebcb73e152498374bf1825bc6"
+      "inputs_sha256": "2f0ef086eff6a1ab9ff3699376ccfd2303c72442295c839623b6acac8f262194"
     }
   },
   {
@@ -817,7 +817,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x766860. Removes the first node and copies its two-word payload to the output. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "cae114655b79ae24fd0305e641bf50de9d6e4ba3bd3df3255f641d97945c5d2e",
-      "inputs_sha256": "51a50b8e352338fdeec60a254d4107e00d92f989938f8b7ba5c8442d381df61f"
+      "inputs_sha256": "e279bfbc1726d01493d3d928b2325529006348c814675935d4efe8983067d160"
     }
   },
   {
@@ -839,7 +839,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x766f00. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "b43f8c1281656db90af286acd419353a54e122bc4632be660e3b12fb85946f4d",
-      "inputs_sha256": "556233d79aee658cc109a412392e2e152c024b934aff95995efd1d25f86fbf94"
+      "inputs_sha256": "8975f90c8dc5f822292733af1f5c01e9a0e779ef2b49370e1528d9206bbe6caa"
     }
   },
   {
@@ -861,7 +861,7 @@
     "identification": "Complete indexed Campaign function RVA 0x767140. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "5c36c67b282484349b59bd483636981bd570f86d59a03cf8c235f53f4703a4f3",
-      "inputs_sha256": "5ce5e45283832b27861301b0eb1c54bd4f325f951dcb167fda925bffa69a76f8"
+      "inputs_sha256": "30667b5681bde0134adb8365ba6dd7e3b06d03927837a1219bba248fee89825c"
     }
   },
   {
@@ -883,7 +883,7 @@
     "identification": "Direct call at RVA 0x7661a0 in the independently delineated function at RVA 0x766190. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "5ae4b7b16fdb84a312c5cde1b0623913c0735ba4ff595bfbde4dd74f5bbd499a",
-      "inputs_sha256": "1f6697375273f831bdaeedc66896b939fcb83c4998f748ba53f271d91e34aed2"
+      "inputs_sha256": "7e38bd2f82908b5080432b9c0c398453d89f73645ede6f4f45399893606d1e14"
     }
   },
   {
@@ -910,7 +910,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "a1376f90498c268d8135044f7f532c0f57715309a48fb440abb726ddef659cd7",
-      "inputs_sha256": "817839e158b7c193099fa6e22963103100aa34aba955482e6a4e9a99c4a4876a"
+      "inputs_sha256": "739b3828f569043bf686f2921df0ab31a61fc26d2c747d175723355a70e5af41"
     }
   },
   {
@@ -1044,7 +1044,7 @@
     "identification": "Complete Campaign method at RVA 0x7672e0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "163057e25618999babc107d977ffd2da467fc7b28bbdb3802ec0bbf7e0f994fd",
-      "inputs_sha256": "aff24c5c6fa817f11d3fa39ed2f585967d63f27f7b083190239ddf1946ba8f90"
+      "inputs_sha256": "b2a8ac854e211107a3bd02aa55de24ef043ef82dfdc738745c10c576ddb9b192"
     }
   },
   {
@@ -1066,7 +1066,7 @@
     "identification": "Complete Campaign method at RVA 0x767310. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "1f3cfe01ce4af87b1970ddaac568ac69924bfb37a5c3a0f3592c1b84c194e903",
-      "inputs_sha256": "fc642da3ee68650b09f123744c960ad18969faceb72ae9ef9b03daeaf0433885"
+      "inputs_sha256": "8b91071b205272da35775c16f8e79d028a3cb3dbf0d3621d2138c6d4077c1f43"
     }
   },
   {
@@ -1089,7 +1089,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x767480. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "5e4864e80fcffbb18e217d50aaf4e8f8d455d59eb33b779832aff112b7a50ab8",
-      "inputs_sha256": "4d342800c25bf135ab5490c44b893514ce638926bd45911ceb1f9138bcb6f404"
+      "inputs_sha256": "f39131644744d03ebf9f84d75a69bd0ed3b49a357c576637612d51af43ee3e4e"
     }
   },
   {
@@ -1112,7 +1112,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x7674c0. Appends a pointer-sized item and updates the last node. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "ebfa7c78527c5baf5c3ede9f9acc4d50c04201298e934011221ebb2abc982ca1",
-      "inputs_sha256": "bb3448d07fb027874bafc66634b5faf156642338a65eb5a27ccf307964534e48"
+      "inputs_sha256": "d87f6a49abbff76e65bf248c7f11a21aa6430ed960d3837201b866e14eb1cd36"
     }
   },
   {
@@ -1134,7 +1134,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x767530. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "7fa31db5c8aea54da333bc8270ed214e6fb5e1f4ed0bb821c6d6586eca30c448",
-      "inputs_sha256": "9d9c087319d069e79c7a88c6749209890a69b4363773d4abdeb2a7c565908737"
+      "inputs_sha256": "fa86c016c90a465e3d74e55c4b888a032f9252dbe5035542a1bc8b72fac546a4"
     }
   },
   {
@@ -1156,7 +1156,7 @@
     "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
     "match": {
       "bytes_sha256": "8d06ad308dbc10f3f4b4cedb5da3f0bf8a063db1e66781f2ce40a7f361e4254b",
-      "inputs_sha256": "b36faa0c9b6f9afcfab6274d0f240df1b22954e3cc3c2696828b73cbf195a123"
+      "inputs_sha256": "58b04c2dbe2e9007ecbfb84993b476bc28c8a83a7a5922009a2a1cc90a39617f"
     }
   },
   {
@@ -1178,7 +1178,7 @@
     "identification": "Complete indexed Campaign function RVA 0x767a00. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "33dec47d4854af9aa55abd60a0a50a9ac0438f99b5eced37e4c122de77c3a845",
-      "inputs_sha256": "ceb068c9f3ca43b3d833f6fc9aed42c45c0daaa9d5a91d1e95631859b4e7dcc9"
+      "inputs_sha256": "be9f215c922fba8405bdd1c921fa1888d6e4bd7ec751adce1c1140056a10c092"
     }
   },
   {
@@ -1200,7 +1200,7 @@
     "identification": "Direct call at RVA 0x761c3c in the independently delineated function at RVA 0x761bf0. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "559f0c355414bf0de8698804ac1c52e9f5a0779349f22ec2b04c2fd703534a2a",
-      "inputs_sha256": "69c4c48da8947b5e6e02927ab9887fedaf203f332fc7d56a377e68efbe852b16"
+      "inputs_sha256": "4491eec15fd070cddba5b358333ea850c4c2ae7af33b63008e4dcaf261deef34"
     }
   },
   {
@@ -1246,7 +1246,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x768bc0. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "b0f5792e17c87e7ec2ba8e61252041e16efc5ebb056143fe2709eb17d456e192",
-      "inputs_sha256": "884f9e407eaa07f8f964e4b157e1b4a3b7003ea13fe20dfddab1f1fad17df094"
+      "inputs_sha256": "df132e00261c3dd05a6f80e427c4653d6beff24b6ed74d83d3ce40566a4ca2b5"
     }
   },
   {
@@ -1276,7 +1276,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x768c60. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "70f2c6476521c385442e533c75598e8d9e58ff038dd93d7ef53db365b600f9b9",
-      "inputs_sha256": "d8f66730a67c5057980e3e35dd4897ba46f7df3573762bf7cfbdfddb071f449b"
+      "inputs_sha256": "0c1de6bf59714a1cedb95628fe793a2e7da0c112084308db15b4b1d499d1c00a"
     }
   },
   {
@@ -1306,7 +1306,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x768d10. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "a7988683b50518b9cac1fdaf42f8b871c3a41c58f4f3a6e651771a754529a0cc",
-      "inputs_sha256": "3f7aaff9d83e317ec2eec394d270124095ba0bc7e743ea4f1c775ea225b12516"
+      "inputs_sha256": "8c91432284d37c1b8289319d9685c4244ad165e9b8f78d918a8239e1ee5ce3d3"
     }
   },
   {
@@ -1333,7 +1333,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "c209e6cd5c57f8e90747f4810468f3c3745374e6cd0ceaafcfc3d23c6991d1e8",
-      "inputs_sha256": "2fc897adc8a1d282d4fda247f2e1f6501e9c6f4faf74f5747a8db1b0829efc09"
+      "inputs_sha256": "dd199c7d83b2252e1066e1fc1b3d4a4ee987d1f8ac4ebab9c7be7eb69e9050d1"
     }
   },
   {
@@ -1364,7 +1364,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "9fc39361e43afbfb0dd1b57db6abbdcc4b5fbbe55d95ef1a608823c3ef2736fd",
-      "inputs_sha256": "cb7298a7f9130d757cfe95455753e67e3ff4073dbc6da968c0f0eae50b9585c1"
+      "inputs_sha256": "1f78e27d188e1dbc3572898c0dacf66a23b0460e3b79dfaaaa56de6e6de03918"
     }
   },
   {
@@ -1394,7 +1394,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76acb0. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "83df4e08eaeb759faa466a061c0ce9f38f0266ea590fe89676144e2f8b23a17e",
-      "inputs_sha256": "d24c9a0dd58345b2a03b053e1ce9e05d1948725fcb0d7702f589257c73dca424"
+      "inputs_sha256": "b461da9694fc2c4d789744f297b9db22e7fe120ef8e9c79ff47ec0f2b3c43701"
     }
   },
   {
@@ -1424,7 +1424,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76bd50. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "1df17cbc4aad3df0f30604fb50687a5d3365ecb2af2ebca43c768980e69aa510",
-      "inputs_sha256": "5ea20f9c69e6ca7a109682fb5c8d85b4ffadc1dc49bf89d4e49af69431bdaba8"
+      "inputs_sha256": "9ea0c4a4de6a9ef725334b3dc46a4f7d9d67eed3ac22e64f17a297b0ab2462c8"
     }
   },
   {
@@ -1454,7 +1454,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76c5b0. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "3133d6d5f114ca6e8f73ddf83c5a5c70da0ca4a1c84b9656d091c7ce8eff361c",
-      "inputs_sha256": "c2636a90bd614a182148c2cc4d9214dbb1c6bfe5991d326b04aa0acc22d7758c"
+      "inputs_sha256": "b921db282ea908257e86dc0017a4d9285af59e5d3d10431a421bf9e7ebda36f9"
     }
   },
   {
@@ -1489,7 +1489,7 @@
     "identification": "Complete indexed Campaign function RVA 0x76cb60. Its masked instruction shape equals matched unit delete-members-4b8070, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "9714a19d8c784074551155902796f8992ed286a029c64c9862098106a2bc22d5",
-      "inputs_sha256": "e542c4c36bc2f715d687107971897f8da64d5003a1680519fb03d9b5c47a2faf"
+      "inputs_sha256": "933cfda95cad70c994ca0967827e9a7f3ecb73de9237ac65da479753946581f9"
     }
   },
   {
@@ -1519,7 +1519,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76cfb0. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "a1971c7c308bcddec9ba6f08cfc54133aedf17e24a172b9c79052c3552fe9949",
-      "inputs_sha256": "b43c93f8166854f5984a40c76c0fcfab9fbe6ea828689dd836d21bdde9763f65"
+      "inputs_sha256": "f6f81da57e8c16832b5071fd35908be13442702cdf16db0dedd4334dd446fef9"
     }
   },
   {
@@ -1541,7 +1541,7 @@
     "identification": "Complete Campaign method at RVA 0x76d1f0. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "94f3028217bde417761a63fcbe2aa61aad1662c22a504d93ee6b73d070eb4c97",
-      "inputs_sha256": "0d65898f5d95047ccb6ed4ba91d10fa3b6b549b39f786842eaa62dacb2034133"
+      "inputs_sha256": "3e3ec0751be37d10ca86b4fbf18da667d1376e47fef1cd338ff0b9d3decbb317"
     }
   },
   {
@@ -1563,7 +1563,7 @@
     "identification": "Complete Campaign method at RVA 0x76d220. Allocates a 12-byte node, initializes both links and increases the count on success.",
     "match": {
       "bytes_sha256": "cc6a0c1b5952237ff53b754b455fa64aac4400f6feb1ecac9e540572a75e5fb6",
-      "inputs_sha256": "036eb21bb50d408b8558a22fb8aae359f391cd7b715d5849701859d870a2a7fa"
+      "inputs_sha256": "5e7a51215f5513bdd9b69ae783a5bb6b73ea683edddf0e4d1bbb7cb91597f457"
     }
   },
   {
@@ -1585,7 +1585,7 @@
     "identification": "Complete Campaign method at RVA 0x76d250. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "28299720efde28331faea457be8157c54834bdfe12804b946d4943d05f0d3158",
-      "inputs_sha256": "23abc91f3431efd24833b7f20daca1dccd722fb376181bbfad8ae34f0056f8e3"
+      "inputs_sha256": "73d85e63189b436ed3754c3de4c3f07a980e5e7ffb0d5b49b133ce538ea6fc05"
     }
   },
   {
@@ -1607,7 +1607,7 @@
     "identification": "Complete Campaign method at RVA 0x76d270. Releases a non-null node and decreases the count.",
     "match": {
       "bytes_sha256": "502af60cdec1fcdb0a046cb72894fea351984caa6dd6ecd922b4030c0a8fa9c0",
-      "inputs_sha256": "058b5aedf33c9acd21c9debf74df1133643d3b737e0c2c7573c022f6ea3f8b5b"
+      "inputs_sha256": "1f7c0e364ab31176cccf5eb8f4c1492706a2be4712049ab5895e7a20777eb56a"
     }
   },
   {
@@ -1630,7 +1630,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x76d3b0. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "9c29b4a11dc6c660fc8ad8b3edcf914699ddd8e04f712f8cfc1723f927bc32f0",
-      "inputs_sha256": "7d5e789594e81519b6dacabbacfcb10581ab292810fbfa2afc9aa89c6dcd3ba1"
+      "inputs_sha256": "dec49be8cd034bdd81ba89f621b8aff1fa6b195830ee3b3bef73c997c46f2ac7"
     }
   },
   {
@@ -1653,7 +1653,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x76d480. Removes the first node and returns its stored pointer. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c984c11dd0f94c4a7757ad80296f609ea2ec2b5b6c952b3374b1f961ce77d3c7",
-      "inputs_sha256": "5aea7352548a93eacdfb5656aec423033b7b82a11f04ba7214788f5e37e76ae4"
+      "inputs_sha256": "b417601ec9042ee79ef5cfe000b8ff70ab84e4f465ea5e8a76bf5e879b48c96a"
     }
   },
   {
@@ -1675,7 +1675,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x76d510. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c1986ed1d13bf8a6660c1b522541b6f360932267fae68f40af44838c3f95c2d4",
-      "inputs_sha256": "d443003ed386640896e17086c5571fec41332adc7cb1986c7392c97d7c049931"
+      "inputs_sha256": "eed4c725bbaec6fc66dba6ca50bfc76e84e861d15e6cdbc0f5a57a091d11b03b"
     }
   },
   {
@@ -1697,7 +1697,7 @@
     "identification": "Independent contiguous stock list function at RVA 0x76d550. Removes the first node repeatedly until the count reaches zero. Its compiler relocation targets agree with the named campaign sound allocator exports.",
     "match": {
       "bytes_sha256": "c306204267d127f293256f790f577300355f3fd61f8597b191ae90441c50f7c6",
-      "inputs_sha256": "132ed6ddc252ff9ffa2d230037de6810bf56f6a35f8c7f4efab9643e3ec96bde"
+      "inputs_sha256": "3ca6e34a835a50b80ab14439e5e83b0a3f43b3ea5338ca4ead9e7780fa6c30c2"
     }
   },
   {
@@ -1724,7 +1724,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x73c870. The receiver cleanup function at RVA 0x76d800 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "c0cc9d620f9eb7a12ecdf331eaf8ff12adae7a7d07dc84bb97973b391bbccf15",
-      "inputs_sha256": "d576eea46053bd806961d35d92325994cae7d9bd2ed09c7ecab41d4e48448039"
+      "inputs_sha256": "33c80ae0012d6a96bb4d0be9a5222fb1fa9adf7c72ed4e50f56eb1210f8743f7"
     }
   },
   {
@@ -1751,7 +1751,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "559e8313201a61c156c5eabc267323851538dd02faa1fdd259341d6689e3059c",
-      "inputs_sha256": "e88aaba17d2b0a737328329e1fbd6a3f103ca52996e268e24d6d843143560730"
+      "inputs_sha256": "38dfe9dd834cc9e19415fe7c7bad994891a3f313eb125084e0fa81fa6e1b5d4e"
     }
   },
   {
@@ -1782,7 +1782,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "6276645b0e20d743b9778c00cd8cd004da8c9d6d3746f32c31e8d0327b91aff9",
-      "inputs_sha256": "4980c66ea968ee747e250fb080df9c6628f95246c054fb69013cafb04c5f5cb2"
+      "inputs_sha256": "6e9e7ea95288b0c3332385c6947cd7db03dac8eb195ff91d2da2cfda42298a8b"
     }
   },
   {
@@ -1813,7 +1813,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "259b4f312ed8523808c60388dec56ab04ecdb5f15ecba07eadc52fd9155f4733",
-      "inputs_sha256": "7e614379b40a49b47c98e5a2a0681daf65c531cbd83644c9cc92b9d933a29696"
+      "inputs_sha256": "bf1b84710a672045e2e6905563e2d74bcaecef6783c30d537de95200edc2482b"
     }
   },
   {
@@ -1840,7 +1840,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "538472e6920fd3c551a08250672fb7082583546f5ad0b34a852146bea7aa372f",
-      "inputs_sha256": "de2b4373cc67987b702214e7f4932bca178636960f112f1f16844df409aee147"
+      "inputs_sha256": "94f8f64f0fd3f695e26f20e0c856562258dc3be0fb11b1368420d0679e9b6b7d"
     }
   },
   {
@@ -1870,7 +1870,7 @@
     "identification": "Complete indexed campaign scalar deleting destructor RVA 0x76f770. Its destructor and conditional storage release target are indexed separately.",
     "match": {
       "bytes_sha256": "9714befa9ced99244bfe9100d4ec732d777252f75a286cbce0fb3089aa585c87",
-      "inputs_sha256": "b16d52e7347365570acbc1adbb8e4656624384f37254c02ea0a3b94227939fa6"
+      "inputs_sha256": "dd682afb0c05a3f6d34e6b1c30feb78971aea199c5e1324e9ba3fcc59fd700bc"
     }
   },
   {
@@ -1892,7 +1892,7 @@
     "identification": "Complete indexed Campaign function RVA 0x76f7a0. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "091539f772ed7ead3337d13907fcab671b9fd03bbed4c43c1916c71997157805",
-      "inputs_sha256": "09f869415d79b5e6d41f5dd88ec699abed5b55089d3660abea06dcc05d38e98f"
+      "inputs_sha256": "99154212203577397b7dec2ca4345f27e602036f8507e497d82e103958cd7c58"
     }
   },
   {
@@ -1914,7 +1914,7 @@
     "identification": "Direct call at RVA 0x767170 in the independently delineated function at RVA 0x767160. Forwards the allocation pointer to the campaign engine heap.",
     "match": {
       "bytes_sha256": "4ec0068be3abf7ac2132e07c54499337be802fe3df29a4ea15e0ff2d1a1df5e7",
-      "inputs_sha256": "cbac77b6bca9a6ca13ace37ee9a56452a28c55511bfb6d8e72a95651027c70b6"
+      "inputs_sha256": "5fb8e4ea1550f44d5d3972a4d3ce9a879f2606eedc7423c7c681dd4cd8815139"
     }
   },
   {
@@ -1961,7 +1961,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "3edc93737a7abd6bac2a6dd1be62f5c738303ff8534680b37c09d6e60612591c",
-      "inputs_sha256": "7f52ad5653bdc375cbee58d954a88a06287ea5e31c043b455e1e6546d1c1ca40"
+      "inputs_sha256": "1e9c3aacc5c9f50ca31dd1f82f6e5cb7e4be5312da3052c995b8fdf1ef030208"
     }
   }
 ]

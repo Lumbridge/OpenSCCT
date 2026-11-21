@@ -23,7 +23,7 @@
     "identification": "The read-only pointer at RVA 0x30d2f4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "1077ffa1b1bb004ca6a9638e6a54c076d91fd29009c47787911321c16b808c4c",
-      "inputs_sha256": "e5e0020fdf2a05f3df3543eba93d83bc5c19fdc9ef0f653f8cce31896db63ead"
+      "inputs_sha256": "9f07f941ac1237b9e053208e6ed372fb881bad9e72a2b6e3f72a52ecd0c1f25b"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "Read-only method pointer at RVA 0x30d29c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "b75c7eac20ba2a1b85322175c6abc6e2c5b979583e4d8130de2c325860fd5dde",
-      "inputs_sha256": "c1d873af041583b9a314d7325b768ad14a5a07338fd98e5849f2d996703e6460"
+      "inputs_sha256": "a61b89707f9a8eb2a86022014a03eef356f472a835d69ecb3f27535ab3cb864b"
     }
   },
   {
@@ -80,7 +80,7 @@
     },
     "match": {
       "bytes_sha256": "c3a0ead1a8bfc0dc3fff069ff8102df71dbd5433c2e07c5cc4919dd174e3252f",
-      "inputs_sha256": "84936d19b79f9cbd81ce9a48aac5b48b03476b0a41bbd496e8f7b9bac7121c78"
+      "inputs_sha256": "beaf9af17d133e4ae261eaf3bc22e7edc31bac4403358e6757eff83d0f633762"
     }
   },
   {
@@ -110,7 +110,7 @@
     },
     "match": {
       "bytes_sha256": "a216e1d2ab5cb6eef054c1162e77984d8bcc6e7fb68c53f494ab0c3b3cf1daa2",
-      "inputs_sha256": "be83a66a3ab56f0a03265ba87e01b2d8850a04487c588ae5c7e79d8d4d5681e8"
+      "inputs_sha256": "11f2b0c8ea3b396908e79c6b5a70de8655afc735929403321a39e0d012b4fcf4"
     }
   },
   {
@@ -133,7 +133,41 @@
     "identification": "Complete indexed Versus function RVA 0x14510. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "405cd195477897e31b945d50c19f5e709d20224ad375eddfd69d97743fd7a165",
-      "inputs_sha256": "ae5905478bdbec46ccfad34eb8243780f0d592415c1ac2bebb4e2c85adad286a"
+      "inputs_sha256": "da9353314a8fb0e86e9f25ee32c2966e0cf02d13d3175b1fbbc071fb25638b49"
+    }
+  },
+  {
+    "id": "versus-object-destructors-155b0",
+    "size": 109,
+    "offset": 87472,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UPackage@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UPackage@@UAE@XZ": {
+        "va": 280807432,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UPackage@@6B@": {
+        "va": 281072112,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UObject@@UAE@XZ": {
+        "va": 277962464,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UPackage::~UPackage at RVA 0x155b0. Registered class UPackage installs vtable RVA 0x30d1f0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UObject destructor at RVA 0x15ee0 under C++ frame handler RVA 0x2cc808.",
+    "match": {
+      "bytes_sha256": "6122b5f11a24191f45af2618c17a1e5d02f7879793d04987edd404984c64f1d8",
+      "inputs_sha256": "35946261174d725a7d31e67c8340ee05abe41e96c72762a68795672e22288cd3"
     }
   },
   {
@@ -159,7 +193,7 @@
     },
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "292494a55e4f0d3f4d63a0cd73cbeac97298e922ac13d0275c366d8ef2da8cec"
+      "inputs_sha256": "1053ff493e2dab233a1b172ceb20f87a2f32588896428683eda9288b65617472"
     }
   },
   {
@@ -186,7 +220,7 @@
     "identification": "The read-only pointer at RVA 0x30d0c4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "dd65a2b37ca5f9889c28f5eead930db667e9ba1e89c1c5653000822b5bb1e100",
-      "inputs_sha256": "6ea5b4a2eb4c0bd9a8ba7846165edc257262619b929590d02507a97423e2ffe0"
+      "inputs_sha256": "6d0fea49ab59ad8e26b45669d3c6cb77768e41f519d78544d6ccd1c62e5353b0"
     }
   },
   {
@@ -213,7 +247,7 @@
     "identification": "The read-only pointer at RVA 0x30d1a4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "b9aaa2b373c126c6fbddcbaefe5fff42d27761cd3a1f03594f8706456a4c1dad"
+      "inputs_sha256": "99c0ce9e80ea055a17e372c74c3d7d8d54a36b81e5ca40d7a24b6b90aca73317"
     }
   },
   {
@@ -239,7 +273,7 @@
     },
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "b755bb29428447b777787c98965e3967b71090f8cd1a3429c39fdff6451f118b"
+      "inputs_sha256": "9bfc2b4551a576ab2d642e33f9c484e70ef641f18a1c25dc5b1994d788369b42"
     }
   },
   {
@@ -298,7 +332,7 @@
     "identification": "The read-only pointer at RVA 0x30cedc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "b35b6f5cc72ad4e2cf55cb66e25c02ef8221adb80e9687992e62e185976cfd5f",
-      "inputs_sha256": "2ab050e43cb1cb5ac6e1f51195baa557abf8dd3aa31a06a417498d6c352b7e1b"
+      "inputs_sha256": "726336af30cdccd50ac6ca5eb0300e9dc3264cffaa9b22669735e00355c5ef69"
     }
   },
   {
@@ -324,7 +358,7 @@
     "identification": "Stock UTextBufferFactory vtable at RVA 0x30d128, slot 3, points to entry RVA 0x15c70. Registration at RVA 0x3f995 passes placement callback RVA 0x3f500, which installs the table at RVA 0x3f525. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "b1095a9c64b4aec28054a255b00564173f40e123ed8c7e58d396e157cad5abc0"
+      "inputs_sha256": "2571582f6aea870ba7cc0847b4c3cae3aa246c1659473acde8e22986f90ee7d3"
     }
   },
   {

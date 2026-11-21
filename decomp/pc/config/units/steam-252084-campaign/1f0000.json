@@ -23,7 +23,7 @@
     "identification": "Read-only method pointer at RVA 0x7dc328. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "172e5d44ffda5f1a725fbbf634294424631c855385b66e0a9da8e93d5179d09f",
-      "inputs_sha256": "ea65e684b6bf6d28b9c5d5890efe21e08652f131347326ccc55c58c2e0ef6b5b"
+      "inputs_sha256": "d76140c25a94edaf00d24910935baa8be4cc00d59b462ca4db4b08f127f5e0d2"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "Read-only method pointer at RVA 0x7dc33c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "172e5d44ffda5f1a725fbbf634294424631c855385b66e0a9da8e93d5179d09f",
-      "inputs_sha256": "81dc06f8552849a064df43b6fbed7ca2a7eab9df47f6f413b2cf0c74ee69c549"
+      "inputs_sha256": "44c767d2c34779d6c0fcfc950c59bcce6543c6d8bb5f99c80565d6dc51fbe309"
     }
   },
   {
@@ -84,7 +84,7 @@
     "identification": "Typed cast at campaign RVA 0x1f2a90, directly called at RVA 0x1f573d. Its class constructor at RVA 0x117a40 identifies USCX_reflection_material; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "398c1403d43ae40df5b29374fbc02fdf7b2f98b6407ab8751c03f82c0ae96fe6",
-      "inputs_sha256": "878487de9fd1b9f67b0df8e499fa1f7377c1ddebea97fec7dc2801fcce919c69"
+      "inputs_sha256": "b9b55ae28076033c8d3861c779d0b339ebeb1e65a096ccf14db93000fe4ba041"
     }
   },
   {
@@ -112,7 +112,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "c38a93dbfe55493280644db6f9bd642e0c703a5619cf33129a85fbf8e8ae07fd"
+      "inputs_sha256": "32c6533b46747028f5b59423d7f5da337f1f20f650166370af991d01c6cb319a"
     }
   },
   {
@@ -140,7 +140,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "8f5db8404fbf9f06c251cfaf1ff31e3d67d23be18ad9519373ce6fbb4646bded"
+      "inputs_sha256": "03a034532774b9a813774770763bf091fd61ca13cc0379dba72ad4a0a87f2327"
     }
   },
   {
@@ -168,7 +168,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "764fee9e533f6b485f04d04b7939da72f1bc190265726774c8f29ee469b26d47"
+      "inputs_sha256": "e977e4f65526a4182bee3c8e3f9f24e1ff4363833dfde44342700ba0a666c49f"
     }
   },
   {
@@ -196,7 +196,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "8527cddb8e39dcfbb3b69d2b62744fe98ccaaa0990d9318ba912424f0afb0528"
+      "inputs_sha256": "07716548d80ce68713ffe7cca1e583a7dc21707662ba73a4aed700405e5a7062"
     }
   },
   {
@@ -225,7 +225,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "f761359bf87d8b854ef8284629ca16f2636922626ca050618c424d2ead0e33fd"
+      "inputs_sha256": "1a69db2110d9bf43f69e0495bfd55299d926fcd3d42d7aeb371417bce3f4553b"
     }
   },
   {
@@ -254,7 +254,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x1f6d50 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "4cb3621b62c65464056f6a736ffa010b61466aea8d47ad1dd92da0e99328a264"
+      "inputs_sha256": "1aa78825b4f195cdd031675242a406d1f02b33262cad57d677c6744a92aefef5"
     }
   },
   {
@@ -282,7 +282,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x1f6db0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "cb692c03f004009b9bc4d7c5c53ab11f1fef72f32bc02b1e71f060b2c4d14fa9"
+      "inputs_sha256": "b1415ac2be18ced5193eec69b44d4225dd12dca1051861334af006d6f41b4fdf"
     }
   },
   {
@@ -311,7 +311,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "42d733ca73bf3fb12b46020ff7a9275b7ca3bbba80e8b5c6c64ee846bd2fe077"
+      "inputs_sha256": "0363c833aaa06662f1ec60ef5914fd7cf26eafada019e1faf5cd59390a5343dd"
     }
   },
   {
@@ -340,7 +340,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x1f8a20 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "64090a1335faef37268a63748b812fb736295c913573f91948e0c81ce3d9d00b"
+      "inputs_sha256": "78c180d2911caae1462ed4db190227f3301e98d9fc96053c0e3b560c7d35af26"
     }
   },
   {
@@ -366,7 +366,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "f5c0f30ee59edc5e7624adf11ddf100e6348e477399b06f46e96a26fa616facf",
-      "inputs_sha256": "ed74722deeed735839a493c187e5ab8ac332ef6a71868066dcc75798c2dbf661"
+      "inputs_sha256": "e1e8345433ff140ea0ef710857ebdaff0d175ec4d7949e9d6b7ea29464374da7"
     }
   },
   {
@@ -389,7 +389,7 @@
     "identification": "Complete indexed Campaign function RVA 0x1fdb80. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "31d7a42b0471235bf954c6cfb551bf3648a8150d9c910d377f124c0fbbcd868a",
-      "inputs_sha256": "3e3833ea3c3031fedd9295ea56023dc53cfa3893a8dcc746852b1b37c57f4bd7"
+      "inputs_sha256": "469306137e07adcf74307799dffa27c84f15de2fda4ffd949e600c2ba1b31255"
     }
   },
   {
@@ -431,7 +431,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "dbcdbf53fc53a9a3a41330b9f946d4313bfa5b8f6ee9e610bc5c9ed153593ffd",
-      "inputs_sha256": "46488b9f0981a81b3b4f7e07c958940935989794bba2e173ec3cadf1cd6575ef"
+      "inputs_sha256": "037dbbf1d24eba4d18288d221dc4642c1b6bb9a72b19064b5a5d8659daaa5f34"
     }
   },
   {
@@ -457,7 +457,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "6027afc15e8390cce8fc64277ef4a167a84744bf7e0fe156bab93295e3250825",
-      "inputs_sha256": "d501abdd47ddda073ac4d4343ce5e03884fe629b7951444d6aeb0f3be547725f"
+      "inputs_sha256": "32a4fd6d4a0d85d01cc17d058341b689a073c475a355b522f6b4b987ff6e8012"
     }
   },
   {
@@ -480,7 +480,7 @@
     "identification": "Complete indexed Campaign function RVA 0x1ff490. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "e024656c0c0505555350f97a10d0170764cb0cd67956eb98bd116ec6f5ffa3a6",
-      "inputs_sha256": "71d503e506dff03f88777bc6d52edca2f6d9eba091fbe272449b1da1b896804c"
+      "inputs_sha256": "f7962aea54b2103fd0278644af9e5740853278a43d11d6591fb891205ee1af7a"
     }
   },
   {
@@ -506,7 +506,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "830237bfea09710ee97cd286456779e2cefcc5fbd8c44dc8c8ba731db6ca8413",
-      "inputs_sha256": "e4a5c228eb46be08548ec1beab291c3d5bf184293e578829db6f5f8e72743b10"
+      "inputs_sha256": "7ca23b02b3f9198fbc12b1eb471a0ce5708aad274c583e8bd0b6d0bb471ef801"
     }
   },
   {
@@ -529,7 +529,7 @@
     "identification": "Complete indexed Campaign function RVA 0x1ff960. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "31d7a42b0471235bf954c6cfb551bf3648a8150d9c910d377f124c0fbbcd868a",
-      "inputs_sha256": "7675951e876b4fb38a4e4a00d4276f68e3fd7bbbeeb34052c7f30e7680feadfb"
+      "inputs_sha256": "fedde5dc79359e68382b7ccb050be1086de8c535e0a05d29b375ac76f4c3a377"
     }
   },
   {

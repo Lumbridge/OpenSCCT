@@ -39,7 +39,7 @@
     "identification": "Retail resolver requests user32.dll!DispatchMessageW. The pointer at RVA 0x374bf8 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "3df730297025fc425a388a3e100851bd33f75d9dd98e7dac977f95e5bdaffa5e",
-      "inputs_sha256": "cc800c57e3a040ed9bfe2f2b619f92b2c82e57923960c4f6c2056361cdf35971"
+      "inputs_sha256": "a045542cd9bfab309664521d9ee79dc11d96ceccaf9b124c7be4c6c01dee04fd"
     }
   },
   {
@@ -82,7 +82,7 @@
     "identification": "Retail resolver requests kernel32.dll!CreateMutexW. The pointer at RVA 0x374b6c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "62fe31ba09d5361e27c03932d7e4c40d7fcddce6452a2dd593aafce45f03991f",
-      "inputs_sha256": "0cf0c83c50fe4d84b94e6f344dd845f60ed7d6f617498fa5d1c746e77d5dd5f1"
+      "inputs_sha256": "79a1378c37a9b546729ad21c9f9d02f8ad225120d3be3b1311aa89b22c9204e9"
     }
   },
   {
@@ -125,7 +125,7 @@
     "identification": "Retail resolver requests kernel32.dll!FindFirstFileW. The pointer at RVA 0x374b78 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "fbd0df0d6467e5b3cd09c985b5a167ebdb74e81ac8d0b8d0e2b058093d65a03b",
-      "inputs_sha256": "101e174f46927d85d1c9adbe4696db273f98de60fa14a64e817e1f5095bce201"
+      "inputs_sha256": "3bf03fc699d8ceba73353481e88956e4fd83452d1724ddde4e06733d9c54c600"
     }
   },
   {
@@ -168,7 +168,7 @@
     "identification": "Retail resolver requests user32.dll!SendMessageW. The pointer at RVA 0x374c4c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "3f494bd64ee0e6a9c200deaf45859afe1005d612e67bfe8bcd27c4f97a200e62",
-      "inputs_sha256": "b5b68582eb40161edd94c67775ec1d340e7854c7b8de6ed6bc4506f91abcbf40"
+      "inputs_sha256": "205a8dd721397879f383c2359e6f9951003b314dc59616e0898b5f8aa16aee87"
     }
   },
   {
@@ -211,7 +211,7 @@
     "identification": "Retail resolver requests user32.dll!MessageBoxW. The pointer at RVA 0x374c30 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "8d3efbdc333969bb35aa88e83c3bdf423a6e3bf62ce7632ae1ff25e4b70de223",
-      "inputs_sha256": "62ae354b949cabef56bf5e23830118050b1b2dcc5e6cfd879c3edecefbf879d9"
+      "inputs_sha256": "f5786e2e366a394c02e9fab27d90d1aae915f708f71e4ed1e96bd75fde49dd48"
     }
   },
   {
@@ -254,7 +254,7 @@
     "identification": "Retail resolver requests kernel32.dll!CreateDirectoryW. The pointer at RVA 0x374b60 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "0844a0fcbb1721d674e45ab824b2dc816c8870a557428d257f36d4aa88603f4a",
-      "inputs_sha256": "d85571ad8262f6c9174c7f636d03fdcd7727b43f3b223220ff31b165bad37c2a"
+      "inputs_sha256": "9cd2dcb96ca0fcacf39a784f62905f07864c37a4abb8278dcdcd87b2280aa087"
     }
   },
   {
@@ -297,7 +297,7 @@
     "identification": "Retail resolver requests user32.dll!CreateDialogParamW. The pointer at RVA 0x374be4 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "0a0459cf8a1ea16345eebf4eeebe2b3068eb8cd13db55108ae12e35198a3a314",
-      "inputs_sha256": "c7ebe92f26e0cfb5c90cf609397a4a8c8b6fd0c74aaf6e21dd004edddf3c219c"
+      "inputs_sha256": "b2de28bb902172a65b7f4f9281b0f628662eefa55f9c589f6c21a5ad7eb8d05a"
     }
   },
   {
@@ -340,7 +340,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetSystemDirectoryW. The pointer at RVA 0x374ba4 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "d4a01123dde3b6450c823a1eb74cb5de421dcd3aa1b986b149d57a928fe0e64c",
-      "inputs_sha256": "2ed8547bf71029c5ec83c8a92ba86de10447f16f52892cf95a6191fb9d4f6015"
+      "inputs_sha256": "6328278d2b75b5c3ef517c3a78b204b03f260a8cc9c0f51c59fa1a366f319605"
     }
   },
   {
@@ -383,7 +383,7 @@
     "identification": "Retail resolver requests user32.dll!PeekMessageW. The pointer at RVA 0x374c34 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "3a2712ff70d1bd7c8ebc55a31aae17b353bb3e9f1265786050a9c356cd231cff",
-      "inputs_sha256": "f4e8a54c62aab194799c172a810b99630de939ae04d89fef82ce7698e4407f38"
+      "inputs_sha256": "10fbcb0eae7396d635c3d2061bf90d958fd0350401d95a2544c33dda4f05ff35"
     }
   },
   {
@@ -426,7 +426,7 @@
     "identification": "Retail resolver requests kernel32.dll!CopyFileW. The pointer at RVA 0x374b5c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "deda2774e5aec8f5d699b33be1b95b4cd857ae5b86385acd532f4ba1bcc576de",
-      "inputs_sha256": "e6f8a8d04bd51b0cdca79a21b074df6c312297cd1e4cb08d91ce12c16028f54b"
+      "inputs_sha256": "48ef7a576160956f24c4aad409f618f9287493718dee31015ace058ba8b651b5"
     }
   },
   {
@@ -469,7 +469,7 @@
     "identification": "Retail resolver requests user32.dll!LoadIconW. The pointer at RVA 0x374c24 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "da3a56c30933ba24de67e2a982174f0de631b2defe43bdda24d6314187a1b72f",
-      "inputs_sha256": "5bfaa3bbdbde663861c5291e04eb66563d5ca8177c82341e514afedfce0948d9"
+      "inputs_sha256": "749763a568fb70cc74e96fb1d3253900dfbb93e12edb3777cc9f93cdab4ef79b"
     }
   },
   {
@@ -512,7 +512,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetModuleFileNameW. The pointer at RVA 0x374b98 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "173fc7c48995d1cc78ea47ca3c25275d55d2005dc9b200aabf4b37e4c972f423",
-      "inputs_sha256": "b044477fbaa4ac4750a91ad1c97316b3738b903cf00048ec52c4c20711253ccb"
+      "inputs_sha256": "34b34bd97a710d4174695d1b4f165e335fad22e7ddbae749e551cb1c65f630ec"
     }
   },
   {
@@ -555,7 +555,7 @@
     "identification": "Retail resolver requests kernel32.dll!CreateFileW. The pointer at RVA 0x374b68 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "0e674cb1ebb6c05f53d4e92947acd10a686bfe9550fc8ae43a4559b0cd815957",
-      "inputs_sha256": "ab1fbd3623fa6f5cbd7389a38584b2fdf018431d9f2442ca4ed5c9e73dbb4f55"
+      "inputs_sha256": "f2f592ca95ab9040f6b070e7dec5e19e4c7355770d014c9de4d9164747ef5f12"
     }
   },
   {
@@ -598,7 +598,7 @@
     "identification": "Retail resolver requests user32.dll!SetPropW. The pointer at RVA 0x374c58 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "9d27b475f36ecb2d045a8b8715ab5af474c8ba71c2992e6bb86420ae3510801d",
-      "inputs_sha256": "5bbe4fc14aa8a06cf83571f50d9a4c6ed11e0cb42854192943b4524ef0ff5219"
+      "inputs_sha256": "1993c464beba2a8a853839f4fb99c204a774cdf6ee0d2855e4d5e296bb09c856"
     }
   },
   {
@@ -641,7 +641,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetCurrentDirectoryW. The pointer at RVA 0x374b90 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "31a80d6bcd838c62f634d88d9c099e9502e790ae70b08c6870c4c02e69faf9ce",
-      "inputs_sha256": "3d5e75ab78f9f0f05992075b0ae272d54bc9a8bb766328ac787d336adc93610c"
+      "inputs_sha256": "6cbf202f178f5bb1c51bd427a1d07852a6b06b6acad13c6d91caf0da4ae16979"
     }
   },
   {
@@ -684,7 +684,7 @@
     "identification": "Retail resolver requests kernel32.dll!MoveFileW. The pointer at RVA 0x374bbc initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "e9a378f1be7fc4ab404ca5ef9c092ef2f1a024a5bf0167caf6abb0d20580d46f",
-      "inputs_sha256": "0c2c0a67323dd90870a5066dc9f1ba6d11dafbcf0b934195a346fcf2d1a4bf93"
+      "inputs_sha256": "c529522905a9f499690f6cf51951c6a72fd24907a3d58ee45a530bd8507f9838"
     }
   },
   {
@@ -727,7 +727,7 @@
     "identification": "Retail resolver requests shell32.dll!ShellExecuteW. The pointer at RVA 0x374bd8 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "8591965e912d117f3052117ebcd22a45af1966d86c6b4b37d96a9a91006386e0",
-      "inputs_sha256": "ec880f6de22e3c0cec500e71c03df64b4155537b6b5cf29887a528c43ca4f4ee"
+      "inputs_sha256": "f379542e32425d348a6381ac97eececda57302e0304bf4c5e538a2d67b528e35"
     }
   },
   {
@@ -770,7 +770,7 @@
     "identification": "Retail resolver requests kernel32.dll!SetCurrentDirectoryW. The pointer at RVA 0x374bc8 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "40e06d9c8dc9d083d66250424833908f83da5907f50cb7e24022094a8dff8bfd",
-      "inputs_sha256": "6c70f539a0e9e027b114e83dab604e3f6b7116456b49c968cd404b0215ac0987"
+      "inputs_sha256": "52aff18afe14203dc48c45cb226a51be1062a372a87766883c3e9c6545fb6019"
     }
   },
   {
@@ -813,7 +813,7 @@
     "identification": "Retail resolver requests kernel32.dll!RemoveDirectoryW. The pointer at RVA 0x374bc4 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "adfc745aac8d08e4286e0d130232c8894408661efe97a0697a0d09cdd1c2fe6f",
-      "inputs_sha256": "a97020a39693e385679608f1b8636d849995dbb91d234987c0d2007fcd353006"
+      "inputs_sha256": "df8b2354d1c6a2e525179c02b08a87543555eb729cb201522c9c333f774f39fe"
     }
   },
   {
@@ -856,7 +856,7 @@
     "identification": "Retail resolver requests user32.dll!RegisterWindowMessageW. The pointer at RVA 0x374c40 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "d168701b67df99f20af696c4bba4b4622b2fed4d1a34982fcc14e1d504522397",
-      "inputs_sha256": "3bf98ced36b165edd58717be4c907b6490e4e9831b30cac7e929dcf43db220bd"
+      "inputs_sha256": "04b3379269e49d2478a8c8a0d8e57bfea714084f6662f79d0b90c3830b4899e0"
     }
   },
   {
@@ -899,7 +899,7 @@
     "identification": "Retail resolver requests kernel32.dll!FindNextFileW. The pointer at RVA 0x374b7c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "1bb9f1278cc027f6750978ca8059e14a2f97287530aa101fdb08a9d0cd887d37",
-      "inputs_sha256": "c3bb97ca1eecb5ce85c1e3b438565467adc181765dcff44587556c14065476b4"
+      "inputs_sha256": "fc0598dcb8e9dfe7686ff3bb5c5406d464f5d0e5af53aaf6b43ac5cc17930a6e"
     }
   },
   {
@@ -942,7 +942,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetFileAttributesExW. The pointer at RVA 0x374b94 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "0a5872bc9a7ab98cde459fa2208c2c67a749d13981cea2c7539536a26e48bd8f",
-      "inputs_sha256": "a72e6c84b3df5b7682e458a9bfbd856c2952d6ec987c793e449e881585a6b51a"
+      "inputs_sha256": "1850706a9a74333d2e62885a1dc8641c844464b6c4a5bf6c535217746ff9248f"
     }
   },
   {
@@ -985,7 +985,7 @@
     "identification": "Retail resolver requests user32.dll!RemovePropW. The pointer at RVA 0x374c48 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "224fd5ac2de4d8c0ca5dc974773c4ac69ecaff5a355f13067b23fc2690f66480",
-      "inputs_sha256": "3c1c5996ed1e59421a45d691fecba548f3a62f1f57207b82a45472f1f67e58bc"
+      "inputs_sha256": "b3503d83c247943ce0ccbd4a04eba307d371369866c96f8c60cb05b18bc66268"
     }
   },
   {
@@ -1028,7 +1028,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetWindowsDirectoryW. The pointer at RVA 0x374bac initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "59e9799825792ba982b71e999be994b4956816cbcf98b3b794bb141922f8b97a",
-      "inputs_sha256": "65b1a44cee8e54e496682b48ef3fdd8f27de39ce58bde6a9cf12c5ec22967498"
+      "inputs_sha256": "7b243788a04389ed6c097999ef8c74864c7e710dd9fda35336fc970f22b27fea"
     }
   },
   {
@@ -1071,7 +1071,7 @@
     "identification": "Retail resolver requests kernel32.dll!DeleteFileW. The pointer at RVA 0x374b74 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "55a21a49ee11fb3f3dac7e59fe2d4fdc8265ea7954d1a977034880807134f6e5",
-      "inputs_sha256": "a81f42a911da6ef479a541016b3cd8eb78a67af34c8daaab188b37681f704d81"
+      "inputs_sha256": "fbb1b8cc3cdb598746305725b86e1ac5ed20ca4145a56ad6d00b653bc4a15af4"
     }
   },
   {
@@ -1114,7 +1114,7 @@
     "identification": "Retail resolver requests kernel32.dll!SetFileAttributesW. The pointer at RVA 0x374bcc initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "8a2afb73373560364354638a510b974662b8c73fafbafbb450060d85aec8465e",
-      "inputs_sha256": "86af2a908e241f87ba619020d025689b97fec7440e86d3327674dff7ce8ecbdc"
+      "inputs_sha256": "d75359a3439f382e70b5f2fe3c8df2c4a5615c0838953f896945cfd4e9bf1889"
     }
   },
   {
@@ -1137,7 +1137,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220f9d passes this fallback directly to its resolver for CopyFileW. Calls the named SetLastError import with 120 and returns with 12 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "c553145d28d3fd2a048bb7dc66f4af9854b78d14ebaac80955818dfea883d6b5",
-      "inputs_sha256": "d60e4e176e5fa241e823d2b84fb1bfe64520c212db7437e3119fbc332d375682"
+      "inputs_sha256": "b5f8e05a73c5864e6b3d70279ef121918f29ac630fea7f2eaac66662c00b75a7"
     }
   },
   {
@@ -1160,7 +1160,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220f09 passes this fallback directly to its resolver for CreateDirectoryW. Calls the named SetLastError import with 120 and returns with 8 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "48244924d4aac3e916bbeb26f0a8674fe670752b9cd2a81f19c62685b5c8d2b6",
-      "inputs_sha256": "70f6b30b4ea6d4fcc1845deda50065fa8c7e9901229548c287128f83e1ff4a6c"
+      "inputs_sha256": "3417276135cbdff4a41c2e028655c69583f83af1f717484a0df3315975e445e3"
     }
   },
   {
@@ -1183,7 +1183,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x28431b passes this fallback directly to its resolver for CreateEventW. Calls the named SetLastError import with 120 and returns with 16 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "eaab929c1b8044e8d2b0e0d7f3d9f6930047e02d39d631e12acd2e857bb7709c",
-      "inputs_sha256": "d4072010546495926325ff0465ab40a8f179fc187e01953ce1fda28b9d9af65e"
+      "inputs_sha256": "60683c80ba24e9df2147391792dfc16d277f7a5fa053d34cd5301128ce953420"
     }
   },
   {
@@ -1206,7 +1206,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x221031 passes this fallback directly to its resolver for CreateFileW. Calls the named SetLastError import with 120 and returns with 28 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "36cbd66dade11a83b23008e53986f8e28b9094cef89d9cc3bc0b44e4117c3802",
-      "inputs_sha256": "fc09766a27cd893ce8e2c4373e967f6e8b37462f7340b91a628c4a31b48365aa"
+      "inputs_sha256": "9732ab26bd54fee5db6cb44713e0600e66ed44a33f25d1aeb6e99479e219d7ce"
     }
   },
   {
@@ -1229,7 +1229,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220e75 passes this fallback directly to its resolver for CreateMutexW. Calls the named SetLastError import with 120 and returns with 12 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "d7c660e4a613cf23357a542b9e8bc6ec420523ff6c4f733a8a769c7e3ce70dab",
-      "inputs_sha256": "98378f239eabd938ef369f9625a1aedbce9d82de26fea5e94e3392b93e0030cd"
+      "inputs_sha256": "6f166c8e9fa94dcd2da591f68ed0b85842bf3cdc3882643d8b8bab67f761ba8a"
     }
   },
   {
@@ -1252,7 +1252,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x2841f3 passes this fallback directly to its resolver for CreateProcessW. Calls the named SetLastError import with 120 and returns with 40 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "467ab18bbc687ad43399b7185997cb536a0d14b739f3172ba12b8a1cf3a90a0f",
-      "inputs_sha256": "a04d51e6db8f6d41a8254fdbddc7190ff90a5088a88eb32cbcefa1ba8aabf264"
+      "inputs_sha256": "3abb01b5920bd04f5ac287a2fbc216e3de129bde72698cc28264a47a30b680b4"
     }
   },
   {
@@ -1275,7 +1275,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220e50 passes this fallback directly to its resolver for DispatchMessageW. Calls the named SetLastError import with 120 and returns with 4 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "409e135e360c292066077a8ca23e64a7108fb0ced8e35aed608de1355426e4e7",
-      "inputs_sha256": "a09ceb6bda2895539cc527bf3f01b1d7939ddb75c1b6d9d2c90fdc813e56e5e1"
+      "inputs_sha256": "9dfe47c0593ccea4583b47cb1b1f9deb04a8929c00720d59ac9a661e2a977ca8"
     }
   },
   {
@@ -1298,7 +1298,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220e9a passes this fallback directly to its resolver for FindFirstFileW. Calls the named SetLastError import with 120 and returns with 8 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "6e53ddb8d4274d22f7e2b42509e43ccb504eecf05296bd2761de1c2043fd5dff",
-      "inputs_sha256": "c87fa741c40524f061d4208c2baf7108e87bce78e5bbcd0aac58c33f5624754d"
+      "inputs_sha256": "9fcd35cf6bbd5a385aa8fe03250319e8f1579c6696c8093c2ad97804e0e7d97b"
     }
   },
   {
@@ -1321,7 +1321,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x28413a passes this fallback directly to its resolver for FormatMessageW. Calls the named SetLastError import with 120 and returns with 28 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "3a319861a3da7ae9355bdc4c27464d566ee7ea9424f915a4b3ac953c728c50c9",
-      "inputs_sha256": "151f57246bc325c3f7ef7c384ec0fcb0961c28896c1e21b99a9fcccd8d3b5713"
+      "inputs_sha256": "df0aee2a0dcb24a19394573cb9fe4c9c348a95d7790389d0edea03b37dca06fb"
     }
   },
   {
@@ -1344,7 +1344,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x2845da passes this fallback directly to its resolver for CreateWindowExW. Calls the named SetLastError import with 120 and returns with 48 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "84ae9c9b5120d273a4651521d8e52ccb239afe140b7d75a580995981e413b7f8",
-      "inputs_sha256": "38f2803edca732a8186219617f5005967b5f30639599b7fd02557d8f9a0fed70"
+      "inputs_sha256": "eb73bb25610da8f9785967ee036378cbc7284eebbb3c4d7229b99c737b174f50"
     }
   },
   {
@@ -1367,7 +1367,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220f2e passes this fallback directly to its resolver for CreateDialogParamW. Calls the named SetLastError import with 120 and returns with 20 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "7bba35bd05bfbb215848e65d22cd7e2aa765bff9519f8ebfb7e6b07814850360",
-      "inputs_sha256": "920c7ff060bd0a4b41ae70ab470c1c964c0d7688411c4b90bf2706924eb2de32"
+      "inputs_sha256": "4b263dc5b93ff7fe24b48a822c8cbb8f6b69e11346655f3f59cba56e5149576f"
     }
   },
   {
@@ -1390,7 +1390,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x2844d7 passes this fallback directly to its resolver for GlobalAddAtomW. Calls the named SetLastError import with 120 and returns with 4 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "06e5d029fa229b93136708fd7d0c5cb78d4eb413874942c94432c29842269dd8",
-      "inputs_sha256": "5a9048e42911dead2cc4c732c23a27bc5954a9d43ba87e4bcc9f26633ad3f1d7"
+      "inputs_sha256": "72037629de6f09ff5dd1c50e0404b86cfe357be12220ce1d9367b1ec357ac0e8"
     }
   },
   {
@@ -1413,7 +1413,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x220ebf passes this fallback directly to its resolver for SendMessageW. Calls the named SetLastError import with 120 and returns with 16 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "4b408c4739e151bfadee5db34370bff1f38b0fc761667fa9707cb2678201dbe0",
-      "inputs_sha256": "0c063599532fc8b65b5fb8c2f255e31a6c5ea8a3e82300125ae7a01091f66f73"
+      "inputs_sha256": "fdbdaa78a010af259683331105833e8541308dbf7362fb69c5355db0da883781"
     }
   },
   {
@@ -1436,7 +1436,7 @@
     "identification": "Windows API dispatch wrapper RVA 0x2210ea passes this fallback directly to its resolver for ShellExecuteW. Calls the named SetLastError import with 120 and returns with 24 bytes of stack arguments.",
     "match": {
       "bytes_sha256": "44476a7590fe26e0a394835a4e24a1c7086635221fd3d13c9296051222caf97c",
-      "inputs_sha256": "9903df60c663f02d9776a1d40f2f95fb99f20328d7ffceb3e2720110ec3c1d37"
+      "inputs_sha256": "3822a325ba0c4fb210c97922d1e8dff902f1801abb497fc50a24f2080c2a0288"
     }
   },
   {
@@ -1463,7 +1463,7 @@
     "identification": "The read-only pointer at RVA 0x2e0aa4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "fe13fb0c573bdefc45200a36b51041a2668ab0e7db743fe0cddd941fea6a4bfa",
-      "inputs_sha256": "b229ed49daf6bd6a373f24bcd4781cc860006f381273069c615e8d2d41c8abc8"
+      "inputs_sha256": "7951f865420b1967751e75186e460fc3eaec3f1b055545c62dd3a46d7a70f897"
     }
   },
   {
@@ -1489,7 +1489,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "50d9624037828a436f3bfe41c6da28e544268b3efa65ea26d738d0a1ee4bc0d7"
+      "inputs_sha256": "acb978b8fc5246cd6053cf90c74e78033086e17414d00c5298329c3acb35f541"
     }
   },
   {
@@ -1515,7 +1515,7 @@
     "identification": "Read-only method pointer at RVA 0x2e0b90. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "4a712f9cabdd4df6493836adc078a4d4e68f46af5fff52947bda1fbe5655b9e3",
-      "inputs_sha256": "58cda2dc1d0b154aa482581bb39e5165cbe3b628db8a697dccd27a600a0ce2f7"
+      "inputs_sha256": "33ebe4f5bfbcc3ee6af5c8b12fc1988e8325b9270b5eb34bbe9dd4599e7d8e96"
     }
   },
   {
@@ -1541,7 +1541,7 @@
     "identification": "Read-only method pointer at RVA 0x2e0b98. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "264e818c3f76870b2d36b72d9e0f46b817f4808c0b85af26c43171449a4718f2",
-      "inputs_sha256": "dafcc50080e01f43ceb968528185b3e94f4bf6b04a7cb796049ff0b8e1374032"
+      "inputs_sha256": "05f743dead8985c1ac691d19cb9b175a9c3a37838c69fb06e68ee461ed784dd7"
     }
   },
   {
@@ -1567,7 +1567,7 @@
     "identification": "Method table references RVA 0x226c70, which calls the destructor at RVA 0x226c90 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "05ac9ad4693453428a17c62276cd57c9d96968c11397b6982c5109d4067a4638",
-      "inputs_sha256": "c23354a5c3f73a9e012a8621e26ac9515f99b4926da84d330780df2f86ac384b"
+      "inputs_sha256": "4b1e5ddd752c0d82fd65a9c3d9c25985facf62fa937134910290df99081b1da3"
     }
   },
   {
@@ -1593,7 +1593,7 @@
     "identification": "Method table references RVA 0x2270b0, which calls the destructor at RVA 0x227010 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "5a941da7ae2c0148ec3293f6d9f235f1607af6960f1b4c9b006055b45bddb321",
-      "inputs_sha256": "581a74a960febfeb6d1cdb44bed2b85fa4482c31968f502623701480f5144dac"
+      "inputs_sha256": "374dbbe7a835d9bfe48258aeb8832e17bdf4c9d50bd46034803fea28e1b858b1"
     }
   },
   {
@@ -1619,7 +1619,7 @@
     "identification": "Method table references RVA 0x22c9a0, which calls the destructor at RVA 0x22c9c0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "2d98566553826e5988244a40b9e3ecfce75d93a4ecdf8317b1ec04c43c7fef28",
-      "inputs_sha256": "cf64b50b4518f8d5e9c153634e3d6a84f43c295416e17477c17a05c19b8736de"
+      "inputs_sha256": "a5abc2677f58a3e9bc5f4f59446d919a3e5ffc8f7541036f8da90d51915a424b"
     }
   },
   {
@@ -1645,7 +1645,7 @@
     "identification": "Method table references RVA 0x22e380, which calls the destructor at RVA 0x22e3a0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "3b80b5f6b640633521f9d99e486027633041114a58a7ee06edf89db3481b64d5",
-      "inputs_sha256": "9e5d3beac431e39f741f060e7ffa92cfcf24f4c9a3df30d521f5be287010a13b"
+      "inputs_sha256": "e8fb722abc754f2fe7b1a5b69be89984bbed5e6c62d75b7a7d713b941a1cdb79"
     }
   },
   {
@@ -1671,7 +1671,7 @@
     "identification": "Method table references RVA 0x22fe50, which calls the destructor at RVA 0x22fe20 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "aa134b0e7a5df48dd1907e7cc61b516d6a0543ba5b599b9b86e53019da61e5e8",
-      "inputs_sha256": "60a29782d74620a63f58a023194dbed90b02f40c78c5e2fd61b30fd7c6c7395c"
+      "inputs_sha256": "b006e727b958ecc4f0624f85c8da6ab5e1a7f613c49b3b42a2212a9421fb27d5"
     }
   }
 ]

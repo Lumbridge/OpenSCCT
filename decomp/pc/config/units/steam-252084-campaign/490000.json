@@ -18,7 +18,7 @@
     "identification": "Complete dispatch adapter at RVA 0x4901a0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x48ffe0.",
     "match": {
       "bytes_sha256": "edb0a9037788b8759ac1556744d5ccee3d201d93a2d2f673b87dfd519e8428c0",
-      "inputs_sha256": "33b82fea096fc37f43175a6f8d66bba21b8f7de9bd83ea0cde894da30324143c"
+      "inputs_sha256": "3bbde67e785dcb05d9efff8d54b2304021d05bf45ad4f3474cc606f285f045f8"
     }
   },
   {
@@ -45,7 +45,7 @@
     "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x4c3310 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
     "match": {
       "bytes_sha256": "4828001f711004b0da4d86bdc66a4b38f73f8d287063843a4ea23f115c224de6",
-      "inputs_sha256": "a14227a6c148e3e3bf89896edee9f1a6e0fbbf45cddbb7601eb69d30598387ea"
+      "inputs_sha256": "cd4dfd429a76b9b482c969b58652b238dd1c789e3cc368fac209054db58346f8"
     }
   },
   {
@@ -72,7 +72,7 @@
     "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x4c3360 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
     "match": {
       "bytes_sha256": "a33ddeb4b56f84ef1caeb2385fd960c61813ceb398c28376ecac5c943c4def6e",
-      "inputs_sha256": "202cde8e42a6f1bee1e95ac9395f61dad71abcea40df4033c420a2032a081fb0"
+      "inputs_sha256": "78d4511a0884d7d0579c721d1de61fa2be4243305e3b879d64d681b4651a67d9"
     }
   },
   {
@@ -99,7 +99,7 @@
     "identification": "The read-only pointer at RVA 0x83d420 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "9b4c9816a3f13657555e8bffffbcb76936eaa7f6778e3f7b2ad6bf08fa6c977b",
-      "inputs_sha256": "07361e0ab7c9ac8b9c289a41627f4074ac6e3fceecc086e69c0e2df3de566f7c"
+      "inputs_sha256": "d53152b61b25d67b8e1d24e6f56d33780832623dc4ca177a63376d7b29abe1e5"
     }
   },
   {
@@ -157,7 +157,7 @@
     "identification": "Complete indexed Campaign function RVA 0x492210. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "53d8e14679a75998fae001124c7f183552b522fa9c5033932b97f01a71690002",
-      "inputs_sha256": "67ade77f881486c68ffef774dcce9abde0ad149912c93a2eebd2509a693f3f63"
+      "inputs_sha256": "e759c808b4ebd5edaf0f829c15a04c9dd73750ac418c6e34ff0515d172683a2d"
     }
   },
   {
@@ -183,7 +183,7 @@
     "identification": "Complete indexed Campaign function RVA 0x492230. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "c16fd00dc351bdd9e60b5c96951d00424d01451cb4c5d620cbbe0304eb9391f2",
-      "inputs_sha256": "268b830928af713d482635f93fdf6e97cb70abfc647ac3c8def022b5bae83fb2"
+      "inputs_sha256": "17039b8002fa855559f1c00f846519c63ebc628db272db0acb281c189c59c115"
     }
   },
   {
@@ -209,7 +209,7 @@
     "identification": "Complete indexed Campaign function RVA 0x492250. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "3c061725c35851e327c043cfb3d9744b1db3ec5c3a63f5840c25db950288f309",
-      "inputs_sha256": "2be0268f4c4ee73c1cd1eccf121c7bed2505d72636f301913ea186379b831a24"
+      "inputs_sha256": "d479931b6565e15c272e0c67f20a07daa9918db550df78ba6944ac5b59cc7e94"
     }
   },
   {
@@ -235,7 +235,7 @@
     "identification": "Complete indexed Campaign function RVA 0x492270. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "1e7652a04881ab41ac0d2bcd7cb5796a27058c819cdac220a725ac6d44172259",
-      "inputs_sha256": "f1eb2778fb5b4029bfbdbddafd3403f45d75b71639a06167cf6da2a286d59263"
+      "inputs_sha256": "f39c1383e798e3b34f62eb254171cbf3274280303ec81d006b577dfaad56b193"
     }
   },
   {
@@ -261,7 +261,7 @@
     "identification": "Indexed whole function. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "14026eff3acb0dd0b73e8ec5e37fdb5415cfdfa11e1ff37ecb79b955e69f769c",
-      "inputs_sha256": "33f221194045b89d1c1ed8c21099e89b8cc84cabc6ff6bfcebd6b9fcd2607e89"
+      "inputs_sha256": "3801ace3207d4325b46923f9e0b3f8dbd1e8f0163859b1449c4308eec9670bff"
     }
   },
   {
@@ -291,7 +291,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 1-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "8cb74f07e5eca3c6f44a15e6dde75c3b7881c2ded95db590ca5b8086a5b26a5a",
-      "inputs_sha256": "de1929ff854128a68cb9b7acc5ac2551fa0545955fc0a3a0e54dca5397d5a1dd"
+      "inputs_sha256": "2754b89df4eeaa3df626346b57307701d68d1de7217d2aa19afb02d20900a930"
     }
   },
   {
@@ -397,7 +397,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "8a784fe67df332fc9f8e6a042c1afce3fe48e8a85022d31479f43eb15ba83103",
-      "inputs_sha256": "3a5210a2acf58a3aa11565a90f9ac790da8493b761bf3d2007aa97ed723650c7"
+      "inputs_sha256": "5754f837d737e980a02f9a872b341bbec611e0ac6e8b1c2580ad59d3ecf929fd"
     }
   },
   {
@@ -419,7 +419,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4930e0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "ef26949bf529581475cfceb666896127a5e2e4a1d3f8ab187dd438242d5be95c",
-      "inputs_sha256": "1d13958375ad8716c91ac204cfaa4bf6ecf54d891e938c030fbae5fdd6bfafdf"
+      "inputs_sha256": "0b1acad7e24729cb7d47c2774c85d551d3bf731978dd4f967440cc802f925684"
     }
   },
   {
@@ -445,7 +445,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "61c4661e514bb9481630c33d08f25c93c41713f466d6d7509d64f6c730d56a34",
-      "inputs_sha256": "f4319832f1e3af2316b4c68220eb034ea1f8b351aad5b5e21fb939c0b83ad74c"
+      "inputs_sha256": "d5e1d19301a9f70fabba0914ee3990d9a88194651d674eb115c00da2f0e6e57b"
     }
   },
   {
@@ -471,7 +471,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "b9d99af15b42855f47e484141b5672cd55a908ad583e5b0690db1de8cc6a8b9a",
-      "inputs_sha256": "3f6c2b52014330eabf07b20ea440f8ae7d5b1fb99efcace13dda84b2090b8dab"
+      "inputs_sha256": "d1d3bf343144672aace413df40bc1fca39f350f52c5933455bd072d69d9436f1"
     }
   },
   {
@@ -493,7 +493,7 @@
     "identification": "Default Ghidra extent. Forwards the range, destination and vector to helper RVA 0x492f00 and returns its result.",
     "match": {
       "bytes_sha256": "f1e7f1a02b21dad24fd543a4454a9c78380ebac664d9d852e4b01f26b0ff1811",
-      "inputs_sha256": "414bdb5d3e0a9a8e2a8f34acfde572788ba3414767747d6088b2d2933e988d16"
+      "inputs_sha256": "8f6e8774ffa9729bf52a2b8cfdad77e85efae3dfa17ae48bd18a909494841cbb"
     }
   },
   {
@@ -519,7 +519,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "493621662b1975812de2f7610cd1aec7b1b8903f7007912a13a48404311a60e1",
-      "inputs_sha256": "7547f90cc0470b67ba67a7d8049f89e8b0dbc5e0a48c1e4468914947d1699878"
+      "inputs_sha256": "0a21f4b677cb8dea6461652b5a01e179904f45c39bc2a75d0476c555a939b2af"
     }
   },
   {
@@ -569,7 +569,7 @@
     "identification": "Indexed vector length-error routine at RVA 0x493570. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
     "match": {
       "bytes_sha256": "358d899ed378549af3efaf698d406500bf27313d704d67c682dbe90dd5558f4c",
-      "inputs_sha256": "e0fbe5a72d3a885c8c02033151f18859df277cc5e00b0218d92cec1c2f3f1dd8"
+      "inputs_sha256": "b9ee77bfa2b79da83974c074002a6462c96e1f2309a267bdd789b2bf4f2955be"
     }
   },
   {
@@ -611,7 +611,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "5c29d35d798bb8e718823d55833abf71f01422dfbbad1fde1d10e5a6faec5470",
-      "inputs_sha256": "64d4b995a1737a7f342115175a68b7a9f604428a9c571100240cd7429a4fe2cc"
+      "inputs_sha256": "fb11c945c6ced91ce87d9a697f2ce1413ce2d7e8cec58061dfa5f83314b4aced"
     }
   },
   {
@@ -637,7 +637,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "9d90cb7d25f5933d5527cde0ee4b132891a5e39a1af8c1c192b46474ddfb8e75",
-      "inputs_sha256": "856ea282906ce89ec30221bc388a1920c63a3aa9bbb18f7d228b8230510ba80c"
+      "inputs_sha256": "6a411dcb42dfcb07e9ce04a6d951fefe4f8e0abdcc90fd717ed380cf03fae891"
     }
   },
   {
@@ -683,7 +683,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 12-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "478edb26fa34d50babb1bb6ae7faa7d1838f3cda40f57724d06a4f478bb03c45",
-      "inputs_sha256": "d1c4a4bf1d72f3f807cfe3c248d8b2a1482f3dff1b94260d6f436efe69e616b8"
+      "inputs_sha256": "13fc0f825c406f1b75a6b48e5baee639db7e00262a47774503be01fa37133cdc"
     }
   },
   {
@@ -713,7 +713,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 4-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "9b55172447844fd032f79c7407e9cb443fd89135419305d3a90b659dd7fd2338",
-      "inputs_sha256": "cfd3ba8491711a95e7e6969c3cec16de69677aafedd044eae0bfa841b40591c2"
+      "inputs_sha256": "7f68af4810377a4461631c2fa8170bf30894787ccacba26515b17bfca90dd162"
     }
   },
   {
@@ -739,7 +739,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "504629922ddb50045e732678746739ddf1a0311b402dc78ac797227ff48cee7b",
-      "inputs_sha256": "8435ea63ec15fc4aa997e289bd79372824942cc5727d889ac1ce115555927fbd"
+      "inputs_sha256": "64829797437aa9b7b8694815476611f4d38107b9e783bd2eea8605b38a16529a"
     }
   },
   {
@@ -769,7 +769,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 12-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "500489b62b074248b3268bfc55e4b2e0304edde18f7fadca95bcdd70efb9f7c4",
-      "inputs_sha256": "cab4fde3e0c2702c91a7d52380c2ee770afd029ac10607a93275ec373a13f1e8"
+      "inputs_sha256": "39ef825b5eb61f0298e75e3c9cbdc958b2a82ad31df33987154b58c0710be92a"
     }
   },
   {
@@ -892,7 +892,7 @@
     "identification": "Direct call at RVA 0x494623. Restores the two sentinel links and clears the count before walking and releasing each detached node with allocation category 7.",
     "match": {
       "bytes_sha256": "e73e225169847faf121db008b957c51ea54b117c0657a067e81d75ed885957b8",
-      "inputs_sha256": "855418bd398a227e455261cfdcb77f9987eebb8a8b8fbc03c0943d8012e91e86"
+      "inputs_sha256": "35729aca8eecd2b333b23fbf998800b161b84a524e7a5f7479ed6307614f7d39"
     }
   },
   {
@@ -954,7 +954,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x494620. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "a9de082d56382f266e135ecda28a7259929b86fe74bf92723e368e1ba41bd2aa",
-      "inputs_sha256": "09b0e155572a8a2ea2e00330b22a34995df36edaef8c4f1a955b05b2ae933bf0"
+      "inputs_sha256": "fdac43f9829fbd702bd20396ef109ed41a980648ba7341c98be0af19e071baa3"
     }
   },
   {
@@ -1032,7 +1032,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x494a60. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "1d1c8c49a643095855559abb1438048bf62fa2db3b8b0a0c2a8bccfa3b8c47b3",
-      "inputs_sha256": "0430bcbffa53f9b87f99236a27e9f697d404c2089d6714ffc35afb6e4bb6127f"
+      "inputs_sha256": "287db894583e825cf6d36bd9aa79b1a343391f30e9cbf3236b89b37ba3bb7d25"
     }
   },
   {
@@ -1054,7 +1054,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x494b60, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "97a9c50344c600b0f3d651dc95956d08031e4efac4d1a2654b53d6b58ce61b68",
-      "inputs_sha256": "f513aacfd48cc81ff26310db12e6df52c4facd46cf537b81dee0b6d2c136c427"
+      "inputs_sha256": "1e25acb7504ca457469e69a46aefcbdc9e472fd1c1bc4c489a5dd2b6d673645c"
     }
   },
   {
@@ -1084,7 +1084,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x494c10. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "307e16d04455375a07ee0b9768dfc7ca0b0a9289d8144fa3767ed522ddd67cb6",
-      "inputs_sha256": "3b7b0d6453d8f180847d0172056672b04c3733cd8941073b6230672475546759"
+      "inputs_sha256": "3e7254af062ef6f15f88bf52c2f815df12679d02706cdfadcb58728e9db87e53"
     }
   },
   {
@@ -1110,7 +1110,7 @@
     "identification": "Direct call at RVA 0x494ca3. Restores the two sentinel links and clears the count before walking and releasing each detached node with allocation category 7.",
     "match": {
       "bytes_sha256": "876913d97c4398755a611b4d257512ca0b7731a0bbc6c62c9a0068155baf08d3",
-      "inputs_sha256": "047ef6ef6882235ae30998a9261d9866097a7f3086c705581f06e9c49505b2a2"
+      "inputs_sha256": "ead173c4914133971bdee048e8aace8ce7b5e75d340d8f882f9e880d55e9d8dd"
     }
   },
   {
@@ -1140,7 +1140,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x494ca0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "ab3e6518ad9f47119da4ecf515c02f08290280a7aeff71ff597ee97446f0716f",
-      "inputs_sha256": "ccb443e911f39be6cf6be1bbd120502289d2cd0c0805fc0904e0537be171be58"
+      "inputs_sha256": "ddc49f442a94aa681d1d6ca1b2ae0cbce327a69470ba6496af47f9d011a81bf0"
     }
   },
   {
@@ -1162,7 +1162,7 @@
     "identification": "Default Ghidra extent. Forwards the range, destination and vector to helper RVA 0x4949f0 and returns its result.",
     "match": {
       "bytes_sha256": "b67a138c94b5078a17418a8bf1a23b6b5a3122e7108f57c8f2f2d91945c0e46b",
-      "inputs_sha256": "4c36d64340b296553730e9c1e9668f7c215e7da45796e52ed3713337122fe1b5"
+      "inputs_sha256": "80afe0bf8a1f70fc081895bc9b7af75fe58e078a2f78e948008538c2a11a9db3"
     }
   },
   {
@@ -1184,7 +1184,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x494d10, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "97a9c50344c600b0f3d651dc95956d08031e4efac4d1a2654b53d6b58ce61b68",
-      "inputs_sha256": "385f006980888d011d2bb9e14434218afefd1a5811af38330ecddb4e1d3f7942"
+      "inputs_sha256": "fcbedd78b47a672200f654c6aea22a59c203851eedda52c1dfaf1b24c1de7729"
     }
   },
   {
@@ -1206,7 +1206,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x494580, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "20a01bb2b3ffca937ae4f4fb8bc25edd36188f77d742654f072a270c19d64bae",
-      "inputs_sha256": "16cbb199e5bb6c668c84919920a247f67918b6d26cd22d97e3e7e55c839456d7"
+      "inputs_sha256": "57b9c21ec80e9dfcc10f9befe6a96dedc94e34e811c435dd11e31c953fd755ae"
     }
   },
   {
@@ -1228,7 +1228,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x494650, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "763bc61180ee5378f998f1a5177cfe1b07bcb1ea9a2e820dc6229c02e9ffc535",
-      "inputs_sha256": "8c90be840b86f8dd83d3198cf0aefe725d9d3100bc8fe86d1fec383748e35ff7"
+      "inputs_sha256": "c8008f4128746b995199a7fad51b5ee8f209b46d920ecdac63de96fce2c6c2a1"
     }
   },
   {
@@ -1258,7 +1258,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x494fe0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "f0c0cd23efd9de1186467178de974e1689f26980552d99137d70a3704f1fdb50",
-      "inputs_sha256": "e96ef690030eb2808db96a901b6424000996bbf46f180dbcb4bf0fe6c62fc76b"
+      "inputs_sha256": "910206e33d0be66271a69512812f466e78f8114e36496153cf878696ed5270b2"
     }
   },
   {
@@ -1280,7 +1280,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x494580, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "5bf17a2d36d7981932e23acef6bed74ccebfa18759bc36c0e3e51f91eadcea2a",
-      "inputs_sha256": "e8a2512d9ad6cec3ae89c138d641dbe388a1f993ea38c796736ca449d2fa0495"
+      "inputs_sha256": "8b20150ebafb30169f5d171596288e1df72d816c4e65a3ffffc9d0e58e89cf8c"
     }
   },
   {
@@ -1302,7 +1302,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x494650, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "20a01bb2b3ffca937ae4f4fb8bc25edd36188f77d742654f072a270c19d64bae",
-      "inputs_sha256": "a677bbc302dbe94c209579747b31054265db4ce83bf20d61169c359ec00f8dca"
+      "inputs_sha256": "696c9a4980343acc56f54410297ad6575e8f378a3f17945381c8cd830ff9804c"
     }
   },
   {
@@ -1332,7 +1332,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x495090. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "da96ecfc8f20d5087ed28863449f2ec8cb418e48d86d3c27f1b95fc4188d639d",
-      "inputs_sha256": "9caefaf673fee6ac71c0d977ae3938c66efb822151b1bda135dc43866419c289"
+      "inputs_sha256": "117d02a11933ea4304d5179aa765c97fef78ec04f584413155eaa7c36d172e26"
     }
   },
   {
@@ -1358,7 +1358,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "ca87ac642f3c2bce51329cd4fa3c1a723c497c242c18e0b80327bf6fc11fc541",
-      "inputs_sha256": "162a9cedef6ebe85557cba03afd833a2d9df3c949d8919736f43f126a3b6d071"
+      "inputs_sha256": "03ae525c32798da576a8a93f606e71d0ee313507fe23117d9cf9651877e63d92"
     }
   },
   {
@@ -1384,7 +1384,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "529e7b97cd898e9de8f8f0d2300b48f00500ba70dee3ca3f7c6dd6245365a46b",
-      "inputs_sha256": "a24ab8d5d124e76be00bd29065eb9c7237f053b2c9df5f0d52d25f9e65a03505"
+      "inputs_sha256": "9be85a711580050cb37a97ba07c8263895ec84761f8965d940b8f273ef69e1e1"
     }
   },
   {
@@ -1434,7 +1434,7 @@
     "identification": "List growth for a 4-byte element at RVA 0x4954d0; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
     "match": {
       "bytes_sha256": "1b5045752931bf2841e3518bf078dd8566a3783b3201fecc7354d115de2656da",
-      "inputs_sha256": "5fafc405606cde71a3f9c91b1e6e3a6db79b253f7e41922eab48dc6faf089b6c"
+      "inputs_sha256": "abd17929c904716e59d8964e9124f99ee216513c91b8aca7219a9e8e8b009e13"
     }
   },
   {
@@ -1484,7 +1484,7 @@
     "identification": "List growth for a 4-byte element at RVA 0x495560; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
     "match": {
       "bytes_sha256": "ea6c671d8a6e2a7f8456d83e2c2c55bcc703f91ded7a1b391bbbfab25529a3da",
-      "inputs_sha256": "64e3845f95c137cc5da3c4363724d44c4e78b78765f96fe2d7e3d4415a96db5f"
+      "inputs_sha256": "2d9b8d72f9d153f440c07e8ca5fc0afd02999af31e5ad338557bfa459ac41cf5"
     }
   },
   {
@@ -1534,7 +1534,7 @@
     "identification": "Indexed vector length-error routine at RVA 0x4955f0. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
     "match": {
       "bytes_sha256": "f64b826e911f08d7ff967c297f25a3b1002a0849d5f35e9eb0fb667241de09b8",
-      "inputs_sha256": "0710416351a00c38978e23b867fdabba2b696d4035a47c78d29b7799507a0234"
+      "inputs_sha256": "10fe6177a9c72ee85df735827c4e33dee9c749b3dd6677dfd0fd74ddeb2c4fa8"
     }
   },
   {
@@ -1560,7 +1560,7 @@
     "identification": "List insertion before the supplied node at RVA 0x4957e0; creates a node, increments the list size and updates both adjacent links.",
     "match": {
       "bytes_sha256": "bfc0f4f2c58e379bc49d04b9f47c0d2fe317db1359f1847536017d1b7fa53b35",
-      "inputs_sha256": "03ff92573723e83dbfdff49281d4cf5711273a50ef85ffd8d00b9f94ea48f8f3"
+      "inputs_sha256": "cf4e932696a85aeadaa702c5beaa59ba71d910a0968c886ba5220b5c7ffd06a7"
     }
   },
   {
@@ -1586,7 +1586,7 @@
     "identification": "List insertion before the supplied node at RVA 0x495820; creates a node, increments the list size and updates both adjacent links.",
     "match": {
       "bytes_sha256": "3b0a15f1f097de7abb613cc626dae5a48be44a50458b17ad740fbce35a9dae78",
-      "inputs_sha256": "14111d508c29e5965c14065931085ec56167318009711bc7d64391f0b42ac6a1"
+      "inputs_sha256": "e82283fdd90906d59803f1cee7bb1960d1ae9047845829c8a086b6340f822841"
     }
   },
   {
@@ -1620,7 +1620,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x495af0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "aafe121213ff768e998f46191c22d7230663aa509ec0522507e52dc2c9ebd22a",
-      "inputs_sha256": "e15d0845201abee4e98d6d40582b2b092b592f86e41974d673671b5e6b6378a9"
+      "inputs_sha256": "cea1266b668e2797e10d117c92d88fc62dedc0b027d71785799e0cfdaa5a96cc"
     }
   },
   {
@@ -1647,7 +1647,7 @@
     "identification": "The read-only pointer at RVA 0x83d768 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "bf6027fb54e56dd4cf6e4ce3846570f494a79620163f2cf7050920bf9f004b79",
-      "inputs_sha256": "f5873f21f31a5ddb5c3e94bfd03d32720576144078e0cbada52a9afec68b2ca7"
+      "inputs_sha256": "cd2babfb5c4b9aff1f5fcd482c87efd0f45009b13ca4235f7a3caab16115e654"
     }
   },
   {
@@ -1673,7 +1673,7 @@
     "identification": "Aligned container method at RVA 0x495bb0. Appends a constructed node before the list sentinel and increases the count.",
     "match": {
       "bytes_sha256": "b7b41f6536f98d81d7f4298673d8fe636e33df2fbe007c28c399fb9fcc10c657",
-      "inputs_sha256": "c518b759ff3b342de9cdc83b55f0b5b3944441f2498b957caf9b944404701b77"
+      "inputs_sha256": "d1cda2681efdce2a630350eeecf3c26526e00853ca543da3c9a77adde1fe7f5e"
     }
   },
   {
@@ -1699,7 +1699,7 @@
     "identification": "Aligned container method at RVA 0x495c30. Appends a constructed node before the list sentinel and increases the count.",
     "match": {
       "bytes_sha256": "bd7084b922c49a9511faa57dfcc5e04b144482f4c529a35565105c8276c26bf2",
-      "inputs_sha256": "30a6a70392b1a0ff28d090307e07361cd8c6ca8ee91c9ea7e4646e9f5ad2448c"
+      "inputs_sha256": "7742ea694517404da6ed8ecfc491bec8deec17ad69db26a14ea89992e97c4193"
     }
   },
   {
@@ -1721,7 +1721,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "c4504cf8ffdcc4a1f4f0ea5be5dd9352beb03ed4595aa7c25f162641ce958edf",
-      "inputs_sha256": "237ff3962d8f29c8c756a7f4d0633bf37efbc70307847f8bd96fc7a7b587b934"
+      "inputs_sha256": "de9895787d6ff021ee24b901ef34e6fbf61099e9d812d42a6024370e941d0f51"
     }
   },
   {
@@ -1814,7 +1814,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "6b356df4f1cbf2b0d36cecae83453a1cc228facd1ee9af87ae82364df7ceba1c",
-      "inputs_sha256": "4b11053b076d3f57c02670cb9d4f4e46c024e345615598f7617e3d99e6485ccb"
+      "inputs_sha256": "20a7200ac9645beaddb6aa61c3ebf202d20c8e1f30a4dc943739dcc185edee94"
     }
   },
   {
@@ -1861,7 +1861,7 @@
     "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
     "match": {
       "bytes_sha256": "d86b287eecc6371e12ec3ccd9a3a4b75ac7e187931fa7d2e28d988cac411f88a",
-      "inputs_sha256": "29ac617d53eab29c7901468e73482fc8e780f7370f4330b6a48606b8e6ffda0a"
+      "inputs_sha256": "29a71353e60fd25c3e5662771dcd4108721a087477552827280167dd3f994f02"
     }
   },
   {
@@ -1891,7 +1891,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 24-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "d999fcf08464b6f5ccb08ab43b23f63dfbf9b4f93ac0bceffe80d044d02c9b59",
-      "inputs_sha256": "c6b90a8f9d9e3fe304e55f1dcd2e8209a408a81a46255301c3566c3b9d47de4e"
+      "inputs_sha256": "ad1440269d98ee4940482daafc3939465cfd4a2a8275d99d4a384014c1c6b1cd"
     }
   },
   {
@@ -1964,7 +1964,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d96a03.",
     "match": {
       "bytes_sha256": "7b9448e007d6f935c0c3bdc4b072c64dc40bb0be72c4a8855cfb00d1f7d18731",
-      "inputs_sha256": "49b10dce0e23cf5af805f529c160c46006a324f898648dc4c789364edf3558a0"
+      "inputs_sha256": "3597ebb3717daadccd47af3f5e810b285716604c75205a570d6ce612c9823635"
     }
   },
   {
@@ -1986,7 +1986,7 @@
     "identification": "Default Ghidra extent. Erases the subtree via RVA 0x4967c0, clears the count and restores three sentinel links.",
     "match": {
       "bytes_sha256": "316890125fc172f0353a62f81265d17d9b67cd9561c464814dac69bac29018b2",
-      "inputs_sha256": "9836a5e95bc5ffffbd5a544f6f47223faf9bff41363830f9c1fb3a3c0aef1418"
+      "inputs_sha256": "0d9b12a07908d1316b66626a5af25caffa807a4089adebd256d46db36c4e05ef"
     }
   },
   {
@@ -2009,7 +2009,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d96bb3.",
     "match": {
       "bytes_sha256": "914d6d1041ee308595ef1cd34e3757da18a1adce2e4b64a32c5b97867571089c",
-      "inputs_sha256": "961c0ddabb12abecb735f50baeec0000247986563cf0fab726ffa58dec40e81b"
+      "inputs_sha256": "b9954b44280036e7a5b8b8ecf8660a4a844e60d9b6c227a18ee8828b79e3d0e3"
     }
   },
   {
@@ -2032,7 +2032,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d96c43.",
     "match": {
       "bytes_sha256": "c879bb353a20635ec467853951c37cdfaf2389b8c5a50cd3a7fe3b73eb20a4a3",
-      "inputs_sha256": "048ba345da29ef53fc790d73068146fcf4ba18d771d8975c223ccf7fa8a41b5a"
+      "inputs_sha256": "a8f66f881d40291f73670ed34b80a28c84eb3d6da6555f6be75da9ce6f5a7463"
     }
   },
   {
@@ -2054,7 +2054,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x496a50, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "5da3ac7f21d674063065b1eeaf1cf9182b4126d2a4d652420ce161786a215caa",
-      "inputs_sha256": "8fb681e6cb247a60cf0004fa730bcbcaa26a8899a41513a1fbd912a002d76a18"
+      "inputs_sha256": "e97d6bc0fd07593cab6e58a03be421287a76b2a581c692198b6ccf7a04887161"
     }
   },
   {
@@ -2077,7 +2077,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d96c83.",
     "match": {
       "bytes_sha256": "d8fdad6d9a5c0a667037c1772ecc77f04dd14c79f00f0411f0420ee467b63cc6",
-      "inputs_sha256": "f83d3a04508ffee612aa5d70fc3af59a47628ddcff7bc18fe0ff2ca0a4383aa5"
+      "inputs_sha256": "ab3012d84bea248b7ad2fe197b4950939d501d37618752e3fc32e498463190ca"
     }
   },
   {
@@ -2099,7 +2099,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x496a50, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "b78ce59f7cf1987bff1c03a44d4977b9dd79efaac7f03eab8a4e9f695c78c4f2",
-      "inputs_sha256": "6771027754cd21241f0107427ca64464d0eb665634173f673cc5a973379b4c08"
+      "inputs_sha256": "f4312f0844011764a7f156169281d375b73dbe5d02a184ce58342f36de60ced9"
     }
   },
   {
@@ -2129,7 +2129,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "d7b8abb5f80962c15076fcf92e27e241083e68226bc92eac5a5c8f315e513031",
-      "inputs_sha256": "e417d30aa169eb044eb5451c8f0ab7bf07053bb37ba2c5d52463a4dfd87d0d98"
+      "inputs_sha256": "0a8356a30ccbd820484322978228f1d9b3a970f556e95ee4d862c452022376b1"
     }
   },
   {
@@ -2159,7 +2159,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "f23ed0922f75b1b04dfb59470f87a92699c4d74c9be08d2fcb9264c054627934",
-      "inputs_sha256": "63f95e177c4cebfc4a3e6f274e0396c7c77418fa9489896a635ff14fb6ac17c5"
+      "inputs_sha256": "742f2201c04ea8220598dc549edf0c813291384cc975904502b34bc586e64b6a"
     }
   },
   {
@@ -2189,7 +2189,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "9da1cf0139930cadb052a5920e0e465b4d62faed7379f6c224acda9b73610ae0",
-      "inputs_sha256": "f1d8ed911fb68017e3f37bc6c7db8cc109d705636c1695f04389117449c1b0ba"
+      "inputs_sha256": "a5b7e290920d31229a7d686080ff3a63fb8df2ec5feb0f9344691825e320b8ed"
     }
   },
   {
@@ -2211,7 +2211,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x496a50, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "752756ae9de62ec239c3eda46f2352a9bcdb062cc5b2009e59caf32c2ef0e92e",
-      "inputs_sha256": "b3e727bebb57f66e5069d602a9a6eb72c8abcdc4e8bf1d6129e013ab23de41e8"
+      "inputs_sha256": "f4cee5f4ea4b5e96cdc428e7104dc07d1ff0e4dbd197b6285004efd597cbd9f7"
     }
   },
   {
@@ -2233,7 +2233,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x496a50, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "68063313efec1b0299f479ad3db1f323b384792bf9ec5e38f5460b5e13963afe",
-      "inputs_sha256": "d1378cb0daf15ca1f03d0ca28891adcfda09fbe51d3fe062b2c95e98a9aaf91f"
+      "inputs_sha256": "6e2152bb8cc9519ab932e979b09da2952ee4cc0a3464ae00649a6340fc47b9ec"
     }
   },
   {
@@ -2263,7 +2263,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "8bb1992dac582e8cc76cc3243b0a9e3e776029b23f569889c3fdfeee889a3302",
-      "inputs_sha256": "4eab6b7d5e0b79f289440dabaa961ddacd6a59e43ac5c0f1d510cb7ca6e95382"
+      "inputs_sha256": "62b50b87c7c38df921cf1867c7d4721997ff6b3b8ce497911eebea4733905982"
     }
   },
   {
@@ -2290,7 +2290,7 @@
     "identification": "The read-only pointer at RVA 0x83d7e4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "201c16c001b5b8c7da6eb9567bab3b679c42ba8acc00bbc202586fa5d8844598",
-      "inputs_sha256": "10301d84329dea78605a0e80b729b46ee867618187dc0ca747376ec0247af23e"
+      "inputs_sha256": "3ec5b60a97058ae72bea3cacf0ce41b4fb349ffa940da554d0b3bce5bc83fa63"
     }
   },
   {
@@ -2321,7 +2321,7 @@
     "identification": "The read-only pointer at RVA 0x83d82c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "e89b032458ae9258052a18bc8299986f600e6edc766a09fbb0cf523810ddad73",
-      "inputs_sha256": "8fc2be41bd90dac45ef8289900723f32be7f0df3c7a661c0a2fd965b12bc30cd"
+      "inputs_sha256": "40f93a280ad5a1a909d7574d3007c138dde2383156104e43ce36f301d437358c"
     }
   },
   {
@@ -2347,7 +2347,7 @@
     "identification": "Read-only method pointer at RVA 0x83d858. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "086a20cd8f0a098b8352a3f4c27dd3bc913dde937ddd4d1f901fc9c46e7fd8e5",
-      "inputs_sha256": "04a33cc23da8f6b1afff0394439cece54878ea6627c313adfced934e3f65e740"
+      "inputs_sha256": "3853d3d576a083282480adef1a372039aa5e3652551a264c784b7091b43edfcf"
     }
   },
   {
@@ -2389,7 +2389,7 @@
     "identification": "Read-only method pointer at RVA 0x83d86c. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "3fedd90c33536fb52c8bfb467bcbf19f0082f39541148e7127c84114725c075b",
-      "inputs_sha256": "aa4de5b2f12ad46382f95ea0bf717ea60945a1b6d2e60d7926da4b75606d2ce4"
+      "inputs_sha256": "d74f50b6464707c7547d5468b71aee09f15093c4074611a9f1883f375f093af6"
     }
   },
   {
@@ -2420,7 +2420,7 @@
     "identification": "The read-only pointer at RVA 0x83d874 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "1bc97703dbdea3fd52cfc3962f9f90ce3c7054c7f012f1dcbe9699ed29d12ffc",
-      "inputs_sha256": "212c796da30cc5ed95ecbcbbbdd5b05331465f135ae303d9aff701808a4d26b3"
+      "inputs_sha256": "ea70d4f1fad22b612bda4f6ac18faca84dd799850929fa04c8cf704fbf6f200d"
     }
   },
   {
@@ -2447,7 +2447,7 @@
     "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x4963c0 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
     "match": {
       "bytes_sha256": "7bb6bc4257f71fb5ec1e6512584d5c641db0e7938132694772315aba2fb234bd",
-      "inputs_sha256": "d03b7f24a7411948c869f84f8c5dcfe71d733a10ad45adff7f4e008f1413dc42"
+      "inputs_sha256": "ee5094920b1f0979701dc69176805257806d72d23c43680e28167404953d6ea7"
     }
   },
   {
@@ -2478,7 +2478,7 @@
     "identification": "The read-only pointer at RVA 0x83df08 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "968241ab26732319cf67b99b2d3b5b33c9c13b8585974463f10cbc946a3bfd7c",
-      "inputs_sha256": "2950b7a05111039a06f7aaecd7fdc2321e167627cc3e5f3ee48a0bb488525cae"
+      "inputs_sha256": "999e4bd0926355ba73a49d7d5ca5692a8ed926b65b658c4103fb4f7e3fac529e"
     }
   },
   {
@@ -2509,7 +2509,7 @@
     "identification": "The read-only pointer at RVA 0x83df28 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "764243e37beee5625e5aa134720feddc018fbb97cff1c1670e3911c52b5500e1",
-      "inputs_sha256": "5ae4922014512dd289f190d09895dc58dad3f65cb78754416ea69d3b924b510b"
+      "inputs_sha256": "561005f4f3eb86550a1429d2fab177fa4135f4ee5ae50d064e75a527af074ab6"
     }
   },
   {
@@ -2551,7 +2551,7 @@
     "identification": "Indexed function unregisters itself, releases its allocation, tail-calls parent cleanup.",
     "match": {
       "bytes_sha256": "f9684ccc2b5c8d689fede219c6e150d99770dd57215a4c484ff4decb2b532b54",
-      "inputs_sha256": "90155697e0f07f59b84c9ff49e5eae39864d2af7688507aaa65e11a1e4c92f23"
+      "inputs_sha256": "80d1f77ce65f85c84969c07a2c964fd56b0e86988c6cf96440ad0dfdc627035b"
     }
   },
   {
@@ -2597,7 +2597,7 @@
     "identification": "Indexed function unregisters itself, releases its allocation, calls parent cleanup and checks its deletion flag.",
     "match": {
       "bytes_sha256": "28db6128e559e3752ae3c3688c1d137172d014468e8d1e4938f225655b66f208",
-      "inputs_sha256": "b59cc16285d02190e4648c0e68f269cfc222cd34a613f1eb501ef09893806e0a"
+      "inputs_sha256": "11b9ddea4d39d787b3aef1f463c8164c7e2a87b8ea34b73cf1b5ee06eca14e6c"
     }
   },
   {
@@ -2628,7 +2628,7 @@
     "identification": "The read-only pointer at RVA 0x83df84 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "6cb88af48e3700f1bfc7a0ef572be727d5c80bff21de2b0870a99fc3eb11fac9",
-      "inputs_sha256": "37bc541033bd4ebb288fcb8b5f1ee5ef9ab2a0f5ceb07d6f21468f7e4bc03293"
+      "inputs_sha256": "2772267e8b0a5612371ea6c82eea28a2a6fb6a4c0bd19e3f26ad3a5f0ad57ca8"
     }
   },
   {
@@ -2688,7 +2688,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "a5a143af6efdad3c0e57a52806bfadcc518d12d6eee518ae66aaf604dc6057b4",
-      "inputs_sha256": "ac9598c4a42d77e69c33880d131efbfab6879ec4d310082b44e5e64e4071297c"
+      "inputs_sha256": "617f07e7cf87fca001c7504edd1454260f1d42edd1268230f5629feebf1188f1"
     }
   },
   {
@@ -2718,7 +2718,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 24-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "3e3f67e6359fa1d5eb179a9129344a34220fb0fecfc0c6d36b16021c571f57c3",
-      "inputs_sha256": "3a59f141a39c475a703fb1d35f56d72ded47fd1c637c9c5bcd7b56a84df7ab88"
+      "inputs_sha256": "53cf1a494f87cd48979eb7e6c5130ef1317412626474433db3389f32dc29ba7f"
     }
   },
   {
@@ -2791,7 +2791,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d99403.",
     "match": {
       "bytes_sha256": "96160a5f98767f439038b971580d365d620fd5f356116f72ac87f2efdc1fa7c4",
-      "inputs_sha256": "20389dabf3ed70be096fde46bc7c024377cbaa5f32a52e37d0cb331f2e659b3e"
+      "inputs_sha256": "56bc1f3410549c04954167aae2710108afd4fec8bef963f0795e6868587b163b"
     }
   },
   {
@@ -2830,7 +2830,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d995d3.",
     "match": {
       "bytes_sha256": "d46a6d30a5def78d4d47436372d406ef07cfcd8300302ec730f730332d5cad56",
-      "inputs_sha256": "2d4227cbf89604085e3aa0e70834f35d8d8cbe3de4c5c4b61d0f08d7ec084dc4"
+      "inputs_sha256": "4f8cfa3499b6f4a24579c94a61dec874613d284290d80391677697f62dd6d124"
     }
   },
   {
@@ -2853,7 +2853,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d995e3.",
     "match": {
       "bytes_sha256": "af74bf25374511b5a5f895eb0a87a84496e3f380e2d7f97925ca509b179fbcb4",
-      "inputs_sha256": "8f78011bae7b980dd1f01afebe923606325931ca9d0ef153532bcb3efd9d2fc7"
+      "inputs_sha256": "3cde49f32acf701bfec54f23e2f1d0fd797b2860017eaeedbb9df442d8d32352"
     }
   },
   {
@@ -2875,7 +2875,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x499410, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "0367c88bae07f05d20f82212971adb72befc81d59724530c57df2acb5e771bf4",
-      "inputs_sha256": "76ce88283875831f01f761a13f92551b771619abebdcfb8a78f45e5bdd16d4f2"
+      "inputs_sha256": "0c2972843de03110a0bf426dd28ef702f844951132eee8c6dd5f841b7b3ec82a"
     }
   },
   {
@@ -2905,7 +2905,7 @@
     "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
     "match": {
       "bytes_sha256": "80ab2817e377e1e4eca18f6118388a2188d23837ce76c9d8cfad2a35c6405e48",
-      "inputs_sha256": "c5da5d1a6851944a3724edf270ad3e74e13ce806f69af690d8653017ef07396e"
+      "inputs_sha256": "26a3d5224005400fc74cafefb3f0abcb63bf72dc9a7867c98d452ec5460846e4"
     }
   },
   {
@@ -2927,7 +2927,7 @@
     "identification": "Default Ghidra extent. Erases the subtree via RVA 0x499800, clears the count and restores three sentinel links.",
     "match": {
       "bytes_sha256": "f0698a82e808caa597c779d1930b32ed26e7e0ed2735c7f3ca62964207fdb3f8",
-      "inputs_sha256": "abc65dd242c27f8ac9af2bd4afefe561c6644ad5e56d4138ee5e3913daff0319"
+      "inputs_sha256": "fd7235a3b991ef8773fd8e37c886d12882ebecf246c7b32f20ef79ad49312b14"
     }
   },
   {
@@ -2949,7 +2949,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x499410, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "9391834bda4cca18cebb0e7812a415bcfa56483a54001ab5cdeab07c347f2d6f",
-      "inputs_sha256": "9d281155b467e9ac3c5c35c0baa23266c441679879673c940c1a6a37dd68ea8e"
+      "inputs_sha256": "22fe3b8769b56abfadf1424c0468b9ca975231f84c6b0cdf58450a0492b6aa3e"
     }
   },
   {
@@ -2979,7 +2979,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "334712876e1d1a90294ef4f92511b2bb553cee805b2808dd34866309dc2d2955",
-      "inputs_sha256": "81e143f0b3afd0d6ac56899881559a7cca6187787e4cd935a7a63e4b8d2aaf66"
+      "inputs_sha256": "00a1921be72b70bbc39c5adc398f9c795b00025e389a27c75cff5341fd8f20e6"
     }
   },
   {
@@ -3009,7 +3009,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "dcac59d955795fa219b7f9fecc2b8aeb2b15d7d7dfa61a8aa0eda52949cf157c",
-      "inputs_sha256": "5e9283d71616314b24d6908022415b810280b3b4f4f1d92f66279c6ef5540bd6"
+      "inputs_sha256": "80f22e80d79f4aa15b49fec26c49a11196ba39773a5a835230b533755f1c2eca"
     }
   },
   {
@@ -3039,7 +3039,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "3aba7393473e77330a00ef0456f4b29fe6cb5c2b1e25a76cd79458a86c83ec0d",
-      "inputs_sha256": "31350593e5094e53fd700c6308e0af44fb2b6e8da68278b90f79294880ea3a13"
+      "inputs_sha256": "db915e1d528cf955d28ecd0572c65847310437528ba236ec820ff95f89d3e1e4"
     }
   },
   {
@@ -3061,7 +3061,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x499410, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "9800cdbd48a170aea3401c252f3d9db8c71dfbf36d927eab9ba61c0b9793f0a5",
-      "inputs_sha256": "75249a02ef7840843751818399931b3bd4dd9f545616f1c0491e6d4f3be29ea9"
+      "inputs_sha256": "200ed787ff22643d9d09ac8f97c2d304a1e054648c16f84bec4a1747b170dcb2"
     }
   },
   {
@@ -3083,7 +3083,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x499410, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "9c106453d2fbf80419c388624e70dd1673bfc23a5b80887b8b713309c6d23aee",
-      "inputs_sha256": "5f6933c927899f9ff0c0cfcd36e98b561d4b053944d819ae0338fadeb6558456"
+      "inputs_sha256": "95a2f38e0696c9164ff8f79e249e96934ce8523d74b559a8f9b6a651829ab0a8"
     }
   },
   {
@@ -3113,7 +3113,7 @@
     "identification": "Aligned entry between INT3 padding runs following a preceding return. Erases the full range, releases its sentinel and clears the container head and element count.",
     "match": {
       "bytes_sha256": "e9f6ce7f629d963a5adb82ce25a1d69d729f93a98b5409a43e486ae6b03f4315",
-      "inputs_sha256": "9d8d717d7822ee8b93eb01bbd9749ebb996e7411aebd1ab284b57dee87738b28"
+      "inputs_sha256": "d909ce4af3d5b898d3e9dc09cba68e08f115f3e76c4db11bfca70e562e438242"
     }
   },
   {
@@ -3140,7 +3140,7 @@
     "identification": "The read-only pointer at RVA 0x83df88 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "b9fd48413ea68ea4ee102ad6d891d77a4888c8e837d19a271882bee66c8788ca",
-      "inputs_sha256": "bd2371ce433efc72fd2a90bf5a87690f8eb11d8f6c7dbf6ef90de8e4ab0f6697"
+      "inputs_sha256": "44a90aaef09dd07b50d703ce2ccd0f504bb44c97876fb41d927911cb06093ce1"
     }
   },
   {
@@ -3166,7 +3166,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x4c7f90 before installing the methods table at RVA 0x83dff8. Its first slot points to function RVA 0x49a500. Returns the original receiver.",
     "match": {
       "bytes_sha256": "b1e3bf90696380b9687788dddc0a45dbac7755c0388af16b45cdd305abadd97c",
-      "inputs_sha256": "10b03de6d6f1b75fdfe8805ca7116ed7630cad5c56f20bb2221e52c56deefc9f"
+      "inputs_sha256": "5ee361f9f301aadb5475ace19e72b2b0ddd93b4f7e26db5f12c5c2322337804a"
     }
   },
   {
@@ -3197,7 +3197,7 @@
     "identification": "The read-only pointer at RVA 0x83dff8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a693e601178511b8f9a3b9d02663fba1b52d83a1820f4ccddc61265c8185557b",
-      "inputs_sha256": "ff61bdfe95a1e0db600a861c519092d28945fd15a5ffb663a12a1bf54c14e99e"
+      "inputs_sha256": "480451c4249e5f066692669ebdfedf3778000fd5048fbfa98653b14e1fb8d667"
     }
   },
   {
@@ -3271,7 +3271,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "1258f39d1913e1d5f86b0ac8ca96c07dc7ee4ce7b2552bab237cce074c871260",
-      "inputs_sha256": "12a4f9b56ea018b2ecd2ecee337811d43618f10ce6c3bb6a65f0b01ba4f0eb43"
+      "inputs_sha256": "f28abb4e3988b683d802ca01e1b99418f72b5895cea5ecccbdf717899ff7aa64"
     }
   },
   {
@@ -3297,7 +3297,7 @@
     "identification": "Direct call at RVA 0x49aae3. Restores the two sentinel links and clears the count before walking and releasing each detached node with allocation category 7.",
     "match": {
       "bytes_sha256": "3e29c6fdfdf19ef75ed04c559fcceb671ef71b3f5a3624fdcd7b614c35270695",
-      "inputs_sha256": "38c407bc1d838dea2d8f1ace79ed79db9d92f7d3b9dc0009cac3a4332aed2b7c"
+      "inputs_sha256": "bd662cbdde3d621b4bd4868174fe520c5880eeb9bce7984b0c324bb908a2ce60"
     }
   },
   {
@@ -3327,7 +3327,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 12-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "9c169249e8579df742acdfe856ec92ae8409e5defe2166a35dd760c992c7a74f",
-      "inputs_sha256": "55a96e99c75cb536747ab9425dfadc209ba6a9a493dfa8be45450377eaed2f1b"
+      "inputs_sha256": "e532edd611a3a7e1000edbeb91f06f075104d1191a9bcbfdeb2d506ce12529b2"
     }
   },
   {
@@ -3385,7 +3385,7 @@
     "identification": "Indexed function unregisters itself, releases its allocation, tail-calls parent cleanup.",
     "match": {
       "bytes_sha256": "d1082b1e31f117e091b5d0cae3e076e24cc0477e2b6e5ebea92ac8803a07a320",
-      "inputs_sha256": "4ec75b324ac2da2e688ada0aa0a1ef32aa27260e2322d0a0df5c0f38857f7a45"
+      "inputs_sha256": "b13de3752fc316b1f8b9ca68c1ca6f99cc5313b3925bc74cae34bbd791b4a2f8"
     }
   },
   {
@@ -3447,7 +3447,7 @@
     "identification": "Indexed function unregisters itself, releases its allocation, calls parent cleanup and checks its deletion flag.",
     "match": {
       "bytes_sha256": "a62294459bd79b2875ca20164b5cc6211e5bdb682d53efbbb67f2f4bfdfb8cc4",
-      "inputs_sha256": "4850093ef99200f736ad17df17fcf46a3dda07a1c614d74ebb5de69797845784"
+      "inputs_sha256": "21649446df9633ed0cdc399ace64f9016d1c2d4b38115fdc86c10758b2bb40a1"
     }
   },
   {
@@ -3477,7 +3477,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x49aae0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "34fd68c951e49b91de5f0a4b2d7600b47d64f4240dc18a823d6cc029f6732f26",
-      "inputs_sha256": "8ca4687f49cc0ffe8e9ae7a75e1c38b531d1ba41184c48bbf6240c6dd95255e9"
+      "inputs_sha256": "8d1fa07c6aaaf3f13b6bdf938a86e6f1b1081f67268d05f5c3691d1955b5f83c"
     }
   },
   {
@@ -3507,7 +3507,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x49ac50. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "3d77fdd4c00c436aa10d84b39b821399268d50014f17087ee62a1554dbacb65e",
-      "inputs_sha256": "c94e44f98f2d7dedd6570b588170e4b941c979a386137f9f5a54384decce1227"
+      "inputs_sha256": "68d3976819a292ae748ce11654069a6c78bad728522e4fa12ab6f0700cd2459c"
     }
   },
   {
@@ -3537,7 +3537,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x49acd0. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "bfe9916ba9ede47ea60daf0839e8f88c6c8289013f8d6d9e6832204eb565f013",
-      "inputs_sha256": "54a9ac7e537bb7af0eec1918e9f36d6db02d88c7ddecb177670a6b48a21b9a6a"
+      "inputs_sha256": "626514397fcddbeca8246f91eae8408c99f6c8baabd8dc8ee9639fec9f285077"
     }
   },
   {
@@ -3563,7 +3563,7 @@
     "identification": "Aligned container method at RVA 0x49ad40. Preserves the successor, unlinks and releases a non-sentinel node and returns the successor cursor.",
     "match": {
       "bytes_sha256": "d05167b1fcc2e5e39b0a166c8c28de7d47510c956468bd489dea56b8d008f4c7",
-      "inputs_sha256": "1541b47d4ab0b98174a1c10067eec687eea93c965b67dc7ca8e480103385e5e2"
+      "inputs_sha256": "bc67bbe6dd8c631eea275ad6000d0caf0df02d909059538c89339a4499084d1b"
     }
   },
   {
@@ -3585,7 +3585,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x49aa40, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "9bb2403c9c56b013ff584f3471944a3dc2d82b69c71a0b596a53bbb06071cff7",
-      "inputs_sha256": "f6be652e13315ad2db7cf17b4118c405242ceaa20571962f1e969866449660a8"
+      "inputs_sha256": "f9d13cb50393ef7f861d36b98dc94211441b7d9a6b422c6800a5d063f92d3381"
     }
   },
   {
@@ -3607,7 +3607,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x49aa40, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "44e564d05944e479578497033c3e846de761c3f580be4c095f2faa82e92f437c",
-      "inputs_sha256": "63d03360a17369548f42ae3ffb771a9db508043186cab1d079b43b283a09c523"
+      "inputs_sha256": "68d89658c60b948cdacbbd978d16ed3f368e20b68cc6d25305877358452b4b13"
     }
   },
   {
@@ -3657,7 +3657,7 @@
     "identification": "List growth for a 4-byte element at RVA 0x49b030; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
     "match": {
       "bytes_sha256": "fecb91624e1df4ad65d6b03b20ebe98331725275c716a954f45cc813bf547f56",
-      "inputs_sha256": "24e1bff63381f6f0140f1bd1f785cc6b97dfd3de20c30c051ed45aa2031431cf"
+      "inputs_sha256": "67e8d6bd366c7664adf8f205a196a9816f2969780b4645777de131815290e32f"
     }
   },
   {
@@ -3683,7 +3683,7 @@
     "identification": "List insertion before the supplied node at RVA 0x49b0c0; creates a node, increments the list size and updates both adjacent links.",
     "match": {
       "bytes_sha256": "4929756a188781f56f54eac857b92eb896cb57b210fa59d7a96139633b79ba8e",
-      "inputs_sha256": "a15ff71eada97fdf3b1d91070a2598a4ca7263d544fff6738320eec7f3189721"
+      "inputs_sha256": "16bef993a508670942fecc431d83ecf5d57ade8d4fe237b5566895026431160e"
     }
   },
   {
@@ -3709,7 +3709,7 @@
     "identification": "Aligned container method at RVA 0x49b100. Appends a constructed node before the list sentinel and increases the count.",
     "match": {
       "bytes_sha256": "e18e6fa0c2a659bc08009a4bac58f8dd0502834f9c1a91881ad7b27241556b5e",
-      "inputs_sha256": "81910eb47617885042a8fcdc15006a475365261280af4b6facc201481e98c5c6"
+      "inputs_sha256": "17db815fbc07cd2397cbc2a6079f76e61bbbead25daa8b54f386a09ca8465dd6"
     }
   },
   {
@@ -3784,7 +3784,7 @@
     "identification": "The read-only pointer at RVA 0x83e0ec resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "dea5db48fb297895319922ee66646de6b9c0ce35ab87beb88c5c345e0da11fb9",
-      "inputs_sha256": "7e8c3bf7d228d705493d77e5f64d126df4573de4bc14a181d5cce9a71bf1bb73"
+      "inputs_sha256": "388e589128daf8171db8deb8f6c8dd6b9f55b11ba5fa7449a5b920c1bf57c776"
     }
   },
   {
@@ -3819,7 +3819,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
     "match": {
       "bytes_sha256": "5d3c4f44f1a8aba52836b87d1b00faa9b8559ac9bfbeca73a6a0619f6f787903",
-      "inputs_sha256": "bc04abe4b411cc1f2f929d2d1352b6f575125fbd28ffacb4bd7b62c9d4545edc"
+      "inputs_sha256": "588ac6a7f0e139571e810486cddfa9c05545f47435e6e2b36d86d2e924611cdb"
     }
   },
   {
@@ -3861,7 +3861,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "e0a0161d3fb81371ab5bfdc90588bf75f81754c282707b10c4f46c45b07f1074",
-      "inputs_sha256": "57c84650fe88b9eb4a9421ff4d393468d6a96235c6998ec791a7481ece102e78"
+      "inputs_sha256": "9402a87534c20492842dafc8866069f3248febdebe81bf5e8f02992b0ed27c59"
     }
   },
   {
@@ -3907,7 +3907,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 4-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "51e87137b27d4e2cc4ddd78ce42d359975fd0874eb0eae4c009c744d1304ff86",
-      "inputs_sha256": "5cd1c9b09943c6718d2e2b5c5921740188959a4168858a7ddb09ff9a4fafbca2"
+      "inputs_sha256": "50f3e3a3ec940b9cfa82bab6b089d836bd522a934be5a4a4fddea339fac35071"
     }
   },
   {
@@ -4030,7 +4030,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "ef7b19e61fc41d092c57a4d26e08a06201bf890a1974e9982c7e49668334d757",
-      "inputs_sha256": "a055e9827859538c7053b32fe28d5821d00ec2e5b0932e720e8746c174f1bc55"
+      "inputs_sha256": "60e86269680e24939deaf66e1a83bcb8b817657c4b7407ff30c17ccda80f612c"
     }
   },
   {
@@ -4056,7 +4056,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "ba104b8644cab60e595153c5bef732005e450d3215ef488c25044fa21a9fa7ee",
-      "inputs_sha256": "34dedde8d175271fac86fbe7ce4d813f195cc6dc244b31afd54c4644d801c383"
+      "inputs_sha256": "613d76a9692e3ce0c9dcfac9afd804333429cd6a4f39fb42f6c9ec1c49a59306"
     }
   },
   {
@@ -4082,7 +4082,7 @@
     "identification": "Default Ghidra extent. Releases the backing allocation with category 7 and clears the three vector pointers.",
     "match": {
       "bytes_sha256": "cc7b41d76506abee3817fa9616f4e00252c77fd7e82719509896ba8bb5f4b256",
-      "inputs_sha256": "41a731c38c0b1640471519dbd29e8123aff78aae0f96dfa61d1b4b392cefbb06"
+      "inputs_sha256": "353d648951122a05e76d5b41fb0397aa3a7ea1fbc0b515de4ef4dbc8ddd13d79"
     }
   },
   {
@@ -4109,7 +4109,7 @@
     "identification": "The read-only pointer at RVA 0x83e1d4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "f563a41b481bcc898c8700ad1f3c147e4264b171e874a916f786a41ab6b2ca80",
-      "inputs_sha256": "21da89df3fb532f452235a0cf623a88d0d059a29cc3295e5a118ca8fdd603ca2"
+      "inputs_sha256": "bffa3c5e5c696c578c8c6220900932bef0c30fc1d548d1b7c358a1e4a8f2749d"
     }
   },
   {
@@ -4159,7 +4159,7 @@
     "identification": "Indexed vector length-error routine at RVA 0x49c780. Full compiled section includes the unreachable EBX restore immediately following the throw. The diagnostic, exception tables and construction calls agree with retail.",
     "match": {
       "bytes_sha256": "222520ce62d2e313cf4a0a5679b2bad2aab10ba118ab25f1d78659a712ad655a",
-      "inputs_sha256": "def38bf8b94553edc856e32d62e438aa08189653b1a72c389383c9628f80dca8"
+      "inputs_sha256": "1ccd768d744735e6e804371ea496888352ac8fde08088afae9bc57ee0fe0f969"
     }
   },
   {
@@ -4193,7 +4193,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x49c7f0. Initializes three storage pointers and checks the 4-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "d741b895ae58e4a2257308fad3b3ee241e2262a7c870c442d5ca37a2fd0b653c",
-      "inputs_sha256": "5dced6c61d5d0ad9557880b93f086729e77c82453719c6c01909b67ea54afd70"
+      "inputs_sha256": "bf255f0c3bf48b5a78f24795703abc7916b91a8d46e6b84738662dd8b04c2f50"
     }
   },
   {
@@ -4215,7 +4215,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 4-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "6abd61c94b9aa7a8a1378b1eebd8255c254c3c2878302b5bf755c345a61f8fc0",
-      "inputs_sha256": "00c00c760d6f2845bc1dba3daeeb3a537a4cc68cc05fe01d4ddfb15bfadc5d31"
+      "inputs_sha256": "4bffec82fa984b9346a9957d3a22010dffb6d4ccc63bef69c0ee39d4a3eacdf4"
     }
   },
   {
@@ -4246,7 +4246,7 @@
     "identification": "The read-only pointer at RVA 0x83e2b4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a611d6bfa1fa0cecfdbeb0369f291ba090a14172a38b69250b465beb7a5830b1",
-      "inputs_sha256": "571acaf88ca82de5a37f1672749abd14c6cb1cb813fab7ff7254e08f120d5ef5"
+      "inputs_sha256": "d649276ffce0dcbac7981b5e00449c5fe1e8e0649a337588e62a3e9e786ed355"
     }
   },
   {
@@ -4277,7 +4277,7 @@
     "identification": "The read-only pointer at RVA 0x83e2d4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "d9e29b08799890ecae46a7ca8123baaf339d1616c6f244368bacacc52a3cc996",
-      "inputs_sha256": "2999dcb8939f4a69ac14a6c0be4ecd8f94a7eed5f109b66c7f53142e0dbe101a"
+      "inputs_sha256": "ce3c4b7ae3ea70cdfceb13d14a0672cbb6b73691f80f6fcd02a8ea7b75f852dd"
     }
   },
   {
@@ -4336,7 +4336,7 @@
     "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x4a1ae0 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
     "match": {
       "bytes_sha256": "7bacd6fd9c6ce16ce1c8eb13ce78a59a090acda8d0ac7daa1f58916c7c219274",
-      "inputs_sha256": "cdbe0d25b8242d2464b17ee57d720226d83e8dd44cb01aba0269c479a841f8ad"
+      "inputs_sha256": "bc381d888ca3779208ea2ea5aa96b62a43d5dcbbbf7f41ea4dc258ad16fec143"
     }
   },
   {
@@ -4413,7 +4413,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Releases the supplied block through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "2b5be39b790bc37e58fbe0c6aab21c3f548ce7d7e3f34da5bd068760f3d8ca81",
-      "inputs_sha256": "9f0511c956b0f27f3a551cc93e24336f89855aa64b6e172ade808f9b454d7626"
+      "inputs_sha256": "5cee54cd7705f0a7d33f357c429bc70c7b86a7f1da87e0330990a819d6a07c08"
     }
   },
   {
@@ -4460,7 +4460,7 @@
     "identification": "Indexed recursive tree erasure with sentinel byte at offset 21, right subtree recursion, left subtree iteration and allocation category 7.",
     "match": {
       "bytes_sha256": "f6c19f6577d3efc724f5bdb93ca8d045a4aa1aca6df3e416a83499c0582e0137",
-      "inputs_sha256": "18c189889ed38739d014a0634762ccfceda27a6399c7dac02a8ec18566da9d84"
+      "inputs_sha256": "6c349029c3ea2c03cc985e98413f012d1fe0c6ca0586f89c995abfd8fa9a3574"
     }
   },
   {
@@ -4490,7 +4490,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Allocates 24-byte elements through the shared allocation context with category 7.",
     "match": {
       "bytes_sha256": "cfdc502cb5606329d07f55403e4ba2e9b3247c289ffcc88db356978b8886024b",
-      "inputs_sha256": "38831989043b44553b51166e2d616b71010391c518b25f118c9e6ffe205e41c7"
+      "inputs_sha256": "0cd875d8e101a825b86fef97295d43462031dad5fc396489c712f11f8ede056b"
     }
   },
   {
@@ -4579,7 +4579,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d9f673.",
     "match": {
       "bytes_sha256": "7b9448e007d6f935c0c3bdc4b072c64dc40bb0be72c4a8855cfb00d1f7d18731",
-      "inputs_sha256": "dda5d061d73371b44ba6abbcc88f7bd2b001b6661472c54ee0c6101c9631b1f3"
+      "inputs_sha256": "ea87c5ca6e182622f0ae4c99521d28ca9fecceca6973b5b2026dedc05593ed69"
     }
   },
   {
@@ -4601,7 +4601,7 @@
     "identification": "Default Ghidra extent. Erases the subtree via RVA 0x49f430, clears the count and restores three sentinel links.",
     "match": {
       "bytes_sha256": "a5fd8c3452274c78a9d4eb299c579e11a1851c37865bcf1b75b16b6ce72ccd77",
-      "inputs_sha256": "c7ffb06167af8ebcc3b8898e1a3cd1cb0ce02142714d77e8195395d0e2d8f857"
+      "inputs_sha256": "81ea754506169513bd34eb7bc6f7e7b4ffde7201a0f960dc1d643cbf099a8271"
     }
   },
   {
@@ -4624,7 +4624,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d9f833.",
     "match": {
       "bytes_sha256": "15df28a2c397b25edd6481a4ae1e06195326a80f8eea5ba4a6d0a0639f5bf745",
-      "inputs_sha256": "b90ad9802326ff73824e5b2397e28843165615f0c1366684efd0c90c5cdac20d"
+      "inputs_sha256": "5613e65ad18cb3021a21b1cddcc884ab1ce2991d27c87735d834abdd4ec2a58e"
     }
   },
   {
@@ -4647,7 +4647,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d9fae3.",
     "match": {
       "bytes_sha256": "fb258a011b5ee4b852cca820e45a32772f8b6068d01c95a77f2998e93df861de",
-      "inputs_sha256": "99d62afb0ae7efb8f9eaad3a21402bce22a9039726e4a5defb1e87e44e5385d8"
+      "inputs_sha256": "66dbee66646b5e21ad6e4749e30316f73e26a1432226fa5eb0e9f9c9f975a142"
     }
   },
   {
@@ -4669,7 +4669,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x49f6d0, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "9d6755c53d76b89636aa35fb06955ecbaf6765b7eef65dee35e6647f310191ab",
-      "inputs_sha256": "cc326739ab2cadb84448656007e26da9c71b188fca96adb635fdcc7303a5ce05"
+      "inputs_sha256": "a2dc1d188df6691b80144a4b381267823d08d87953b2a476462b8ea136cf0a15"
     }
   },
   {
@@ -4692,7 +4692,7 @@
     "identification": "Complete prefix iterator step returning its receiver after the traversal call at retail VA 0x10d9fb23.",
     "match": {
       "bytes_sha256": "9918299ab09aaeca567601835c57d2763194f4bcc830d7b87b2467cc6c2be13c",
-      "inputs_sha256": "208701584e055efa82cf3f97bb80be0be8ff8ff5eab9fe9daa4ff9e07f5a5e54"
+      "inputs_sha256": "bf7117bf9bfa94586d524e44fee422152eeb90b5739c715c85e2b25cc63d910f"
     }
   },
   {
@@ -4714,7 +4714,7 @@
     "identification": "Default Ghidra range. Installs the node returned by RVA 0x49f6d0, sets the sentinel byte at offset 21, points all three links to itself, and clears the count.",
     "match": {
       "bytes_sha256": "68491a76af971432d47cb415755cbbae2f0888ba3e51a62c0b907d31abbc4ccf",
-      "inputs_sha256": "e97830998050ce3ef3d86b50458afe59ecfb8624e5c8e509cf5543b31c78ba4b"
+      "inputs_sha256": "17317e5ac143736d62a735091f96cf45676228f5b3494973a91445e053a547e1"
     }
   }
 ]

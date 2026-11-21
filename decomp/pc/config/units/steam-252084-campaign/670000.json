@@ -22,7 +22,7 @@
     "identification": "Default Ghidra extent. Initializes the format object with width 64 and mode 4, then installs its method table at RVA 0x8609fc.",
     "match": {
       "bytes_sha256": "e353b2592d001d388a63bded640e43a55b99b22f61ae1eca79b20295bbe74038",
-      "inputs_sha256": "60e79b09e48430032ebb0f84bd80bcba9a0765804cb6e231d8be81b9fe2c0d72"
+      "inputs_sha256": "cc10b5acaf2bb1640931ac1f98e93ab106173c68c8d1741b1bd09f15e9baaf36"
     }
   },
   {
@@ -49,7 +49,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "5231b9c4df6cb96916fe3ea6140879bc45f15c0857a7df7c9d14cc67e4f8bc83",
-      "inputs_sha256": "140e91868c40a5b1786bb911ec2d31c907b759c034f297c921c4799fb03a17ae"
+      "inputs_sha256": "ddb31a2e187b5f05b53382ff540cc244ea7a00e4944003dab5bdd37f29c957c4"
     }
   },
   {
@@ -75,7 +75,7 @@
     "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 4, then installs its method table at RVA 0x860a0c.",
     "match": {
       "bytes_sha256": "0d2030d8105639e8a39e2bd39406f0aaba690b7a3347c0a2f6f78fa9c5b8a5fb",
-      "inputs_sha256": "1dd59dcef4439dbac81cdc49a65a55bd708aaeeaaf18663fbef123002cc0744d"
+      "inputs_sha256": "2a95f41dc29245073b8aa3c533c9da50c0e09d9e0a09f4676cff9f4bf3c66346"
     }
   },
   {
@@ -102,7 +102,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "901f61933cb873f5b1f5d99fdb25e0251dd897af0dbf6a1564dbd3b4d690d2af",
-      "inputs_sha256": "3a88fc6803215f16b4d33ca9823d0101937c7584b9ef9c5f40b065d22d85e7bf"
+      "inputs_sha256": "d705b3c1d059f9b87c2231e3665a1439a49ed0098bbac05e2de9fdc54160d8f8"
     }
   },
   {
@@ -128,7 +128,7 @@
     "identification": "Default Ghidra extent. Initializes the format object with width 64 and mode 4, then installs its method table at RVA 0x860a1c.",
     "match": {
       "bytes_sha256": "2e453c111bc3367e7f4e103cf10f881479ee641f0a719170d40898f68431b1cb",
-      "inputs_sha256": "079a23d4e04d1b368fffebc7707921c618b63d76060fa9297fccce5c34759f8f"
+      "inputs_sha256": "ce9dbb67c7b2b1ca10bcc6d0194ccf4cc0a8a04ea80ca325700f056fad4a7bee"
     }
   },
   {
@@ -155,7 +155,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "65acda7db907e4b03b54c6a5d8a9946134a5eaabf5e1aec3d1d0f1e08263b1ef",
-      "inputs_sha256": "453a620642543cd519c75f53582be041d1453768ea464f9be00d6a8410a72c3e"
+      "inputs_sha256": "21e396ff38d6ac1719c755b73e81d0d1fef90df32ee327897e32eeb741b3024e"
     }
   },
   {
@@ -181,7 +181,7 @@
     "identification": "Default Ghidra extent. Initializes the format object with width 128 and mode 4, then installs its method table at RVA 0x860a40.",
     "match": {
       "bytes_sha256": "5a5a6b439fae4c1b1a2f77842252fd36a9fc397f6a005fd2ad55b1138ae1cab7",
-      "inputs_sha256": "2097aabc55a1c24c65e62de2302542337c14fe3caecb5e310712bd0fa93defd1"
+      "inputs_sha256": "6a0d3c62dbcba9254e437201f6c93c76c8acbc4364a98c5aef22094d2bc9a616"
     }
   },
   {
@@ -208,7 +208,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "8c5f1211a3f0f902a5dd2416f716f9c2dacf3862297c4e789836cb12040bcf80",
-      "inputs_sha256": "56e05b9c9c1d7252b0a3ded3c421fd16865dd79b39ae9596bd215f52a474c11b"
+      "inputs_sha256": "e54b5319f3f0f60448a67ba66b90d579500e567d87d88de5243c6ac3ace23356"
     }
   },
   {
@@ -234,7 +234,7 @@
     "identification": "Default Ghidra extent. Initializes the format object with width 32 and mode 1, then installs its method table at RVA 0x860a50.",
     "match": {
       "bytes_sha256": "f7eb053256a51e722c8adbbf5d653a87daedfc8d4cfcd56de041d22c1a05083d",
-      "inputs_sha256": "5b59a83530aa51b18cc275ab955d1947d58343d07da655d4bd45cc0106a9049c"
+      "inputs_sha256": "989e5daf85c9dc91926d9989ccccc4a88fd38cd5483681680f87000b2598c3cc"
     }
   },
   {
@@ -261,7 +261,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "75441a6ea852f985c76aecd2183d3f0a5f7a82941a19d050b326312b80322655",
-      "inputs_sha256": "18150313b595f118d18cab2519c9d4a030061c373d760643beabafc51fce6ae3"
+      "inputs_sha256": "f5dc871d8c8795c12ed7f824fa3725e53935c06ca52d164723224b8d0cea157f"
     }
   },
   {
@@ -287,7 +287,7 @@
     "identification": "Default Ghidra extent. Initializes the format object with width 48 and mode 1, then installs its method table at RVA 0x860a60.",
     "match": {
       "bytes_sha256": "401cb0a9e657aeb782c3fd72bf2351d01304fce47cd501d4b035e8946c226480",
-      "inputs_sha256": "d05d03cafaba589526e96d634a6aa85967317c555e5a05340be25c467e75a60f"
+      "inputs_sha256": "cf9f3b024396ef20a89c77b74faf26e8331e287413bdec81f85a942b8fef58e1"
     }
   },
   {
@@ -314,7 +314,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "6afbfa477398e1c80cd8bc8496f808f37c533e418635697f23b28fcb3b78a35b",
-      "inputs_sha256": "7c4c476d1331a9b2e6a6290e96b3bcb537c09b8915475a249a495ce3ed5e41a0"
+      "inputs_sha256": "eb17d7179c1046717ea39d3ce6afc45e88a83e97a4220ce60855c0456b8ae2fd"
     }
   },
   {
@@ -341,7 +341,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "b3264951cdcf86b7581b0ed789f3e3aa2c1e14c3244a1c54c6ee6ca5469a5c7d",
-      "inputs_sha256": "7bccb3e742cf17e81f9c14f8cefdb7ba7857fcbe706b032c2f2b691506318ff5"
+      "inputs_sha256": "c0524aaf5f5aade0e5246716e622aaba4773c34b5eca64e0eaa180feac905fc9"
     }
   },
   {
@@ -368,7 +368,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "9cc1ca658dc5b986932ee185f2970f2815773ad8d3cd04f6af45b2128694813a",
-      "inputs_sha256": "f7e243b0ac2dcacc12f4aa3672d0e9616c6ab770de696b7a6c9126b35dc2cbec"
+      "inputs_sha256": "7f262f341b1120f55f6c8add3155ecf6ad7bcc11d28e3894ac4053be0a29a8dc"
     }
   },
   {
@@ -395,7 +395,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "5115296e07ba8aead41c3a27ca5b8df13ad593072335a8aeeed8a83160d1c62b",
-      "inputs_sha256": "a8605f06ebae974e397e59ed33e3d7bdd0d24df5d8cf0576f10fe6e155137c1f"
+      "inputs_sha256": "364254afca326662e0cd9fb133a766f9cc26d1953a8a0900fe0c249321de1f72"
     }
   },
   {
@@ -422,7 +422,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "d3bbbd6ba211ac639977cf349d9d6f2e1ec3b8b1c95ec7753b9fe2d1249b8e87",
-      "inputs_sha256": "db7a063ef71ba204b028f7732ceedb4cc33d483eb8869cecd0f5a2a3773151b7"
+      "inputs_sha256": "bbc158923232c754ee0b7e24207a795f29cd441ac8a0ef4751cfb9ced3b825c3"
     }
   },
   {
@@ -449,7 +449,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "ddbf339b11d8617c6f14d5a5133baac752d953bff4aeff964d26623128879bb3",
-      "inputs_sha256": "4ca3198c22dd0261b2383f4802b2f6f54c43c5b7f8ad53d235736f4802e94a7d"
+      "inputs_sha256": "c9ee86deb22ec12497323549d217658103832d4f62e4e348885322053616b384"
     }
   },
   {
@@ -476,7 +476,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "d6bde057ac1fd34104034c488f167c225cbfd78bc6f58488a22c7b11c8b69203",
-      "inputs_sha256": "ca56c11b2a23d4204fb70ef54539469cd0c0d1449a0086333628a1d28c4f6983"
+      "inputs_sha256": "35b3fd79fdea316ab5d1a9d460823a9079f31ab3efcfe0b9147456ed1fcbc47f"
     }
   },
   {
@@ -503,7 +503,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "f484ee0e516047924db085c0fe9a79c1ef09ee6387756239137725d1cb864e9a",
-      "inputs_sha256": "69f54488ac48eb7466592cc052dce618bf65ee84c001a16d6d2b51cb143e0b04"
+      "inputs_sha256": "fd69248ca7a825228d5f46968b130f6c9835d4942596f56b5fce2e2036f9f88d"
     }
   },
   {
@@ -530,7 +530,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "ac4f8cd8b6984497d191509c9e5de92f3a571ea6cc6b19f54f6ec1289cdf12d4",
-      "inputs_sha256": "24c944d9d5c3b18808afdd8e4f7850e65544b3cd9933bd3059cd912ec8124e15"
+      "inputs_sha256": "e1d0936959c4dcb167e7208e046382ca495e6c1cdfcf126ddf737d1609ffe161"
     }
   },
   {
@@ -557,7 +557,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "45babab08f98d1ce954cd72dd65f762c648d452d17ec5b018bdc012f8d3aebfd",
-      "inputs_sha256": "edf0879d1fc282e072a52c699a94d32ca96c48b7758dab5d6f09924bccc9fcef"
+      "inputs_sha256": "ea9a719ec0d5949c0335b9757231fa9617f4f36aa6122dc179e40bc8c22f1186"
     }
   },
   {
@@ -584,7 +584,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "c99cb5293dc5e08de7829e96de4818ce8de354217d52188a7960b8c9f149e6e1",
-      "inputs_sha256": "011ab5a7db04a5b9ae540a0ea459c39135dcc24dd99e5659cd7f66440e60ca55"
+      "inputs_sha256": "8e22cf17d5bbc7d382eedfcebeb57b9a10aee2b0de4a5998f885f6911587c77e"
     }
   }
 ]

@@ -55,7 +55,7 @@
     "identification": "Retail EncroachedBy event wrapper at RVA 0x1933a0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.EncroachedBy at serial offset 0x319d0.",
     "match": {
       "bytes_sha256": "2746874bb389796a078449dd24b9129dc0395ba8b857c2c102a60fba7d2d8f3f",
-      "inputs_sha256": "a0e8500828b97f45ec27daf51f7206547719ffcaf409cf70b4dc4b3b9c7dfd46"
+      "inputs_sha256": "def5fffa491b21b4a3b54c24b3fd4e66b9bbb55f247f5e24999b448e347d0304"
     }
   },
   {
@@ -82,7 +82,7 @@
     "identification": "Retail Bump event wrapper at RVA 0x193450, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Bump at serial offset 0x1fce2.",
     "match": {
       "bytes_sha256": "1edb91793d3f5b288d3d2fe6c4de896a19c4517810e55ce109c34aaf87a4ae8c",
-      "inputs_sha256": "bb1dd8c76b29368e887a74c4befaa55aa06e91a6cc5bfb7fe3b62288d0f35d00"
+      "inputs_sha256": "30d6c9a3498232e67440f652c10a4286c19269a5ef4865f623cc15aaeac23d22"
     }
   },
   {
@@ -109,7 +109,7 @@
     "identification": "Retail PhysicsVolumeChange event wrapper at RVA 0x1934b0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.PhysicsVolumeChange at serial offset 0x318f1.",
     "match": {
       "bytes_sha256": "b5072a3dd8a0aba179d49990d944e27622a4e3425c2203f386e9c415752cea2e",
-      "inputs_sha256": "862b06112d242601f240a07facf32080ae069351d5f635e15e4b49b84fa58afe"
+      "inputs_sha256": "16c4efaa5d34c13f28a349e87b1709ad0efc1b2e46079bc42366bd1dfc6a98c2"
     }
   },
   {
@@ -136,7 +136,7 @@
     "identification": "Retail ZoneChange event wrapper at RVA 0x193500, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares Actor.ZoneChange with ZoneInfo NewZone at serial offset 0x318c6.",
     "match": {
       "bytes_sha256": "7aa39ef0aabf55cfc5fcd1f18a8ad6352280a81245089f79fb19e6351d9b76a2",
-      "inputs_sha256": "1a42f28a89eaa894f38d5fc4bb58fa8bec1dd7c93b06d02f425e26e754bdb5b6"
+      "inputs_sha256": "ba88017d7e5af73a94d78b75c757beeabed62be72a94f031ed6ab98847717eda"
     }
   },
   {
@@ -163,7 +163,7 @@
     "identification": "Retail HitFakeBackDrop event wrapper at RVA 0x193530, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "9301b4e6962687a82db4485930c9f973b79113a8fb25c983265287b542339de3",
-      "inputs_sha256": "f3ce7367d34bf236635748c835485368d5a3295c6d20e0da3bad5a59a9688309"
+      "inputs_sha256": "6dddda39b8da725983bc42a629f9a07aeec4973552e0b18980f31c0b6f62b144"
     }
   },
   {
@@ -190,7 +190,7 @@
     "identification": "Retail Destroyed event wrapper at RVA 0x193550, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.Destroyed at serial offset 0x1a06d.",
     "match": {
       "bytes_sha256": "09e291f1590e36bc10bdb74453fcd4d68bf8e81df0ccaa7128596b39b9ddd741",
-      "inputs_sha256": "2fc9f9599512a337098220770c4038146bdbcd861af7afd27964341fd20d477a"
+      "inputs_sha256": "088b06b6b796493fd36e7995c44a74590e59084f0b629e867df3e737ef27750e"
     }
   },
   {
@@ -217,7 +217,7 @@
     "identification": "Retail PawnLeavingVolume event wrapper at RVA 0x1935a0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopBlockingVolume.PawnLeavingVolume with Pawn P at serial offset 0x82df0.",
     "match": {
       "bytes_sha256": "e0280f49d321fbd366d4eafb558e6efc390dd480185af1c293bf32ca6cd16a27",
-      "inputs_sha256": "16fdd8d286a18519fed2b96666290518875b5d73263ef983691d73a3c1f12371"
+      "inputs_sha256": "ce1c74cb409be6fce632cbe22066b10866f254c3d2c228f311686e630416148e"
     }
   },
   {
@@ -244,7 +244,7 @@
     "identification": "Retail PawnEnteredVolume event wrapper at RVA 0x1935d0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares ECoopBlockingVolume.PawnEnteredVolume with Pawn P at serial offset 0x82bf2.",
     "match": {
       "bytes_sha256": "08af29dfbd8473770ed211f84ad58a478339cc4a26243630f0b040a10061dbda",
-      "inputs_sha256": "f8a418db9c6447bbd20937aa4e562fd3a6b0fd7d5aaabfae1532660d2c0476f4"
+      "inputs_sha256": "78a33d5ff44e485cfb70422ae128e9946c546851c9a75ce07eda07989229e12c"
     }
   },
   {
@@ -271,7 +271,7 @@
     "identification": "Retail ActorLeavingVolume event wrapper at RVA 0x193600, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares PhysicsVolume.ActorLeavingVolume with Actor Other at serial offset 0x4b6ec.",
     "match": {
       "bytes_sha256": "3edc51e9e4c0ed3641a962e733104f2bdaf05b0a339ecf027bbe355b378f5b36",
-      "inputs_sha256": "dd7539f6e5883cd67695a61346170c7ab578f30ac0b650863e72dd956471a176"
+      "inputs_sha256": "037c715d456775cdfbf4505bdf4b498b55e00992010aa78dd7b0dc7c2262e59a"
     }
   },
   {
@@ -298,7 +298,7 @@
     "identification": "Retail ActorEnteredVolume event wrapper at RVA 0x193630, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Engine.u declares PhysicsVolume.ActorEnteredVolume with Actor Other at serial offset 0x4b6c1.",
     "match": {
       "bytes_sha256": "048141452e41b4860820ad6187c9e922f7995d97b22754b173f4d6cb1c868afa",
-      "inputs_sha256": "e744f7fbfd0a4f17b140635f032d888b4a2857cd7f0c037e6c8ce3d8df7ce622"
+      "inputs_sha256": "c42b069f6fad1e1f3164427adbf761a0d662c389bce6a4e202d1790f78307020"
     }
   },
   {
@@ -325,7 +325,7 @@
     "identification": "Retail PlayerGiven event wrapper at RVA 0x193720, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "bd45d0a828f49420f526ef693926d9788885eea164285a6a884b760f05e71e41",
-      "inputs_sha256": "4af0759e2e25d8740f84be7a14e93b1127286d8edf0efa64042cd7482031882f"
+      "inputs_sha256": "833b5f755b2993271f0329fbf0f96211cc8092b6ebbd5956d7da35df8dbe64ce"
     }
   },
   {
@@ -352,7 +352,7 @@
     "identification": "Retail ActorLeaving event wrapper at RVA 0x193740, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares ZoneInfo.ActorLeaving at serial offset 0x29f73.",
     "match": {
       "bytes_sha256": "11f23acfd95ce378a5d5e51d7d5c2b103b67acd5504438eea7258c8316509676",
-      "inputs_sha256": "265a6188caf1e5d1ac25449a0532d6cd67e374c86505828b2622fb60b2201d0c"
+      "inputs_sha256": "967eb30cf7028704d758d3c737d7a3c23f978fcfa5fdd2994a7802460576b1bf"
     }
   },
   {
@@ -379,7 +379,7 @@
     "identification": "Retail ActorEntered event wrapper at RVA 0x193790, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares ZoneInfo.ActorEntered at serial offset 0x29fef.",
     "match": {
       "bytes_sha256": "1b4276affe8bbd88ddaa13ae75307e99a2a2864dadcb63d7ee09c5eea0949a86",
-      "inputs_sha256": "3a3414089e1fb196463e621b1759aef6163fd0cbba1f1fefbe4a7d6e4c804cc2"
+      "inputs_sha256": "dd95b3a678c40d8cbbe5038b6ea310501104bc6eb5245590281f26a186d475f4"
     }
   },
   {
@@ -406,7 +406,7 @@
     "identification": "Retail AISetPlayerAsEnemy event wrapper at RVA 0x1937e0, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EchelonLevelInfo.AISetPlayerAsEnemy with PlayerController enemyController at serial offset 0x7f74b.",
     "match": {
       "bytes_sha256": "4136e1458ae6aa6ef6586f8e1ba03ab82436b67cd825cdd1ae769daf9918605b",
-      "inputs_sha256": "84ade4f1c531b863385fad372f7b1636800e968fcc53e05dc4ec1ba388a8685d"
+      "inputs_sha256": "05c4cf53fe808b5f00bd3a9424a546df1bcf10192200860fa50fd75efec7bd8b"
     }
   },
   {
@@ -434,7 +434,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x193910 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "958a8de808ff39176f5c8c335a9f8606c369b154ff398a5d8c0466c5b3378eab",
-      "inputs_sha256": "f64c1143e438b409e6ce05d8d9978e78c5b4e31da64b3582ebf134bd2d75e27e"
+      "inputs_sha256": "39f111c6e61789b3dac679cde29a7c70f1f2886328ea60e2cba528d23657662a"
     }
   },
   {
@@ -468,7 +468,7 @@
     "identification": "Typed cast at campaign RVA 0x194970, directly called at RVA 0x194afb. Its class constructor at RVA 0x972e0 identifies ALight; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "36a586bbaa8e898a643d85d4b9326bab88cfa9c0e23a19be91967fcb5378f0e7",
-      "inputs_sha256": "e3917c56af1b9f9af78fc643edba6f370489f94027b33d17ebba2c2aea812b3b"
+      "inputs_sha256": "9d642b2f42a465d4a36e06b0b7729ebb759fb80d087c75a0663098a73f398029"
     }
   },
   {
@@ -502,7 +502,7 @@
     "identification": "Typed cast at campaign RVA 0x1949d0, directly called at RVA 0x194d28. Its class constructor at RVA 0x1050e0 identifies UPlayerInput; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "d4b81b92d6c6cab9d0602b3d11d4a2446b0bf699769cbc040aab5896713c387c",
-      "inputs_sha256": "15777f070bd5aff94eb7f703d8258f0b395d52dcf5fded242d7864a971fc9378"
+      "inputs_sha256": "ed2364e539abd81ea4daf204e4d9d1d5937de913b3c03566b39d8714a8ecf3d2"
     }
   },
   {
@@ -531,7 +531,7 @@
     "identification": "Stock FArray operation at RVA 0x1973b0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 4 bytes. Advances the count by the requested amount and returns the original count.",
     "match": {
       "bytes_sha256": "4d5603415f0a7071d3e4722b879bb8be5cbfa4c3df2651b142de80b4de8c1ed0",
-      "inputs_sha256": "9b710387b7463cba3fe46acc0034a4b7822746007c7be6c98def5e46a86329c5"
+      "inputs_sha256": "87fd096eeec4fba9e7402cbc818218f46f72e7bdd4625d6250054b4cbea5e377"
     }
   },
   {
@@ -553,7 +553,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "9a755367ce0ad9b805f0897f57f96774c57d395153c018d8f8541038e58de7f8",
-      "inputs_sha256": "0eff369d75c492e867110bcf4048ad3a521e3a1660fdc1ca3572cb8fdc74caae"
+      "inputs_sha256": "3c4d70d302e3bbb681886026ca8d09548061581a36871a8c750ce55473715fdd"
     }
   },
   {
@@ -582,7 +582,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x197750 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "d4a67fcaeef443dc29c4673c8b6b30f06cab40be381ba9390c50d34719531a8d",
-      "inputs_sha256": "f69dbc780f50c5bbcc0ce5bf7f94dba7cbb04c47f6ef8655dc8ba7e0171dc4a8"
+      "inputs_sha256": "b6a9274ec3f166ee0ecf638fb820f14ba67cd4441196b506b1cdff2a8d5234a4"
     }
   },
   {
@@ -605,7 +605,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19c7a0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "fb7998e7b8148f07317c56c6d08a5561978d5b097354c90adb9038d575c50421",
-      "inputs_sha256": "9f581730e7af57fd59bd3e8d9f6f8967ec07f901aba22f0e3953ad77a6867bee"
+      "inputs_sha256": "4dd8becad73ddf55a58661e3c3dfea605ab90bb2808aba659117f586fb1f0dfa"
     }
   },
   {
@@ -631,7 +631,7 @@
     "identification": "Read-only method pointer at RVA 0x7d8cdc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "2f5cad2b10449ec5b8e801877ed1fd94ad36d4abb2a6733402d3674735415dc1",
-      "inputs_sha256": "e14979256ad601f9348504380ab8284168ec530212e825fb27e5157f1e8f2381"
+      "inputs_sha256": "9f3b646e27af1636e4c7f656c7e4dfa358121a1f8a54365a3925e4a4bead6559"
     }
   },
   {
@@ -653,7 +653,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19c960. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x4a0970.",
     "match": {
       "bytes_sha256": "572030a410483b31f7c6ce6e91d8c474acfb0c753fde16b44781955026d21194",
-      "inputs_sha256": "afa1dac57d85b9ec13737dd59d3e6c65de69929db79349764f25bcbbb2388eeb"
+      "inputs_sha256": "fb2796a3d2436a6cd50fc7c2ad10bbdc21779c5265a8d2cb6177e9850b6597c5"
     }
   },
   {
@@ -684,7 +684,7 @@
     "identification": "The read-only pointer at RVA 0x7d8cf8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "59abe8c231af84a5508108e8b7a7ea51b2aeed3255a39d44e3f9815f61241ef7",
-      "inputs_sha256": "c6df0310e61ce3c3253b84a4df37d64706642168379635aecf21375bd43e7dd6"
+      "inputs_sha256": "4093f13a6f509efbd1f126266fb52cc699486edc983d754cc6893eafe0802901"
     }
   },
   {
@@ -707,7 +707,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19cb80. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "c83e019b7c6761629e2efdaeaaa706dccbc6161753d89d88d5f0dbf7399cbab0",
-      "inputs_sha256": "2f731aa82775a0d7f3502d814dc7afc9fef0d4580b9e2c31e944e1ad44489aa4"
+      "inputs_sha256": "6ec8eb6071038dc58bffd1e48352488a8811d96e91c66d5e9415a3481e3affbb"
     }
   },
   {
@@ -742,7 +742,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
     "match": {
       "bytes_sha256": "a9170b82985a0d1fda9108f1497b1643e7a98e013d040f6a1f2ec62159712cf8",
-      "inputs_sha256": "20ec55c70db3db810b44d3dfae21dfb6c3529c7cc7513bf88b12a1fdd6fa33e0"
+      "inputs_sha256": "3203e3e5981c93690ce41f0cc44d6a7a5c9564a7ccfd2fc2ed6736f5f276140f"
     }
   },
   {
@@ -773,7 +773,7 @@
     "identification": "The read-only pointer at RVA 0x7d8de0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "c420225b976f8b04ae52310b55f07b39a0c9f12f79b3495bff63a46b57404f7e",
-      "inputs_sha256": "8b55bfab3ea3aca4389e179f3b58c0313bebf6ad0a9cc62b43adf086c740fae4"
+      "inputs_sha256": "52a38a693e457f5619da2b83dcff4ed0495303c2fa72b576625c70748ecf1c2d"
     }
   },
   {
@@ -799,7 +799,7 @@
     "identification": "Read-only method pointer at RVA 0x7d8d70. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "1af336af5b1459a563a3c885fd4f4cedc42f6bef9b9b32ab75ea3f966c83aaf2",
-      "inputs_sha256": "12d286065b7678add1b96fb93a483fabd82408634568e7177d34480a93cd77f7"
+      "inputs_sha256": "6c40967fb15d8f4ab973e84dd0834fb811650297a2bdff747d068e282e1f8903"
     }
   },
   {
@@ -830,7 +830,7 @@
     "identification": "The read-only pointer at RVA 0x7d8e40 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "5333c6499c5e59540da5291d57c3e876ac5660421996ebd9727c98a365cc432a",
-      "inputs_sha256": "34e3cb67d4820ae00117d4543697b83890322180ce798808159cb4b85591539f"
+      "inputs_sha256": "555f008e55041e763b9bf23cbcaf43a96f0fa8e857adf76a91390e87b06818b4"
     }
   },
   {
@@ -861,7 +861,7 @@
     "identification": "The read-only pointer at RVA 0x7d8f30 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "c4e7ad3a95ebfc8cf102f82275d87086724deecaa3b2eab8f56e4ea9931886d5",
-      "inputs_sha256": "1054798e05ddc5e721ccbc134aca8eb68260fda47689ce5a75919c673459220a"
+      "inputs_sha256": "214f21fc4cb001d656695c80abb61d7ff26b54419a595f33b8b4761d5dd0a49c"
     }
   },
   {
@@ -883,7 +883,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19d350. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x19d260.",
     "match": {
       "bytes_sha256": "a0136c7054809f80128c274cb52af05daaee9041b33d5f84f9b6a09fd7c7f1db",
-      "inputs_sha256": "493df640e6570e7232d7e91a16804c0958e09f9bb54fe6c2b51a06a28eea8611"
+      "inputs_sha256": "d8e6b5fac4d6edffd9cadf1a39641016104a5e44628854da65b9a4935541de63"
     }
   },
   {
@@ -905,7 +905,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19d3b0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x19d2e0.",
     "match": {
       "bytes_sha256": "77b4b009e6a83d07910fe27a6f350e1ae5a9b3cfa018b55cfd133afb7faa5c3f",
-      "inputs_sha256": "9b30cce4f912fe1b87a49777ffec662f381680c9b2fe5d2ec33984332fd619ed"
+      "inputs_sha256": "4f885c9c753990fe067ba8f885891053ddb479c54d48026a90526a8155cd80ee"
     }
   },
   {
@@ -928,7 +928,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19d870. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "5b0e7bf4ec254da236759bf9d0dc04bb5be6ce9e6758e3df68733a036e9baa6c",
-      "inputs_sha256": "bcce2f458e0eb1c5f1dbde1c65effa48868d26b13c75cb8d30b1a8699730c090"
+      "inputs_sha256": "9bb0df1603257581f503d5f4f2c394db518d11a709d70df4b9ae411ff212cea4"
     }
   },
   {
@@ -951,7 +951,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19d920. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "a7822e3022dd9345c3e52eb7957cde49bbb1a62594d1452fcf14e93af9dd11ca",
-      "inputs_sha256": "660ee1fc1fd5a796afef6fc2cef4bcc786a3f15b3c571a9857e6ff26c1d88bd9"
+      "inputs_sha256": "b2dcb667d3869157f418757ca69490638d4963af13656372b195eb99da590f30"
     }
   },
   {
@@ -974,7 +974,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19d9d0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "62e4f1e6375e2303c06dd6c3713771614882a44b727fc43b1ffa25d47e0d0b5f",
-      "inputs_sha256": "41e67669e86dbd909676c7f00cd1257d776f2f8ac6bd07fa12ec4698f1438fc7"
+      "inputs_sha256": "7a507774fa72b2f3732e29506a00dfe7ad2fd403c686794960160cf3366f8d6d"
     }
   },
   {
@@ -997,7 +997,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19da80. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "2c1df64ed1316079ed3ad3f0634bfedda645dfe9bb9774efc3cbf0783d946c0a",
-      "inputs_sha256": "9cb1777efe4401983989bf778ada8481203c0ce35e9349a063bfaef236c3268a"
+      "inputs_sha256": "4e5b79c941b6814bfade5642ec13594a2efa4590de9dc1dfd73d30856c507bb7"
     }
   },
   {
@@ -1020,7 +1020,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19db30. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "411a7c0520c389d45f98f8fcc48dd5954878793d1bd011ee967812f2f4caf2b5",
-      "inputs_sha256": "0257c55666f3834ee5d6e620f8a18c64baaed2ea2467885a1f6da4f81d8cfef9"
+      "inputs_sha256": "1328f7ce8e031e7d6fb60d788cb3238b7c5ab1c4e5f766bcd695d222573c7cc5"
     }
   },
   {
@@ -1043,7 +1043,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19dd80. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "2a0cc9bfee60cb5b8c8081c9c5a4d625d689e064097d884bb418734f282104b5",
-      "inputs_sha256": "99e8fcaa997c4e2193baff095483c9a392a880715a0dc11aa36350cb14fa8242"
+      "inputs_sha256": "d98ad2c9951415b6f224c39d0ceda12741907a0ac52f82ae30f260f372e976fd"
     }
   },
   {
@@ -1066,7 +1066,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19dd90. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "362d9684310c42c1a7718b67fdf1392c27a86a7ddd83b5ce795a13d581b67d42",
-      "inputs_sha256": "d317dce20ced29272bbbd2634757a617971eff41747747bf5f039da9010869a1"
+      "inputs_sha256": "6754bb2f45363ae2fb5e7cb5bcb27c8116c856ed54d0a0371e976e5943bac161"
     }
   },
   {
@@ -1089,7 +1089,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19dda0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "509b48db9e21242f5ccdc94c47dffcaaf04fd8a54391476600ea3b3fdf8e5468",
-      "inputs_sha256": "c0419112e0ebf4a53353052243c94a39957254ea4c5a25c4f6cc958a6e7e50be"
+      "inputs_sha256": "7ba5d58f4e05f0c920223d65e590264ec5a0cc48743d41623939b106da96107f"
     }
   },
   {
@@ -1112,7 +1112,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19ddb0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "169030e7fbf3ad81042470ebe91c42f080bd7cc115a57e92f793c5c5917b135f",
-      "inputs_sha256": "4be7bdf7f759ac69ca9ffd17665078469d7cff11d4048dbb92f58225328a5606"
+      "inputs_sha256": "1478e8b52d8ec0a2640d5c9345f7e91f89422fe3c8801cf783b8b82bfe5d24a2"
     }
   },
   {
@@ -1135,7 +1135,7 @@
     "identification": "Complete indexed Campaign function RVA 0x19ddc0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "79382c844f874f071673cb46d398353d7a7bebccbf1e4c796b7512a3488b6fae",
-      "inputs_sha256": "75fdde6e21a1288d5d09af328ef981bc580b53d73a54accbcd55da4a3d0332bb"
+      "inputs_sha256": "bf4aa6faa50bee03fec70a725b1537522b60bfd5e35790a045441b3213ce479f"
     }
   },
   {
@@ -1157,7 +1157,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19e1d0. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x19d5b0.",
     "match": {
       "bytes_sha256": "c6492708f8c888094d36141d918753a0113e872d5c968bb55a86c8d981504649",
-      "inputs_sha256": "cddaa638fa049ca5325dae75ef8857291340565154a45ee624701562325d2879"
+      "inputs_sha256": "7544afea9e867a7a342e1a67c49240fc00781fd4876943ff983c9f9ad8125987"
     }
   },
   {
@@ -1188,7 +1188,7 @@
     "identification": "The read-only pointer at RVA 0x7d9160 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "30500a2a4499da12c3f909853b835e029431c944e30844b06034be0759eaa6e1",
-      "inputs_sha256": "64f6be96946a3dc00ef60804e6bdcea14f5439280207b813599df0b0d4db3a21"
+      "inputs_sha256": "5e0fedfa4b9d28a2bf37b6fe92796def2e1e4a0f457885723ad8a31c2598b21c"
     }
   },
   {
@@ -1214,7 +1214,7 @@
     "identification": "Read-only method pointer at RVA 0x7d90d0. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "d7a0354ce3c01d1533b1b5b68e5875217a2712c782016cd2d9817639ead79ab8",
-      "inputs_sha256": "fcad27b126ef67fec2214f7afcac658b8216385ad9689db44b5348a8f37f76a2"
+      "inputs_sha256": "1bab19a60c5b9809ba247b53bd28da3c8cb43c1cbc60eda95a31f8ff42af3eeb"
     }
   },
   {
@@ -1240,7 +1240,7 @@
     "identification": "Read-only method pointer at RVA 0x7d90e8. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "ae10fd7a1bd674cd98cf10a249043965ae6d100bd1cb95f367bc5189fda1e7dd",
-      "inputs_sha256": "3a1e9b0c4afb3413570ad406d251ef2271c2db3fb2b8e87ca9f21ca88d547f7d"
+      "inputs_sha256": "44239bef484a4ac78e85ef73879ad2b3a643c81e34e77e49849f561345ac2c6b"
     }
   },
   {
@@ -1266,7 +1266,7 @@
     "identification": "Read-only method pointer at RVA 0x7d9100. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "eab9789c636bac2153fa68348f2f4a320cd738ac8edf84a9f84fb953bf00f043",
-      "inputs_sha256": "17583c3779ae6336f44921b8a7c83acbe24ac1e00971edcc4894556bc23a60ea"
+      "inputs_sha256": "99dc18b0185e23b68ce6cd580dc06e71f27f9362ff12212c59967b6d921959b1"
     }
   },
   {
@@ -1292,7 +1292,7 @@
     "identification": "Read-only method pointer at RVA 0x7d9118. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "5f1bf7bb8b74966525057cc3e8b266ffbe52193ab53aee1b554e43f397ddd6eb",
-      "inputs_sha256": "d707ec3c45feb76d5b71504ef5f8faa04c18651665040bf3a27c4a34a6fb7130"
+      "inputs_sha256": "214568a11f8e55be43153a2fad5f0b052cbc55606ab1cb7308af6068d3fb7357"
     }
   },
   {
@@ -1318,7 +1318,7 @@
     "identification": "Read-only method pointer at RVA 0x7d9130. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "9bd3bf63536d6fb507b7bf25dfd80ce557d88c13c35f4b07c62675fa8bbb71d3",
-      "inputs_sha256": "9f097decbde20e0c9b208206b5cda04f3f2e10d00e587a73238bd3073a8a2e97"
+      "inputs_sha256": "367ca14b94e306b2a5c4db7e89da6b04decc83f8f90b266ada8955b354b467df"
     }
   },
   {
@@ -1344,7 +1344,7 @@
     "identification": "Read-only method pointer at RVA 0x7d9148. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "7fc78870a0094c1732ea37eba2ba5f1e48cf31a9636988f622d8dec609c94bb9",
-      "inputs_sha256": "edcbf09377334e5b93feed6aefd8e194d565b79970fa21e2f226246cdef677ab"
+      "inputs_sha256": "6d959a6429bed6c16f7fa5a8fc09d35d2db35f883594c746c748ce2be3b1ed5c"
     }
   },
   {
@@ -1375,7 +1375,7 @@
     "identification": "The read-only pointer at RVA 0x7d91c0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "c231447ab2d83706387614e184ccf51e1f7a49f3e2b364697016557f2a2d73ab",
-      "inputs_sha256": "a2d7e81830b0a91ea1e4ddb0850f1e82925c4b5f4517cad22d21ddd80da5e072"
+      "inputs_sha256": "241d649d51f2c77d5e7a24c8bee8ad05b97bc4406df5e0bd6c41fa2544bce094"
     }
   },
   {
@@ -1402,7 +1402,7 @@
     "identification": "The read-only pointer at RVA 0x7d9220 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "2b224bcb1408e8be7e7e5238a110d40162626708a0dbf879e4203fda4dab545f",
-      "inputs_sha256": "55027320c4b4240c9a649b7a1bca97fef286ada5528c9ed10079a90d16fba2c2"
+      "inputs_sha256": "07eaa35a8333a77d27a0b1559c9b02404b313030d4e07f0befe0437c23d37dbf"
     }
   },
   {
@@ -1424,7 +1424,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19f100. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x19eea0.",
     "match": {
       "bytes_sha256": "7db0ad0c3d79a141323afedecd86613b4d066cf8a59c75cd033664a579e9470e",
-      "inputs_sha256": "1ae7f6e4466a13e428eebf071f86bc78b02d276d31bde57715e36f1ebbc681df"
+      "inputs_sha256": "01bd2aefac29e7af08856d20f1e625fc4cab346802f5cce5e1860a80d2996581"
     }
   },
   {
@@ -1459,7 +1459,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
     "match": {
       "bytes_sha256": "6fad25acff29e9e271d5e7bf41e23ff3f2e27c6f0e36a120bd024eeb755bb290",
-      "inputs_sha256": "f2cce41519e16c5c33a3255ecaa8775280809e42d9afb0ca31ea746ab0550720"
+      "inputs_sha256": "62a3cb7c4b670aa1db37e301b9432e48eba2cf65abed16c0b2122c7e7bdf7225"
     }
   },
   {
@@ -1490,7 +1490,7 @@
     "identification": "The read-only pointer at RVA 0x7d93a0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "6a3c3aa107275eab428de21128a8d21e2a7795fb62dbbcf802f5d91a86171003",
-      "inputs_sha256": "21dc32653651e6f638f80afa08496ed379757a34a6f2e74b4f32040b2d0950a8"
+      "inputs_sha256": "0566b2e8f9e6215e2c7c8ceb7e064f81ab93652382bef13fa74c1cb48ad88fd9"
     }
   },
   {
@@ -1516,7 +1516,7 @@
     "identification": "Read-only method pointer at RVA 0x7d93fc. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "67d8a0d45dc44b60c6ed3b0ec1b06b4551f0bbf7855fb2190e419fb3f6510c91",
-      "inputs_sha256": "f8182539ba6e20e8c0c938ef3816b41862993b93ab4200590c06c1a65b2f117e"
+      "inputs_sha256": "78e247b9883599950a439cd3c42e1ea7a7d91ca9708a29f456a2ef41adbe6133"
     }
   },
   {
@@ -1547,7 +1547,7 @@
     "identification": "The read-only pointer at RVA 0x7d9418 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "eff36105281fd1fb14dace79fec9aed0bd7340eae2af0a20383e0a1c82ebec6d",
-      "inputs_sha256": "2692c064fa693e42caa13c4857b3cd24e3cd62a17d37427e959ef4b28c9cff84"
+      "inputs_sha256": "a27db3e2beb5bafcc6355aa8d92544a48e785e03ae37f3278b91eaa7a0206d8d"
     }
   },
   {
@@ -1569,7 +1569,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19fb20. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x19fa30.",
     "match": {
       "bytes_sha256": "a0136c7054809f80128c274cb52af05daaee9041b33d5f84f9b6a09fd7c7f1db",
-      "inputs_sha256": "e143bb1f843db99012bb1b7628e8042cc37eee09fc19f442cefa5abeb2b9dc54"
+      "inputs_sha256": "1095d020ac9e5ff54eae9cd883daea79f6b3feb48363207fc0ef53f6bcb4dd4d"
     }
   },
   {
@@ -1591,7 +1591,7 @@
     "identification": "Complete dispatch adapter at RVA 0x19fb80. Places the receiver in ECX and forwards the two remaining arguments to member RVA 0x19fab0.",
     "match": {
       "bytes_sha256": "77b4b009e6a83d07910fe27a6f350e1ae5a9b3cfa018b55cfd133afb7faa5c3f",
-      "inputs_sha256": "2bcd9c7c33baace75db88f0bfaa99f83ea63e36e5b623c7b62dd24d24f36a883"
+      "inputs_sha256": "08727bf44f6d17e5b0d0b82eb95219f916fd1ee5192be9b478ddb30878b9b8be"
     }
   },
   {
@@ -1626,7 +1626,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
     "match": {
       "bytes_sha256": "dbf1ac31614bd84b4294e3aa772230098cdf43a653f8fbd88f0d8d18a453fd6b",
-      "inputs_sha256": "11f968bbafb704f37f69eddd509d83acc040b64a6235ef9e20ce63f9d074e86d"
+      "inputs_sha256": "05ca068579c25e1e0fb3b24da5a4b8ae29cb36caadc2d656e50885bde54fe304"
     }
   },
   {
@@ -1657,7 +1657,7 @@
     "identification": "The read-only pointer at RVA 0x7d9580 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "6b1e30cbaabd26e0b3a6f04ef65397f412bec2f6d54ab96a8275dbdf4c903ee6",
-      "inputs_sha256": "05d036263d7b2e56107d53c4212c917c522e6e5d3a2810c66abe25c36392aa50"
+      "inputs_sha256": "02550a26a3a23e67e2c7e68ee3f5cf24421d858e924903f6773ef7b20a008c27"
     }
   }
 ]

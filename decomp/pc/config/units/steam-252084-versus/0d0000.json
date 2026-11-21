@@ -23,7 +23,7 @@
     "identification": "The read-only pointer at RVA 0x3046a0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a4adf5f1d1f54c433a5ff3b4af55b9d86cad7eb802bff53608fb0a4effd9b066",
-      "inputs_sha256": "c2c994ec534fe23bde226539bfd4454b50744f0fdc70fe8f15025db6dd7da3cb"
+      "inputs_sha256": "f3dc73580e873534a2eb12fc0a06ca6751dc2b6477f9358338ae99df9615471e"
     }
   }
 ]

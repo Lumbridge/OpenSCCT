@@ -118,7 +118,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x19fdd0 before installing the methods table at RVA 0x7dc668. Its first slot points to function RVA 0x204090. Returns the original receiver.",
     "match": {
       "bytes_sha256": "6f3c8fcc43ce9df1c33f6471de0415b970821043aa4e0c771ee1af7d138ce9df",
-      "inputs_sha256": "7968f1ad338a9592773da38a2bd6d99156309a7aeccdb80d2d0d72c1538b72ac"
+      "inputs_sha256": "8a1b0d3dbdf4053ca4e5194b80f25166c67f0157504503d8c045ed8a1d41c0eb"
     }
   },
   {
@@ -153,7 +153,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
     "match": {
       "bytes_sha256": "81de64b0538c92be87ef0e63377930f417670c61bb6fe37f7b2584179d7e592f",
-      "inputs_sha256": "42652b1430bb8ad58906eaa8f7a89738654e603e6793f387b6e4e1d0f55a3b2b"
+      "inputs_sha256": "932992849882c17bcdf8ec35005e19ce111fea95699e18c45803f81d4b6f2100"
     }
   },
   {
@@ -180,7 +180,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "863c4f2f4b759fd66c66030dbb1b52ed79a5a3a052ed815b62a2428c95791583",
-      "inputs_sha256": "4e9e39625380c1684577d67ac472ccb6da340fc6ad3c1b6da64c6b4121f4de98"
+      "inputs_sha256": "7d64e6c0753f266f62f38f1d9dc800b3b8e4dbea44931ddd48e5e0e49444901f"
     }
   },
   {
@@ -210,7 +210,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x204480. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "b2d8da5d2c1a893a1ab240459a06d6e992d0382777dbaea150d455758ad18f74",
-      "inputs_sha256": "f7f290573278e8ac601b2dd64016990a7f0b01a667ddd274caf03ec6035a6468"
+      "inputs_sha256": "f119574687e948e1cc79487a70e2d1c58da5f811ae195a6f96a9c778bcf2e51f"
     }
   },
   {
@@ -232,7 +232,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x2042a0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "4697fac87197a8b048bae84ea03b8dca1bfc5a4347bf4c407b974b59d7b1c32d",
-      "inputs_sha256": "56752c6a353cee91988c199b800b0a83740b4ce78e0d7fb4bfa75dac99987b1c"
+      "inputs_sha256": "cde7ea5381b7ee059c0a1964da0949fa509436fa76017bb9f07702cfa8dd088c"
     }
   },
   {
@@ -262,7 +262,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x204510. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "e1d699cb7aef1174f959ce896ec3de2f840967d0246ef803b25368f20662909a",
-      "inputs_sha256": "025038cb4b17e078ff9f3a0aa2370e1301dc5ad3b52a6739b13cfd17f969fac3"
+      "inputs_sha256": "f3e6265983c32d5cf5cb517f83ac38d339dca21eb15ce5bef64d9b6f2d9531c7"
     }
   },
   {
@@ -292,7 +292,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x204590. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "3c3ba38a73558641cb4a7989798b872e87e90d077cd29c18650c551a08325135",
-      "inputs_sha256": "f0e3c58616df9a4b5c8f776ea238dfca6c5a8c7fd6f613b8ac0b4e35a06c780a"
+      "inputs_sha256": "77013b6117814655d394548e13d9c39337afe6a0fdfac567d5f481f01bc404e8"
     }
   },
   {
@@ -314,7 +314,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x204340, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "21ebc5ce893d6391afbe7b2189f8501231a211a7a91d5816ab2050d616529bd4",
-      "inputs_sha256": "c26fec0c7d50c66051e31a80f104582afcd197a888c8b0fdf1ea8220529d161f"
+      "inputs_sha256": "2e0d6f7c43227d79e337ba517a0fe53b9820f1ffae57d74cee9da280f73a3419"
     }
   },
   {
@@ -344,7 +344,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x204630. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "8270a6ec94780b4a0713646ccc5c00f44ca83a51c7353b791e73a36e25589042",
-      "inputs_sha256": "087cf808ae7408907890a13df8c8198160204fc2e70d9f5afed4dca14f6ccf56"
+      "inputs_sha256": "aee77a1fc2ce83a3a8d4959fcd0941bc634dc0130c9b15c50fd62335de7346e3"
     }
   },
   {
@@ -374,7 +374,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x204660. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "fed511face2e3bdeadf283ee94bb71bd694225708b6ca45cba1e33cc624d65c0",
-      "inputs_sha256": "e8ccf6bcb4b2d4b3b7520d2198202aa70e78dca0a4f13ccaca72807242092bc2"
+      "inputs_sha256": "f2c8f51ab0999afdbf2e589135d92a8538231adcb3f958be987019695fc3b940"
     }
   },
   {
@@ -396,7 +396,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x204340, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "787c0fd62bd75d437a2cf4af621dfc1709f118bba2e3acec57a77de5da555230",
-      "inputs_sha256": "2596541ebc53f8b9c6d35fe4548621419cb809b627bd09ab3f535e44488ce48e"
+      "inputs_sha256": "bcce1d9e169c70823a7b56d20a64acdb3b0a9417435358eca3551729cf1b82f0"
     }
   },
   {
@@ -418,7 +418,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x2042a0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "512b27e6121c42156a16d8ad206e5926a4012eddedd5a0de8508f7b8c7887ae0",
-      "inputs_sha256": "e7eae2045834cd03646c614bdc11906b6faabcd4276b064e5b7692a9c1ccbd68"
+      "inputs_sha256": "662d65c6ffc9d7b3e96ba01e288648814a85291cd25f244d61e2ca7a5ba38a41"
     }
   },
   {
@@ -448,7 +448,7 @@
     "identification": "Independent code analysis marks the entire member function at RVA 0x204710. The receiver supplies storage at offset four. Both release helpers are corroborated by the registered exit callbacks. Allocation kind is 7.",
     "match": {
       "bytes_sha256": "9929cce1735f93faa2150f9e0e5e7fefeb8f2581d29c913ba58e0ad9f69e6691",
-      "inputs_sha256": "e576a15256945ba3c3ecb3c185d265d0ccff8f5d20a980c18ae2cac14553ee06"
+      "inputs_sha256": "ac72a3d34a47573a42de35679473a7f5c4d2544c85d1c8b61c4074583b090fc4"
     }
   },
   {
@@ -475,7 +475,7 @@
     "identification": "The read-only pointer at RVA 0x7dc6d4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "1811843e864763537c298584a6ed40cc8cd7e2d7c4de6250dec96e07ce45c2f6",
-      "inputs_sha256": "1f58f5ed2dc28da0e5819c041d1d54845402ea6e4d86223d41dc0249d49b05f7"
+      "inputs_sha256": "cd558b3b491bcb2845c9c17f9c7a0baf36c0d8c4aa220384d3202a79dab48fb1"
     }
   },
   {
@@ -501,7 +501,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x1a0590 before installing the methods table at RVA 0x7dc740. Its first slot points to function RVA 0x2056f0. Returns the original receiver.",
     "match": {
       "bytes_sha256": "b10fc09b04d47c8e94aa72172d3833486d2d0998cc43e72d8c5631d159016ad5",
-      "inputs_sha256": "c1b2ce77587e9ef29a8c5fc2748bbf84ff548cfc10f6ab0e2423c15fe5fbabb2"
+      "inputs_sha256": "ce5783442f27087fc33841e4f42b953016ec7a512c6f3ad836f899746706814d"
     }
   },
   {
@@ -536,7 +536,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through the managed allocation release routine.",
     "match": {
       "bytes_sha256": "01ed6156afcb7b46ded267d1c4bfd1f335eefffe7dfb6d4837b01a766497197c",
-      "inputs_sha256": "b6eeaa5e7d9ef29c164afcc631118adde27df1bfc792954447c2496bef591954"
+      "inputs_sha256": "c2c72f2b8f567c2f924c6fb717262ae60393d1c81725816fc2bb495686e69a07"
     }
   },
   {
@@ -606,7 +606,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x2082f0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "183b840c00e3fedf5870ea5dd671ed5b27d922b54bf8fdaaece306a49d35e7e5",
-      "inputs_sha256": "efcc3cb07767c6262621560a0c9ca5d34c5daa6ad51ae081618d7909077d5334"
+      "inputs_sha256": "46fb2a34121c3c5eb8d91b1ff2e2de9d1894e17f8dfdc038f6e02fe8cc5f17da"
     }
   },
   {
@@ -628,7 +628,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x208390, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "1c2c062cff39218bb94bda36885e647c1bc5649fb4a900404add85a235d8e70e",
-      "inputs_sha256": "4c807e22107d873784122340cf6c632c1446371c90a0974550ed5452e89f6588"
+      "inputs_sha256": "0f764e0c1ffeaa5cdf87851d3ac3087cd4cf2e823b746df38aaa5a827d1e99ef"
     }
   },
   {
@@ -650,7 +650,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x208440, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "b29e348a1fc2ab9084b4ec1b7557270518caf0a35a0d1ea117dcb8e93c24af06",
-      "inputs_sha256": "e622ef2f18d6b09937797dfa7f9020310072628624457c32467e4ef76e74058b"
+      "inputs_sha256": "6d520c4ee100c680907379c3408132eefc10389eb57d886130ea7d1ddb98fccc"
     }
   },
   {
@@ -672,7 +672,7 @@
     "identification": "Default Ghidra function extent. Calls the sentinel constructor at RVA 0x2084e0, stores the returned head at receiver offset four, and zeros the count at offset eight.",
     "match": {
       "bytes_sha256": "675fc42ff204e6a9d28dd4cc4d02b0d2567c0845c322f7cdc9fec03f214d5536",
-      "inputs_sha256": "9b3a2a1ac5f892255dd6592bd817db50f333975e2dd9f03296868f06da0e1bac"
+      "inputs_sha256": "210543d436599e8ed46d33066259436a23804451fefd420f8a7f2ff99d4dd674"
     }
   },
   {
@@ -722,7 +722,7 @@
     "identification": "List growth for a 2836-byte element at RVA 0x208880; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
     "match": {
       "bytes_sha256": "7c506c06a5e343f083d8afbceebd2cc8741bf5b9e9ebd85cedf15ef28699d070",
-      "inputs_sha256": "39265890e918346e030b8fa66dce46c83efd9c42ad79c361a432f739d1611176"
+      "inputs_sha256": "92cb4251110053c0b5a209236d0dd4613ba2396c1faec5e05a9411f7e57ec019"
     }
   },
   {
@@ -748,7 +748,7 @@
     "identification": "List insertion before the supplied node at RVA 0x208970; creates a node, increments the list size and updates both adjacent links.",
     "match": {
       "bytes_sha256": "46044070efac66d3a7ea75da528b31212584987897a0d5c944ccbba8b6e72ca6",
-      "inputs_sha256": "c7229524aa5492cce46642ca3518f590fb496fc0eb8d158d2d21d2a5de8cf554"
+      "inputs_sha256": "5ba9f3ab5a2fdc94d567a61600e5803a24341c83b27d51143b0d837c51caabc5"
     }
   },
   {
@@ -774,7 +774,7 @@
     "identification": "Aligned container method at RVA 0x208a40. Appends a constructed node before the list sentinel and increases the count.",
     "match": {
       "bytes_sha256": "26812d1f9baf5d59d5aaca7f8db4ea01541ed58b97e08eeaed5500b4f5b06446",
-      "inputs_sha256": "f0352932d757bbda7d776bf8ac85af850a8558b143272adf5ef52ff284c1db88"
+      "inputs_sha256": "849bc59a5541a844b1d77f1b3e586628a732597d21e0dcf19c1b0376554ccd5e"
     }
   },
   {
@@ -801,7 +801,7 @@
     "identification": "The read-only pointer at RVA 0x7dcaa4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "517d8012768f69abd2f6c09019662659b026d888f0cd2175d7035fb71abc31db",
-      "inputs_sha256": "f9d910a7b0d3088f37ca02f7b2dd1d51186c07a7672f964ab1b0c1fef802cf33"
+      "inputs_sha256": "c9660412cc98583f761d70fd264203d361b34b525d82143a0584598116f0d4f8"
     }
   },
   {
@@ -867,7 +867,7 @@
     "identification": "List growth for a 28-byte element at RVA 0x20b880; checks remaining capacity, throws list<T> too long on overflow and otherwise adds the count. Full compiled section includes the register restore after the throw.",
     "match": {
       "bytes_sha256": "c98c8a2d10f2d3f81bd5160840d433be1adb2cefe30c528979e1b7dfd80ba503",
-      "inputs_sha256": "7513b7f7ec8ea99ad206509c675293a26e63e6f609a6343adab3d632dd727aca"
+      "inputs_sha256": "c931c65fa578462516d6189a30aa174ba4a85a465032a60a6a4d3507dcbde817"
     }
   },
   {
@@ -893,7 +893,7 @@
     "identification": "List insertion before the supplied node at RVA 0x20b910; creates a node, increments the list size and updates both adjacent links.",
     "match": {
       "bytes_sha256": "eef2857a9c76014a87ac540d671fea88c86c097af6b9cb0633120518609bd875",
-      "inputs_sha256": "cd5b933f41c218805cad171281d119a3f61b5ccf8f5b51bed8738f960556bf87"
+      "inputs_sha256": "d41c70015d1578db509542536dd67917eb1c443e4205b6e2b4c3aff37b6712d7"
     }
   },
   {
@@ -919,7 +919,7 @@
     "identification": "Aligned container method at RVA 0x20b950. Appends a constructed node before the list sentinel and increases the count.",
     "match": {
       "bytes_sha256": "a4383594d4c1b97780127a572d47defe1d153a011ea034b4a7540eb5cf855eee",
-      "inputs_sha256": "82be5dc3c18ef35e897bfec0ed6f6d355417b5b7a2201f26492be6755cc64b88"
+      "inputs_sha256": "81ab2ddd2cf0adc4d990642fbbd06ddace14193386fc1ea482511788c53d4c54"
     }
   },
   {
@@ -947,7 +947,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "832251f2ff99a7a9909fe6e5eab6dda7f630b717c880ea76212e0c4b8f67cf31"
+      "inputs_sha256": "e370f7f142b4f3abb439b742e62216904e2fdb14b03c24e0ed629fce44aca5db"
     }
   },
   {
@@ -975,7 +975,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "21d9ca1054cfdf7e572fdda935d45937676300447acff37c84540c60fc9ff8a8"
+      "inputs_sha256": "f4bdff0c9a8b98794623e6c3408535fb82d8345840cab869277fd6a1786a5858"
     }
   },
   {
@@ -1003,7 +1003,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
-      "inputs_sha256": "7113799454f69b31aba9b51b7ed71fc0dc8d92b283b70376ef38992cbe75d1ce"
+      "inputs_sha256": "1bda427752e35a540fa6646e7665a442bd9c8c322491aa95594eb83c6fa328dd"
     }
   },
   {
@@ -1032,7 +1032,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "a6a479e06a9dc74a31450527277b479bf3e0f8132e16d869eb7c478a01539972"
+      "inputs_sha256": "5495f98fadb86a7dba7ddfa6b7d891d19bf0fa78c985e2c4625fd59a58585490"
     }
   },
   {
@@ -1061,7 +1061,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x20d210 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "dacd333fc7f9802e2e9e36faf7b36bc945c21908d990c3fc2722e9082742ba63"
+      "inputs_sha256": "bee6d7f77b89a91b5ecf75a4660fdf191dd7599cd2c867a1b96f140b619571ab"
     }
   },
   {
@@ -1093,7 +1093,7 @@
     "identification": "Default Ghidra analysis at RVA 0x20d270 identifies the complete function. It removes every matching 4-byte item, shifts the remaining elements and returns the change in count. The code references the original FArray tag and shared engine heap.",
     "match": {
       "bytes_sha256": "7867f6631a283209aedfe7186b02e0722271d2dbdf1613134841a4f66d2ad7c9",
-      "inputs_sha256": "c03315e9f41835c333e72eb9c0c9b88258da22daabb507702980e551861f4ae9"
+      "inputs_sha256": "df8d43a8bc946fed96d3e93a53eacee84a6ab2619afdb59a5eef370fe085f453"
     }
   },
   {
@@ -1116,7 +1116,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "b19c47ae29252e1f654fcbd9d2e97abe1883fbe2574d5bddae2eadce8299cc2b"
+      "inputs_sha256": "407ede1702a5024c8ab2c7703ca60766e6ef27dc57ee3cd48c981635ca67a5f0"
     }
   },
   {
@@ -1144,7 +1144,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x20e1f0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "5b9729e134528956a0227c522b35ee8c72de8aca6f9c4834c3eb538ea98c2d20"
+      "inputs_sha256": "b5f9b0ff0113a7aaa1f78e6f95b3a77473fa7eba7a1f7220d824a4e14553aa8b"
     }
   },
   {
@@ -1172,7 +1172,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "38675a471074c286ce9e6fb99680b0e653e9ba02fa064f811733479b98d8b7dd"
+      "inputs_sha256": "55df331f6c41a1f3dc32901e9bf8bbecfc4402e72a9f2b3c405779966c490f03"
     }
   },
   {
@@ -1200,7 +1200,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "225a32b427eb9c48f43e7546c1dfdc05572f8887786d65e018783b2dd992b114"
+      "inputs_sha256": "88588310da596dd0b09decd67e7e7d97ee7905b86d6eeb7a489dbe572a7b818a"
     }
   },
   {
@@ -1228,7 +1228,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "a29664a0e5f749cb027466b383ee5c9e68d6b2e4902550339758fda870ff8b81"
+      "inputs_sha256": "2bcc18e8034584c9b4a45a2a385d2e1808f42f0d9e89590248b4c9e2ec06aef3"
     }
   },
   {
@@ -1259,7 +1259,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x20e820, including RET. Incoming transfer decoded within analyzed function code at RVA 0x20eadd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "c5048030292621622816650534de1a12bf34c92db0d32d0bf51ed9abb89ae6a9",
-      "inputs_sha256": "1f41b71854a96adde84e8add03efaa9e2c784a76b7141511bf1286fb70a2c129"
+      "inputs_sha256": "bd9ade712c571932a37f5bfddc7ad2b40ad5077ceda1ce578619c273715040ce"
     }
   },
   {
@@ -1286,7 +1286,7 @@
     "identification": "Complete array destructor at RVA 0x20f0f0; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 100 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "b9bafac163a36dcb99ccf425f440f6f70351cbc61cdd0b6f14d1031b190ef622",
-      "inputs_sha256": "b79308bbf6df3b04d62b93e01f23746047d9513dc5787af327268be0ad4f91d6"
+      "inputs_sha256": "a7fb969c62f89c09b4ba3c2e524320e02911110fa0efd30dc59eeb2949f6c535"
     }
   },
   {
@@ -1317,7 +1317,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "609f6aac13d5112405ea07523e79fa172cb73e86f127c3ea898a0e624faaf7e1",
-      "inputs_sha256": "a74595cba381e9f7375cbfffda6dff7cdbbca0102e070da541bd0a05086dc7ba"
+      "inputs_sha256": "040498459b9f99bc5d5580ed2978082ba82ec281819758e8c10e98aa5f8238c5"
     }
   },
   {
@@ -1348,7 +1348,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "1c61623a26b700da66f44b666ee1f3e92f6cf5993b00f35de281ea1339100394",
-      "inputs_sha256": "0a39c889caac5af6c17c224114b94c8742ff5fa6ed16c84e7e386bcd057b41db"
+      "inputs_sha256": "fae2037d6ca75cecadc66b78e4f98fa3d2ecf0296db8d23c55ec83be0aa13704"
     }
   },
   {
@@ -1379,7 +1379,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "a8dc7cdd10a360dde03ad1cfa247f739ddf852ec44b83ffe3bcc69c3788a89fa",
-      "inputs_sha256": "97efefbb4a2374f1ba15dec8832ffd0c217d4870bd3905ead5c9248c2b74d12a"
+      "inputs_sha256": "a00d94f35db5d0d7a302cf77c65c2327d924fdf6cb87cbb4fadf56ab1c65e978"
     }
   },
   {
@@ -1410,7 +1410,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "d8b927cbc709e2af4ce15f05f21df057c3c619b08f8fca61bad958e6bcf08800",
-      "inputs_sha256": "ce1fb4c61ad4d6fe4649cfd970f60da9396ef51d48e4f0bc196030f97b3d97fb"
+      "inputs_sha256": "541708d9cce3c6f5a0a575c1de958ac5d45658fc66c866069d5ea4e36d94b4e8"
     }
   },
   {
@@ -1441,7 +1441,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "fcfdcc2c4d35042f0133a6f65065d32f8f5feab51273b4bc619988a030824284",
-      "inputs_sha256": "2193b8c614d0bba637bafb04b7eb0b599b49cd891dbb7d110a14181321f69de9"
+      "inputs_sha256": "1718b493d08cadd0388c15086676156b35bc717d87fd20982b4dcc137720fd15"
     }
   },
   {
@@ -1472,7 +1472,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "172f799052dd7fdba0ed540a1dda7f0514e70f633de6ab0f2c46237fe2e16d83",
-      "inputs_sha256": "c5f1068ffdfb0a4b0dd1817405c5b203609dbfe335f65184d929429a73d09977"
+      "inputs_sha256": "4402bde29a6d4ef261f7ac7d5c4dfeb46a9ee3177834942eb58321a56e29acda"
     }
   },
   {
@@ -1503,7 +1503,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "f3a785d7e181ea96acff286eb72525272f7b5af25bddaa81007961820431097d",
-      "inputs_sha256": "54b301f78d8250dab05800d5d1e25bb2fa1873247e4ced02ec5a0f9062c83b65"
+      "inputs_sha256": "3bf11428ae41b63176bef55e050ff4c0ea8450f207900487e17d555e9b7ca1d9"
     }
   },
   {
@@ -1534,7 +1534,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "1e9730990ff6ddf82713f980c9ec988f58516798468ef0dcb989093530439464",
-      "inputs_sha256": "3c5085c422260d990fa5543f67be3959e0d8fc971aa6c111c0f525c3173f7c5c"
+      "inputs_sha256": "0da3d0e3511431b118046b423880ec3d0ad759d874c0702933ea47b0113b58fe"
     }
   },
   {
@@ -1565,7 +1565,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "aa5d861bc0f0fc4aedf59bf05c8c89698c80b2dc7197fa6c7dde284e5ab2de6e",
-      "inputs_sha256": "1481cd0f1a1cc8a33a2b92646d215315c440cd0b70ba5876e3d286d6c384ce66"
+      "inputs_sha256": "d84e96f4f17f54c5ba0fad1a0013e7749fdac643d8deb1505806191873b856c4"
     }
   },
   {
@@ -1596,7 +1596,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "dece5b4f921af94d81341bced0cc937c465e7cdd11f0e577a901a70744d2b725",
-      "inputs_sha256": "cede8a284a962fa52fc77650a3ff2633a1c44fb777fee22484382246432b2dfb"
+      "inputs_sha256": "067b1049e636bbfa980c6a61bbd6f63b521ebf276befa9a3fdf9240cbc5df8af"
     }
   },
   {
@@ -1627,7 +1627,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "5ad1e7f866c6a5b16b67c2f6d2c9782f3627cdb1b411884efb40b6671a15e8be",
-      "inputs_sha256": "0df74afcc43266aa7cdf90b772d98452c63d53f8599639bde8f4fe7c30ad3533"
+      "inputs_sha256": "cbc9ed4722bab22b4508c569ab275bd6222a087c727c9491edc54adb5c35d7d7"
     }
   },
   {
@@ -1658,7 +1658,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "467711af7da05869b6093af50bbb25a6ab41bbbf383accd165747694803722a5",
-      "inputs_sha256": "cdfd93c99cd83c840812f9eeae0ca8888f25829473c37d340572adfac082ed1e"
+      "inputs_sha256": "7eb307ca81e25378fdd51ecc5bd1ab88d2bd80d9c2343892d0da106497737ba5"
     }
   },
   {
@@ -1689,7 +1689,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "0197673c8dcc9b85fdccc0e533077f32ea6ead7297480c2315ff3eac47a9078d",
-      "inputs_sha256": "affa5a1d4d8c327f1ce8d1e28b5ebba53c93cb38f7d4c4d16cefdb0ddbbf09a9"
+      "inputs_sha256": "ef17fcf1ede817a8f37c6ad8bfae1a29a4c36488ff8d2e4ff5e18c933bd903aa"
     }
   }
 ]

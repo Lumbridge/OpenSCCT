@@ -22,7 +22,7 @@
     "identification": "Stock UTcpipConnection vtable at RVA 0x2ff3c8, slot 3, points to entry RVA 0x180610. Registration at RVA 0x1837aa passes placement callback RVA 0x183540, which installs the table at RVA 0x183571. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "2c098bbb0dd6aaf82bc05e77bb2c5ba3dcbd1d658b4d4da8cdd3b1d615c513a2"
+      "inputs_sha256": "87bc7b3057191764979574e61a1c92e5f71801772eb1a24a7125c5501acb75d0"
     }
   },
   {
@@ -65,7 +65,7 @@
     "identification": "Stock ATcpLink vtable at RVA 0x2ff280, slot 3, points to entry RVA 0x182240. Registration at RVA 0x183751 passes placement callback RVA 0x1834f0, which installs the table at RVA 0x183521. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "e0ee8f92dd23cbcb3cd284acdbedf8b2b0ea558ab9e4293235292ba1ee81bba4"
+      "inputs_sha256": "aa83988dee8e205d6ee66b3d2f244dd0047ef5e0550e401dc9f42e4871eaf3ca"
     }
   },
   {
@@ -91,7 +91,7 @@
     "identification": "Stock UTcpNetDriver vtable at RVA 0x2ff208, slot 3, points to entry RVA 0x183670. Registration at RVA 0x183803 passes placement callback RVA 0x183620, which installs the table at RVA 0x183651. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "6bdaa31558a5f26dbf13bd8b16e9b843640cd7e34c8b145a10b766b2cf0bdf1a",
-      "inputs_sha256": "d437ab5596c1f28b244e5c15cd44e7c801f8cbfec0594261c8d8be06a3db5045"
+      "inputs_sha256": "c374ff6d18aff1de3817752be43739b02f481d72da1a084106ac6dc3e50f0dd1"
     }
   },
   {
@@ -214,7 +214,7 @@
     },
     "match": {
       "bytes_sha256": "9335fc90a5ed4202dddc010afecc76f2ad595c7ef9ce50303633426f78389d59",
-      "inputs_sha256": "01d47e2a1289058be9af1393bf4e5269be71aa820431583ca86a04d9a766e088"
+      "inputs_sha256": "a89f637e3ae360ab74f0b9bca1a9c9c540d251e87f868bf52f107557e6f0f376"
     }
   },
   {
@@ -2181,7 +2181,7 @@
     },
     "match": {
       "bytes_sha256": "7378120568ccf88c497067d8572a7b4959fa60ceabcd90ad6c152bb9fb44bfc6",
-      "inputs_sha256": "27eed150a25e81c5e11b26437298cbc8dc49b44a358325b8815c0aaec86bed19"
+      "inputs_sha256": "0bb03ba3d1f6a9cf74fcd957f704f389ffcdfa4c17ab959579552ec3054e2ad0"
     }
   }
 ]

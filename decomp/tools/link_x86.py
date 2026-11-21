@@ -69,12 +69,23 @@ def link_function(obj, name, length, address, bindings, *, read_constant=None):
         local = (storage == 3 and kind == 0 and sym_section == section
                  and symbol.startswith(b"$L") and symbol[2:].isdigit())
         private = storage == 3 and not local
+        # C++ exception frames push this function's own frame handler, a label in the
+        # compiler's .text$x unwind section, by absolute address.
+        handler = (private and relocation == 6 and kind == 0x20 and sym_section != section
+                   and symbol == b"__ehhandler$" + name.encode("ascii"))
         if local:
             if relocation != 6 or value >= size:
                 raise ValueError("invalid section-local switch label")
             dest = address + value
         else:
-            if private:
+            if handler:
+                dest_header = 20 + (sym_section - 1) * 40
+                dest_name, = struct.unpack_from("<8s", obj, dest_header)
+                dest_size, = struct.unpack_from("<I", obj, dest_header + 16)
+                dest_flags, = struct.unpack_from("<I", obj, dest_header + 36)
+                if dest_name.rstrip(b"\0") != b".text$x" or dest_flags & 0x20000020 != 0x20000020 or value >= dest_size:
+                    raise ValueError("frame handler must be a label in the unwind code section")
+            elif private:
                 # MSVC may choose a register ABI for a static procedure within this translation unit.
                 if (relocation != 0x14 or sym_section == section or functions.get(symbol) != [sym_section]
                         or section_functions[sym_section] != 1 or kind != 0x20 or value != 0):
@@ -92,9 +103,19 @@ def link_function(obj, name, length, address, bindings, *, read_constant=None):
                 raise ValueError(f"missing link address for {symbol}")
             binding = bindings[symbol]
             dest = binding["va"]
-            if type(dest) is not int or not 0 < dest <= 0xffffffff or not binding["basis"].strip():
+            # The C runtime defines __except_list as the absolute offset 0 of the thread
+            # information block, addressed through FS.
+            low = 0 if symbol == "__except_list" and not sym_section else 1
+            if type(dest) is not int or not low <= dest <= 0xffffffff or not binding["basis"].strip():
                 raise ValueError(f"invalid address or missing evidence for {symbol}")
-            if sym_section and kind != 0x20:
+            if sym_section and kind == 0 and symbol.startswith("??_7") and symbol.endswith("@@6B@"):
+                # A C++ virtual function table holds relocated pointers, so its compiled
+                # contents cannot be compared before linking; the binding names the retail table.
+                const_header = 20 + (sym_section - 1) * 40
+                const_flags, = struct.unpack_from("<I", obj, const_header + 36)
+                if value != 0 or const_flags & 0xe0000040 != 0x40000040:
+                    raise ValueError(f"expected a read-only virtual function table for {symbol}")
+            elif sym_section and kind != 0x20:
                 const_header = 20 + (sym_section - 1) * 40
                 const_size, const_start = struct.unpack_from("<II", obj, const_header + 16)
                 const_relocs, _, const_flags = struct.unpack_from("<HHI", obj, const_header + 32)

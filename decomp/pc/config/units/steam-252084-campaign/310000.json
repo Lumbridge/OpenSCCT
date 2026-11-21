@@ -22,7 +22,7 @@
     "identification": "Stock AEWallHit constructor at RVA 0x310740. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "691a5b9ca102406c2fd630595a0550586c9c3372dc83eae9354924af15f738f2",
-      "inputs_sha256": "4dbb32a3210c01a6ba74e24807033323215d4cccfe3c0b19eef47a3aa1cc49dd"
+      "inputs_sha256": "9648785964d0dfb31f2ddd76772eb15937d16f572a560cccccb36c52fe7cb671"
     }
   },
   {
@@ -56,7 +56,7 @@
     },
     "match": {
       "bytes_sha256": "4f06a6cc0dc235e480a3050db3aa03d3ff03175592a32e749cc035fcf5791742",
-      "inputs_sha256": "c755b54a9201d575a024f6b350b3cab90b822c2f8ba7742decda32068b9f94df"
+      "inputs_sha256": "87bfbdf224e4b238fb9f284b24754404bbde0ef86ceb0ce31c2eaa99dece10b0"
     }
   },
   {
@@ -82,7 +82,7 @@
     "identification": "Placement callback passed to the AEWallHit class factory at RVA 0x3107e0. The callback at RVA 0x3107a0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "ad088abb63aed281decc8fa97322afd8568a668ac61ff398bd157d7ac4d76fe0",
-      "inputs_sha256": "14d4e9342d5392928ce9a23df0120f4a2d13e101c95d7412873ed584d09ff595"
+      "inputs_sha256": "f646b4b9328e38e1144c4c0e193a99b9278b02d34e1cb90a4eb9f335172c457b"
     }
   },
   {
@@ -124,7 +124,7 @@
     "identification": "Native class factory at RVA 0x3107e0; its allocation tag and reflected class name identify AEWallHit. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "31e04ff46f149e3a5aa07c33b183f36f5202cf4bd977e67919efdbffbddd90c8",
-      "inputs_sha256": "e8b3e8069a2016f1a7889aa12b7f070d646aaa0891aaeca52a782cc628c90e01"
+      "inputs_sha256": "3897f8dc4ae4d01bc0abd9676711bde69fc3b2110124b352fac1ba9babaad57c"
     }
   },
   {
@@ -195,7 +195,7 @@
     "identification": "Class registration for AEchelonGameInfo at RVA 0x310af0, called immediately after the class factory at RVA 0x311180 in the singleton initialization path. Sets superclass AGameInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "1644e37465bd057510620fa7ffaf25b7de1adcbeee4cc01e2dbe25fad733400d",
-      "inputs_sha256": "723deef20ff9d51090ed248be9acc6a898f195a339ee423205eaf75ad095647a"
+      "inputs_sha256": "f977e8393f9db421d3ac6bcbf82c77fac3d27095306ea379e09d4808a8b74015"
     }
   },
   {
@@ -237,7 +237,7 @@
     "identification": "Stock AEchelonGameInfo constructor at RVA 0x3110a0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "21b09371ced2ee6be7cc6c2e09956246e985aebd06c51345464744723761dc43",
-      "inputs_sha256": "ff39d8fc92bdcfe842d503f3b0597fc7a6a41cc2f7cf7fc3ea2fd811396c167e"
+      "inputs_sha256": "46f1a4c660666b253ebffe48eea957eabf193ffe9bfc7495c34cdff6e9d18b8d"
     }
   },
   {
@@ -279,7 +279,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "e4b832730385b17cda4b443cc3b5ae2072c93981bad3d0d7cb8ede6db9b25e80"
+      "inputs_sha256": "6d303ac20528dff68de24e37ad8e37fd7ea69a8fcd5714753c63cac9f010c4e0"
     }
   },
   {
@@ -305,7 +305,7 @@
     "identification": "Placement callback passed to the AEchelonGameInfo class factory at RVA 0x311180. The callback at RVA 0x311140 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "4c3389e4d4540d19953235b68afb3e06ff88fcd7b7c556beee0358153afc24ec",
-      "inputs_sha256": "6dd0a3a49df313f1fa80263a4088a38942b9eca279799d86fe3977c903a8c9c1"
+      "inputs_sha256": "96956cac2152499fad86228f6ed21203aec972a137abbd06811b202b1c1cacbb"
     }
   },
   {
@@ -347,7 +347,7 @@
     "identification": "Native class factory at RVA 0x311180; its allocation tag and reflected class name identify AEchelonGameInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "01f347943c10c1272e3153ca8540faa72ec24c95cdbbe107456afdd7fef1ada2",
-      "inputs_sha256": "ea894e01ca0a612013d00e8c80dd7bed337bca07b8877465d25832b24934f55f"
+      "inputs_sha256": "bbce73823af3ef1af1fe7d378277a2fbaf70d2910f5148bf0d2cd6daeb70e98e"
     }
   },
   {
@@ -370,7 +370,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "897bd462f7b64f8a08c6fddd55ea43b0e19317ebb2fa649a8480bff7477702db"
+      "inputs_sha256": "be258cd807a6224cff4c84f84b9eaeb8763b5f7bcb0c12d7cbfc89114c5e4d21"
     }
   },
   {
@@ -441,7 +441,7 @@
     "identification": "Class registration for AEZoneInfo at RVA 0x311280, called immediately after the class factory at RVA 0x311960 in the singleton initialization path. Sets superclass AZoneInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "c49a378f0c3435615cd4d424ce57a4a65c38dc7910a8a2533b965c37aebd2771",
-      "inputs_sha256": "cab2afe872ba54e13906ad1f25d96a0ba4543bbfdd03110fecacdaa37531cacb"
+      "inputs_sha256": "7f481a77bb18b6b68994e0114e648eacbabfe3c90785f6e27bd2a3902168c35d"
     }
   },
   {
@@ -475,7 +475,7 @@
     "identification": "Typed cast at campaign RVA 0x311540, directly called at RVA 0x311628. Its class constructor at RVA 0x2e6940 identifies AEOcclusionZone; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "8efe3f0cfb201509f23a602f16d8e0424577b5cf82495cbaea263a8cefb57a11",
-      "inputs_sha256": "6e13dc49969d256cc7a3a752133ceffa2e36e1e003fc0bb4223a1e8d56024270"
+      "inputs_sha256": "fd65557ea5f5c60e8ecf9691d8f9d12f7683a5fc214acb43b2a8c73742c3c728"
     }
   },
   {
@@ -503,7 +503,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x3115e0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "53a86144422716ca9177364d2cf145856b167c33f146a5333882ae3d4450c103"
+      "inputs_sha256": "b5b251b4c4d86af4c12725cac158e08afba56957cf51ad9958884206bd7f19b0"
     }
   },
   {
@@ -534,7 +534,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x3116b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x31182b, 0x31186b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "06b387d74a1f91ad41456b5ce0d88f8eb31924d31eb3aa585c73de451216dc34",
-      "inputs_sha256": "4d80cd2cfe210dbc47724b8bc9d59c02fc6d2f96a98e454e0902a7c26bc01b24"
+      "inputs_sha256": "d4fbe49b734f646e579faaa0d75949579c5dbbb5666c462d0b3e0edaaef667c2"
     }
   },
   {
@@ -556,7 +556,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 44-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "8f54d23ec61e6f32970641e1ea5579fec4091976e5040a56a1c106e0104b3a0a",
-      "inputs_sha256": "e874ba9d19d5aa52ede55493f238485ff6cd5e67460b85c756b875a554b78e18"
+      "inputs_sha256": "1925f1c9366c674fd722cd9240ba5feeee0cc897d9052f26c0c4a7f6b42721a9"
     }
   },
   {
@@ -583,7 +583,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x311820, 0x311858). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x3116b0. Removes every element with stride 44 and releases remaining storage.",
     "match": {
       "bytes_sha256": "7b7e73f6338fea047f10520a3d9744b41091309c99daf1adcda5adbc948ddf8c",
-      "inputs_sha256": "5116f74698f0e59e3d852c290d30015ab3688c9eb805092f053108168fb77f4f"
+      "inputs_sha256": "ee3018d8f662ecdafdef15425e642207e37c6369028904eb8c3e9057d69d1e12"
     }
   },
   {
@@ -610,7 +610,7 @@
     "identification": "Complete stock array destructor at RVA 0x311860, called from decoded game code at RVA 0x3118f4. Removes every element with stride 44 and releases remaining storage.",
     "match": {
       "bytes_sha256": "c5f08ea02812d68db1fe8d25293f44f58e0ae5851f09a97d411dc7fc39314125",
-      "inputs_sha256": "f93bc788c78dfadd5ade92fd3c9f54c7d3872173654a22e52ce7c3d8db4e778c"
+      "inputs_sha256": "ae41e6baae73a87f6aa152115de53967561e52cc4e3da289f334cdffe4bbda3a"
     }
   },
   {
@@ -636,7 +636,7 @@
     "identification": "Stock AEZoneInfo constructor at RVA 0x3118b0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "af13db2f3565b2779379061a02c1a8cdd64cf4421518e189126ba3e66c1657ef",
-      "inputs_sha256": "04e44b463738a49edca8db8563f532ac8f33f7ff0f9274aa154852588841eb76"
+      "inputs_sha256": "9d93ccdf7a31167a8ca0ce011126b51e3afc0b8c7b84bf35f99940c52558f731"
     }
   },
   {
@@ -674,7 +674,7 @@
     },
     "match": {
       "bytes_sha256": "cbe28b43a9027f4e891a87aff10d0efa45bd3ab5d7d5dc140c99d591d5e994d0",
-      "inputs_sha256": "d49a2af1f88bbff20af1e293c151796e5b15018784555b9d9e82747bf02c3bc2"
+      "inputs_sha256": "840580a1ef172c5965e4fd6c6d05b77326466ac8a924db2ec2e71d417e73c723"
     }
   },
   {
@@ -700,7 +700,7 @@
     "identification": "Placement callback passed to the AEZoneInfo class factory at RVA 0x311960. The callback at RVA 0x311920 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5b128f949b178e8d85c478ccbdafe0bf5b482edfb18ddea41c2520ac58381f50",
-      "inputs_sha256": "52691f3a3a9d4b935def815fba31c71baf962f76d60b17d51a5722b4082d7e68"
+      "inputs_sha256": "3c2f2a799b2ba1fa094afbc64aec4360b46e1fdb50a01d7048c53e506e5ca626"
     }
   },
   {
@@ -742,7 +742,7 @@
     "identification": "Native class factory at RVA 0x311960; its allocation tag and reflected class name identify AEZoneInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "998ad7343725daf571a3e3d597eed23ccf49b4513bdc5da6fb05235ecc8deee9",
-      "inputs_sha256": "c10ba46ad8afb3100cf2a35d249375b174c85ce3fa47ae41eea6f3e9cf53aae1"
+      "inputs_sha256": "1fe472a8df14eadf59af6b03517bd64cda28210a17390cfb28035b3135b7cc36"
     }
   },
   {
@@ -765,7 +765,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "449ed7b293dd0cc0f40d4cdfda99abdafd06e9dc8d8188caae8a835879d15e98"
+      "inputs_sha256": "91c79f06b11cf9c5d12690f946a98cf52760b32266f72edccab6779882252c20"
     }
   },
   {
@@ -795,7 +795,7 @@
     "identification": "Complete object construction routine at RVA 0x311b60. Resolves the default outer and forwards class, name and flags to the shared constructor.",
     "match": {
       "bytes_sha256": "d1e8f33221ef05694d0b179720779ce0697f2de57ad927dffccacfbbbb96446d",
-      "inputs_sha256": "7533580a2af2976b15b5b712216f1a12bf50abb0344ed1e1b658120b72e99dbd"
+      "inputs_sha256": "3d30155842b9a1e159a62b72861b3ad482dacb281d10e038367fe242a5a21829"
     }
   },
   {
@@ -822,7 +822,7 @@
     "identification": "Retail StartInitialPattern event wrapper at RVA 0x311c20, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "ade2f03723ffe5259e1fe6dc2971ed384694d58ab73df8d41083a96a78344a98",
-      "inputs_sha256": "197d65d7c9557bed46ce0000e01dbe2997241fe499c8b5a9ca691b474c0c4068"
+      "inputs_sha256": "aec488939b59e659fc5f7a0c9c05d761f46dc75ab8b35f0c8cda5f0c6d3cfdbd"
     }
   },
   {
@@ -864,7 +864,7 @@
     "identification": "Complete UEGlobalMissionManager allocation wrapper at aligned RVA 0x311c50. Class singleton RVA 0x32f0 independently binds its descriptor, package, creation and registration calls.",
     "match": {
       "bytes_sha256": "1efd23c82cab388ead94d38c5f159708f3d792d3aac5a00afe4bf6a38dacf59a",
-      "inputs_sha256": "ff8fa8c122b8561986f18f17e5023937c43473a3dffd696e7b7227b43224ee9c"
+      "inputs_sha256": "78e015159a5a8c55e67908cd1d22528577b7d9dc6298a3cab5827d1162840e1b"
     }
   },
   {
@@ -887,7 +887,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "424f998373ce7dd5eb36bf36940930c79734c89b3ba0a0a41ca388d3dbf613d2"
+      "inputs_sha256": "15d550163e4c792974ead3028c302cda30a7566216e5d3aa69b161c16f1d5677"
     }
   },
   {
@@ -910,7 +910,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "3ed309f137e25dc6abe44030b4ded76c4ad163dc63ccebea53c04cf8e1219dd9"
+      "inputs_sha256": "c8efc1ed4987a3f6998fb934c8959d30b8bc2875f258520d8be1521b40a61ea6"
     }
   },
   {
@@ -933,7 +933,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "e5198b7bbfce6b45aaa1b7ad80a4030e6d48d3e0fc4f25bb16340ddbc802af3b"
+      "inputs_sha256": "7017a7569f606f1e027604191311fe1804f0d00dba657b7d8cce05bfc9b0a313"
     }
   },
   {
@@ -956,7 +956,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "20c9723f3f3b44d4d6faa082d4fe034f6ec634470f64c81360b639cb32fb9851"
+      "inputs_sha256": "4f23f6e3af68b4080de79e2fc12d7c40624034cc2a1b400ccc514378c728de00"
     }
   },
   {
@@ -979,7 +979,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "7c32ae53ba7c3bdce935b75e95eac82f02d95a084b65af96f94556a6ceed66fb"
+      "inputs_sha256": "cf89e2c1da41ded39c24ab9bea2e2500605dad4b2368367ae574a83495be7c76"
     }
   },
   {
@@ -1002,7 +1002,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "f07de452170b14d56b55755de03e9cb51aa5a706c515bfb27eb77645f0597fdd"
+      "inputs_sha256": "8daa9aeb8c0a2df8daeeb351b075aeab3f6f84c0f819cda0a81a6b88f38fc42a"
     }
   },
   {
@@ -1025,7 +1025,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "9cb5c581ff0df0eaacb27334c09d080d258e74282573afd2ef5fa684dc9fd788"
+      "inputs_sha256": "f18ed88857bffaceb3d159b742461df7c4c8c6695788ea60e88d704269e09756"
     }
   },
   {
@@ -1048,7 +1048,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "3ef9eca6b91c0b93de5223be67745d2d8c7f995756e07138d20b3ac267ab2dc6"
+      "inputs_sha256": "1f3cc8fe11703649ce55e2ffb608b376f981e20fe67a3d6602bafa6b4e1ea511"
     }
   },
   {
@@ -1119,7 +1119,7 @@
     "identification": "Class registration for AEchelonLevelInfo at RVA 0x312020, called immediately after the class factory at RVA 0x316cf0 in the singleton initialization path. Sets superclass ALevelInfo, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "7b6e9a14d8643f8f09e5320a5bf3c0720099d0d7c1e740c3184031ba942ae238",
-      "inputs_sha256": "29c6b04abe4f05bad1cd0e0f195e3979db5863e0d85a97ad7fd7b2a9dbddeea8"
+      "inputs_sha256": "1bd89798c4be7d09ccf17200c964e2ed2389ec34b85b9954e0e7a0678429ed43"
     }
   },
   {
@@ -1147,7 +1147,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312840 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "b90197119f372694fb7d7a6e720341b393d05ee81515b60f2d266c6f9c86dd42"
+      "inputs_sha256": "e913841679a371396453dbbc2c9938c8f1002637c992d79f18944ab2fb4e8beb"
     }
   },
   {
@@ -1181,7 +1181,7 @@
     "identification": "Typed cast at campaign RVA 0x312870, directly called at RVA 0x316442. Its class constructor at RVA 0x299db0 identifies AEPattern; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "1e79661ceae4aff030dd52c1897ce6d8194c7302cb1de95c3ca56e0a901de7c1",
-      "inputs_sha256": "155e5f8835822accfea8bef8b981a2eb36fe91e29803ad221d2899e8a4a0cfae"
+      "inputs_sha256": "664d71c52e26af423b122ba289df79e9de6551c12b026201ea539cd7a4f3842a"
     }
   },
   {
@@ -1215,7 +1215,7 @@
     "identification": "Typed cast at campaign RVA 0x3128d0, directly called at RVA 0x31475e. Its class constructor at RVA 0x311960 identifies AEZoneInfo; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "bffeb3b49027a0b99572ac55a0223c104361ea154835b33b3e5f04a70e54432e",
-      "inputs_sha256": "5055e0ab15b3bd4b6d96960f72cb6e03b9810ab6c7454b769f4753d98b4dbfcb"
+      "inputs_sha256": "97a07c683aea2acd9f58ad1035f5d7eb3d5836ea00e9692259b6838a29a997c9"
     }
   },
   {
@@ -1243,7 +1243,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x3129b0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "e2891604d4da649565897953c07326b3561efb5ffb58a7c5381e094681f8e04b"
+      "inputs_sha256": "d31b311ca8eb2211951f7709ec0b535c864a7fa422d10445fe2d25d41fa60c0f"
     }
   },
   {
@@ -1271,7 +1271,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x3129e0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "9e9347532ca442bcdfd7854873786be15be59a139d5c562fe7d2f1e403b5a0ca"
+      "inputs_sha256": "7f8b83a586180b9c4ae633fd86f7bdaa698ba4eb9de154f9a18fe7c4f246e40a"
     }
   },
   {
@@ -1299,7 +1299,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312a10 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "baabe6c4d33d3fe442cc182a502cfa2cb132d39a7b047b497ddf6dfcf2e44906"
+      "inputs_sha256": "975b63a2b5ddf47a53d90fe3cb0c6d1b7e876ac16e7bf6fe8546ddf365c597b7"
     }
   },
   {
@@ -1327,7 +1327,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312a40 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "e1441ab991f7a40ffa03dc6b9046d54e7b7eef0b9ab6c6489c42b928bb8bf7a8"
+      "inputs_sha256": "ab1e7d26cac41176ec04170bdc7ee34f2620d7b04899d2b1e5569b0f6ff39060"
     }
   },
   {
@@ -1355,7 +1355,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312a70 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "70a0cf7a36c7d6d58a42fe22b6f3dcde59acbfe72f3ab11d424a75ea69f8cf82"
+      "inputs_sha256": "f6ea329b7d0a19367f8b1508665bbdf881ab2d9530669793275c5c3b5c4157bf"
     }
   },
   {
@@ -1383,7 +1383,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312aa0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "7f55faa48b4940e5a278c892b6e485d1e315d737dedbaa275ad85eba939a9a29"
+      "inputs_sha256": "e47cb93657f9323ab7888e884c97ef76a3d9c95e5cf31d57808230b36a83143e"
     }
   },
   {
@@ -1411,7 +1411,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312ad0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "4d6b2e48dfef59f7e5ed4bb4fd167b5b7b93ed71b768c59e8d45fbc1ae47919b"
+      "inputs_sha256": "6a267654a5b28a573dd9f636a76c23a7c81a00eaf4605eccaef51def88d24f43"
     }
   },
   {
@@ -1439,7 +1439,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x312b00 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "29f501f3967cce822d1a7747ab9f46df68129b9053e971701390bb94815c6127"
+      "inputs_sha256": "2ce5cb1348f9209984590b09015d384f4cda88a577eb16a60ccc38a5ea892484"
     }
   },
   {
@@ -1467,7 +1467,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "a5ad7c256a3ea59f6987f705ced168f351e98f45c11eee8eacd7341a4bc6144b"
+      "inputs_sha256": "f8b70c7f1d7a0d94ad15c394a77775a80962bd30143215dadc92e873ac20dfa8"
     }
   },
   {
@@ -1495,7 +1495,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "fe8ab088ac52da1df06a07be685f047b7578d3836f45403270795a2eae6fae58"
+      "inputs_sha256": "738e910ed3c3e541961dc243230371920e599868c21f9c27e56f36a818923421"
     }
   },
   {
@@ -1523,7 +1523,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "fa5913b12ac3e439f0fec8da189013f879ebd09f83b787dc707c3a9881fdaaac"
+      "inputs_sha256": "94065b3137603f0f39080ffb73dd2e69356c57b4a08f68ae7ab82f4105d1b20c"
     }
   },
   {
@@ -1551,7 +1551,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "d15603f75e0ce516c76b89123fda891a2dbc267efa430f99b69d9ea11aa115bc"
+      "inputs_sha256": "6a3fd6e9fbbb5c3677da5c848454d3934b847ad4a5fc2520759a74ef63225927"
     }
   },
   {
@@ -1582,7 +1582,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x312c70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3136eb, 0x31489f. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "f21ecdac0bd191ff721c7664acd71ccd5594645654f5fa1ade1f662f7f2837ce",
-      "inputs_sha256": "f1e6741854e7475b6f70c27f9a96a18c7362c01f2a21256ea74bd7b690b05a2b"
+      "inputs_sha256": "ae5efa61ae706a0f79923ed50cc7b94ea2926ae4f5ed05901421ce78ce68a977"
     }
   },
   {
@@ -1610,7 +1610,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "204e2550e8cc2fa6bcc6c3f86f3c31440d9fe812176efacce1ff6b37ee36652e"
+      "inputs_sha256": "cee713afe8638b899d24ab5cc4ca9e4f6f274c2e72089f1d8ed93f9d28c4e73a"
     }
   },
   {
@@ -1641,7 +1641,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x312d50, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3168f2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "212bf3587b787729e3e3c4e5fd3a3af2708f69ec7f50687e50a1cd24bfd152f2",
-      "inputs_sha256": "1c075c6a3c2e4f8be0dea7e0093242d39121059ed8977a393e8cf78315b39977"
+      "inputs_sha256": "d2c51c1fadba4ff7555cad5325b62d449588245d25a71913987580abaf8dd1d2"
     }
   },
   {
@@ -1672,7 +1672,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x312de0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3139cb, 0x314b4b, 0x316c6d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "59f4b3caec0fd9452d21c737d76c131271c94042b4d5cc655cad02a1ad53061d",
-      "inputs_sha256": "584cebd31bd31c73a01d10a70c3756ff4d2dd7afc3dbd29050de63044f3ef760"
+      "inputs_sha256": "1886205ff6c43457bbe5afa6909f8d43885d3dfa1d1b9a1b6fa8137a2d14a00a"
     }
   },
   {
@@ -1703,7 +1703,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x312e70, including RET. Incoming transfer decoded within analyzed function code at RVA 0x315e2d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "37451b5be7468e8d672bcee4dd101cc31c309a13c577ad18bdd5b6a21b992d8a",
-      "inputs_sha256": "e174293a1593aadaea73fed46dc36935a7d0428468ecf923846468f0ffa29279"
+      "inputs_sha256": "198ad38cd0c3ef0edad27860969dbd7632e99d6f792f8e3062cbdc6356468743"
     }
   },
   {
@@ -1734,7 +1734,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x312f00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313a0b, 0x314b8b, 0x316b7a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "dd4a1fa5ab0f0a2aa0c3b11656b27ae76450ebe74c363f4169cc20109d5cbb2c",
-      "inputs_sha256": "3986f0dbb6d0a649efdf61b35cdec5d1f19b4e5272dc2aced19b9278a2f51ab9"
+      "inputs_sha256": "a8be5b223bb1917082a4ab55087ccf7d6b3fe5aaadf39d5262cd519d531f5cdb"
     }
   },
   {
@@ -1765,7 +1765,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x312f90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313a4b, 0x314bcb, 0x316b49. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "03c4e50d342aaf04844a05d5d884ef1f275472d487c2322cfa5c4c0fddef3541",
-      "inputs_sha256": "8d3deb8cd8608382027f3a9e6609d427d3ea1418eb1a194129eb66db75a9c7db"
+      "inputs_sha256": "7b29e01b49f99afd20cefa745219dae2c9f0e9fea42505c0ccd21999c019e32c"
     }
   },
   {
@@ -1796,7 +1796,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x313020, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313a8b, 0x314c0b, 0x316b18. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "4b11a835bb2c851098e6e54577b94799ab5f585b408934b2cdd0e147ea02093a",
-      "inputs_sha256": "d95e45dc36d0164ba7a65f18ff79d5cf5f38c7ecc3d2d263d7b073ebf4b5b30c"
+      "inputs_sha256": "50b8051a02f612753aa1d5e7f68c5dbba1aaf2d9007a9e872a020886285d8be1"
     }
   },
   {
@@ -1827,7 +1827,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x3130b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313acb, 0x314c4b, 0x316ab6. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "afd4a977790f6d40e8e7586ee636886dc374e5048514b335019e457ae3dd9a1c",
-      "inputs_sha256": "11b9428318f0915c96400ee6a60fdba6b62216a98b8cbbef5007a7eec0b7cf8f"
+      "inputs_sha256": "36833c6f679c8cf343b146d246f3e8b6410be1a2583c0d96aa9107ff0680057b"
     }
   },
   {
@@ -1858,7 +1858,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x313140, including RET. Incoming transfer decoded within analyzed function code at RVA 0x313b0b, 0x314c8b, 0x316a54. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0c8bbc5bb0c3715bca0b17ea7c3c3c1df0114a4cc959a4d107cf9ab22cc645e7",
-      "inputs_sha256": "102e0c54e2809b61e42e1ce7a9d456618726ef6a77874d60e4e8326cf10b3a96"
+      "inputs_sha256": "c1da0bdd9076334c1a2222d9d209e9e7b32deaa63e061937ceedfa0177eb736d"
     }
   },
   {
@@ -1887,7 +1887,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "57525acb9b1cd528e07861cde05cd1becf276d6536568ba3bd92b6a709d29059"
+      "inputs_sha256": "1842c49fca744d51f0daabf7a571b8f72cc7c2e1ab09ce5aecff46c0eec2e921"
     }
   },
   {
@@ -1915,7 +1915,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x313220. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "2cc8c73ab4649c146f7ceb2218f63dda92746bfb9b3bf3ff6ee60645917dfd85"
+      "inputs_sha256": "fb5eda2ccdf62489ea7ea5d21f0b038820aadade371c1022be56ce0616fafa2f"
     }
   },
   {
@@ -1944,7 +1944,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 12-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "2f155427d9101e674662f26c73353dd839889dd7a56eca46ed724f1773c022da",
-      "inputs_sha256": "48fe7809a7822c40f9ed578ca1777a149fda6112f7dcc45d22f26d74021240aa"
+      "inputs_sha256": "01fc8b75ff0e1a5106a9408c462f91e3bd514396ad0e99e42bef28593e3e28a9"
     }
   },
   {
@@ -1973,7 +1973,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "2dfa45e91416c55145163b69d00f9ab5ebc61daf220b300a2296f9765239a323"
+      "inputs_sha256": "62ead43051b30f2076865f53464b9183b36a8483e781c777fc0d900d34668996"
     }
   },
   {
@@ -1995,7 +1995,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "73ebcf194e560c63852c546597682206a2a12a3ee3bd6b43d7be516d70e17e46",
-      "inputs_sha256": "cd0d7179784f439a7fbc16714ca10a6b33a17b64fc5b5f802aa9f121c663d8a6"
+      "inputs_sha256": "adf24d7e0c4c5c11946ed32291fd3f79bc64b4746138c4b5bf51a404d4d7a3c3"
     }
   },
   {
@@ -2024,7 +2024,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "1f771e75b049a11e568348b8d695ae607b1be7154d967dda211e7dfd632b95aa"
+      "inputs_sha256": "f01cfa9f7c1ad4eed227ac043cdb3b2cf61b3c80c7582e0c05321af598fe2c15"
     }
   },
   {
@@ -2046,7 +2046,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "25e0d941024bcc0a4d446e852e6215a14c1c212dff4bb6cf32383b91b8e079b3",
-      "inputs_sha256": "98768100d44a6c7197855214c630643bdd4aedd0629fa856ace01166000f4487"
+      "inputs_sha256": "fbb7e18c4ed8537d8f814ec1c18e2f3eaa961b8c04c546233678f70fdeaadd94"
     }
   },
   {
@@ -2068,7 +2068,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 12-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "fe2b7ca0726a89c59426c33a306316e722bd18991dda16904dc61bb41a5bfc5c",
-      "inputs_sha256": "7a46667a7aeebc2e1edfd08f718b2a2a8e412bee6211f933928975900609440d"
+      "inputs_sha256": "f98c6d73285c640969c60e4c5e56c5a21e33663e4569ec025e9d3e531a04f2f2"
     }
   },
   {
@@ -2090,7 +2090,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 12-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "c1e4340012e83244f930f59c414bf8b93ed64134bf2c0c908cca88450360528b",
-      "inputs_sha256": "6c34625044dfbed81d8b233badffec747b59ba91c88cf19cbd665760d5185cde"
+      "inputs_sha256": "c8bf4d00e01bec520dc90b379fdcb86b2cc8b5fa067d95d99d5ea0770da1c2c5"
     }
   },
   {
@@ -2112,7 +2112,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 24-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "5fe51d30cb633836f6d5322b3d00629daf45c362063ac92ef6961d321808ea71",
-      "inputs_sha256": "49bc6f36abae54dc5ff00584230f0a3ba81ed619d8bb78436e7c7ff7bec71e73"
+      "inputs_sha256": "c280a269e8cadba6d1ecbfe9ce98234f870456eb71774077b659a87c96e0812d"
     }
   },
   {
@@ -2134,7 +2134,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "0eb10e79a8bbd7134eb100f0bb4fe4c103462e28de976cbe0da328cfed964c66",
-      "inputs_sha256": "17f7417d8effa4c4c00f62f75f5d0db6e8f8c4e4fba4bbbf5b43179724f3751c"
+      "inputs_sha256": "e4542f1b1166e6926876fc603845c2dd4382033130ac93ece9614cc2aed2c0b9"
     }
   },
   {
@@ -2161,7 +2161,7 @@
     "identification": "Campaign script callback Echelon_EchelonLevelInfo_UnlockLadder at RVA 0x3135a0. CRT initializer at RVA 0x7aac30 registers callback cell at VA 0x111c2d00. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
     "match": {
       "bytes_sha256": "6d4a6ee46151f088c84812de27ae5eeac83bf478926a4712d53814931e9f03bf",
-      "inputs_sha256": "335e6b4e6d0f3459584a880ad5664788dd7e944fbfa7d1d03d47c84c5b4a1ed7"
+      "inputs_sha256": "217d50f7025b8cdb79fd2197aaca69209d23539a4222aaa717a8870fd1e2ffa5"
     }
   },
   {
@@ -2190,7 +2190,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x313600 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "67ffbd7a452ad5aba60119b7c3bb972a7f059ab277bf11b4af6739bd1eb38af9"
+      "inputs_sha256": "9d23cd0471a161f9b90e7f68b903ccc06f310e6fbc1e55545f39613834f9852f"
     }
   },
   {
@@ -2219,7 +2219,7 @@
     "identification": "Stock FArray operation at RVA 0x313670. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 12 bytes. Appends a copy of the input record and returns its index.",
     "match": {
       "bytes_sha256": "e5740510ae5e8e32f3772807f1e7e8be3c85ffc323ae73c17d1f16609ef047db",
-      "inputs_sha256": "11e4e257b8da9c2f60f56abb363b343c1f5ba5718195a52adde8682dc28b5764"
+      "inputs_sha256": "fcdc878233678297414fa3146f0f29cf97d92a21f8850d3093c59210b7bdb30b"
     }
   },
   {
@@ -2246,7 +2246,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x3136e0, 0x313718). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312c70. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "098cf7ddeb28b297869d32f56a5e87bfe132652e941b7a783a712ed31bcc5381",
-      "inputs_sha256": "ba4979084ac36f372ea9a2d436e98bd9293f80a5c3a407560f4ad88f4d068f99"
+      "inputs_sha256": "e37dfd17d59aa2dbcb9449c0adeea9f4d8cea4a00aa6fe8b78a7b1c76e11bb43"
     }
   },
   {
@@ -2275,7 +2275,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x313720 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "0194b9c02652cada118c7359593df0936a84dc5fc7c1f7768b1d9e1e36f2218e"
+      "inputs_sha256": "db3bdfd6af33422a6ce39f2c421279ec343ddbc1d84c783507e1f50c72c3374f"
     }
   },
   {
@@ -2304,7 +2304,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x313780 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "e06f3615a097f9e9c5cf3e28745dfadf6921b895f8504eea0ce5fda40b135748"
+      "inputs_sha256": "63fb4ff5850d8d642f9e6975923ee20c3d9d662e69a43a658f29917f61daf387"
     }
   },
   {
@@ -2347,7 +2347,7 @@
     "identification": "Retail GetGameVariableValueStrings event wrapper at RVA 0x3137e0, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in EchelonPattern.u, VGame.GetGameVariableValueStrings, serial offset 0x9f9fd.",
     "match": {
       "bytes_sha256": "ab9ab6aa83faf381f595b93696f65d1693e2168c9dda37c7b8d67dc5ce8d7a6d",
-      "inputs_sha256": "f489988f823ce746ec2b07bc43c98135f584643b5ff6fd4cda5d5a105b5e005c"
+      "inputs_sha256": "7275c7c33cb1673fed877d16d0351182d3d5a776010d58f160609beb8beb1916"
     }
   },
   {
@@ -2390,7 +2390,7 @@
     "identification": "Retail GetLevelVariableValueStrings event wrapper at RVA 0x313880, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in EchelonPattern.u, V07_UNhq.GetLevelVariableValueStrings, serial offset 0x90ae2.",
     "match": {
       "bytes_sha256": "9294214f857fb0e22a3035b87e70a9ad7ded4d87670862402a5fdefbb7704b31",
-      "inputs_sha256": "83b661dc70abb7e94f05bace7c92f640cbed41995dc98a3dba12332827e95ea9"
+      "inputs_sha256": "1bdf742b7a87ac4b639486050afca67a2ba02348ba8ae3ec676ffa46177c2f03"
     }
   },
   {
@@ -2433,7 +2433,7 @@
     "identification": "Retail GetVariableValueStrings event wrapper at RVA 0x313920, including the return. The name initialization and script lookup link the wrapper to its event. Matching result declaration in Echelon.u, EPattern.GetVariableValueStrings, serial offset 0xc5a14.",
     "match": {
       "bytes_sha256": "768ec45dd0a3cc36b8e487e5ac04921655c74eb41ad33c26c6fb78e8439c4752",
-      "inputs_sha256": "eaf03864c8d26a1719f57d15d891c97d34d6a72cd2744d4b726cc641ca8beaad"
+      "inputs_sha256": "db70fb0e5a61e0cb8208c3041501df22581cb3167498a6066b87a719ce1a70ac"
     }
   },
   {
@@ -2460,7 +2460,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x3139c0, 0x3139f8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312de0. Removes every element with stride 16 and releases remaining storage.",
     "match": {
       "bytes_sha256": "a40b2bec296b3a8e1b78dd68698126400cd9b8a5208d85a825859f11ac66ab19",
-      "inputs_sha256": "a12872318c28bbc90033811b644cfa2394683aba2b5f8d38905509cbf31cd7d2"
+      "inputs_sha256": "144a8a2881c027cc478d0c8c4759fb242b7ff64fc14779f77edb9000c0aea963"
     }
   },
   {
@@ -2487,7 +2487,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x313a00, 0x313a38). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312f00. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "b91dce3371affbdafbfa6322ad0ae9ef0dfda6febbd50ec0e580b0a5fd3840b7",
-      "inputs_sha256": "b701b067ceda8b77ab2d434a1f840c7c8c8933e8824a53236bbc9a4e02d8e8fd"
+      "inputs_sha256": "f853e21ef2b4ebd13b55aa0546a1d7281d858cc2ca2b4b85577b8b58cccfd5cb"
     }
   },
   {
@@ -2514,7 +2514,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x313a40, 0x313a78). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312f90. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "777feacc67c2987a802632814917e3e68acdab53658239824f9358c0befc6e95",
-      "inputs_sha256": "50f8853c8fd404af5df748e508b9c8693b5256f1b92975d053b280602be8bc6d"
+      "inputs_sha256": "3c65c3a6dbf5f9e101bd590b2ea244c17be0c992de3a62b021bbd3cec30f8c96"
     }
   },
   {
@@ -2541,7 +2541,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x313a80, 0x313ab8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x313020. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "43466b64262467e3e20fbe653253697233947987c57f950045e935618e3fd55d",
-      "inputs_sha256": "9d80df76d8e66712b28d90040136be62d53b09fb00fa5b338e10505060bdf526"
+      "inputs_sha256": "57ff33ece9df3cbd4d17abe8cd90c310c6f0240b34126749c2b5bd8378787ca3"
     }
   },
   {
@@ -2568,7 +2568,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x313ac0, 0x313af8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x3130b0. Removes every element with stride 24 and releases remaining storage.",
     "match": {
       "bytes_sha256": "0ecad4022169502586f6762e40d360194ea41a8e90f24ae859556dc6daf508b6",
-      "inputs_sha256": "14c1be49b2125263a66712cefed0b023311dcc19bff13d0e5cd6aa85ca324a31"
+      "inputs_sha256": "7efd525f5e93caedc15b6ae2522b8f29366d42c7ee4417eed65e3f848067cd69"
     }
   },
   {
@@ -2595,7 +2595,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x313b00, 0x313b38). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x313140. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "f5579d85f5aa214ba3fbe824026ecacd69b226e60f690495cfa0e82112ad5405",
-      "inputs_sha256": "89152976a3e192d8f195adc2ace7adc0c1f54b8d0ecaf773373a8f5c63465c0e"
+      "inputs_sha256": "e0476eb67e2ac634b74c3bd7a626efc1b9b013bcabbe6b61cdb3f5d20bd23e8d"
     }
   },
   {
@@ -2624,7 +2624,7 @@
     "identification": "Direct call at retail VA 0x10c14f5e to this complete independently indexed 4-byte element routine. Stock UTF-16 FArray allocation tag.",
     "match": {
       "bytes_sha256": "c1586c7b32bf242d5d4a30440378f90415c06949968f41e227bcd6a799e0c2c6",
-      "inputs_sha256": "f7e96d2ccd35ab98f6bcd926df97793b98399c7ca11f1ca0fa0372fd1050b1ab"
+      "inputs_sha256": "e220f62bf5038bd048222dd521b8cf3d2efa8592d1270d875cea574062fec8aa"
     }
   },
   {
@@ -2651,7 +2651,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x314b40, 0x314b78). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312de0. Removes every element with stride 16 and releases remaining storage.",
     "match": {
       "bytes_sha256": "ed40d17da35920f64e122dc60bb38ff5fb29cb1f66c15cdd1276a6d0d02c1d1a",
-      "inputs_sha256": "5ba10235a503b42a85311750bc1ec5c429f3fbe1fd90b84bd8c53af6124e3601"
+      "inputs_sha256": "f4843b3ae01f68c23ee2c9521d5a00ea3d2164e677f1f7bcf81cb94498ca525c"
     }
   },
   {
@@ -2678,7 +2678,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x314b80, 0x314bb8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312f00. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "c14fe0427ef015e857558e2ccb8d84df487ab3640d8c1a475a19255608969273",
-      "inputs_sha256": "6efcbabbdff39f849bd42c6a97ed274a6b9ef0d089a026526a148d6853f74280"
+      "inputs_sha256": "cc0cb94ab9bba7bbbbbc3c1ae6121511f36fa59e4fe6fe2357c02b8eecf6b7ff"
     }
   },
   {
@@ -2705,7 +2705,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x314bc0, 0x314bf8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x312f90. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "98e4a94ea397801357cdd7088dc4a770e1d2bebe319b4827ce9a26dda3426359",
-      "inputs_sha256": "db3b2a0669b73b521b109bc58fa6c984fdef2bd45bee20796845a18cc5dd7844"
+      "inputs_sha256": "c685c08ed6a4ccf7cad5342469fe6841b36cf5b5b0d3740bcb25c639bd070c34"
     }
   },
   {
@@ -2732,7 +2732,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x314c00, 0x314c38). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x313020. Removes every element with stride 12 and releases remaining storage.",
     "match": {
       "bytes_sha256": "d5eeca6945c22e412e82e76a72545b6572cb6735f05a0a1fbe41da57ed0d356b",
-      "inputs_sha256": "db781f9e94e2da86667755616b520d3679931234981e99fdd284ee58139f4449"
+      "inputs_sha256": "f5265bbc698da0c24eea678a75b8d3ae9763361371ca5efe4dae19424d63bc2c"
     }
   },
   {
@@ -2759,7 +2759,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x314c40, 0x314c78). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x3130b0. Removes every element with stride 24 and releases remaining storage.",
     "match": {
       "bytes_sha256": "37dae234d69c72f935910715ee6173925d9e312baaf9c6d5d340c50a6e3afd64",
-      "inputs_sha256": "7f9358f91003ab2f9ba8ba54df27de346869471132a531c39088b2fa3b17264b"
+      "inputs_sha256": "48c94300b9b7be66cbd62b3e9aa7f9b936200dc736c87aa5027bc44720b8f7e6"
     }
   },
   {
@@ -2786,7 +2786,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x314c80, 0x314cb8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x313140. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "d38f786738d59a5118985c0424327cfa215f231f19c71f043a30086860305545",
-      "inputs_sha256": "027121bacb7e5b5f594ff74ff26c4cfee1da39924343bede174b4ba0002a8aed"
+      "inputs_sha256": "981f557ada56df02730e209f4e676d595cbd2811c2b3322f003e6757fa624bf0"
     }
   },
   {
@@ -2813,7 +2813,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 12, frees remaining storage, and clears its fields.",
     "match": {
       "bytes_sha256": "757e32bd78d8744d03336e9846db35da84a38e60bd299f02483c6199e72b03c0",
-      "inputs_sha256": "7f76bc6fdeb2ad975a95d705e89f53346035a31029f7b285e63dc3358575f58d"
+      "inputs_sha256": "c16dc9ede9877ee2b69cd6cdedbf3dc06947119f8e1e8c8e0afa7f1b5ed9fc41"
     }
   },
   {
@@ -2839,7 +2839,7 @@
     "identification": "Default Ghidra extent with a call to independently rebuilt array removal at RVA 0x2db4e0. Clears the array at receiver offset 12 using stride 4, releases its allocation, and conditionally releases the receiver.",
     "match": {
       "bytes_sha256": "582832be24797105f96dea4f98068d604250ef344f65a64b5beb757483ba16b2",
-      "inputs_sha256": "5d38f825c9456491d347c0ecd313d7cdc4f3e14505544659ccb7a64126f3f644"
+      "inputs_sha256": "23ef1e4bac3c5794f1d4b727831297f78e137154cc7a1e8794776f62f35a1e6c"
     }
   },
   {
@@ -2866,7 +2866,7 @@
     "identification": "Complete array destructor at RVA 0x316900; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 24 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "2c98ee86e100afce0d3a0fb072037b8df543c9aa111bb4ed66fb4cb8aeff20dd",
-      "inputs_sha256": "a0f5a0388a3c89890765b4dbae4bf4b249e81e522b355ba438f164ad0cfb18cd"
+      "inputs_sha256": "7f8dbb5ea9cbae13dfd87d3a869913e3689c2c55472602953e9a9e7a49d0c903"
     }
   },
   {
@@ -2893,7 +2893,7 @@
     "identification": "Complete array destructor at RVA 0x316940; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 596 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "f8ce623b87d2f0741c3cbf241e5a6c4ee16dff602bcf6fabfda80545cae8256c",
-      "inputs_sha256": "144c85f45d9a860d6a0ee5e3c5c57fa2b614b134cf4e7e33dca257437df74ba6"
+      "inputs_sha256": "b95d9e3a33cec2a162b2101ff4ee7084c78f51f0455eeaba458198a3bf194b52"
     }
   },
   {
@@ -2920,7 +2920,7 @@
     "identification": "Complete array destructor at RVA 0x316990; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 596 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "b9ad680b14fca512cc1e7b2b01fc70974580b20731d7313a05ff6c804b3a9437",
-      "inputs_sha256": "4a8777b471cd9ad2cdabfd5a41e0c4cfb7270ee4b06847ab1576123e35cc075a"
+      "inputs_sha256": "63b5ca0cdda6514393182f195c802da69fb44e757467e9402cc6f94122f44cc2"
     }
   },
   {
@@ -2946,7 +2946,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x1aabc0 before installing the methods table at RVA 0x7f7e20. Its first slot points to function RVA 0x3d6af0. Returns the original receiver.",
     "match": {
       "bytes_sha256": "87eba52ff1d9e93a80d307242c90a6a2341155998b30788903a7cae45df15684",
-      "inputs_sha256": "c87b68bb5d6857945ceb050f79eeb274ade3288374f21699a15121ee3ceb2904"
+      "inputs_sha256": "5fe036b99b262c98a3c0027b6c6a4492adfd697ac13927ae9f0034d1b4374586"
     }
   },
   {
@@ -2972,7 +2972,7 @@
     },
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "99b5290a8d3c7ba564717a2fcd4f650c901922f536eaf191cf61158fffed9377"
+      "inputs_sha256": "22482d343e798a5dcf6f09006c94afa7c8eab4077f492895ce1ad38632c6a1f0"
     }
   },
   {
@@ -2998,7 +2998,7 @@
     "identification": "Placement callback passed to the AEchelonLevelInfo class factory at RVA 0x316cf0. The callback at RVA 0x316cd0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "8a4c43e1da4a2af7061c15f16d7669ef67853f3a199a3823a786791659c041ec",
-      "inputs_sha256": "93699a8c7c7438a5eee05940744df2705573888cfd00946ea77ca4462c66059f"
+      "inputs_sha256": "0b866a0ebfb1d923746f12f685aaffb818dd85b3326f4dd099eda2c432b03886"
     }
   },
   {
@@ -3040,7 +3040,7 @@
     "identification": "Native class factory at RVA 0x316cf0; its allocation tag and reflected class name identify AEchelonLevelInfo. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "1fccd096b1803e24574996ac612f865020a6673cc38f8935fa395046e0a4b344",
-      "inputs_sha256": "8463f595fce07a907bba8dbc88f057ca473a8a58a4fd8a9e02a551b0ea3d4f5a"
+      "inputs_sha256": "313cb5f81c798257cf1d6cf025cc82c2c732fbdcfb77ee8d681cd20ee7059f2f"
     }
   },
   {
@@ -3079,7 +3079,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "7fee03cd718e0d6e5d891e030742325dd815b23202e8e983e836e39bd3f08e66"
+      "inputs_sha256": "308bd2dd65f81d9bc0838b115797a4b343478cf11d0c50af324da33ac754406d"
     }
   },
   {
@@ -3150,7 +3150,7 @@
     "identification": "Class registration for AELight at RVA 0x316ee0, called immediately after the class factory at RVA 0x318260 in the singleton initialization path. Sets superclass ALight, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "e784eea31eec84fa98032dc2038cd420341c48f1a2a00fbf1b5ad234a6a6ab0b",
-      "inputs_sha256": "eba5776a3c252d6587ffaf79dc4406fc31ac041eb29308e9d5c787f50f5f1c52"
+      "inputs_sha256": "189ca34ad6e9c8504868263f264113cbe64beb22548fc64db0287bdf69e706cc"
     }
   },
   {
@@ -3178,7 +3178,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x317480 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "48e35ad8018e5f48a3514c36a67133137448cad2666aadd4c0f0637da219e7fb"
+      "inputs_sha256": "9a5c374b9555dc08b2ec93f4336f93d049398603401d1a62ff4a8132fd6d7613"
     }
   },
   {
@@ -3209,7 +3209,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x317590, including RET. Incoming transfer decoded within analyzed function code at RVA 0x317fab, 0x31806b, 0x3180d2. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "ad6de649cde2dbf5a4c4f353213d40d1c94d42f9a21e129b159639c0ce5ddef3",
-      "inputs_sha256": "fdf573e8c810edbfa83e17aa724cf7791943881515ace172f1c33bf28073127b"
+      "inputs_sha256": "6b74e174764a70b3e3b206f8ce4de6a20a516b730af6dac0525e1a33c929dabc"
     }
   },
   {
@@ -3237,7 +3237,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x317ef0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "0cabf56aaaae478ed3f35f5c97f5723a0ffcc2d634b11ec4cd948ecf870b2933"
+      "inputs_sha256": "f1d0948f28484e21664b4739e6935424ebdc7fa87301e5ca09b65a6539272783"
     }
   },
   {
@@ -3259,7 +3259,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 8-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "c4b9480462cfab366ac4a72a7571d2ee48b9aa0cc41b2d766553e93003c53942",
-      "inputs_sha256": "924a0ba089c95405f30bdbee87aaa0092eaa55fbbd6f1b184866a7736aacb66d"
+      "inputs_sha256": "73a80b89495c96f2ff7160be8b55aea53c25b0e7f25647079844e5eef499acf0"
     }
   },
   {
@@ -3286,7 +3286,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x317fa0, 0x317fd8). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x317590. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "98b5b47382be07b53f36c7b347ba4bcad38db7e67c4474ab17e29e81537b09d0",
-      "inputs_sha256": "0d21414da45ec180107eaa5a8c73053920527bdd504c65b5cb34b75d491468b4"
+      "inputs_sha256": "d995d99075340235636e28ac111263377128f3e0e6e2becd91cead476e959a5a"
     }
   },
   {
@@ -3313,7 +3313,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x318060, 0x318098). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x317590. Removes every element with stride 8 and releases remaining storage.",
     "match": {
       "bytes_sha256": "aa5ec1a364b562a7a76a9a2e65997f0d1f9638e7de6cc5df0c89e3c42376e971",
-      "inputs_sha256": "158cb940f31333356b7073949086b79c3965e53aa96d9c7a58fece33ff431cf3"
+      "inputs_sha256": "56a5facb66ac23d0de4cd474aab12cd85665cedf3c418fd171921ba4d8652a57"
     }
   },
   {
@@ -3339,7 +3339,7 @@
     },
     "match": {
       "bytes_sha256": "e1b8f2475aeb8a2a94e74750ce9fce0a0a72cdc990b7ff94c554c0e2568afaf7",
-      "inputs_sha256": "8e79afd21ff5367914d2b22a8c326ce269612a087d6e1a60b0baeba2660eeae2"
+      "inputs_sha256": "6ec1a85ee90c6bda7870fa38757c4283c169f27054a23e3124d0b4b3234cf079"
     }
   },
   {
@@ -3365,7 +3365,7 @@
     "identification": "Stock AELight constructor at RVA 0x318150. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "dd086e5f51795b7b867b7084203bdc3db57a1dce41f8904ce59bde724c52115e",
-      "inputs_sha256": "825879412b9b0f82d42e66048e14d35a4564055dd5dfbd80f71c084f1004bf74"
+      "inputs_sha256": "5a5bc2dac954e006d4eb122404ff721182a8f80a72222c4beef8026595d59e75"
     }
   },
   {
@@ -3391,7 +3391,7 @@
     "identification": "Stock AEDynamicLight constructor at RVA 0x318180. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "f04c1d5b828f8563d28227ae4141cb9b7b7f0a0f45ff008367914ef5941e2085",
-      "inputs_sha256": "9d60ba8c055046ea0383bbd0a51936996f6b14e01087ec63a5a34fa7b2f49813"
+      "inputs_sha256": "99c3a6fd00ce2a97e17045ceb61f3c47fbf0171e0a9f819d491e8313c303c580"
     }
   },
   {
@@ -3425,7 +3425,7 @@
     },
     "match": {
       "bytes_sha256": "e6ee75e81733b03d1bdf1d2c7fadae9b658980eae25635387993a038072212a1",
-      "inputs_sha256": "0e2cbbfe612ba52abef47759099d3ec4323adaf515ae4e5499a3016eddde02ba"
+      "inputs_sha256": "bad3394a0269ce0d1ffa728865beaefa2782b66b31ba3b6f83870a64c01f3221"
     }
   },
   {
@@ -3451,7 +3451,7 @@
     "identification": "Placement callback passed to the AELight class factory at RVA 0x318260. The callback at RVA 0x3181e0 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "aee88a37fa26a5d2fcb80bace1068dbbbef007e36003bef44aeb060b97f96dbf",
-      "inputs_sha256": "a21182ce2d384995913a956cd63d7c1d6c4086e230091f3288e93a593c9666c0"
+      "inputs_sha256": "706fa0783441770ba7900c21c1b5ab53b71b5692adc0c79266cc1a73a0f73b53"
     }
   },
   {
@@ -3477,7 +3477,7 @@
     "identification": "Placement callback passed to the AEDynamicLight class factory at RVA 0x3182d0. The callback at RVA 0x318220 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "9af41e0b4194c9ead61be5325d790beb2f084b59bfbe4627b6d53fe6ddeefe04",
-      "inputs_sha256": "785bead00cdb0741d0c20f20fa6aa2d74c5282c0939ae43689f9cbe1a333a01b"
+      "inputs_sha256": "8b77fc6a9316423876f8dfe8b9f9b6e487b43398481f4151b76ee7390393bd70"
     }
   },
   {
@@ -3519,7 +3519,7 @@
     "identification": "Native class factory at RVA 0x318260; its allocation tag and reflected class name identify AELight. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "08c1efe4dd5accdca63955e0159cf83ab6caa02588d5d574e2be0f1faeaca7f7",
-      "inputs_sha256": "1edfd8c8ed00654bb702d9588d2635794e2dea4a2799011e4c66371c6270601a"
+      "inputs_sha256": "30a330cc49199d64c9783b8e42cd9a998e295671aeff578edf595af4d49f8842"
     }
   },
   {
@@ -3561,7 +3561,7 @@
     "identification": "Native class factory at RVA 0x3182d0; its allocation tag and reflected class name identify AEDynamicLight. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "beda20499d31448dfe8e9173e2933c668b03820a2e6799e123b5e48725372051",
-      "inputs_sha256": "9784d0ef846c2d65a087823306571b662c930cac46c47de47d0b9f59e759f744"
+      "inputs_sha256": "fed4477a955b04bd0f93b2750ea5ca317adc487feb3bda802d11f1ef23f81be9"
     }
   },
   {
@@ -3632,7 +3632,7 @@
     "identification": "Class registration for AEDynamicLight at RVA 0x318340, called immediately after the class factory at RVA 0x3182d0 in the singleton initialization path. Sets superclass AELight, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "2e71192d2b8b212d875acbe90fd9fe36c337831dae00793fad862d69e37f5633",
-      "inputs_sha256": "f67046b4baef773030335a23547d316b42b5b8a22f5765748c9b9d0c0a911277"
+      "inputs_sha256": "6082dcac8eaa9350c66f2ac055db5a770a378107c932cf12eee0d6ac4252c057"
     }
   },
   {
@@ -3691,7 +3691,7 @@
     "identification": "Retail CanPerformSwitchTransition event wrapper at RVA 0x318d00, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPattern.CanPerformSwitchTransition with Bool ReturnValue at serial offset 0xc58a3.",
     "match": {
       "bytes_sha256": "62b79af62bd220226a1b2ca11926e6f9158a59d7f0d2e0a5efbe3581542869cb",
-      "inputs_sha256": "86505ff69b9af1fd70136bbb6677d3d83a7521a866062d9a0792abdb20ad0f17"
+      "inputs_sha256": "9223fc52a92ad6d44d6fce5d260f81e4781bb7f4c3211d5b9d1412d755aa677b"
     }
   },
   {
@@ -3718,7 +3718,7 @@
     "identification": "Retail SetupSkelMesh event wrapper at RVA 0x318d40, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "2f366c4c57c9d58fd83b3023029e71517bb9cdc5925f95ae836fa08370491ca4",
-      "inputs_sha256": "115c2a0e820b018518d9841a6b4dda135486239770a9c714605f740e470becc1"
+      "inputs_sha256": "0ab9adde5719bc751a8736de5efce2457543e7529682beda538f567786f878a2"
     }
   },
   {
@@ -3789,7 +3789,7 @@
     "identification": "Class registration for AEAIPawn at RVA 0x318d70, called immediately after the class factory at RVA 0x31e080 in the singleton initialization path. Sets superclass AEPawn, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "55322e9702b58a8228895c7f2ff00c21f1139e9baec5ef48a7a51986599924e5",
-      "inputs_sha256": "1da082bc3ff1fdebd2cfb500151ed5da679a376248928b420ffadf4d2d2c8c7e"
+      "inputs_sha256": "526ccb8be7d956a2f80a0d2cc79bfa5d5e2738870d5ecb43c626697ce6fbffb7"
     }
   },
   {
@@ -3817,7 +3817,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "db781f22b4955c33b270a34fe20ec96d7d74ed23f1266d1f0c557e2e8719d443"
+      "inputs_sha256": "713ffa2476969f86148396a11902d8df53fe675c49f794f12dc97597f41bf963"
     }
   },
   {
@@ -3844,7 +3844,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "13e5fc4998763bef7d73eaef8b6f8b3c971f73ac8519b1f8f9201aed10352307",
-      "inputs_sha256": "8df01439ffd68a78a1352a585791e0549c9368ba0b64a6bb7b86798c216f5668"
+      "inputs_sha256": "1e6719109a99a90b1387b177f5b598a1bb8a4b1b6eca3b95d9a0997cce63d25d"
     }
   },
   {
@@ -3873,7 +3873,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "37eade031ab8d4c1cfb4209ca2eb7935b4e893f8aeac117644ce66a0eea9c8f1"
+      "inputs_sha256": "c8cd5d8a318f2e8e9b7859b13be2b5d39c3865edca9e9d1df2071736181a8d5a"
     }
   },
   {
@@ -3902,7 +3902,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x31def0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "ba60ac0996571f544f403db4cf7cacb8cec385f53ac07a074d858bcf2cab30a2"
+      "inputs_sha256": "96e646dfc7f8250ddfdecc7e08e864f5974ae872709bc9775de354e8a5f5a5f7"
     }
   },
   {
@@ -3928,7 +3928,7 @@
     "identification": "Stock AEAIPawn constructor at RVA 0x31df90. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "b9cb5e69dc63c45b2d48e62e04aa4f5042ab39aee51882e1eeade247a5810721",
-      "inputs_sha256": "4b1d2fd6239950572e9f6f31962ca7d2946fa9b0b5efb53a791759edee9cc2ab"
+      "inputs_sha256": "5264c3c1a474e159aec5168dfc9ef2e87b4dad7059ec5b36b5949d6281a0b3c9"
     }
   },
   {
@@ -3962,7 +3962,7 @@
     },
     "match": {
       "bytes_sha256": "b97386ac3f7afa3db16d497959b4fa6dd7f5b8c0e9f155e5a873d962651bc5d4",
-      "inputs_sha256": "c0efde161153fef2ceaa1fb7bda3f8982c2040cb608556fa02055a969aec4a4e"
+      "inputs_sha256": "55d3b1971bf29b7b647888c891a15ce6912ebdb1c4e1b16630e1a4684121ecb8"
     }
   },
   {
@@ -3988,7 +3988,7 @@
     "identification": "Placement callback passed to the AEAIPawn class factory at RVA 0x31e080. The callback at RVA 0x31e040 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "f04e981b37f38ea963b3d5635145e74b9143c59d7a9d853a5224bc74b1c768ca",
-      "inputs_sha256": "5743280c4cf42c4ed37d3d22298fd3877f4eb9e1ed5e89597b1d54ba281605bd"
+      "inputs_sha256": "d3c005448447086ab435e34b080bbb74c70f55694fd4d411015bcc0ee30c0480"
     }
   },
   {
@@ -4030,7 +4030,7 @@
     "identification": "Native class factory at RVA 0x31e080; its allocation tag and reflected class name identify AEAIPawn. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "b9cf6d53995ffdd0672b008fac2f40ebe7fd1540cc12494e0162d1cb1cf7dc20",
-      "inputs_sha256": "d8a3cbcb9fd50633ebbb776446650fef063aa2a8fc9b8c4914116819b4cc1733"
+      "inputs_sha256": "31f8f989195c0e7c91465246784f4aac81b1dc67635a9ce11ebd9b3f4c3dcd61"
     }
   },
   {
@@ -4101,7 +4101,7 @@
     "identification": "Class registration for AEFurniture at RVA 0x31e100, called immediately after the class factory at RVA 0x31e340 in the singleton initialization path. Sets superclass AStaticMeshActor, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9a9792643e290f13fe213fe5d76868e9ce2c1586098d4991c2184153f29c4961",
-      "inputs_sha256": "eb821bb9232de85576b1f85b9b354b70cc9238891e70c960ad6c43927b1d0be0"
+      "inputs_sha256": "e62eccced01d39bcb91f514a1ea1289d7f61127b82e0e2d63fbdf51dddf35a7b"
     }
   },
   {
@@ -4127,7 +4127,7 @@
     "identification": "Stock AEFurniture constructor at RVA 0x31e2a0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "4e3c41c5c3a5504c0471ac7e4b3dfdaba9727c54a565ed47586be2ec1518b857",
-      "inputs_sha256": "9f240b1b74fd3a5d09f8d2ef47dcb3a10962a7083ebc98dd175ed32d9e12598a"
+      "inputs_sha256": "938c07b5bfd20f93c5f454335c524681833655d7eb01e70ea9addb8c70d374eb"
     }
   },
   {
@@ -4161,7 +4161,7 @@
     },
     "match": {
       "bytes_sha256": "ed9644d8a218040e2de269dab282fc6c01f196308a73882634077d4a33ef1cf9",
-      "inputs_sha256": "d6348731d075839a236838a82b490bf3e09663fd77eb721c3341954593164c7f"
+      "inputs_sha256": "926deab1e52c3037975e3e0b76ba14daf8bfcc3e5151990861f46dc30a86d42f"
     }
   },
   {
@@ -4187,7 +4187,7 @@
     "identification": "Placement callback passed to the AEFurniture class factory at RVA 0x31e340. The callback at RVA 0x31e300 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "80be49c7ec037050a559b16a5b9307a24702d2bf30f67d2685c2f418a5de43d9",
-      "inputs_sha256": "b4a6bc4909265cc1d5487b3cc44e3e30cfe3c9f720dc8334f9fc05ed07c41682"
+      "inputs_sha256": "5c586f41c4d1cfd64d2b15eac6b5ee587e101c934a0c367f2587c3ec8394ccc8"
     }
   },
   {
@@ -4229,7 +4229,7 @@
     "identification": "Native class factory at RVA 0x31e340; its allocation tag and reflected class name identify AEFurniture. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "38de6af438c751183744458b9237077e84d73f35149415a5fe8f93b9e2e9f22a",
-      "inputs_sha256": "54b5a72bfafdd80fb5efa65235d5377987f1f2c454b9059b790870ba37864e06"
+      "inputs_sha256": "8ec6893b8a96de53028d37ae4aaaf6d3e3d7dc3bc8952ba2bf9da427d106d761"
     }
   },
   {
@@ -4252,7 +4252,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "853015608a462b5635e8c7a68d0c7aae90100f8ba2290bcf69f344abc9a6011d"
+      "inputs_sha256": "3073a0d6e06dbf9b221d55e82564ce4c9a1f3414e062e3a7c2b50090128bf1b3"
     }
   },
   {
@@ -4275,7 +4275,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "f5ce8bf46aa7507e38a8102c79c272936a29b596e88aada78991e04d98c24375"
+      "inputs_sha256": "fdde229067cc6cad2dc08fb2fc072341bd8d94452acb0834e958f30056382d41"
     }
   },
   {
@@ -4330,7 +4330,7 @@
     "identification": "Class registration for UEBarkManager at RVA 0x31e680, called immediately after the class factory at RVA 0x320290 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "6c22db32d1b29b0fa00cca4388a6563856b00b2a4aa3d062667c2a22c3cbc0b2",
-      "inputs_sha256": "14653b1b98bdfba98f90953030cd1034c844dd4f642f52554c22f46e18f7a5a4"
+      "inputs_sha256": "8ac16cd7bee1bff02ea675719235988d934ecc0524b1c3e5b3dc5b4ffaa8b272"
     }
   },
   {
@@ -4358,7 +4358,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x31ebd0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "4c299c90a583ac1bdd0058158494475b0f2fe80446829f2c93c49502756b5fb7"
+      "inputs_sha256": "da85ae23ad3dc950a3a7f5b01f7e267206c5ca76b4a0bc4cb481bc88c5aace0f"
     }
   },
   {
@@ -4386,7 +4386,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x31ec00 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "bfd6b2c48351332e99f052294826127b4ca89180373e1df3ee015fbb6fa8ef70"
+      "inputs_sha256": "79412bc27bd305c783f75ebe56593eee0293cdc1f9dcb50d6cb94c5f9ed44d8a"
     }
   },
   {
@@ -4418,7 +4418,7 @@
     "identification": "Complete FArray range insertion at default-analysis RVA 0x31ec30. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "951484d3e87e205845dc6334009a3ac1478e0a66c0aa5a0ccee6cebeb50b2f2e",
-      "inputs_sha256": "1dced6f3f5182e6cba21979e62c568d7de6174bb0a16fb4df5de313c776e3e7e"
+      "inputs_sha256": "87bb3072bdcc6ecdd0cd23826ba1d9d554782548f4c9c7d67163e3b463a89f9d"
     }
   },
   {
@@ -4446,7 +4446,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "f15ddc24eedc532630272d7fcaea447c82833a805869c682237d2c35543b6045"
+      "inputs_sha256": "1d08da993a82671fbbe2d55227fe7d86b5db436074e83672c0eeaeca405676be"
     }
   },
   {
@@ -4474,7 +4474,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "c92ec39039b40cef4edbe972b1e3cf4255142b9709fb68d13f6698d040a02a68",
-      "inputs_sha256": "4c5c304a080ac928c99277e7baff8df4142e6e915c9fedd61bbfe715e79a365a"
+      "inputs_sha256": "b56ce7a411552f192689036210e5e3093afee934df14832426d24b130be4181b"
     }
   },
   {
@@ -4502,7 +4502,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "c66abd21ecd03c5c4886916acab35ae2aff7ea98654b35e0d0c749480fa64ac9"
+      "inputs_sha256": "2250814272fcb70cf0814c57518d4ccf1b4c77984daef184f2eddf87f18b7ca9"
     }
   },
   {
@@ -4533,7 +4533,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x31ed90, including RET. Incoming transfer decoded within analyzed function code at RVA 0x31f11b, 0x31f33b, 0x32023b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9fc1ef451b020004c0a07b0a2487cc71562722c8355e01bdd4cdff395271543d",
-      "inputs_sha256": "e03147b7c00ca9e56fac06e078c8205124d98016ddb59e7416a9906903a080da"
+      "inputs_sha256": "51892db5faefde59d2597474ef702934b2b104e53b08de1af835c8e3228d6ebf"
     }
   },
   {
@@ -4564,7 +4564,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x31ee20, including RET. Incoming transfer decoded within analyzed function code at RVA 0x31f76b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "f4dd3366f6ad5883d34a3a57dba0524acde24e9274248804230f2eedcbbcf52e",
-      "inputs_sha256": "a05771a1a627cab129062ff1618a7a6010b9f62db86929c34758a3b921125a70"
+      "inputs_sha256": "7893ba9d42da479c9f8c67582d3c7af70af189e43a2189cda8631cae946c26d3"
     }
   },
   {
@@ -4592,7 +4592,7 @@
     "identification": "Complete FArray zeroed insertion at default-analysis RVA 0x31eef0. Saves the original index, grows the allocation as required, clears exactly count times element-size bytes, and returns the saved index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "d851d2bbd617956f00bc5808b7e80e2f760af0a01b747d4c7ca6ba5a593f73d5",
-      "inputs_sha256": "b94de95321d8fef1991904f242bea7b3dc3165d154fb4f87bbb84978ecd341ba"
+      "inputs_sha256": "2c4ef948a14183443e149360b5f2d9d625c2a0330a5c8a22cf132990c574c3b9"
     }
   },
   {
@@ -4620,7 +4620,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Resets the count and resizes the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
-      "inputs_sha256": "4ceb02a3db11d119e1711f203150f4cffd827fe8d1c040f44106518e299202c1"
+      "inputs_sha256": "c56809034a8777df67ba5b7a6c76bdf57fa95d18c9b168cccbcaa4eead7dd59c"
     }
   },
   {
@@ -4642,7 +4642,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 20-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "fe5dde475c0b63c27b2f9bd2f79441a1411b6a1b57964afd811f08011ca50468",
-      "inputs_sha256": "94024df3dd92d219432e0e1a084e7b15fc99d8d047fe6327a101f4f66a240b4a"
+      "inputs_sha256": "8ec0b771967629ab9640077580e62062919719bacb37922b785bdad74d2112c1"
     }
   },
   {
@@ -4669,7 +4669,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x31f110, 0x31f148). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x31ed90. Removes every element with stride 20 and releases remaining storage.",
     "match": {
       "bytes_sha256": "fd168eaf18c0c4da8da3cbcf9c9d0732cbb69538f46fe3a486fa8b5f8bbf492f",
-      "inputs_sha256": "279df913b4515fe00f74036081a06b4bdc41d0d92a9c7c3812c13defb7c74be4"
+      "inputs_sha256": "7cdcff79eb29a36ef37cda340d35c0a64c23a4da0ade113af2a492c3cd2876a6"
     }
   },
   {
@@ -4696,7 +4696,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x31f330, 0x31f368). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x31ed90. Removes every element with stride 20 and releases remaining storage.",
     "match": {
       "bytes_sha256": "c71d406c96640c19ca81f1ebeaed63c437fdb506165c2081a32a67193a656c86",
-      "inputs_sha256": "92fee0648cde3e4b55129b08d1800836dd1a0974083e66b65d06bb10a9fa6081"
+      "inputs_sha256": "838789c4468aec07a27bcf856e332d78c55beda1bb6c19b188d7ad2a8603fa2f"
     }
   },
   {
@@ -4723,7 +4723,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Removes all 4-byte elements from the array at receiver offset 4, frees remaining storage, and clears its fields.",
     "match": {
       "bytes_sha256": "4cb42984ead61e5e0c7f8b13b36b5b75058e6faa56e7bad6af9600890bb14275",
-      "inputs_sha256": "778ae27edb9d538c7e5f076d8fe7395140812242d735ed6835122df717360821"
+      "inputs_sha256": "08e9df58f6312e1430b623ed76f908cb49ef91eb5d208ec2aa1ab4dcfcbe91bb"
     }
   },
   {
@@ -4750,7 +4750,7 @@
     "identification": "Default Ghidra extent. Calls the cleanup function at RVA 0x31f550 on the receiver. Tests flag bit zero before releasing the receiver and returns its original address. Class identity is unknown.",
     "match": {
       "bytes_sha256": "d90aff4aa278096dce437df56b0d052a6ee2fbf86d8e1a22354b47df624ba6a6",
-      "inputs_sha256": "001f1bdcdaf902eef7f018238305cd26c8c2926a0a4e2fa4c7a10f3b6349634c"
+      "inputs_sha256": "46ff4cba8c416828ba3a6f97a8444ace8e48200633864cb930c776ad7eb94f17"
     }
   },
   {
@@ -4777,7 +4777,7 @@
     "identification": "Complete array destructor at RVA 0x31fbe0; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 76 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "a5b751ff5a17a019de7a03798b0ad11c3e2e93f98a87b988aac90ae0e0ef2d5b",
-      "inputs_sha256": "40264ab99f0ddcd08c97eac16fa9c2f17408a0b19666d73a2766e9db531a8a13"
+      "inputs_sha256": "f1694c914857243f9cb86559a00c1ce8a5775dcdb0cdafc41a6f731712272f95"
     }
   },
   {
@@ -4804,7 +4804,7 @@
     "identification": "Complete array destructor at RVA 0x31fff0; its default-analysis extent ends at RET. Passes the first index zero and the current count to the typed remover and then releases any remaining allocation. The remover forwards element size 76 to the matched FArray::Remove.",
     "match": {
       "bytes_sha256": "80d8bcbe0200169c9abded3c0f3521cc8dc789e8d2060dbc6c68e762bb8f377b",
-      "inputs_sha256": "cadc902d2a4f54d7d8af874bc59da03fb4de9c4f210677bd67ab330127ca5559"
+      "inputs_sha256": "9d1f096968c3752f92d3232daa02699fa3cb06a1409102a1e3720d4f38b02220"
     }
   }
 ]

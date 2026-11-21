@@ -69,7 +69,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "287063bbe9eabe9b89256fcc4602e4c1d76c309fec91b909050a52c851b08c11",
-      "inputs_sha256": "f23ac84ae1b2049c39c684aa9a6a562bf02479eafa47c620b06ec44ec763f4b5"
+      "inputs_sha256": "01676958e8bdfdc223ca583ae067a00378b121ae145f9aceb751457c9fdd0604"
     }
   },
   {
@@ -109,7 +109,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "e6585f8726f244aafc137db4c39976092e2d6cdf8ac3ebef4e324b6ab7a251c1",
-      "inputs_sha256": "4f38bf594137e39adec08e36435a2f02ff350c8c55e4ee37004464c7072fc0b3"
+      "inputs_sha256": "f70ba488686c731394aa51dc780818965b1acadce41f0acdf2974dab26887e0c"
     }
   },
   {
@@ -144,7 +144,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "5e7b3ab7ba2ddb27749892ff99389c55408e97ea5a83dacfa9c2df371d9361f6",
-      "inputs_sha256": "8874afb5322423e9184219d278a5a08039e65e7e2423d599d48c655b4340c7fc"
+      "inputs_sha256": "74548023e29cc9dcab6d041e447851a2f5928c55e99894f648226eecf7914021"
     }
   },
   {
@@ -217,7 +217,7 @@
     "identification": "Complete indexed strip traversal selector at RVA 0x29b310. Follows the edge list at one endpoint, checks both neighboring faces and uses shared edges to determine the new direction.",
     "match": {
       "bytes_sha256": "cd65dd6e452d24ee9788c5cf83cac39b1db4fbf44aa649470bf61e7dce5d5918",
-      "inputs_sha256": "af06aae963a7b4ae374135fc18ba9d3113c4aac739a84412fcd1fa961635c220"
+      "inputs_sha256": "645a60da89f5312cda2fcab5dd6af28b03ff4afb5750832e775da9988dbb3b39"
     }
   },
   {
@@ -324,7 +324,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "bf746041fce098d3c6bb8a867fe813322c164cc280d90b84e38db02c7bc04bc4",
-      "inputs_sha256": "29a890ee20656d821aa06a3cf776b0d8f9c70068ae28faa9a59c35f193dd376b"
+      "inputs_sha256": "a40b8614ff399b5442f65d512534b1d1f1d76973098034b221947d6f7acc5a1c"
     }
   },
   {
@@ -396,7 +396,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "15386a41d2208ab2b42326d4f35069af520d4cfc1d2a2b0f398af2d600aa5f3a",
-      "inputs_sha256": "c578fad2296679ad7a6ebbe7d17d7d69c501eb53db5dca08da589b10ddb1ace0"
+      "inputs_sha256": "def84c3cf99098d38d9769363779bc5d7ff2ba99a47c3ea40a7aa1347e4410fd"
     }
   },
   {
@@ -526,7 +526,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "ce38b97e91da8b5838cac5388cf9bdecd0841f92f7e77d7e109c4c5911488496",
-      "inputs_sha256": "196fa74ac6e906eb5d8358b04718dffe11d483e25fc14e09815bea4acd4d10c8"
+      "inputs_sha256": "010fa857be4577e489458cd532046fb69e177c9158714502ebb9505a46b1a651"
     }
   },
   {
@@ -565,7 +565,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "03617bec76b1bbda236ab55629d0500bc240df513b898a88a4b913a55921d7b7",
-      "inputs_sha256": "3a63d85c2a16aa6ac35a1ca429b8b80ed9f06d15e01c13784319de954e4d16cb"
+      "inputs_sha256": "47a68a7bfad94bfa76f98b06dbdce49b017e682d4ef7c88ca04086b7660a73f3"
     }
   },
   {
@@ -588,7 +588,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "687d4ab75e199217ba12aaf4deb596c3fa4e613dea746f0ed6f8c1413c17e64e",
-      "inputs_sha256": "00bc7c21807ffe47372f90d512304e3b3aad36fbf87a0e471ace35c1c03be696"
+      "inputs_sha256": "5e09b6dcc9bffc0aea2db642f39d552081e62be1ebe22e19ffc6ff94f738fe9e"
     }
   },
   {
@@ -611,7 +611,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "dada890236f45c10257bda527e43ba04afe8ef67c32a02003002934465d6eb88",
-      "inputs_sha256": "2ac6b2986a69fac503205ad76ddb7b207596bdaa4f820158e15c1e69f1677c8d"
+      "inputs_sha256": "885204b2cd0bc6d588fe03a2c74a36589ab84b4b3f3936354487a84beb100829"
     }
   },
   {
@@ -633,7 +633,7 @@
     },
     "match": {
       "bytes_sha256": "f9b7fb0804e0d35987f0afb2967e08bd9b417c6fb095fb50a4068134c9a3f2fa",
-      "inputs_sha256": "b843e21a99699acb0f7b71fdd83780ee15e6205cde7035425bd27731458cca48"
+      "inputs_sha256": "bc24ab7ec463de657a5f7c249f35e45c83647f801f34424d407a0bdc592537c2"
     }
   },
   {
@@ -656,7 +656,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "9de061339c7f4208db71a9cc3dda7d733631c03da837546e72e0b88d01ca8624",
-      "inputs_sha256": "ca9ebb55ca53c65f95cdad366ad555fe18c2390c85bdd26cea8037612fe44246"
+      "inputs_sha256": "4e26ea8054e04eb0c5a9bac144b0d5d5a21eb55ad72f43dc0689a422df65aee0"
     }
   },
   {
@@ -679,7 +679,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "8dacce08c597d6f6c426030a4493550c136709c20c9307ab770d3ff6a9c34577",
-      "inputs_sha256": "a3c332fe70ae40610c319c6cc6e10d2290c8c6dc39736568738ddeb91c072144"
+      "inputs_sha256": "de664d8c4860d3d04eec0d5af1d62aefa8d02e62f0e522ecf381c0f32b41c6f5"
     }
   },
   {
@@ -779,7 +779,7 @@
     "identification": "Named box filter table entry at RVA 0x33ebb4 references this complete function.",
     "match": {
       "bytes_sha256": "e8b86458f9ec3f141b492ad44c544a546b14f91cfbd95ee336408d15bfb12c53",
-      "inputs_sha256": "98277acdfd95b0c3e9154e76e63432deef1636f454c990b876befe93cf8e424f"
+      "inputs_sha256": "08c52d1fb02215d11ed78bebe8c6151fec0ea7b0cf6edc6759ad47f8ceb1de7c"
     }
   },
   {
@@ -821,7 +821,7 @@
     "identification": "Named quadratic filter table entry at RVA 0x33ec04 references this complete function.",
     "match": {
       "bytes_sha256": "13cbf49bd39a93b06e64c802318d39077a01b754a742fb7700bda8784f9970c8",
-      "inputs_sha256": "f7617a1a065cf730d7ef1b97c2af67f115918f67d6f24cc788291555d460eec2"
+      "inputs_sha256": "5cbcbc0ebfe87d31df4478a4dc04847271eadc59bed2b0fa87e4f0e8b19fd3a0"
     }
   },
   {
@@ -879,7 +879,7 @@
     "identification": "Named cubic filter table entry at RVA 0x33ec2c references this complete function.",
     "match": {
       "bytes_sha256": "dab484eb8cd87a0ae31a4e15687767e3161b10910c813c44b0a7f310ddc42834",
-      "inputs_sha256": "d69552a1cc32e5a753f486254bff8edd3d17178cfa33fa4933d8da83e256b7f4"
+      "inputs_sha256": "d4454ea17782604adb14b983b7e15173db52553224355d9486ccd78e04ac5242"
     }
   },
   {
@@ -941,7 +941,7 @@
     "identification": "Named catrom filter table entry at RVA 0x33ec54 references this complete function.",
     "match": {
       "bytes_sha256": "2b4b149876e58c19aefa72538d13b08f3bf0735eee9d3c7f9c25702a4673cbf6",
-      "inputs_sha256": "16e8638fdfbd6945c65075efd92a9283c967678d5d1ada9e2fc7700074b733b9"
+      "inputs_sha256": "db75251f38c1b47fffc27c25e38631ff7a79ee227c79db8c09bbc6066a524df0"
     }
   },
   {
@@ -967,7 +967,7 @@
     "identification": "Named gaussian filter table entry at RVA 0x33eca4 references this complete function.",
     "match": {
       "bytes_sha256": "ad8d416c20735e3f714f4ac9454c7000491d94c20c10379d90e195aabfce6d6a",
-      "inputs_sha256": "0f82d23a96318592767b2e64bfe5da060bfd91d8630c040b70d55c513a259037"
+      "inputs_sha256": "66691b9c9deca97c6a05700e132d3caf33a97a895bd716d1cf694c7434b90036"
     }
   },
   {
@@ -997,7 +997,7 @@
     "identification": "Named sinc filter table entry at RVA 0x33eccc references this complete function.",
     "match": {
       "bytes_sha256": "9dff574faf0f17c97d192b505ae40bb9832169b771f80a695215c0406a7e553a",
-      "inputs_sha256": "ec41ad04d5586edfee81222212ee74d25d47cf61d5ab6fc52bf0b70acfe79278"
+      "inputs_sha256": "042ccb4f151a4f9023dbe61abfa24a623d1ed5add36dc77fa0e4160760a94336"
     }
   },
   {
@@ -1031,7 +1031,7 @@
     "identification": "Named bessel filter table entry at RVA 0x33ecf4 references this complete function.",
     "match": {
       "bytes_sha256": "734f361e7f2c59034b66b9a0b4c44f4cc6e09578bcc43273fafefde782cca299",
-      "inputs_sha256": "ca8fd1bf75df35d454efe3e315198bfb8964e1bda7e250e18eb5a44a9ac953ba"
+      "inputs_sha256": "6be85ceb863b39c9017108e432f3a87eddf7376159078fe5d1c855e95eef1c55"
     }
   },
   {
@@ -1069,7 +1069,7 @@
     "identification": "Named mitchell filter table entry at RVA 0x33ec7c references this complete function.",
     "match": {
       "bytes_sha256": "fa3f17ca2009c84f68a88426473de5c855fab81a5887e85bd6f6b4048b132d7c",
-      "inputs_sha256": "8f2bbc81d7210d0da34f67a599e99460adbed5e0c0f39420ac2a6e7fb29bcf4c"
+      "inputs_sha256": "b715c6da8dcd7685102ac0de0054954b70ca04d24186ea22a06eae07bb5368bc"
     }
   },
   {
@@ -1127,7 +1127,7 @@
     "identification": "Named mitchell initialization table entry at RVA 0x33ec94 references this complete function. All seven output coefficients are consumed by the Mitchell evaluation routine.",
     "match": {
       "bytes_sha256": "d8b84b36ce3f2a9338987eed1590e5b5a60cad4c89c39300d5fdb0e15f37c371",
-      "inputs_sha256": "4c8d2b78d8f9158abebf922e162f9ce575ade192f00b4b046d20f659a9ce778e"
+      "inputs_sha256": "ad4022a4d642ce926a45802621f9190a3a6a9d5f82ca96ea96e508182f035937"
     }
   },
   {
@@ -1157,7 +1157,7 @@
     "identification": "Named hanning filter table entry at RVA 0x33ed1c references this complete function.",
     "match": {
       "bytes_sha256": "431e931ffad7a24e4c2aa3d0d9067345311faf888adbc6aa8cfd93ce9b1d7e49",
-      "inputs_sha256": "7494bcc302d2ad8fab21f166eb8d9356b095888477a0b56ceda11411405f6151"
+      "inputs_sha256": "4431ffc64e6c718a1972f9af9aa12c17e1e3b28b78aba484d9999138fd281141"
     }
   },
   {
@@ -1187,7 +1187,7 @@
     "identification": "Named hamming filter table entry at RVA 0x33ed44 references this complete function.",
     "match": {
       "bytes_sha256": "ec58dda55816b10a404a014113ca5d059e53f4355d1561e8a38fbd5d6bacc26d",
-      "inputs_sha256": "d356c61a7b423137b0508a175659e2ba526257771dc4e7ba90ca00c5aaa5095b"
+      "inputs_sha256": "16bdefb1d14924c05b089cfdcf280cc8370d72bdf40505788813cf7a38d3ec6b"
     }
   },
   {
@@ -1225,7 +1225,7 @@
     "identification": "Named blackman filter table entry at RVA 0x33ed6c references this complete function.",
     "match": {
       "bytes_sha256": "64a9135e70d885a5d4c840a5267c2d795bb68210bdbd2934c1e72cdbf464187d",
-      "inputs_sha256": "48857bae0886f0695e88359cf5dc894b3e24744f9583f2b8ea2a32bf60608d25"
+      "inputs_sha256": "d48b59721fcaf37b274d09a39b5467b33dae1cbfdce6a5b323f0631b2dd243eb"
     }
   },
   {
@@ -1255,7 +1255,7 @@
     "identification": "Kaiser evaluation and parameter initialization both call this complete modified Bessel series at RVA 0x29ede0.",
     "match": {
       "bytes_sha256": "796d6535e89c20aac060fcad2cda0197f2f361201b6183b71289bd8099e469f4",
-      "inputs_sha256": "f54d82ed66f498dd6b01ee6bede271acd339407f1bbb541d3387555cdf203e63"
+      "inputs_sha256": "98609f0946a166fff3c96e4df435076e7f1c354f2346ea64ed8b01816b616462"
     }
   },
   {
@@ -1281,7 +1281,7 @@
     "identification": "Named kaiser filter table entry at RVA 0x33ed94 references this complete function.",
     "match": {
       "bytes_sha256": "ad2d81134cfaf1486729c02ff61504e902c983a46c1e02262d20d96e5e6401dc",
-      "inputs_sha256": "846d575ae88f36ac8dca920dec1b5387b268427dec25ae8823f23af2ac91325a"
+      "inputs_sha256": "9575f292eda3c40bf8f661a00ea2130b82b5225dff4bc3ff2aceb56c12b7c7cb"
     }
   },
   {
@@ -1307,7 +1307,7 @@
     "identification": "Named kaiser setup filter table entry at RVA 0x33edac references this complete function.",
     "match": {
       "bytes_sha256": "d88b758bdf6c58c3a0de82e0a4f333137b6198940763dd13ecdc3b688f4b42a9",
-      "inputs_sha256": "6fd14b86bc537c1021e4501d66cf619de6ff17e665cf0813b7cedc7b69d4ab9d"
+      "inputs_sha256": "56dca9ee48fea3f761e759a580d071cd79fa1dbd085254992be00345744b14ad"
     }
   },
   {
@@ -1333,7 +1333,7 @@
     "identification": "Method table references RVA 0x29ef10, which calls the destructor at RVA 0x29eea0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "2d3afc465595d761d3053503394f39147af6aa3d48cc4c62d309ebc3b318418b",
-      "inputs_sha256": "4ec07e5b7db2cf76e232c4562447833cc6284c4563e99a2aef57605de90553cc"
+      "inputs_sha256": "3b6c95012220060d4d3295c9bf96907c914fcba6e3f8cf29180c5ce8271f88e9"
     }
   },
   {
@@ -1359,7 +1359,7 @@
     "identification": "Method table references RVA 0x29ef30, which calls the destructor at RVA 0x29ef50 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "e4ed525a42debb389042e4e648946043b4d71292173a0deb4eff22ca64ab0291",
-      "inputs_sha256": "d82a8ff10cfb3dfb433d4a3a0d4f535de3983107eb4aa5f88df4104b3656ce91"
+      "inputs_sha256": "25480bcb13917d80dd6269f963f1804be3fdc87efbfad00151d2409c129d42a9"
     }
   },
   {
@@ -1385,7 +1385,7 @@
     "identification": "Method table references RVA 0x29f550, which calls the destructor at RVA 0x29f3d0 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "e9352519022dd3d0c9d98bbf611910b3fbde1105f9ac68daa39519e8892fdb87",
-      "inputs_sha256": "e4a98ce4455d34cadacd48498cfdbdf7be1fe5f4ca13e19bac1225a98cbec849"
+      "inputs_sha256": "72fd122eea706cd2ada9d3cd65e88cae8e949865d0a3f279e205141baf2efdaf"
     }
   },
   {
@@ -1441,7 +1441,7 @@
     },
     "match": {
       "bytes_sha256": "51ba461de262301db7f9b8dbc779cc0564e4ec97f39cbd5a674b207083799384",
-      "inputs_sha256": "3160313ec649f85cebdbda10f4d756ce76d057a9759e8e2d89df9ebb97c7315a"
+      "inputs_sha256": "89009740624d7e0453a1d5c6d08cec106e3a5084171d3b6ad462f78938f7248e"
     }
   },
   {
@@ -1467,7 +1467,7 @@
     "identification": "Method table references RVA 0x29fe00, which calls the destructor at RVA 0x29fe20 and, when deletion flag 1 is set, releases the same pointer through RVA 0x150880.",
     "match": {
       "bytes_sha256": "3c30d9c067ba75dbb8ff52b78b5564b59f45e55a733c46987b11e02622ced91a",
-      "inputs_sha256": "4cf49ffef1bd4cab407a18f1093d540f916d477094417c6702a7cda4d1dd7a1a"
+      "inputs_sha256": "9999decbaad7b2e531fb9f67463ab9fe1e9cf513d26fad3c3e8ca6958c69f354"
     }
   }
 ]

@@ -1878,7 +1878,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441630 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "4730866b1559dcb10ca085bfa0b8d5b0e40a7f98d2e0917c631df3dbec871eee",
-      "inputs_sha256": "01197e77ee38066ed8090a443603bb07b0505fd563ef628863962f0d9aa3a3e7"
+      "inputs_sha256": "4c615bc8a435a1c99ffc7d904a58011c9e44fcc8099ebed9f087d17e8c77a043"
     }
   },
   {
@@ -1900,7 +1900,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441650 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "b0056a4519b196e3a7b84d8449a83eee2a785412ceaf4449ea239bc7ab615ff4",
-      "inputs_sha256": "f0f050bfe235a1945e32c3828741a0cbca5b8c0c130cd1ac75b42ee6cfb7cfff"
+      "inputs_sha256": "65e4ff866fe26c7d33b573d8241f9c7a010b25f650b0a3653bba0f746db21ccb"
     }
   },
   {
@@ -1922,7 +1922,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441670 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "52b7aa4423eec558ba611e5763eaccd807c1d63db45b22beb37773a14ccd202c",
-      "inputs_sha256": "ce48e31005e7adb9c3d4b15d3c95668af68faeab9b3f404a6509dcf177a59ac4"
+      "inputs_sha256": "c1954c82c19a0c322220115d0dbe353048ceab474350f6affbc11c83380ee684"
     }
   },
   {
@@ -1944,7 +1944,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441690 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "ecf4954134ffb4b9f439e6495f3e4c16b7683eb4483ed6e146747558e29f75a5",
-      "inputs_sha256": "14adaa1ed146dbd60e322965a9b4b2fb343f7fa45b435f888b8694a8e87c35d1"
+      "inputs_sha256": "927e3ce7f9c339f1bbaa6d3283896a33cd075bcb14dfc1718860fd2b65c4c15f"
     }
   },
   {
@@ -1966,7 +1966,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4416b0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "841506942734326bbc8a4ad965c72201790114035c8dedc3c14bfcc6264797ee",
-      "inputs_sha256": "13d964f93c1810e1d4b29596189a4cf1b26ab1014089b4bbf44ba9b6f4d0a44a"
+      "inputs_sha256": "7449afa9c59cb571b3485e4cce405b0900b41500bb6aa504c78343dbd46eb854"
     }
   },
   {
@@ -1988,7 +1988,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4416d0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "119e727ba4383f2eaa3fbdf4a565749c38d85c295ddbbd13ac6fba9ac4e27d8c",
-      "inputs_sha256": "1d7dae1dd4bf9e7d4d6d3e67f13a1c13bac728c4ad51bd7605264367e1bd75f0"
+      "inputs_sha256": "b3dc38dd7526640742a80d8498d88b12e304133f6c2f920d4da80b0a88d4e27e"
     }
   },
   {
@@ -2010,7 +2010,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4416f0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "8b5112e7469871ad25abce09e3cca6b726205656c31a440600f50d0cb9093a1a",
-      "inputs_sha256": "780456ac239376f8f44b04ddee196aa91d39312ca5adad647ed96b5b70092e6a"
+      "inputs_sha256": "2d2df1f253417c453a8a48b719bb6fdf4f3e4e1d27a6bda38cfc8a80b676fa05"
     }
   },
   {
@@ -2032,7 +2032,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441710 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "e992e35488176fe5e90682d3a6e6a0253da946d96d1e835e342e0a334f00b7e9",
-      "inputs_sha256": "ed619f046ae147339c88fd0443ba890816a9ec54c8bf49a251b472c6ec5210f7"
+      "inputs_sha256": "88a2b358b525e64b0d43306fc6bacd43ebaa94dd6ff05d761ff39ab98f28cf33"
     }
   },
   {
@@ -2054,7 +2054,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441730 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "99808e65ec003545451b68e8a48829e3041a3d381251092dd958988a6bc3ebbd",
-      "inputs_sha256": "f03cbc3a7e29279425eff257cad4a2707c8761b6b8b3dfc4d4c0f1332774ce8c"
+      "inputs_sha256": "29e5f353294c9e1a78bb46a278be3f47efa2ff7964eca8fb561057516777bf7b"
     }
   },
   {
@@ -2076,7 +2076,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441750 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "89de7835b744e586d70091eb332052750fa8327cc19492e3f2af8ccc0f4804bc",
-      "inputs_sha256": "251f71eec2c3c9d90f5666eaf56748dd530b2a582b4c55cb19441d20094b8f8f"
+      "inputs_sha256": "4787013b9b05839d1d145e9e968f422f0f3b23f31510202529a2a876e4e70b73"
     }
   },
   {
@@ -2098,7 +2098,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441770 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "dbb660c775b8c357fb4737b73a04e0e8ecd8af3e6cfc9dd8dfe91ba943cb3c90",
-      "inputs_sha256": "f3b7cdf2fac985f0b2fb909b8983e3be9c6f79f9c90ff3a732956af6fda1d60f"
+      "inputs_sha256": "35a9fd4313a9bae1809c6f549503f136adc6e8f6aa28593c95ebb291119c8552"
     }
   },
   {
@@ -2120,7 +2120,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441790 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "9091ea22e7650b58bc227f49489a47c4eb736a79126682586b44ade6b6149840",
-      "inputs_sha256": "a895568883bf3e7e48095237152ab8258c2411f27da5ce4f135cc616395c9fab"
+      "inputs_sha256": "d19528835f90feed747d275abaa64c5c150df1e13bc536a3d01b7a7f71355ccb"
     }
   },
   {
@@ -2142,7 +2142,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4417b0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "48c9f040ff8f776b5dbc4da5bc66eb0788c2e4cd6015058def737a7962fedc47",
-      "inputs_sha256": "1bbae4571330137a9e1ea915a27a313d5d84458776a766711a001756f27ea41a"
+      "inputs_sha256": "78605d036463c1b700d28c280fc672eceeb63dbfb971d2d7e09c7d189d1e12e0"
     }
   },
   {
@@ -2164,7 +2164,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4417d0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "690f5047530e11d9c3c0589d85a3ca5e71cd9b520a20488b6435b2a1c7405b11",
-      "inputs_sha256": "050d8c7e8f6bd360caa2bfec436b728cd1d90748b54294eadb56a60c9ee6e9aa"
+      "inputs_sha256": "cf29ddec9378a94792867a8c10cbb3ce1898816d62ef90e1141c9ff746e80ca1"
     }
   },
   {
@@ -2186,7 +2186,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4417f0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "51ae4f5a397fd9ae08cb8589326fb09d695708c6c6f0185d85d69e20550e97f3",
-      "inputs_sha256": "cf0fc320b9c459838f958598a949beadaf8cc8df8891780d00dac8edd0d8e1fa"
+      "inputs_sha256": "8396d097d06fa705ac252a3df5b1836301022ffdfdef7f3577d1964fc23ce2d6"
     }
   },
   {
@@ -2208,7 +2208,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441810 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "f8185ea2d1b9b3cbf586b65cc33d53d836c53e2a1e241035fc6ee6e5901b7ac8",
-      "inputs_sha256": "0c8443bb5016e06500706ca404ec7fcbf39bba11196763e9bc60450efb33867e"
+      "inputs_sha256": "4ba3ca261349917e81f5071ad4108ce31d02303864b853e20c3ea7713eb8326a"
     }
   },
   {
@@ -2230,7 +2230,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441830 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "a9b3f2d12d378a1ad8848b2dc5b361cf0fe5ddd0b1ea0903615d4f654b1439bd",
-      "inputs_sha256": "cdec16bc63d27e01796e67921a50cc803631b56bff16ad40ffaefe78be837a60"
+      "inputs_sha256": "b395aca92f1c92ec61cce91ce6b61f1a1a9d9b3d69314ee41f7c27475db48a9e"
     }
   },
   {
@@ -2252,7 +2252,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441850 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "4d2aef24755488ddfd6671fe73b431abd2c0084b307101e742c0f140abd3fde9",
-      "inputs_sha256": "1b3fc40af9a3469c4f27fc1b02ab5b8ceb9107b931468f7748b4054afedc1e6e"
+      "inputs_sha256": "ef711a31147005d06ee4fd6649a6a15baf613e003e1624a1180ac6e842510894"
     }
   },
   {
@@ -2274,7 +2274,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441870 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "bfb0e3f4b7a5097a85c8f9fd7c4f4d647172aa2430b56f7283780120a4a496ff",
-      "inputs_sha256": "0cca7d35212a18de40b7985fa1304cc2591c351a851b2f9e3f4baf04f8b6a1b6"
+      "inputs_sha256": "9f142aaf76d23e5e907ce68669739eea944fee91f54183898d44e923c20747e8"
     }
   },
   {
@@ -2296,7 +2296,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441890 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "b88a29243238a2f93fc56b551191acd5618d3c4402e4a7dcb49e9170e1dd488e",
-      "inputs_sha256": "1d15a4c3eee41b4e66670961077baa266cba1ea7a7fdace81ed5be150e2c980e"
+      "inputs_sha256": "2a6d2080b713b020db07ced3680e48b3bd9c59f8d1380f9bafab77baee930c59"
     }
   },
   {
@@ -2318,7 +2318,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4418b0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "1f98572addc31440816924de983c0c057fac66ce271bc78372034abf0b2cea17",
-      "inputs_sha256": "ec0fda048a4d33397689103cf2b9e833ec6a054ef453fdc781d609124a9f99cf"
+      "inputs_sha256": "5064c593d7d9faab89cc0e62928bd0a83c8185dc120b61c47ad27023891351c3"
     }
   },
   {
@@ -2340,7 +2340,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4418d0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "97a28dedef92be3431009933b6ffcec557961336199bf4f5b1405053baaf5e16",
-      "inputs_sha256": "0cbfa40338ebb06ac67663dd212f6d9271ba8859aea4892f5cd229ee111b3802"
+      "inputs_sha256": "e73e0c9f9c3ed08e706862ad2fb55107e99810741132196cebf587945fc86773"
     }
   },
   {
@@ -2362,7 +2362,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4418f0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "5995bb5c9b0fa05e20d7d022106460c37f80ce7e29bc7db9f23e94ba77c706ea",
-      "inputs_sha256": "deb3ae8b6851d284bd0133fb064eb1d0f105e41a9dea52733f58a6c85e662f58"
+      "inputs_sha256": "d1f2d156f22a396a6abb08bcfbb151c0f366daf3b9e368008669aa26fd638e25"
     }
   },
   {
@@ -2384,7 +2384,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441910 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "8b84803456fbebb6b5156643aeb6eba56fde30cd456883f6809a9886b8278772",
-      "inputs_sha256": "a2861b43acfae22c39682e656fca417ce28fcf9ebf3d88ede9a788562f909e4e"
+      "inputs_sha256": "446e71563e6545c3a6a2db4e370e612eaca4e53a76276cb65ef733c336810293"
     }
   },
   {
@@ -2406,7 +2406,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441930 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "6b638e070d7d6000623adc4492a254eec00874e77b14c1a4ed731cce350473c4",
-      "inputs_sha256": "3f900c8ce57abaf523e5e12d10a2230697f1719506bea3f7d13515d362b3f4aa"
+      "inputs_sha256": "e086eb3b685566508addaaa992d397156505d046b7ba2cf6a04ee600867299d1"
     }
   },
   {
@@ -2428,7 +2428,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441950 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "151df36ece69b6e2d237e9aa720986fb4d5e36521406f2887c5523aa340cf13f",
-      "inputs_sha256": "60fbe6c7e294c3c538369251ec830c758937c491f664b0e3703fc022c553cd61"
+      "inputs_sha256": "15167c8ba1fd295ef7fcbc8dc5aef39575fa21722705483f1d5c28da96a7f1d4"
     }
   },
   {
@@ -2450,7 +2450,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441970 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "174539b6a849082442be639acbfd62d107b1afbf6f3c6016720b67fe9eda4c43",
-      "inputs_sha256": "c6f287e700763cd76c654e421a87a3cd45971fbe0fb47aab73cc352196a403f1"
+      "inputs_sha256": "aabb39dc90f8913b5c0d069fcf8c70a919896b70bf877fe1cc23191d65f37791"
     }
   },
   {
@@ -2472,7 +2472,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441990 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "2c38675c1b11daa5214f986a6c073c19a61b360fe9fda61b677fc9d6362d9125",
-      "inputs_sha256": "f4c8db4dc5ad552e5a9af8166f0fbd4011efcf9c603418ddcf234a69508c421d"
+      "inputs_sha256": "f8850a6c8e2536451225fc87f3a845067c291d223425574b2810c4a587d4194d"
     }
   },
   {
@@ -2494,7 +2494,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4419b0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "b5554255b63ccc4e38f47364cc8642c5e15617f420ce9a996a4e33c07a0bedba",
-      "inputs_sha256": "8c90b61175e20cb05bed115c96efeecb2537167928018dd849efc9ad65d47234"
+      "inputs_sha256": "524f83c2948090ea5a262685a830b84be594837c930ca407200feb0015cb8c95"
     }
   },
   {
@@ -2516,7 +2516,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4419d0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "ad7341405028cea52c0650b855e0ec7805a7fc15bb31ca01509ce8b69e32ab05",
-      "inputs_sha256": "a62313b1a7f762c18ecc9e73db9559b8336336d8e6a1fee2baa40445ba24e563"
+      "inputs_sha256": "2227da6b4e419ddc40b19efc0b4d1826e1499f4866f2ff1399da813315fbea04"
     }
   },
   {
@@ -2538,7 +2538,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x4419f0 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "3219e53b68cfe284ca6e391955a748b3e9ac3645d4bb4f1013a6e5a3809a4ba3",
-      "inputs_sha256": "4a7f4113ed2c7d49a2f41efc8dcfc6087c1e95dfb3562f3119f8902ab87203aa"
+      "inputs_sha256": "68238c45a3e7f2cd36a7999eed4c8f60c6c9badb42bef352d33217e51e1393ee"
     }
   },
   {
@@ -2560,7 +2560,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441a10 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "f5c2e66db777b60d6bd8ec2835c3b92d950f291b86360206e140605bde655e26",
-      "inputs_sha256": "1ef23cddc990be6defe5a1c6dfbe2a6b7c846da64ec4b943f3529ec9fff70468"
+      "inputs_sha256": "ea869746850f4ee8d4f580f1dc4fe44cf24b97649b5d13861f5ee73bdcd0d5d7"
     }
   },
   {
@@ -2582,7 +2582,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441a30 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "fb8fa0de07f3c452ca15b4da336cf3a141a446d3abf407208b6746efa348f1fe",
-      "inputs_sha256": "9273b9bca2c8c22d3b62ed3da587093c5c6e33d8c25c1ed3c52dec1f3c4394a6"
+      "inputs_sha256": "0078e9dcd0ce7aba57feaa27c452b5a99a196056d0ca74bea2a10b4565b96a12"
     }
   },
   {
@@ -2604,7 +2604,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441a50 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "6e35d8248fa183d0e64b2046766b817a076bc18f4fea2e7f9a6d09bbb01a2476",
-      "inputs_sha256": "7d37031925d260b9f7028adf5ab6a6660d61ca5a802d6affcbefec6eb828cef3"
+      "inputs_sha256": "b0345e556254590900b1c25f0a1c4d1a9bb1756560bada8a1f356fe542062546"
     }
   },
   {
@@ -2626,7 +2626,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441a70 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "e905c752c682f8aa1d5ddfd9e7e5cd1bbd4cea13b37eb016b815985a09d1a4c4",
-      "inputs_sha256": "fef096dea4918be32a9b7026a7208072e35f2e2f4e1be9a714ad4ef12e914140"
+      "inputs_sha256": "dfbb032f87f5c9733c30655f7822f652c568118ae4ee5c3810fd6ce10b9db1e3"
     }
   },
   {
@@ -2648,7 +2648,7 @@
     "identification": "Aligned backward iterator wrapper at RVA 0x441a90 forwards the three stack arguments and appends the empty category object. The target contains the element loop.",
     "match": {
       "bytes_sha256": "375c59c374efbb76e53492bd7caadef6f48ba1095b4ff9ad860da15ac6922313",
-      "inputs_sha256": "5cc6df98308b6e3d9e232ea0f794fa95d4bcf7c678dd3d7452e4c7dbf45535d6"
+      "inputs_sha256": "0338fe3040fa6622186aafafaff80e9775d63208ffc4322926aae675003725f0"
     }
   },
   {
@@ -2674,7 +2674,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x441ab0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "be98662719a7ddcc1d86c3f6d12566b2a74cec4c99ff6b60ab614c4d559b7538",
-      "inputs_sha256": "eef74bb1fd86da5a714c89e2a774af15c8f998ba7e03a87e05b146dcc4025bb9"
+      "inputs_sha256": "6f2f9e40aee6e911ad0d48985ab556df5f421799ffd7c6268c6daf82a809f2ef"
     }
   },
   {
@@ -3308,7 +3308,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4425b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "549483fda78b04458fe8ff71c52d76a3e1d779ad70b5cfba7c63a5413c887f9a",
-      "inputs_sha256": "4a7e8c300689b70e7a45949cfbb39c3a5bcd9d06d487234441287b6de60e68da"
+      "inputs_sha256": "92b0ab64522a9b7b3fed461417a8e9ad49760aca90a137d359f62db46c0d1d9e"
     }
   },
   {
@@ -3330,7 +3330,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4425e0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "03ebe5a896c9c79d8dca8a2842613fb0f81f55423233ad98edd0666d8ff5a1cc",
-      "inputs_sha256": "b5b708019a976dff121b02b115f76e5f0cc668394f900dc93b150f44aa7eac7f"
+      "inputs_sha256": "dfb7b54c35b225c18ec63e43e054cf482a07a705c44bd852453675fa333e7221"
     }
   },
   {
@@ -3352,7 +3352,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442610, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "879fb2cef223dc091f30eb581674a19bd28bf52a743ddc3b725eeed213f2defc",
-      "inputs_sha256": "a07c8b75ad89364ad6ea0da4b59ca6944315fd1aa05eb0df33dc172861ee1520"
+      "inputs_sha256": "a41d3701f27faf2c5b23a55296ddebd209aacf6d29da62dc4ea3208c38610576"
     }
   },
   {
@@ -3374,7 +3374,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442640, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "17676268d9af956de10aa128aa4db62bf17317e35d921818effc23305d777de0",
-      "inputs_sha256": "62669b1cfcdc268289d28d13ce742bff994c5ce1eaaab9838c43e9e034039420"
+      "inputs_sha256": "af108f53973c59d8c774385f7c3007c7d5966576c49a8d6104881fe7494825b6"
     }
   },
   {
@@ -3396,7 +3396,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442670, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "4e935302b0f5085eaaecfb45eb8fbd5403374ff57a0ca232568a1c48ec8e0d97",
-      "inputs_sha256": "88c91c54d65822bb3f2e20f36b3b2a8844b3c2d79c7cf06ff9d44195548905ba"
+      "inputs_sha256": "593cf4f7b8091142a46bb3ffda7e6cb7752f14b938195f3e789545e351c28447"
     }
   },
   {
@@ -3418,7 +3418,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4426a0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "69e0615f6c76944019e0c434f431c04c2f34470d39696fa2b0fd68d9ac067979",
-      "inputs_sha256": "fe37b4e6f8b9b84d8dd14ab7b31ad19038487f97c73c3fb80c707ee0eaf080eb"
+      "inputs_sha256": "6d41577936e0f2f54fbb7a9409794ea7aa66824082c8571f0de46f4f74f4b4f5"
     }
   },
   {
@@ -3440,7 +3440,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4426d0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "ac3ea1b7e9d7d4d92a4290e975101d944d34b7f328c23d8094d59fc50248dc9c",
-      "inputs_sha256": "7cd02ed65f46f2f51acc547d7eafdce4cde96fae1135a1650c3b98d157fe46ae"
+      "inputs_sha256": "5f2ddd476c9ba922b4425f8023178c42e74f1a7f90291872c83a9041ba6b61d4"
     }
   },
   {
@@ -3462,7 +3462,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442700, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d5792aa1852385c913caf9a138b66e0a90ea081b617491abc970ce048f110c4a",
-      "inputs_sha256": "be3202605d7e9ac2ee30e80fba9751e5f0920c5203fba630063faabb9b3c80ea"
+      "inputs_sha256": "35544ab5f30ed16d72e51bfba1d510a8781357e4968f61030021e7e77a1dd81d"
     }
   },
   {
@@ -3484,7 +3484,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442730, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "3a2d58febb2335bdfd51a32cf9ec7191d0599e367deb712978a0e486d6e4f6ce",
-      "inputs_sha256": "6f1c596a9535229d60c1a932ee165278822869ed096018310a6d953474f52048"
+      "inputs_sha256": "c66be6009d32a44c4da47fc6ab530cfc5a7b7b667b6018ab2665a024e6e2764a"
     }
   },
   {
@@ -3506,7 +3506,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442760, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "0c5ac83e398ef5fef3405552c51d77cfec71fe344949a3209eeca378426dd0da",
-      "inputs_sha256": "cc8c585b6e8bc36392ecd04f319ef9b536c44056611f87dcade756db7871dc88"
+      "inputs_sha256": "ed576ff385d4dd018bad734677925f29956354b5206df19e9ca48ac83fd32c0f"
     }
   },
   {
@@ -3528,7 +3528,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442790, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d889b636ed978db4faf4e8b82c37015d99e342fa9454c83b2f5d3542d227e0c6",
-      "inputs_sha256": "17a498199c5cb08bf0b540be5f6ec9ab1d3063a86941e67a21d8b8898ef399b2"
+      "inputs_sha256": "85c88500712ed0f2923219a3ea4e635e1c7c8a1903aff41894ed485e3ddcec2b"
     }
   },
   {
@@ -3550,7 +3550,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4427c0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "668274765cad21cd37ac22e88b3515e15842fb395e8023d5a21fce783396c96e",
-      "inputs_sha256": "d2bb5e062f9f7260fd905fbf85547d4f74ef29f6916f187e5fd0fca9eff5ee49"
+      "inputs_sha256": "9099ba073bae345cb5702d5f15bb7bdf39fe9a53ccef4ef1e640c1ed4da279dd"
     }
   },
   {
@@ -3572,7 +3572,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4427f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "a55f46a65ba61c1b39cd59275637435f646b1d2f91e893fc726765fb20d3bff7",
-      "inputs_sha256": "c4e98388f3c0a98acb6a4ed79596c9350cf13c9330acc0702f2f2d84b7de44f6"
+      "inputs_sha256": "a7604a77d9d6bf2ad4c89d992a215bc4456d33c2cac05fa117375e780370f4cc"
     }
   },
   {
@@ -3594,7 +3594,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442820, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "459426f9ba6b24e7002fb8b71da4920413630f68e9c8454c9cd537209e5630b5",
-      "inputs_sha256": "4333707372338307d3191ba1622ef37a57f6a7b6032e3ab20b48fe805db446fb"
+      "inputs_sha256": "2d324d2db16415bb95556d4d9d16fc3c99dbb2f7260d4e9eb183b7ea13b2bec3"
     }
   },
   {
@@ -3616,7 +3616,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442850, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "9c1d919e62f3efafa4470cc0ddda9f63f3c58cd9bff34418fbecd12862eef930",
-      "inputs_sha256": "d922c4310e690d61d1c3f2dc7eb673df619a314ecda485c65bcf814a3a7c7886"
+      "inputs_sha256": "465aeb432a51e0db3d67fc076633e523fc1815d72f8ed05a87610dd8c197efdf"
     }
   },
   {
@@ -3638,7 +3638,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442880, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "737e60e76fbdfd996760af87206ceca0f793459768c44f301154dbe890a46e1c",
-      "inputs_sha256": "d100dba83df93e66e327eecd55b326e28dadff018644a6739ecdce7ae38da920"
+      "inputs_sha256": "97ddaff7e89a1f11f6d5d964a87e31dd9c99b3b83e103c3506f3f2516ddf58f6"
     }
   },
   {
@@ -3660,7 +3660,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4428b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "8e170f9e4b81de668f16be02f0aa656f8a52263d61e9ef1d00ccd25dd447994e",
-      "inputs_sha256": "1dab0947bd9f019fd1a7c50fa4f9ae72c3effd27f641168f43584b818afbb2a6"
+      "inputs_sha256": "a84fe6ec3fc6dfe9dd467f4c16d08ad852e3ad4241f546f8eca7b778dbd957d3"
     }
   },
   {
@@ -3682,7 +3682,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4428e0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "8eafb5632778659b9da4f20152eb62fc7e9ba768982985bd14ca14343b27f30a",
-      "inputs_sha256": "d588ae4c346bb3daefeb07b3b00668fa1626d1d27ed4fdaf846a3db29c0c51ca"
+      "inputs_sha256": "32dfde177578ab70fd680c06743503b2eadacf67ef000df8be042743df10b502"
     }
   },
   {
@@ -3704,7 +3704,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442910, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "e3a7ec6e1f6db4b70eade9e3f788e9afbc27b55d49a16fa784617611431b038e",
-      "inputs_sha256": "d42f56b1b489cffd0755bbd73fee30e4f0abeb07fa9e671670f5b8719237441e"
+      "inputs_sha256": "32d4f51110d1f26f6b41ed238cfaba376939c8df5039d57f41958c1153cf0729"
     }
   },
   {
@@ -3726,7 +3726,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442940, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "8586c92b629e937a4a09a5f76910a8a985c1dfd35468e08fbc1a9c33acb091b3",
-      "inputs_sha256": "6e3c59459c5e7d76546d3db7bb93f739be4cecf252bb307a321675356779ab35"
+      "inputs_sha256": "b711ed6b5bb9ba82803ca29195e447ffe3eaffd7e6a6a09feeba5c508e2e9d95"
     }
   },
   {
@@ -3748,7 +3748,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442970, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "bae8a7b010e8275dd8822c704fa49c845468335f070c09851d84b752984266e2",
-      "inputs_sha256": "115c7beb03ccc8da8cfe5478c43c66535c72a8dff8aa53d81e3a9a04024c7174"
+      "inputs_sha256": "0b33a16968a08c90bdc4dc71a7e4e05c20125de0c575af326a6854e8c077e602"
     }
   },
   {
@@ -3770,7 +3770,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4429a0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "ebb1aee320749241a016f33918f44aca9149a91e3e9a55a45ab25de17eeef8ed",
-      "inputs_sha256": "969de08c138a70c14c0cd6bbc381a85bcc44c1e774190f8d636f560066ae9137"
+      "inputs_sha256": "f4428b00cc236203480d26171b8988fca4b62df6ef30cbc8a17ab631098c78d3"
     }
   },
   {
@@ -3792,7 +3792,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x4429d0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "94e026441900b12d50d88e40d0cbb3d46ddd94e0a80e3a74a54da80408246679",
-      "inputs_sha256": "5837e4ea04a1159b8b80b7be907657e63bec5f04cd30d892c9031fe7420feb51"
+      "inputs_sha256": "74b53a6d329d7a0fb4f3b18441b134a57aeec84395a69cc3a67e4734968ea66e"
     }
   },
   {
@@ -3814,7 +3814,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442a00, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "6e555cc278b74619730d601203b8f20f5bbaf5953f44d94b12ead211cd8c8379",
-      "inputs_sha256": "4ccd489a130d58888d1a917469ce0fccbbcc4e66eaf5ec012bb5d0faaf4b31db"
+      "inputs_sha256": "439f7d3d933bf161b930d7f6f8d08d1414eb4b6fd9885a4479622da183e6c7c1"
     }
   },
   {
@@ -3836,7 +3836,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442a30, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "ae8f249f68742d1c56b207722b250534a79bc0c77d335a5f3993b0c6a9bb4074",
-      "inputs_sha256": "b0220fb0837db494f2f3e82a44467283ed36120eeec474cd1ed27114582eaa8d"
+      "inputs_sha256": "a5139ef8d4664be1789d3f5522a4e6e85c72b3a97670e2a5b2688feef9bb6d4f"
     }
   },
   {
@@ -3858,7 +3858,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442a60, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "fdea77eb9b64c31e5a3fb2e6b9f605e229ec0d79aa9a719c7f56748a9e88134a",
-      "inputs_sha256": "620537a9dda9c29ca2b2055f532806fe18b77f010486507d0988d56ed415bfaa"
+      "inputs_sha256": "6c61aff55cadc08bbba87b57c85bea930c42bb20d6295c573b65244f842ad875"
     }
   },
   {
@@ -3880,7 +3880,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442a90, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "68bbeadda78a8e30afee9f503d1b30365beca746e4249dd05cf4185fc45c97e1",
-      "inputs_sha256": "a98a7b43c42e6e93396fb3728b199d49062af944f686d2aa876845a0444a6517"
+      "inputs_sha256": "2e5624a9ec369ae11a039efb639675ae5edaa6073968fc9e7289fec7765df064"
     }
   },
   {
@@ -3902,7 +3902,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442ac0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "f79ce3a4d7820793a811354df49cc651a3861550cd93a8421b605c1b1e0d2cc3",
-      "inputs_sha256": "e487e7ed1fbd532029c59926b919efc2e917db7dfedc8ed19c97d6571ae15802"
+      "inputs_sha256": "f00d410a99e6575afca76d2dd9027acd5a9115f5d6a03824b1593e27d9f82a38"
     }
   },
   {
@@ -3924,7 +3924,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442af0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "20e7a1805710638c3d4d6876217106c090c412646d43bdae7dbb74b57fb64246",
-      "inputs_sha256": "7a3c472b1949b92ececf3c74e9930fc532a236033b400538570d25aaaca220fa"
+      "inputs_sha256": "34590711f16bcc59d81debe3464a3c989cb6e90c68f587f4a815bf5e24b7332b"
     }
   },
   {
@@ -3946,7 +3946,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442b20, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d2fcaa2bf3abc1fdc29547ed8c4a45c2510cc387bc0745b9822e0674548abd4b",
-      "inputs_sha256": "830e6dac383b885b37ef8d7647aa5a1650fa90a5361790b12a6e55971d8c45f3"
+      "inputs_sha256": "eeea7f8c500571486fe25a58b9e5817ec221077f9b87870f9b1b2f827a2a0d86"
     }
   },
   {
@@ -3968,7 +3968,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442b50, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "334bda1451b6747db3386f255a6b49d398c62fa9eb2d776a9695209a2181f1a7",
-      "inputs_sha256": "7ccb3e76bf9a0757855806490535030592de8c20020d12803446f4e0d1ce053a"
+      "inputs_sha256": "4a70c1776618be2563eff10004caeb2e47818f5575207b12d8188f44e4d98d13"
     }
   },
   {
@@ -3990,7 +3990,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442b80, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "f57925d1664971f9bfd8d8467a2674d711af58397fdb8a5b3611dea164a2ce91",
-      "inputs_sha256": "5459229533affe5e800d8ae2ef11a57be582116a2d621b1abfb29846a05e5780"
+      "inputs_sha256": "7dfc62c5dca64a97d92bad167d7abef0bfd3b06c84cb3e9477a5c4429ed2dd25"
     }
   },
   {
@@ -4012,7 +4012,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442bb0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "c4d137e723febc3c0f56a6cb41fdfdfe4cdeb24f39104f94fb4a6056358a18bd",
-      "inputs_sha256": "4f5b1c2069bfa8624b4fd611631d818609093c9780e8557ba605d1d7ccc4b87a"
+      "inputs_sha256": "c2609b46612c2080ff9ae454a856cddfc1d75e5fc9533aec37e0289eb75ec4e9"
     }
   },
   {
@@ -4034,7 +4034,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442be0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "44b3ba5373af94275310b7312b08b66ffeeb8eade9a53021268a0b8c5ffd5692",
-      "inputs_sha256": "0e1e7478f15eacc99df7b05b3eefa3b512fd0838e5888975088d8c542737d66a"
+      "inputs_sha256": "a724a109230f6c0924a9f3aec8e6c8e7cd7d645325b82b7025b90eeb4a418623"
     }
   },
   {
@@ -4056,7 +4056,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442c10, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "13eb17b4fdeaff68826cc9156a769229b3f496ba2a93af6bc0e79a8834b6320e",
-      "inputs_sha256": "ed79f604dba73a21856b6359b6fb5dd4fdfa20ebaa68dce1214351732c99edfa"
+      "inputs_sha256": "65c0a2f5b989b21bcc34620b84666bfa74ca2af399848a5e93a5f2b198619b4f"
     }
   },
   {
@@ -4078,7 +4078,7 @@
     "identification": "Aligned range copy wrapper at RVA 0x442c40, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d568c7524f42b61aa249781b3f65a1dfec9e172fa23b42801fa7fa7966190e22",
-      "inputs_sha256": "f425587661981c244e6525dbfd1ff606ddd78183f0bb45c0ce378a24dfbb4c4f"
+      "inputs_sha256": "511534b874652f384286c868086add28bb6ba34609e8be35a8ddc748eebb6e9f"
     }
   },
   {
@@ -4116,7 +4116,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443030, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "6312802bc95534b81b105338d91368a1c9296320d575fde294d5bb1debe03707",
-      "inputs_sha256": "8e956bb1bca8ca60d7a39e5f4dc566731895df306cb1d06c8bd6f009d0f39ef5"
+      "inputs_sha256": "6e65da26501548d9f7e14025dd07c13fc3216cafca8d597afb687165ca3f4f56"
     }
   },
   {
@@ -4138,7 +4138,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443070, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d93b35fe6e481c3199d12da45b4d11fda33330534e372e2a185316542a86c4f3",
-      "inputs_sha256": "850e66510f276ba6b588fb883f24b4081ad41b1a017d881d75c778cf1b5d9036"
+      "inputs_sha256": "dbef2e9a3a7b243a059b9fb2d97a5ca47dbe7a7c1a72c156d9aa6c7af034ab8d"
     }
   },
   {
@@ -4160,7 +4160,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4430b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "3b13298960b767712a75e9b0ba8af4c879c1e7fda38f56769e6a631545ea1e2d",
-      "inputs_sha256": "bf24faa6579ed6af26ac29e3f9ba741ec69cfd6fcd8e5b9e034910f2cc1a5704"
+      "inputs_sha256": "3a14b5d79aa2090116ae572370562b435b8a3895e794c834aeaa9968610d7401"
     }
   },
   {
@@ -4182,7 +4182,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4430f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "17e914c0cbc0feb6306bc15ec46941683b6b39aa4f14ad354ff34c05d0cd99a9",
-      "inputs_sha256": "02388e3c640fb950bcbdb11f4d16d7d14b0bac6455b650b29ac774eb327b0c44"
+      "inputs_sha256": "98590a9e7c8964de06153c1bd68b306315a19982a9ae23c34b1d2d246b09db35"
     }
   },
   {
@@ -4204,7 +4204,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443130, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "ba49970f33b8361c71d461d9fa2ec8ab52f7219151a1ae9e8e3f96012db2e53f",
-      "inputs_sha256": "dd69f1329a0188889ccd2ab029ed9a3bc10732524064c2b2366c80d0558826e4"
+      "inputs_sha256": "04634d1b87d412ee46b2093a1f9f2bb802824b7b429d5cbfe40b2bcc49a35f58"
     }
   },
   {
@@ -4226,7 +4226,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443170, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "7c7d700a7fb49df7edd6ed6b2fe575bc93eaed2ead1063047cb7d61cb6543fe7",
-      "inputs_sha256": "36dc4af477c12e8d3076f94745eae8b82f873b4cf1365aa0c94aede445db7bf5"
+      "inputs_sha256": "ebf2366b8d6d9a03dc3555dfa95bbb25faf24c1e1c950c08ec3d02fc42972e70"
     }
   },
   {
@@ -4248,7 +4248,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4431b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "69442a42808d1331c3d74cc7a6470179efad65285fb34dc91d1eff928d720d24",
-      "inputs_sha256": "8dad3e1aff5e028988b0ee6711a1e9e47b57ee1b66ffc81b96bad2b6f7739c06"
+      "inputs_sha256": "c7fb55dd51ebe1a303f205319cfd91b09fe0916ecc51d89846a03edc82d710ba"
     }
   },
   {
@@ -4270,7 +4270,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4431f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "610781c16ef44e8cc7284fea1a0c46d99aa4e82f1a55678e93062ee639c27021",
-      "inputs_sha256": "c96ad1a38b49870e9a323c8d9c32d67f8b1fb7ed84c397b704505d3ac21ada1a"
+      "inputs_sha256": "59876af3a88fa70fab4a3f4b13701cc77d58528f483075cd46265926f0ffe3a9"
     }
   },
   {
@@ -4292,7 +4292,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443230, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "45ce479ea3872254357d7a878eef7b5f004d76007b171f8b6ef709bf5e3681c2",
-      "inputs_sha256": "d2127226db8e85a5e1f5d63710a73ab037d4174f2661f840e03859dc4add2483"
+      "inputs_sha256": "1d3e3e028a8c9e4eb38b9fa5e48cb01904211ad024c029f585c8f9ca051daf08"
     }
   },
   {
@@ -4314,7 +4314,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443270, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "1f35618f6556fbf4b33972094eb6372b405cab267921b255b6acfe54b767c3b6",
-      "inputs_sha256": "2b382ef5c982c3e229697a8bb8f55b7f14948b446f4accc2ed5d62d35a87ac83"
+      "inputs_sha256": "7757b2e99694067a744cd800bf311cfb0371c3a8db231a66858de97ee3050239"
     }
   },
   {
@@ -4336,7 +4336,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4432b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "fa2620ca80015f41c5069f16bc91b9d8789338eea3d5f2000fb4ca4d624599ed",
-      "inputs_sha256": "96e175c396373a834bd7fb40563d3417be82fa524173854de9451475b12f780b"
+      "inputs_sha256": "9ada86bc6fd50912036fe5a73bb7c00eaa4e7832cd642ec90b999bcd6215f556"
     }
   },
   {
@@ -4358,7 +4358,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4432f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "6ee57be5e385fb0e49355f4167c17d7d24df9403032f0038edf5c1080745c3d8",
-      "inputs_sha256": "677b746c8ef6128317de9460741346fb21e6cfbd1ee083742b1d3bb3c07d65a8"
+      "inputs_sha256": "e1d32b0e8bdf98aee3261d24251da536033a80ebc104de4902155f91a68ff83c"
     }
   },
   {
@@ -4380,7 +4380,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443330, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "2e1390a1997c6321f00e9c5eaec78b172aea9a34f8490e1c197d8dc833714287",
-      "inputs_sha256": "e5d446dca78925e1c3d5fb493901014d1b4b100091c27981ff686d6037495133"
+      "inputs_sha256": "f4e8e2bbbd646283404bea95bbc5ba8692eba1f8812b2e7ef8b4fe50d6602811"
     }
   },
   {
@@ -4402,7 +4402,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443360, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "3e8a79e4a3d84fc3103446b1a44ede929209913f59e40ad8314b9837f28c7cf6",
-      "inputs_sha256": "981abcc3a01273aff5d69d8278a503315565872ec46dc19d7dc3ee165ed0a7c1"
+      "inputs_sha256": "64fde4ddbcc1824391e89b2fc2496f54e37099a68dd060a246576de682d6143e"
     }
   },
   {
@@ -4424,7 +4424,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443390, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "0c6c6531f0a8e182f2745d31e6f9ac4fb0081e10f00eeb7339021e172fa29766",
-      "inputs_sha256": "2f7899e40395d6f96a49238019537a98c7882e77e6d05badc25f3b6aff547103"
+      "inputs_sha256": "7540d8973be22be10fa9d58dfadb6c8e7eb2cbee3ceebb99d40ba6b746426478"
     }
   },
   {
@@ -4446,7 +4446,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4433c0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "f639ec0ea8f66410fcbfa3071df33c31631b0a7cfad2eadc724013c4d2150928",
-      "inputs_sha256": "2d65dc806c4f866f197de0c7e21571b76e17722f1fd1d9f633b9e228ec6d52bb"
+      "inputs_sha256": "69889d4dc0044d50422012dacda451a10904554a27c2e5e38d6aeaae16982b61"
     }
   },
   {
@@ -4468,7 +4468,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4433f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d4324f962a4d0eece667e1e027cda3b2c64352ae29a1f8f7e5257bc2c57be0ad",
-      "inputs_sha256": "e421d7e8e36adabcf6a3f69cefca0f0bad838e574dafec889ad365ca7f0409ad"
+      "inputs_sha256": "b9665bc3814ba24d132a23ee199952f60ab856c4121ce263e8ef1ce5546129d7"
     }
   },
   {
@@ -4490,7 +4490,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443430, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "230b10b85afe91f8fed4f6bce2bbbdd8edc552f1210c763e56e94cc65fa7a3ce",
-      "inputs_sha256": "1566a820b547808f7d1ba65bedf3d281f857e7521613bcd01b6fac721dafa483"
+      "inputs_sha256": "b436133319cb2e1c92e1c986766362258a437250ca22a16d5be87cfc3f4b98ab"
     }
   },
   {
@@ -4512,7 +4512,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443470, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "007601992902ce1c2c45a92c3bf85c47d06c1cbd88c0a1bd3071f14257c2c941",
-      "inputs_sha256": "d13f91a843ee5c9eaa188a4981fe61b8ad7877f85a51c80ecea623afb30c7cbc"
+      "inputs_sha256": "041eb14b1983e75b301b076c4acd1f663d1bb515b58e88581077ffbd3334b09e"
     }
   },
   {
@@ -4534,7 +4534,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4434b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "b50a15bc710fbdb2ecffab0f066cb5d5297a1f1dbac4d8bcd654d5a3e64cb18b",
-      "inputs_sha256": "04dd918cb892c2d49a70e5ab2eae04388df3fb40a5ee5c96c21bf662117b3b53"
+      "inputs_sha256": "f854bb0562f84a4f33618958d904b80a5146b17b614d134969a90bccf39db468"
     }
   },
   {
@@ -4556,7 +4556,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4434f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "68fc1db872d57b8b0c5d3358554aeabbb57d58df8400ddc91a41b2832a128d03",
-      "inputs_sha256": "e3977ef51f8e83ac4aee28ef0fcdddca31ea429b97f7fdb4daef9eff6a216bb6"
+      "inputs_sha256": "1dfbdaf98f5d6a4ffd2f2d90283ff11fccbee99bc1dfcbf1007930142c1f1f02"
     }
   },
   {
@@ -4578,7 +4578,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443530, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "14b96008dd6b9cd746b24f0fa889115104e979cf40f163bd4b55f812b2eb94c8",
-      "inputs_sha256": "6881997a9863e4c71810d167d0ab70478a314afc6947f586eda7d46b3b2fc329"
+      "inputs_sha256": "5d5184adb7e597fc2f2ac652a7ae1c776674ae87fb6a53cfbbce16b5549b3d35"
     }
   },
   {
@@ -4600,7 +4600,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443570, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "3027ad09ac0369e625173a289bf477b62ec34747ddd70e05d0b412defb637a36",
-      "inputs_sha256": "19b87769894c8a6a80a25f0b0438c0919711f782440222b6a6711d7aaf47cde5"
+      "inputs_sha256": "1d120cc31beb0e78f3c6857b071e56064a26cc87cc405d6a85d8f9b955cbf85e"
     }
   },
   {
@@ -4622,7 +4622,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4435b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "e418f1e566f1c608d519424604302903aac20cd3ee486ade76569a31beeb0b34",
-      "inputs_sha256": "68accf575930ca1b93c61be0bef841f881288db5e29dcce4e2bb3d1fd04e04a8"
+      "inputs_sha256": "b99ef60a51e4ddd47ff474d0f10a85f6896bec4d2eeb4ad434ef23048fa17449"
     }
   },
   {
@@ -4644,7 +4644,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4435f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "37b8b796841fdc21b13fb92229d351ebc40b85244ee30a642246f82ff9051834",
-      "inputs_sha256": "16ec07b4088e0b6a7a662f31b14ea8738124a3c0814e5d7a0e522b816f40fed5"
+      "inputs_sha256": "fea0cf1cde0250b1a05608d4c7ba8849ff2d636edebbce4f781c946cbd5b10db"
     }
   },
   {
@@ -4666,7 +4666,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443620, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "56a525c8c963f9c615ecf6df6c6df90ca42dbc62b172c21da1e370db245e8dfc",
-      "inputs_sha256": "6816662dd03249ebeed1cbd1b112ce91e0bd802403b7abfefab1fea330900541"
+      "inputs_sha256": "6fa9272acbfcbd5e32cd590ec661fcf4d8c2bcc172cd4b0afcf90f3c5bb64be5"
     }
   },
   {
@@ -4688,7 +4688,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443650, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "e48b44693d0575fc514270f65155bc48ac231c6d462ee221ba5757d5ab15561d",
-      "inputs_sha256": "5890d64903db725859183104b406dc2ff3695ceaa3c837ee6f6e8246a9673cfb"
+      "inputs_sha256": "a9da9ef24c6cc79e09c1cf26e10e8bc6358104535b52a9079cf0e7ae2e9c0592"
     }
   },
   {
@@ -4710,7 +4710,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443690, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "a0d3d0be6378583396e37bffcec8d045e687aba73eece46f3965cd979cecc96c",
-      "inputs_sha256": "6915f8bbc9e5c08d29dbe47836497873e63080975d0c33c904ecb7bd31eb22ac"
+      "inputs_sha256": "64d6206274b32ab1fc9c48d13e0f351057907bf34b988ec372c4b168f71ef869"
     }
   },
   {
@@ -4732,7 +4732,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4436c0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "d68a375d03e8cfb48bfd158f0ac2d4e476b709088082ed291a66825c511430b1",
-      "inputs_sha256": "636f2e37c70147c3a1674887e4df48d8d50eaa87e697b74f36e85fba30cecbad"
+      "inputs_sha256": "f1b838177fb7555ad1cd88d8b3e0b87ee78bb48041bf165908759f72d0718354"
     }
   },
   {
@@ -4754,7 +4754,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4436f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "c9f1e24153db5c50d20762c02d7e3033ef707fc4fab110843172aa2a5aeb6932",
-      "inputs_sha256": "b30040f92fa8712344c625271d1eb6e72fc1ac8d2b0903a2d3cd006161bb702c"
+      "inputs_sha256": "7526284a545f9991209ad4feeec987cb22257fe84132f3118d60abb3eb7f13fe"
     }
   },
   {
@@ -4776,7 +4776,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443730, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "9032a3363974e0cac29f843b97394f486b7c0f2487f00776107d8e31625243b7",
-      "inputs_sha256": "13f2d61f0d168a7815261ee3773d1ad3e7799b63c9daab4a39ca2fc575b5984d"
+      "inputs_sha256": "ab0696637b8113d55aba6f1fabafe7f59b5c72912b5894d9fc5009594efc9fac"
     }
   },
   {
@@ -4798,7 +4798,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443770, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "2134678110ba6b8774c694185eaff0596fd90cbb81520ba3969a89202c35a09a",
-      "inputs_sha256": "7e223df7ef9b3276646ac8e5bfac9fec03722c3774776b489c0e8cb59b1263e0"
+      "inputs_sha256": "7638c13181fbbea051bb102d3d72430b3fccb97323455ab78220be0ead55d8ec"
     }
   },
   {
@@ -4820,7 +4820,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4437b0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "f21a182f08f5925cb7366f9f7ef236f32930ef984083e222c5588291cde32396",
-      "inputs_sha256": "c3fbabc71ff5b50676722a38fb518b5d212fab6aeb390214a2bc32350c5f1468"
+      "inputs_sha256": "38bad81752cb21d6f72825e2f790e07bc0c06c6f9b5482c19d9d35e4eed16cb2"
     }
   },
   {
@@ -4842,7 +4842,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x4437f0, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "a24cecc8dd0066f13d2b70879c282ffe4f099b03249a08dee0d10d9503b5c36e",
-      "inputs_sha256": "9678a3c5084e7ee5d38da7272751397a0926b91c51be05f5f05ef0bcd74541a6"
+      "inputs_sha256": "e5317fe457142dcef210490b214689570f43c605574d3043fd0ea2bf2200f3bc"
     }
   },
   {
@@ -4864,7 +4864,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443830, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "cf66cb9ceeb6803c5b17196fcc0d47fba09698a02a6b2d9ac1b98c04a9ca2a86",
-      "inputs_sha256": "1d979ae68550b806ff072d2fffb37c0eb134791efc54910c78895118cdc3c5ad"
+      "inputs_sha256": "44226bea8869cf019536252418eb674f042c7c6f43cbcd8a374de2289c925668"
     }
   },
   {
@@ -4886,7 +4886,7 @@
     "identification": "Aligned range fill wrapper at RVA 0x443860, identified by both boundaries and its indexed loop target. It passes an additional empty category argument.",
     "match": {
       "bytes_sha256": "0c7a683db0e996cbcb0929efcabc7950fb0d453acf7ec19186353642afabcc33",
-      "inputs_sha256": "ac88909cc36c0e12c3d1bdd322b6e0d5c591103d2134d3165384da8332d4a2ae"
+      "inputs_sha256": "61cb8be49eb57a8b07baa30ee7bf3c502232381b0871b304032d032c11f3fa19"
     }
   },
   {
@@ -4942,7 +4942,7 @@
     "identification": "Direct call at retail VA 0x10d4481f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "32c64eea63dfea970dc96a9de2cff8bcba87ccf0b929f3605b48ee051edf1c46",
-      "inputs_sha256": "cc33d0b1f1b34a14f0eab9eab4afaf9afc3c82828e5f4b13e6a9dad2c0eec161"
+      "inputs_sha256": "e207d80ecaf5277438d73b47a569a1ed58f19b8f24f8dd918117bbae6e435478"
     }
   },
   {
@@ -4964,7 +4964,7 @@
     "identification": "Direct call at retail VA 0x10d44a2f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "274b5b1fca6dc51ad5a008eea13e0faee02a92b044bc6349527fa5d6a1de257c",
-      "inputs_sha256": "da8e531cbb8b6ad3a27c27ff7efc349e6a3a218071f65399f7166fb1d2e66702"
+      "inputs_sha256": "c4098741ba401b836d7314331055c79738d308c8ce9b3a1fe227a88f35f4aa3c"
     }
   },
   {
@@ -4986,7 +4986,7 @@
     "identification": "Direct call at retail VA 0x10d44c3f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "cefbabcd84c61cb378a55e921f8b6e6ae7a49f21ef5d8bf4efbba31e2986a298",
-      "inputs_sha256": "093005932227ce498098d421844f3ac37c5043d5c3b97d7dbd172032f8ea9138"
+      "inputs_sha256": "39757d8b55c3e54c02e7e2cf7c47fd51252bf266f07f350d5506fa702b25b106"
     }
   },
   {
@@ -5008,7 +5008,7 @@
     "identification": "Direct call at retail VA 0x10d44e4f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "e93e29cac418bac2248c1dc3c86b70f4fb0e4ab41031ccfc69a1d3d8a8b37112",
-      "inputs_sha256": "fb076002f81843e085a743116b2c857742cad77f5f03fdd52f8ee8394d1a98fd"
+      "inputs_sha256": "04992a4a6af154b51e3450681633844c2c59f2124a32755a63e3563d2d1bde96"
     }
   },
   {
@@ -5030,7 +5030,7 @@
     "identification": "Direct call at retail VA 0x10d4505f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "d50520a4cc9d0a61e7900742c7e14b36c5c1244506e95f723ef5d5059075826b",
-      "inputs_sha256": "724d24e5d32ccbf57aeba12eafe636d55c15d2612e0611311879e6974d5e141d"
+      "inputs_sha256": "9473e7a1661aaf2475773f1d7afa6b3552ac6b911c897259265c9c0b684cf4d4"
     }
   },
   {
@@ -5052,7 +5052,7 @@
     "identification": "Direct call at retail VA 0x10d4526f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "09fccfddc4af53109a3a4a50ec9462d87284282167a4b10d0fc994a4aa84c020",
-      "inputs_sha256": "114c377fd974a55da606cda15252cca5492282b41ddc6d64d91e3d874594a690"
+      "inputs_sha256": "e2aaab2cd03a178a65b2ea96f0ee6302dc0b930072d447cfb4139cb2114022b0"
     }
   },
   {
@@ -5074,7 +5074,7 @@
     "identification": "Direct call at retail VA 0x10d4547f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "00ac2205fc962eeae54fbbb3ae3f726a1b8ced136b237acb4bf6f62e011169ca",
-      "inputs_sha256": "02ca189010fdf57938676e5ea14effe6d419c30c224d46173979cbac0c76f125"
+      "inputs_sha256": "1dadce8f31dcdb63ef19b5cbf92e8819a44e9258d17c02b0fb136fa20b922e87"
     }
   },
   {
@@ -5096,7 +5096,7 @@
     "identification": "Direct call at retail VA 0x10d4568f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "b4f18fc6b11e6aefdbcbb19106c0f7039a95fa4971ab97d48a4c13a7b64c72dc",
-      "inputs_sha256": "9de2f941e6ba8bb572287315ef7e58596eee61e8544bb160e170ad2ac9703824"
+      "inputs_sha256": "005df15b6fd354459b5a18e26d6a6be6af2faf0fd1bc5aed9ed5462716e092f3"
     }
   },
   {
@@ -5118,7 +5118,7 @@
     "identification": "Direct call at retail VA 0x10d4589f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "78ed21f65ce1d55fa7327284fea3941f8af94296497d01481f7b9c9440b70147",
-      "inputs_sha256": "7208ef7438d90c8ee6ae7dbf876d288ecadd78e4b30ba16fbd97daceb0d6434e"
+      "inputs_sha256": "a8bfdd0f8b1a3879536c74a320891a9fb0bcb3eedc3b09912b9a85002f938835"
     }
   },
   {
@@ -5140,7 +5140,7 @@
     "identification": "Direct call at retail VA 0x10d45aaf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "806da07401ebe670083deac8dced7a75d95c48a21f5ddf22e1922e2f73bbec88",
-      "inputs_sha256": "33ba08c0f4a40affbfc63778b5307871bd67e5520cb309f5aadc435aeb36dd24"
+      "inputs_sha256": "b9cd80ccce34add406ef5f6f26c6b1fe4929537aec200646ad61718a8f4a4fbe"
     }
   },
   {
@@ -5162,7 +5162,7 @@
     "identification": "Direct call at retail VA 0x10d45cbf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "aa0b7dea0b6ac3969aa4591a2571f62070a33a5372509b1999471a6f14f1c51a",
-      "inputs_sha256": "6785f103d9b10a9bdd3bb2f0a66e75be6151425a5622d4a9a81656d2b6e0d0b3"
+      "inputs_sha256": "b42aea122cf4dd961710fc3734a256c99542acf4434909f73bfed7b68d10b3ff"
     }
   },
   {
@@ -5184,7 +5184,7 @@
     "identification": "Direct call at retail VA 0x10d45ecf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "6e9ecc611ed98fbf7c66e7e107f70786a1f015d5597c3923da40c600f71a6e3a",
-      "inputs_sha256": "19c54fb36f76fe3a33bac3a56f64080235a164f996d37773130813d8a4850203"
+      "inputs_sha256": "cba44149c52f03a392a2cf6a43962593f6cdd3faa2d825dfff8edacb784f409e"
     }
   },
   {
@@ -5206,7 +5206,7 @@
     "identification": "Direct call at retail VA 0x10d460df to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "455a1a3130e456d11b085c5c351174c56827b6a589a68ec59aaf1446e90a645c",
-      "inputs_sha256": "9cc56a0965e082d3e965435a89168898d3cfb6da11bc3bb75611261a1ab1bcef"
+      "inputs_sha256": "161fc3f221f9b14c7e67bfd9ad95f20893e2ea1bb04f8a8e61a325f17319cd69"
     }
   },
   {
@@ -5228,7 +5228,7 @@
     "identification": "Direct call at retail VA 0x10d49a3f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "ff86bcf0c2abba9d4b91e7d85f3e7bb2c8ced9b8dcc2d77480ccbcabd919ef81",
-      "inputs_sha256": "ffc8af55ee4909bfe970ffb1faf29dee1b164e216adab43817f14e16a8710639"
+      "inputs_sha256": "eebac5e16269514f172b336f9ba8bf92a89186c4865a6db8b8196068d7e747f0"
     }
   },
   {
@@ -5250,7 +5250,7 @@
     "identification": "Direct call at retail VA 0x10d462ef to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "b4673aa42902fc1177b3aaf3f8f4c02b3cada5bee4a6693ea49906598d78c70c",
-      "inputs_sha256": "a42715d08ddbf5921aebbccbd5564e2dbc8b7a63fa4a37656ec35d657f013370"
+      "inputs_sha256": "a1f8b92ab7e9ee023a2dbd26c713d6fa7226a1ae9470f6660f5d293e5919534a"
     }
   },
   {
@@ -5272,7 +5272,7 @@
     "identification": "Direct call at retail VA 0x10d49c4f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "4c8134e60efbf1baac6f37b4c3901602da1317a4a41df37895c120f6dddb6f40",
-      "inputs_sha256": "99df3bfcfc0c13a7a4750125468c3cc693bd59cb14026ea440e40648429f81f8"
+      "inputs_sha256": "d14d34380ea576d31bf9f601b1fa7905410399cd0d4cf0321dab087ff503760e"
     }
   },
   {
@@ -5294,7 +5294,7 @@
     "identification": "Direct call at retail VA 0x10d464ff to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "abb3c478c3356022692465734966cbfb709588e2e69960f7a350dce2a32c4d5e",
-      "inputs_sha256": "2724ea3707fde9d4c56523bafae8f068a587ecb22d61fdf803a5e03128c2a98d"
+      "inputs_sha256": "e4b5859827717b6ca70ae60f21ead9196450d53246fe2d5650d9c0d3a26fcac0"
     }
   },
   {
@@ -5316,7 +5316,7 @@
     "identification": "Direct call at retail VA 0x10d4670f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "7a66c84bbf716e2017000ea447964a4a7f9de3c5eece04b6562eaf6ef589873b",
-      "inputs_sha256": "161e5d76f47a21f1d5ea027c3d8c083ea623831a19b8f87e92fc9d7f36c36ffb"
+      "inputs_sha256": "ac42924a500eeb2d4becc3ac33fd8729bbcbe17e342db77649313f8b6f5d70d5"
     }
   },
   {
@@ -5338,7 +5338,7 @@
     "identification": "Direct call at retail VA 0x10d4691f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "063a2565ed4f7c5a8da0d68e89b17ce2d1963fe1f2a6457c1db0fb6ac25a1856",
-      "inputs_sha256": "d7568447a1522695309647540f1045d807223e0c07daba6f028e5d352f37d897"
+      "inputs_sha256": "97dddf3e7166d5de26cb8e3aae9b6c38530afd2a5d4a0476876644bb95dd4e2d"
     }
   },
   {
@@ -5360,7 +5360,7 @@
     "identification": "Direct call at retail VA 0x10d46b2f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "b214bba49915f9566c7edfea6d779a719f89596ad70c7bb3496dd5a76fcde68d",
-      "inputs_sha256": "2119e75b4967607abd0cc40b166f922b78c71145dff9eb4c8669f189d1f264a3"
+      "inputs_sha256": "4e70aad64ca2ffaf602127d7ed321914e50530ab2c8ca77ac17a82ff569095d8"
     }
   },
   {
@@ -5382,7 +5382,7 @@
     "identification": "Direct call at retail VA 0x10d46d3f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "5fd38df01f73e95a0dbea33554e9d1507dca9b52213f7b83fec9ace92d54f3b5",
-      "inputs_sha256": "a610cb4ec2664327219e7eb150161129ad4103b0c2a81f607757333167f6e88c"
+      "inputs_sha256": "0e35c8d9ce25fdba33c26c941af2ece962a95c0439bb26d7c4c7d481356115da"
     }
   },
   {
@@ -5404,7 +5404,7 @@
     "identification": "Direct call at retail VA 0x10d46f4f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "7111480018263e86a429ac5210a100dabe1aebb3b90672307fcbd06af8f60dee",
-      "inputs_sha256": "ba39b082bbd9e276be3070c1e18d407c7d6efe895002b2a1f7e75b9d8d413949"
+      "inputs_sha256": "f5da775c0faf5b815b1155836c6bbbe6befe6fd281af0f67ace05aa2d3fd2873"
     }
   },
   {
@@ -5426,7 +5426,7 @@
     "identification": "Direct call at retail VA 0x10d4715f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "ef13d6c3186ab98d25db9e228c8d90474e90f17b1038ac6855c863ec81a0ffab",
-      "inputs_sha256": "9ff7252e637e43a3bec5f0ef2eb0a95388aec6277fdefaebb8fd6845e07dcb65"
+      "inputs_sha256": "32c7bec681e67928aaae87f662b6ebc7ea37b46b86b5da0242e1e495d5e2f02a"
     }
   },
   {
@@ -5448,7 +5448,7 @@
     "identification": "Direct call at retail VA 0x10d4736f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "05c0f829c8d3eba090903728f513a68dbc9b514eb1b6b164c62a54132e1c6efa",
-      "inputs_sha256": "ce0e497e166fed046a1c2f96f62b6b74be8e83f8504b345865c03aa409dfadad"
+      "inputs_sha256": "225125fa7ebc976fe4d8569523be9e4be66a728d0bf5223a37291d16389da4d1"
     }
   },
   {
@@ -5470,7 +5470,7 @@
     "identification": "Direct call at retail VA 0x10d4757f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "618261aec1f41dd06f4a72201635c0439d0e6b6d9ab114834acfe14226bf3c7d",
-      "inputs_sha256": "21540704dfc6df994758e583535e618c45781a747d2eb8f946c9dd6b771f8c5f"
+      "inputs_sha256": "7e23b12fd4db2603fb2e18f6a28f88b6effdd57798a8823a61bfc5004bf732e4"
     }
   },
   {
@@ -5492,7 +5492,7 @@
     "identification": "Direct call at retail VA 0x10d4778f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "c445f808c03e56fb3470ee3c04f1395c1636e5ecbae7370cf9f601421ab943f7",
-      "inputs_sha256": "7b82dd1c8eabe42ad07fe250961e218c4838294b146c256c0fb11c3bbe195c94"
+      "inputs_sha256": "362d11a9499ff9a65645ac6e79e9f3818ed1ea5d346a824df6bce24892ed72db"
     }
   },
   {
@@ -5514,7 +5514,7 @@
     "identification": "Direct call at retail VA 0x10d4799f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "a6aa3540a5eecb3750f401b3c0f674fece0677193138fbce749ef96d45328246",
-      "inputs_sha256": "a38638bcac6693ca6b6050613205b7238acc13a726a3a7e274181edcab56fb51"
+      "inputs_sha256": "8c730e492c999f28a9cbe6ef6234d52805f9ae8ffa45a282a8ebf52733e9958c"
     }
   },
   {
@@ -5536,7 +5536,7 @@
     "identification": "Direct call at retail VA 0x10d47baf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "9c636b7e4e1dd88f3a8c821fe8c5a82dcf399085b57a2bc7136d565ec8a7669b",
-      "inputs_sha256": "12f99458a85fe5946c41f4ead39e87e8e2a78230926e5cf9b4573c024a19dedc"
+      "inputs_sha256": "e817a4d02f1c0b825d216a11b2c1643851800d1106e8c56713db2c3a732e5391"
     }
   },
   {
@@ -5558,7 +5558,7 @@
     "identification": "Direct call at retail VA 0x10d47dbf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "07094d439afca02cd59ef7c5b2f58497c3d9a588373fa20126b75d6ed5100069",
-      "inputs_sha256": "9c57a886a20e09b6beba6afa101f86ec579e3d9000a6e188d08ba6a55d965c71"
+      "inputs_sha256": "3ae38171ea1b2033a0f0bd511515078d00de919beb65698ccde80db629aaffc4"
     }
   },
   {
@@ -5580,7 +5580,7 @@
     "identification": "Direct call at retail VA 0x10d47fcf to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "820cf0fb4331e4b1e8764182c4106022d3d67d8ff84c18a30d8cd2893926ca5d",
-      "inputs_sha256": "03573bb89221b525641b7ab5569f7cb05a33d4841362dbb4d1b509905daef566"
+      "inputs_sha256": "c55a8eddd8a9a1f8e8e322fe6f3e9f51541cd4e9c81848d83b371dbca2bab7e8"
     }
   },
   {
@@ -5602,7 +5602,7 @@
     "identification": "Direct call at retail VA 0x10d481df to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "f8c8720311e3ada70e9944d1b1ac7de6e3ae7927d220e9b07057e3f4f8bd1c6d",
-      "inputs_sha256": "b4b771524880b200f828f9a9302720c43643b4ffafcdb5e1e0d68924e346ed6b"
+      "inputs_sha256": "42020af2d5a2a34f22627b5a0f97c93b71c7a1063654e159e8668536cf7b9c57"
     }
   },
   {
@@ -5624,7 +5624,7 @@
     "identification": "Direct call at retail VA 0x10d483ef to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "1d6933579600e0f4c46831e04b3bfadf2c86f0028e696026bbf0554ebaa0fad0",
-      "inputs_sha256": "e163a9f9fa17fc5ec6b5c545840df22cde4abeabca278f8b3f42664f8d7a6aff"
+      "inputs_sha256": "2130ba469c58c7f6c6e5e57682168be89488122f9a40a578eec826d5862f08b0"
     }
   },
   {
@@ -5646,7 +5646,7 @@
     "identification": "Direct call at retail VA 0x10d485ff to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "6d3cce3e9d3d9abab6ee7043593a6d52a84f41a110b4d0940ff2e5181eeba4c6",
-      "inputs_sha256": "7ff0bdd4c8c4e0b9ae0ec0f029e86072e3befa4d2257c04e9b0cfc51e96744d3"
+      "inputs_sha256": "179038c0c6da9bd59ff16c7a1cf745581782dc8ec40a15f706a958d4e6d5831d"
     }
   },
   {
@@ -5668,7 +5668,7 @@
     "identification": "Direct call at retail VA 0x10d4880f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "3d461ce890fd3af0f3f18ad917f7934bf46dbe69e9313f6e8fae9b59529dc096",
-      "inputs_sha256": "cf9427bb8c35a70f72ed78638e1bcd3fd3a71b6e8ad729d907f469b646d45215"
+      "inputs_sha256": "d6532c0742b0a604db95f2bfe91fed2e7173802ae1ada2ab29c04dcb525a930b"
     }
   },
   {
@@ -5690,7 +5690,7 @@
     "identification": "Direct call at retail VA 0x10d48a1f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "5ea766c97e1488dfd291043941e5ae5a9675a345d003ec7946477c3138aa86e4",
-      "inputs_sha256": "f3baf99aac08ea6db9923af4cfeda767868e22f8f78e154856e6301e70566636"
+      "inputs_sha256": "df0355a6d1d35a9516a05012401c34167c797d3e16ba9b8b9ad0655ea4162d9e"
     }
   },
   {
@@ -5712,7 +5712,7 @@
     "identification": "Direct call at retail VA 0x10d48c2f to this complete independently indexed 16-byte element routine. Independently reproduced counted construction loop with the same element width.",
     "match": {
       "bytes_sha256": "a4fadf348386cc9d91ff0112d7ed9263f597bae6763d563e3a9a7f17add55375",
-      "inputs_sha256": "a2a03a9e3a40117ae698aa00a599ac7de284021944cb065283883bf36e6dafb5"
+      "inputs_sha256": "51c9e4307f3ff08178ffc3f13876e16e2a98692fc81e64fecbe3739c83b6e1e1"
     }
   },
   {
@@ -5734,7 +5734,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x448d10, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "772a5acd666c8f458f56896a0cd2c643f128e6d5af4e628be11043da12eb393b",
-      "inputs_sha256": "57d42d0c9a62b357271503429f38bb0d1efeaca2d08e4d3e825a432669468f55"
+      "inputs_sha256": "fad99f7f778ab321f712fa606cd84d291b7785a399f598f36ce73ebd5b6474b8"
     }
   },
   {
@@ -5772,7 +5772,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "2073409a3fb9a410d90203cb0ad0fae4610bc05671a01ec70d169622a095f509",
-      "inputs_sha256": "bd38da5750cf01fbf611ba9739df7e30b5b0cfd555998626fe1bd19e58f115ca"
+      "inputs_sha256": "df059ff8d0b74f639d611e3edaf49c1b5d083dfa959d7f5aaef5e257279af0c5"
     }
   },
   {
@@ -5794,7 +5794,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "25e12aad6a08bd77ea3cb6bc61797450a6317ace7bf0843aaed8335e02c43f90",
-      "inputs_sha256": "b582806dbdd20a653a70c39fba8f5bc8158260f8fd21e4b44639a5d2197a3b1f"
+      "inputs_sha256": "3473b873547fe35dbd6640d1533d5d3e28cd163058333fc65c486f527a41188d"
     }
   },
   {
@@ -5816,7 +5816,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "ec65470874eabf5e1d212f4c67d230e0c2d47597744f4d33fcb1b2277136bcac",
-      "inputs_sha256": "dafad45b632e9edbc266ff80adb031047ab12d5e5be9fbc42f5b271b8541902c"
+      "inputs_sha256": "507fffbfddbb0d2a47b07eae9d75386ec77fca2283859a4592125a255cff5f9a"
     }
   },
   {
@@ -5838,7 +5838,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "ce54fbe10e96c4bc7218737a67d5d74a32db56123b44df7b03bc201ac03068f9",
-      "inputs_sha256": "a7ed2b83d72fd569b86e31f89ffa489645de084363501303f2333c3e9f666ca2"
+      "inputs_sha256": "5d2856f0aeb0a5224ab51975b406b20220f8aaa13bf00e10cad735c6472dd0c3"
     }
   },
   {
@@ -5860,7 +5860,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "c2600244f0e1ab5267c73c2fec650a594c598d6ea8488ae617b4c63ebeef7fb0",
-      "inputs_sha256": "1534fca152e872eb8643f5ed5cd2219e3bd5bd503bbc7849415a027796e20e10"
+      "inputs_sha256": "4f3e2f340c6e796800de370259b6522a791d9b2f82978bd523005b5ac2e55912"
     }
   },
   {
@@ -5882,7 +5882,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "4bd282ffabd0f78c13131d71c7e39eab3270a25e07757aa0e598b5aadbc38238",
-      "inputs_sha256": "c3227772d9ed3303182f15e253964a21d23d3c0f3ca1630537f5d02ce582ea55"
+      "inputs_sha256": "11aea8827a121f91764b1b18fb94ff6a1e62fbad11f254c2d690a9e767991d0a"
     }
   },
   {
@@ -5904,7 +5904,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "307619b7c004bb3d16f32f27cc55f1b6693bac61b3c1b40833470cacfbbf8d34",
-      "inputs_sha256": "a6cc632f721b302b84b45909143b4501219ad598c3b4782b331794b464adf47e"
+      "inputs_sha256": "5f52837322bd1af3ebca363f01385070863528aa16c82afd992e9fb214a0b05e"
     }
   },
   {
@@ -5926,7 +5926,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "53d8ff0071ecc7c331ce0f2c925c2a83c80af783e7089249bd184dabaa23543e",
-      "inputs_sha256": "4d8b57214f0ceea6f9507d100413e5608be0fd3954e745b94d9aed0355be258b"
+      "inputs_sha256": "1ce989a705fd02e4d7d4f03e7d63975b981c5e6153a83b8e8e18a3adcfbfedd7"
     }
   },
   {
@@ -5948,7 +5948,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "007b8634f4af2ced6d4e52a10814974ae03df2b3276496fb0e82b85b1fcbe947",
-      "inputs_sha256": "8ea235d4522617842faab6584fd7bb529b77eaed4c2f07418a0c7790171b60b2"
+      "inputs_sha256": "8089695ef4912b69634a77893f89abc3d18362c1be0310e6879f4822365c044f"
     }
   },
   {
@@ -5970,7 +5970,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "0d5f3083cde35c14068ab29e267e96b15c1bdc24ffb76bd51c6a051b9a844ad9",
-      "inputs_sha256": "54e3e3e1ec26601138652a345c65663ee117f3b16f75466f312b672be66bdb62"
+      "inputs_sha256": "bb8798833d358816bcced7800d813dab5ad3ba52ada6e0a83865fe7fb5ef7993"
     }
   },
   {
@@ -5992,7 +5992,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "3b8a27102c6ea8b3794e9f194b1445e068f38e618b197260b2f10fcea013d769",
-      "inputs_sha256": "c77afdd082177fd68dabd30b199d95bc3dfbf61ec1fe52536d719378ee4ad61b"
+      "inputs_sha256": "947fc4864291f84670fb3b35804d8e6ef563644a577206080ee2ca83a0c54a99"
     }
   },
   {
@@ -6014,7 +6014,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "5dcfdc03ef5cb56f058db3c802b90c6e6092627d865a0dfcd1aabef117a250fb",
-      "inputs_sha256": "6bc9c72480db9ed63ff1d940fa9c72858ebf62003c8d0c305ef4b56288789b11"
+      "inputs_sha256": "7bdacfdc041d5fbe8cb5203890f284b6d34bca2f22d24215a1c3014b619e7a5c"
     }
   },
   {
@@ -6036,7 +6036,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "9aba256ad8bc77a366a50a369fddd7a0c633d99194b21a92db42cf3b4a5dd207",
-      "inputs_sha256": "0007866f189c3b2582e519236a52216ddb2cf7ddeeb102b8bf21b80d9959d1aa"
+      "inputs_sha256": "2c4092db50080618dab5d25fcf3b5c332ee617a22bebfa4f4ed1cb4bf3b5808b"
     }
   },
   {
@@ -6058,7 +6058,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "4154d34f878e50e6d58f46fba415afdbdb14a3363c0499ccd20289cb46f2ca95",
-      "inputs_sha256": "cf778ab2cfda5eadc81f0375c23844396a9ef7666f4a3fae703d1ca7b9a5a505"
+      "inputs_sha256": "85f9aff2f1966a65c5db99f14fd28c77f3f24af16d8ef741b202bb35ef4bca8e"
     }
   },
   {
@@ -6080,7 +6080,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "2dbd74d22675a3ef92182393e05e102cfc65847c23c1ee7c7c03b2c170bf4c2e",
-      "inputs_sha256": "ec5f8f782e718dc89ac892fc3b13cd0cf601aa99ef3d65194e648f515e43c4d5"
+      "inputs_sha256": "3c6ef8109fa66c4d18a6baa0234584383cc1e4330d1fe278395e35eb5898c9d7"
     }
   },
   {
@@ -6102,7 +6102,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "f15c97c8dd39ca7d972bed326f5c2a34432717785b9e504bf3f5e0156338ffec",
-      "inputs_sha256": "82595685c636431d6f8dffbfb9a2a3ee8774c078f1658b30e4111af806263f60"
+      "inputs_sha256": "aadc1bf95c61920a243a7540db212cb2e2c90fafe08a63e85d14304fd9bb7267"
     }
   },
   {
@@ -6124,7 +6124,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "0dac710d9314899e3362d09a57f8e5719f494685913d1744b8fe716c3f8d33b3",
-      "inputs_sha256": "e1d6be21bdc3412920c9a169cacaf7d6f084fe86da9a81bcb9521cd4ffe8b7ba"
+      "inputs_sha256": "1172b96002ff5d50bcc90e5131dd776aee8d50e2eb531c2adf5caad0ed2d94b5"
     }
   },
   {
@@ -6146,7 +6146,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "3b75a8448f5f12d793fe03c0d62c57caf6d42ea7db852eecf35b6d8b9c5ab32b",
-      "inputs_sha256": "93133794785685781ce1a22e520412a041273188a5342994d7a66bf1292f43d2"
+      "inputs_sha256": "e98d7230140035e2df3a22ab48a10af112bed723d1789dabb3c2bf4af6a50192"
     }
   },
   {
@@ -6168,7 +6168,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "9cd96835100b652681b250e3c8ec9b2a8944ba7aa30225bbea95798170554608",
-      "inputs_sha256": "22cd2b2f635cf2cd26a6b5604acce7c7c9fb332732dc74c95dfd1785e8b95cbf"
+      "inputs_sha256": "37b5161914ed6e290eaf08ebec65fb5292161424b99c9c92d409a276e112f6a6"
     }
   },
   {
@@ -6190,7 +6190,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "07e6595397c354ceb651d5bc2a2a4414675040185f78da0272f8cf8203fb2e6e",
-      "inputs_sha256": "4522e732d255cef7149c155f0f653d4f2ea96e8aaef388e98c7392fb49067e6d"
+      "inputs_sha256": "240dc1b23261052c59721e26629822b47bdbc92b7c7cf0ff89866ee480944508"
     }
   },
   {
@@ -6212,7 +6212,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "f69c64e26da1a1679656c49d1f8974ab71ef65ef8b63337b2955c9a4a1c10596",
-      "inputs_sha256": "b56a7be4c9cf11794edc1e8ff42251a0cf55d7447b0cdf8e3adabeca42e1aafa"
+      "inputs_sha256": "d5a5e510c2b40402d9867d79529adbe411ab61ba3959bee413fae0a7c3db92e5"
     }
   },
   {
@@ -6234,7 +6234,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "87809f06f58182bba1f52b3c65d764ddf4974c88de55f77fbed9ace8df7ffc6e",
-      "inputs_sha256": "5f92e9ba0fa88cb4ca39fc288d39b5a2533265ce1368de0fb889af908b1ba305"
+      "inputs_sha256": "33dbd0ee01fa5e0390fa7f14b66f7899f46a4e566ca59b2b46399d1013b16a21"
     }
   },
   {
@@ -6256,7 +6256,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "9bfe30642126fc30cae553865e0d4bed0297c76c4e13d2db0a8746b5edd62269",
-      "inputs_sha256": "bec00fa9d547c775de19998e5ddc07f177c2ae1262206937fac16574b32adbda"
+      "inputs_sha256": "837f43e632285179d58b7aecbe95e36642cd54c7b2d936b0366d543f0cbd68f6"
     }
   },
   {
@@ -6278,7 +6278,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "55f3448fb6a9171054c31edd5f982b825e579c0c6c5a76d101fd0944bca04150",
-      "inputs_sha256": "9c8b77e6a358814e2b16185848d0c95e53360de659e11e9ff0ef966c6d4d2d74"
+      "inputs_sha256": "1285ac5394aafbcb91a8f944318a771978f3de7dafe4c5ac2293a7c5f8b6e4e9"
     }
   },
   {
@@ -6300,7 +6300,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "a0aa295815d7af012b8d695345930924c08eb24597bf63f753737053a023e4e5",
-      "inputs_sha256": "884a2d6c0ab5c1dec34954cf11cee401c2fce297351b1a5fb20ed40e85256dcc"
+      "inputs_sha256": "81d3604062683b8b2422b94baa3f9daa770de1f6b30c2f0a52bb0478517c047e"
     }
   },
   {
@@ -6322,7 +6322,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "1440d30a7f73868b603c6ffe7f7b6e7a48cddd9b7c735ce13428fad49197d4e5",
-      "inputs_sha256": "f330b7c53433aca72ae0f6ee6f01073c087a55b0985009e8b63045a1ff552df4"
+      "inputs_sha256": "31e336b820453fbf40156df36c43adeee94d37c7badda5a6a5822148e6d6c48d"
     }
   },
   {
@@ -6344,7 +6344,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "69c757f1f9f1eb430b993aff24891bfada1a9717229a3e983072385c247facfb",
-      "inputs_sha256": "d9c1773d1ed32246cb4bdb51a74221e7fa799637c2c8bb36dbe0525c1bef43ed"
+      "inputs_sha256": "0d462021a4782a0a8209660d1900d5b95618cd37b56bb71fc92bdd9312affeac"
     }
   },
   {
@@ -6366,7 +6366,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "f427ab1d7da9759a28ab548fccfc266415fa72dae3d7e938af63ba643711e3c2",
-      "inputs_sha256": "ac5e7de6d457ddc6b273b7d9f8a7774f909f0db8a9203cbfa9cc58cfa1277cd1"
+      "inputs_sha256": "1ec6d6fea1b4ba3af1493d80cbfeefa0941714d2a1239055beeaae78150f1312"
     }
   },
   {
@@ -6388,7 +6388,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "229db158d1b275a44c4775148c51bbce566ee6f10ab5f613a805da6dd219dade",
-      "inputs_sha256": "f895b56c7328aafce851a418fe3027570ccafd278e45133d7b250f08a4d09f6a"
+      "inputs_sha256": "f868b64c0a08b2fad386c83a3b404595d382c14f1995a14125983ad4006fc2c2"
     }
   },
   {
@@ -6410,7 +6410,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "74ef2a390b3f062c7ee513fac569ea620291e082e62e42ca6bdb1bee19f369ab",
-      "inputs_sha256": "532a2660b0aa05adc1319dc4376c08b564005d75bd8e65a3eb923441d2e7e450"
+      "inputs_sha256": "328523cee24579111e20c10b619048ba3336bce138de432beaf9d234d975c023"
     }
   },
   {
@@ -6432,7 +6432,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "d1f4f9d8bf1eaa236319aacb4685e42d525b755e730f2bf276e14d921d8516f3",
-      "inputs_sha256": "d49927f21b28116ef6d61f4d8e2f28709796690ddbb159c516f814a2e9ed4a51"
+      "inputs_sha256": "ad0992ce2c7e1acea2e4fe253d6c7e905881bedd29080b7a6c02cbc523bc64b6"
     }
   },
   {
@@ -6454,7 +6454,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "2eb965e14d2e46c373b97f8491fb623f40e88ba9a95b242c2acfe2967a33ddf7",
-      "inputs_sha256": "6c37bbc3bf3a34bd67b9c5190aeb4722ab0b5b39bbfc5f4efd084e98d8b02e23"
+      "inputs_sha256": "e2a0aed5bf0ca1a28e3cb2b3282d56ddb59337bf9e996c0a1f4c410a15033026"
     }
   },
   {
@@ -6476,7 +6476,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "ec3723a2546fe461ff70505a50ad095538287e2982f977727ee5e8edcdbd1642",
-      "inputs_sha256": "4013258bcdc814157e9925ad737d0c44546a1da51eea4187350862ee71694987"
+      "inputs_sha256": "2132f6cd6525ba0d0588eee4a2770e97dbc927e793b674d11f654cd2d13951e0"
     }
   },
   {
@@ -6498,7 +6498,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "ba811a8e5a493b19c9591dea6b389f90c4cc58f19fd9ff3f024be4857785fdad",
-      "inputs_sha256": "aace07dfa79b46d089f77b19aeff8b7f0ddd63b1ac93ca7b8cc2063641b35f17"
+      "inputs_sha256": "3273860927c5f72d2d58e96d30da6a4ecfd26e1b9bb5e7029948f6fa29cef4dc"
     }
   },
   {
@@ -6520,7 +6520,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x449cc0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "19053f432e89e0335dc2528a4eabc2e9b3fa5f6b9224ae5cb27cda36f7a0d7ef",
-      "inputs_sha256": "851ddae26768bd72dc4b4ce4ec04ca0f43e9e536f275290d3bf760a4f2cd625e"
+      "inputs_sha256": "7de09eb438c22ec714cfecee0b23f887d5c7099bcb282b86bbf78c15b5043a55"
     }
   },
   {
@@ -6550,7 +6550,7 @@
     "identification": "Complete allocation method at RVA 0x449cf0. Uses a 16-byte cursor increment when enabled and falls back to the shared allocation helper otherwise.",
     "match": {
       "bytes_sha256": "a6e76da74218ebe4a7214bac1f80ad781ea620c77b8f82455c2ee08d78bbf269",
-      "inputs_sha256": "e7a31458c4d63e1960273bfa91f0bb0575cfaae44a1de9a6ebae90d52dc664c1"
+      "inputs_sha256": "9ed8fae72dce5ce0eeae9679e470112db1f495d008312dea11bd9d4e793df037"
     }
   },
   {
@@ -6584,7 +6584,7 @@
     "identification": "Direct call at RVA 0x45482c. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x448da0.",
     "match": {
       "bytes_sha256": "aa7f2ca825ffc113a15fa4a7cc4aba8c4588a0619df315356942a19a35aaaa2b",
-      "inputs_sha256": "7511db48659c453833d9fb9cb2da4f71e56ac80136d673c3a419d889098edc04"
+      "inputs_sha256": "230cc2ac7c76775b6d7c350390b0e6e34e623baeb69dc562842160542467fb80"
     }
   },
   {
@@ -6618,7 +6618,7 @@
     "identification": "Direct call at RVA 0x454282. Reserves storage for 4-byte elements after checking the maximum count, copying the previous range through RVA 0x448dd0.",
     "match": {
       "bytes_sha256": "5903357dd1d294eec9a9dc9d400ec6040746fa949109e1ecf55c76392daee27d",
-      "inputs_sha256": "be7f1e3e818b390010e8334acf82d4d05f6b521d7d0e784632de6c321ffe0896"
+      "inputs_sha256": "0ccc2c6fd777621f490891925032685afd3184406e05770b4e832009c9745a56"
     }
   },
   {
@@ -6640,7 +6640,7 @@
     "identification": "Direct call at retail VA 0x10d4b12e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "38583c2f7be5dca9bd490c98b676030476b36548a68d66dd4c537164055e619b",
-      "inputs_sha256": "1a28b2a3b074642e3139e8cdf803e4458c08731ce1683ece910e3ca926f6ef48"
+      "inputs_sha256": "ff09f926095a0660b2d093b544aea3fbefd33718f7abe66d53d920542580c4c1"
     }
   },
   {
@@ -6662,7 +6662,7 @@
     "identification": "Direct call at retail VA 0x10d4cfaa to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "82d5cdcb4df3d2d1a3b8acb47af2459facf8233733bf093944b1dff844d2df23",
-      "inputs_sha256": "6510baf192f30de47c85b0e7ac444da2229aad6f0fb2068f0ce0ca66499799df"
+      "inputs_sha256": "3cc0d50c70571dd628121b72900e3fd2a49d49c36d8db757bccb0988c8a9189e"
     }
   },
   {
@@ -6684,7 +6684,7 @@
     "identification": "Direct call at retail VA 0x10d4b1ce to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "76d906774d9c0106b96448b42aff78ffd10c156cf0f0d793b322c138ff2b22cc",
-      "inputs_sha256": "e6e87b4a61dd04d49ba5846332e96cc5c2c7de31b2e0e05fb0c5fdc53ed19b88"
+      "inputs_sha256": "890a79e045518684b5a994945c663d1af3f502e1a7c8476329056a72686c6a81"
     }
   },
   {
@@ -6706,7 +6706,7 @@
     "identification": "Direct call at retail VA 0x10d4d04b to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "ac27dbdea7510764307049864d9da5d9749d3349d776435ef776708aa61d617d",
-      "inputs_sha256": "7a0a3111442408015eb32d90192fec86ed17e48238f3b7075184c719f2f9b2f7"
+      "inputs_sha256": "821fe3d76860d598b55089859d20db55fe11abe9495e93d9b0d6e95d14f05e23"
     }
   },
   {
@@ -6728,7 +6728,7 @@
     "identification": "Direct call at retail VA 0x10d4d09a to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "4ac11063e20f21c92cbb51a744a0b6734eb19fde9e1c263ce486a72d2d2c0a7d",
-      "inputs_sha256": "48f7d1d1409da5eca72637719be1f2988125b4f45615e0caff99a0bb3d37ba2d"
+      "inputs_sha256": "e5ef6e16e18255975d7de72adfdf460f369dc3fb9def8002b4582c3a8d33226b"
     }
   },
   {
@@ -6750,7 +6750,7 @@
     "identification": "Direct call at retail VA 0x10d4b2bf to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "548b6515ff159ebd4c27a617763d1f97b8bd9dc352abc25f1401c3bd45fd22e1",
-      "inputs_sha256": "5c44334e377d86b40889815da578dbea922ef2e06d120ce58430410759ae4e8b"
+      "inputs_sha256": "0a979ec9d72757a3eab863cdbb7ce231dee8cc87a5fe66b2427127b08b6637e5"
     }
   },
   {
@@ -6772,7 +6772,7 @@
     "identification": "Direct call at retail VA 0x10d4b30d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "51f1e868ffc170502ad39966a2f082a801ec567d7391aa834869d9e25bacf99d",
-      "inputs_sha256": "5a3dc8e56757d2d38091bf9778e67641fa6dd90beac9c67ed2384443815d2960"
+      "inputs_sha256": "29548fe089d98b2fabcedf480d9049116dc72be9f020e60d30197db2c956be7e"
     }
   },
   {
@@ -6794,7 +6794,7 @@
     "identification": "Direct call at retail VA 0x10d4b35e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "a256f90b3012f65686dea4d2d7575b4e7e3f457baee0164205a790fe014e4f77",
-      "inputs_sha256": "b9ca5d8033411de57cd5e2ef1511f09914fbbff23b83afa4b27c8469efcd3e32"
+      "inputs_sha256": "09d20fec251a03e70b277726ce001632f4d44c8d9c70889cb70d8c18cd34b840"
     }
   },
   {
@@ -6816,7 +6816,7 @@
     "identification": "Direct call at retail VA 0x10d4ce1b to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "e23ead14da41d00287365a03076703b255a9c1da122ed8e4ac39ad84972f982e",
-      "inputs_sha256": "445b00b649e21893234b76f20bb2d554e94bffde0b264e4907ba7d750ede1779"
+      "inputs_sha256": "6e8e70d38be79bf108fc36b0f5a0d51c3344b013c589af0e4a1cef675046ed69"
     }
   },
   {
@@ -6838,7 +6838,7 @@
     "identification": "Direct call at retail VA 0x10d4c82a to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "b4bf1256cac2ac37656dfd35083047e1b4cba18f7eca5274e118cb2defb7a886",
-      "inputs_sha256": "91ec358c1db9745dd6c31dc2fbaece7b143ba778afe6076c8ed3b77f3249ff12"
+      "inputs_sha256": "9bf689125290204f4b515265eb52c7fb22383f1c0b5d0a7ddb22b16e03fd922e"
     }
   },
   {
@@ -6860,7 +6860,7 @@
     "identification": "Direct call at retail VA 0x10d4b44d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "d7685174c2610ff06a40bad657a19986e9afa5503773d3dc00692b625aacee44",
-      "inputs_sha256": "6dcc8a8c429106f6534f8bed82e2d420e0ccdd371bd2f171de98ec5e5a32cd69"
+      "inputs_sha256": "453b9b3d80136e55e5152b38468102927255db37ee1f97d8713416da74882eed"
     }
   },
   {
@@ -6882,7 +6882,7 @@
     "identification": "Direct call at retail VA 0x10d4b49d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "ca63729a89f7d7128516487abc827260f181930692e3e578c0513c2547e107a4",
-      "inputs_sha256": "2303d88cbf8b1a9413eae911665494c8762fccd2622a9793dfe37b13a97cd0f8"
+      "inputs_sha256": "67201e170a501a20d95e889675160b9ab5a67ec48e34c04e2f355ab7c6f9413a"
     }
   },
   {
@@ -6904,7 +6904,7 @@
     "identification": "Direct call at retail VA 0x10d4b4ed to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "e91bddeee8a851b98383523fd06b82906d8b672845a30c23061aba6558f37d75",
-      "inputs_sha256": "e64f1bc8fbd69237b4bc7dc264017b364fb2ac9a638cda183751656a83c5b802"
+      "inputs_sha256": "d43a5cd9bce97f26417f0c514d69109ceae45c64cd22a6670fbbb03a092ae74f"
     }
   },
   {
@@ -6926,7 +6926,7 @@
     "identification": "Direct call at retail VA 0x10d4b53d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "9a2869c642b38e9b2817ad9ae052f3dd1fe667264f11456e2d35ef11966dabad",
-      "inputs_sha256": "098d1d986b6e0470112ef8831c546cab220e5a7d3913fa0bbf0ad806518b987b"
+      "inputs_sha256": "43b9f6cac4bf6190912adb8b0bb7e9fa141ac808fdf1cfb877b63cf3edada141"
     }
   },
   {
@@ -6948,7 +6948,7 @@
     "identification": "Direct call at retail VA 0x10d4b58e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "e2492786fd91fc5bc0a764b7e84cd7d6500aa40728bb629de3558447ac372185",
-      "inputs_sha256": "434d7ba807edb9b8dbf08df6ebfa933a3c3ac6cefaabe29bcde694dd486e574b"
+      "inputs_sha256": "7da1f30545bc02c5e8e03028dc7a2e0ac5d7094f2b5df7f20ec568765f5283cd"
     }
   },
   {
@@ -6970,7 +6970,7 @@
     "identification": "Direct call at retail VA 0x10d4c9ba to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "f5bd3e5b6d383af75b3070f02ceca11fdcb6eda8c213797421b9d51162eec9eb",
-      "inputs_sha256": "c21dbbdbb80540abf7d345069eca22b8d74a87e55debd5ce3f453d197dec40ba"
+      "inputs_sha256": "0e6284b8270cf6e83cb60c466a5305a04b0f32323361cc3e0414391f549325f5"
     }
   },
   {
@@ -6992,7 +6992,7 @@
     "identification": "Direct call at retail VA 0x10d4b62d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "712e171de825fbb9c9a951e8a3cf747d524d9f1c130c5b167757a16cd5fca110",
-      "inputs_sha256": "ac244a760393b28852527a67dd1a59b91cc85cc56609e14d9c4bd85095dcb2ca"
+      "inputs_sha256": "96036e05dc89d49627ed307dab4818ec68f7f3cccc7feebc714d942ad56f8b86"
     }
   },
   {
@@ -7014,7 +7014,7 @@
     "identification": "Direct call at retail VA 0x10d4b67d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "f9c9e7aa0da34032cb35b332b43eb600f6ac59496fc3c631d0544c23921773eb",
-      "inputs_sha256": "96f05cbecfee940fbad1123a5eb63a459a1c5daab7a2612b9d24a4668b21b389"
+      "inputs_sha256": "07babd192c52c482a2da5f327a4a784143c8ccd49282f8d3757031dfefe7acd9"
     }
   },
   {
@@ -7036,7 +7036,7 @@
     "identification": "Direct call at retail VA 0x10d4b6ce to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "47c8a376a4717360a32f6d262c22c316607f22e2977e15c1b7541bb247397dea",
-      "inputs_sha256": "7ac78099fc2ebe8e2c1ebb3338abc9c45a5c24e113bc011c4b73ad5158f6959c"
+      "inputs_sha256": "816185bcaafae5c0fe1ffda091efea205932faca222a6f3f30425fc75d246302"
     }
   },
   {
@@ -7058,7 +7058,7 @@
     "identification": "Direct call at retail VA 0x10d4cd7d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "d156a7d209ce54dabc8cddc24413131531e2ab5493ff3875e912bebedf8293b4",
-      "inputs_sha256": "5f917683a124dc67cfc3de90d7ab52ab7d2b633aef1f8f4d795e942a2444551f"
+      "inputs_sha256": "02de2f72731622fab95489dca3fd29fd9ce671de776756349cb9afc314356f8e"
     }
   },
   {
@@ -7080,7 +7080,7 @@
     "identification": "Direct call at retail VA 0x10d4b77d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "e76fdc45b6ae12246004cbbbc8c73f71401cbd6feeb25c4f2a82038cb514721d",
-      "inputs_sha256": "66a53b45f1061a72cc1b4ee31dbb77be92808bfa61b2577e5718acf216a833de"
+      "inputs_sha256": "254e4b3da413b9a6c4347bf8adf0eefe41931ec968511d7166ad56b578dfc929"
     }
   },
   {
@@ -7102,7 +7102,7 @@
     "identification": "Direct call at retail VA 0x10d4b7cd to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "30dec9966d96855fc1816a8ad92d42908fbcf0b3997c8760482d0c1235fed2ff",
-      "inputs_sha256": "c244fdf17173120842256e94a652332d91eb795418ab2f8107d60a794de6b38b"
+      "inputs_sha256": "5182bcedbff917f0aaf9c37b850b6c68e996a180cc5d58b248487835ff7d677e"
     }
   },
   {
@@ -7124,7 +7124,7 @@
     "identification": "Direct call at retail VA 0x10d4b81d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "10820fb264b6eee02e242293eff3f3c1554b1faee8337c83fb4cb9364896993c",
-      "inputs_sha256": "272196aafaba49aa3f9d2b5ec64daeb2e460b2957b37d87d13a12eee9b99cc2d"
+      "inputs_sha256": "834d93b62e1823a46ac3209fc8569396c1425ae5cad183c6836ec460191c781a"
     }
   },
   {
@@ -7146,7 +7146,7 @@
     "identification": "Direct call at retail VA 0x10d4b870 to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "19fa9c137bf423d136c1f99af0f62f2dfc75c91f5d0dfcd1ee3f918d857ac799",
-      "inputs_sha256": "85ce01e151cac615cd34807e40e7ae80b96f0d7a871859992e07f0d5b7922619"
+      "inputs_sha256": "041185c4c1e564f4755b2061cab37c722bdfd554005c5de79b9a1a3ed2b8c65b"
     }
   },
   {
@@ -7168,7 +7168,7 @@
     "identification": "Direct call at retail VA 0x10d4b8ce to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "a9bedb5703f97a56d0a05692291b970ebd36c5213ab9522a4024d0684a37f9c9",
-      "inputs_sha256": "ed8dfe85af799950f3dac3b749b682d49487bd6d4ad90341e51360abfbe218c9"
+      "inputs_sha256": "80f9ba7a216b3b563ccbb7d78492ff3ba9a0a072a92f20e3ffffdb5b2637a329"
     }
   },
   {
@@ -7190,7 +7190,7 @@
     "identification": "Direct call at retail VA 0x10d4cbea to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "145496dcb2a8e10da5856bc9155dc942156771c3425ac231e65cf26687e575cb",
-      "inputs_sha256": "f95134fa3dc1d474b259a6c3d35cc84ef4d4cfd0d150a9ca4d1dbc9eeb72a9b3"
+      "inputs_sha256": "3a40fa2008e66e925d877bca1e29a38f1332f21fe990ec7c25b7c5a6fd877309"
     }
   },
   {
@@ -7212,7 +7212,7 @@
     "identification": "Direct call at retail VA 0x10d4b96e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "2f55133a846505ef1c99a698cb76a0fc9c0e94b69ff3ff2f340c5ead7d67be28",
-      "inputs_sha256": "439cb715046cdee9aa220eecc6781933f0a4734587cedd78cc721452327b59e5"
+      "inputs_sha256": "edd52a049f52606062ce800bfc38a0d34fa4a8023ccdc8337b39fd7b398424db"
     }
   },
   {
@@ -7234,7 +7234,7 @@
     "identification": "Direct call at retail VA 0x10d4c73b to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "5972fb03bad24a5f93af904a14293e8666fdd87a291c0cf31096b307c5e3e4d0",
-      "inputs_sha256": "c488c2b15518db54b5e113540716b4bb8ab7a690e52aaff12ddd2dc8584277fd"
+      "inputs_sha256": "fc8408de5d924a551349d6d9bfbe57be89058671bb862975e628e232ae49d95e"
     }
   },
   {
@@ -7256,7 +7256,7 @@
     "identification": "Direct call at retail VA 0x10d4cdcb to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "dfe5a7c927de042954a01f125962ef7b3774270329276e93b71e56175c8eff6c",
-      "inputs_sha256": "ba26a1b899de26f887c5d1a31ea9d43d8691338816b9ac06e049032e832fe447"
+      "inputs_sha256": "3f6c59e9049c3fd1daebeddb2965d68d5cca016c001d5a3f99d932a79093a5ac"
     }
   },
   {
@@ -7278,7 +7278,7 @@
     "identification": "Direct call at retail VA 0x10d4ca0a to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "c3013422ff4ad8751009f06046e9dc36a6ca40237961ab3d16bf12906bafafff",
-      "inputs_sha256": "4bdfadd496246872c5359f537715c6cebabfe30e2b14a4b4271f9fe6b08b8a9f"
+      "inputs_sha256": "1624315a58d9d5d476af1d705ff83934bab7297ae25cc02c210f3df700d13acc"
     }
   },
   {
@@ -7300,7 +7300,7 @@
     "identification": "Direct call at retail VA 0x10d4baad to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "8ff8a1fee535f74d9407466e04262d417ca8fb02b3a8ea50638ec018015ac569",
-      "inputs_sha256": "e57e104aa71d5df1961dccb0ecee84138e3fd5106f7af11968949db2544110d8"
+      "inputs_sha256": "4f7a793fd472cf7bc3074a1a1a7acfe5d94124fb28974b0daea616d831ed27f0"
     }
   },
   {
@@ -7322,7 +7322,7 @@
     "identification": "Direct call at retail VA 0x10d4bafd to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "5b7851bbe7c36cd171083f00861c3283b3bdc8d18008b15eb6d48aa2da489fa6",
-      "inputs_sha256": "2c2eeb566d49d447d27aae1b23974e9e1ed4656bf097ea09d6e211a9a6767aca"
+      "inputs_sha256": "be56663c6548d63a7a549c95c4ba93c5ed6d1d810223caf20b6932ba13549875"
     }
   },
   {
@@ -7344,7 +7344,7 @@
     "identification": "Direct call at retail VA 0x10d4bb4e to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "e2df163f26a99727fcce86e4b314b9cbe31a08d01e4e365509a30b39b2759e18",
-      "inputs_sha256": "60d806a8338405811fd85c58e96a71bff78130ad85aa7157c2d24d31a77c8a4a"
+      "inputs_sha256": "8372a6f597b069422f312475191fc62e2410ae8a5bfbb5f098378bf46d8e7785"
     }
   },
   {
@@ -7366,7 +7366,7 @@
     "identification": "Direct call at retail VA 0x10d4c7da to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "14b3d970e25eb6fae596b36e8546fbf0c51d97839f5a9b921ec229dd56a69961",
-      "inputs_sha256": "09ea2a2e82b26052d989f4525d2863adee85a7170c879ab62e52fe2260ce2f6e"
+      "inputs_sha256": "7b5bc3fec9e410fb4fbbd0eb8328cd525500784612a50b0c50ff20f6d114016f"
     }
   },
   {
@@ -7388,7 +7388,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "064fa7dce741ec8bd5df69d848130a51e3582c79022d633de080679bed289a04",
-      "inputs_sha256": "21caf7cb85bb04de696593bfccf05ad3e2e49172ee393152fa0e4c089832a34f"
+      "inputs_sha256": "d8a83a5f9b655232db02b2dd6c188bf5398ee78e82a0aa672d960d76db4f60c3"
     }
   },
   {
@@ -7410,7 +7410,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Saves the insertion index for 16-byte records, inserts one element, and recomputes the returned position from the updated start pointer.",
     "match": {
       "bytes_sha256": "116b2faa9eb54217a3bfbd88ebbd0a78ab539dfa45b3552cd36be1f034783b69",
-      "inputs_sha256": "632508e2a7e9d28d189e903709c1432da34225b4ffc3e39914460a58c17fda72"
+      "inputs_sha256": "ff19d7fc35ff4a2860d70ccc7221fe28649177a7e0da23ae0094be713d3c68ca"
     }
   },
   {
@@ -7432,7 +7432,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44b070, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3773be32a4d9e9983c5bf77cda7ae6fc4c4a67996889843063d8572ef11ec39e",
-      "inputs_sha256": "828d0bf650fd49cbf872d5fb7a7583b32dd5aadce8e71d6866c3ba433fbda57a"
+      "inputs_sha256": "b6b2c21c05bb6d7b8d929d3463896c191fbc93f59b8375d7061ae7084585115d"
     }
   },
   {
@@ -7458,7 +7458,7 @@
     "identification": "Default Ghidra extent. Allocates 36 bytes per entry, appends the new descriptor through RVA 0x44a0e0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "b3f872c0e5cf2a573e31e9cc29a7a203f53e35155cc318e9fabe0990fe416c9c",
-      "inputs_sha256": "10e45463768c1380627fc90cb7342bad456fe9f7d34e440834091d3643c76b7d"
+      "inputs_sha256": "f0cc0595aa574fee6ae71752fd67bb2567d8925a8d5bb2245a3a9aed64989e6e"
     }
   },
   {
@@ -7484,7 +7484,7 @@
     "identification": "Default Ghidra extent. Allocates 24 bytes per entry, appends the new descriptor through RVA 0x44a1c0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "0bdecb2aa967388b026e730531fb9e0708a0226d74a1e0447baadd9911f1811f",
-      "inputs_sha256": "ef0d409e93f39781dab056107f39c69645ebea259e11cbc779f822c4476d229a"
+      "inputs_sha256": "702da179df61bd804f3d2280b2ea94e642f702b76bead5eb6a809b653d20899b"
     }
   },
   {
@@ -7510,7 +7510,7 @@
     "identification": "Default Ghidra extent. Allocates 8 bytes per entry, appends the new descriptor through RVA 0x44a310, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "81720329f2aa8b8b7b0c76586f71c9a4929142f4aba6346d2e69455f1c1a379e",
-      "inputs_sha256": "0cf19763572290b7cbd06fddcd3f4b84e32de7a321d0a48561bc346cbe638279"
+      "inputs_sha256": "89e72c4c54605eb66970fb451585dafa4956c34b50acb0b8f11cef054aca2ea9"
     }
   },
   {
@@ -7536,7 +7536,7 @@
     "identification": "Default Ghidra extent. Allocates 64 bytes per entry, appends the new descriptor through RVA 0x44a380, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "7ff81afb78f9d51983c503ee563afa66a3e106bd5355086eafda3ea7cb2a30a8",
-      "inputs_sha256": "a0981ac323e21ccda91c7f9b0dd676d4a61d9eb52d1a4e010f0ab533710cb302"
+      "inputs_sha256": "f1ddda96272ed3393dee9e3bfd6da827f98c7d6909d2b250dd39a427aa734391"
     }
   },
   {
@@ -7562,7 +7562,7 @@
     "identification": "Default Ghidra extent. Allocates 12 bytes per entry, appends the new descriptor through RVA 0x44a3f0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "07e0b48ce03fe2076a14514108d5b23dfcf591476e5ec0fb7b412440cb854013",
-      "inputs_sha256": "6641f00368ad6f4ef82ec4522ff28513e047ef5d1d2780361bbf0c0026980a9f"
+      "inputs_sha256": "382499dacb2345bcc67d1413b019cbf8729b16dc618c13b17480709e1a94cabf"
     }
   },
   {
@@ -7588,7 +7588,7 @@
     "identification": "Default Ghidra extent. Allocates 88 bytes per entry, appends the new descriptor through RVA 0x44a540, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "d98aaf0d869629dc473899f410e66da32b181415af711fd65ea4ae19fecd3148",
-      "inputs_sha256": "6f9429239d76abccc1ce6ca1bc6af9aaef0fd1a3ad3e39925e332779291415be"
+      "inputs_sha256": "96b387a3ede35c6ddcd68ea2f62712e6f220c816c33220711e407af7c52aeb48"
     }
   },
   {
@@ -7614,7 +7614,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44a5b0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "78d39d1220f0ffa1a638c03c34f78d9213224034b5953a833dbc8c22566bc731",
-      "inputs_sha256": "0fc605188b25ac99e7212e883187aa3a77949145bc55ef49d1d4f2584d493898"
+      "inputs_sha256": "62935b4b4c8edf7b821bc35fe088cce1c53dfe5053848b7d8560cbdab6ffc916"
     }
   },
   {
@@ -7640,7 +7640,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44a620, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "200b08e97076d59b5090ea1159a9d0e94ff8be43f3064aa9803cbcd13f2f93bf",
-      "inputs_sha256": "e3c30a0937965db5c25766abc08b773d817113eecf6048d159c3eb984f3a4d0f"
+      "inputs_sha256": "5427adcc4c28052929f517b5a160e265b6b66c8bbf30cc6e5f1e21889e9c0fb5"
     }
   },
   {
@@ -7666,7 +7666,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44a690, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "51dedba37bd345916c8a28db9616b05ea540d593c430626258a86fb47e65f841",
-      "inputs_sha256": "adc4234f3ea228cc32091d4f217d904a21c8c17647b98d9f4dde4b7a6373deb5"
+      "inputs_sha256": "bfda0c1d5098dfef121fe9235a975dca6c55bc83bf9b5ed2429fff720865eca9"
     }
   },
   {
@@ -7692,7 +7692,7 @@
     "identification": "Default Ghidra extent. Allocates 80 bytes per entry, appends the new descriptor through RVA 0x44a700, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "ba3ca2de3795df9484a67dc3d721fdb0e4de22fa9860ab09586341f53caf5fd3",
-      "inputs_sha256": "801ed4eafb71762c32a278cd953606e7aa159c829f651b4be39a886eccbb1707"
+      "inputs_sha256": "1e48968535a02c12b323dfb5cb5da0c3751b04e8a6e3fa53eeeda9c043be0898"
     }
   },
   {
@@ -7718,7 +7718,7 @@
     "identification": "Default Ghidra extent. Allocates 52 bytes per entry, appends the new descriptor through RVA 0x44a7e0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "0753e61ee7b658da285562a21e5ac74d678b987018e7aa9b552ad67d8baa5cf5",
-      "inputs_sha256": "1961badaa1cc9a25b8aab3aed93d7941e4c01c62bd3955e76e80d2c08683cc6f"
+      "inputs_sha256": "cb8f4d341a3bd60da0b3754f02e82c052b8a57b83b7b13768f3fa657f4799e4a"
     }
   },
   {
@@ -7744,7 +7744,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44a850, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "32e8f10c8b8738d547dbce9de7f71920f634c35bffb638e0f1ee129de32c9dc9",
-      "inputs_sha256": "098a28888d8255825097fc7e1a3b584a66346162a9e1bc5d7d618696b1855344"
+      "inputs_sha256": "58e68887182fec277cd12b1976c0a2bcd787c20da813ad2fabc3854cc97106f2"
     }
   },
   {
@@ -7770,7 +7770,7 @@
     "identification": "Default Ghidra extent. Allocates 40 bytes per entry, appends the new descriptor through RVA 0x44a8c0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "fc0e34d091e7446ea418e8af0951d3414ec00631bed220ccb8a28450ca6064a9",
-      "inputs_sha256": "53b6b222dde5b75b68ab60648b64bdb35a37d893e014f5de86eec6473f8a3649"
+      "inputs_sha256": "09ecd3865b40a9c9eb1a3e23e2e2d00a8e8bc2bc46b91d8f36bc66926507547a"
     }
   },
   {
@@ -7796,7 +7796,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44a9a0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "ed77ba17c14fcf4398f73a9aaee699cb32210a0ea2fa240dacffa667a2d05c05",
-      "inputs_sha256": "6a9116ee681007ae439675a23f4158cf71929027b1449047e0f599ed3f5ca732"
+      "inputs_sha256": "98d2270cfa5f813f58c266a6659bc19b3a59306a746a5ea09c09af678e82aad5"
     }
   },
   {
@@ -7822,7 +7822,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44aa10, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "2b96684d277defbb858337aa3e78ef441170fada27822e85d7fd483bd1ee37e6",
-      "inputs_sha256": "49a966bc9cbe282ae41e0da75107424675cc80ada85d4cbab46a2d4781a53688"
+      "inputs_sha256": "222babcaef1a253ff5cd16c476d64df855c32a151478b18877cab0d1665c54b8"
     }
   },
   {
@@ -7848,7 +7848,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44aa80, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "2c4482fa386ab9ca286e665a69d0650428c884ac0d8367bd8a3557b9c0f924ad",
-      "inputs_sha256": "9e0eff2e3d4efa39a6e6194e7a4be5d32596935a63d03d9a566b4300cdf6e9ee"
+      "inputs_sha256": "16378fe0bfe2a0b5a5321cca557cebad55281f211376704379761275e59b7607"
     }
   },
   {
@@ -7874,7 +7874,7 @@
     "identification": "Default Ghidra extent. Allocates 208 bytes per entry, appends the new descriptor through RVA 0x44aaf0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "8884896f8c6af1a6d5c3fa54cd4ea27cd74b071ee10e95f54247f9117fc78aa1",
-      "inputs_sha256": "7ce1b783e62da2bf09d8bc0a8b1012300bed7c18486ea1f2705485b977d23228"
+      "inputs_sha256": "9ba997ea44e83ddac409fe5ff7b7eb128dec0cc79a186ff82e147a0aba6dd007"
     }
   },
   {
@@ -7900,7 +7900,7 @@
     "identification": "Default Ghidra extent. Allocates 36 bytes per entry, appends the new descriptor through RVA 0x44ab60, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "c3a47d93b9ddb53475aed6edce5ef796fbfa0627b469ee62d4c2b87d233ffdde",
-      "inputs_sha256": "2f09350994d2523ec6892191841be94846e2441029fae469c630fc0e5a52dfaf"
+      "inputs_sha256": "bd873427913589975571190ce5c4e974b735e2f5cc1fa2ed2d6fb071b33197b5"
     }
   },
   {
@@ -7926,7 +7926,7 @@
     "identification": "Default Ghidra extent. Allocates 192 bytes per entry, appends the new descriptor through RVA 0x44ac40, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "35f07d0d468e3a406758fa16abb9aed9d1df576d1f36306d26c8d0e7bf82f1ba",
-      "inputs_sha256": "be5400e8f4927bb4f1ed325783806044c43dd229530df00e4edeb42d30e15cff"
+      "inputs_sha256": "2e255a91afa9cd4146bf7c9fd2c6d5028f8be5fe2d80282458caad1b4d1dbf58"
     }
   },
   {
@@ -7952,7 +7952,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44ae00, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "452bfa6a10daea95af5d5861ad96adb3391e851dfb5f366e7a79878d6d6e688a",
-      "inputs_sha256": "de8134296cdfe8bbcf5978d3c6c9ed6d340a0ed369e7f9cae2656890b2defc6f"
+      "inputs_sha256": "117cb702f23d8998a7c86cca5214f5308870ef107e48b58df51af1ab690e8af7"
     }
   },
   {
@@ -7978,7 +7978,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44ae70, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "320199723004766613178b5d781ff3902e7569cf15280332c533fa94bcebf9ce",
-      "inputs_sha256": "35518289fd8663732e68891c1e0cf3e233c86492f9374416b6c8e765cb8d6b2c"
+      "inputs_sha256": "1c3bc55e4855f505fd379803a9b47a12dc9e820c751f44c5b4a74e516eb5d5bf"
     }
   },
   {
@@ -8004,7 +8004,7 @@
     "identification": "Default Ghidra extent. Allocates 40 bytes per entry, appends the new descriptor through RVA 0x44aee0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "e8e435eed9f44bcc7aaa86b2c2b5de3568aa1368864ad9338f85ae8c12c5be8e",
-      "inputs_sha256": "be46d4dfe764778769a967c8dc96a447ac39d366fb7af946925e4987568642ea"
+      "inputs_sha256": "c47934bf16f4e28f0272b156f2642cbf19cac813e7e7c6b69a8ce498925179ae"
     }
   },
   {
@@ -8026,7 +8026,7 @@
     "identification": "Direct call at retail VA 0x10d4d1dd to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "61f2f1866908a7c617c9909aa4eed21bb754678349582d3d669564e9bf6e80a8",
-      "inputs_sha256": "e0f30cd55131e8a0b5e9613fbd1e1a07def4f647386927d8785e0f237f50014d"
+      "inputs_sha256": "96e4fd083638037da45bdb204246f8783fbcb18294a0c0e4c95cf187771f5143"
     }
   },
   {
@@ -8048,7 +8048,7 @@
     "identification": "Direct call at retail VA 0x10d4d22d to this complete independently indexed 16-byte element routine. Insertion slow path calls the separately reproduced range-copy and counted-fill functions for this record width.",
     "match": {
       "bytes_sha256": "94360679c119cfaaa0bf17f4ed8c61c5f242f519be0ee4f6e2896e6c57b45bb1",
-      "inputs_sha256": "268bec03a70724f22a060356646708e9538c78117aec13cdf60e014dc1af0316"
+      "inputs_sha256": "46892ce0aa9ddda2ec38f98aa4c0b521c14a4e02de07594f9a7838b63abd0cdc"
     }
   },
   {
@@ -8070,7 +8070,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44bcb0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c21bbc513a1c24bac7c87acb8b7520ebbfdbc6371f8df3a53d90573911c68d50",
-      "inputs_sha256": "29bb78601fb3ec78c6afebaa916e2351c49a115de27adbf25b8c73720c671a22"
+      "inputs_sha256": "e986fcf6ad54755825c5467a93e98d0148b1482222f1c7b7864ba249b3d9b57f"
     }
   },
   {
@@ -8100,7 +8100,7 @@
     "identification": "Default Ghidra extent. Allocates 20 bytes per entry, appends the new descriptor through RVA 0x44acb0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "f9df1606b6d87fec10a7b97beb9fdfe95f22d810cbb6437ba7753e24de244504",
-      "inputs_sha256": "6622364bfe26edcf9fbea01ef1657f61b5ffb6f3368f1b01f3c8982ff73fd7f0"
+      "inputs_sha256": "83c152391ed2fc12ba6566b9602300519b7a1d9ce1edf91b959fc939f319fbb3"
     }
   },
   {
@@ -8130,7 +8130,7 @@
     "identification": "Default Ghidra extent. Allocates 36 bytes per entry, appends the new descriptor through RVA 0x44a0e0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "dbca3d982db3b183195f3aaa134602f129337bd05ca1020eb15f8c810f6ebfc6",
-      "inputs_sha256": "49919e7b537ca57ea3e2e9da1aa81b77ad5e604e5a62ad905d4e64d2fd0869f2"
+      "inputs_sha256": "802ceecdb0695324c4b4b5ffd6d2348b9efdaaff6b561dd6fe19be44f7d567fa"
     }
   },
   {
@@ -8160,7 +8160,7 @@
     "identification": "Default Ghidra extent. Allocates 84 bytes per entry, appends the new descriptor through RVA 0x44af50, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "e26b3d8f63d2f112979ea7f50340fb22d1bb5befaac147b0a0de45dee5c01228",
-      "inputs_sha256": "5c3e9a69dbd95ce1b865bb91dec188e56fd4e6d620d80c8e5ae59a7dad257657"
+      "inputs_sha256": "acfef719a992fb38cee5fb4686cb5580c17ab79b7becc3b991a84ec69886f06e"
     }
   },
   {
@@ -8190,7 +8190,7 @@
     "identification": "Default Ghidra extent. Allocates 52 bytes per entry, appends the new descriptor through RVA 0x44a4d0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "4494b6d58e31d7ae834ce262a735f9357db454e2fc3717cced4b8538def4b7ad",
-      "inputs_sha256": "35373f8b2a382cddfa9273a3e05023caa18463ec6b0b677718a689045b2215ce"
+      "inputs_sha256": "8e7b665dc14e35eefffc6d07468a5e5c20da68baf305ae95e9779e00ea0924db"
     }
   },
   {
@@ -8220,7 +8220,7 @@
     "identification": "Default Ghidra extent. Allocates 52 bytes per entry, appends the new descriptor through RVA 0x44a7e0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "df1723568e613338d13d9b39840bb3f093132026abfa20bef96ef5b890b9910c",
-      "inputs_sha256": "a066fef2edbfbc68cf5e5b6787d9f92dce0f5501a975b65faa85d7de78433511"
+      "inputs_sha256": "7574415fc12529f01ba8a710362dd64e9a20716c5330c64cdae9339da9652615"
     }
   },
   {
@@ -8250,7 +8250,7 @@
     "identification": "Default Ghidra extent. Allocates 40 bytes per entry, appends the new descriptor through RVA 0x44a8c0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "46badb222fdfe32313b3cc8750dec764feb3558f36420baeb70567b4b253fb5f",
-      "inputs_sha256": "83f58cfa37445faa7eaaddf3688e7a3256d289cb570eed08a045d12ea6f6a164"
+      "inputs_sha256": "43d154c0b474bf79e65f570244baceff4eed1efa9be66a9d97b514866ee47695"
     }
   },
   {
@@ -8280,7 +8280,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44a690, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "94283ee5b5804c269dad830c6fe451a67c81689aa3a7453cfd6ce828c1282ee3",
-      "inputs_sha256": "915bb2bb620955582f4d3f6e196e75b7f2ea5f58eb519adb98148af6cd1a94ed"
+      "inputs_sha256": "5a07748927387e2b012d6c8b370052deaf5aa42ea6684c5ffd648b8d9800cbb3"
     }
   },
   {
@@ -8310,7 +8310,7 @@
     "identification": "Default Ghidra extent. Allocates 80 bytes per entry, appends the new descriptor through RVA 0x44a700, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "e5d5ba4b5920f82505f3fc8aff37346f8168efcba12da36c1690e79b1768b66e",
-      "inputs_sha256": "fce6dea3cd25ad5a504156ddec7aa0e2227b1bb78f56df9a9f5d45449f91f1b8"
+      "inputs_sha256": "4c7ab906d351ebee7dca1a9bf22b86df8403233d3851cf97713dad0ea2b11519"
     }
   },
   {
@@ -8340,7 +8340,7 @@
     "identification": "Default Ghidra extent. Allocates 84 bytes per entry, appends the new descriptor through RVA 0x44a770, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "9e528393507b484c4eb79c4aff15e84d8406003403e894a96584d9f559270855",
-      "inputs_sha256": "1f161ca2f0ca2ed3ef78645a167f9cfde6e8c7eaeea4add78a3c00f534e5e278"
+      "inputs_sha256": "93bfd88e0acc3912ae84af3115f7b3b2e3c431cd9e153cd9c5abd85d05c575e3"
     }
   },
   {
@@ -8370,7 +8370,7 @@
     "identification": "Default Ghidra extent. Allocates 84 bytes per entry, appends the new descriptor through RVA 0x44ad90, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "7970322b53b8020be141e2e4f8e4ee4f608c5a5657ab27b853cbb2dc1b754bad",
-      "inputs_sha256": "17da9ddb7ef833974e621ef819b047830af3dafef75e8dcf0bfd7c50fbaddaa6"
+      "inputs_sha256": "baecb489a844196a9b5b0057e725aa89b49eafa65ad52b2811797e0080f0df2d"
     }
   },
   {
@@ -8400,7 +8400,7 @@
     "identification": "Default Ghidra extent. Allocates 12 bytes per entry, appends the new descriptor through RVA 0x44a3f0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "9c672bb8b53551fce69de5460a7fe2e7ecb8737b883fde03924b2bd966dfcd83",
-      "inputs_sha256": "a5d3d7952bae2e0402ee2b7ab15e0470539e6435855fbc4b5fb812d43b49a542"
+      "inputs_sha256": "bc85f42d7ac2c541fdee393072d7957a7674abad081bdeefb85900a1eb4556be"
     }
   },
   {
@@ -8430,7 +8430,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44a9a0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "c215318826f2c10cbefdd833ae483c669c175abe9b5abc11445b35ee0c143b0a",
-      "inputs_sha256": "3792240925e92c27f1ad9e336cead6dde37a04d8cf5126c5e473edd2a10e0e4c"
+      "inputs_sha256": "77571521172e7fb1ac6ce4c8240ce7530736549cd33db7470871cf2c63b9f9c8"
     }
   },
   {
@@ -8460,7 +8460,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44aa10, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "860593d6367125115d408950e6df051886558c46e102e1c7e1b4f6156482ad4f",
-      "inputs_sha256": "8f7faccfafdc4f1bd2d4e0aaad7733e0ced9e03f1ee122757ac455be9f7a3234"
+      "inputs_sha256": "554c07277102fd2aab3099a3848544612c76ced8d855be09bf0d6ffad43875a3"
     }
   },
   {
@@ -8490,7 +8490,7 @@
     "identification": "Default Ghidra extent. Allocates 36 bytes per entry, appends the new descriptor through RVA 0x44ab60, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "bd3c36193ad48df0e9d845bb9a481b673cff39c4f3569a86b22fcc24eaffdea3",
-      "inputs_sha256": "597c06f1603e9f2589ce1ed80316ebc0705c88ef499d4f948e532124a9fac0ee"
+      "inputs_sha256": "483310cd3b6648ca654288b7389ad669d7c79f748e933dd8c59dd34a798d5a8f"
     }
   },
   {
@@ -8520,7 +8520,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44ae70, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "e55d7a1058b3e6db78264f9d13ab12c9fe8a189359cd071df6a426ca0c838cb8",
-      "inputs_sha256": "ab3d40df1b5dc35c63d863b322979fecee0edc5de2a0c5f0dee8ebbb4e5c74f1"
+      "inputs_sha256": "2223df5af29fb2dd14ecbb9de2c100f4f15cdaa8c76b8a429940a4582ff2c0e5"
     }
   },
   {
@@ -8550,7 +8550,7 @@
     "identification": "Default Ghidra extent. Allocates 52 bytes per entry, appends the new descriptor through RVA 0x44abd0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "39766eb4942c1cdfc72b061be81f06fcbb1c1b611c95728c21eb8303cde254b7",
-      "inputs_sha256": "2d2776dcb1e7281ee4f679ad0ff4a4dca4cd5d6802b7f4fcad4212efe935eec5"
+      "inputs_sha256": "74a1162981485e2e3c1a82e54289b7cb2b35a72d13f173aebf1ab8c4ea38661b"
     }
   },
   {
@@ -8580,7 +8580,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44aa80, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "befa8bb448f95677d42721139045b0d81367cc72771c2210f684c2b6cac84b43",
-      "inputs_sha256": "02b47c9c4519b98a6deb5bf73d85fde1d0bb7776f3f5e67bf1cb45e544c2b31d"
+      "inputs_sha256": "7e30655da4b4c64db06c8a090efeb9340082426ddabb8ed3cecc798b84f62b1a"
     }
   },
   {
@@ -8610,7 +8610,7 @@
     "identification": "Default Ghidra extent. Allocates 40 bytes per entry, appends the new descriptor through RVA 0x44aee0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "46b59ebfc71d49fce37bbe90cfb8fd0531ee4e91f72313ca989dfe7f73a63f80",
-      "inputs_sha256": "e6d17305f1ea6d56de4f689d599587c4401737543adff0988c525f613d927884"
+      "inputs_sha256": "01f5ff7f81270a4198d129519c86b491375f3e2822553f576622e7604be56a19"
     }
   },
   {
@@ -8640,7 +8640,7 @@
     "identification": "Default Ghidra extent. Allocates 208 bytes per entry, appends the new descriptor through RVA 0x44aaf0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "2f1acd62a680f0c65bce6a89a7ff779817796552df8c622c1f103d64802e3807",
-      "inputs_sha256": "1ca63390f24e7e4102c4b59fd0bbaab0ddb284afb2fe70167079110c397ecd0f"
+      "inputs_sha256": "f44dad3a4618739d89fe8de85d1f59de5fb3be7347ba42ee168fab1faf7139e6"
     }
   },
   {
@@ -8670,7 +8670,7 @@
     "identification": "Default Ghidra extent. Allocates 192 bytes per entry, appends the new descriptor through RVA 0x44ac40, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "d06fa6602bf44f59a97811e97f381f7a2bdbc438faccec6b64df8dd04c803709",
-      "inputs_sha256": "61ce962dc742949fdee759ac7072c98c84c1f7649aaaf386b7a691e31710234f"
+      "inputs_sha256": "f838a48f04fa0f437240959f2784c5e03c5a05dc6cf37e3a2bb3c2961d5deaae"
     }
   },
   {
@@ -8700,7 +8700,7 @@
     "identification": "Default Ghidra extent. Allocates 204 bytes per entry, appends the new descriptor through RVA 0x44a930, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "4e5ce68801484311e8d9e3007fda53b1443ea6e991f8a0f106bff25c9e95f6b6",
-      "inputs_sha256": "e5487a55435a2f5623a911c96cbfd68e2f8902fc64a28566fae79a0f4579bec9"
+      "inputs_sha256": "be404bf763966358d901de38eef816800e86d46be3f90fa95ee73a92f3e87ea9"
     }
   },
   {
@@ -8730,7 +8730,7 @@
     "identification": "Default Ghidra extent. Allocates 24 bytes per entry, appends the new descriptor through RVA 0x44ad20, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "f297ff61342e123a7df039331305eb8cfce8241a3cd56173f1553b1c092885ba",
-      "inputs_sha256": "e240bc396a6b880af92ef281e5bc2686700c2740096c1f37ac65436fc2f4e743"
+      "inputs_sha256": "7fcfe09abe9667daa627e68680cfbafb7288fb3b4ec5c5bfc28af2e067fa0237"
     }
   },
   {
@@ -8760,7 +8760,7 @@
     "identification": "Default Ghidra extent. Allocates 80 bytes per entry, appends the new descriptor through RVA 0x44a460, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "06d828798996e2292837a06ffd937c4b19f730ab5bbe949e1048f58a93a9dbbc",
-      "inputs_sha256": "d3983a91420c3fc515bf187509c7ac62dbe065e889c2451d0729f75fbf1f9e44"
+      "inputs_sha256": "f74105dc3d7257243771a29086e21716df5d1a9735cb05f0a6fa86719502b0c3"
     }
   },
   {
@@ -8790,7 +8790,7 @@
     "identification": "Default Ghidra extent. Allocates 88 bytes per entry, appends the new descriptor through RVA 0x44a540, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "48781638fe5ddb2b46eef3c41b6c6f22c382f23922cf53421d4797fb86458d5d",
-      "inputs_sha256": "1ae365e0b3b18ba28ba98d79f4b9c00b2356bc657a015c47ad71d918e0caf96a"
+      "inputs_sha256": "aaafc04a08fed89831acfbabc97d4170d5c301ec572967b09f47d92db88e1ad6"
     }
   },
   {
@@ -8820,7 +8820,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44a5b0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "1ee048d7e2f607fe2982fcd1875c8e355d793b29242aaa052d8112a23f3c66e0",
-      "inputs_sha256": "b4948eac200dd8c0aa98a6c28654117b25752b27bf7b9613637c977e7f452dc1"
+      "inputs_sha256": "4d8cf479426772599389a1aa1a1a19724d732610ddea87a84eb7e9cadca9930b"
     }
   },
   {
@@ -8850,7 +8850,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44a850, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "2a09d633a34d04de06ba9ee6c2f6cc9e662d0fc1f1ec7de8bb3ffe08bcc8cb9e",
-      "inputs_sha256": "58877bef35fc816b1e4da59d95fb4af7f8e98f4b763dd1383fd098dbbf88ddd4"
+      "inputs_sha256": "a6a083f94603fde3c9b26300d70d079f2efc851df1cd189569d97d31a5b35aab"
     }
   },
   {
@@ -8880,7 +8880,7 @@
     "identification": "Default Ghidra extent. Allocates 92 bytes per entry, appends the new descriptor through RVA 0x44ae00, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "241983aedbd6cbfcfc4020958bfb41b168edc49feff6eef7507fada954531d28",
-      "inputs_sha256": "54ba4403f044d8e1cbf3edf33a8080760d775b88666870475abd9470b9f104bc"
+      "inputs_sha256": "17b0d6b15a572cbcc148641a8183760bc0fcea055fc35f63829acc49900c17b5"
     }
   },
   {
@@ -8910,7 +8910,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44a150, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "f09cd4e3f76880c6982b5ae046ccc2afc5e625910baaba7a6f6b70e8899cac54",
-      "inputs_sha256": "8e1733ca4d81ebc7204cfd20b508bcbe12ff5426f1c7c5707fa1c09a2d076c2e"
+      "inputs_sha256": "9c8a5961118ac76ecdbb0118f1c35ebc8d0359f1604d6425e99745bc318daea8"
     }
   },
   {
@@ -8940,7 +8940,7 @@
     "identification": "Default Ghidra extent. Allocates 24 bytes per entry, appends the new descriptor through RVA 0x44a1c0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "9ac8263f036abdd958ce493f56286723bc8050d14a336579bd5fbbceaed764df",
-      "inputs_sha256": "458d9c03992f2bd2539f877d61c7f51c03329501366f2b1cc11455cdcceb5544"
+      "inputs_sha256": "710725d1bd913e1034b627e83375d2db4d0d749e433b62820a819cb1da5555ee"
     }
   },
   {
@@ -8970,7 +8970,7 @@
     "identification": "Default Ghidra extent. Allocates 24 bytes per entry, appends the new descriptor through RVA 0x44a230, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "cab99eef21c885f8cc6d55e9654924ec96633ac34e0b3f43352c370a02ed6f06",
-      "inputs_sha256": "9da5dc626c18c879a991cb489fd2d0f2f074eac8112cc93e19c7fe88c25c259f"
+      "inputs_sha256": "82d2c4349d39378b67bdb60b83cc00d83b71ca38d6024f7a9b63daabe5f92dc7"
     }
   },
   {
@@ -9000,7 +9000,7 @@
     "identification": "Default Ghidra extent. Allocates 28 bytes per entry, appends the new descriptor through RVA 0x44a2a0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "b905217400c1708792ab34f3918a237effbedd200d4389fe4a7413f6cb0109c0",
-      "inputs_sha256": "adff829cf0d44929f183b9d1621e9cfd1fa6146ff5d34f9e252d857281457dab"
+      "inputs_sha256": "1a1a030522d86702abe6f11b8c956fdf4585ab6945dcb6d30045f9bf79f9d06f"
     }
   },
   {
@@ -9030,7 +9030,7 @@
     "identification": "Default Ghidra extent. Allocates 8 bytes per entry, appends the new descriptor through RVA 0x44a310, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "a03c161ac1f9d5eeef81592d4c1f03be90988c05f0b2d4fc27fadb3b3ff93cac",
-      "inputs_sha256": "0ec02084ad532a28836d764a1fb30448e1166976dc048a3c0eb55c44a7cdb5f6"
+      "inputs_sha256": "a458c91bb87481d624f012862d851cee72334558ecdaaaf3f63d0dba132d6749"
     }
   },
   {
@@ -9060,7 +9060,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44a620, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "10ba04ce070f8ae45350c8f4e3203eff167eeffa646882a7a0cc9f5750e83fe4",
-      "inputs_sha256": "102b00f5e2cea89277aa7e887328fe976ff2ffa17ff9261c28ddb3c1137fe1c5"
+      "inputs_sha256": "e6cb47dc04be5c21ccd2354e18f773f58a194fb660c5a97a58c3723fb3789ffa"
     }
   },
   {
@@ -9086,7 +9086,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44bbb0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "347e69a0817652c087f98e28e823ae4ef5bd2a58db4ef47f894348ec58c2ad0c",
-      "inputs_sha256": "2a392b92259cb49e7af5be3852d61cbb1518ffa7d8e376d6bd780322f8ee292b"
+      "inputs_sha256": "bf84979ef138b97d093f6d9039423a6c91d3fa65998da013d88133693f0216b8"
     }
   },
   {
@@ -9112,7 +9112,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44bc20, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "923854d6f8f4c01095ef53b18d32f6c2ecfd1f4f4a0a97163204b0ae2608c7ae",
-      "inputs_sha256": "1c9eee2011a8eb0c5590d4b4003f2299e83cc8a5df21f311d52a53c5fa7dd812"
+      "inputs_sha256": "b8e0601e2451142704d7d6d198774c5598a95fc66768cc370769a3c5f8dedda6"
     }
   },
   {
@@ -9142,7 +9142,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44bbb0, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "09799c561f5aec864547ff7aaf840cc47f80eacbbd7946104f08656d9e801000",
-      "inputs_sha256": "d0b168fd1e8231e06839a99a885b0eb3daf733596b5a70d8e61b2b87da2153de"
+      "inputs_sha256": "0bbbda04228a1a5f537c1fc99cb0815e4baa76569f204ce80c0ef5a8bf23872b"
     }
   },
   {
@@ -9172,7 +9172,7 @@
     "identification": "Default Ghidra extent. Allocates 16 bytes per entry, appends the new descriptor through RVA 0x44bc20, then sets the pool activation flag.",
     "match": {
       "bytes_sha256": "78a6d4c662641670a96738ef20308b2e9024be831531ead4506e0f79b9da7b1b",
-      "inputs_sha256": "ab5d70d14cd4ca553f6e668c8f35c326a1eedde9edd67b757eee75a0e008c3a4"
+      "inputs_sha256": "df205f381f5b7a9bacc5d39cb36c38f49783b07afe7c325ae37c856a2232dedf"
     }
   },
   {
@@ -9198,7 +9198,7 @@
     "identification": "Independent Ghidra extent. Calls RVA 0x467460 before installing the methods table at RVA 0x83ac74. Its first slot points to function RVA 0x44de60. Returns the original receiver.",
     "match": {
       "bytes_sha256": "fbf007e0e1a095c058bdac3d619989ff2645207d08ff1260be18166baf15ab5d",
-      "inputs_sha256": "35b422af26e04b96e89e5791cee7bc1429b99fa38bf176bedef8a75931e34e9e"
+      "inputs_sha256": "d572ec505039956e75e6e46f0f31256ba7e7b2db09b95625c227dfeaa5fef208"
     }
   },
   {
@@ -9229,7 +9229,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "d1f614d8b13bba1689904e451fff93f58eb15f20e0dc545a97857bd958565671",
-      "inputs_sha256": "fd964c420bf2f7a105b0b245ebebe7e46486a73e2b04883e3b84a24760a71a34"
+      "inputs_sha256": "3caf16ca13b65aacc27774302f98457129ce45842d5775056392ee74be24286d"
     }
   },
   {
@@ -9252,7 +9252,7 @@
     "identification": "Complete indexed Campaign function RVA 0x44de90. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "e9ce1528115ee9a84af46b552f6730cca318c47ba3a7a1f53c2b3a173778c644",
-      "inputs_sha256": "1f35fecf7c1b21b53d24835b3415699295be1a0783c8c049847b72d7904de90a"
+      "inputs_sha256": "b0eea48ae2f0a38373aff9f6be7b953e27510bd594152482daea16d96e5641bb"
     }
   },
   {
@@ -9294,7 +9294,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x44e0b0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "7c303a3d0706c6045640ab061fa2d6ba049e32643400928ca0b2d2d96b84554c",
-      "inputs_sha256": "bca30bad95457c2e060569a85392a70ab1df9db87d8e1c4f46473bf3389fe7c8"
+      "inputs_sha256": "3d68d4544f2a75df66b4ad085f32cb2e480b188122b0be2922827d0859f680ee"
     }
   },
   {
@@ -9316,7 +9316,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e110, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3830f10dc2911c429a4e10a9ef1552fd9269ae09b4b6a677edc0760b81459175",
-      "inputs_sha256": "e509daae5b323e1a365db355cb7eb5edc4896029bbe0989066b47623c5760349"
+      "inputs_sha256": "f90906f13349de293b2c38c050502a29f30682f487c61829a074a4370b1e8552"
     }
   },
   {
@@ -9338,7 +9338,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e140, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "d2499b03d30c98842d6d56875918c91451a2effbc230f6a50657d922453ed1b4",
-      "inputs_sha256": "ae0e4ab6bc9cbcda2d365e701ab9de4eeaebeb6307704b2ed2236ff3b6b44e94"
+      "inputs_sha256": "697ff31f2bf2e9de663893fd168ea3ad3bb05e963e50f19c3710009bd836aee5"
     }
   },
   {
@@ -9360,7 +9360,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e180, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "9b7c8149de8d6d5845cfa9a25f881d5ffb21d5dbfe640aab6ac26bd5a86fd180",
-      "inputs_sha256": "c593aac81ebc9a6370c96312760cabbedc925707f11773e40dfaac6ac5907b70"
+      "inputs_sha256": "4d4542e92155505cd5da0db6d03482a281c2a9a55cc996629557c1ac215af2ac"
     }
   },
   {
@@ -9394,7 +9394,7 @@
     },
     "match": {
       "bytes_sha256": "00ef488014a919ed3d6818244af3ff6e2fe6473423c215c5b09a31776b728694",
-      "inputs_sha256": "0b52c313ab6e03aaf279fa9c4661f35859765aaba19fe8ad82b6e6652a555a42"
+      "inputs_sha256": "33a9d2fae9e32b5615351e00828f039062821fdb0b974c4bb899b6039cb63830"
     }
   },
   {
@@ -9436,7 +9436,7 @@
     "identification": "Direct call at RVA 0x44e1fa. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "63c4a85dfebdc0fcddb1f072c04ef0d9786ebf858d12fa618370e64671126e9e",
-      "inputs_sha256": "d1f3fe23f3df99a281a1a22184ec46cb215e2021ceb14f1f2e6621ccc1eecd68"
+      "inputs_sha256": "bb77f273488a11e2ee2656ef034a390dfa52489c32ffcb4802a8ee83718db438"
     }
   },
   {
@@ -9474,7 +9474,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e2d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "5a541f1b16e7b170594fbc227eee15fa6c6b3cab7d799dac48293b39a57053f6",
-      "inputs_sha256": "f1dae92e1b49a5c1fbb00fc635290eea0067f27d4cd76c9125079d4d5fa21976"
+      "inputs_sha256": "e7b0e365bdfe2d3d2198c5f34f5b20a628674bfab377df6904871af9657e5b6a"
     }
   },
   {
@@ -9560,7 +9560,7 @@
     "identification": "Indexed whole function. Installs the method table, initializes the receiver fields and returns its address.",
     "match": {
       "bytes_sha256": "f7b5426be6e9f9acd78609d48ef5629244eb25e20021976870fee8587cf7446d",
-      "inputs_sha256": "f274c021b74c5d428c745546073d08323ed367b71b85b95a850523e2871fb5a3"
+      "inputs_sha256": "746c5fe49613f3ffbed8c41c784134af989f83b0a0a34ebe36143248e6b849d5"
     }
   },
   {
@@ -9602,7 +9602,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x44e540. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "422178604e00876557668ed64b0690eeef1596d47e323bf0049fa25e0f1fed38",
-      "inputs_sha256": "7720e9de7da8b9d0c6927b05c003612c9112fcfcfc9c817728142e3276232e45"
+      "inputs_sha256": "cd71e697ad36212aeb95e64cc628b9003d22f0ec9c74987e24c5261d5adcb09a"
     }
   },
   {
@@ -9628,7 +9628,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x44e590. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "e96882a5462b4ec1afff75748fe1bec45876f7f99d64a3784a33d4d0ef1b1456",
-      "inputs_sha256": "85b38874e4c35fd3e5aaaccdb5c5cd73a23054e5bb2b186659d6d3f5b2c22a68"
+      "inputs_sha256": "a60d25bd4566f6edd0bb19586221951e5449880e292ca7047b1c91e4170f55bd"
     }
   },
   {
@@ -9654,7 +9654,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x44e5e0. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "085e225e3fbf54ba08edf7f365c0556c26947aa7a6aab91328e8bef6e1acefb8",
-      "inputs_sha256": "4826fa3ca85ccc9d3387277def5c9c7eb463d571c61324b9159b2c4fc61c627d"
+      "inputs_sha256": "2ac220dfdea2f316c59559beef3ecbea9e179c30807da2a30bc139b4e8d06514"
     }
   },
   {
@@ -9680,7 +9680,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x44e630. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "9d8f690f1b8ded4300e3158f7832901cca049eef2099cac150120a35b5f5191e",
-      "inputs_sha256": "b60fc4c0605f986e1724f7a6fd95bd2027402030f8794a77ec6d82bb1a55d781"
+      "inputs_sha256": "d250c861bee83782ed8daf90285445a18150a8739ef31c606391837b48b24025"
     }
   },
   {
@@ -9706,7 +9706,7 @@
     "identification": "Aligned vector initialization entry at RVA 0x44e680. Initializes three storage pointers and checks the 16-byte element limit before allocation. Both return paths pop the count argument.",
     "match": {
       "bytes_sha256": "83d25202313efb7682f31562eb59ad6fb71f343358da43b8f36218072e9abca4",
-      "inputs_sha256": "552bf0d7ecc9da4066cb68010af306728d86c48189b4b0fe26259d99810f9f1f"
+      "inputs_sha256": "b5b124bf1f137d303c042f2a611279a8f7916863413a8a57be7ccfdeb46a0d43"
     }
   },
   {
@@ -9728,7 +9728,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e720, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c9bdd43e5dd35de4dee34307aaa1e4f2b7d468258ead3280dc7e4346a5debc9e",
-      "inputs_sha256": "b9de244d7c0c1b9e8f8f221cea546377ce9b9a63d7223de708606fd80a3e1829"
+      "inputs_sha256": "e7472a017395a2c3bc1f1547f4e71f416c16e31594606e89e69b7eae290c13ae"
     }
   },
   {
@@ -9750,7 +9750,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e750, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "af3d56230ba447b061e831510f792db09eaaf2e3622f99c75d4e1edadf72ad99",
-      "inputs_sha256": "8927fe16e8e151342b404ddb25fa7cb77a486595bab9082f4dd1d3a2dccc700e"
+      "inputs_sha256": "4f244bdb0ab5bc745282aef05b8d39af8fe8df67c6c9c7a8a3ce076aec7cd189"
     }
   },
   {
@@ -9772,7 +9772,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e780, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "537e9ddfb5d57a8d4994a8c7ba29ea2a24eafbd23faa5986a797e4f4aec4b6ad",
-      "inputs_sha256": "e2e5ad54cbbddddbcaf0a12400868f3b4b11d00434dba2f7fa7e93560063af11"
+      "inputs_sha256": "bc64badc7ede5e2209736df9681075311d5de3009322d9f77ce6e90d594fb768"
     }
   },
   {
@@ -9794,7 +9794,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e7b0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "e2965860263a77c830624913a559616c28f57afc5be9ebb20e1f86c0d8f097fc",
-      "inputs_sha256": "84e6e3abf753be73bdb592be3676aedfb442d6cd0a0e22f7cd07e6510ce48c7c"
+      "inputs_sha256": "c1adcd911aaed9b474d27d05b7b804721fd5a935fc7f1cb87944aa95d6c2593b"
     }
   },
   {
@@ -9816,7 +9816,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e7e0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "96af5bec10767b7d5e4b4131447c5f93aec69b35379b5cd27d353856f9182c46",
-      "inputs_sha256": "60d373ffc4720a705058a13097ab7ba11196b51659a3e5f172847793f4f976eb"
+      "inputs_sha256": "85357fdf4bec99bde144438a6578191c7466cd3b1cf448f3641c61e6f486df7b"
     }
   },
   {
@@ -9838,7 +9838,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e810, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "3b79d13b19612a1d33a0203ab0dd90fd02c5942da10e04015f91a7468ec654a0",
-      "inputs_sha256": "d5d230733d838033de4086508ef34e29a2bbdab1a05be6e66887e2c89734c962"
+      "inputs_sha256": "71ccab036d031236fdd5989654882f1c654f055f060e51425efe283cc3105af0"
     }
   },
   {
@@ -9860,7 +9860,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e840, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "aa004a3009922233b10ceb51a8ea84d2df349c331c7bb128f5af8a4f331f4117",
-      "inputs_sha256": "59cbd412194aa509d3fae30b9c7094d3f7d306ca0ebf1575178803a228bc8845"
+      "inputs_sha256": "6a8e5339017e9ab589913345f75f934082b08e6db26abae49703e82f165e2d1a"
     }
   },
   {
@@ -9882,7 +9882,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e870, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "f4c6ade17209f9c74187d7f82a543f20c5118d7b4ed57ae378813a2b01fe0cc8",
-      "inputs_sha256": "6d8d1a691a75830c82ab48fea57e539cba95cae23d28ec8d701c551d636f68d1"
+      "inputs_sha256": "a4f7d0cba45fc3c4fe8a4b5f7ddcddd084107d98dcbc46f1c305e925d58b86a2"
     }
   },
   {
@@ -9904,7 +9904,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e8a0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "a3ad3c969c2c3695c8ab93fe14403dae43222eedcce2e78ddce5048247b67555",
-      "inputs_sha256": "eb7340e635cdb136f372086f14e78eb585a2dcc336791665019b95d9b7311ac9"
+      "inputs_sha256": "46c9c703e9d09b9b813db4c3daad59f09ef17473d899908937a124ba2357ec02"
     }
   },
   {
@@ -9926,7 +9926,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e8d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "6195ac2eae47df71b0b2edcd4835783dd82a914246a117c737c5d69ab8f9e2a1",
-      "inputs_sha256": "9a749c2cc008942bf0db66840615abe1f059f3dd21591667945975537fe53803"
+      "inputs_sha256": "2f290c88f7bae948e1fe31c837b7a0e3c79613f272dd1ef812dee2f6c0535188"
     }
   },
   {
@@ -9948,7 +9948,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e910, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "dbdf6ec8aab4527ec96e1ea701b43c5aa8beb8bf2991c53201b10521d89bc423",
-      "inputs_sha256": "c41e04902e39177064b663d049e4e372e8a3366606b0c297ad615ba15f8083e6"
+      "inputs_sha256": "56f8587da440612929b38f655a09b85855b5f85da4928887abc388e7fe89abf3"
     }
   },
   {
@@ -9970,7 +9970,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e950, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "810c35f18261e2a35779278075f3b474498e7f6233f15c0f7276dd836124b0b3",
-      "inputs_sha256": "05c8a163fe4ceefa3c882a02b35bc9014d2d1a4875750b541b047aeeb9a3936f"
+      "inputs_sha256": "96dd0d25b30ab80a2bbaed68bd2afaa36a57cb2f584d5bb881196a0652c5c506"
     }
   },
   {
@@ -9992,7 +9992,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e990, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "506e67947da4000e5f22b5f89938aa3494d9c7fe630e35e0f4bdc3b6e7900093",
-      "inputs_sha256": "8729425ed1309b9ed0c6e843f79005c76570ffd6aff19fb2c543d5414b0338d4"
+      "inputs_sha256": "fba12690e77c748bfb65e77038dd1a5b238e758e978632992734e404593bb257"
     }
   },
   {
@@ -10014,7 +10014,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44e9d0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c6072126b261e3c6a893fbc700ce6778a93379d4d76903ba725fe6b149688bc8",
-      "inputs_sha256": "1799b5f97e7f4a736eadaf15cde16af61a56d4a3abb83ca54ef85e7783cd8f64"
+      "inputs_sha256": "1243b761fcc79f48e19a74dbefc1eca1d7e2a9e5a28cf62691b7111266a0e812"
     }
   },
   {
@@ -10036,7 +10036,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44ea10, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "34af5e5f186c682542c5e2b4fd9e54979b08b1088d5a15a91760dd320cdd09b2",
-      "inputs_sha256": "97d0c78d39b2cf936bbfa0364dc4047fdaffb6992febbcf337c5272bf0a99661"
+      "inputs_sha256": "2a287b5751c0344fe13c88474a3771e09eee3536819973d9a746376f166c22a3"
     }
   },
   {
@@ -10062,7 +10062,7 @@
     "identification": "Read-only method pointer at RVA 0x83acf4. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "dabd17b70504a47180bc1a65a5518461611e848dc4fb25055904758db0dd22be",
-      "inputs_sha256": "10aff2b415fc92b6fb8d5ba720f5503915eba1066dfa600784eaa48a44b081b1"
+      "inputs_sha256": "0988157ae018be176a89892295f1d56086fc8f293d2e5bc6853d381dca82ff55"
     }
   },
   {
@@ -10096,7 +10096,7 @@
     },
     "match": {
       "bytes_sha256": "2b3e6c8db28dcb9c6d8a79a3d05bd56ae74247228f05686a2542a20e0a94767e",
-      "inputs_sha256": "c486664f992023d14cbd24d72a5b97000c22146b9e9d3eb826b8894ed8544357"
+      "inputs_sha256": "c260b704c1ed5534588ca2016e301faa5faacbb1eb6a2fa5060390bf2a3e44f9"
     }
   },
   {
@@ -10138,7 +10138,7 @@
     "identification": "Direct call at RVA 0x44ea7a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "929da8ef238de8475b55e2cee714f999fbbac1accf168166f8d1caf24f3fe9d0",
-      "inputs_sha256": "443dddbc4d89966692cddc17f9f916735eaa58948bd54d13b1c87b7ae655ea4c"
+      "inputs_sha256": "4684f7f004b562599e6b72127226dfa5de11997129323ff3848186d358b6ff61"
     }
   },
   {
@@ -10176,7 +10176,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44eb50, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "242d9988e3f49be8dd0179f614a75d19aa42cdd19ff8aae9e8fcb949ae86481c",
-      "inputs_sha256": "84a5f8c087fde2c0c744a3f54e1eb82e52747e8e1ff1c31997112d388f161af3"
+      "inputs_sha256": "7de66e585b8bb8ae9296e9b3226861aa88848952bb9926ca90f7fca95fb41213"
     }
   },
   {
@@ -10198,7 +10198,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44eba0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "5a7671d454c1599d4a354a9df35e2b96d14c874109ce42a4375ae7e2f9615772",
-      "inputs_sha256": "11448b9f279b1a3d4988776f294328f7c08008ceb2451dc59fe279e8f20a09da"
+      "inputs_sha256": "8eaa56ffeb111777ec3a2ac0ac79356d9d9ec9e789b1379ec80a76ff4bbcf70a"
     }
   },
   {
@@ -10220,7 +10220,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44ebf0, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "89dedcdd1fdcb13453aaa0d9af3560d6c13e2659ee706926f8dc25bd1d6741aa",
-      "inputs_sha256": "8e977dc8a84bd6db1bc89fc03b91d20e9b6663c28ee71bf814c29e158e593fb4"
+      "inputs_sha256": "299db0e272f1044f61dd8e4d810bdc3a2f7283fb0f903d75bbb5c1d10e9e45fe"
     }
   },
   {
@@ -10242,7 +10242,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44ec40, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "c59bd363a0a1d9e1ac93e8246fb9a8fbcf99fabee65788b6ef6f5716fc451a60",
-      "inputs_sha256": "10745ca9f3b56fdf736d087177b4ae6a0ddaee4b7f3110859e957be9a341e967"
+      "inputs_sha256": "f0e3bf20eee9830d915206178495ef4fd71b5c29fa1411e62396d4233a19d1ee"
     }
   },
   {
@@ -10264,7 +10264,7 @@
     "identification": "Unique 42-byte function in the stock code section at RVA 0x44ec90, from an independent default-analysis entry through RET. Releases the allocation at offset 4 via RVA 0x1dd0d0 and clears the three fields at offsets 4, 8 and 12.",
     "match": {
       "bytes_sha256": "eadbc0ebf02ce1083715913d554403a58581afa47de99aa66c68181aafc115b1",
-      "inputs_sha256": "0eca72472bdc63993f17196aab5d7243778617aa868d52c9714d6d861b74db46"
+      "inputs_sha256": "d366ace1b6da4c36077c83a380db22d1815399a28e3938ec57816f5096cc0867"
     }
   },
   {
@@ -10298,7 +10298,7 @@
     },
     "match": {
       "bytes_sha256": "2e951596e59401416039aa5107fcb2a947e6c16b1895bfb5c9b04f7af523fccc",
-      "inputs_sha256": "f4679a90b11717459aad825a49456abaf6ac2d066fba601cde7e70076dfeafd1"
+      "inputs_sha256": "f2938cf1939ab2aa1a1a6aed69464a86cb76bed85d2a6de34a349f0ab7d5bcd6"
     }
   },
   {
@@ -10340,7 +10340,7 @@
     "identification": "Direct call at RVA 0x44ed2a. Drops one reference from the last active descriptor and frees its backing store and pops the descriptor when the count reaches zero.",
     "match": {
       "bytes_sha256": "9e43187378ddf6eacb1edec6d773f030fcfa1d500224b3f235d7847637ab81e2",
-      "inputs_sha256": "704be36014442bcd9672b000ddf45da3e87c984e4c2270886b6501d4b375bdb0"
+      "inputs_sha256": "c46c4a0e5bc2e794ac8f39ffb785ce8082c07c0b116132eaac997cd72ef35b18"
     }
   },
   {
@@ -10398,7 +10398,7 @@
     "identification": "Complete aligned typed allocation method at RVA 0x44fd90; converts the element count into bytes at a stride of 32, loads the allocation label and returns the shared allocator result.",
     "match": {
       "bytes_sha256": "9bbd6769fcef9cfb4c143d52adb514c000e101db40399e50361a5fa53ee65665",
-      "inputs_sha256": "9f996b9199b7a3b2277bc5d1b24a99721718e07535b9014f3b5e74b9e8386cf4"
+      "inputs_sha256": "b8a5a8d1a625f79281add3495c76d02d38def9a5dc92e1a88cb9e717610168eb"
     }
   },
   {
@@ -10508,7 +10508,7 @@
     "identification": "Complete aligned typed allocation method at RVA 0x44ffb0; converts the element count into bytes at a stride of 56, loads the allocation label and returns the shared allocator result.",
     "match": {
       "bytes_sha256": "73dc28f179abf85dae8aacb5953a5560ff52d98b029626984dfd83645ff88981",
-      "inputs_sha256": "f79eb824edcd4b1472c0a655776038f3b2969e9a89a6b473fcb0d6f670ef62e6"
+      "inputs_sha256": "c9e0c7205f69b389d82a6ed359877087fa67978338f683ceab3cd9b1fd8ac037"
     }
   }
 ]

@@ -22,7 +22,7 @@
     "identification": "Direct call at retail VA 0x10b27261. The engine heap wrapper has the same complete extent in default Ghidra analysis and the rebuilt object.",
     "match": {
       "bytes_sha256": "e1a73cc388faa0ac2295baa515effaccb2a0ea248cde7b1db3605f029c2dc015",
-      "inputs_sha256": "becbe26002316245b8a8b17103e204dcc23f79e31cc72721146dc4b4148fbcbb"
+      "inputs_sha256": "aeefcd555ee398a1653dca825ad8bf1144fb025e545c9de65e7cab5a54e0d6d9"
     }
   },
   {
@@ -44,7 +44,7 @@
     "identification": "Direct call at retail VA 0x10b8c2d8. The engine heap wrapper has the same complete extent in default Ghidra analysis and the rebuilt object.",
     "match": {
       "bytes_sha256": "81c12a4563e380536f2439d8d64dd6131fe42fd5484eac55c1b73c18b333f430",
-      "inputs_sha256": "4b3b85fb34790b00a2d0a245b7e5b0a4ebb8726db7c28dc2489f0667d6c1b698"
+      "inputs_sha256": "67bf8b3dc164a308e60c95d5ca2bfb318e550ae68676c31472deba270859247e"
     }
   },
   {
@@ -67,7 +67,7 @@
     "identification": "Complete indexed Versus function RVA 0x1508a0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "3c233d55437015cee287c01d369540c5290fec41c918aa4c4860b67f642891ed",
-      "inputs_sha256": "f6916a531fa77e0d165e4daafde145f7ee98c31e7b57333933e7c7cf7abf5386"
+      "inputs_sha256": "f037a46e466a4f087aa4e23c50c9485e10807849d2e6e972b252301fb4df72eb"
     }
   },
   {
@@ -94,7 +94,7 @@
     "identification": "Read-only method pointer at RVA 0x303320. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "108c993f94719dfc5e0313b2a19c84e497a7ffd775bbe2bf3a9a5343b7e3c1d6",
-      "inputs_sha256": "09e67da655e30c11480b7d8730dd3e48db1cee30957d46f3b56a4d69d0b0b9ee"
+      "inputs_sha256": "2d3b3ec8e8c3ce7ace5648dc85d04e14e7c0202407c12715d4f104b7dfb8a41d"
     }
   },
   {
@@ -121,7 +121,7 @@
     "identification": "The read-only pointer at RVA 0x30330c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "230a27d32236e4221bc200882fbe13df7fda4e88c2649affc7d6f85690bf1171"
+      "inputs_sha256": "9d7fca68bf76fefe65e040ca695d1a2d0e4ec8247eb330cb8eac415af7429472"
     }
   },
   {
@@ -148,7 +148,7 @@
     "identification": "Read-only method pointer at RVA 0x303304. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "1ef130a2043dd351737f746d2b8f3ccd6311e453a2a750a31eefbf1b2293428d",
-      "inputs_sha256": "f88c04deb7067e62892ccff33c766d8b1f184c5c9ebbe3ccb9d38a86e7fc946d"
+      "inputs_sha256": "ea5294e30dc1ddb3d839b30269eccab53824cfc60f7ec7073a16d1eaa0264c44"
     }
   },
   {
@@ -175,7 +175,7 @@
     "identification": "The read-only pointer at RVA 0x3032f8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "082d3bf2fb727a1c54c0d710413bb0f536ba8115291d7192401f988611c964bd"
+      "inputs_sha256": "c4ed677d717f8b39f8fa80c0e96de0e72eda7cddad8ed3d64fa96ab3a7f7d5e8"
     }
   },
   {
@@ -198,7 +198,7 @@
     "identification": "Complete indexed Versus function RVA 0x150a40. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "731286fc0bcffe1549c7d148340077155f45a6ee4ac310140b35b10b80344312",
-      "inputs_sha256": "6ad96efbeb588741ffae947853fcb55df0d975e62799ba5f7773cca518f823fe"
+      "inputs_sha256": "d6a8d2ec70108a6716aa1f442f82c60a863ead5c245e6562aa54cd7162a43d73"
     }
   },
   {
@@ -225,7 +225,7 @@
     "identification": "The read-only pointer at RVA 0x30329c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "9a658c00d17b6e5771cffcf94de216b39c2376f043a75f584343e1d70667a71f",
-      "inputs_sha256": "6269e2c9a55353a0c06f864c3e74c9ae4f741ac71034fca7c9479eab7ecb7a97"
+      "inputs_sha256": "2579b28a00c5763987ef080ab9e565404ee6c3b90cdc92b629fe8705c8fca226"
     }
   },
   {
@@ -252,7 +252,7 @@
     "identification": "The read-only pointer at RVA 0x303268 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ff9a6a43377c2f902ae36f9873d9cdc2f920a9bf24735634712b5e4e084ab9ba"
+      "inputs_sha256": "448f630a1281c33f8ff30dc8293968e6699db88c50570891d2e35e041f10f9f1"
     }
   },
   {

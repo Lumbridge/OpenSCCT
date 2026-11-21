@@ -90,7 +90,7 @@
     },
     "match": {
       "bytes_sha256": "6bcc5f115bbae9f4a7a4e2c9adc5de54fb33fe4146f3af443bcc6d89558264d4",
-      "inputs_sha256": "2f31349b84464d7a45d3a12e3b3646648d46407e0460a36308a47cc3b6c753f4"
+      "inputs_sha256": "efceacc106c4997a709761c648bcec5683eb541212a460446755dfc440672dcc"
     }
   },
   {
@@ -116,7 +116,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "82d06dbb0671ae61207a2dbcdfb60d29389a2ac866239804476f1144d4c3a3ee"
+      "inputs_sha256": "dfc89858bbeaa6d9e34ce092ef9e6384f2b6f8f9881e95a3ca1cc84403b88c09"
     }
   },
   {
@@ -142,7 +142,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "00afa6da472cce2e980a78fdbd6505e4b45020ecae1eb58b63374c5686789cc1"
+      "inputs_sha256": "f7f51a5f8230eaa78093f6ff64e431b53e288218208f122d3746ef3e67b5ce6d"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1edad0",
+    "size": 109,
+    "offset": 2022096,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASFlagDropZoneInteraction@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASFlagDropZoneInteraction@@UAE@XZ": {
+        "va": 280826728,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASFlagDropZoneInteraction@@6B@": {
+        "va": 281009768,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASInteractObject@@UAE@XZ": {
+        "va": 279894560,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASFlagDropZoneInteraction::~ASFlagDropZoneInteraction at RVA 0x1edad0. Registered class ASFlagDropZoneInteraction installs vtable RVA 0x2fde68; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASInteractObject destructor at RVA 0x1eda20 under C++ frame handler RVA 0x2d1368.",
+    "match": {
+      "bytes_sha256": "c290ea277bd8c96a690e6d80d32037f906378d521b0f6aff3f1464d81d46a8c9",
+      "inputs_sha256": "f092eaaffb1df5e56a2df3e595e81ae1df6b346d7afe6cd4d875119dd3d69d4a"
     }
   },
   {
@@ -168,7 +202,7 @@
     },
     "match": {
       "bytes_sha256": "e37bba2f6b679d4ecc7b97d1767dc1836ba78224ca30fc0576439f040f3b5efd",
-      "inputs_sha256": "4c2f1c2e0270f672ebf167d234676051d080a479e8718b1cb354388b155ff35b"
+      "inputs_sha256": "77824b16c1ce4bbdb48a5a49cee8842d1992916b990fda80bcf78b290058307e"
     }
   },
   {
@@ -194,7 +228,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6e9254279a29d3a6a0c780e8e6960657a8f24b5dca437afdcadf880f82caeab1"
+      "inputs_sha256": "6737e2936c815cb67564011f094a4d300e4ad7699d5333ce79e82e5abfcd4d47"
     }
   },
   {
@@ -220,7 +254,41 @@
     "identification": "Stock ASMines vtable at RVA 0x2fdbf8, slot 3, points to entry RVA 0x1edc10. Registration at RVA 0x1ec60d passes placement callback RVA 0x1f1330, which installs the table at RVA 0x1f133d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2673357c9a71bf8670fe38196947979c9dcb6b15a35769dc51aa5d0d83322899"
+      "inputs_sha256": "3ef87431c88b30aa63f1adf01f1903e6dae57ae3906faff1919e747fa77b67e2"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1edc40",
+    "size": 109,
+    "offset": 2022464,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASMines@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASMines@@UAE@XZ": {
+        "va": 280826696,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASMines@@6B@": {
+        "va": 281009144,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASBasicGamePlayObject@@UAE@XZ": {
+        "va": 279894928,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASMines::~ASMines at RVA 0x1edc40. Registered class ASMines installs vtable RVA 0x2fdbf8; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASBasicGamePlayObject destructor at RVA 0x1edb90 under C++ frame handler RVA 0x2d1348.",
+    "match": {
+      "bytes_sha256": "d69285de949b24606c5333ea3abc7a69f7bf4f30a158d468824c036ef7a010e1",
+      "inputs_sha256": "2d5b0486453542ee116f4cfb4ab32eac4cfd1aed5832bda2cee29bb05577fdc3"
     }
   },
   {
@@ -246,7 +314,41 @@
     "identification": "Stock ASPresDetector vtable at RVA 0x2fdab8, slot 3, points to entry RVA 0x1edcb0. Registration at RVA 0x1ed96b passes placement callback RVA 0x1edb40, which installs the table at RVA 0x1edb4d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2479c821a0d5b7aa9eaba1a4e9c6488037abc96082a562829983f9d1fd88dee4"
+      "inputs_sha256": "d7af19f556fa0c22214323446104c6929f3e5c838d0f8d03754208b5ee8864d0"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1edce0",
+    "size": 109,
+    "offset": 2022624,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASPresDetector@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASPresDetector@@UAE@XZ": {
+        "va": 280837416,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASPresDetector@@6B@": {
+        "va": 281008824,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASMines@@UAE@XZ": {
+        "va": 279895104,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASPresDetector::~ASPresDetector at RVA 0x1edce0. Registered class ASPresDetector installs vtable RVA 0x2fdab8; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASMines destructor at RVA 0x1edc40 under C++ frame handler RVA 0x2d3d28.",
+    "match": {
+      "bytes_sha256": "4d9e8760eb3119c61445f9aec1bdb7185a9f75e72b0395aae42051b5add6663d",
+      "inputs_sha256": "cad86e72a8a83cd68386520229da2bcef8c2973e2828ed6f2a73e867b9903f85"
     }
   },
   {
@@ -272,7 +374,7 @@
     },
     "match": {
       "bytes_sha256": "a1f8afef2c09571169f3d0781a96cec2d357648c1309db7142053d5d429d67c5",
-      "inputs_sha256": "69a41ff688b2b458da9afb211c9970f89722230cf74e169ec54f07470d1925f9"
+      "inputs_sha256": "75fbb71e354ea13f4ee6fa96ae7206607aca461e0868e613d33b530a9d11fe9e"
     }
   },
   {
@@ -298,7 +400,41 @@
     "identification": "Stock ASNotifyNoise vtable at RVA 0x2fd980, slot 3, points to entry RVA 0x1edd70. Registration at RVA 0x1ed912 passes placement callback RVA 0x1edd50, which installs the table at RVA 0x1edd5d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "0fc617a34dda8ee0a5fd728339cd62731e424ab6d3284ccf46d294bde0dd632d"
+      "inputs_sha256": "ddf680de89278b41b5df7781c605dd73638a48ccc85989387c0b16ba22ccb167"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1edda0",
+    "size": 109,
+    "offset": 2022816,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASNotifyNoise@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASNotifyNoise@@UAE@XZ": {
+        "va": 280822200,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASNotifyNoise@@6B@": {
+        "va": 281008512,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AActor@@UAE@XZ": {
+        "va": 278472144,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASNotifyNoise::~ASNotifyNoise at RVA 0x1edda0. Registered class ASNotifyNoise installs vtable RVA 0x2fd980; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AActor destructor at RVA 0x925d0 under C++ frame handler RVA 0x2d01b8.",
+    "match": {
+      "bytes_sha256": "ad4ddb83474c64d33cc1e5771763bd028fa901e97e4efbf6493c46e80b327ef4",
+      "inputs_sha256": "73b45335bfff7f3adb894b45138f8f13e8df3eaccf334d44c0d3e87b871fa993"
     }
   },
   {
@@ -324,7 +460,7 @@
     },
     "match": {
       "bytes_sha256": "16ea003a30927f926dafeab09ed3b765c0bfc55d69ac4cfe5cb0433d69a08921",
-      "inputs_sha256": "034dc4cd882676fde24e84c70e0329961c9937949ea92449a35be5b305d5435c"
+      "inputs_sha256": "ea9bc992512611809101a3e096eeaefb9175ed9154fdfd4144518b3aaabbb2d0"
     }
   },
   {
@@ -350,7 +486,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ee8db0556585d9eb9933fa33a0c1559a3136927d0fa3c75aea2bdb6af58f88ab"
+      "inputs_sha256": "ba38a5a510d05e2032b467ad2dde554785265565689834210e1303c20e632438"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ede60",
+    "size": 109,
+    "offset": 2023008,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASDamageVolume@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASDamageVolume@@UAE@XZ": {
+        "va": 280841880,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASDamageVolume@@6B@": {
+        "va": 281008200,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AVolume@@UAE@XZ": {
+        "va": 278579120,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASDamageVolume::~ASDamageVolume at RVA 0x1ede60. Registered class ASDamageVolume installs vtable RVA 0x2fd848; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AVolume destructor at RVA 0xac7b0 under C++ frame handler RVA 0x2d4e98.",
+    "match": {
+      "bytes_sha256": "2d5f0115fe80c9ed817dfbd7fb95441755e68c40841650130f8890506b2be66d",
+      "inputs_sha256": "4c794fd95762d32a7287f57c46283f01b8da6c6b6e8b04950781839ab93794bf"
     }
   },
   {
@@ -376,7 +546,7 @@
     },
     "match": {
       "bytes_sha256": "173e64e590b3c0224e58b3189de154afbd9fb97de820c47ab7dd545a588a2437",
-      "inputs_sha256": "331a82bd5e7757fa0aed9c40b7e6a90eb24b03fac61839805e0d9e97e3391571"
+      "inputs_sha256": "ba405624b694f0534ee2a9f721e6feb845f19687dc00f0b0645b18f7308d89e7"
     }
   },
   {
@@ -402,7 +572,7 @@
     },
     "match": {
       "bytes_sha256": "113668429c33f625903c03f3cb56718c968ba0c3c0450fb27db6a03d5efb865d",
-      "inputs_sha256": "2adbb1ba4bace657d9c0517708465005237e657be44c566df128f742662ef9a6"
+      "inputs_sha256": "22422b0bce7f19f772e7f2b5196409f9e2957d9eb67fc03f6dbfeac18f9b39d6"
     }
   },
   {
@@ -428,7 +598,7 @@
     "identification": "Stock ASObjectiveTrigger vtable at RVA 0x2fd5d0, slot 3, points to entry RVA 0x1ee060. Registration at RVA 0x1ec882 passes placement callback RVA 0x1f0e30, which installs the table at RVA 0x1f0e3d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "f5623afabaf2fb210f4b70e38f5b0041e38fb255084a89410d43cda033669070"
+      "inputs_sha256": "c285fb0a5ec9880a90edcdf7a1046244090c27ccc794eb1e5e5c6c539384bf27"
     }
   },
   {
@@ -454,7 +624,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "304f6f85dd5a217d6460fa07a765ad6013a5e707e0c0c0b93fde924aeaf339ed"
+      "inputs_sha256": "bec6d2281206cb6b017baef5501993aaa95536439788df057f5403b5b295dec8"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ee140",
+    "size": 109,
+    "offset": 2023744,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASDisk@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASDisk@@UAE@XZ": {
+        "va": 280844056,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASDisk@@6B@": {
+        "va": 281007248,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASObjectiveTrigger@@UAE@XZ": {
+        "va": 279896208,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASDisk::~ASDisk at RVA 0x1ee140. Registered class ASDisk installs vtable RVA 0x2fd490; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASObjectiveTrigger destructor at RVA 0x1ee090 under C++ frame handler RVA 0x2d5718.",
+    "match": {
+      "bytes_sha256": "fc4e60fa76738eaef60e88c619c91eabbd6b72a4578493575f7095e912675201",
+      "inputs_sha256": "683ae17ae8d48bbcf1ee4f9ae4c4225eeced4f8f731cbc9c8c0301d97691ede4"
     }
   },
   {
@@ -480,7 +684,7 @@
     },
     "match": {
       "bytes_sha256": "c75aae58b4ad5ee3a081b192ff29b056939364c7854d6ab891513636355d50a8",
-      "inputs_sha256": "1c424499791e3aedc25e8c3d473041d707982f45872d46ea59c9a50e212f1ef2"
+      "inputs_sha256": "c1e1ef65da81ea5a5c84626e49b9760c26d55ab992c3a2c61894bd6e7bd5f6b4"
     }
   },
   {
@@ -506,7 +710,41 @@
     "identification": "Stock ASFlaque vtable at RVA 0x2fd358, slot 3, points to entry RVA 0x1ee1d0. Registration at RVA 0x1ed802 passes placement callback RVA 0x1ee1b0, which installs the table at RVA 0x1ee1bd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "640c4546fb14d38ccfeec0f38fa29fc216f7452056058c23eb59e57c60379c8c"
+      "inputs_sha256": "dc96dc169080bdc630438789bcfe2fef3d349d3e631eb48a0ee01684e4255b5c"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ee200",
+    "size": 109,
+    "offset": 2023936,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASFlaque@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASFlaque@@UAE@XZ": {
+        "va": 280826696,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASFlaque@@6B@": {
+        "va": 281006936,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASBasicGamePlayObject@@UAE@XZ": {
+        "va": 279894928,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASFlaque::~ASFlaque at RVA 0x1ee200. Registered class ASFlaque installs vtable RVA 0x2fd358; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASBasicGamePlayObject destructor at RVA 0x1edb90 under C++ frame handler RVA 0x2d1348.",
+    "match": {
+      "bytes_sha256": "5897bee77eb437da25d2167680d8d0df48cf5992729d0aacbe2337f765d64f12",
+      "inputs_sha256": "93b250068cd50f89893c426917556ca3f67429958a045a3495b81443df298795"
     }
   },
   {
@@ -532,7 +770,7 @@
     },
     "match": {
       "bytes_sha256": "5cfe247e6a1c54e60f1cd7d81f197d7552873aad7844fcf28d829b6a70445285",
-      "inputs_sha256": "1b86bfc1f368c45c784cb58bd99639373773fbb9c25ca679a2720205af5d474c"
+      "inputs_sha256": "6805e33f990ae0cf60e48cc53dbf32020c3551c3bde526eb22ff8d23f52df631"
     }
   },
   {
@@ -558,7 +796,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a98113774050c98997f7a4bb1f3cd666b745cba5d490be605c641e0cc413c22f"
+      "inputs_sha256": "6a111696cbffa3f2288ef5ef41d98619c2858e04426925205ee258a597596776"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ee2c0",
+    "size": 109,
+    "offset": 2024128,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASSprinkler@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASSprinkler@@UAE@XZ": {
+        "va": 280826696,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASSprinkler@@6B@": {
+        "va": 281006624,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASBasicGamePlayObject@@UAE@XZ": {
+        "va": 279894928,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASSprinkler::~ASSprinkler at RVA 0x1ee2c0. Registered class ASSprinkler installs vtable RVA 0x2fd220; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASBasicGamePlayObject destructor at RVA 0x1edb90 under C++ frame handler RVA 0x2d1348.",
+    "match": {
+      "bytes_sha256": "aa01faa37d55fc6e04c06ca29cb290c1ca5cae0a2f9ce1cdc67a79279af85731",
+      "inputs_sha256": "cf77b21963decf99c1bf1490632c1e02129629e4f2865faea4375c5b41815df5"
     }
   },
   {
@@ -584,7 +856,7 @@
     },
     "match": {
       "bytes_sha256": "64885322a6d09e7e0505c7fbde005a00916d5e38957073d44236dabfcca84af9",
-      "inputs_sha256": "87f9b6a4a2477f05c142230d584cc6f2801c997542ac6668ab710eae82c48222"
+      "inputs_sha256": "ca621c223c573ea2a5bc624410cbed48e1671ae6a9307dcd80f40c2552712f34"
     }
   },
   {
@@ -610,7 +882,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7f304320aea0b37c2934d0f03d2a85da3f07e78379bce31d73e9d700f6f1a56a"
+      "inputs_sha256": "b96f966ca31aa23337709bf8462a411ef0baa6cfd70b05e7649379fde904095d"
     }
   },
   {
@@ -632,7 +904,7 @@
     },
     "match": {
       "bytes_sha256": "8de793a7caf07b3e460ac2fbeaa6ae4e863f6d7d8439cd41e7659a9488276054",
-      "inputs_sha256": "5fe549bef4a996d93a22321ebddb632de52ddd8f0d6d5c329a6a88c658b62649"
+      "inputs_sha256": "660aa73ec4a188fb1b03b988d2a3d4a324ed4a4a95b73d694bf1f29400fcd2f8"
     }
   },
   {
@@ -658,7 +930,7 @@
     "identification": "Stock USMapSettings vtable at RVA 0x2fd088, slot 3, points to entry RVA 0x1ee410. Registration at RVA 0x1ed6ee passes placement callback RVA 0x1ee400, which installs the table at RVA 0x1ee408. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fa2b23207c3fdbc18d45d39bfb41cc43d2cfc4c403c5a3dfa34e700149b765aa"
+      "inputs_sha256": "66e49f7df2932ffe37f4196309e35774cb76fb34a964fa960530f84a4c556eb4"
     }
   },
   {
@@ -684,7 +956,7 @@
     },
     "match": {
       "bytes_sha256": "ce938f417c13d805ad69cc31db879fe265d1796b2c3adab7495585d5666f9045",
-      "inputs_sha256": "3bcd464b8fdf11870f1f0591950f10877a6381d9eca7d848a3513946dc36862a"
+      "inputs_sha256": "5973957aceba6f24765adabfbfede98bce68009a0618f43819e44415e4b8efe3"
     }
   },
   {
@@ -710,7 +982,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d00029de8a22f95d68bab8fc11fa5b435cb8015ecc7dbde3a50a903d71e1543d"
+      "inputs_sha256": "f84dede6ea129c8148cf1748f9c70e540060ebcf248668887d3948c182d112fd"
     }
   },
   {
@@ -736,7 +1008,7 @@
     },
     "match": {
       "bytes_sha256": "65d730ee01c776974e78e1efaf587948e420a05017f652f44d55b123e2e1b564",
-      "inputs_sha256": "ca5458157d368d79f74ec14f03a8229fc8beaf6e7894be11facea83c9bd0d9c6"
+      "inputs_sha256": "d79e71f6efdd47a84bbde6acf41fc5ce53976e6c94d4bb8fc5f8e4592832e0a9"
     }
   },
   {
@@ -762,7 +1034,41 @@
     "identification": "Stock ASOrientableObject vtable at RVA 0x2fce18, slot 3, points to entry RVA 0x1ee7e0. Registration at RVA 0x1ec8de passes placement callback RVA 0x1f0e10, which installs the table at RVA 0x1f0e1d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8675016c44d6af357edac990063b948abbb933629c5e8c9acb23baab858724e0"
+      "inputs_sha256": "e796b99d420f28a18652e74eee21d0482c37ecd657b322784df54b8b25e9c317"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ee810",
+    "size": 109,
+    "offset": 2025488,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASOrientableObject@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASOrientableObject@@UAE@XZ": {
+        "va": 280826696,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASOrientableObject@@6B@": {
+        "va": 281005592,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASBasicGamePlayObject@@UAE@XZ": {
+        "va": 279894928,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASOrientableObject::~ASOrientableObject at RVA 0x1ee810. Registered class ASOrientableObject installs vtable RVA 0x2fce18; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASBasicGamePlayObject destructor at RVA 0x1edb90 under C++ frame handler RVA 0x2d1348.",
+    "match": {
+      "bytes_sha256": "4e6f9ef3fd1eb17fba035c00801d61fb64e29580b594ff9db2c37164f6074145",
+      "inputs_sha256": "c50b495bcec80bccdb73721beb5a3530a0d29dcb7ad0fe93f7f3d87694a6edc6"
     }
   },
   {
@@ -788,7 +1094,41 @@
     "identification": "Stock ASProjoFixe vtable at RVA 0x2fcce0, slot 3, points to entry RVA 0x1ee880. Registration at RVA 0x1ed63a passes placement callback RVA 0x1ee7c0, which installs the table at RVA 0x1ee7cd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d0c0c0178ccf1fdc395b4e248759e454948688205c48b28c9690041a000613fe"
+      "inputs_sha256": "2e131b74eb5e72a46ab566d0d7705517e0b9a81a726a4ee13cbd61ed82d7f333"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ee8b0",
+    "size": 109,
+    "offset": 2025648,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASProjoFixe@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASProjoFixe@@UAE@XZ": {
+        "va": 280837352,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASProjoFixe@@6B@": {
+        "va": 281005280,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASOrientableObject@@UAE@XZ": {
+        "va": 279898128,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASProjoFixe::~ASProjoFixe at RVA 0x1ee8b0. Registered class ASProjoFixe installs vtable RVA 0x2fcce0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASOrientableObject destructor at RVA 0x1ee810 under C++ frame handler RVA 0x2d3ce8.",
+    "match": {
+      "bytes_sha256": "6ebb1875c7e5c0256eb55afdb0d45de798bd5531e73d9cdaa03ac0d26ba8c0df",
+      "inputs_sha256": "b2c3e297e0a52526e339537a97b964d7df81df2ea2411983d6f480f08ef0faf5"
     }
   },
   {
@@ -814,7 +1154,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "345bd00208236eb221f6c9f7b2f84592ad352e06a6ba31e9b73d70c98d5ede05"
+      "inputs_sha256": "9df60d6e3af3200150a46c591dca0c373e191994184d71547734f4e31834c0d9"
     }
   },
   {
@@ -840,7 +1180,7 @@
     },
     "match": {
       "bytes_sha256": "ec25d0ada3ba50a9449c57c51eca7d20aa50666d3a87f5a5ee39ecf68c1f5c05",
-      "inputs_sha256": "c8cb392c9115c4b8364aba6194a7cee6c22bd8c65b814b4a1aaf6db2687a34f7"
+      "inputs_sha256": "578907217fb4e0ce1d2149838088b9c7c4f5d82577b8882c006e03b2007fe998"
     }
   },
   {
@@ -866,7 +1206,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1a48c9d20ccc3738003f70a8474fdaf1c7cc8bce9de2876abb124dda30674d2e"
+      "inputs_sha256": "3ec75d5e429b0b8803730d02ee65b86368fd199d94d89ae254059eed72a99af7"
     }
   },
   {
@@ -892,7 +1232,7 @@
     },
     "match": {
       "bytes_sha256": "52132c6764add5865dd3b76f2f8cada0bf76c6d0bbc780c843e7bfbae3c00e66",
-      "inputs_sha256": "c2f7b93d7bd6d0602ba3d3f2fba6c93f00c9e25176b49029b5bad83ec5bed54a"
+      "inputs_sha256": "eed0339c7ec411cf3b7d2e3caa8cc786a5cb27fa94b3b1bc5b493d85596eea4c"
     }
   },
   {
@@ -918,7 +1258,41 @@
     "identification": "Stock ASLiftDoor vtable at RVA 0x2fca10, slot 3, points to entry RVA 0x1eed70. Registration at RVA 0x1ed52d passes placement callback RVA 0x1eed50, which installs the table at RVA 0x1eed5d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "4577b8b4b6aa8479b271b1f15d4829aca364076c4a84c44bd81f91187df6773f"
+      "inputs_sha256": "141e5310341a3e51609e46497dc0896d4f5fa968cf989e4bd1603b68510d0f48"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1eeda0",
+    "size": 109,
+    "offset": 2026912,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASLiftDoor@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASLiftDoor@@UAE@XZ": {
+        "va": 280831528,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASLiftDoor@@6B@": {
+        "va": 281004560,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AMover@@UAE@XZ": {
+        "va": 278561936,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASLiftDoor::~ASLiftDoor at RVA 0x1eeda0. Registered class ASLiftDoor installs vtable RVA 0x2fca10; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AMover destructor at RVA 0xa8490 under C++ frame handler RVA 0x2d2628.",
+    "match": {
+      "bytes_sha256": "fffeb8b8b35027a8338b408c52b7edd10143b01171dc198a190c4c34949d1649",
+      "inputs_sha256": "925d3535883dd73e3b99177c0d22204a541613a65c4dc47cad1eb40e74e07fe6"
     }
   },
   {
@@ -944,7 +1318,7 @@
     },
     "match": {
       "bytes_sha256": "966ef6284ea8687fa610e7597805fd33467c46aad2a55c44e8ad79334beac38c",
-      "inputs_sha256": "77291e3e7bb553995b0573879e42d32b3d5d282d7ab1c8093d6f760ac9f87d2e"
+      "inputs_sha256": "e0a589c4f87548c8e9bfac1dadf09c1b3c2d0ccd4327e00d068aca00c37097e2"
     }
   },
   {
@@ -970,7 +1344,7 @@
     "identification": "Stock ASLift vtable at RVA 0x2fc8d0, slot 3, points to entry RVA 0x1eee30. Registration at RVA 0x1ed4d1 passes placement callback RVA 0x1eee10, which installs the table at RVA 0x1eee1d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "651aa2e47c3e719f0cc9a52530f41d87556ee5dfb3616da05e56b42101fa80c8"
+      "inputs_sha256": "f1ef7afcf8da6159efa79d395bdd20abb391fd307736bfe1fba0ae0c86547e03"
     }
   },
   {
@@ -996,7 +1370,7 @@
     },
     "match": {
       "bytes_sha256": "b1f8cc6f46ed137b4e9bda5d182eebe78892283c8d5867e6f0a006e358634002",
-      "inputs_sha256": "95ad611202be5638e13dac6974c6c1d3fa988b287895f4e7675766faa89556fd"
+      "inputs_sha256": "8fb66b6f9408a33c9b63e4cbb34ff5d76074d19c97e4790d0cf22ec8eaf05619"
     }
   },
   {
@@ -1022,7 +1396,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e45e00717647ca306620e4b5e19924bde03ead00ec65f8e05735261410bbf722"
+      "inputs_sha256": "476974383ab3e1ada4873d16f05cfc90e2855abc2a0fccf14093cd6eee81f82b"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ef060",
+    "size": 109,
+    "offset": 2027616,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASInfirmary@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASInfirmary@@UAE@XZ": {
+        "va": 280826696,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASInfirmary@@6B@": {
+        "va": 281003928,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASBasicGamePlayObject@@UAE@XZ": {
+        "va": 279894928,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASInfirmary::~ASInfirmary at RVA 0x1ef060. Registered class ASInfirmary installs vtable RVA 0x2fc798; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASBasicGamePlayObject destructor at RVA 0x1edb90 under C++ frame handler RVA 0x2d1348.",
+    "match": {
+      "bytes_sha256": "c5edefb15a704791d62f5a9d521c3f3f31ffb5b311ba1b209433bc601e6d12ef",
+      "inputs_sha256": "0cb149fb67592c45d756bdf7b2478887ac9d43c51751e64b107b27fef796b79c"
     }
   },
   {
@@ -1048,7 +1456,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "020172f8517f04f97229a8eb6d2005ce30fa4135d0ca0c0f023baf213c9fdb14"
+      "inputs_sha256": "18c9c128c8e7651f935d0cf04fd3e274f4c2e239a152ebc9960c9d24470e3c25"
     }
   },
   {
@@ -1074,7 +1482,7 @@
     },
     "match": {
       "bytes_sha256": "85fd03d403c073209e1ecbad9bba32ad99fe22c26eeacdd0b72a70e943ae7216",
-      "inputs_sha256": "efe2a3d1713caddd6d1716090e41e06c2a549be034734e339252bea1c7cb76c1"
+      "inputs_sha256": "e302e7ca26a3061f681d02fe3ea962713258b77dd43908cd813029bccf8608d6"
     }
   },
   {
@@ -1100,7 +1508,41 @@
     "identification": "Stock ASFlashGen vtable at RVA 0x2fc528, slot 3, points to entry RVA 0x1ef290. Registration at RVA 0x1ed3c5 passes placement callback RVA 0x1ef270, which installs the table at RVA 0x1ef27d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5b0151e1ef23044d92d52b10edce1112006ce8d2ee38d190eb5007b990125642"
+      "inputs_sha256": "d3eb1dfbc4fa296c31eb8bb3b982b9b0b321c68007a2307610e0bee65beec9d9"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ef2c0",
+    "size": 109,
+    "offset": 2028224,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASFlashGen@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASFlashGen@@UAE@XZ": {
+        "va": 280826280,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASFlashGen@@6B@": {
+        "va": 281003304,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ALight@@UAE@XZ": {
+        "va": 278585984,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASFlashGen::~ASFlashGen at RVA 0x1ef2c0. Registered class ASFlashGen installs vtable RVA 0x2fc528; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ALight destructor at RVA 0xae280 under C++ frame handler RVA 0x2d11a8.",
+    "match": {
+      "bytes_sha256": "e156f78d5104e192605e7258bd3a5a8b1d471fbbde47d4f205f0c152e79ca144",
+      "inputs_sha256": "1a0ccf94d5882867a4f88d50590f30a2ecc1015f2881f65d16f0f4f659b96535"
     }
   },
   {
@@ -1126,7 +1568,7 @@
     },
     "match": {
       "bytes_sha256": "d84fa18b2fc7102e5105971322e9035be650e97b20ec36aa61796586b9b2fed1",
-      "inputs_sha256": "7abfab131c7a270c0fa8c09abe9d8643496f0472cca42bd2889d975fec1010db"
+      "inputs_sha256": "7235ad832a4e108ce5958199d650f1e23bd4cf979fab95855ab18b3b2c51f6da"
     }
   },
   {
@@ -1152,7 +1594,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ad7b4682984ff6af834fbd421472dfc14ec6f7198f6ba5c5a83fcfb08f5f508a"
+      "inputs_sha256": "7ecad38516246fb382523463d863701d80f64a91f1554b6cf629449885793b31"
     }
   },
   {
@@ -1174,7 +1616,7 @@
     },
     "match": {
       "bytes_sha256": "787584d2904c0a769685363b4d9ef7063b9bac2755cf2c2946cbe5a75c96b95c",
-      "inputs_sha256": "9eb030be7b38f33d3a8748018856834c775777c0880f4801142f4227510a4746"
+      "inputs_sha256": "eb8ac5537c749800acaebc5792e5a732f3b7458345930fe4b35750d595610bfc"
     }
   },
   {
@@ -1200,7 +1642,7 @@
     "identification": "Stock USXBoxLiveRef vtable at RVA 0x2fc398, slot 3, points to entry RVA 0x1ef460. Registration at RVA 0x1ed30d passes placement callback RVA 0x1ef450, which installs the table at RVA 0x1ef458. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5e5fb15af9906e71fb00cbffe31667a46f1dd5c2b07e3b2a91d31a1032197d09"
+      "inputs_sha256": "c09d6967d100c9902559a17eb3337fb163dc7d7c7f30ea9dcf4d816169eabc48"
     }
   },
   {
@@ -1222,7 +1664,7 @@
     },
     "match": {
       "bytes_sha256": "e4286b2c9c82c2b8c2c97b0562f0e3f1568f5c6997c8fc0bba99f84a1e66bacd",
-      "inputs_sha256": "7004cd1f3c47fe3bcb7f9b17def35df2d38290af28a823d62444cf8cba020258"
+      "inputs_sha256": "1aa3100cdeef558b525d0ff1c53d9bc7c7123ef0d44f46ae69788727eda732f8"
     }
   },
   {
@@ -1248,7 +1690,7 @@
     "identification": "Stock USPlayerProfile vtable at RVA 0x2fc340, slot 3, points to entry RVA 0x1ef550. Registration at RVA 0x1ed2b5 passes placement callback RVA 0x1ef540, which installs the table at RVA 0x1ef548. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "51b20328a408e1143678d2a58e6ea1e0a9dda18726865aef4625d2fa6aa93587"
+      "inputs_sha256": "d429ac8b9f6df786d6a4ec6701b03f32f6eb2b12ff3c40bfdd2aee122651db28"
     }
   },
   {
@@ -1274,7 +1716,7 @@
     },
     "match": {
       "bytes_sha256": "00aaa116342fea9f918d0131f6ed71ad54b176f5bedcc47345078fc12cc82dba",
-      "inputs_sha256": "c80643c4c9c0f6f8f0f2a6b88728b0814a7a89da1ca41759eab39828d8387849"
+      "inputs_sha256": "58135602ad6eddf492c838a92c8335b821eab36b77502001a5e3a902eec39892"
     }
   },
   {
@@ -1300,7 +1742,41 @@
     "identification": "Stock ASWeapon vtable at RVA 0x2fc208, slot 3, points to entry RVA 0x1ef650. Registration at RVA 0x1ed1a7 passes placement callback RVA 0x1ef880, which installs the table at RVA 0x1ef88d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "df1c99c1184e06385a8c576af3861279c359f946fa556343d845b4a577b3009f"
+      "inputs_sha256": "e41de10f5893e90b6612dc40c3f7095d88e4cd9251968d7131d5fd503c3ac723"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ef680",
+    "size": 109,
+    "offset": 2029184,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASWeapon@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASWeapon@@UAE@XZ": {
+        "va": 280826104,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASWeapon@@6B@": {
+        "va": 281002504,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AInventory@@UAE@XZ": {
+        "va": 278540496,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASWeapon::~ASWeapon at RVA 0x1ef680. Registered class ASWeapon installs vtable RVA 0x2fc208; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AInventory destructor at RVA 0xa30d0 under C++ frame handler RVA 0x2d10f8.",
+    "match": {
+      "bytes_sha256": "53cc5c3484bb9aaaf487d47a857e9ab364f6df81877eafeb51c791c4acb299a3",
+      "inputs_sha256": "f1c4eb5027a1b3dadf8f3480e077fcab1351261189068524483eaceb170d0981"
     }
   },
   {
@@ -1326,7 +1802,7 @@
     "identification": "Stock ASWeaponDefense vtable at RVA 0x2fc0d0, slot 3, points to entry RVA 0x1ef6f0. Registration at RVA 0x1ed25c passes placement callback RVA 0x1ef630, which installs the table at RVA 0x1ef63d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ebf6f9f2c76dc5920b07dab565659e9e73eb04582dc0e5a1f69e61c0d08dbcd1"
+      "inputs_sha256": "a5433d3dbad969815595e6a4d61d1d6bb1fdb4e13d3fa1b84dc36bff87cb8ba0"
     }
   },
   {
@@ -1352,7 +1828,7 @@
     },
     "match": {
       "bytes_sha256": "aef012144c771dc771ee2688d5ff2d344567ec41795ab8ae8d7ac64e0e6fb892",
-      "inputs_sha256": "7bae878d13e8f3ff3b68c5a2508a6786e031b5bf7e826b0c47aa6ff05cf57cce"
+      "inputs_sha256": "9cc09236c498ed405ba42688660a978dd1b998dc376447a054e894961b681ff4"
     }
   },
   {
@@ -1378,7 +1854,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "624a6280dcc7849b4845a93ce313801608ffd074ea558098819f69d76ed48b18"
+      "inputs_sha256": "d1266c0722755eed39669850409f1f1e8afc73aef9ece3c3db00de94918ae3a9"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ef810",
+    "size": 109,
+    "offset": 2029584,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASWeaponAttaque@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASWeaponAttaque@@UAE@XZ": {
+        "va": 280837256,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASWeaponAttaque@@6B@": {
+        "va": 281001880,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASWeapon@@UAE@XZ": {
+        "va": 279901824,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASWeaponAttaque::~ASWeaponAttaque at RVA 0x1ef810. Registered class ASWeaponAttaque installs vtable RVA 0x2fbf98; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASWeapon destructor at RVA 0x1ef680 under C++ frame handler RVA 0x2d3c88.",
+    "match": {
+      "bytes_sha256": "a600d8471bde0641e2136a8cf94b186196bb0658c59a8770afc24bf33dc19339",
+      "inputs_sha256": "957b7b071da997246d81da9db1af9ff3fa6a4dc6a48163ea372817490602c6bc"
     }
   },
   {
@@ -1404,7 +1914,7 @@
     },
     "match": {
       "bytes_sha256": "47077559191abb7e3341c1ae402e8f140314f51b6397a587e0e825bd0a231584",
-      "inputs_sha256": "f24deeb72d1ca113cbacc1e609fee59bebf910a5b6efd91f1e1081f0e69b9a91"
+      "inputs_sha256": "df1caca7d882d9d0423c77b67955f91ac37fe6e84d196c3246ee0c200fc1fa3b"
     }
   },
   {
@@ -1430,7 +1940,7 @@
     },
     "match": {
       "bytes_sha256": "494dabea6a746f3d2270e7d47b87458f64edb048662b8a852a0e693eb3d40b9e",
-      "inputs_sha256": "2a4d074dbdfe801e54051be0a14ffca68d2e84337f3799070eb3303a63d25501"
+      "inputs_sha256": "bc0d959c52e35e07e471486f1df6f060c08d31a9f68c750d8d18d03d466b7866"
     }
   },
   {
@@ -1456,7 +1966,41 @@
     "identification": "Stock ASWeaponDefenseDummy vtable at RVA 0x2fbe60, slot 3, points to entry RVA 0x1ef8c0. Registration at RVA 0x1ed14b passes placement callback RVA 0x1ef8a0, which installs the table at RVA 0x1ef8ad. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "56f9064bad3203301a422c56918f15886491e256f658a2c0b6572540f6e4d710"
+      "inputs_sha256": "0a65fcd3c9425a7511287d245a213bfd3832f0af50267590ee93f94d50355c8e"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1ef8f0",
+    "size": 109,
+    "offset": 2029808,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASWeaponDefenseDummy@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASWeaponDefenseDummy@@UAE@XZ": {
+        "va": 280822200,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASWeaponDefenseDummy@@6B@": {
+        "va": 281001568,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AActor@@UAE@XZ": {
+        "va": 278472144,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASWeaponDefenseDummy::~ASWeaponDefenseDummy at RVA 0x1ef8f0. Registered class ASWeaponDefenseDummy installs vtable RVA 0x2fbe60; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AActor destructor at RVA 0x925d0 under C++ frame handler RVA 0x2d01b8.",
+    "match": {
+      "bytes_sha256": "76c82a38a19e81c64558d51bdfd94192cbbae02ad2a197948271e7c3a8048571",
+      "inputs_sha256": "bbab313770fc56f1fa9b2e63ad115b60053a049199cd6bac7b99b8220ecbf321"
     }
   },
   {
@@ -1482,7 +2026,7 @@
     },
     "match": {
       "bytes_sha256": "637a2b6009448103b2f6a7ad0082f5d656813fd5e6d970b9aa72ee0354fd5575",
-      "inputs_sha256": "471b440fe9cfa42b2752166316bc20ad2d71f0d3dc29367a0356130401df30f7"
+      "inputs_sha256": "b4a435dbffecac0eb44db86ca85a88d204e3e34d6009bae8aad0efa8eaae6b64"
     }
   },
   {
@@ -1508,7 +2052,7 @@
     "identification": "Stock ASVolumetricSensor vtable at RVA 0x2fbd28, slot 3, points to entry RVA 0x1ef980. Registration at RVA 0x1ed0ef passes placement callback RVA 0x1ef960, which installs the table at RVA 0x1ef96d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c3a7fd55233808375d5e6cc7a66484dc64a6f27315d40595850747a7d9c376ce"
+      "inputs_sha256": "2eddb0ddb59fff9e3f01bcf1c642aa5b1e6e9a6df3cd214c9716e4bd6fdf7e89"
     }
   },
   {
@@ -1534,7 +2078,7 @@
     },
     "match": {
       "bytes_sha256": "2261348b41c3df6cd4ed12167ee84beccbe1e3d593c8977a3a1e4ff8c83b7086",
-      "inputs_sha256": "e81b65bc02b9028e1f41f016be11f4d92b0cc9f163f619b8e2b735f9100dc08c"
+      "inputs_sha256": "01f2c9d0cc95e3f5bccc588e1e62a0b2a15d85dd42253168e50b961a5b029731"
     }
   },
   {
@@ -1560,7 +2104,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "fc0fb82fb00ac821bc8bd66aaf652f9a0e309ca20a4e2155eb43064c66404f1c"
+      "inputs_sha256": "79d19d0019083ab7f11527ea6e550c5a48d06de14671db31f81ff0618043a907"
     }
   },
   {
@@ -1586,7 +2130,7 @@
     },
     "match": {
       "bytes_sha256": "b0fb5d163ddc1043cf2654c5cae440557d32448d3bbe08b8c573fae4b72341d0",
-      "inputs_sha256": "d65f7d773fd388b30371ddf7d217376484d9ede1ec7a9f8b4708e8c6595e0fae"
+      "inputs_sha256": "5c42da767aca9b3828b9cd74279a0f1595ffc83f98b9b481f5cd1ae45a483b1e"
     }
   },
   {
@@ -1612,7 +2156,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "062139e8083affb66d7e829bdc3195709db9f8383ffefcb74f58ca1805e15042"
+      "inputs_sha256": "da5b0239f4c2bf439289586e3409780a5fbc0aad42a9faea48fee041ef4f6183"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1efb50",
+    "size": 109,
+    "offset": 2030416,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASTriggerInteraction@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASTriggerInteraction@@UAE@XZ": {
+        "va": 280826728,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASTriggerInteraction@@6B@": {
+        "va": 281000624,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1ASInteractObject@@UAE@XZ": {
+        "va": 279894560,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASTriggerInteraction::~ASTriggerInteraction at RVA 0x1efb50. Registered class ASTriggerInteraction installs vtable RVA 0x2fbab0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the ASInteractObject destructor at RVA 0x1eda20 under C++ frame handler RVA 0x2d1368.",
+    "match": {
+      "bytes_sha256": "859793a37cbc8facc2b793bdbe37f7dc2e8a6a52872014222aaa9276b177727d",
+      "inputs_sha256": "d920ea7e493ff864a18679be68109a04d01b654deed714c89a805e657cc807aa"
     }
   },
   {
@@ -1638,7 +2216,7 @@
     },
     "match": {
       "bytes_sha256": "1c88b1553eca2efe36d294d43ad92da86fbf69fd5c6f9141e6cdd9394ea4dc22",
-      "inputs_sha256": "06c33ced3daeb54732368ddb2a59e86def1686798519e5032b5269b0190c1a6f"
+      "inputs_sha256": "8fbdef8e6b8e355a2d1900b6bc87a4b544638688a03821192e64cda1af936b88"
     }
   },
   {
@@ -1664,7 +2242,41 @@
     "identification": "Stock ASStickyCamEmitter vtable at RVA 0x2fb968, slot 3, points to entry RVA 0x1efbf0. Registration at RVA 0x1ecfdb passes placement callback RVA 0x1efbc0, which installs the table at RVA 0x1efbe1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "b0617cbceb9cc8ec5ae058b51b264f03e40acd53bc26ba58fe945fc52cf669af"
+      "inputs_sha256": "1332dbf078b913e895e00cadbe967c4697020c64d0437c7d72686047f0ca667c"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1efc20",
+    "size": 109,
+    "offset": 2030624,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASStickyCamEmitter@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASStickyCamEmitter@@UAE@XZ": {
+        "va": 280826008,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASStickyCamEmitter@@6B@": {
+        "va": 281000296,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AEmitter@@UAE@XZ": {
+        "va": 278561488,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASStickyCamEmitter::~ASStickyCamEmitter at RVA 0x1efc20. Registered class ASStickyCamEmitter installs vtable RVA 0x2fb968; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AEmitter destructor at RVA 0xa82d0 under C++ frame handler RVA 0x2d1098.",
+    "match": {
+      "bytes_sha256": "cf8694220dd1553b8017a88fdc0ab5a772d9ea25f0ef9fa830dc2b9ded115e99",
+      "inputs_sha256": "e18f452cf20ce4ce010601272b3be14dc2a83eff57d02b465e5c097a75d1fc38"
     }
   },
   {
@@ -1690,7 +2302,7 @@
     },
     "match": {
       "bytes_sha256": "f5263b168dd0e0dd94877f1f5e93d2e7ce97d5c4c6a65a454467a3d3565fb210",
-      "inputs_sha256": "0ce649906c3b93d90435c54d701807fc6de9a17a47c298ed1edc7f2e0f2944ca"
+      "inputs_sha256": "f3e63fbb3f00682a23cd9b24c38e4e29785db88d5fd5cd0e748970c28f1cb0e6"
     }
   },
   {
@@ -1716,7 +2328,41 @@
     "identification": "Stock ASGadget vtable at RVA 0x2fb830, slot 3, points to entry RVA 0x1efcb0. Registration at RVA 0x1ebbcd passes placement callback RVA 0x1f2fb0, which installs the table at RVA 0x1f2fbd. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e2f9d694b913e094d35f5d6814bd2f7a4044a7999ce3bb604eec340429855c7c"
+      "inputs_sha256": "a56cb7715b73762e1640e6b6eb48646c56f49d9dc27e653544a045762f72ca1a"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1efce0",
+    "size": 109,
+    "offset": 2030816,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASGadget@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASGadget@@UAE@XZ": {
+        "va": 280826104,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASGadget@@6B@": {
+        "va": 280999984,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AInventory@@UAE@XZ": {
+        "va": 278540496,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASGadget::~ASGadget at RVA 0x1efce0. Registered class ASGadget installs vtable RVA 0x2fb830; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AInventory destructor at RVA 0xa30d0 under C++ frame handler RVA 0x2d10f8.",
+    "match": {
+      "bytes_sha256": "a0c8c649a72cdfa8d722b0f12e11c69b6ce51ae2ba0a9632fc91c325511901f2",
+      "inputs_sha256": "7d9f3a57c476ebb6fa8c9894bc80ca68d8b6c0231a38aa7d4f8bebfce2e0e318"
     }
   },
   {
@@ -1742,7 +2388,7 @@
     "identification": "Stock ASSpyBulletLauncher vtable at RVA 0x2fb6f8, slot 3, points to entry RVA 0x1efd50. Registration at RVA 0x1ecf7f passes placement callback RVA 0x1efc90, which installs the table at RVA 0x1efc9d. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "0dacb7d2e909adc2a77e246a8f8f05076fbb72fe54c2f8d122eefc72eb005280"
+      "inputs_sha256": "72f67a86e9b6a1b49f6e410684f40384d6cae73dd62f8b5fe28bcdf67b75467f"
     }
   },
   {
@@ -1768,7 +2414,7 @@
     },
     "match": {
       "bytes_sha256": "2769f00c78fe21cb41a6b5327f4f0682bf5d6ccc52e204a8b885fc9954ef7f68",
-      "inputs_sha256": "da006f8dc1b17192d026b341f99a462408d67d75315bcd576327b0318304bbc2"
+      "inputs_sha256": "8760978d013e41a898c1b606a37c18b6140ac063d8e1a5a3e756e18ec1d10d6f"
     }
   },
   {
@@ -1794,7 +2440,41 @@
     "identification": "Stock ASSmokeLaunchEmitter vtable at RVA 0x2fb5b0, slot 3, points to entry RVA 0x1efe30. Registration at RVA 0x1ecf26 passes placement callback RVA 0x1efe00, which installs the table at RVA 0x1efe21. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e70134781e5bda62d7582994e0e00937fd781fdc05519ad6548157e0994c22f9"
+      "inputs_sha256": "896b849702f5e0186d527b04c53cd6ea00f9b79b7037bb94cb2210c859573630"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1efe60",
+    "size": 109,
+    "offset": 2031200,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASSmokeLaunchEmitter@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASSmokeLaunchEmitter@@UAE@XZ": {
+        "va": 280826008,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASSmokeLaunchEmitter@@6B@": {
+        "va": 280999344,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AEmitter@@UAE@XZ": {
+        "va": 278561488,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASSmokeLaunchEmitter::~ASSmokeLaunchEmitter at RVA 0x1efe60. Registered class ASSmokeLaunchEmitter installs vtable RVA 0x2fb5b0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AEmitter destructor at RVA 0xa82d0 under C++ frame handler RVA 0x2d1098.",
+    "match": {
+      "bytes_sha256": "ce5d80c7bfdfc1fbe2fda205ebeb5257d9fba4a72d9928f3d73edaacce219887",
+      "inputs_sha256": "89347a97dc7b2e6b3ca6db2f124691f679e5654d17dad60cff4bbe665ecdf536"
     }
   },
   {
@@ -1820,7 +2500,7 @@
     },
     "match": {
       "bytes_sha256": "f2aa22de8484e435256e9f8e554a8d839d17510295eae6fa93486e8f8a3dbae0",
-      "inputs_sha256": "448f6740d030b14a07c2ab55796edb8c939c8bc12da54c31af79a421fab4edcb"
+      "inputs_sha256": "9e65578afd56bb34b76e82a8616586a3709a8ab36fd631dda76c51c8f0fd779a"
     }
   },
   {
@@ -1846,7 +2526,41 @@
     "identification": "Stock ASSmokeEmitter vtable at RVA 0x2fb468, slot 3, points to entry RVA 0x1eff00. Registration at RVA 0x1ecece passes placement callback RVA 0x1efed0, which installs the table at RVA 0x1efef1. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e305fcdb320ac11249c45d536eb816eac3f91c555e4483a90d872131b9c84dba"
+      "inputs_sha256": "4c7c2b5c24517e38ac2df9bba665e8d4894136c5530617734d6bbdbd753273d7"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1eff30",
+    "size": 109,
+    "offset": 2031408,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASSmokeEmitter@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASSmokeEmitter@@UAE@XZ": {
+        "va": 280826008,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASSmokeEmitter@@6B@": {
+        "va": 280999016,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AEmitter@@UAE@XZ": {
+        "va": 278561488,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASSmokeEmitter::~ASSmokeEmitter at RVA 0x1eff30. Registered class ASSmokeEmitter installs vtable RVA 0x2fb468; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AEmitter destructor at RVA 0xa82d0 under C++ frame handler RVA 0x2d1098.",
+    "match": {
+      "bytes_sha256": "e609470034cfce99186c4e54f11f3978ac5a79cf4a440c4728b4f5a2290cbd2c",
+      "inputs_sha256": "0c26e3d8d9cae006dc1eff67a2c77e7dcf6fab4e592c88ef01d0a0b7474684e0"
     }
   },
   {
@@ -1872,7 +2586,7 @@
     },
     "match": {
       "bytes_sha256": "a977fdff883f02a4a7b3212adefc98742c744fbbbddc2daa30ee07af80d4a2bd",
-      "inputs_sha256": "b4d023b1be6dbcad45bea808cf6d4fcadccfa69275481857a404cb31accf98a3"
+      "inputs_sha256": "5210e84107c840cfe3290ccde07554ac1da6b5c30fda84c7d3742fe461774934"
     }
   },
   {
@@ -1898,7 +2612,41 @@
     "identification": "Stock ASSavedMove vtable at RVA 0x2fb330, slot 3, points to entry RVA 0x1effc0. Registration at RVA 0x1ece76 passes placement callback RVA 0x1effa0, which installs the table at RVA 0x1effad. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "665577480b500b0cf09a895928ad281b00cdec0f6f059bf0dc38e9e460651a72"
+      "inputs_sha256": "2a68f62a546fde95dc349925817a1586ab35443bc6809aece8173d5af0d099dc"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1efff0",
+    "size": 109,
+    "offset": 2031600,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1ASSavedMove@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1ASSavedMove@@UAE@XZ": {
+        "va": 280831432,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7ASSavedMove@@6B@": {
+        "va": 280998704,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1AInfo@@UAE@XZ": {
+        "va": 278554704,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor ASSavedMove::~ASSavedMove at RVA 0x1efff0. Registered class ASSavedMove installs vtable RVA 0x2fb330; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the AInfo destructor at RVA 0xa6850 under C++ frame handler RVA 0x2d25c8.",
+    "match": {
+      "bytes_sha256": "8e3ba15fca5aad3b7b8d37ae5424becbab82f65f8f0ef8995904103a98bf6bfe",
+      "inputs_sha256": "ee130450106ad1999013db7408ac43413767045357fee1737b186ae112d92d8b"
     }
   }
 ]

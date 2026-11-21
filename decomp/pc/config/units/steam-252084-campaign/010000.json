@@ -23,7 +23,7 @@
     "identification": "The read-only pointer at RVA 0x7b880c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4ee4970ac2beff8e018c3ae441f3773e5049d989630911d9f86145f669a108ea",
-      "inputs_sha256": "f260046f3d6955789ed6bfc18de3431247123568fdaffaec359b016fe6a15a6a"
+      "inputs_sha256": "89df74f7b3723422e070d3423ad62be1a83e3469f107813b1a50183e3797bd04"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "The read-only pointer at RVA 0x7b8abc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "5084bf13c9e462caec7f408c5fd7409224be3d23b8eb3ea00a8701b5a0eca934",
-      "inputs_sha256": "c82658ba7525daee92ba3316f6466b0b5c310ac490863352e794ee98e29fa8f5"
+      "inputs_sha256": "da20c5065728b6e5ce7e682b5bcd0bbbbdcddc0747f4d23879dc4908f6617d16"
     }
   },
   {
@@ -77,7 +77,7 @@
     "identification": "The read-only pointer at RVA 0x7b8bc4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "086fadd9193c02635c732cd42e62c3599aaf43f2107d998a4fde8f607a48e3da",
-      "inputs_sha256": "e4527c8c52bdc3b64eff71ec5b04dd212d5faa31cc808c3d264b4279c7651680"
+      "inputs_sha256": "43192217c0faa1600be6b6413feb2426a9c9d05ca5dc9bb12f194f315d23fb69"
     }
   },
   {
@@ -104,7 +104,7 @@
     "identification": "The read-only pointer at RVA 0x7b8ce4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "dd10f20db45d00de6ad8684e8b1a7e6ab5e73256dfee474a496ed09e0d0d87a1",
-      "inputs_sha256": "261dbfd3d542d9329c32de75b260526df525856d4a0c0da280a18300695d7865"
+      "inputs_sha256": "8fa5a61e4d0f77b32f244d982cbbcc57c41ec9704fba4af4b6099bae1f1c68df"
     }
   },
   {
@@ -132,7 +132,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x11de0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a524e66a03ed1a443f588ddb994a91e74dc476f286f1600e1aeb16a65f46df26",
-      "inputs_sha256": "56b914dca094a791a97f5034229f45f8a76fc87892f03994066785327414b8ef"
+      "inputs_sha256": "a83ce6ed7f35c0bf508d1d0161e0b5a8951da0ae84aa07a0dbb03214f41ff0ff"
     }
   },
   {
@@ -160,7 +160,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b8f84, and returns the previous count.",
     "match": {
       "bytes_sha256": "75a49311375202d5bee5a789bf896d567393adb12e1114ac5fce708f53d6a578",
-      "inputs_sha256": "964646f4134f071619cdc134534c934c133338431695ed6c79684ba4e3da68b4"
+      "inputs_sha256": "9fe0e1f63b0f1e9d65d5454e178633605dcca37945bd0e0f5abec477c7f286f8"
     }
   },
   {
@@ -183,7 +183,7 @@
     "identification": "Complete FArray storage release at RVA 0x11ed0. Microsoft C++ frame handler RVA 0x7961a8 uses FuncInfo RVA 0x87b45c. State 0 in unwind map RVA 0x87b454 selects cleanup thunk RVA 0x7961a0, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "f74da2352b3f37da29067ef5e1c8ed2853d457d1006031e1c09ffa7a01d17157"
+      "inputs_sha256": "01b8e16d56275fbd44d9a90cd2fd16b746ab6c1814550f23722cadc15e327bc3"
     }
   },
   {
@@ -214,7 +214,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x11f00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x11e8d, 0x3cf179, 0x3cf2d7. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "362aa0620155d19b4be5b0a10e3afd656584130289406da486ab5201f590043a",
-      "inputs_sha256": "83760ae451ec507c8c33aad539e83dea2782605e2e7cdc99e1b0ec00c14c40aa"
+      "inputs_sha256": "fb8f90a1bc8918ca3a657c19532e9bdd480330f917298a398da49bd27e7a3fcf"
     }
   },
   {
@@ -241,7 +241,7 @@
     "identification": "The read-only pointer at RVA 0x7b8e34 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "bb86478647594bf3688432732450c9a1e01f3f2a352f60a55c094f89e3df9745"
+      "inputs_sha256": "ee6c7dd8526288a76837cd8acf2bc98f4e3ae073ceafe5d9284213f18585b7f9"
     }
   },
   {
@@ -268,7 +268,7 @@
     "identification": "The read-only pointer at RVA 0x7b90fc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a66fd0c23f7034a59e58dfd18fad3270672aa6d9a113949bec3d984d448a7885",
-      "inputs_sha256": "910aa12d889030f17ec895a6934488609d650e43056d50c506ab63d3b9c00182"
+      "inputs_sha256": "5adaea5d4aa99648f37c08076d02c400efd5a20a2e99398d8c75125ae44b6084"
     }
   },
   {
@@ -295,7 +295,7 @@
     "identification": "The read-only pointer at RVA 0x7b91f4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "bb3bd64766c14d5322f73109ba215d06392052f4ba9dc05c16ffeefc20134322",
-      "inputs_sha256": "2148427c1eb3afa50c6cbed1558f2db6a0585ff114ce93dc84235d3cc9774f1b"
+      "inputs_sha256": "fd30f5f2021e7b513933eeb441b4e3a3f332730acc1f6d1d641c1d850b7a57cf"
     }
   },
   {
@@ -322,7 +322,7 @@
     "identification": "The read-only pointer at RVA 0x7b9334 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "301e0cf83fcef91490e057b10b6d267ef96a19c55878b00aef24d40f432cd7dd",
-      "inputs_sha256": "64291dc5b151628e5f26c03efd6303a6a318c231160e3b72ed72713892fe68b7"
+      "inputs_sha256": "57582de3287d57d221952ac621b883d93b94f042e39606b240e8abd2839a7570"
     }
   },
   {
@@ -349,7 +349,7 @@
     "identification": "The read-only pointer at RVA 0x7b9474 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "b8e84bd6dd1d0428a8f9fbee18c2d19f0e6ceed913f398b020c4ec960f630600",
-      "inputs_sha256": "ca6b74890483207210d60bc1f498a91e3575bce0ca1d690740b99355723c4443"
+      "inputs_sha256": "639ea180623ffcaea492d48538cdef7586c9977e3887864a1b22161849b2e742"
     }
   },
   {
@@ -376,7 +376,7 @@
     "identification": "The read-only pointer at RVA 0x7b95bc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "bd5559a6cccc105560c7bd44beb16b6ed137c08ae57db7de89233dad0da359f7"
+      "inputs_sha256": "e67a044415c4279979f1e836b1acd79efd67a0a6dc69973716bc8b714d91a992"
     }
   },
   {
@@ -404,7 +404,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b9b70, and returns the previous count.",
     "match": {
       "bytes_sha256": "14b40e8a5740e5410d8e0015355d2fe6cd03f0c263d6a1804e73085993d41cd4",
-      "inputs_sha256": "39d0dce145da4f5353d56637b89de95315143c458d30f8af3fe924f9aae0b9ff"
+      "inputs_sha256": "941a2a005e26d4bed6cfe4ac3365808479c273490f83cf47368c2173d70fb223"
     }
   },
   {
@@ -432,7 +432,7 @@
     "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 8 bytes. Heap slot one receives the UTF-16 tag FArray::QWORD at RVA 0x7b9b70.",
     "match": {
       "bytes_sha256": "7c117f935ea6c1d4f0d8814e3dec9891edae1d550b93403de5fd3a48715370a7",
-      "inputs_sha256": "0a7e3e9677651a673526bf3118281a68633ed5d63bdcbaeb52be902c64c2d325"
+      "inputs_sha256": "d2305ebe59e3b996b49efdb5bb0131ef8db23be6eb96e1538e197055abdabf59"
     }
   },
   {
@@ -460,7 +460,7 @@
     "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
     "match": {
       "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
-      "inputs_sha256": "2acc3e4adbe325caab8b2c1c43fe4905572e24503442ebecb008b08075d192d5"
+      "inputs_sha256": "36aef5d470ec21beabaf47792b834db625eaf2a031bdc7b6840721f626165c07"
     }
   },
   {
@@ -483,7 +483,7 @@
     "identification": "Complete FArray storage release at RVA 0x157d0. Microsoft C++ frame handler RVA 0x7965a8 uses FuncInfo RVA 0x87b83c. State 0 in unwind map RVA 0x87b834 selects cleanup thunk RVA 0x7965a0, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "881b84956a09e832ba5d351099e577c118b4626a82721b2b00e207ade716acdf"
+      "inputs_sha256": "82e1be3227dddeb12d9188e805844f943486856729f383662c874c4981b6bb94"
     }
   },
   {
@@ -514,7 +514,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x15800, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1578d. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "1ee9e7269c8db1546178e8a3d59d4e69957cd8d71f21ae3ed54b03957cbe4892",
-      "inputs_sha256": "edf4efedecdf1ff39afe33d5bc8e6b55b6324c6a41a78409bbd184fb27de472d"
+      "inputs_sha256": "9fd38789c5749fca8817853f697a86482b9d3bb2df5c1e491e1a77afd1023028"
     }
   },
   {
@@ -541,7 +541,7 @@
     "identification": "The read-only pointer at RVA 0x7b9b94 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "04b07738ea0ea5a2329d0fd2e556d13ffb78fe07341b0faeb398aa70f64e8f8b"
+      "inputs_sha256": "b9e584ef85413566317404e8091dd589c57178c8d5b179afaf59530452066865"
     }
   },
   {
@@ -569,7 +569,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "0a7645e61662686afb03a083a99f3bbe8b8bef10bf448f47c889e9f0232fa381"
+      "inputs_sha256": "29db04e07ac93f4c8d7d0f3abfe978e62c93ee8230d9bf1856e0c253423e325b"
     }
   },
   {
@@ -600,7 +600,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x15cf0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x15cd3, 0x407eab, 0x7b39df. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "10cb74dd122bb2f4098e35a292fe46066e9e8bfee53ae225e1a121d8cfc509d7",
-      "inputs_sha256": "475c3a06cba91c7e2e20746ff921b858280eb06c55b6e012d735f7c73d92d594"
+      "inputs_sha256": "330e65ba150b8c0dd7df494d521777c93cf7625f7631a1fef25afcdcd7fe435f"
     }
   },
   {
@@ -627,7 +627,7 @@
     "identification": "The read-only pointer at RVA 0x7b9edc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "08255260889098c91e60430063c49672c906d739b45cbd98dccccd840541ee19"
+      "inputs_sha256": "77a54caefc5a19f088dfdd653bb87d2988282f74a74be59cd22fc303b99c8e39"
     }
   },
   {
@@ -654,7 +654,7 @@
     "identification": "The read-only pointer at RVA 0x7b9c8c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "f678584eece34340b84d370c727b3f4ec1e747ae03fb9aed251443e91330e271",
-      "inputs_sha256": "80a6895af3e7fb271005a0663e1a465d82c5b60ead8806f086d2c92380585d29"
+      "inputs_sha256": "259a38b2ae2a793847bd8933599515421b72556611a68bccd04bd513a12e2899"
     }
   },
   {
@@ -688,7 +688,7 @@
     "identification": "Typed cast at campaign RVA 0x16ef0, directly called at RVA 0x16e35. Its class constructor at RVA 0x3ecb60 identifies UArrayProperty; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "885b376737bfc77b11c777f8fd969493be91215fefbd445546fbb465e5739298",
-      "inputs_sha256": "4d0888cafcd6787359a94d05b4f9597d14e6ec8e86d92d81b33c290a449dbd31"
+      "inputs_sha256": "8eb6f6376a4c75ca5458f4a67402ef0387b8311a5784338b921afdc205080fe0"
     }
   },
   {
@@ -716,7 +716,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7ba13c, and returns the previous count.",
     "match": {
       "bytes_sha256": "ae09f5c7022a9588282017862da24d9e9648d8bc6da1bc864e8a8dfe03fb6536",
-      "inputs_sha256": "eda2bf9ad5907f95162ced14b1e414f7516b2eb232a9b98005ede49e3f30cf8e"
+      "inputs_sha256": "305520c98272872cbcd3507c8cfb14e1da84b3dd6ef5882a397e2d6526b83047"
     }
   },
   {
@@ -744,7 +744,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7ba17c, and returns the previous count.",
     "match": {
       "bytes_sha256": "f8379f078160a1378136e6802313fc83a0bb236fd39263bb15064c5a61a3336d",
-      "inputs_sha256": "3248be7e407fb9c11b0f0634470eab48c0748c2a8bce5c1aa129e458ac700fe9"
+      "inputs_sha256": "09b07af6749d6c2af6c5f6078c323e57b4a8ee40571312957d7626b4288d2f17"
     }
   },
   {
@@ -772,7 +772,7 @@
     "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray::UObject* at RVA 0x7ba17c.",
     "match": {
       "bytes_sha256": "dcc387150e1cc03f1106d97d27a993aab4e0fbc314eb34587c9c1d7c58daf61e",
-      "inputs_sha256": "d6ac66a738def4827a8ed14039bc3e6ae003ce7f4a5fd14c3e9724faf08e726f"
+      "inputs_sha256": "ce4a44584662b3b5846e688ebaf22066a2604c918a20b4f06bd05ac2c8d94a3b"
     }
   },
   {
@@ -806,7 +806,7 @@
     "identification": "Typed cast at campaign RVA 0x18c20, directly called at RVA 0x18a02. Its class constructor at RVA 0x3ec710 identifies UClassProperty; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "920ca7a5043e822132a3f6d2fb2dd53a8d288fca057c016b041b005097cde9bd",
-      "inputs_sha256": "1d6734acb4fcd666b52157bc50c913abc6105d04c8632418a6fd39c6b14c1f59"
+      "inputs_sha256": "c180016affb42d3616c6963fbc42bafe232c577233b67a16336a00ecf55f44fb"
     }
   },
   {
@@ -834,7 +834,7 @@
     "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
     "match": {
       "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
-      "inputs_sha256": "5cb64b385f22ff9a15f683352f8158ef6780fede897ec84bb63d6834730e5df3"
+      "inputs_sha256": "656cbb878343aba8235a4d46bfb4477560f2a7d3bca33bfb4735a86ea380ab1f"
     }
   },
   {
@@ -862,7 +862,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "3c120e914ed5c1584eaaf175b1a15bbad508e071afd98f7fc8efff1d94dc2bd1"
+      "inputs_sha256": "09754beb575d646a1d5a2b4778644c56ff64f48ef7768406edafe3b476e1954f"
     }
   },
   {
@@ -889,7 +889,7 @@
     "identification": "The read-only pointer at RVA 0x7ba2b8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "685db2b4d5f75ea0934576e358dfb48660a3255ed0a959b542d91b3050e77bfc"
+      "inputs_sha256": "f843f5e0456dd233131136dd40e9845371fda1ef303757f589d9bec058623652"
     }
   },
   {
@@ -912,7 +912,7 @@
     "identification": "Complete FArray storage release at RVA 0x192f0. Microsoft C++ frame handler RVA 0x796918 uses FuncInfo RVA 0x87bbcc. State 0 in unwind map RVA 0x87bbc4 selects cleanup thunk RVA 0x796910, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "37295af94c80f197095bdd080c1222cf1a5c21f3911936e221030d75fa34c226"
+      "inputs_sha256": "bffe7e937566659d406d179a0aa3c27ca2d0e7dc1b28f1c2ee25904c52ad5ff3"
     }
   },
   {
@@ -943,7 +943,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x19320, including RET. Incoming transfer decoded within analyzed function code at RVA 0x192ad. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "1da2dd8443631843c1d407af723cf24bd9e1fb8fc5bbb0a29942e1e2ed0540e4",
-      "inputs_sha256": "cc9d0b7529de8a8c714a5fc7f95df10cfbdda8bbafa86e728b9bc3083d42cb83"
+      "inputs_sha256": "8984d0f515a25c3a53327da1396c3d6cf25c46aa91012eef9487823d4383e374"
     }
   },
   {
@@ -966,7 +966,7 @@
     "identification": "Complete FArray storage release at RVA 0x19420. Microsoft C++ frame handler RVA 0x796938 uses FuncInfo RVA 0x87bbf0. State 0 in unwind map RVA 0x87bbe8 selects cleanup thunk RVA 0x796930, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "6af1fc96284a53ff234ab9344c67aa4fe02cfa9b490bcf854afed62ee3887ac6"
+      "inputs_sha256": "33fc08c6ab1c52cdd6812904fd8e5e3240f0ec2039f6022d840cc1a164adf8f9"
     }
   },
   {
@@ -997,7 +997,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x19450, including RET. Incoming transfer decoded within analyzed function code at RVA 0x193dd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "593d57742048d9249c615fd7c6fd1749a0bd34f8ed8fa0af2827367068b6b47b",
-      "inputs_sha256": "b549a35f66dbbecffe181b41470a01bcacb2777e016a18033faf59e773cdeaed"
+      "inputs_sha256": "a075361dcba9efa4d722bc567e160c8bba39746d1f401ae38f4e99b96bbd5d9c"
     }
   },
   {
@@ -1020,7 +1020,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x19960, including RET. Incoming transfer decoded within analyzed function code at RVA 0x196c4. Releases non-null storage through the engine allocator and clears the pointer, capacity and count.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "1f36ab46f74a4301baaf89833c19fcad14ed280f624084b0f3ae094d41742f7b"
+      "inputs_sha256": "5ccca4a0ac2484bc70b771e136f0ff5ca476b1b3635e9e065e57101a4bff4c57"
     }
   },
   {
@@ -1042,7 +1042,7 @@
     "identification": "Indexed whole function. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "3f77f4344fa0acff24b9d0e963f4836c9a0da1b64830491b901305b8c439fa66",
-      "inputs_sha256": "5acb5396b6e711340b7df8d11f43490ca966bb0f9fa39179f8c50f67c54b4eb3"
+      "inputs_sha256": "f852c0dfccd0e0d343e56466b2030089c228a06a2ffcdd7a556d7d5a274a2d9d"
     }
   },
   {
@@ -1073,7 +1073,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x19a00, including RET. Incoming transfer decoded within analyzed function code at RVA 0x199ec, 0x19b3d, 0x1b113. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "a059d331d8bd47fa0163d4f5546b9e4c132892048344dd9276d8ac724afa6792",
-      "inputs_sha256": "ebdda83f5743d84454e5976b4102a1ea90566bc3189dc015b2da890a21bf0dd3"
+      "inputs_sha256": "583f0d98bd1b13ca725eb30d973eb9ab69b7c052bb28e6743e71e4e4d109416b"
     }
   },
   {
@@ -1101,7 +1101,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "2fbd5833bb380e368ea5ae1b0bdaddbc2fc57b67e0d450854a77743a65993905"
+      "inputs_sha256": "0bdc20127b9d69cff7e37d66f954a6bdc4b417cab093826e3bd942148f7a8219"
     }
   },
   {
@@ -1135,7 +1135,7 @@
     "identification": "Typed cast at campaign RVA 0x1a010, directly called at RVA 0x19cef. Its class constructor at RVA 0x3ec6a0 identifies UObjectProperty; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "725e1f3ba29383c6b904f0c12c9f4ec2627fdbaa1c85eb9400f482f9d92264ed",
-      "inputs_sha256": "45ef0b0ad82a812aeb8765b69d48a84e93022a6f13278aa8c80f3170575e88a4"
+      "inputs_sha256": "4ca9538a932c2b83569f667b847700500a831bbf793f0533ce6211d3feb5aaf7"
     }
   },
   {
@@ -1169,7 +1169,7 @@
     "identification": "Typed cast at campaign RVA 0x1a070, directly called at RVA 0x19da7. Its class constructor at RVA 0x3ed320 identifies UStructProperty; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "56f01bdd475c85c8fd5e4ad59717d116f1c2a8576857e810a9bc721f9ac35b98",
-      "inputs_sha256": "2defb59c30be7d2230ae9bed034b29c2296df669b73e1ffdf0e806b318bd8bf8"
+      "inputs_sha256": "1529ef15a6870c27e5d3064536d3dc601da018c4c02c1cc00eec93ea71dd3793"
     }
   },
   {
@@ -1203,7 +1203,7 @@
     "identification": "Typed cast at campaign RVA 0x1acb0, directly called at RVA 0x1abc1. Its class constructor at RVA 0x3ec5c0 identifies UBoolProperty; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "11a75953076742793b96a7a05d1834247a6609eb2731940efb2a1442011ab0ea",
-      "inputs_sha256": "5071973698d001b966228fa888e102303e46ece3366dd72bd9b696f3490a625c"
+      "inputs_sha256": "7b0e55f829cab1e1c47ed5a9ba6734dd3e8bf45941d707610d87f24faed22879"
     }
   },
   {
@@ -1230,7 +1230,7 @@
     "identification": "The read-only pointer at RVA 0x7b9824 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "4f11539b7c5215fa43ac8ca31ab0cd925e13e38de7b101d7a9e1d0dd1270aa5b"
+      "inputs_sha256": "44d7ab1c76dcea3d00b175849215ba7400e2fae1d31e88295ad318efd03c4eb9"
     }
   },
   {
@@ -1253,7 +1253,7 @@
     "identification": "Complete FArray storage release at RVA 0x1b290. Microsoft C++ frame handler RVA 0x796a38 uses FuncInfo RVA 0x87bd2c. State 0 in unwind map RVA 0x87bd24 selects cleanup thunk RVA 0x796a30, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "f70ebc582de64c6d2e55f921b831e6f0394f550e2f3543520515e1e4ae8f6fa0"
+      "inputs_sha256": "90da080d2dc9b6d11e915ff4956ecdba111db507fcd25fe54e83ba3d6850d976"
     }
   },
   {
@@ -1284,7 +1284,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1b2c0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1b24d, 0x1a9c8b, 0x1ab1a6. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "3217b63e2e1cb23f71a81d8e8b2305cd84f6e5ca19af3a16537d56a86d3ed8d8",
-      "inputs_sha256": "e0c3893c313d5a68387c4cad0f4c70f9644616ba9566be5769f536c1542c4f08"
+      "inputs_sha256": "a6057b23e6b664395afa445096c406dea224cd7282b35b14406040da6b74dafa"
     }
   },
   {
@@ -1311,7 +1311,7 @@
     "identification": "The read-only pointer at RVA 0x7ba64c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "d7e837430e86d271830c6ee533ccd8052a743b7e78559df4c2462c1cc7abeb57"
+      "inputs_sha256": "0c952482506ff2ca8866db2c8d1290205977a1d5d2432601210a6d15dcbee4d9"
     }
   },
   {
@@ -1338,7 +1338,7 @@
     "identification": "The read-only pointer at RVA 0x7ba7bc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a9c1061bfd242bc45a2dd5f7e32c8b18027c1ea715eb731cd53c1272e30a4aec",
-      "inputs_sha256": "a137e0d38977d71016786b10b5a0220f156c92a4d99116dfcdb66fdd09b6aece"
+      "inputs_sha256": "b05e6a744747eba0f0aff19c6fb317f5c25fe3466840a2894adf8586650e4f9d"
     }
   },
   {
@@ -1365,7 +1365,7 @@
     "identification": "The read-only pointer at RVA 0x7ba958 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "e1b8f2475aeb8a2a94e74750ce9fce0a0a72cdc990b7ff94c554c0e2568afaf7",
-      "inputs_sha256": "7c69a056248f6ba72e2cf402169200a1f9d25870f75c369e0d21e15053f33c61"
+      "inputs_sha256": "b4c18e8f3aaf1178568c9fdb71c5875b347d5d32ae446d89407defe51c1c23c6"
     }
   },
   {
@@ -1392,7 +1392,7 @@
     "identification": "The read-only pointer at RVA 0x7b8fac resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "797cce6d4836ce3880c13893877d1f300f7a2ea96e84295ce4e27715f10f3aae",
-      "inputs_sha256": "b4a87c83f09f7c0d4b1804789d7dad15103f669134788b428ca1e35060ffdd60"
+      "inputs_sha256": "bf8691f43a74d8bf6ef5ae75770f84b7b3d12d84eab8d0df7feedae737d54a44"
     }
   },
   {
@@ -1419,7 +1419,7 @@
     "identification": "The read-only pointer at RVA 0x7b9dcc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "026f1f77009f7d0ebea305bf7834fa3f582421443b4f71644c37e8d0750525c8",
-      "inputs_sha256": "2f8b0871bf42e2eeaff3855ba065d0e0555019d27380f169266a962091a6e2e7"
+      "inputs_sha256": "6a4fb52f218fe9db83ffe710a0bc0e96c4165ae93d5d301a1e1399e037e2abce"
     }
   },
   {
@@ -1446,7 +1446,7 @@
     "identification": "The read-only pointer at RVA 0x7ba440 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "3b1870c9aec7e67d3716334bc284dccbaf5dca15f08cb5f4f7fc905eebc99928"
+      "inputs_sha256": "e87323bd18ca2b55cc91d479d11660b61b23731ecaf9670af12ec81818724747"
     }
   },
   {
@@ -1473,7 +1473,7 @@
     "identification": "The read-only pointer at RVA 0x7ba508 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "83aa67d325a68aebf0d4fce3b5c644497647d220a2e74b3de6e23dd5b9015dad",
-      "inputs_sha256": "92a6ab52dcacc273375120f5d412af7c082e9cbfb994c3489f00154dedd8aada"
+      "inputs_sha256": "0d08be7a80735bf79a7d9dfb02897afabd34bf27d24aae5a16bdca11d939f7a1"
     }
   },
   {
@@ -1500,7 +1500,7 @@
     "identification": "The read-only pointer at RVA 0x7ba360 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "879bcc706f3156a6360ccce22decdb02e5849874e85f61ad04aae63b7a98a990"
+      "inputs_sha256": "03e63930dda11755acfb8cb8d243725becf5394d54b5cb30196bdbcb5a3da164"
     }
   },
   {
@@ -1527,7 +1527,7 @@
     "identification": "The read-only pointer at RVA 0x7ba0b0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "fb8a7bdb1d3bfd92188f2513bcfdfa79380a5cdf16c1b10bc5138d74800e648d",
-      "inputs_sha256": "1d79e4d67034d6836428ad484fefdce11cda00e4c8ea85a2e0a71d0838b75a34"
+      "inputs_sha256": "4f35c63e923071b3be63b0b6d67d3bce0b1779eb6d5f1fb69e3338e4d070579d"
     }
   },
   {
@@ -1554,7 +1554,7 @@
     "identification": "The read-only pointer at RVA 0x7ba008 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "131a801df7d044f3356baa9f30b539ec02f9ca2e186e5744e46f9a13bb6b303b",
-      "inputs_sha256": "babfc8796b7fdf0706f87d5cab52eb4a9166e25303839527f9c421c42158d9c1"
+      "inputs_sha256": "3424b7be7118dcb2845d89b36436d831ccd869221df7d26c403d6d0c45467cdd"
     }
   },
   {
@@ -1577,7 +1577,7 @@
     "identification": "Complete FArray storage release at RVA 0x1d2f0. Microsoft C++ frame handler RVA 0x796e88 uses FuncInfo RVA 0x87c204. State 0 in unwind map RVA 0x87c1fc selects cleanup thunk RVA 0x796e80, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "1dee9515494872b4edbd88c7bc00fed475444de966f88f4a1861fded4f978deb"
+      "inputs_sha256": "61ed7bb1076a93bca5ce774272fedf165b67cc1fd97f82f53b4a044e071620f6"
     }
   },
   {
@@ -1608,7 +1608,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1d370, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1d35b. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "b1872cb1890c987f9df6315a9d8f9a9379b09b1ca9dd034022e17f03e4368949",
-      "inputs_sha256": "101ca1e66cd970dbb10ce2a733b26d32b1019d82f3af48f803a5ba6884675719"
+      "inputs_sha256": "56b69b75c139fad7ae379382f65a11e6985c34234a795057d9378884862f679c"
     }
   },
   {
@@ -1635,7 +1635,7 @@
     "identification": "The read-only pointer at RVA 0x7baa60 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "aaa92d712a2c0f70d3b26fcd3bc837fbda6c7c2aeaaadc09a9e63924ee09dabf"
+      "inputs_sha256": "0ab0ca749adf3efcab7ae7aed235e60afa84d9f401de06672c71902ff37a9129"
     }
   },
   {
@@ -1662,7 +1662,7 @@
     "identification": "The read-only pointer at RVA 0x7ba5b0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "29acc8cb950490b162e092ce5e43464d71ab0574915b73522bf3063ad5f7e5b4",
-      "inputs_sha256": "00625dd54dbf651834099ad28929f4945bb37b6d0d8ef8a8e803c3d329553a70"
+      "inputs_sha256": "1f88d2d09955eab2470376f9908c5153e49b102eb59df5c2d04c5a2a5865cfc3"
     }
   },
   {
@@ -1689,7 +1689,7 @@
     "identification": "The read-only pointer at RVA 0x7ba9c0 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "06f54d88a274051f5ac7001037664e84d1cfca040745e38a139bc6c2deb4641c"
+      "inputs_sha256": "8ecf000e2ae5907ad97dd8fba7e4e28315404d54a41f452a60df09491678a9dd"
     }
   },
   {
@@ -1723,7 +1723,7 @@
     "identification": "Typed cast at campaign RVA 0x1ed80, directly called at RVA 0x1dcab. Its class constructor at RVA 0x3ec4e0 identifies UByteProperty; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "ab3879492fca362de75d688c14eab5221d3862c706bdda31987f1fe54e1e1b51",
-      "inputs_sha256": "7d135918bab62adadcda63a95ea426e08ad566b704d48c5042f483a4d79e096a"
+      "inputs_sha256": "2ee4f0ac275516640138a26a4174655e988fbf7d7881779601f9ba8cace1fd8d"
     }
   },
   {
@@ -1751,7 +1751,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "1d7e3c54df313867876b266e07af3f832648b3a2ec5444ca3c702f74f7ed7a44"
+      "inputs_sha256": "d3ecf33fa8aafbc2166d20d64243f083e0349007fc04685beb4c7304ff2989fc"
     }
   },
   {
@@ -1778,7 +1778,7 @@
     "identification": "The read-only pointer at RVA 0x7bacfc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "63a9f83baba257d3249e8bd23d0c540340ea9179423fbcff042f30fd38be7b87"
+      "inputs_sha256": "bf11cc722ce4d40c64c3237c93fa1386981d4db0157da008c19b8f76c1de0293"
     }
   },
   {
@@ -1805,7 +1805,7 @@
     "identification": "The read-only pointer at RVA 0x7bae14 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "02df6e269ab907fa6c1ce35d9acd246a7fd54e3510f6bd369851da9175482aa0",
-      "inputs_sha256": "8c6e5d17d5b2ea0ae2dbbb51e322836618ea370bb938de5b03a0db9ee0cbf4f3"
+      "inputs_sha256": "6f4176e267d8e07544551dad509c74c3249b33500534fa82f2d30269291bd4ac"
     }
   },
   {
@@ -1837,7 +1837,7 @@
     "identification": "Complete FArray range insertion at default-analysis RVA 0x1f6d0. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "ef505aa02d8687a5df4a8c042ecb8516a82555a4606a4680fb72a21c900c2443",
-      "inputs_sha256": "bd3b57f42e59f2722553ec56ec2a1b45d91e93306a662c4cdac6337e73f1a04a"
+      "inputs_sha256": "9d41ad77cdaf2d6414a040a279a6699aa58a785505a220028e5d7a01c798df50"
     }
   },
   {
@@ -1865,7 +1865,7 @@
     "identification": "Default Ghidra extent. Extends an FArray using the requested count and element width, calls heap slot one with its tag at RVA 0x7b7b08, and returns the previous count.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "a2cd2cb7784520b32a188f4c6e3ea3e5973ae348c227946a462e4df95383fe04"
+      "inputs_sha256": "0c278a0bbd299f17f3897db6219aa851cc9e5b296cceb9be48eeea862225bfec"
     }
   },
   {
@@ -1893,7 +1893,7 @@
     "identification": "Default Ghidra extent. Sets capacity, zeros the count and resizes the buffer in units of 4 bytes. Heap slot one receives the UTF-16 tag FArray at RVA 0x7b7b08.",
     "match": {
       "bytes_sha256": "17414bca608bc286f70f28bbc104c6629f3724178cea9a1ee1e15d9b6e8bd8a2",
-      "inputs_sha256": "0d4df5bb05812a05dd4c2a1949b37c2fa214de4838f079e75b59a2280f651af0"
+      "inputs_sha256": "1d5fc2d81795ad8d05342972ac808d74c6df8a50bfbfd8f34f0e62540c3a8877"
     }
   },
   {
@@ -1916,7 +1916,7 @@
     "identification": "Complete FArray storage release at RVA 0x1f840. Microsoft C++ frame handler RVA 0x7970a8 uses FuncInfo RVA 0x87c424. State 0 in unwind map RVA 0x87c41c selects cleanup thunk RVA 0x7970a0, which loads the receiver from the frame and jumps to this specific release function.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "128f9c54c87e7fdad25feaf3d7c82fa849a5d32ad7987eef8131e7b15b0f53f9"
+      "inputs_sha256": "847e387ed0f1a73204ac3f2ea11176ae244d3bbcab4e0bbe96462ef5735e44cf"
     }
   },
   {
@@ -1947,7 +1947,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1f870, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1f7fd. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9fdad441da7987d7974b09774f6ffd1ceb1ca9d3499e27aacbeca4f77eba810d",
-      "inputs_sha256": "4684af52d8931e5addd03a2a6bc2e91bf477acbf4ad27ceacfaaae9deae3626d"
+      "inputs_sha256": "abddf949079a53c8b135d948460b5c832cd6a5bf592c76c1e748a893d6334284"
     }
   },
   {
@@ -1978,7 +1978,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x1fa20, including RET. Incoming transfer decoded within analyzed function code at RVA 0x1f99d, 0x3f5501, 0x3f7d62. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "08302da7b31b00fc3c83691d0cfd2e299a3978d822636cbf39790dca311c9ce8",
-      "inputs_sha256": "a550f4460d35721faffee4389ab8ca364aeb9a6e52e268c463b391b0a668eeec"
+      "inputs_sha256": "88fc71215d820fa2ed2efd95641236e0f8b86bdccbc30670cb8a59d9131e2308"
     }
   }
 ]

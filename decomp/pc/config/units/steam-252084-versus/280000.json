@@ -18,7 +18,7 @@
     "build_command": "cl /nologo /Gy /O1 /c /Folocal/crt_atexit.obj src/crt_atexit.c",
     "match": {
       "bytes_sha256": "9956a247573966813726e63bed94c3b5a88c47839aa1c6e0769f26f4cb070331",
-      "inputs_sha256": "126c73f27fd565ef81615a4397632018e36d96e9bbeaf00037ece008dde8e791"
+      "inputs_sha256": "43f22bb703834ceb592cd6851b1fb640078e811a037eef9565574ecfd7eeeac5"
     }
   },
   {
@@ -61,7 +61,7 @@
     "identification": "Retail resolver requests kernel32.dll!WideCharToMultiByte. The pointer at RVA 0x374bd0 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "25703bf218c4e6509f8f698151641e81f4f81eb937674173dafdb05646ac1f2b",
-      "inputs_sha256": "53e7f5d26a6f53522c72fb0047d04127d1db5d84d001ca4357ab865af2bca8f3"
+      "inputs_sha256": "72de0b760097917192cc3b3744ed6f9ada9c064c44c2765f2a65a3b584e4c56a"
     }
   },
   {
@@ -104,7 +104,7 @@
     "identification": "Retail resolver requests kernel32.dll!MultiByteToWideChar. The pointer at RVA 0x374bc0 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "233dabf738ab74ab39917aafa2e8375bb2dc755fbb20f422432214b1f57f202d",
-      "inputs_sha256": "2fa171e37a40cffe22a0cb6c79a8136a4c4113ff04faff3c6ac2f593d34e5b68"
+      "inputs_sha256": "2c0b1baaba008e4351abf3ef8d777e0fce159387650ea40d0288c88c37b23a7c"
     }
   },
   {
@@ -147,7 +147,7 @@
     "identification": "Retail resolver requests kernel32.dll!FormatMessageW. The pointer at RVA 0x374b88 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "66811b73f508f217f1361ac5ebee67bd6d0906de917184fa726e8051928065bb",
-      "inputs_sha256": "36ef622feb3290bbcb59d1ebb896ac373612c722ba1415fd30b7b62f66b3f219"
+      "inputs_sha256": "faa13e82dabc3f4788cc4a30e543a5ef54316ee78808f0facc7c000afcec3e42"
     }
   },
   {
@@ -190,7 +190,7 @@
     "identification": "Retail resolver requests user32.dll!GetClipboardData. The pointer at RVA 0x374c0c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "2dd6fd2a35be73dcdfba92f93073efd59f8c131b0f9c85e47029a5502b9d5874",
-      "inputs_sha256": "a713015a358b5f7274dfad7fe8ec5b1346a96d2ac8fda6f847b78ed16d341144"
+      "inputs_sha256": "d41840e3de06b4b3d58e01dce493fadefee05cc67db67d3f9c1aeb3a8121a645"
     }
   },
   {
@@ -233,7 +233,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetVersionExW. The pointer at RVA 0x374ba8 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "8d26d8a4f62b08177564142c664c3a10c7efc29e4d71f67cdcbbbb999f5ac7d8",
-      "inputs_sha256": "cbfc98aec6bc196d31e0d86c2f4343243b664c6310d2534f9f3993b4fbd204ca"
+      "inputs_sha256": "0844124de31c904f77adc486870cc7e922d7a80de6da2139b36622318da9f0cd"
     }
   },
   {
@@ -276,7 +276,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetProcAddress. The pointer at RVA 0x374ba0 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "b857f928f3509ad8ba1d218f8573559a277d51a1382d4dd68301e48c84c7f643",
-      "inputs_sha256": "2b6f87f303e519bace6c82a226ddbb42d1de682036fdbc643d7455590b69f6c1"
+      "inputs_sha256": "7d90fb1a6a92993ef80bc2bd9c0247baad9f3760153ee8e2408c8fd4a53927f0"
     }
   },
   {
@@ -319,7 +319,7 @@
     "identification": "Retail resolver requests kernel32.dll!CreateProcessW. The pointer at RVA 0x374b70 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "2039355d5aee0d5aed574968bf43bfedd6bb6f857d9333af2494daf6108eeae8",
-      "inputs_sha256": "de4b23152f71ac0bb860d5a0e72eea1e388d7c7e5699ade4c3d0dadfb72a08f9"
+      "inputs_sha256": "f53172c1cb6b6d5a8dac097cdbef35508e8d9455897e897c6791b2cc60cab8c7"
     }
   },
   {
@@ -362,7 +362,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetComputerNameW. The pointer at RVA 0x374b8c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "8ebcddf67510de6f16e60eae46d13cc6480666a62bacb511ed7a397a4f8ae497",
-      "inputs_sha256": "6415e81bce2402e4a6a024ceaa9d46fa9129c1f10f3a376639be271843eb5cfc"
+      "inputs_sha256": "0ff0be9ae90b6e470079a40b5fbc698a586273718de01aa23c9f2e53484e7532"
     }
   },
   {
@@ -405,7 +405,7 @@
     "identification": "Retail resolver requests shell32.dll!FindExecutableW. The pointer at RVA 0x374bd4 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "9c358de844be6f0e0ebd911fc74a142b9c84a96f75a9ec3c279ad2cc79de5965",
-      "inputs_sha256": "ee19ed811bb3c19737394c7cdfd02c64de3711a46302b9866ff1b0bb8c6fc8ed"
+      "inputs_sha256": "f1a24f3fb027f4871598718fd7a98a18fb6cff287abee578765e0f41a5d1de98"
     }
   },
   {
@@ -448,7 +448,7 @@
     "identification": "Retail resolver requests kernel32.dll!CreateEventW. The pointer at RVA 0x374b64 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "d95a8cfa1ca0ad59f906cd791d29adcd97511a0e97de8a15b2ed011c78cec789",
-      "inputs_sha256": "3d6acbe3a96650572db636e70c89a5016600214cfb9a9138e53cc498015ec590"
+      "inputs_sha256": "865c973a46acdf8a007d71bf8ef6348910f339af971a7fea6e8a8239cbc66635"
     }
   },
   {
@@ -491,7 +491,7 @@
     "identification": "Retail resolver requests kernel32.dll!FindResourceW. The pointer at RVA 0x374b84 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "ca4c41cc02f92bd21212ba5a3fc5c2d07fc0194ee2041031dbcd8063ff48eab7",
-      "inputs_sha256": "7af2d82c06b5705af808b9bbf5c8830644c7a09ba7fdc6e4e300ba585131dd4e"
+      "inputs_sha256": "5675f08c51d634b8b2052b4a7aebaf80323e64260c87b9118878f395b7c74015"
     }
   },
   {
@@ -534,7 +534,7 @@
     "identification": "Retail resolver requests kernel32.dll!FindResourceExW. The pointer at RVA 0x374b80 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "9b95fce6b8a80ecdec416f3a267dbd61d3f87606ef06a7b29fbf31046a8d2baa",
-      "inputs_sha256": "7af117c388c5bfd3fa33674c94e26b140c16495caf2dfd270b77e0371359936c"
+      "inputs_sha256": "ca88a747b6f5358024f5ba247187051ee3ec5dd05c2dc201f0c8a9bbd247fae9"
     }
   },
   {
@@ -577,7 +577,7 @@
     "identification": "Retail resolver requests user32.dll!LoadCursorW. The pointer at RVA 0x374c20 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "b9fed2b7caae8ced188507c71dfed0ec8a4ac8de34f757bc1ce67440ca63e9c7",
-      "inputs_sha256": "0beec071c80085ff095c45d5964f4a6baf071ffb2336f91a566972c837ca5a8f"
+      "inputs_sha256": "a5c55124d986248702cea54911fa4e2d1288f30d5a1dec3392ab152434ba46d7"
     }
   },
   {
@@ -620,7 +620,7 @@
     "identification": "Retail resolver requests user32.dll!SetWindowLongW. The pointer at RVA 0x374c60 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "01123cd938049fd11b8e40f46bf81253c9a4424dad66417d2c794a559ab7a824",
-      "inputs_sha256": "304fd451957c5b0314450d39c6c4ba467bda5c3642fbb31ec08b2ae58cc14cd3"
+      "inputs_sha256": "a0fa68fc3bd196e77f6af0c8b728e02eb13eaf15022db6e6cccfd430322a391f"
     }
   },
   {
@@ -663,7 +663,7 @@
     "identification": "Retail resolver requests user32.dll!PostMessageW. The pointer at RVA 0x374c38 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "6c549f212eaf28b1ea764afc91ba628c4c8cf9b0a41fce0dda90ab0f9a7358ff",
-      "inputs_sha256": "abd9f2d24460286c621e7585bf9664fc469d4e9b5e3648d4bb4d7f915b989934"
+      "inputs_sha256": "56d5bf4f7e4e7d9b95dac86fc5b9a096769787c1951f82d7fca1d1e526bbd43e"
     }
   },
   {
@@ -706,7 +706,7 @@
     "identification": "Retail resolver requests user32.dll!GetKeyNameTextW. The pointer at RVA 0x374c10 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "634fe734cf8b20d24b56692477601a5c6b28302a0c617811f139f33752ca49e4",
-      "inputs_sha256": "b918aff704012c58d72f2dc4b2741c34fe5ca5929494e951b1ac3da74d9ff2ed"
+      "inputs_sha256": "bf467bff36903e9440152c4485100c1a83a4c26074e13887d3b5c9436dbd359e"
     }
   },
   {
@@ -749,7 +749,7 @@
     "identification": "Retail resolver requests user32.dll!MapVirtualKeyW. The pointer at RVA 0x374c2c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "cf4604578d91b453adfeae501cebfdb935b3eb7b467d5d7f74167b4c81aab39a",
-      "inputs_sha256": "297fec3d925b6487f16e2373cbb577700df20a6bf270c68eeccbb368e8e46281"
+      "inputs_sha256": "489a47c911180e40ba1fd475b762a9f68f0aaea95b9416b99a07b5da7948a595"
     }
   },
   {
@@ -792,7 +792,7 @@
     "identification": "Retail resolver requests user32.dll!DefWindowProcW. The pointer at RVA 0x374bf0 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "d644f9bbb429d2c17c4211350e7733a7c5a125806a2f25655d7e0043707fd521",
-      "inputs_sha256": "85b9517c395bbaab1103ac70ec9ea9508e3cc0d00351e3d2aae053f2eb777ecb"
+      "inputs_sha256": "f645e1586dc4b2fdf9798f1f65c551fe8cdf9f3e96733d4dfb504ee40a4b3022"
     }
   },
   {
@@ -835,7 +835,7 @@
     "identification": "Retail resolver requests user32.dll!GetWindowLongW. The pointer at RVA 0x374c1c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "2cf289b080318e543b02d82c6459d4720c5026efe75db8bc11bbea1a6dd71bbc",
-      "inputs_sha256": "66a9c0833f4e5fdc58875293abcdfaa2d08de95df6e5f81bf56f737dd62c458c"
+      "inputs_sha256": "f1a94a3b6fc13ceb5f2aaecf3cd5baaf0972ee601f70cf68a3c1f3fc2ef76c6e"
     }
   },
   {
@@ -878,7 +878,7 @@
     "identification": "Retail resolver requests kernel32.dll!GlobalAddAtomW. The pointer at RVA 0x374bb0 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "e8af8f3f4ed948663abd197effee761ab359bfe7f6b13ce3e1405995b4a71e0b",
-      "inputs_sha256": "9ccb0b95c069bef23ee80b9aef1a3145576d1777c92483bb611a437512fe48b5"
+      "inputs_sha256": "e9b2267b265e4aef3c4b33ced312233208dde1d601548478fff8913d97d5dc56"
     }
   },
   {
@@ -921,7 +921,7 @@
     "identification": "Retail resolver requests user32.dll!SystemParametersInfoW. The pointer at RVA 0x374c64 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "9682e7699d33d14eac64150b1742c1f8e1a286df45f66ae75bfdaaada753d3d0",
-      "inputs_sha256": "672128a3d013d53593aade921fa3c1c5874bc3ce2415ce8d54c8f07e782336e5"
+      "inputs_sha256": "6a49150f826df28485320187b92e057ecac85af13e0790e4c142e7098b31306d"
     }
   },
   {
@@ -964,7 +964,7 @@
     "identification": "Retail resolver requests user32.dll!EnableWindow. The pointer at RVA 0x374c04 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "77d489aabad2b9939a1e0defd8dfcfbf880100eeed7da54492710738ba0dbd12",
-      "inputs_sha256": "4ebd582f6046346b74ad1e6642acd064909785aac8a841d674ecb76d5bc5e9d8"
+      "inputs_sha256": "3c6a8a5756c8a411c96b8e5fc9476d033c19695299297fe0882cb26070f17f1a"
     }
   },
   {
@@ -1007,7 +1007,7 @@
     "identification": "Retail resolver requests user32.dll!CallWindowProcW. The pointer at RVA 0x374be0 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "d30dc45cf4150759ea9bc3c89ebe324aa36d231e0f9c25296c4c12ee441b32fa",
-      "inputs_sha256": "f78ff7664ae5ef90c5aca00c3df202ab1c23facd0d9a09e2e83c01e3cb3fc2fe"
+      "inputs_sha256": "54cc5d59e638e95335865093643a9863d9c7afe38ae62cc834e5ed2346d2c8c8"
     }
   },
   {
@@ -1050,7 +1050,7 @@
     "identification": "Retail resolver requests user32.dll!SetMenuItemInfoW. The pointer at RVA 0x374c50 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "3b89f36984b05a3be715cb6bd631c343f45b86e7ad757b5eb8f5f001096e01bb",
-      "inputs_sha256": "b8e9bff40dc37ed453f3c58ba712891bf3609bdc1f82aada05d1f3b5968edc1f"
+      "inputs_sha256": "3a2ea449eca110427efd672d6ce70d545afc8fd11e94422a9d1985f83e3aa161"
     }
   },
   {
@@ -1093,7 +1093,7 @@
     "identification": "Retail resolver requests user32.dll!CreateWindowExW. The pointer at RVA 0x374be8 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "5313f5550f06c18f4ab658268323237712b5de018b819f9cd0ce01b99c643ad8",
-      "inputs_sha256": "715efd624175dc1346cc79080da60f1b2944b8c37bb8f2fad8febc42f6ede99f"
+      "inputs_sha256": "53d8eb3cd6821686b1873eafa0a8a7ac24c8d6c30388bff5b5c712bc0c7ae427"
     }
   },
   {
@@ -1136,7 +1136,7 @@
     "identification": "Retail resolver requests user32.dll!DefMDIChildProcW. The pointer at RVA 0x374bec initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "5e0953c74cc4e04ec2dc2f4ccef158c53568e1fff42fc305efab381f0c339720",
-      "inputs_sha256": "ebb6d871fdde38ee1f543027c6d95067296e8e8f49c70ca219f51f95dfae2c17"
+      "inputs_sha256": "121d31639e62eb5abe5d378eec77e0595c19f4b3569cfeaab4d6135696585ef2"
     }
   },
   {
@@ -1179,7 +1179,7 @@
     "identification": "Retail resolver requests kernel32.dll!GetModuleHandleW. The pointer at RVA 0x374b9c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "a0157b038abb6b78deed792fa898fcda12cfa755e325f4f63888a98219f09830",
-      "inputs_sha256": "de87574300d1242250e239415b3cb21505da634d20c1641d9c6a0911d32eae7e"
+      "inputs_sha256": "fd73c0d00744b51e14d181ffff35e88dbd74309410ad94d0419d0e6277946202"
     }
   },
   {
@@ -1222,7 +1222,7 @@
     "identification": "Retail resolver requests kernel32.dll!LoadLibraryW. The pointer at RVA 0x374bb8 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "8a25e5dbc0226833d6cf8ae47a5de3b0139f8abd8eccf233157e6dfb16c84417",
-      "inputs_sha256": "9b02a30aa12edd4fc5c46aa7460d3dc3b85a29e1ca9b40d80dcb709c7bc043dd"
+      "inputs_sha256": "04448f509153add2f3a4aa78c84372b083db3106460372f892f75ee7bc48a0f9"
     }
   },
   {
@@ -1265,7 +1265,7 @@
     "identification": "Retail resolver requests user32.dll!LoadMenuW. The pointer at RVA 0x374c28 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "c8145fb97ea627aa7d1a06fc25c1c2bb5140931eeff446d00c233ad9064fa950",
-      "inputs_sha256": "f13cbc3fe1ecb887b67fcfaaf88194edc28dae7d4e51937415bc4deb3d98d412"
+      "inputs_sha256": "0157b93fdffc8c4ccb9c37037431829e1705876539792f7e03b92bcd2b9cb05b"
     }
   },
   {
@@ -1308,7 +1308,7 @@
     "identification": "Retail resolver requests user32.dll!RegisterClassExW. The pointer at RVA 0x374c3c initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "40d5cd117270a9ee2e79e26c76fbb1c430ea825a0b55dfa4d3b8ea1d743e1b4d",
-      "inputs_sha256": "b099ca8099cd9d90ce5bebcf4a5c3fd07dff2e32b5e4599fea9d91053f412aed"
+      "inputs_sha256": "2692cca3d2459045b4d1ac312bd633ff05a25d7db6ab5f3e928f17287314ebf6"
     }
   },
   {
@@ -1351,7 +1351,7 @@
     "identification": "Retail resolver requests user32.dll!GetClassInfoExW. The pointer at RVA 0x374c08 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "2809dd14ec1eeef21dc2338be9f48b0a8cb17e2a1317a311085ff853b38ca0cc",
-      "inputs_sha256": "235e2e0c25f97b2d653426cd6c599f6fcd5d8c9d9af6fe3987935954c57c8e4a"
+      "inputs_sha256": "b09b8c344a256fd0d53456473aae97598c32f8b6ae21fddb85abd49c77eab710"
     }
   },
   {
@@ -1394,7 +1394,7 @@
     "identification": "Retail resolver requests user32.dll!GetMenuItemInfoW. The pointer at RVA 0x374c14 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "d0ac815b2444c4c7585a202bfd49e44ee56af57f0ba797e0a22658d6e6b5212c",
-      "inputs_sha256": "3cad88f3f12623bec4bcc2ce8cc805108d21b219be5d9f812ce1e5e1f33a3678"
+      "inputs_sha256": "c3d498e40b9f9f08d918fd17b43badaebd5367e58ffaa67414adef91bc60d036"
     }
   },
   {
@@ -1437,7 +1437,7 @@
     "identification": "Retail resolver requests user32.dll!DialogBoxParamW. The pointer at RVA 0x374bf4 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "0e192290c23e89ff074beebcab488edf3c558bd12acc8d1a2c0c741110070071",
-      "inputs_sha256": "443eac2b0741feb45dee6f5f2b4467a680c16257c6b537744bd11aea628e3610"
+      "inputs_sha256": "cbeb1fad11c6439ce992e3104d4a6df952b9c0c67859a2684fb153eddbca679e"
     }
   },
   {
@@ -1480,7 +1480,7 @@
     "identification": "Retail resolver requests gdi32.dll!GetTextExtentPoint32W. The pointer at RVA 0x374b54 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "de54d7a3941e72ff564778502ca87e1d6060d817f4196c922cb3df96f41f684c",
-      "inputs_sha256": "2e6b4c1b97e6336eb56d31fd59ba3cfe08462955fce12ca4104ea8a0660a31f8"
+      "inputs_sha256": "6c5ed47942719aa125c86ade500ab9f68aa62f4ae8b0bd432154f0f833ef564d"
     }
   },
   {
@@ -1523,7 +1523,7 @@
     "identification": "Retail resolver requests user32.dll!DrawTextExW. The pointer at RVA 0x374bfc initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "821ca0489be9ab217b2197855c999d9c2f40a4e8f0bcbf72422bfa93beb5fdf9",
-      "inputs_sha256": "b112f483d86de7c8f4d1a6de7ae3e53203afe4de8207ea5ac778fb92a83616a6"
+      "inputs_sha256": "7e7a0d2f0df68d94ef4cbd1fe0e4e0d0d9464f36fb6334d6e52343e697554ff3"
     }
   },
   {
@@ -1566,7 +1566,7 @@
     "identification": "Retail resolver requests gdi32.dll!TextOutW. The pointer at RVA 0x374b58 initially points to this wrapper and receives the resolved implementation.",
     "match": {
       "bytes_sha256": "1e21db3bf7b48d3c4df699a3a5ee35e6a42f936c49c0b3a6e0a497095d949bb3",
-      "inputs_sha256": "7a3d7f928c9db8c4799f77f5e0dbb6a5a7e71eaeafbe2b29b34edb1cfc1b2b8c"
+      "inputs_sha256": "bddb2fd0bf123f74ca67b85f4c010e60ce9c7e89e1daa6ca42520bb1a161810e"
     }
   },
   {

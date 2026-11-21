@@ -22,7 +22,7 @@
     "identification": "Direct call at RVA 0x75d9 in the independently delineated function at RVA 0x7400. Dispatches to the first engine heap slot with the byte count and UTF-16 allocation tag new.",
     "match": {
       "bytes_sha256": "4003a8b0d262abaa85a93b2ba276da329d8c860049e406c23673c826367b67d1",
-      "inputs_sha256": "56cb263fb2191d6ca0befe17c75286b00f20f9e0f052cfa9dc56c37efe5450d1"
+      "inputs_sha256": "9dcbc51774d0cfc6ddc63805a0af5ee6d6b4adee118d5165ef41a27754fa9803"
     }
   },
   {
@@ -45,7 +45,7 @@
     "identification": "Complete indexed Versus function RVA 0x4300. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "3004807a394adf1abe6fcd50639b9fd79851a50476ade207e21d3f29847f0b15",
-      "inputs_sha256": "70dfc54a9afe31df4c95915f74da5416f69919e729a81ac2c05f0dbfd16d5f48"
+      "inputs_sha256": "7b7d0549c6e6851d5349a38a6b24201bef13b47b04c935a9295838d1fd63e38c"
     }
   },
   {
@@ -72,7 +72,7 @@
     "identification": "Read-only method pointer at RVA 0x30e918. Installs a read-only method table, optionally deallocates the receiver, and returns its address.",
     "match": {
       "bytes_sha256": "d6e32e0ccf2f0889bb8ec54d334a508a00d3687f091e7f31f03d63ded8683824",
-      "inputs_sha256": "3a4196c0e5f7ec4b8661ae12157625f938455675496e6e86dd0c79bcdc09475c"
+      "inputs_sha256": "80b2b90cdd4be876859af974648b8df31a5dbcbd599448622b52f128088825be"
     }
   },
   {
@@ -102,7 +102,7 @@
     },
     "match": {
       "bytes_sha256": "258157ba0fa642b4e75877e7101ae42f8a29336414fffa72746f964e04d08131",
-      "inputs_sha256": "61ad7f34fd1d026998b4d8a8463ac8815dac46cf82f810f41ca3c64f5a760a0e"
+      "inputs_sha256": "f6c6e04365208228f40d1282c1cd38367d1a9fba9bd0bb41aaeced812b8b7807"
     }
   },
   {
@@ -124,7 +124,7 @@
     },
     "match": {
       "bytes_sha256": "388b1679db563d2113e454a6618f6c5d39617a6c9ba77686fc43ad993ee4fce9",
-      "inputs_sha256": "923b18d1bbd77b9f685170fd6aa2141f7d51321c8370c541a3ed2cd825085868"
+      "inputs_sha256": "b85e801723ad2095cf44d20a350a457732d2ec722c06f410d25d287cded10745"
     }
   },
   {
@@ -152,7 +152,7 @@
     "identification": "Direct call at RVA 0x85f99 in the independently delineated function at RVA 0x85f30. Dispatches through the engine heap at its identified slot.",
     "match": {
       "bytes_sha256": "0afa5de0b49ee27fb487daa5f12d20b7c5269ee311564935d1bb05641f2f4188",
-      "inputs_sha256": "f72b6f299b789fe0cedc8b21509c50019cf85ac43553aecfac0c57dc36b60824"
+      "inputs_sha256": "5879cd72a1c3e405cc28e9f7c0091aa34be88f50885ee0e6194f15d9dca125cd"
     }
   },
   {
@@ -211,7 +211,7 @@
     "identification": "The read-only pointer at RVA 0x30f45c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "bcb3b19cd8dc079c2ec5d15d641af2b104cb029a7c5c6055ec27c229b952bf66",
-      "inputs_sha256": "23b95288140fb8ca711117236bb29ef89acf546cc0d9d2e846680cc5fc631a33"
+      "inputs_sha256": "b86f235dbe0893421fc97012277b5f9f2d76d4d6bc3094ad59b2660c9e138e30"
     }
   },
   {
@@ -238,7 +238,7 @@
     "identification": "The read-only pointer at RVA 0x30f284 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "9442cbc829fad8feb86f46deb6fa544c2c851bdee6813da56b614d9bd4f92647",
-      "inputs_sha256": "8c06a96d25d1fe17d06c46d0c31c3bbdcad01138c8b3a2b239ee9e2facb33f03"
+      "inputs_sha256": "4781050e531dc3020ea3fa9cca62b2647a290c5c1daabd9c119a3d356777fb5e"
     }
   },
   {
@@ -265,7 +265,7 @@
     "identification": "The read-only pointer at RVA 0x30eb24 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "8107b8127d2a2af69dc84e48b962d998bfa0a4b3f26d63050705c31fff0c0d20",
-      "inputs_sha256": "a221480ac9a05f072959925dcb3fb1f64f32f47d7744d3d8219308916fcd0395"
+      "inputs_sha256": "7da5f53e0c3e0475b34114df1552f8ce55b419bb985e652c6621daec38591080"
     }
   },
   {
@@ -292,7 +292,7 @@
     "identification": "The read-only pointer at RVA 0x30f36c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "d257b0bef12ee73f23fb40f30be22974e11e5396145dc9cb939fde1b36f8a686",
-      "inputs_sha256": "76f6309ca435d76dca62de16a9b0a9506fd95cb87572a309e05b45362ed8c4a4"
+      "inputs_sha256": "17c03b5ff6271345ced5c092b36fc03a7c35e8beb7ea32d1456392db9aa2ba6d"
     }
   },
   {
@@ -319,7 +319,7 @@
     "identification": "The read-only pointer at RVA 0x30e82c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "3d23e54adf9233f1656cef89905848b375a1e6b04aaa01e03485c47acf063303",
-      "inputs_sha256": "dd3aabd4e101d667885f7f713f9fe0e5c5a90e29e6de9b01582546a79c89d4ef"
+      "inputs_sha256": "e3cc59d59868b706c55e2489deaf179dd3fb465209798df9190e8803eb646178"
     }
   },
   {
@@ -346,7 +346,7 @@
     "identification": "The read-only pointer at RVA 0x30ef7c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "8107b8127d2a2af69dc84e48b962d998bfa0a4b3f26d63050705c31fff0c0d20",
-      "inputs_sha256": "1ecc8fedb5f4201ad6098adcef009f0cd0b6ea645eda55c107eca5164b4f2cf1"
+      "inputs_sha256": "64a7553a14d6bc4a0d81e95b56020bd2c11eb670932f8c1b8926d3f0112a427a"
     }
   },
   {
@@ -373,7 +373,7 @@
     "identification": "The read-only pointer at RVA 0x30da24 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "8107b8127d2a2af69dc84e48b962d998bfa0a4b3f26d63050705c31fff0c0d20",
-      "inputs_sha256": "708b83a7f6e40b80315f150e5e16e638dbc3f7fe7d16ac89db141790c3ddb206"
+      "inputs_sha256": "a02dece535fdb879d52d84e64711d9512792178f5ee105d58ffe5541a885f9f4"
     }
   },
   {
@@ -400,7 +400,7 @@
     "identification": "The read-only pointer at RVA 0x30ed7c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "8107b8127d2a2af69dc84e48b962d998bfa0a4b3f26d63050705c31fff0c0d20",
-      "inputs_sha256": "0ac0a2318a3d8359ca21cf4fd7281ffd4187e31fce9370d99095b5d266f75e79"
+      "inputs_sha256": "868b52e8b0e5816b2b0600426951e04bef5f6303a373ff89bfcbc3cc5f358dac"
     }
   },
   {
@@ -427,7 +427,7 @@
     "identification": "The read-only pointer at RVA 0x30e054 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "fa3908f451480311b18ec134cf8c1efa30045acef96b255f2a40a36886b3296a",
-      "inputs_sha256": "1ed1eb09ada76bffe49f339518f7b2c16671bf8f22f60f6a38532f62bfca9ba3"
+      "inputs_sha256": "229117bf5148d221241c97cfaed9ae50bf450c148237c5d71db2780cf3088d71"
     }
   },
   {
@@ -454,7 +454,7 @@
     "identification": "The read-only pointer at RVA 0x30ee6c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "aebe6e96d1b2e291dcba7ab17283365d3828c7e991533a06f778acb605990ea5",
-      "inputs_sha256": "48985e147f3b9497b6bbcdc8d674269ef3472044b76ab6f4c939c6965bbfe176"
+      "inputs_sha256": "5bb15d16aea15d0cfd14bc8fd199fecd94b7b771b7d2697099481036a28cf660"
     }
   },
   {
@@ -481,7 +481,7 @@
     "identification": "The read-only pointer at RVA 0x30e1f4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ee9bd0c3e339c2f731ab5070334527e5ff1d03ab876ebbc00dfd67b287181d0f",
-      "inputs_sha256": "c96c3d4e842d1e7e8f48bd62bea2a05b3704ffeb83d1f23e6f86f4b914ac1544"
+      "inputs_sha256": "21d2657fc37deb881ec4a23c683ad166a431da484db8eab4aba0d5e58a4fb6f2"
     }
   },
   {
@@ -508,7 +508,7 @@
     "identification": "The read-only pointer at RVA 0x30e51c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "8107b8127d2a2af69dc84e48b962d998bfa0a4b3f26d63050705c31fff0c0d20",
-      "inputs_sha256": "5c3fb974bd07aa3653d6601d97e1067457c48de69232ca2aea9512f5bba0099e"
+      "inputs_sha256": "9d1136257eae6e7c86aedae90bba8885b970d4432405f7f5aa6740dd9b9064e5"
     }
   },
   {
@@ -535,7 +535,7 @@
     "identification": "The read-only pointer at RVA 0x30df64 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "3d23e54adf9233f1656cef89905848b375a1e6b04aaa01e03485c47acf063303",
-      "inputs_sha256": "2f6a10d6ee412aabd61db44f1a158d7a13f89a30db0410957698845d22076628"
+      "inputs_sha256": "e047a2e0b186694ca87ecd815cebb25e871b20e15c7b811d2bd0168c973a1b18"
     }
   },
   {
@@ -562,7 +562,7 @@
     "identification": "The read-only pointer at RVA 0x30de64 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "38eba6a6d40ed7833d238fa52f24448c0ff337eb159f94ac36fbc7c91fcfee5f",
-      "inputs_sha256": "a80666bf39eb6d1c86086cfacfe97befa14bde3713418bfc5ad6fb61de802e53"
+      "inputs_sha256": "5fd501b60e367e93616f2c01d28c363ac233eae38f727e857aee351e456b6a7b"
     }
   },
   {
@@ -589,7 +589,7 @@
     "identification": "The read-only pointer at RVA 0x30ddcc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "4d1b0ecfeb18f8ba851efa03903f0eb23364082ab5343e3ef6140c2e6e8e102a"
+      "inputs_sha256": "61e92d048000f5867fe6db0fa68012295b0089a6aef126572ce447b459f9459a"
     }
   },
   {
@@ -616,7 +616,7 @@
     "identification": "The read-only pointer at RVA 0x30e614 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "5e5ed8b3d75f7c758412dd26882d5b03cf57698300921fe4e23987a4efb47c1c",
-      "inputs_sha256": "95270aef720f5d4786918fa99a55a951f53a55bd1060b02e8f19afb4eef0ac71"
+      "inputs_sha256": "513bd6540f772ea6192c9d9739298d29451aba6c591353c41d6668a74cef0783"
     }
   },
   {
@@ -643,7 +643,7 @@
     "identification": "The read-only pointer at RVA 0x30e744 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "38eba6a6d40ed7833d238fa52f24448c0ff337eb159f94ac36fbc7c91fcfee5f",
-      "inputs_sha256": "a5d484627436297fffe737178028f0c50ee656d3c4cf2b5693bcb827dc447bb7"
+      "inputs_sha256": "871017bab8a6558e77d6111759c8126cde33585db8b8cf575e587f6101c4d945"
     }
   },
   {
@@ -670,7 +670,7 @@
     "identification": "The read-only pointer at RVA 0x30e164 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "38eba6a6d40ed7833d238fa52f24448c0ff337eb159f94ac36fbc7c91fcfee5f",
-      "inputs_sha256": "80abc7154a7c68c5b504aada685fee541dd03cf08228b5910d005f625ccc6335"
+      "inputs_sha256": "9a85b603e9808e434635ed25c3a1f04a165b8db03686b350e96e115f8a4038ad"
     }
   },
   {
@@ -697,7 +697,7 @@
     "identification": "The read-only pointer at RVA 0x30db24 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "41ed8fef3416d8cfd64ede129aee931ab86dd4262ef09a549a7fd857b42ba4fe",
-      "inputs_sha256": "6c44618c4209c750428d6955ffe532de8a13775c88d0fc48343d09ac4599e7ee"
+      "inputs_sha256": "74dcbf59bb071e57b1bb7cc14391acc25ca4233dd6c2344a79b4f6a6c85d7485"
     }
   },
   {
@@ -724,7 +724,7 @@
     "identification": "The read-only pointer at RVA 0x30e304 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "6b4b13331d1aa174e5c8547edd6a00abe7decc2e33ed910c315fe11a1088ac87",
-      "inputs_sha256": "a90ae937dab951957c3b97517881e6dd6daa80b7a2c83c26bb3cd5b25c7aacfc"
+      "inputs_sha256": "14296330c55e5e421bfc33a239250270faf976ee68f25952e7baabde9b0c9317"
     }
   },
   {
@@ -751,7 +751,7 @@
     "identification": "The read-only pointer at RVA 0x30dc54 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ebdf77c639b0286c39c9e01caa7fda45221c0eca0e6c9426d02535f32b1f6949",
-      "inputs_sha256": "76734c9b4b56fdc2922f34014a1e7407528b8762101ef13abacbb4d6c7f5bc9e"
+      "inputs_sha256": "e646dcbc2293366616b9df474ce99044ae1ea13db440bbac9b30fb9d59849fdf"
     }
   },
   {
@@ -778,7 +778,7 @@
     "identification": "The read-only pointer at RVA 0x30f06c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "3d23e54adf9233f1656cef89905848b375a1e6b04aaa01e03485c47acf063303",
-      "inputs_sha256": "002646572ec1815928f5e182b79753364c2a26ccd86b2cc90843b0ab8adebe95"
+      "inputs_sha256": "d9cebdd4430c8f13cb52220122af06077020a27c999eecec6192405e5ab6331b"
     }
   },
   {
@@ -805,7 +805,7 @@
     "identification": "The read-only pointer at RVA 0x30f17c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "cd90a422d5d0a18070fd80f17f8552acf605f41506f43ae36b8967cf48a70aea",
-      "inputs_sha256": "78700b497a2218b050f998a117b3d43a92346a42e55a1f5032cdfa694fa80636"
+      "inputs_sha256": "b25fa9f71dcba61c56262e35361261fc60c8fc334ce599221b0c3cafe33792d9"
     }
   },
   {
@@ -832,7 +832,7 @@
     "identification": "The read-only pointer at RVA 0x30ea1c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4a31d611be38a278bb3cdd5edd5535649c5b280d2c34cc1832235c19f03e03aa",
-      "inputs_sha256": "09142312f02b51fe9c80940accfa69e80b4b9b58fccc6be609ed9fcc0819dd1c"
+      "inputs_sha256": "0e1bab7e55d196caa69a44092ad93de8cdc68d56d058e4b6d0603b02cd1bc670"
     }
   },
   {
@@ -859,7 +859,7 @@
     "identification": "The read-only pointer at RVA 0x30e404 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "47271742cf2535ea828510b2fdacdcaa30af42f8c1c34e346d19771dfa7f7454",
-      "inputs_sha256": "0d0f5af6424fa7c9dd327ffa10d3efb52c6aac2b6a8ce08e422c20e0827b657b"
+      "inputs_sha256": "577b6ae92c4e13767a78a8de8746de9fc8f16f5a8a489be20087dbeec211a389"
     }
   },
   {
@@ -886,7 +886,7 @@
     "identification": "The read-only pointer at RVA 0x30ec0c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4425e3b0189fee0602177e5d02bf58321f2a526f206ce6cadb4b62d16e2372ea",
-      "inputs_sha256": "60bac1ee4804bd99f2cc5c82555f3057a36eee2d5e2c2faf392b80d487fec17e"
+      "inputs_sha256": "79fa187035bc2d987e5f3d45af0b7435d2f0b8e2d69ed1cbfca4e62a0e0f47c1"
     }
   },
   {
@@ -913,7 +913,7 @@
     "identification": "The read-only pointer at RVA 0x30e7c8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "9d7c3ea6ea45cf58f3ba5b056e98aceff41b1b154a20c00790285a2c620ba434",
-      "inputs_sha256": "9835d0600c1614d5c5737fe2832d80965edbb83f40807501fb04e0be561b0f31"
+      "inputs_sha256": "d2855e77458ca2d6997a8c33812442296535bd0bf6874cc4415a32af9ccfad47"
     }
   },
   {
@@ -940,7 +940,7 @@
     "identification": "The read-only pointer at RVA 0x30ed18 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "cd92a41d6813147986ef4d426487ef848a5c862ce7a9da934d5708574c4958e0",
-      "inputs_sha256": "da979e9505123fb19b9912b4c5754f5ff9f414e33bb496c18ee382f3094a3788"
+      "inputs_sha256": "3ae88b127dd5281a813d7553672aedb748ad74ab6ab97c8d1391b6831aa5ac9a"
     }
   },
   {
@@ -967,7 +967,7 @@
     "identification": "The read-only pointer at RVA 0x30e978 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "e40e4ad1cf16c4dd44d113d45c318247161b8863c989fbec40d6067e53754c62",
-      "inputs_sha256": "f0e148026a57df997c546733564c1611f41d001bd178e25a8ba56a087ae2239d"
+      "inputs_sha256": "f9b9eaee969f0de0b7fff84ad8837a472676c7d739b5a11029d828a00a8605ec"
     }
   },
   {
@@ -994,7 +994,7 @@
     "identification": "The read-only pointer at RVA 0x30e388 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "2f5f5638bb70fde06ac9dc6ab1b90739a4388f6bcd16d9d20b07a429e9bcb0b9",
-      "inputs_sha256": "e5f8dd9d7292e270377c9ec1f458ceace3ad94f9baa0e5663c1b8aa0a3088b19"
+      "inputs_sha256": "6299d2260beb17830ffaf60254aa52ab1964187e34124f4192577db589f50253"
     }
   },
   {
@@ -1068,7 +1068,7 @@
     },
     "match": {
       "bytes_sha256": "ebbfcdeea28a3d9acdc8851178c83342d48c0c3a2c1819f63509d08b88811bbd",
-      "inputs_sha256": "1be93be42878c68471ba75246ecf31ebd0f7c31d0029771649ed200a2760427f"
+      "inputs_sha256": "5d65e419390086b8219553b286690a64c8996594a3552f121451657af42fc650"
     }
   },
   {
@@ -1095,7 +1095,7 @@
     "identification": "The read-only pointer at RVA 0x30d7e4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "d26fbcd8aaaa10bcb28f94cd534bfffdee4e1fa47224d4ae8f1d1e9658298de5"
+      "inputs_sha256": "eaa123ac697c54ac466d6b909544bbfb89b8729745a4dd17056401a9acf75b4b"
     }
   },
   {
@@ -1121,7 +1121,7 @@
     },
     "match": {
       "bytes_sha256": "0f23743e64a9d6d1177aa496225b2986a71a25681b8467c92d6d085107e3aed4",
-      "inputs_sha256": "248cb69cdf2a10a1ff2bb6c62fc779f5626e40e0bd34426836ba8e8fd01095f8"
+      "inputs_sha256": "9b15885ed69b4356836ebac26ddd8e4fa9a964721e000225d4d9e50b1737d273"
     }
   },
   {
@@ -1148,7 +1148,7 @@
     "identification": "The read-only pointer at RVA 0x30d6ac resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "7661f51e95b075d9b63454788738583ada26c2d2a7f06a8e6001efc7d6362b72"
+      "inputs_sha256": "e2d582d0a449416c3628512d330649c10c57df4ce2cd4bc0cabb4f6f7fdfef13"
     }
   },
   {
@@ -1198,7 +1198,7 @@
     "identification": "Indexed whole function and UState method table slot 33. Formats the indexed name using the UTF-16 F%s format.",
     "match": {
       "bytes_sha256": "4f68810e1dd5067c6ecaceeafca32d21a9dfe5c983cf117039b8f9a63c6f2ef9",
-      "inputs_sha256": "5f93267dbcca0d10898eae81878462f82b947315683cd5e8f62b6e097882c39a"
+      "inputs_sha256": "52d1f99ba1c2d1aad2550684ce9abc617f4e81a0de62aa77dfe3dfa4e68f136b"
     }
   },
   {
@@ -1224,7 +1224,41 @@
     },
     "match": {
       "bytes_sha256": "0f23743e64a9d6d1177aa496225b2986a71a25681b8467c92d6d085107e3aed4",
-      "inputs_sha256": "5dc283ede99996fcdbe6cd1ce72fbe74021090d6c42fd20f24268dee46d1c73d"
+      "inputs_sha256": "edd09aa57739c81c08198ee130ee5a4205203622105d69a9b384cdc827069ee9"
+    }
+  },
+  {
+    "id": "versus-object-destructors-ce10",
+    "size": 109,
+    "offset": 52752,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UState@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UState@@UAE@XZ": {
+        "va": 280816040,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UState@@6B@": {
+        "va": 281073856,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UStruct@@UAE@XZ": {
+        "va": 277925152,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UState::~UState at RVA 0xce10. Registered class UState installs vtable RVA 0x30d8c0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UStruct destructor at RVA 0xcd20 under C++ frame handler RVA 0x2ce9a8.",
+    "match": {
+      "bytes_sha256": "9cddcefa5d02207d5171a42dbe1de97dbd55a0a496f9874567e8ca093dd42061",
+      "inputs_sha256": "304b90cc95cdbc497c2b3f686b83db29220f48555b983ed97ce06a3caf37b3c5"
     }
   },
   {
@@ -1250,7 +1284,7 @@
     },
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "e2ad4f58544bf3b7c8e3fa8c98f3a1a454d8d9d6f4b995c50a717641a660040b"
+      "inputs_sha256": "652d37af0b6d33e29fd729d22717351876e90394ee6fe9473e9e504d7160f77a"
     }
   },
   {
@@ -1272,7 +1306,7 @@
     "identification": "Indexed whole constructor called by three registered Versus initializers. Sets a marker and method table, clears four field groups and returns its receiver.",
     "match": {
       "bytes_sha256": "c8696ec67bd7e66358397700959ed7030e332eb4328523790bf72e6106643103",
-      "inputs_sha256": "abbf2accfc4e5bb111d717542b22a1d831ce2f613a25d9aa7a57952c97531c7e"
+      "inputs_sha256": "22461ec48b027a1cd7319686925d1640ca17b8ccf431167396d559b9b6f2c3b2"
     }
   },
   {
@@ -1322,7 +1356,7 @@
     "identification": "Indexed whole function and UClass method table slot 33. Walks the superclass chain to select the A or U prefix and formats the C++ class name.",
     "match": {
       "bytes_sha256": "c96ac41042c4bf04e043e5276c208b98fa8136109e33ef74aa437626e28776f6",
-      "inputs_sha256": "1cb004354216a4133ac53a74a2b55c1126ba4fa4fb39494288906abba3dec487"
+      "inputs_sha256": "f1c87288e86b76ecb2db3af6d076cf7ccfdad24e579ce1013f2021820900e81a"
     }
   },
   {
@@ -1348,7 +1382,7 @@
     },
     "match": {
       "bytes_sha256": "bbc67feff205e720dffc156086ddd0cb940212a7a2bb14a49eef6d41498b76e4",
-      "inputs_sha256": "8dac69b2208f5816e9c0fd78a30bbf627c8f9b7fec736a04330e8494f1e7924b"
+      "inputs_sha256": "63b0943c6b6ac2e74ca757c81e3ef959dcb86f74834f6f6c9d4db760a930bd0e"
     }
   },
   {
@@ -1375,7 +1409,7 @@
     "identification": "The read-only pointer at RVA 0x30d60c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "db830acd2cdb67309333494842e5376506ce5002bf9d207127d218de4a880d1a"
+      "inputs_sha256": "7375acd4c933e147495ad77992f977e6ccc8172713ff7aa6725b2ab7ba84dc37"
     }
   },
   {
@@ -1401,7 +1435,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "29c9b088463806afb98696d25f6a001b9af0f0a45bf10adeb9d70cd803ad6ea5"
+      "inputs_sha256": "cd8434aad339edf51d18415e54888b01fe7cc4a219da7f43e6437d9db780c342"
     }
   },
   {
@@ -1427,7 +1461,7 @@
     },
     "match": {
       "bytes_sha256": "eecb5bf8013169a5c9e7c7b5191687c5e1efa97565950109152693df8a5f8d2f",
-      "inputs_sha256": "ca42ba25ebd99240a2be9fe7ae607dafff1de7163918cc30f24105c783d11e51"
+      "inputs_sha256": "66573b670d7b1b40f689ead4d3d370fb74c74b13904a12abff3bcaf205a39936"
     }
   },
   {
@@ -1453,7 +1487,7 @@
     },
     "match": {
       "bytes_sha256": "90220c9140d6e43d77ca79bce7475e8c271f3c994cb493940dfe37c1b3f349ad",
-      "inputs_sha256": "daae74564817d2eb98c0cb4c697d73874a7b25a2a432086a8e834e798ea51791"
+      "inputs_sha256": "aba86829571dcb214897bb9b8901427dc1786a789619f63601ccb9ca793a17a7"
     }
   },
   {
@@ -1479,7 +1513,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "b3b49f5c1c06115eee1fefe7be078bc9534810a3c0f177fdbc0dd6102e9e8b12"
+      "inputs_sha256": "702231820cf15dac741dd01d9686641af9944037c7907dde01e94d0830978450"
     }
   }
 ]

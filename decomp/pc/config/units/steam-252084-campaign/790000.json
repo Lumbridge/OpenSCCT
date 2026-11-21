@@ -18,7 +18,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases a fixed number of bytes in the specified category.",
     "match": {
       "bytes_sha256": "7578a0a50e8e6441ff47afdd02a3f16072d2800b56cf846ffa96541697c8d56f",
-      "inputs_sha256": "49c4bd3e26cd197065d0cb15e505adc8f8bc64eca5d454b3cd102e815a4f98c7"
+      "inputs_sha256": "1c1a93a63c32fada3d53765ab1d72b42e7af3c10ab6a7006bae7d5f145309600"
     }
   },
   {
@@ -40,7 +40,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Allocates with category 1 and records the requested size as a 16-bit field in the returned object.",
     "match": {
       "bytes_sha256": "3c9dbe287aa2b464aaecb8f2afff660a9e1edf839c76efdd296ea26f87bcb92b",
-      "inputs_sha256": "fa673f2976b6ff7013c4c4ee175091b44542f99c9f6a00673982c60c787ff41c"
+      "inputs_sha256": "146a4fa7d2c1f6e406965eb46578963144b6da797241f5996b36a00875bdd129"
     }
   },
   {
@@ -94,7 +94,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Grows capacity to the greater of the requested count and double the current capacity, using 8-byte elements.",
     "match": {
       "bytes_sha256": "a06c968e2f80b3af45d65d619b6a8832d41db9fe871aa1ec409e26a7c0a20af7",
-      "inputs_sha256": "edd7dc7e161e782addc9478a7d381f08d82569c26bce96c2dc70e67362d85752"
+      "inputs_sha256": "072f5f0034b6bceba5df8313a77355d6864b65db6a43a604ac2edf1dff2a6dca"
     }
   },
   {
@@ -116,7 +116,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 8 bytes and the caller-supplied category.",
     "match": {
       "bytes_sha256": "8591106efeacd23f84f74842782a9cc18ad322a64c4deb4a43eb04f7d49ec29c",
-      "inputs_sha256": "f6a82efef8f4fe3a63a2892a0d54378a1788fa0d6bb2dfff36839235f76025b1"
+      "inputs_sha256": "fc8a6d9b573fda45d22e4b683cf2dccfbb8dc49de348c6bbbcd238d7210ea1b7"
     }
   },
   {
@@ -142,7 +142,7 @@
     "identification": "Read-only method pointer at RVA 0x877bdc. Restores the base table, conditionally releases the receiver with the stored allocation size and category 1, then returns the receiver.",
     "match": {
       "bytes_sha256": "7beefa2cf715be97ba560524b965211eecbd332837c153fae7e5024cc79424a9",
-      "inputs_sha256": "9d51b9a61d585f095ee58f4b04c0bf886ecc8daa47121057198ee1bf47b6d46e"
+      "inputs_sha256": "5ee9de06459558244f5d3e2784df88337a29687979aeb3448518eb8fa2661572"
     }
   },
   {
@@ -164,7 +164,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 8-byte elements via allocator slot five.",
     "match": {
       "bytes_sha256": "d0048e1a68d64fb61162ccef11ac2688db0ad9fe574bc40c82c46f4fff1c7104",
-      "inputs_sha256": "f5a4da32ee926cf867cbcac6fac9d5b9f447ff9fac470c0a7a75795e46a331cb"
+      "inputs_sha256": "b8bd3803387c0baeb39825995df971ae486537e83ae92f606812c139de035a1d"
     }
   },
   {
@@ -190,7 +190,7 @@
     "identification": "The read-only pointer at RVA 0x877be0 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 1.",
     "match": {
       "bytes_sha256": "3dd4aac01b7c253cf3fe1822efacfeb8d204ebe5a5336a87d93f05a9667d1292",
-      "inputs_sha256": "845f500ea46ef4f5afb62ec82ef9e2e7cd265ae229da29e0fb3e8328ec126a15"
+      "inputs_sha256": "a8acf7653e18fe34926e885751f78d5610a24d093e68763b61889118ab703e7a"
     }
   },
   {
@@ -216,7 +216,7 @@
     "identification": "The read-only pointer at RVA 0x877be4 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 1.",
     "match": {
       "bytes_sha256": "3dd4aac01b7c253cf3fe1822efacfeb8d204ebe5a5336a87d93f05a9667d1292",
-      "inputs_sha256": "99938aa8cdc10fc0b48f5537481fe666602d3f0c264474e824f60635680fd19a"
+      "inputs_sha256": "49469f5903da9b98ac1ff98779c989f2cb98aa3b34048fed376c25ff6676a53f"
     }
   },
   {
@@ -238,7 +238,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 8-byte elements via allocator slot five.",
     "match": {
       "bytes_sha256": "d0048e1a68d64fb61162ccef11ac2688db0ad9fe574bc40c82c46f4fff1c7104",
-      "inputs_sha256": "f01ab40f1ae12d9d91e9eeebdda956cc152174824fa5947a4b6b51a00361e910"
+      "inputs_sha256": "d51b3358612683745fb0f0d1f2105d4d9b7feb1b893b33148e13e64dc47efa1a"
     }
   },
   {
@@ -260,7 +260,7 @@
     "identification": "Indexed scratch array constructor for 1-byte elements. Rounds the allocation to 16 bytes, advances the allocator cursor or calls its allocation method, and stores the original pointer and element count.",
     "match": {
       "bytes_sha256": "1743b118412a42e47cb1fde78369dbaddc4f5493f45b0106a5c4c0f18e62a1f2",
-      "inputs_sha256": "63f38e900542aca0fc4421b37bb9c9b33de527225ccdd8bf711076bd3df25287"
+      "inputs_sha256": "175c5d7a0c3b783c984e158f88125f86a27de25bc744aa9300640a9234ac2826"
     }
   },
   {
@@ -282,7 +282,7 @@
     "identification": "Indexed scratch array destructor for 1-byte elements. Releases the original aligned stack allocation and conditionally frees separately owned storage.",
     "match": {
       "bytes_sha256": "f1327eaa3933f6b9cfae7c606e0315fc42ead9a7bb0ed61c91aad3b5f78a87ea",
-      "inputs_sha256": "03c879817949bf0cb9a5aca7f9996a9637355e6261888efd09b68d215d7ffada"
+      "inputs_sha256": "79a08edda4eae267440d96d09adc1eaa670bbcb49d2273374d722b8496eca1fe"
     }
   },
   {
@@ -324,7 +324,7 @@
     "identification": "The read-only pointer at RVA 0x877be8 resolves to this complete deleting destructor. The release uses the unsigned short at receiver offset four and allocation kind 1.",
     "match": {
       "bytes_sha256": "3dd4aac01b7c253cf3fe1822efacfeb8d204ebe5a5336a87d93f05a9667d1292",
-      "inputs_sha256": "2ccae27c3a798f46886572f1c0818fc9ba601b28aa95497e1cebc4616d36bd2b"
+      "inputs_sha256": "c4ad8c7ceeb040a6248cdb94a86125519a410946509d3cd7134fd2c6fc14b3fe"
     }
   },
   {
@@ -378,7 +378,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Releases the supplied buffer through allocator slot five using count times 4 bytes and the caller-supplied category.",
     "match": {
       "bytes_sha256": "c2e6e11b171f0c03e97fd3901487ef50ed8b83a17f7f7db312057f7f7d1973dd",
-      "inputs_sha256": "cecb07e627dc1778e5680d59ef91d455d55e9a4717331085458b654268f0eb65"
+      "inputs_sha256": "172d25e766297e6c70d2596f9ab902da06a46ea4ed8f206947f59b120ccaba8f"
     }
   },
   {
@@ -400,7 +400,7 @@
     "identification": "Contiguous stock function at RVA 0x7931f0. It masks the capacity flag, calls the common reserve function when full, appends the four-byte input and advances the count. The independently analyzed start and RET bound the complete C function.",
     "match": {
       "bytes_sha256": "9787e90a34320864e71e550805392eeaca912d405adf0a9df4e65f94d9883fb7",
-      "inputs_sha256": "978bd8816a5257f44c50ab529e98155f9970757a9688f18072cfbaace583b522"
+      "inputs_sha256": "d97dc43c7d10226eb7ee903e6d5fc1aaa54ac4b8a6dc0fdc63cfad8489c5e1e7"
     }
   },
   {
@@ -422,7 +422,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 4-byte elements via allocator slot five.",
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
-      "inputs_sha256": "4161f47ae7b3b5ccacb32659af2d6abddf07d3c6557f84faf58237374fe6cb28"
+      "inputs_sha256": "78e302eec788b8298603cc74223db281c78435c75a010d28fe3ae7b783d9e57f"
     }
   },
   {
@@ -444,7 +444,7 @@
     "identification": "Aligned entry between INT3 padding runs, following a preceding return. Frees owned storage for 4-byte elements via allocator slot five.",
     "match": {
       "bytes_sha256": "d47cb30c172d601f64754ebab20ad1587ff1b99aac997e5f21183d6b1d24d0a2",
-      "inputs_sha256": "b5d93aeffd16a75af79bf141e7ceb2ee0c259624a966f348568316db8ce6cee3"
+      "inputs_sha256": "b45ec4e8d0441cd101e2d228a9d90fe8716de10406a196bb06144427e836e0ea"
     }
   },
   {
@@ -474,7 +474,7 @@
     "identification": "Complete indexed Campaign scalar deleting destructor RVA 0x7934d0: drops one reference to the held object, restores the base method table and conditionally releases the sized allocation in category 21.",
     "match": {
       "bytes_sha256": "8bc9ed6689da512fed16c6d7809e1abc08427f92ba9c9a8b163c5027b4e495bb",
-      "inputs_sha256": "7f367ceeebcb4cc40ca8ea890e188cac225aa5ebc873f30680d31dfeaeebdf3b"
+      "inputs_sha256": "2b7c40b3fe818b7c488b16b78947567d88ff4ca29b1dbb877322a1ef5450d1af"
     }
   },
   {
@@ -512,7 +512,7 @@
     },
     "match": {
       "bytes_sha256": "15b47c42b5e55441c928377f7a98685d7e09b2bf5bacb1908cc40b8e853f86cb",
-      "inputs_sha256": "3899cf980e06f18b27fecf0fac9dacb838cebe36d175cf1022565f40e999fc0e"
+      "inputs_sha256": "ea58fad6f741f98928d4776ff423d663cd1aabd104d7dfea1ad4b788216ee9e8"
     }
   },
   {
@@ -570,7 +570,7 @@
     },
     "match": {
       "bytes_sha256": "9af0e15ffedd09803f22ca0c9e71b482dd9f7d49f35715d2e925ed0322fae980",
-      "inputs_sha256": "5b356726b8688bac9f1d37164115366e0a42ff09115fee9e91729b8fcaa00553"
+      "inputs_sha256": "ea761dfd5078dbc0feab7a3a8c5edfd96efa4b7f7e6629761ead0d94f0cabdac"
     }
   },
   {
@@ -668,7 +668,7 @@
     },
     "match": {
       "bytes_sha256": "9f9db1f88d6e3bddce24866706421eb3f715c57cc98b1ae1d7b1eaa7ef62a12c",
-      "inputs_sha256": "92f1c69069b8cbd09f479de508492cb9e9fce210a6ab84d1942630cab17b7397"
+      "inputs_sha256": "d71e577c7c524cfd82c479370906465b4573ad2d5bc557f414221e7204094c34"
     }
   },
   {
@@ -690,7 +690,7 @@
     },
     "match": {
       "bytes_sha256": "ffeced9d36c2a89eafdbd53d41d269f78260d817da6ad45e29bd4be591aca658",
-      "inputs_sha256": "3e45e859f41edf04a6d098d3762b52f95e86cf6cee29d9b6168c21536c634db1"
+      "inputs_sha256": "cb3ce83044ed4d36593ef69cb51bc834d4a09a712a38f4c8820cfb6737bf3af7"
     }
   },
   {
@@ -755,7 +755,7 @@
     },
     "match": {
       "bytes_sha256": "9f3b99aef32a4e51a7c5e49812d4ec4877898d81951a850e4ba446d7f317e107",
-      "inputs_sha256": "58cc813283859ff45f27000a111d532b20d517cff271a419cf950a06ad0296df"
+      "inputs_sha256": "67d5104eeb0431afe0390ced6430522ce31359d18a46dc12eaa5dd024e701561"
     }
   },
   {
@@ -778,7 +778,7 @@
     },
     "match": {
       "bytes_sha256": "7ab198f58ce8d4c81f0567b8b8ddd122df26266f689be59510462b7517ed80a4",
-      "inputs_sha256": "4b2c3bd43a65fd34e576e6d7eb28f0d07f45e4b6c794bdc18d9afc81d2f77e30"
+      "inputs_sha256": "4ae6929c089e1fc6b969850c693726651bd2cd40ef7052a3f80e23bb7ab64272"
     }
   },
   {
@@ -801,7 +801,7 @@
     },
     "match": {
       "bytes_sha256": "2ae002cf6fc74f84aca8a7722b448175a88bf89c787dc69bb13341d6e649d8c0",
-      "inputs_sha256": "b1ef38c7335a8cec647df6bd0389283ece9f6bba0d3b3e8a0cf8e8425baa9bcf"
+      "inputs_sha256": "904fb90b1066e317b47e961e7838f786ca691bb86c404d90bc184d4d07031e48"
     }
   },
   {
@@ -836,7 +836,7 @@
     },
     "match": {
       "bytes_sha256": "cb6eff573ccfed9d6711e0a8abf43f3acc394fa42405d93bb46fdc9d6d88899f",
-      "inputs_sha256": "9697764a6e7d7ebcd183321f4ea8f6594e4d56d03c845b27dc7c3c17c0a8199e"
+      "inputs_sha256": "a4bcf35b8b642ac59284d26718a46e9c8852b369666e0a5b8a365079015f9e26"
     }
   },
   {
@@ -863,7 +863,7 @@
     },
     "match": {
       "bytes_sha256": "5bcfdf0772f3ddd0b92af2a9e182b4bdf211ef25a3d02e70afe96e4aefd91a6c",
-      "inputs_sha256": "c9c217b9ba75bcdd2e6f13d4faa269e702b84d5772a4bb39595047ca424e1e6b"
+      "inputs_sha256": "268f9cba86b42093e6170850ef127a0fd87cfae6dd822b8d7b25d53966b47b40"
     }
   },
   {
@@ -901,7 +901,7 @@
     },
     "match": {
       "bytes_sha256": "36d0cc63fbdfda2f7a7ec36b08d5ab7069e588461991322760b5892b23d252f3",
-      "inputs_sha256": "5d7990417ba37cd17ab5aed4510c1187aa628f4600b11b88f6d20bbe246ceb9a"
+      "inputs_sha256": "f5c1a44ef5d56d3451bee8c88b920f606fc73133211e004fa07f1bf491f4d066"
     }
   },
   {
@@ -923,7 +923,7 @@
     },
     "match": {
       "bytes_sha256": "3117d9c4e28c473ee180a78ade4ecb2c98a86e07d7fd7aa1c7694c529962641b",
-      "inputs_sha256": "d46c9f6eca57c2c1f2ad6fc0d6e74ac331b145068559f4ce7fd88339c3a51c24"
+      "inputs_sha256": "2fc4cac0ee9c45aea5b9d27a5fc61217a13b5cc484c1a264e54d698349d34eec"
     }
   }
 ]

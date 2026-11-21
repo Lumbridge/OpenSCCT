@@ -30,7 +30,7 @@
     "identification": "Typed cast at campaign RVA 0x293100, directly called at RVA 0x293e0b. Its class constructor at RVA 0x2b9be0 identifies AEAIController; the complete object and null return paths precede alignment.",
     "match": {
       "bytes_sha256": "377fbcfd947806d215033bc7e3fe0988627005fc3911c4019000d99853dbff86",
-      "inputs_sha256": "a892abebb571a38535af234b9c90c7679dd602eb3a4222466aa8ff5c0854a7ba"
+      "inputs_sha256": "57d595dbe4abbaf266bc615cb7d31ecad98c8245243c548fc0318f59ca27b89e"
     }
   },
   {
@@ -57,7 +57,7 @@
     "identification": "Retail TriggerEvent event wrapper at RVA 0x293160, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares Actor.TriggerEvent at serial offset 0x2d16e.",
     "match": {
       "bytes_sha256": "262cee85811f6afdf39af184bde4650165f60b8cc7fbbcff7f75fe8cf2ced011",
-      "inputs_sha256": "f055ed93645b89d89c4fe77e5b06c526acdbfca870fe4db0964b664d41e4dec7"
+      "inputs_sha256": "49a25552b4f914ff2d9b3482c78caa52e290380c2bece13e1e77a3f330a04278"
     }
   },
   {
@@ -85,7 +85,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x2931d0 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "ce7c57276d3f68a0a00498d668511803928530dbfda4fa0750113b4be1c4c693"
+      "inputs_sha256": "420c3f1d3f8d267b59e88b15cffd828fad8d6798010a58c9640f694b8bb8e63a"
     }
   },
   {
@@ -113,7 +113,7 @@
     },
     "match": {
       "bytes_sha256": "e15bc14dc5e3af4168f445832d0dcb92745650bda97b2106c9d9ae9bb966aafc",
-      "inputs_sha256": "9af27832d8c98076d6fca46618677f057b91e6d98609ee5e057c554a0aadecc1"
+      "inputs_sha256": "659098de0df73c385925d8063c363e824835960b06991a4b80beab9012ad4659"
     }
   },
   {
@@ -145,7 +145,7 @@
     "identification": "Complete FArray range insertion at default-analysis RVA 0x295640. Grows the element count and capacity as required, then moves the existing suffix to make space at the requested index. The stock UTF-16 allocator tag corroborates the array operation.",
     "match": {
       "bytes_sha256": "332032cd0a784a2768224a5105a096c3c9f6721677cd0ce5e37991d6be600230",
-      "inputs_sha256": "88dec695b770acadfa91584e8cf0c44ef4bc3c6edb2704ad2cfe64fbd46b7e96"
+      "inputs_sha256": "549410e2793533d2deacc7efa87fd4201c804b182bd0502d2706bb982241f065"
     }
   },
   {
@@ -173,7 +173,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "3b5a5525082a3aa6d275daa236ebcaa52a4be06c4501c880e02caf7403415a39"
+      "inputs_sha256": "0174c58c477538a3b764c6ed1ffce202e6e360e5904236b2474ee1293fdea904"
     }
   },
   {
@@ -201,7 +201,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "25accd258bd336acac1ec06b0bcbb43360072766d5477e770f8de8b9c2635fd9"
+      "inputs_sha256": "b94ffb53c3cf9b550baa0cbf45efa71de41f025f55b34e0ece3f0e7247535b85"
     }
   },
   {
@@ -229,7 +229,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "8b9eaa2764996642d91ea1a516ddf781773bbc623dccf5763187f80f36bbd565"
+      "inputs_sha256": "07e38740a665dc2999e9425b5e9edb3988d0b07e76c2ceb498f2e8d60c513894"
     }
   },
   {
@@ -260,7 +260,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x2957b0, including RET. Incoming transfer decoded within analyzed function code at RVA 0x2979eb, 0x297fe4, 0x29801a. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "0f172c331d6b7da037851face11b385eb57ac5514894826b7a8c69db3c2c2f65",
-      "inputs_sha256": "0c593f4c12288249aac1548923129cedf07da312626bdda806e3da184e20e822"
+      "inputs_sha256": "2226219dabdb58175f861d32d46df85e52a79ff4006f9e09b961cab2f94d7ecd"
     }
   },
   {
@@ -287,7 +287,7 @@
     "identification": "Campaign script callback Echelon_EPattern_IsSomeoneAbleToReachBody at RVA 0x295840. CRT initializer at RVA 0x7a9330 registers callback cell at VA 0x111c29e0. Decodes 1 script argument(s) and invokes the direct native method.",
     "match": {
       "bytes_sha256": "ba14553f077377af7e969ae7d9ab76a51cf1b8a4c7490d29de09d602e659b094",
-      "inputs_sha256": "64aaff030821a12b89b299ef1639e6a2856e783d9e6eec267fa6edba4fc578a1"
+      "inputs_sha256": "cf83918f3b29b63e3cf9f9365a127f13b58f2925c66ce76e71b35fc25ff76201"
     }
   },
   {
@@ -314,7 +314,7 @@
     "identification": "Campaign script callback Echelon_EPattern_KillNPC at RVA 0x295b70. CRT initializer at RVA 0x7a9650 registers callback cell at VA 0x111c2a44. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
     "match": {
       "bytes_sha256": "22057dc3ba179d18381729594f7d3eb7223b4b6127b5e63d699a0a4931036aba",
-      "inputs_sha256": "221f3c13a62fa0b1e7f42f761f835e0e4babf8b380a355f91bb26de6e47f2548"
+      "inputs_sha256": "c91f2e5e3d48a564937d2499562549b7d6680c9d066f03fabb22e0cc57ed75e8"
     }
   },
   {
@@ -336,7 +336,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 148-byte element size to the rebuilt array insert operation.",
     "match": {
       "bytes_sha256": "ef8475e6387e128cdd9c9f605955a6ad52445ae1ddc12c053bf4f409a81ee4c6",
-      "inputs_sha256": "dc5d12799f9611034f6303cb9bb8418b3f7f20ac29b9fe8ea375941883ff3bbf"
+      "inputs_sha256": "5c8f0342e202ce7ce3c9712195bdf51277a614db3ea5f28dec3aef7099bbd629"
     }
   },
   {
@@ -365,7 +365,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "6391303d51d55a0aba0dad1d162ad6f73ae9bc22175bfc6605ddddbafdf54e0a"
+      "inputs_sha256": "8a3af7d4ec3d21a7a764f388146343e61f4078d7ac67d31def0e1d6894fddf79"
     }
   },
   {
@@ -393,7 +393,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 148-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "3078299f524a6ce3ddba4aebc52c9f58a62e563402b503bcf283f7f8fbf64a5a",
-      "inputs_sha256": "f2fb6701f1fbc95630ebbe28aef3ce0e75639b3896a5fc15ea7a18571e743a58"
+      "inputs_sha256": "84037b98dfc33c37360065c84ded64209d232921c418c804a58f24556a6f6c25"
     }
   },
   {
@@ -422,7 +422,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "28fee31e18dd0e250ddea8f4807cd55f5d645af2d53cc12f7d6bde72f835e857",
-      "inputs_sha256": "3f318187c007f1c4184a24f1efc9a35709d1fe061a650334a2faa1869eb7d451"
+      "inputs_sha256": "247e2b6ad439d4525b97c6105c70c9fd80dd53ab4f5e3f7414df1870f90005ff"
     }
   },
   {
@@ -444,7 +444,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "6e5147800cf82e376b02924b5e5f36ca1236d31a1d22cf811dca6a1fbb7efbc3",
-      "inputs_sha256": "bfc0d5775a16e33ae943d862ee7bab4a0bafcddd8ad95703ebe66cfb8621cfd9"
+      "inputs_sha256": "324671da26366e1bfd6b9e12796c0088ac7d217e627036e90082bc9f57343570"
     }
   },
   {
@@ -473,7 +473,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x2978b0 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "9ea3511fabc1d30c9809be8efa16dc80c0972462682815db497279ba9ffe59b4"
+      "inputs_sha256": "3b7ff3e3a2ae8c13ee6b78c0d4b09a76cc99694a537e3c4a8a7fe71f1eeae48c"
     }
   },
   {
@@ -502,7 +502,7 @@
     "identification": "Stock FArray operation at RVA 0x297910. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 148 bytes. Appends a copy of the input record and returns its index.",
     "match": {
       "bytes_sha256": "d30b8039ad98a2694d7dbf80cdbe74547ffe90df3c14fe44c32dc309f62a6432",
-      "inputs_sha256": "6bbb7fbe68abeeaf9fbaba84e8dd9df50155e3838f2110f5c0793493985bb1d1"
+      "inputs_sha256": "fd809c9e6a5f9c7cab2e753273642d0ab50ba3933c85356f0769671dbce8830e"
     }
   },
   {
@@ -531,7 +531,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x297980 through its RET. Grows the allocation if required, stores the incoming four-byte element and returns its original insertion index. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "a30eb2ed2fb4d27a0d8a0ca6ad1cd005f7b706779845ef80dc3d020481cfa641",
-      "inputs_sha256": "1efd2a6f3ceda1c4cf84c7592d37a9614a02f98d56261164316d71f6af166163"
+      "inputs_sha256": "9af4cf4b480b4a6e7edcf38c58447173efd002d456ea98a4ee96059f9a9b3160"
     }
   },
   {
@@ -558,7 +558,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x2979e0, 0x297a18). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x2957b0. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "6b47f850623ee4ebbbc50efb46a25941ef2bf114612edea57923dadf2ea88c40",
-      "inputs_sha256": "81fb27e2db9d933348bb4700505d8874f83df2dc3fcb9aaf122e0e57f8aa96e3"
+      "inputs_sha256": "3a85ce248143efe93b8b73d71180409db0211bf252c643c8fcdf64993907984f"
     }
   },
   {
@@ -585,7 +585,7 @@
     "identification": "Campaign script callback Echelon_EPattern_SendPatternEvent at RVA 0x297a20. CRT initializer at RVA 0x7a9730 registers callback cell at VA 0x111c2a60. Decodes 3 script argument(s) and invokes the direct native method.",
     "match": {
       "bytes_sha256": "77e9cc05269d2161e3440c8136a709264eae71a8c37f2926417a91698c16094a",
-      "inputs_sha256": "682e4e764db7c55e822eef44a6034b90d5297d94dd8647b5ac9eaf50c6c10cc4"
+      "inputs_sha256": "03d13fe7e0f1cb125804fb3738846f2379a962a939708629874343510e963f1b"
     }
   },
   {
@@ -613,7 +613,7 @@
     },
     "match": {
       "bytes_sha256": "05279a574ee8b54c6d8cc018ce123c2dd3690cbc0c5e546e5b78615b01491945",
-      "inputs_sha256": "2f6d85d9a982fce741392603bd89a722ef3be4ff39cb47e5365795bce1c37ce3"
+      "inputs_sha256": "80f2f320a446cf6c44642d65585cf465c3bfc3083356e99118a41c0c7a8e5c08"
     }
   },
   {
@@ -641,7 +641,7 @@
     },
     "match": {
       "bytes_sha256": "290f54e038f03f018e1ab542d09fd939428901f8398cca7a323709ccb2fba846",
-      "inputs_sha256": "d073119e6f97ef934c5893a05c4e2658fafaf2eab840fe934193a4a870a9d3f3"
+      "inputs_sha256": "1b68d3a9bd09f8b4a13281785dbd48ac70b605fada8d162f8e14651d0285007d"
     }
   },
   {
@@ -668,7 +668,7 @@
     "identification": "Campaign script callback Echelon_EPattern_RetrieveStack at RVA 0x299000. CRT initializer at RVA 0x7a9190 registers callback cell at VA 0x111c29ac. It decodes 2 script argument(s), consumes the optional debug token and forwards the values to the native method.",
     "match": {
       "bytes_sha256": "5f7f7309ea6f9bd6f8c965f360993f70cc0a3ceb9f5c0c3c95ade373e00391d2",
-      "inputs_sha256": "a8d28d0d084a4e20a7c0630a2fd9b51bc08efe3b3bfa098e37ea55bb1e49c6a5"
+      "inputs_sha256": "1974857a84db8972f07e3a5011345a69883d00fa70b6b0036ada08831a67d675"
     }
   },
   {
@@ -694,7 +694,7 @@
     "identification": "Stock AELaserMicVolume constructor at RVA 0x2990e0. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "3b4fd2766060ca26eb47a7a7841860b5d607efa8c798a00069daf112547ed883",
-      "inputs_sha256": "13070bf71407f416fb47a95f8adbb330e6c68af7e80281225c20c841a1d1163f"
+      "inputs_sha256": "e1c2665502a7732037c6b13d2cb66ef74d12e01d04c46f89140160645fe85f3d"
     }
   },
   {
@@ -732,7 +732,7 @@
     },
     "match": {
       "bytes_sha256": "0f0b4e57d18752211502c024bf07434147b2782592db68710960f14cada2b1d5",
-      "inputs_sha256": "3c605ea0733ebf523a0bad586a02f7fc902c4ff991b2709f7efd6213ffad7470"
+      "inputs_sha256": "0b6100cc0b5178d4fe97551323dda3801bd5f380b9cb3bb94217750bb6f8d6de"
     }
   },
   {
@@ -758,7 +758,7 @@
     "identification": "Stock AEPattern constructor at RVA 0x299150. Its complete default-analysis extent agrees with the C contribution. It calls the shared base constructor, initializes four actor fields and installs the same vtable as the class's independently registered placement callback.",
     "match": {
       "bytes_sha256": "b4e4c46213ccb98516c96ada28ff697fc7dbdfe819e15c0bbe92182c38e1f619",
-      "inputs_sha256": "277d209ec4e9bdb6920fe8d5576b466080b600e70b88da211e4d9eae2eacdbb7"
+      "inputs_sha256": "a6d9a5548ecfecc291ce4dc5bfc91d10a9953548deb45dd20f7fb060033a4343"
     }
   },
   {
@@ -785,7 +785,7 @@
     "identification": "Campaign script callback Echelon_EPattern_GoToNextBehavior at RVA 0x299cd0. CRT initializer at RVA 0x7a9210 registers callback cell at VA 0x111c29bc. It decodes 1 script argument(s), consumes the optional debug token and forwards the values to the native method.",
     "match": {
       "bytes_sha256": "e0c32458f6535b6aea76c3641e42786aa5ad3f719a7382e85eb19622db32cbd6",
-      "inputs_sha256": "e66bd0b8b1f864ede3bdd253ed0a96e84980b10709aeaad6e0f6a859d7c116a9"
+      "inputs_sha256": "5817a8a7105c11eda0e30cb1efa14f702deeee53d7229498fdc07740864604f0"
     }
   },
   {
@@ -811,7 +811,7 @@
     "identification": "Placement callback passed to the AELaserMicVolume class factory at RVA 0x299e20. The callback at RVA 0x299d30 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "5bc5438dce48f8b5ca99cbe13347e66dabca0018c47b959a394ebdc9bd981f17",
-      "inputs_sha256": "cd2a91047b5a38abb1e30d176f0c390d641fa463bc39ce3793bdb77cb71c678b"
+      "inputs_sha256": "5b4209e111c251796bbf47c2e8fff6431b3841bfbbdc83d1331d2ce9a689ae2e"
     }
   },
   {
@@ -837,7 +837,7 @@
     "identification": "Placement callback passed to the AEPattern class factory at RVA 0x299db0. The callback at RVA 0x299d70 covers construction and the null-storage return. ",
     "match": {
       "bytes_sha256": "8f5ad45e2d1c6f9adf5ac8f4a95eeb4cc3ea25e4d3cd1f06c5a68bc9d1bcc68a",
-      "inputs_sha256": "5058cab2f7fdfb33981d457bd183b51db26b05086efe93b2ea54dda7aef07d68"
+      "inputs_sha256": "50974755379d525aeecdabf6d193313698cb629729bd1722e5c62aad96f839a1"
     }
   },
   {
@@ -879,7 +879,7 @@
     "identification": "Native class factory at RVA 0x299db0; its allocation tag and reflected class name identify AEPattern. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "f30c06c7ce61a0038860ccf0498454932c76354bd02f19b980ee6c71ba541c8a",
-      "inputs_sha256": "8dc8bde96b2ae82cdfc4012fc3d2810816c00330b27bde08db2d1dc92aff2ff2"
+      "inputs_sha256": "1c040e94791658b5c9183a90a935dbe36a0ab9dc171d4be411c6ab3e5e0668a2"
     }
   },
   {
@@ -921,7 +921,7 @@
     "identification": "Native class factory at RVA 0x299e20; its allocation tag and reflected class name identify AELaserMicVolume. The successful construction and null-allocation returns both belong to this complete symbol.",
     "match": {
       "bytes_sha256": "4766ea0b828b4ab09154d4449c2677b7065b080a3556bf143b4cedd7ff390185",
-      "inputs_sha256": "df9a816173f7a85f2539832cac3a3f78ac6c921db2f3bb732a314872b7b84846"
+      "inputs_sha256": "99d7c511c4da50fa664a7365ea47cb93c7be063500dfd183d78b11730e2dd45c"
     }
   },
   {
@@ -949,7 +949,7 @@
     },
     "match": {
       "bytes_sha256": "d6315e4cc08bf0deb0629e147eface36a60934f0491c5ceb4a342436606334a5",
-      "inputs_sha256": "e043bfc8812bc9c18912ab41b20f5d32c7ada6a85b0329f7d31ea1b1b6f0105f"
+      "inputs_sha256": "9cf6f3aaf6bd8cb92253a283ffbd0be562431715521494229a80c7e3bd6ad328"
     }
   },
   {
@@ -976,7 +976,7 @@
     "identification": "Retail CallEndEvent event wrapper at RVA 0x29d660, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "8867d6daabb7a99d9fb5bdddc93e81894613c2468a5998fbd7ea68df88a9450d",
-      "inputs_sha256": "0084bf4fc716814a0189d67168d36d3561a0f4038cf75bdafd001190fddbdcb8"
+      "inputs_sha256": "ab2f0a0364eabb3ffe0061617676a961c7c6bd3945a919e3d1b10e582e3dd9e5"
     }
   },
   {
@@ -1003,7 +1003,7 @@
     "identification": "Retail CanUseOpenDoorType event wrapper at RVA 0x29d680, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Engine.u declares EInteractObject.CanUseOpenDoorType at serial offset 0x47e88.",
     "match": {
       "bytes_sha256": "847674cb4dc9dbab1e6172acb34f29890bf4e266c5657b25a07091906c0a6af2",
-      "inputs_sha256": "a9a68763fa44f5a09adcdac6c0a25c741627a139f31aa2f36dd3003366cb6d27"
+      "inputs_sha256": "4e9aaa124c9d9c3264c6e25e1a66d009e1b287923a795100d175be89427a4a2e"
     }
   },
   {
@@ -1030,7 +1030,7 @@
     "identification": "Retail GoConveyor event wrapper at RVA 0x29d6d0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "a89eb1cea6f4b08fb33db6cd5768104f2c4dd4d5a31144749e192d6bbbadecf6",
-      "inputs_sha256": "af6c8fccbab42bf476393f05073a511a7271ee4928d1e16b2843cea864645027"
+      "inputs_sha256": "ad399e479a808de115e802532a4bdaa828285d0a5cc3d42532c7fb803fee5ae3"
     }
   },
   {
@@ -1057,7 +1057,7 @@
     "identification": "Retail SetDoorInteractionLocation event wrapper at RVA 0x29d6f0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EAIController.SetDoorInteractionLocation at serial offset 0x7f6ce.",
     "match": {
       "bytes_sha256": "aaf4cd467edb685d72a6bae22228b7a2a285cd22cef2a447f831a2272d1f9257",
-      "inputs_sha256": "532fbe653d3e003d0ecb00397d3ddd9ac70d5e905d94a5f004084a40c9b01736"
+      "inputs_sha256": "09347c343977c5c4509e8ac6013ef3ae7a1d4742125750838a541a2966c21ba0"
     }
   },
   {
@@ -1084,7 +1084,7 @@
     "identification": "Retail GoOnLadder event wrapper at RVA 0x29d720, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GoOnLadder with Bool bGoUp at serial offset 0x74469.",
     "match": {
       "bytes_sha256": "cb59578daeb1c9c1f02b727a22753bd34abbac09e419d822b64730bddb623b14",
-      "inputs_sha256": "87769500672d5074ba6ecac37821d514bfec1272e69088231a32a9090d65f826"
+      "inputs_sha256": "dc134b144166f9027c0361984332feaa458af3a4c3500242aef2ca7208f9ef08"
     }
   },
   {
@@ -1111,7 +1111,7 @@
     "identification": "Retail GoOnBed event wrapper at RVA 0x29d750, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GoOnBed with Bool bGoIntoBed at serial offset 0x74430.",
     "match": {
       "bytes_sha256": "ea0a1b1491b309620cee7b5f49e7b32b0eb3ae714f9c36e35927658bb2af92ad",
-      "inputs_sha256": "557e3b8ef2fa48b090cd75c482d44cf1371662dd9bbdc6c845586dff32a6b6f3"
+      "inputs_sha256": "6e98e987646d26f24534e9f243c2608364846109e52a8e354874e11aa4cd1f4c"
     }
   },
   {
@@ -1138,7 +1138,7 @@
     "identification": "Retail GoOnChair event wrapper at RVA 0x29d780, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.GoOnChair with Bool bGoIntoChair at serial offset 0x743cb.",
     "match": {
       "bytes_sha256": "55e31e5dadcbc09ef7a4769664807138f1768a34e1a920f5ad32d659fe7f0dce",
-      "inputs_sha256": "9ae44a6a6c6e09220df16251726676c07562559accd2f38961de15220741a323"
+      "inputs_sha256": "e025dd21fa674b31a83f2b75392046e4d9ad9c9845f6735d6b0b0f44a7332ca4"
     }
   },
   {
@@ -1165,7 +1165,7 @@
     "identification": "Retail ThrowObject event wrapper at RVA 0x29d7b0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "dcda69662e61befa7f41eb3a5537bf88f7921a765a326ae78bc1bac078586931",
-      "inputs_sha256": "84fb7f1e996e2ece66c7a8b7b5b86ffa16b1cdb8d0233455aa8e0f8cbb592b85"
+      "inputs_sha256": "98fcd3cfc30782385ccf2133357e5abd232c4615c754bc30a241f55f9974d6a9"
     }
   },
   {
@@ -1192,7 +1192,7 @@
     "identification": "Retail StoppedMoving event wrapper at RVA 0x29d7d0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "c90a0bf26739be19baadd8ad36b412bc068d2ddc602084826071e6417d7ccb42",
-      "inputs_sha256": "55c77ee6bca2f391576377a2a4fa29bc019e4a2828a7d064c2ff42718fd0dfe2"
+      "inputs_sha256": "58564a7d7b57506f30221c6f9ffa98ecbaf58e14cfbb864a05c25fda18f6a1f9"
     }
   },
   {
@@ -1219,7 +1219,7 @@
     "identification": "Retail StartedMoving event wrapper at RVA 0x29d7f0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "81efcf4808c273c4f106a5b83e4f7df8a9408ef8305427f716326a49a8647c77",
-      "inputs_sha256": "861496dfbbfcce61dd8df6a48901f63a6bbb1ae3905e2abf431e70e7495db36e"
+      "inputs_sha256": "338db1fc9129f408ad52a37db5d62246577ca86b051ec559fb0da11dfe657baa"
     }
   },
   {
@@ -1246,7 +1246,7 @@
     "identification": "Retail SetFeetIK event wrapper at RVA 0x29d810, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EAIController.SetFeetIK with Bool in_activate at serial offset 0x7ee48.",
     "match": {
       "bytes_sha256": "e0660331535fd653be0593620473b74bc4edaae65293567f03a62ddbe90c5ccc",
-      "inputs_sha256": "7d569b3ecfe3c277e02245fdad9f757851052a19996d1e4624f13ec108ce209a"
+      "inputs_sha256": "f6490c735c0298abccd4daaf8f09a7e4a23878dc7e7f9870c1eed5bd519376cf"
     }
   },
   {
@@ -1273,7 +1273,7 @@
     "identification": "Retail GetAttenuationFactor event wrapper at RVA 0x29d890, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EGameplayObject.GetAttenuationFactor with Float ReturnValue at serial offset 0xb4f84.",
     "match": {
       "bytes_sha256": "ec91ba0505c41323d33d18bf1060c961f9334fd27e5784739a40886630abe663",
-      "inputs_sha256": "a4a772fbc6588367998a4786e1e5a3a32acdc3937a8e78d191c564597eaa0e37"
+      "inputs_sha256": "15ea1925e203963a7e7197a5733111955b1938cbbdeb1c0dd61cf80a2acbd7b3"
     }
   },
   {
@@ -1300,7 +1300,7 @@
     "identification": "Retail StayOpen event wrapper at RVA 0x29d8e0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "0c33ceb73e579ddc58f1af35e6b0b9faa7ef5bb25729a300c739ba3b2aa6edae",
-      "inputs_sha256": "2222787a5e297e4ed26c6e9595083b38a8ad1369f7467cf897227b7fdf67523a"
+      "inputs_sha256": "8bc346b23d3fc36a6954fe95d89ce2b6293024d9bf385406f8472bfd8f417776"
     }
   },
   {
@@ -1327,7 +1327,7 @@
     "identification": "Retail UseItem event wrapper at RVA 0x29d900, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "0afb5c275d784c543200a8adf9be9f96f465c264991aa41e2ca51a35d019656b",
-      "inputs_sha256": "dc16fd94f3b06ce024b06af8ebf3ee2bbbf3476d5d601fd89c3ce09d665b7ef3"
+      "inputs_sha256": "82730e9e960784c3473e738d672f51f61b72c9e1bd80a65e60cf008ccfbc016c"
     }
   },
   {
@@ -1354,7 +1354,7 @@
     "identification": "Complete indexed Campaign function RVA 0x29d920. Its masked instruction shape equals matched unit script-parameters-playoneshot, and the same committed C rebuilds every byte with the retail operands bound here.",
     "match": {
       "bytes_sha256": "c67cc1e57acd1cdec4af3cf8d20923ea1e5fdfbc6667c04d04056b2f4cf9bc8a",
-      "inputs_sha256": "6d0e5446dbc16aa670cd15e7ce7dd7a485a05643aa200176e7e48c3ec852c73a"
+      "inputs_sha256": "db683d4fddda6529f59ea426835b2b21db5506cf6d1a5864e102ed5b41a1cf2b"
     }
   },
   {
@@ -1381,7 +1381,7 @@
     "identification": "Retail Fire event wrapper at RVA 0x29d950, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "9cfca6de065938948e690ad5438dfd088a83f4ebcaa0571268dbe7ac2c311b0c",
-      "inputs_sha256": "30917d7f0642606165b392e7e5b37bffcbe5993e868731be95e5fcab4e8ff47d"
+      "inputs_sha256": "cef1e0e2f9c84dce8c36fb5a0e31f6fcd22c70d356f60736e47b9d2f86df0eb8"
     }
   },
   {
@@ -1408,7 +1408,7 @@
     "identification": "Retail SendThrownOject event wrapper at RVA 0x29d970, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPattern.SendThrownOject with Actor Obj at serial offset 0xc5a85.",
     "match": {
       "bytes_sha256": "1ff49deeba3dddc3789edea982ad2c9d9c86640da72acfdf78d8454631920e28",
-      "inputs_sha256": "7853522f78a2ea7ac4fb360599a4cefdb790491bbc20cbf0a1637260ce4af791"
+      "inputs_sha256": "4558e5b3a25afee4f55ef2dbfb2d61e2d396f97a700eeb02593f8981f3c76166"
     }
   },
   {
@@ -1435,7 +1435,7 @@
     "identification": "Retail PostSwitchTransition event wrapper at RVA 0x29d9a0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "8ffe3eca4d0833a6b6180c74d8a416aae9ea305257303b4789202d3fdeb94dcd",
-      "inputs_sha256": "752439a0d1d6717aeadb21c53dac2e110aa6f3c193bd679920d86f69efaadfee"
+      "inputs_sha256": "bd1b5005f9cc9c9fd44b7cb6861bcb42ca6f3d9c433d42f2a50653fca978cdb8"
     }
   },
   {
@@ -1462,7 +1462,7 @@
     "identification": "Retail NotifyEnterDoorRadius event wrapper at RVA 0x29d9c0, including the return. The name initialization and script lookup link the wrapper to its event. Matching package declaration: Echelon.u declares EPattern.NotifyEnterDoorRadius at serial offset 0xc55e6.",
     "match": {
       "bytes_sha256": "1f8803bdccc922ebfd5d780f31a65a66dd29736cacde863d6cb196d8ea4177c6",
-      "inputs_sha256": "6a6d8a06cccd44d2b90944c1e8337411d7c7dff7c31680fa0ba6f09533b07f76"
+      "inputs_sha256": "f20638195841aedbb3a2ea4c322801537abefdd759059a2f658f146488e6101d"
     }
   },
   {
@@ -1489,7 +1489,7 @@
     "identification": "Retail NotifyFlareLightOut event wrapper at RVA 0x29d9f0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "2c6d9565922203889580307fa6c0b6b18be93b03b3ad21db51bf906e564f1be7",
-      "inputs_sha256": "027418246cd42bcfae2ba6b7b0a870920c6988605285f02f2fcff5825175e54a"
+      "inputs_sha256": "bafeaa6823858c9b40a278b7288ad9765f8396133b5bc79d089c89fa0590c424"
     }
   },
   {
@@ -1516,7 +1516,7 @@
     "identification": "Retail IsSuspicious event wrapper at RVA 0x29da10, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPattern.IsSuspicious with Bool ReturnValue at serial offset 0xc552e.",
     "match": {
       "bytes_sha256": "3fc875219f9fe124f8826076f690f08cbcee627e503b58b857ef73842a5ec21a",
-      "inputs_sha256": "0d8e8100e44ee13e6b77d0eb40cdd614bb297a6c6598f9e87399c60366104d54"
+      "inputs_sha256": "a3c40f4128e4e370e2b000092b11cda30e18c2950f9bc758ac3b4cec3513c2a9"
     }
   },
   {
@@ -1543,7 +1543,7 @@
     "identification": "Retail SelectWeapon event wrapper at RVA 0x29da60, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.SelectWeapon with Bool bSelectOneHanded at serial offset 0x96b4f.",
     "match": {
       "bytes_sha256": "91a95657ffce59246e02b1a5826c47b7bf2589840313d32e371bff74b8a2f5af",
-      "inputs_sha256": "bbf2cc2d540bb94282ff615530abe53de7b69927fb442d1de6bb69548919fe75"
+      "inputs_sha256": "89d64a3707524f3040fc0435a6f4a930b842d7b2ab35a3b0103c48f242e99b4c"
     }
   },
   {
@@ -1570,7 +1570,7 @@
     "identification": "Retail CheckForSettingOffFeetIK event wrapper at RVA 0x29da90, including the return. The name initialization and script lookup link the wrapper to its event. Steam package Echelon.u declares EPawn.CheckForSettingOffFeetIK with Bool ReturnValue at serial offset 0x854ec.",
     "match": {
       "bytes_sha256": "5c999fd0d8042d32dc5e10e8fd92a12f2dbf832ea94d205df75592c2ae7364c8",
-      "inputs_sha256": "1effb82eab16d7dc02c13778e2a2ed92b21b32039a14a167caec1d1ccec46a89"
+      "inputs_sha256": "8bbe19428b622043b8eeb54a27111b069944e69e2f7ba9f2c0bcccf60a2d09f9"
     }
   },
   {
@@ -1597,7 +1597,7 @@
     "identification": "Retail Clear event wrapper at RVA 0x29daf0, including the return. The name initialization and script lookup link the wrapper to its event.",
     "match": {
       "bytes_sha256": "5db3e9a1f08b421f19e7d2607ff46b465e94afe4267792d8282f5a78da73d12c",
-      "inputs_sha256": "efc4c3b331a0d5b14ca4a135f210719252291343ac49b4729be339111f047cb6"
+      "inputs_sha256": "569643f44da592e75795160292d49d94f76ee0e70534744b9e13a92ec7dbd7e8"
     }
   },
   {
@@ -1639,7 +1639,7 @@
     "identification": "Complete UEGoalList allocation wrapper at aligned RVA 0x29db10. Class singleton RVA 0x30b0 independently binds its descriptor, package, creation and registration calls.",
     "match": {
       "bytes_sha256": "5e16d5245d011f6f30d8f845c78e2494fe27be100f3ea618f209fe7c58df4fb7",
-      "inputs_sha256": "f1aa3ba722d886aaad696fbf5aef7158207b43ae1cd659de2ca18be2ceafdb65"
+      "inputs_sha256": "0e6330eed1037af729b54a1d7abc4549f63cd6e130b758c23a72f3c93fcc9f94"
     }
   },
   {
@@ -1681,7 +1681,7 @@
     "identification": "Complete UESearchManager allocation wrapper at aligned RVA 0x29db60. Class singleton RVA 0x31a0 independently binds its descriptor, package, creation and registration calls.",
     "match": {
       "bytes_sha256": "2c1229925a55fef2c6c0a73d257153a430e60ea68ff34af04469ed807629ac7a",
-      "inputs_sha256": "503913f2eb558a2a6c0949f0715c0511a6a348ed3f4c383bb87cc98b0973df37"
+      "inputs_sha256": "3a9405c55aac5780818fa3504533fb4bc9f39710b772ff75c9d60f94ac368b12"
     }
   },
   {
@@ -1723,7 +1723,7 @@
     "identification": "Complete UETransitionController allocation wrapper at aligned RVA 0x29dbc0. Class singleton RVA 0x3260 independently binds its descriptor, package, creation and registration calls.",
     "match": {
       "bytes_sha256": "af583737ea3aed8e344c3d9298021e94e0753764efea195720d8de91f3b171a2",
-      "inputs_sha256": "1ee5469c4e3f4c2d725993178c38e1ae6fd1881e120563d931ce1ade64548288"
+      "inputs_sha256": "b318a7137109a0071e7c1e8a2bd65ede1bf0bdffc1c7719d62216651f1280384"
     }
   },
   {
@@ -1746,7 +1746,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "6b954a053aa0517e1372ea15bf3242a33f4b6965c9164af54937a1cc3291215d"
+      "inputs_sha256": "e28c9501eda62140050083188b2be9f52562c7d0c84f66fb2357f529465b8538"
     }
   },
   {
@@ -1769,7 +1769,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "5ff328f2b6920bd630af7b280023edd1170d52aea5b0f395185d0a392ce968e4"
+      "inputs_sha256": "583691049e7c12a9ad98d0aae1cb8bcdcd4f4ed9ed21abae05a8d58230fbde1a"
     }
   },
   {
@@ -1792,7 +1792,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "1403516359e81bd9d109f242a4c054a30071897eb968db21858fba1f232bc696"
+      "inputs_sha256": "1a789b4a2f822c2fccc16846f8fc937389d6d2d6c43e3bbb26b3242319d13db4"
     }
   },
   {
@@ -1815,7 +1815,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "5a85880b74cb07da7cc6fdc903a187f57991e657951addf701fac8208793e504"
+      "inputs_sha256": "bb0d08e6b488debeb4b701e46dff0063422609064aa76bb706675d065774178c"
     }
   },
   {
@@ -1838,7 +1838,7 @@
     "identification": "Default Ghidra function extent and full retail body identical to the unwind-referenced array release at RVA 0x55b0. Releases nonnull storage through the engine heap and clears all three array fields. Caller and class identity are unknown.",
     "match": {
       "bytes_sha256": "e426323bd2fb6b92b62c0922900feb143223116c5a9d61098841fb2e7c922a4e",
-      "inputs_sha256": "d02d493adb1e6342b738f00f01971a8f7a74c9f960bd7a1721f13a869b4aa23c"
+      "inputs_sha256": "1a8720f11d6adb6d0705e58de13c10078d151f8d85dee5a0485d83ed27edc3f5"
     }
   },
   {
@@ -1909,7 +1909,7 @@
     "identification": "Class registration for AEAIController at RVA 0x29de70, called immediately after the class factory at RVA 0x2b9be0 in the singleton initialization path. Sets superclass AAIController, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "9cf456efd5b2df234c10a8d5f9b0c21fca158b2f52296d23aa8fda28f8271f81",
-      "inputs_sha256": "601fe7dcd6eafe2c93cb909b3733f618f15f894f6538019facdbc33f14bab367"
+      "inputs_sha256": "88efc9bf782531cbc26cee71c825835de46d4c395887ba05e3f3f2a2a4b12ac6"
     }
   },
   {
@@ -1964,7 +1964,7 @@
     "identification": "Class registration for UETrainingData at RVA 0x29df80, called immediately after the class factory at RVA 0x2b21a0 in the singleton initialization path. Sets superclass UObject, within-class UObject, and metaclass UClass. Both the virtual tail call and plain return are covered.",
     "match": {
       "bytes_sha256": "37e183aedd88a4390674c35f7195eb79a7b06804baee12d03ef23f1b3f5f1b91",
-      "inputs_sha256": "1f5db7f4f0ac754ab79356c764bdb6a08a9a45413f8dfa5f0ab9eb57ddd949aa"
+      "inputs_sha256": "0d18794577efbf57a9d7e33e5bb62d475ee8b3ef3b97aae05ba8cd2a526478e9"
     }
   }
 ]

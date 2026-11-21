@@ -23,7 +23,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x601820 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "d142b7c8f90aa53368d41a17a09721bc09cb95af2d02e8a993051aabcc7859da",
-      "inputs_sha256": "60dfd38aa599b71931cf8e14ab840a0f279ef8564cfa35a0173eec07cc256ff2"
+      "inputs_sha256": "8968af41458b5e1e508e2042a9f99af6166fd388054f66473207b9804ffd6412"
     }
   },
   {
@@ -50,7 +50,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x601990 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "53fde5a18ee407561c9a21fa9a1678ebe8eec535ea4805c9542988afe0a6e94b",
-      "inputs_sha256": "f90cdf4558fb5d4756e0181cda0c8d1f16d987be46edf1a2f2dac3e2c099f623"
+      "inputs_sha256": "9d6c2d686db26501b9f473c3de0e64eb04120ee7d0b0427dc9f7da0c4f83e261"
     }
   },
   {
@@ -72,7 +72,7 @@
     "identification": "Indexed circular list destructor releases each node followed by its sentinel. The full compiler contribution includes two trailing alignment NOPs after the return.",
     "match": {
       "bytes_sha256": "0225f12b01cd70ee099ebb4bb2407933ff1909dc14cb58a0dc67bdd174d919c1",
-      "inputs_sha256": "c2eb30fe499b6ccb91bb7797a344819cea39f4065cea68855419923687c3cc58"
+      "inputs_sha256": "0b4570cc8fbcf93c32597c99917a60c84e7b964c8fb5ac5357b5f64a05c40b0f"
     }
   },
   {
@@ -99,7 +99,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x601b90 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "231ad4c69e027d303c9db957bda2b1b401d15e39baa14bb4f7c4e7805995cbf9",
-      "inputs_sha256": "73b93f7afac454a556a51e77a033372bee798d2bb054689365f8e5bb2f5a9fd7"
+      "inputs_sha256": "3b136e9ba4b4e46d16f5beda3b24419100115158dcde081b3737393bcfba0761"
     }
   },
   {
@@ -126,7 +126,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x601c50 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "2ff6b119e579113623ac1e067b3f32359b895629ee9f13ebfbbe632d66df5fe7",
-      "inputs_sha256": "1406c418eef880359c9c6b69b9080c40261d50233ec9eb51721566941d5c6441"
+      "inputs_sha256": "994a85184a227affb01cc576ba79f402704840f0d3949069cff84255f2a62107"
     }
   },
   {
@@ -149,7 +149,7 @@
     "identification": "Direct call at retail VA 0x10f01c33. The complete function installs the methods table at offset zero in the receiver.",
     "match": {
       "bytes_sha256": "739a0ef2f9929efae380448e09d4790d8ad18ee4e0f4bb5e9ca80829d739a8f7",
-      "inputs_sha256": "0a0300780950e31cf31de60ae411d1ae7b8f1b83197665f4a6494ad0861674f3"
+      "inputs_sha256": "f505e5fb3254b6de04bc3620592efadf52fa77c11838890d4daf4b1a6e073490"
     }
   },
   {
@@ -189,7 +189,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "7fa4898bd5ac6a572f68d3a4d43754fbde11868bf333109585a76b8f2c6e27eb",
-      "inputs_sha256": "edaa6571a30cb9eec55f0b23c882ceb869abae6c8e826583c1b6ac0b4064aeeb"
+      "inputs_sha256": "c4758a64059bf5c1f9612aea37c42059ac4181de4b86ad642a8a6bef47992fb6"
     }
   },
   {
@@ -212,7 +212,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "d3a76acca15de918e42c3d08d14a9eec1eb15bf3ee11868f7bd5e9a4a4d3bf08",
-      "inputs_sha256": "ad9329e39603243d157173dda98f97ecc29741fc13f8fd884eb1e27ac86ae867"
+      "inputs_sha256": "66c2e823c17ed72077d4e2f83c31ad397175641ee70730caa9ceb0682b6ebb06"
     }
   },
   {
@@ -243,7 +243,7 @@
     "identification": "Direct call at retail VA 0x10f01bd4. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "41fc2bfe5a2352563f5b7c9f9b41c0ccd5ae654e7c51596bec30351d5108e33e",
-      "inputs_sha256": "12e06c9e12a5a2596f1ea9429ecdde1a6bc37a7f04bddc6a8168d27cfc8f8353"
+      "inputs_sha256": "63bc2edd332a09d333495ce5a984bbf3181a96d1a322d59dca1e805fa17aa2c4"
     }
   },
   {
@@ -270,7 +270,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "948944047f4bd24a01546a0d41795753bebf96055f67f92d5087e2ccbc48cbed",
-      "inputs_sha256": "81ec632bb246426f63c41a3081d1370027ae892fa2490a526fc0c28130783c6d"
+      "inputs_sha256": "3c668ddae636b25afe5b64c97b501dc05f8494caa397608c2c77cd1f8deb440a"
     }
   },
   {
@@ -297,7 +297,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x601f20 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "26279f3e6e1eab75ac4f30c2e900131317b5734198501dcc56b0971fcd7b2177",
-      "inputs_sha256": "6e9691c25b7b2325c7a442051b0e6c4f0de8f997209a5eeb13e490a44b25b122"
+      "inputs_sha256": "fd053b13cee2c6bfd191a41e17a0c526bebe561a2d719ff97f81d4b5ac15e168"
     }
   },
   {
@@ -320,7 +320,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "393056a4e7a06ba1b0c6354ab04e7c9d7cdcc9d473a0f937a06739bc9da59e0e",
-      "inputs_sha256": "b05e42d11756ed44fd3fb2f89cdc615242e6c3e2fe11e4b9b54ae4e570fd62da"
+      "inputs_sha256": "979007b6c1a8aa95ab0d2127b6e4823e5dd17bb6b4d2c0a132132036d9b0e3a3"
     }
   },
   {
@@ -347,7 +347,7 @@
     "identification": "Direct call at retail VA 0x10f01f64. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "faf5ad47977db1af16c20c9b184d012d1217a97c4bad7f14a36cda2830ad6219",
-      "inputs_sha256": "8899de203dbd0bca27e6a7b8645ae08695a22fcb78f9a427cad6930c7693871b"
+      "inputs_sha256": "eb9e769b57d9ba05b57c58f563f13069c18ffeef98d1547be79163b9a02ebe76"
     }
   },
   {
@@ -374,7 +374,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x603a60 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "f00a225b34a36ffec223d7ae2f76b769fa66962a29534c66ddef6931821c5cf3",
-      "inputs_sha256": "152c6dad3877928f854cf17cee16ab3375f737c5d8b3433d8aae1352ca8f7dc7"
+      "inputs_sha256": "355881e7943f355665a00003d215561729ae4711689c3bd73cd4a66205154aa1"
     }
   },
   {
@@ -401,7 +401,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x603e00 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "e67094b5f4411d8aea61d7cb1298457d6132fb6adab2dd301c6b0bf3a808bb61",
-      "inputs_sha256": "1182602da7d98fb7655500705547c82767af5a4ba6c978f93bbd210dece70250"
+      "inputs_sha256": "8ad6fbe66c70693cc8cc2c7901e54d1f00aba6d91def84a096b6cb9a0cc1b2d0"
     }
   },
   {
@@ -490,7 +490,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "957595483c2b736a024bf36366200454f4b11d33b4b0fcab77ed7554906c4b25",
-      "inputs_sha256": "34f451522284d5a0424f2ef9cc9491df86789ed0a8eaa21f438a314aaef4153b"
+      "inputs_sha256": "948ab2b5c837649de4d61a12009506c9072d7a38213a67e5192dcadec7026bcb"
     }
   },
   {
@@ -513,7 +513,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "0253595ca5b22b39ce9540934fede0716f59d5e1b1bf9115cd72d07cf218c17c",
-      "inputs_sha256": "2dd5547f4820cf1dd00848a97726685741a17cece0d4c0f293ed02802f5c0f9a"
+      "inputs_sha256": "0a226d4e3b43ff7e449afc442358f9e75ecff7748183c72fe795ad196f7cd17f"
     }
   },
   {
@@ -535,7 +535,7 @@
     "identification": "Direct retail caller at VA 0x10f02129. Creates an empty tree with a null root and both extreme links pointing at the head.",
     "match": {
       "bytes_sha256": "330cc0403915c38498fc66516ed54fae1448064e17199e3acd8295cec96d1777",
-      "inputs_sha256": "ccb7989844dd6b5334f3938625905a0dded8ce5f8a8045e33cd7ac95f8cb2ebd"
+      "inputs_sha256": "6f2875526e6b7ba831ec7140d37d963d878d527e77764fc13252e996fcb3d5d0"
     }
   },
   {
@@ -558,7 +558,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "0d96df651c4c3d68bf90d54f2350300289391145a46516b33856be554c3861bb",
-      "inputs_sha256": "b64e501d6b308ed7d07aaa1155aea4dd0d5a016dc9049a519cb491c686ffad51"
+      "inputs_sha256": "e240630fdb82e41090bb98cd7d69ef888ec1b8fc15a4b30c5edd954781185d3d"
     }
   },
   {
@@ -580,7 +580,7 @@
     "identification": "Direct retail caller at VA 0x10f02185. Creates an empty tree with a null root and both extreme links pointing at the head.",
     "match": {
       "bytes_sha256": "c2bdd1a491969c168cfada99cd90a00dc0e8944a99fb9982b59fdda06146100b",
-      "inputs_sha256": "65ac99f00f6aa392e818784cf8bcda729aeb9fc421d8251bef001a9c4e5f71c0"
+      "inputs_sha256": "dc9b9c1dc677414c786ef3b9700e71d940cdc3fdf1724d9af32f1bd8705117d8"
     }
   },
   {
@@ -607,7 +607,7 @@
     "identification": "Direct call at retail VA 0x10f0263d. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "9de006959246450ad18d98c676c481f01c3f45dc192554dbc11b99fb7d5889c7",
-      "inputs_sha256": "6649e4a4bd82401e4918099bb7425e5bab226eb281b974ebcc963c712a6147f1"
+      "inputs_sha256": "457875adb9df77f927fd42ac2283b03a39437d11c8ec05d448e52ab8a8633ff2"
     }
   },
   {
@@ -634,7 +634,7 @@
     "identification": "Direct call at retail VA 0x10f026cd. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "3432aca00fb948d16268f703aa163da30ce551bac38ca5d0c2bc67ef401add89",
-      "inputs_sha256": "8b873f124560d0802174a61a376048c9787b8752f92032524394ae4c27f25255"
+      "inputs_sha256": "8a18c3b7abd56feb908c25695c05a792269a5fd6fd9d35bee1f315985b23c575"
     }
   },
   {
@@ -661,7 +661,7 @@
     "identification": "Direct call at retail VA 0x10f022fd. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "c668bdb4b73c698e45bc2ee14938d6b0a2fbdfca28beef428c60f4db69c3354a",
-      "inputs_sha256": "91bc7a159539ac87e6e9b308d7b1329f94dc0df19e71ea0cad7c6bdd99b6a397"
+      "inputs_sha256": "80cfa3c5963daa8ab070e5b77a851a760668ce1aca5d4c7a937e0b401ce36015"
     }
   },
   {
@@ -692,7 +692,7 @@
     "identification": "Direct call at retail VA 0x10f023fd. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "ec3fca83a439349269dcc36543ecd46823c1c894e11cf66abfd4b256a331b15d",
-      "inputs_sha256": "26f863ad3b0ca4209b03e2dbc112a07d3155d25862cfc39dc79c70293c9b6a56"
+      "inputs_sha256": "3f08582557d212fb30190d178d8b70caf27548dea73a689176c3177550b391b2"
     }
   },
   {
@@ -719,7 +719,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "dbf9f9b986959ef0ef3767342f6179ed0ac5f37334fff0cc822303d34c5019ef",
-      "inputs_sha256": "009fef6c6106c965c93fe9bfac2f8eb7a61c3fd9da666a73eebb456347dbb6f0"
+      "inputs_sha256": "bdbb7ed9401de713b768c0dc681a12f380d16cfee633ab423e2513efb4bf6ea5"
     }
   },
   {
@@ -746,7 +746,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. The receiver cleanup function at RVA 0x60bb40 precedes the deletion flag test.",
     "match": {
       "bytes_sha256": "fb7c57edd4cb1940b43cb2adb778a2335abad0860e65c143a1eb306d196dca4a",
-      "inputs_sha256": "cef9531151d7f691a34d162edfa31386d8df743635419b6141c811d05b9c2c63"
+      "inputs_sha256": "01381857c5421408bc3475631468670fcc9f64f980785a56644d7e2ea3042738"
     }
   },
   {
@@ -768,7 +768,7 @@
     "identification": "Indexed circular list destructor releases each node followed by its sentinel. The full compiler contribution includes two trailing alignment NOPs after the return.",
     "match": {
       "bytes_sha256": "757edaaa4537e743fa5adc455b0aa64e8aadd32dbb886b7c60bfbc89caff0834",
-      "inputs_sha256": "240d7c131d2e9575ae612b7ad2d4001760f0acce223ad523c61d1005f007107d"
+      "inputs_sha256": "d8abb13f97f98359fbbebda1df94a615ffd4ace7d42eda777a275434edb45be1"
     }
   },
   {
@@ -791,7 +791,7 @@
     "identification": "Default Ghidra extent. Calls the separately linked heap release wrapper at RVA 0x739a40. Forwards the allocation pointer and returns while discarding both incoming stack arguments.",
     "match": {
       "bytes_sha256": "c5cbe0aabdb0e9d21a1e338af1b594907689eec364ec3d0a63d5e28aaebb743b",
-      "inputs_sha256": "ec896e88d14cd8cd0fa353560ac70ac33c37439d8b1c199bbc7fb4048a2a2131"
+      "inputs_sha256": "617b0209f5422905f51a3d87b7959ac1dbe67a3849b3b597324fe0d75d351166"
     }
   },
   {
@@ -822,7 +822,7 @@
     "identification": "Direct call at retail VA 0x10f04784. Frees the right subtree recursively and walks the left branch until null.",
     "match": {
       "bytes_sha256": "2db096d929197e667155de5a3c66fdfd511038227febd7bb937457e39dda3793",
-      "inputs_sha256": "48601bac95686dd865ad01f114d6ad4c726aa12820c541151629ff1809d63a29"
+      "inputs_sha256": "a1483d5099af46d65e64e61d15ea7abaaaab39635d66460c4bdae4b0c36058f3"
     }
   },
   {
@@ -849,7 +849,7 @@
     "identification": "Default Ghidra extent. Calls the listed cleanup targets on the receiver or its members before testing the flag and releasing the receiver through heap slot two.",
     "match": {
       "bytes_sha256": "9a62e9b010b30df971746d20b1780adbc225015bb52bd9e921e1e033e5b24ca6",
-      "inputs_sha256": "14668fd1425d95b072b20f0f6f5a1c9f73180dcc8c02a6037de4aa88d2e421bb"
+      "inputs_sha256": "5900a4f71587a7fb1294c78e65ab5728eb44817b63d6b478c44a7990b17b2b21"
     }
   }
 ]

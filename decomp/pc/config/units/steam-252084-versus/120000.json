@@ -87,7 +87,7 @@
     "identification": "Retail registration at RVA 0x094633 assigns GNatives[282] to RVA 0x1239f0. The project inventory names slot 282 Actor.IsAnimating. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "ea7f48e2600ac0d7d1ba84af368dcc0df0d29243435e6006feadbbf08b5550d0",
-      "inputs_sha256": "78d5fb0a205cdd4b50c7d759b70ccc449038d114a98e7a3fdd584ab1d8e16cc5"
+      "inputs_sha256": "b187f10a24c894fe28e5b7bb62c306171557eff70cda524f14c620b2c49daa40"
     }
   },
   {
@@ -110,7 +110,7 @@
     "identification": "Retail registration at RVA 0x094557 assigns GNatives[1088] to RVA 0x123af0. The project inventory names slot 1088 Actor.FreezeAnimAt. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "377cfff2ad502b0b7bb2dbb73014102889c90724508bb25eb2db05c3b910fb84",
-      "inputs_sha256": "6d8a78b96b9c8f93ba47a3517e5a226ccf87735a3b22f98a61ae2bf55afa362a"
+      "inputs_sha256": "2a42412c71f996dfcb6b9d9bd0d840d54a7f804bbb634aa8c1b2ce5abba9e0b8"
     }
   },
   {
@@ -133,7 +133,7 @@
     "identification": "Retail registration at RVA 0x094520 assigns GNatives[1089] to RVA 0x123b70. The project inventory names slot 1089 Actor.SetAnimFrame. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "17bdffa1c02e033c8d4ca8cf22f836cd6217de277519092655ea72831dbadb5c",
-      "inputs_sha256": "4118f89f6d1f132b0336e61b9f80f2f0954f53d364498802c9d6ab4335c01bab"
+      "inputs_sha256": "65286387ffab9b6daffc61901042e977fd60413cae4d478903210fd1b90f8aca"
     }
   },
   {
@@ -156,7 +156,7 @@
     "identification": "Retail registration at RVA 0x0944e9 assigns GNatives[1090] to RVA 0x123c20. The project inventory names slot 1090 Actor.IsTweening. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "9919182e514975c854c67d9f7a6be4a8dc2239c97494f169d04b8669f5cfe8f6",
-      "inputs_sha256": "86f749d43f16b64e54f13b208a681555d4e4c2106c7b21540949da208664fef9"
+      "inputs_sha256": "f9eaf82c149342f7f1000f4df8fb71dd733506bdf48eed9f6fecb80fff4036c2"
     }
   },
   {
@@ -179,7 +179,7 @@
     "identification": "Retail registration at RVA 0x0944b2 assigns GNatives[1091] to RVA 0x123c90. The project inventory names slot 1091 Actor.IsAnimBackward. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "7b9d8b6da8664310324f1ed0c8996b925237bf3c480667a8f40a915e3bcc58fa",
-      "inputs_sha256": "d857f86c11ad212ed4105b03e242fbf3d2f819d3bcec05951c201e7838935394"
+      "inputs_sha256": "5c4d0f65f9cbfbe75f3dc8340a91784c8a7bcaadeafb463eedfaf49f36ea564d"
     }
   },
   {
@@ -202,7 +202,7 @@
     "identification": "Retail registration at RVA 0x0943d6 assigns GNatives[1095] to RVA 0x123e20. The project inventory names slot 1095 Actor.LinkMesh. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "078c34d531bf01c0a4878211f9023fd1fa7036adc78f6dcb4eca677ed8c068c0",
-      "inputs_sha256": "d5cd2f0affeb32369d9000a27cff76de6c7aca314efd153af768975654977d27"
+      "inputs_sha256": "02079c1a5fd6bbfed3420ef15a6b0b659f1a0cac49aba94ba28ed09995768c9e"
     }
   },
   {
@@ -225,7 +225,7 @@
     "identification": "Retail registration at RVA 0x09439f assigns GNatives[1096] to RVA 0x123ee0. The project inventory names slot 1096 Actor.BoneRefresh. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "0e6ddecef3f81a0a0a0965b86eec6b3d3362901320ea56080fa9c379c9c0ecbc",
-      "inputs_sha256": "853ee81364dc954d3e717b50b66378378357b23510eb7111c698096a87488072"
+      "inputs_sha256": "de7ab2d3bb01905d45ab08e2242b2f986813ceb46c1426910733cec1fab0580e"
     }
   },
   {
@@ -252,7 +252,7 @@
     },
     "match": {
       "bytes_sha256": "3054d4c4c4ccb8e5c575551c956c53319543a243e8cd135d6d0a325b9859eadd",
-      "inputs_sha256": "e2a7bc4c3503978b1d6a9ec2a4f4daa665e6b40d1c5d52b4b6f5109f25f73874"
+      "inputs_sha256": "4c8a1ad7024285ab96e7dcaaff99f273608e1adf6f4c60954e504ac827969af3"
     }
   },
   {
@@ -279,7 +279,7 @@
     "identification": "Retail registration at RVA 0x094142 assigns GNatives[1107] to RVA 0x1242a0. The project inventory names slot 1107 Actor.LockRootMotion. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "c32876e19a9bf0b90629b8f1f67123a62290088ab26c0662917c09a3afa95fe1",
-      "inputs_sha256": "386e3b3a6878bb2e2b96b7f08d7b691e032de89691ad0ba6023548ea8cb31433"
+      "inputs_sha256": "57fd81699ea02c829cff2f2118358e39571d1c4fd3ed6c4421ddefc2482c780f"
     }
   },
   {
@@ -306,7 +306,7 @@
     "identification": "Retail registration at RVA 0x094331 assigns GNatives[1098] to RVA 0x124460. The project inventory names slot 1098 Actor.AnimBlendToAlpha. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "600938f70930e653b0a2dd7fe239e14141271bd615cd413217bd0b68186ae2c2",
-      "inputs_sha256": "5b79b18adceac351785b86afdc3528d5663a8d71d2a2ba0c7307d1920cafe748"
+      "inputs_sha256": "353b5ddfc11f0057c527817985a26c2cd91303da7e653ed9cae33e743c2c9049"
     }
   },
   {
@@ -329,7 +329,7 @@
     "identification": "Retail registration at RVA 0x094444 assigns GNatives[1093] to RVA 0x124530. The project inventory names slot 1093 Actor.GetNotifyChannel. Its complete body ends before the next alignment boundary.",
     "match": {
       "bytes_sha256": "c59d8e0bdcf4bde5e9d78b6af766fbc4080e64f690a4a184cb44abb651da17ef",
-      "inputs_sha256": "05512749749b1cff6654f40d1d1c13eda358f9d559a1e41b9d4498b433d367c5"
+      "inputs_sha256": "e81ee5c9615e553d749dfb61c112d033d7c84f730c287d983d69281e51c6b6e8"
     }
   },
   {
@@ -487,7 +487,7 @@
     },
     "match": {
       "bytes_sha256": "56b285af88773ec83ac244baf3e1ebecf4488bbb997d6ef15db448d18ba2b5a7",
-      "inputs_sha256": "d1981da1ad1000445d1d49ff2ca0cdfa91e80d2e0b37ce138e6289b02c63883e"
+      "inputs_sha256": "65ef88f41b0776a751e92ef981ceaf251599c2c68b95a8e3bd6148e79b775598"
     }
   },
   {
@@ -510,7 +510,7 @@
     },
     "match": {
       "bytes_sha256": "7bf73ae208f35c51fe4ff77d3df23fd931115d023ee6482578e87a4ea46b2378",
-      "inputs_sha256": "975fc9b6a1374fe1b2ce533d39ed0ed633543a87f613fbba64c15c9a87f57d49"
+      "inputs_sha256": "dafdf810b69575e2d8727d8b86bab1cb3d52ce5427c6a72ab84ebf2ba33c9c90"
     }
   },
   {
@@ -532,7 +532,7 @@
     },
     "match": {
       "bytes_sha256": "c070f1cef234c6108906287ed7841a71bf01dadce7b03d5f9584ee719364e9a1",
-      "inputs_sha256": "0809b4fd2dcc9955c334d9541d4a527b0d4283b7008396e70a10f2c9fe64355d"
+      "inputs_sha256": "0b3a33fa6e3092b36f3b0212b7b162dc977c40e199e6ced8b4476469afa085eb"
     }
   },
   {
@@ -554,7 +554,7 @@
     },
     "match": {
       "bytes_sha256": "2fb60b68707098fc7dcaf0aaad82c216f46a9d7693352bd5c284a41e4e1cd265",
-      "inputs_sha256": "a5e6be97de8649ab69f37fae7c904e81ca17bb4a0dee752a5621f205fe84224e"
+      "inputs_sha256": "30039ce42ee3c54fb58b6d3348f26ea2ad4fbe8e4cfd6f0e21a10729548b45d9"
     }
   },
   {
@@ -728,7 +728,7 @@
     },
     "match": {
       "bytes_sha256": "5017313976498b296816c683aaec0c89459c2afbca4e16ff1214df5bd5ba4644",
-      "inputs_sha256": "3f83df8d1f6ead199ae3707a275beb8aae506b09dcb9b9fadfa84d20543f263a"
+      "inputs_sha256": "5104521e60393cb6ceab2b7a9da37e651015e0cb9cd9af403b486cd18acb98d9"
     }
   },
   {
@@ -751,7 +751,7 @@
     },
     "match": {
       "bytes_sha256": "cca122a9578144ac161429f4be1d78a0b94e32cd9f92944c5eb7ab110c791b0f",
-      "inputs_sha256": "9f33cb598fec980daf7a2a9d7d0d87a422668735bf1c16c65d51f488a8bcaa46"
+      "inputs_sha256": "24aeb7f06217d971858231a4d7da5ea539b1efb7ce535dcc5047b7c06b0032a0"
     }
   },
   {

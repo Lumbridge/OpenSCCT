@@ -1,5 +1,39 @@
 [
   {
+    "id": "versus-object-destructors-3b630",
+    "size": 109,
+    "offset": 243248,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UFunction@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UFunction@@UAE@XZ": {
+        "va": 280816040,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UFunction@@6B@": {
+        "va": 281070568,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UStruct@@UAE@XZ": {
+        "va": 277925152,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UFunction::~UFunction at RVA 0x3b630. Registered class UFunction installs vtable RVA 0x30cbe8; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UStruct destructor at RVA 0xcd20 under C++ frame handler RVA 0x2ce9a8.",
+    "match": {
+      "bytes_sha256": "551f9d5590260ba91f8ebfce2fd790437a9a56752efa759a2745f5b54cf87ec5",
+      "inputs_sha256": "ba9b7a7a97ef004e2f9e8d20aef41a69d13f69894f50bcf0c4fb5653788cda5f"
+    }
+  },
+  {
     "id": "delete-ufunction",
     "offset": 243360,
     "size": 33,
@@ -22,7 +56,7 @@
     },
     "match": {
       "bytes_sha256": "4976713081c3203033d6cf5011bf33466cf7bb2c34492a6d61a234a11b4530fc",
-      "inputs_sha256": "86056eb72e6fbb6fe98b4cdf1622d2bc3224c02ba32b2762058c1ae8d842cd0f"
+      "inputs_sha256": "747f2933aba3e628667a84c1283d32958ac97fcb0b3d414115e2896842c11c21"
     }
   },
   {
@@ -48,7 +82,7 @@
     },
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "645bb61bee09199b675c7685c04b08c613b6489fa87b301b13e51c248da6eb53"
+      "inputs_sha256": "c91e34cba3717205873b0cda715bed71ff8a87e935085c8d7ba13637e5e020dc"
     }
   },
   {
@@ -70,7 +104,7 @@
     "identification": "Indexed whole function and UClass method table slot 25. Follows outer pointers until the class equals the target type.",
     "match": {
       "bytes_sha256": "40e08d64399239d56210ee001718db095915759e15156f9c79eef717b8ad689d",
-      "inputs_sha256": "aa249418158059527a6cad0c09fe82553651c3af541e3362ba980d29a05c8d3e"
+      "inputs_sha256": "7c769a969b893c3f622512ae4a0c12d5aa22a7a358aec727cdf417dea378fa2f"
     }
   },
   {
@@ -112,7 +146,7 @@
     "identification": "Indexed whole function and UState method table slot 19. Calls base initialization, handles the optional super, and copies the name index.",
     "match": {
       "bytes_sha256": "f29f07bb48e6d8e2700c3dc21314bdbc2f388bb7332c6bac03f5716153091d62",
-      "inputs_sha256": "d193542f099e55d622022ccfebb09bd4c57741b3bce56cb5c8719c3c1833c5e4"
+      "inputs_sha256": "ddba14fd81c0e675c4c4ca1eb8bea826011b81950c21f2d15f677f4e7766677b"
     }
   },
   {
@@ -138,7 +172,7 @@
     "identification": "Indexed whole function and UState method table slot 9. Clears the script size and releases two owned buffers around base cleanup.",
     "match": {
       "bytes_sha256": "07609c0af8817db710f10324f4ee01bff08f3473368dd2feb50b7cb0ffd04005",
-      "inputs_sha256": "3afbf7b626a00653d2018ba90c9e3288b8c419a38c303d2696397a0c78ccb90e"
+      "inputs_sha256": "c8495146473fb2f8eee9a08e40d3a3156d50f4fbf5338167117826ff40797d7e"
     }
   },
   {
@@ -164,7 +198,7 @@
     "identification": "Indexed whole function and UClass method table slot 24. Formats the native symbol name when flagged and inherits the superclass binding if unresolved.",
     "match": {
       "bytes_sha256": "3bcb045a5127f11eecbd6c3982ba2c035eb890e03d1c7aab1a00b6dad8db05e5",
-      "inputs_sha256": "00d97af24cc2dcf314a15df6c550b4247ee1cfa208cc8ab26cc011d64692199c"
+      "inputs_sha256": "85d44054049baeabf294da9b7a0b0b6c617c081e3f8ec544b78a89fbd0ef7c27"
     }
   },
   {
@@ -186,7 +220,7 @@
     },
     "match": {
       "bytes_sha256": "5aa7d74abbc878b5978b083aea51cff44a16b11060e9d09e36e66f1a97f9667d",
-      "inputs_sha256": "7ab40e34851bc1998b021ca44c41829f1df0ced913213c5d19c3b5a71e118678"
+      "inputs_sha256": "a67c80d7182fc1fd0e3f51dd6cbca5fa7477bf040ceeea6f3a1436964c86e9be"
     }
   },
   {
@@ -208,7 +242,7 @@
     "identification": "The reflection annotation for UPackage::PrivateStaticClass identifies the stock class at RVA 0x3ca798. The registry call at RVA 0x3f940 passes its placement callback at RVA 0x3e380. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
     "match": {
       "bytes_sha256": "fb70ee326c235e07eaf8c9f941b135edf2fbde55a03f4511edd7e88b8db29ac1",
-      "inputs_sha256": "722d1e1fe846a4422b3351078b89c44268f16c0202608a8ffde3c80d325ddd1c"
+      "inputs_sha256": "01e3aa309d52c1fd954f818ee5dd0ea5391eccad7a1a33de436231d200dacc66"
     }
   },
   {
@@ -238,7 +272,7 @@
     "identification": "The reflection annotation for USystem::PrivateStaticClass identifies the stock class at RVA 0x3caae0. The registry call at RVA 0x3ff1e passes its placement callback at RVA 0x3e430. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
     "match": {
       "bytes_sha256": "4fa2afb47bfca2e1f3b7219d73f58ebd5cc58a6fbf2e711980cca777b5cc81d9",
-      "inputs_sha256": "605022940e5f90d285b9c2af87fffd38f58ce979356e1b19fab8da1c6aed5a0d"
+      "inputs_sha256": "fa1cbef5e4b101fe4d6e2bfa84c79e8f9224dc5cf8370b768bd52f5b6502588d"
     }
   },
   {
@@ -265,7 +299,7 @@
     "identification": "The read-only pointer at RVA 0x30c53c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "dd65a2b37ca5f9889c28f5eead930db667e9ba1e89c1c5653000822b5bb1e100",
-      "inputs_sha256": "912a7033f5211a0574d61c2be017f04954b928fa3bd3aa668a7946144bdd03c3"
+      "inputs_sha256": "743352fd1e2d17989c733ee2a30dd84ad257eec85cb3e929390685b62427aacd"
     }
   },
   {
@@ -291,7 +325,7 @@
     },
     "match": {
       "bytes_sha256": "7bc60017fce6f9de26f44b9c65cadb6662612d26acd8025e857571ef126c06a3",
-      "inputs_sha256": "8120c7723b027e8a42ddd1b91ec0e8c2ac0f4930f941fd770f5505f6bf263c9e"
+      "inputs_sha256": "828657b01fbe5f31b682bb325ab55e29696b1ae1530f2461a98a6bab39d92e65"
     }
   },
   {
@@ -318,7 +352,7 @@
     "identification": "The read-only pointer at RVA 0x30c42c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "a368f0d21323af61c7a153ec63236f5bde0fea0988b2a10a3192b06a984e25ec",
-      "inputs_sha256": "b49cb6ffd1498a21fe0a298cc699b52c9a46df3dc9551754eb4c7043b3c23196"
+      "inputs_sha256": "ee73cfb862fe995144d6bd7fa609133b4c1dfb3f12f235c3bda70f68c6f79c30"
     }
   },
   {
@@ -345,7 +379,7 @@
     "identification": "The read-only pointer at RVA 0x30c34c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "fcefff7681256875677539e0bfc7dfe2e18570b47cb73d206084cb19fd10ee90",
-      "inputs_sha256": "14badb663e70ca98c911b2fc0764caef71b41d3f2efac056005a57ac296072bd"
+      "inputs_sha256": "a7c29867ff4bfd91afc82b202f06b790c6d8a8481dfa8ada88f3cc9210bc8c62"
     }
   },
   {
@@ -367,7 +401,7 @@
     "identification": "The reflection annotation for UStruct::PrivateStaticClass identifies the stock class at RVA 0x3c98e8. The registry call at RVA 0x3ff73 passes its placement callback at RVA 0x3eb80. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
     "match": {
       "bytes_sha256": "aa7c4a02b0ba810cff09660c9f4d2445c75c94c04f8370a0d48bd6ad1e3a9a31",
-      "inputs_sha256": "9eb7df76fee08d1e8043f54c5cd7ad2ee8c570192d71bbcfc3aec29473caca57"
+      "inputs_sha256": "0ba040e5beb9110c07b79d9e0ea703ba69d7c5cff3a7515f0f8ef0ce4ca13d92"
     }
   },
   {
@@ -389,7 +423,7 @@
     "identification": "The reflection annotation for UFunction::PrivateStaticClass identifies the stock class at RVA 0x3c9c30. The registry call at RVA 0x400d6 passes its placement callback at RVA 0x3eba0. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
     "match": {
       "bytes_sha256": "4e8e57c1e0077ca83f8b948b6ceb3d3cd83688af7a4f493397f76546c304de03",
-      "inputs_sha256": "521afceb61b3564d69fd78a36b3ccbae72e8cffbd055f9d49f18e8d995c857f4"
+      "inputs_sha256": "6a4a8938e14247eaf39172d51774a02b949a17d170e84b749d7e64b815d7f36f"
     }
   },
   {
@@ -411,7 +445,7 @@
     "identification": "The reflection annotation for UState::PrivateStaticClass identifies the stock class at RVA 0x3c9a00. The registry call at RVA 0x40025 passes its placement callback at RVA 0x3ebc0. The callback tests its incoming storage, writes the record's fields and installs the methods table.",
     "match": {
       "bytes_sha256": "5fc0e4a09a9d3895fea0710b56332e476fdf17d17a2cc043dfdab016a2aab1d7",
-      "inputs_sha256": "7f79e8d3b4bbaa292248cce4eda3b959c93d650ef99c0e071769507d997d28a2"
+      "inputs_sha256": "302a6ad9f4d13d9fbc71bbc1a1d3aafe830b75eca022b795eb19706031b52091"
     }
   },
   {
@@ -433,7 +467,7 @@
     },
     "match": {
       "bytes_sha256": "dc830a6295ff7a1b37d9d71a0031b8a8eda92beabdda3b3c85a2f91ecf0ac67a",
-      "inputs_sha256": "dd27497b8dcf04939ccf4484e5f6b56a4e242b72dcb40cdc76335c8307ef05f5"
+      "inputs_sha256": "aab94bf46e0f4b79e467ce7dff80fd698fc6e8b06d0ffc6256feadaa0460c09f"
     }
   },
   {
@@ -455,7 +489,7 @@
     },
     "match": {
       "bytes_sha256": "acbb538ce3c2742c01aabe87ceb677d53b8db8a1793d90dd564f5ed1a0405c2a",
-      "inputs_sha256": "b9777603f2405f06e5b97e9be89ed42f324c11bdaf3f69c4cf7607971d9c4bd1"
+      "inputs_sha256": "8c7d31e84b7ca2dec3915955c31b5290a9917c8aac12a9beef475cb4f1487cff"
     }
   },
   {
@@ -477,7 +511,7 @@
     },
     "match": {
       "bytes_sha256": "b7f462060dd29657c1406ff80815b7b66d1a111d04b7903387ae407ee2aedceb",
-      "inputs_sha256": "f6fa10e75dec67b1baa9127ef6aaf1257d20cca1195e10676e128b3377da7a16"
+      "inputs_sha256": "0edb6498bcc9782bc2bfb0b416610331653d39eefa60a5b444741603015de429"
     }
   },
   {
@@ -503,7 +537,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "5a68a391375fa382c8afdec983c255527b6313e03f4d0df2e869af7a2c8413af"
+      "inputs_sha256": "775d40cdb63784164da8029f1add1beb1d70fe24379e46d88d592fddc81cead6"
     }
   },
   {
@@ -525,7 +559,7 @@
     },
     "match": {
       "bytes_sha256": "9973c90d502cacfee773fc26400a49f33de49eb42bebdb588bba0bec810e6741",
-      "inputs_sha256": "344e1994d8cd07cd9579720e5eca0a77ea1597157f0022ddeb47bbb8be01c0d3"
+      "inputs_sha256": "02691408d72c99f9c8a533c2a83678bec7c9b5623b7ababc3fbd14de6abf6fc8"
     }
   },
   {
@@ -547,7 +581,7 @@
     },
     "match": {
       "bytes_sha256": "aa9cfdcbad57a79e27bf5327f50a4add7ea9fe014f7c783ff429502e31311ec6",
-      "inputs_sha256": "25f615c459fb49673772eaa194afd67d2bc6b4784a173ec77e0d45b3a0d1d627"
+      "inputs_sha256": "0641c89154fd305287287dd3888ee594b439aafa50378c7f2902ec8d4c1f654d"
     }
   },
   {
@@ -569,7 +603,7 @@
     },
     "match": {
       "bytes_sha256": "2ae3382c3e90fbcbec65438791fb772548e047ba0c7a8a8dc5fbad72e8f5d0ec",
-      "inputs_sha256": "b226ca28afaf3722c4136507d3c9a71a985833cd694b86d88c45f007783a35d0"
+      "inputs_sha256": "d9e1686ccfb8c6aefaedd6ea718c9b0e01371e460e2a23d3c6d0ec8064e8dcaa"
     }
   },
   {
@@ -595,7 +629,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "bf1a578efaa34681d3b8e24952ded584380da19242a42636dee214ebe561454c"
+      "inputs_sha256": "2cc0c0ae467d61f26e512497f193975a480057d17ab5dff868fc69254dbf9949"
     }
   },
   {
@@ -617,7 +651,7 @@
     },
     "match": {
       "bytes_sha256": "970a3d96f7cc6089c43400ea295f00a22ac244a5add796ea47676f253e569955",
-      "inputs_sha256": "f8d1093c6cb80909ed58cf66e5e2851d2af64b0565e0855ba858c97ec7884469"
+      "inputs_sha256": "d574b8e51723cbf31867c1b8286ca44747c97bf2e4ab4cfe9eba9d3b7c3abfcd"
     }
   },
   {
@@ -643,7 +677,41 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "a42dc9efe541936d1af1c523628987f39293b903b958120436745494d0f8b017"
+      "inputs_sha256": "8401d5fc2a2f8a30b2f25c1cb80c33c2a95c243f53cae8ba2db67995763690b3"
+    }
+  },
+  {
+    "id": "versus-object-destructors-3eec0",
+    "size": 109,
+    "offset": 257728,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UClassProperty@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UClassProperty@@UAE@XZ": {
+        "va": 280823432,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UClassProperty@@6B@": {
+        "va": 281069416,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UObjectProperty@@UAE@XZ": {
+        "va": 278130176,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UClassProperty::~UClassProperty at RVA 0x3eec0. Registered class UClassProperty installs vtable RVA 0x30c768; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UObjectProperty destructor at RVA 0x3ee00 under C++ frame handler RVA 0x2d0688.",
+    "match": {
+      "bytes_sha256": "e99ce950a60989ea3919f182c2944de0be403799252802cb6bdcf788d83f9c2c",
+      "inputs_sha256": "5b6d396e7a89c99299004b2583a8f24c8d6450d7213cb86796f2b58efb933a23"
     }
   },
   {
@@ -665,7 +733,7 @@
     },
     "match": {
       "bytes_sha256": "0a8441630ba0e3888f9052f60e325ce304ef0dc67a6a4a81f99a553f39ec6e52",
-      "inputs_sha256": "b7b5f4416c586b33a9f7435d7d220cda5755d6bfa926014ae0664a6a4dbdfc88"
+      "inputs_sha256": "3ccd7219c2f18d2210bdb7e77aa7d80b70bcb6185789ee6f9c8ffeb54f57808c"
     }
   },
   {
@@ -707,7 +775,7 @@
     },
     "match": {
       "bytes_sha256": "eecb5bf8013169a5c9e7c7b5191687c5e1efa97565950109152693df8a5f8d2f",
-      "inputs_sha256": "3c17cc8dab3e90230bc3ea133a999b3e5c787d5d207302e6cef0abeb26657a2d"
+      "inputs_sha256": "02458ce5361b471b83f127921ad0923e1d168cba7e974d0640fbe6b0092c8b5d"
     }
   },
   {
@@ -729,7 +797,7 @@
     },
     "match": {
       "bytes_sha256": "bbdcacc468c1338f863d443bbf9ba960df5d988a4181ce503edd7df8aa0be93c",
-      "inputs_sha256": "1eff08d0287b373a6977cbcc31f183df826976a157701200799050785bd451cc"
+      "inputs_sha256": "3058c45a8a830fb3f73050802a3661d84cb8e353187906c7a44b660e3dc6591f"
     }
   },
   {
@@ -755,7 +823,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "8386f26e48b317a8ecfd57bb10f191c13b5e97aaa75d54355beb4e898f2bd041"
+      "inputs_sha256": "55ed52a07da590bb223f07027f66cd22de8ab796c1da9c2871b758369807e3ef"
     }
   },
   {
@@ -777,7 +845,7 @@
     },
     "match": {
       "bytes_sha256": "7e20c14ce714e033e183298d96b18384805f290c294e21e7bd92287b3f1028c5",
-      "inputs_sha256": "46febb0921e96126f083931fe8893128e5c5bf09013316127a20022ea7563d2c"
+      "inputs_sha256": "1f3a1e4eddfafc29e00bedfda6bc05ac35f8cdbe2a07d28a9e6252790cb32081"
     }
   },
   {
@@ -799,7 +867,7 @@
     },
     "match": {
       "bytes_sha256": "e6096e785bc0fe031778938e6dfe29b32ce2b6da50361edc3841e8308bc899cc",
-      "inputs_sha256": "c0039f2a281294a0efb22879cf0291d67854f07c9380d872cccc2f26dbfd7181"
+      "inputs_sha256": "35140618e167777645b58e5d38759a04e7a3317ce4034e292c9cf596f5729576"
     }
   },
   {
@@ -825,7 +893,7 @@
     "identification": "Stock UFixedArrayProperty vtable at RVA 0x30caa8, slot 3, points to entry RVA 0x3f100. Registration at RVA 0x3fdba passes placement callback RVA 0x3f0e0, which installs the table at RVA 0x3f0f6. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "af00ce00bb93c57191a99fe38dbc82a82d489c91aaba680c09e3d31611fae1f2"
+      "inputs_sha256": "0c859f25234afb7c76e464da4164c879263af4651e29ec21cff52401d0adc84b"
     }
   },
   {
@@ -847,7 +915,7 @@
     },
     "match": {
       "bytes_sha256": "a76ce74a61977b5257d6ba442a3878b03805dc4e92e07106c0eada3908e1690a",
-      "inputs_sha256": "e03183ec57b285bdcc48e75c2ee1ed564726c5120eb950f83b05c46e7f4792fe"
+      "inputs_sha256": "9c7a5e98768daee03ecc4e677ae9e6d719723868e1542d00802550b87883411e"
     }
   },
   {
@@ -869,7 +937,7 @@
     },
     "match": {
       "bytes_sha256": "ff0d162be312bf51358ac265b9e8bdd744012436739d7e915e5165876a1763a7",
-      "inputs_sha256": "1045ee44e31d4b6ba15301f51a103c95a88dbb17aa7fc8eeedb78c06f479b9b4"
+      "inputs_sha256": "9b61a48b2821c5878dc90bde20680d97cc8af8ccb2ff86b68c627253212a5094"
     }
   },
   {
@@ -895,7 +963,7 @@
     "identification": "Stock UMapProperty vtable at RVA 0x30cb48, slot 3, points to entry RVA 0x3f1e0. Registration at RVA 0x3fe6c passes placement callback RVA 0x3f1c0, which installs the table at RVA 0x3f1d6. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "8761cafc9552d0cb8f94f56d6864def6aa4e7af971171846983e11aa6e3b2def"
+      "inputs_sha256": "4ad3034ecbdd67a5ae9acfdb101658c50bc40f5f6b89de554bb761451dc06ca0"
     }
   },
   {
@@ -917,7 +985,7 @@
     },
     "match": {
       "bytes_sha256": "df18da0cad73194a1df81de8d8025465a9aa93d377de8383e8315487d643fd0a",
-      "inputs_sha256": "830b7184226774de9778664046d739a598e36ac10432953736f456aeca34d122"
+      "inputs_sha256": "bce4ddbb678255b4d9d50fd40041ab47181924b6880364c92966e09df79d2b7e"
     }
   },
   {
@@ -943,7 +1011,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "0d90ec46aeee1076260cfd2a208101ebcd61eef5fd5ec9c16ff21e0523e3c8ff"
+      "inputs_sha256": "cf62f881cb401e258c8ac5751c83bc3baebb154caa293adc7dfbe46a5b653662"
     }
   },
   {
@@ -965,7 +1033,7 @@
     },
     "match": {
       "bytes_sha256": "4a86f05f4be4d5fd117a4f398d947dd06c3d52975457f0c5505bf6f4e609eb23",
-      "inputs_sha256": "accea936d12ca21e42afae3251622a6c312738afab24c2dad584e060a012b41e"
+      "inputs_sha256": "9226785e5aeef44379ecf7751e2c2490a1f5a9009344e34881e0ded553f69aa4"
     }
   },
   {
@@ -991,7 +1059,7 @@
     },
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "bc635d49c8b313d7778c6da2c2dfad818ba98cab924492224e1ad5e08a64d7b7"
+      "inputs_sha256": "28a1817a467d51987886dde59c7c17bee9bd78b2e2902fde09d4d6fcc2f40a54"
     }
   },
   {
@@ -1034,7 +1102,7 @@
     "identification": "The read-only pointer at RVA 0x30c9f4 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "5ad63a41a9e10e1f9fac9fe8910e2f9f1497aa209447132a97e5c563645e7c7c",
-      "inputs_sha256": "584f54630b52d5a22414610255d34c8d3604aa1a638d6e2a782988917bb7c9b7"
+      "inputs_sha256": "ec29d3931cee4e534fef199174795fbe769debd3642c49f3917c62c996a0d8af"
     }
   },
   {
@@ -1056,7 +1124,7 @@
     },
     "match": {
       "bytes_sha256": "dd052553154c4df5bb480969fed672de8f01467ea483757bc007e7b7a0e5202a",
-      "inputs_sha256": "96385a5df8ef2837f4610a09ac9cbaa65ec2234deb2683b1bf06fea8825fd107"
+      "inputs_sha256": "42cd1b8f0825ff9a525a00ddc18d6d87926f122c4f4645be1c45ef5410905f0e"
     }
   },
   {
@@ -1082,7 +1150,7 @@
     "identification": "Stock UObjectExporterT3D vtable at RVA 0x30ca48, slot 3, points to entry RVA 0x3f4d0. Registration at RVA 0x4012b passes placement callback RVA 0x3f4c0, which installs the table at RVA 0x3f4c8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "fa8cbaf21ed652b38789f7831d0975f729efbdec62184fb4325991fe7637a751",
-      "inputs_sha256": "f809fc7b4240b6651dceb050bd70fe2d065ab55a2d538840eb7203367438e147"
+      "inputs_sha256": "c0ccd52223bc5d4262afbc7f41e0dde0385acbadc06c332d68d5fc69fab8d286"
     }
   },
   {
@@ -1104,7 +1172,7 @@
     },
     "match": {
       "bytes_sha256": "3c25c7fad9335f0852b440fab54997d7e8c76f7a5fc7eee8fe493f005d10ce9f",
-      "inputs_sha256": "425346a2b4b5b99f5b423124e697798ccb05f3aed3358aa17923c2aee302fbaf"
+      "inputs_sha256": "ef494e88813a09e8da6db9f25373a4b2c095bb2dada3be2b5cb81ada7f629968"
     }
   }
 ]

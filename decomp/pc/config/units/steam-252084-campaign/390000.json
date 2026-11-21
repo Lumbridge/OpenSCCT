@@ -24,7 +24,7 @@
     "identification": "Complete independently analyzed stock FArray method at RVA 0x391720 through its RET. Resizes the existing allocation to capacity times the incoming element size and stores the returned pointer. The heap and exact allocation-tag address agree with other rebuilt array methods.",
     "match": {
       "bytes_sha256": "5a8746e0d8bd32113ecc92e0c27329b209e558722df63524f5da70acabfabcc0",
-      "inputs_sha256": "a901d48d179a2228f50cd008f84b202faf77678bcfadf35d3a7e70ccf41a5824"
+      "inputs_sha256": "25085e716721bc4a70970ad03316c9ae7ed19ba8165b4a8599bbd1abc153a6bc"
     }
   },
   {
@@ -51,7 +51,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "13e5fc4998763bef7d73eaef8b6f8b3c971f73ac8519b1f8f9201aed10352307",
-      "inputs_sha256": "80e22fdc504740dd00a87955bfd453ce58983951d63d07696fe013d9a2535c38"
+      "inputs_sha256": "783756e119edb1c9d5acf5ff6b183ed12719a4bcc4f8ae4d3f335238c9d56538"
     }
   },
   {
@@ -79,7 +79,7 @@
     "identification": "Aligned entry between INT3 padding runs following a previous return. Grows the array with caller-supplied element size and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "98ee88503043dca8091fc80c0452408b76162318d7f3ea2193f195bbb6f42591",
-      "inputs_sha256": "d3c712fbafe09175e04e50361830bc880ec4bd159137664651f246d071354b0b"
+      "inputs_sha256": "e2b64d4bb47150298be7a715d6c0ce4aca38b49ca7bd18978d0125aecc1f10a0"
     }
   },
   {
@@ -110,7 +110,7 @@
     "identification": "Stock contiguous FArray routine at RVA 0x39b560, including RET. Incoming transfer decoded within analyzed function code at RVA 0x3a322b, 0x3a3769. Moves the suffix, decrements the element count and shrinks storage under the original slack thresholds.",
     "match": {
       "bytes_sha256": "9cbf06c69ea1bd54e2c73ca4a8990167860a440ec354b5c31789eec9009eff64",
-      "inputs_sha256": "01255cf8900d7368a64a03704070e8506f4b7e3d03e0a06c4c7959fd2c24e449"
+      "inputs_sha256": "ce4e09c287f62e6194676e6608d3a94909253144006c5e0aa1471809781e2aab"
     }
   }
 ]

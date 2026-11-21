@@ -23,7 +23,7 @@
     "identification": "The read-only pointer at RVA 0x2f1fd8 resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "6af2ec6616d178dc60831bfac1053068ee84f3f03910c33b4ef27aff2c58da6a",
-      "inputs_sha256": "2ea870097b8074ff76f1014e7fb21c37fe6e01167600bfe657cf6846a9f56d4e"
+      "inputs_sha256": "c167d5e0b65cd1a2108303fe2f480ceed157489fbe3c440bff33a17ab0afadb0"
     }
   },
   {
@@ -46,7 +46,7 @@
     "coff_alignment": 16,
     "match": {
       "bytes_sha256": "7d1b7b6b1669a2a2698bea6bb742f0f3f35adbdfcbf33f10f9dc623dada8b81f",
-      "inputs_sha256": "7282944f6513f988cb6230a8390c3446ec12d5a74a39dfe40d324ed7a2590d1f"
+      "inputs_sha256": "ea3810c23be49bce3a4112a7194e1865133a037255a644c191a3303a3f2706c7"
     }
   },
   {
@@ -73,7 +73,7 @@
     "identification": "The read-only pointer at RVA 0x2f1ffc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "b9a445e29418539961f7df45febe0e8e448904ad8fea8890ec4f347fd7224f8c",
-      "inputs_sha256": "82f0cc5dacfe19a5a37b0fd494c564dab0f1857c9fcbd1f8714381b549e02d6d"
+      "inputs_sha256": "8760e645b321926a38a0c7be135ef36fc8a0cebce6381416f501cdf071ead4da"
     }
   },
   {
@@ -95,7 +95,7 @@
     "identification": "Versus unwind handler RVA 0x2cb39c loads FuncInfo RVA 0x31d148. Entry 0 in unwind map RVA 0x31d138 names this action. It clears bit 0 in the word at RVA 0x3762f4.",
     "match": {
       "bytes_sha256": "caaf554830c2677a932b5f88bcc8b09179e5900bae5202c94ddc381cc9404c44",
-      "inputs_sha256": "0b28f4185574d1b34100d655f71b9ff77b984b8444a42187984412e70cf833dc"
+      "inputs_sha256": "a143f3dd55474203885f71089d1b0922b271b9ba4dc088ef9e671132bab02d4d"
     }
   },
   {
@@ -117,7 +117,7 @@
     "identification": "Versus unwind handler RVA 0x2cb39c loads FuncInfo RVA 0x31d148. Entry 1 in unwind map RVA 0x31d138 names this action. It clears bit 1 in the word at RVA 0x3762f4.",
     "match": {
       "bytes_sha256": "8919ae8f65377c2b30f1518a4bda460972e52fdc4a44e80fd6e8907fdf027375",
-      "inputs_sha256": "5e3052ede8e8964bc7a180afcb81dd69876f84b7d09226e9b8b4a4a3d6d093df"
+      "inputs_sha256": "a8ac3cdc48a30500d22b1774b7d6158fc317299f91ce660d435afb86b716e3c7"
     }
   },
   {
@@ -139,7 +139,7 @@
     "identification": "Versus unwind handler RVA 0x2ccf7e loads FuncInfo RVA 0x322f30. Entry 0 in unwind map RVA 0x322f28 names this action. It clears bit 1 in the word at RVA 0x450e1c.",
     "match": {
       "bytes_sha256": "fb828b63992f1cbf2f8a77a7fa8584c5b243070c3698ed2cbf8bf384f90dad78",
-      "inputs_sha256": "c2dd19e03070d33d30f923320981fe025bfc3506e9992866ac55dc7e2d9a0294"
+      "inputs_sha256": "efc6e5d8c836dce8500dd4f3bb5ce38d7809fbc8e86ab83a92d31878d73cc1d9"
     }
   },
   {
@@ -161,7 +161,7 @@
     "identification": "Versus unwind handler RVA 0x2cf8be loads FuncInfo RVA 0x3275fc. Entry 0 in unwind map RVA 0x3275e4 names this action. It clears bit 0 in the word at RVA 0x450f1c.",
     "match": {
       "bytes_sha256": "585333331aeab14702b009a9fc818bee53eb6c54438b378b2909d73cda8d53bb",
-      "inputs_sha256": "f69bff553ff17c3d3fc4a35493b948b063e19d8a4dcde71c3828e8a5876352b1"
+      "inputs_sha256": "c7fe5e2b01bf0d4018613edf1c4ae44ea5283db25b81e390b9ece9975f3410ee"
     }
   }
 ]

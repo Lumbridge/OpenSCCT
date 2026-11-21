@@ -83,3 +83,26 @@ for Service Pack 5, with `/O2 /Gy`.
 | `cl.exe` | `1bf99f206271ecdbd13da2829192ea2c02e2a44c740b8d72935d5d9cb753b156` |
 | `c1.dll` | `fc6771ed73524417877f1263604bf8b9b9cd403c8cfb72b2e25737bdc81d592e` |
 | `c2.dll` | `6c8e3988a5ccd69a9f9829b5c7512848d71c018b8d24be3928d7b00b5f79f231` |
+
+## C++ units with exception frames
+
+The engine is C++. Destructors whose bodies can unwind into a parent destructor
+carry a Microsoft C++ exception frame: `push -1`, `push` of the frame handler,
+and a link through `FS:[0]`. C cannot produce that frame, so these units are
+C++ translation units built by Microsoft C/C++ 13.10.3052 with
+`/O2 /Gy /GX`.
+
+`src/versus_object_destructors.cpp` reproduces 215 complete Versus class
+destructors (109 bytes each). Each runs the inlined
+`UObject::ConditionalDestroy()` before its parent destructor, as the engine's
+`DECLARE_CLASS` destructor does. Class names come from the registered
+placement constructors that install each vtable. Parent names come from the
+vtable that each parent destructor installs.
+
+`decomp/tools/link_x86.py` accepts three references that only C++ frames make.
+`__except_list` is the absolute offset 0 that the C runtime defines for the
+thread information block. A function's own `__ehhandler$` label in its
+`.text$x` section is bound to the retail handler. A `??_7` virtual function
+table is bound to the retail table. The audit verifies each handler as
+`mov eax, FuncInfo; jmp`, checks the FuncInfo magic `0x19930520`, and follows
+the only unwind action to a funclet that calls the same parent destructor.

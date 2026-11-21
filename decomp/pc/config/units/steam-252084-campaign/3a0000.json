@@ -23,7 +23,7 @@
     "identification": "Aligned entry bounded by a preceding return and compiler padding. Sets count and capacity and allocates fresh storage with 4-byte elements and the retail allocation label FArray.",
     "match": {
       "bytes_sha256": "ba8bd35191358555a62006605321044af9f2c1a356db2b0996a768eaf70c167c",
-      "inputs_sha256": "ea8e0bfbea0084dad5dfa08d5a9b069805d7e2e5e32516ed2daea850c38764cd"
+      "inputs_sha256": "ee9d5f90b0415161a2dfd358e0812250b20dc26a71953ac196138ce03af3b15d"
     }
   },
   {
@@ -45,7 +45,7 @@
     "identification": "Aligned entry bounded by a previous return and INT3 padding. Passes the index, count and fixed 4-byte element size to the rebuilt array remove operation.",
     "match": {
       "bytes_sha256": "8690adb9dd320ec9fe25eb2d5ee4edf5602c63104471444621463daecc155072",
-      "inputs_sha256": "c167870bdd7b2160ba2175af730fc480332db8832f1c3f2f68b363e326bd505c"
+      "inputs_sha256": "a5edf95e9075302bc83d4c0d6fa17bd79e064dbd027193485417db969aaee1ae"
     }
   },
   {
@@ -74,7 +74,7 @@
     "identification": "Stock FArray operation at RVA 0x3a31b0. Its independent function extent agrees with the compiler contribution and the allocation tag is shared with other matched operations. Record size is 376 bytes. Appends a copy of the input record and returns its index.",
     "match": {
       "bytes_sha256": "df6f5b337c98f0af1b0059ea15b7144787bd5fe6822d8383ddd85e90ec9ec546",
-      "inputs_sha256": "cd1aa0567fef08522c328d3f565457e96519b087955044bc0eac113535fac634"
+      "inputs_sha256": "c657312e7aa3efcd30ed26b8e55c1f46f73a017ec61e93a6c922a4672d4946e8"
     }
   },
   {
@@ -101,7 +101,7 @@
     "identification": "Default Ghidra analysis independently identified the isolated range [0x3a3220, 0x3a3258). The 16-byte-aligned entry follows a completed function or INT3 padding, and the final RET precedes INT3 padding. The direct call resolves to the previously rebuilt array removal at RVA 0x39b560. Removes every element with stride 4 and releases remaining storage.",
     "match": {
       "bytes_sha256": "7d4b18704793b4f0f3517c1f61ef6eb389b2c46722c1b721e32f7faa0e05b70e",
-      "inputs_sha256": "940028c5d7817d5955d8930beb0bf249be4c936f2960f7e0b20dee5b5b10248e"
+      "inputs_sha256": "1685edd13041ff0a884e9ee5cdbbacd5c2ec5a861a19d46c5c3b5b523dada8a0"
     }
   }
 ]

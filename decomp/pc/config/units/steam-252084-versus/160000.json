@@ -22,7 +22,41 @@
     "identification": "Stock UGUI vtable at RVA 0x3031c0, slot 3, points to entry RVA 0x165ff0. Registration at RVA 0x164a6d passes placement callback RVA 0x1692e0, which installs the table at RVA 0x1692e8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "bc0c161f38d38e2379272350083bc21e70603e738deea01213742c34e7d01009"
+      "inputs_sha256": "0d4872f263c591fe00e6d466c4507ffafe8211612126bbcf27bc28d924a8e310"
+    }
+  },
+  {
+    "id": "versus-object-destructors-166020",
+    "size": 109,
+    "offset": 1466400,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUI@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUI@@UAE@XZ": {
+        "va": 280807432,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUI@@6B@": {
+        "va": 281031104,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UObject@@UAE@XZ": {
+        "va": 277962464,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUI::~UGUI at RVA 0x166020. Registered class UGUI installs vtable RVA 0x3031c0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UObject destructor at RVA 0x15ee0 under C++ frame handler RVA 0x2cc808.",
+    "match": {
+      "bytes_sha256": "81ae2f3ba70b5700d23e5cb626bb413cacbddca4937bcec092e84a51fe52504c",
+      "inputs_sha256": "1359cc0c87660981167c45450d4ee6b245b61fa126fa27810c0371fc31a56149"
     }
   },
   {
@@ -48,7 +82,7 @@
     "identification": "Stock UGUIComponent vtable at RVA 0x303110, slot 3, points to entry RVA 0x166090. Registration at RVA 0x164ac5 passes placement callback RVA 0x1692d0, which installs the table at RVA 0x1692d8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a8ea2b980661f5989b458bbcc3d9f355ba9965935c422507d1f1daa06e8ffa76"
+      "inputs_sha256": "210144edd8b940dfd52f10cecaf8a8f4bf51649197a55e5fe222c31e8cf0332e"
     }
   },
   {
@@ -74,7 +108,7 @@
     "identification": "Stock UGUIMultiComponent vtable at RVA 0x303060, slot 3, points to entry RVA 0x166160. Registration at RVA 0x164f3a passes placement callback RVA 0x168bd0, which installs the table at RVA 0x168bd8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "5bd242cd8cf7b3cdb1b6901303d2a52581c0ef7117510c4ba31a4093ae989479"
+      "inputs_sha256": "a68ff24e3abbbe42fdfd7fba5bcf7ae7f5a8e8481412fcc4975325964ec817c6"
     }
   },
   {
@@ -100,7 +134,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "909f4a8e1f0b01425e86027b975a050d8a50910113c4e5c62c2707dcf529d358"
+      "inputs_sha256": "3f64ad49c70b04826a7cd49eccad8c4e31a36d9f54742b6cb56ea322ff99d399"
     }
   },
   {
@@ -126,7 +160,41 @@
     "identification": "Stock UmoEditBox vtable at RVA 0x302f00, slot 3, points to entry RVA 0x1662e0. Registration at RVA 0x165f0a passes placement callback RVA 0x1664d0, which installs the table at RVA 0x1664d8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2397a557fb51ba052e93f7952d8bc34baa79f02d04d5a575cd54bf68ee34ab72"
+      "inputs_sha256": "e603233ea08bf5cf12f65020412114b73df83ac11591efc4d3d638688c25c1a9"
+    }
+  },
+  {
+    "id": "versus-object-destructors-166310",
+    "size": 109,
+    "offset": 1467152,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UmoEditBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UmoEditBox@@UAE@XZ": {
+        "va": 280840664,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UmoEditBox@@6B@": {
+        "va": 281030400,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMenuOption@@UAE@XZ": {
+        "va": 279339584,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UmoEditBox::~UmoEditBox at RVA 0x166310. Registered class UmoEditBox installs vtable RVA 0x302f00; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMenuOption destructor at RVA 0x166240 under C++ frame handler RVA 0x2d49d8.",
+    "match": {
+      "bytes_sha256": "d8b396ea4dbc5098ba2a348c6104dc3a493a917b8ada60c503fd8ee9e8398db6",
+      "inputs_sha256": "4ef3963e5311d0434c55650b229eddc83aca5474cd5affae698923f3ccc013ba"
     }
   },
   {
@@ -152,7 +220,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "4eccbe35cd7be0371efaf42e6ba19da9eff48c90c03474bbe6f8f7b1139a86e9"
+      "inputs_sha256": "67b8debc0080fe9482b5324191074bc75ce85860eeec819bf655f774f79b13b9"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1663b0",
+    "size": 109,
+    "offset": 1467312,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UmoListEditBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UmoListEditBox@@UAE@XZ": {
+        "va": 280845448,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UmoListEditBox@@6B@": {
+        "va": 281030224,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UmoEditBox@@UAE@XZ": {
+        "va": 279339792,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UmoListEditBox::~UmoListEditBox at RVA 0x1663b0. Registered class UmoListEditBox installs vtable RVA 0x302e50; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UmoEditBox destructor at RVA 0x166310 under C++ frame handler RVA 0x2d5c88.",
+    "match": {
+      "bytes_sha256": "36e1979c116c7bea0fbeae02425f564888a9724b898b8a8b127b6408eb6d9172",
+      "inputs_sha256": "c35ae715eb25e8a12a264dacaa60882667c7d6e11dcb9cb24a479c81417383ad"
     }
   },
   {
@@ -178,7 +280,41 @@
     "identification": "Stock UmoListEditBox_GameMode vtable at RVA 0x302da0, slot 3, points to entry RVA 0x166420. Registration at RVA 0x165fba passes placement callback RVA 0x165fd0, which installs the table at RVA 0x165fe0. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6202ed56d7c2fd4ae8cf22f68807639254b34c6c6fc04fd432e34aa93c734b2c"
+      "inputs_sha256": "da46d410a24656b04c54d1cebc9c94282f5bebad2ab3ff0292caa8f93e8ba7ec"
+    }
+  },
+  {
+    "id": "versus-object-destructors-166450",
+    "size": 109,
+    "offset": 1467472,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UmoListEditBox_GameMode@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UmoListEditBox_GameMode@@UAE@XZ": {
+        "va": 280849736,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UmoListEditBox_GameMode@@6B@": {
+        "va": 281030048,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UmoListEditBox@@UAE@XZ": {
+        "va": 279339952,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UmoListEditBox_GameMode::~UmoListEditBox_GameMode at RVA 0x166450. Registered class UmoListEditBox_GameMode installs vtable RVA 0x302da0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UmoListEditBox destructor at RVA 0x1663b0 under C++ frame handler RVA 0x2d6d48.",
+    "match": {
+      "bytes_sha256": "63c5796d638ce7ae8f1147f83dd68ea05909b617b3d53f4040dc98e6258ed62f",
+      "inputs_sha256": "91dbd3bf01df0527c796dd36379778909237740d13d7310c0660d39dbdf54bec"
     }
   },
   {
@@ -200,7 +336,7 @@
     },
     "match": {
       "bytes_sha256": "e3192bb6003b53857174420b5c260c4ed83a469c0f43cbb7508a089675dbc6e6",
-      "inputs_sha256": "de25ece6cbec8952dec5d1a3fcc8a20ff1caa98409718ff210da01b099ad79a2"
+      "inputs_sha256": "6bbc2b9e679899f41d8c215cc875cb67c4da2975f5ce4a5a989f7bf4ca849a93"
     }
   },
   {
@@ -222,7 +358,7 @@
     },
     "match": {
       "bytes_sha256": "ab18604caf0c6fdcd8109d8b96b8c736debf6e1753443ff9a752146184d89162",
-      "inputs_sha256": "3151c10567826c06500dbc8aaed5eff1cbf5b07e32835d4e36f7e76ae07805fc"
+      "inputs_sha256": "baa3258b791036f3b6dc23cb3e0523a26d0498b1c66704d42f79d73c1aac7aca"
     }
   },
   {
@@ -244,7 +380,7 @@
     },
     "match": {
       "bytes_sha256": "1f8d53245ba0300461fac8c208a2aa97975bbbc046dead92a99eeaa891e31f76",
-      "inputs_sha256": "8ce7150ebe3f9d739c8d792cfcaf247cbd3b8eb2f9551b658c3d5b694b9115cf"
+      "inputs_sha256": "99e479262ab9d60aee75b900d5eeaf3b2a84562cb70e7dcc3a18981d18e71ebc"
     }
   },
   {
@@ -270,7 +406,7 @@
     "identification": "Stock UGUIPage vtable at RVA 0x302cf0, slot 3, points to entry RVA 0x1664f0. Registration at RVA 0x164b75 passes placement callback RVA 0x169210, which installs the table at RVA 0x169218. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8c1ef9834e785803bc6ad624b2fe9d81cdce889831b5028c28eb71a19f6de57f"
+      "inputs_sha256": "3faaaec069c064ac675cfc51e1449a1e750ae4de6a68339876d9ad7d72e5894a"
     }
   },
   {
@@ -296,7 +432,7 @@
     "identification": "Stock UGUIPageWaitLaunch vtable at RVA 0x302c40, slot 3, points to entry RVA 0x1665f0. Registration at RVA 0x165e5a passes placement callback RVA 0x166740, which installs the table at RVA 0x166748. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d67bab72dd6a0f10fa6ff64e315b11692a03f2df354b63a55a2e48f51fa7a9ba"
+      "inputs_sha256": "95e9be2655b847647a222116bd3179af2ed9fb5efcd482c3e8a6b3ef34bac5c7"
     }
   },
   {
@@ -322,7 +458,41 @@
     "identification": "Stock UStrategicMap vtable at RVA 0x302b90, slot 3, points to entry RVA 0x1666a0. Registration at RVA 0x165eb2 passes placement callback RVA 0x1664e0, which installs the table at RVA 0x1664e8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ce34a7c18fd86d6beac3ed4ee950f4136d38a98eab6e51c2020a0db2a3e083b0"
+      "inputs_sha256": "f1d3f834e9d23734ff389e88c069c0b0446ee7fb73dc70faf2d3c7dafbf4f5e9"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1666d0",
+    "size": 109,
+    "offset": 1468112,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UStrategicMap@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UStrategicMap@@UAE@XZ": {
+        "va": 280845416,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UStrategicMap@@6B@": {
+        "va": 281029520,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIPageWaitLaunch@@UAE@XZ": {
+        "va": 279340576,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UStrategicMap::~UStrategicMap at RVA 0x1666d0. Registered class UStrategicMap installs vtable RVA 0x302b90; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIPageWaitLaunch destructor at RVA 0x166620 under C++ frame handler RVA 0x2d5c68.",
+    "match": {
+      "bytes_sha256": "af835352cd683a13ea1cfbd21f1a045435d23fe5070f777f9623464c665be1e3",
+      "inputs_sha256": "57e024ebc01db79fd7343be9cc04ba83d05cff43e8a96a037d19e7f40447a4e4"
     }
   },
   {
@@ -344,7 +514,7 @@
     },
     "match": {
       "bytes_sha256": "61db118d2e9efec46deab10051a7c66a3514d38afdc75b0bcac9cc587acc4fd8",
-      "inputs_sha256": "2404155ec2cdd9a69186da09b45a66e73134c43e7665a2005de0138d9d10d300"
+      "inputs_sha256": "682ba033dd882eaabe2795f7b060467a1e89c99daeff4536c886e14b6a1a7e83"
     }
   },
   {
@@ -370,7 +540,41 @@
     "identification": "Stock UGUIListBase vtable at RVA 0x302ad8, slot 3, points to entry RVA 0x1668f0. Registration at RVA 0x16540a passes placement callback RVA 0x168410, which installs the table at RVA 0x168418. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "3db3f1cc8c3f69bcc53abcd2439307ff27fb97c697f69bc8c8019c0387e67b6f"
+      "inputs_sha256": "9a371d0bf177f309c240cb6dac10949c41ff766c35cb57e85b31005d6ba52dac"
+    }
+  },
+  {
+    "id": "versus-object-destructors-166920",
+    "size": 109,
+    "offset": 1468704,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIListBase@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIListBase@@UAE@XZ": {
+        "va": 280818472,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIListBase@@6B@": {
+        "va": 281029336,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIComponent@@UAE@XZ": {
+        "va": 279339200,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIListBase::~UGUIListBase at RVA 0x166920. Registered class UGUIListBase installs vtable RVA 0x302ad8; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIComponent destructor at RVA 0x1660c0 under C++ frame handler RVA 0x2cf328.",
+    "match": {
+      "bytes_sha256": "3de01661bc3822cd34fd9382963906ae8815d9c3da3af2a25078b2b9d46bf423",
+      "inputs_sha256": "bbc0d40da102eb4ec5ec4af3bf60609f5bdf0514065e5e981c3dff5b0f16ea7c"
     }
   },
   {
@@ -396,7 +600,41 @@
     "identification": "Stock UGUIVertList vtable at RVA 0x302a20, slot 3, points to entry RVA 0x166990. Registration at RVA 0x1658da passes placement callback RVA 0x167a60, which installs the table at RVA 0x167a68. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "06d51ec3996438428d0bb5e34f24bf6137934e8874e5ef3cc8db8c939fd100cc"
+      "inputs_sha256": "34799f9159f9ed2c1386907e8292ed2aca2cc4d9994250f2a05f3433d4394a49"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1669c0",
+    "size": 109,
+    "offset": 1468864,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIVertList@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIVertList@@UAE@XZ": {
+        "va": 280827944,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIVertList@@6B@": {
+        "va": 281029152,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIListBase@@UAE@XZ": {
+        "va": 279341344,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIVertList::~UGUIVertList at RVA 0x1669c0. Registered class UGUIVertList installs vtable RVA 0x302a20; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIListBase destructor at RVA 0x166920 under C++ frame handler RVA 0x2d1828.",
+    "match": {
+      "bytes_sha256": "647344eff5b58737c6836ce3e41c66d106fc3f03557fc45829d9e8a9a190f281",
+      "inputs_sha256": "79352f75d23750de4238fde9d8245d374367efdcf6b217f14398949ee1ed0b61"
     }
   },
   {
@@ -422,7 +660,7 @@
     },
     "match": {
       "bytes_sha256": "764513225610f6fdc2ff1135cd7a350210bfeb2fafbe6835f66cc14c772d23a0",
-      "inputs_sha256": "af1f33e8963f5133fa8281583ee2ffe1fa3c880287c8c9369024be5f0fd5fedb"
+      "inputs_sha256": "3977b01f1d6f75b602150310cb21dbc7f36c71a59fcf17fee12a276679ce3345"
     }
   },
   {
@@ -449,7 +687,7 @@
     "identification": "The read-only pointer at RVA 0x3028bc resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "6d083bd781390de86de0568163153e4f833d62781f7bb60f88911237ab231492"
+      "inputs_sha256": "720ee20098b79d51d5252968bc33f22311958ae56a30cb03957f300443383933"
     }
   },
   {
@@ -471,7 +709,7 @@
     },
     "match": {
       "bytes_sha256": "5d66d7ce404e6459724430afe329cc729b1ab7d70987ad5470fc194cb5a965aa",
-      "inputs_sha256": "a8a4245fc4bfc9978a9aeb80c5de38d5b93b2178eed4fab5ffda8955d0c15ee5"
+      "inputs_sha256": "ecc5b9349fe5f056daba5b98e5639433ee8b169b2478a57a2983c2c6c473dcfd"
     }
   },
   {
@@ -497,7 +735,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e89a3626575f051a90c83745ee260aa385319715c984cc72b1cf015c529d1299"
+      "inputs_sha256": "d0033d1def7eb289f84ab9af3ef63d339904eff9f078c3e088c3f63da199e7a6"
     }
   },
   {
@@ -519,7 +757,7 @@
     },
     "match": {
       "bytes_sha256": "c1f0c0c9e89d0c856d19eabe614fde3cc8d5abc9d9e56eb98cb579404e3a56b7",
-      "inputs_sha256": "05187dec111505ffc76286cf7bee4df3e0aff79ff3ce67009f23ee8f0442bcde"
+      "inputs_sha256": "d7d81d94268b989edb07123a86f5170a3344cc13b00c2e144ef744c32df5f312"
     }
   },
   {
@@ -545,7 +783,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d5abb9ba3e103adda03de159add5d84a04e5d80e2feb738779e9610f96aea9f9"
+      "inputs_sha256": "1fcad287407b20ca575be2702f697d9934ff2aee65f913c91b5dc506f097dad6"
     }
   },
   {
@@ -567,7 +805,7 @@
     },
     "match": {
       "bytes_sha256": "697db3f80f883b49b272e8c33f0baa03c591b604dcdec0ce9b996bd3de815c89",
-      "inputs_sha256": "e69ebeefb3b9a5dac744b25eb425e34c2315c573e4794dd1c0ca8b22ae884779"
+      "inputs_sha256": "c22dd6bd3702dec25a72e90135cd697398b30dab2d13cc6a0158651fca1854a5"
     }
   },
   {
@@ -593,7 +831,41 @@
     "identification": "Stock UGUIScrollBarBase vtable at RVA 0x3026a0, slot 3, points to entry RVA 0x166f60. Registration at RVA 0x164f92 passes placement callback RVA 0x168bc0, which installs the table at RVA 0x168bc8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7aa0180ee250002452bd0fd2e053ed1a96f5d2464c03ec2a533c5bb0f4c99b88"
+      "inputs_sha256": "fae5ca7b8e92fbf5c218823574c97259f6af6a027ceda4194bad0d8c97182f6d"
+    }
+  },
+  {
+    "id": "versus-object-destructors-166f90",
+    "size": 109,
+    "offset": 1470352,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIScrollBarBase@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIScrollBarBase@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIScrollBarBase@@6B@": {
+        "va": 281028256,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIScrollBarBase::~UGUIScrollBarBase at RVA 0x166f90. Registered class UGUIScrollBarBase installs vtable RVA 0x3026a0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "b037caa8332bfcc02fd44b8881d43f325209690c34b3a6243911175fa1f47146",
+      "inputs_sha256": "df44ec79c8067effb1683eee89cc1c6a055d2e6f037f1feced863a04fd61a148"
     }
   },
   {
@@ -619,7 +891,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "95817294868cb1f84ee37ff1e3b9b4099395d86ce08d6aa0915f32ce4d25b28c"
+      "inputs_sha256": "ddc72dec28067eccf759952a820b782914a13e30229e04843da09c1ef35cd05c"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167030",
+    "size": 109,
+    "offset": 1470512,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIVertScrollBarLabel@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIVertScrollBarLabel@@UAE@XZ": {
+        "va": 280840344,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIVertScrollBarLabel@@6B@": {
+        "va": 281028080,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIScrollBarBase@@UAE@XZ": {
+        "va": 279342992,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIVertScrollBarLabel::~UGUIVertScrollBarLabel at RVA 0x167030. Registered class UGUIVertScrollBarLabel installs vtable RVA 0x3025f0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIScrollBarBase destructor at RVA 0x166f90 under C++ frame handler RVA 0x2d4898.",
+    "match": {
+      "bytes_sha256": "6a808c2fa5b9096f139fe8e4d0e324e51e6e8d3b16547302aeeb5b8ca1910997",
+      "inputs_sha256": "4b8d7cd0c8d9a71bd8b53bd49b67dfd8bb5e2733e9cf896cbb38e5a49875bfc7"
     }
   },
   {
@@ -641,7 +947,7 @@
     },
     "match": {
       "bytes_sha256": "eb8984c706827d135165066697f27dd06028e11ea893fefee21219e3417575c9",
-      "inputs_sha256": "790e9920c9edea7e9a5da5c91e17917aab7bb624e1d92c27539a929273580051"
+      "inputs_sha256": "3b302d45a40e3484fd5e597cb145260760721de73efcaf3e246dfa10d8987b59"
     }
   },
   {
@@ -667,7 +973,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "f97cda286f3d6c2c1850b96588ceceee9a4359c4098cb083df39bcf7acd2855c"
+      "inputs_sha256": "dbf8fd313a4aa879b6069cdb9ead2f5e00fcb18d75e2f173c015ad3aafbe8e4e"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1670e0",
+    "size": 109,
+    "offset": 1470688,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIMultiPageLabelBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIMultiPageLabelBox@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIMultiPageLabelBox@@6B@": {
+        "va": 281027904,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIMultiPageLabelBox::~UGUIMultiPageLabelBox at RVA 0x1670e0. Registered class UGUIMultiPageLabelBox installs vtable RVA 0x302540; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "7339c00ec0989aff4162c325aee4283607fb4a028f42c8676f9062818a72ad9e",
+      "inputs_sha256": "76223ec9f88f367408ad189e0172b787ed0dd1dccd5c76648c25104e0301e591"
     }
   },
   {
@@ -689,7 +1029,7 @@
     },
     "match": {
       "bytes_sha256": "e62e43c34e4b3173e8047dc08d88fa880efe58465a847b7beceadaec2151bd72",
-      "inputs_sha256": "67150d082f42e773a66d6208573c3abd3a6b800870727834099484712e2a01d7"
+      "inputs_sha256": "f0f226391048c2c5ee28217c28eccd05a9909c94671dee7e4e0add41c6913885"
     }
   },
   {
@@ -715,7 +1055,41 @@
     "identification": "Stock UGUIMOTDInfoBox vtable at RVA 0x302490, slot 3, points to entry RVA 0x167160. Registration at RVA 0x165c4a passes placement callback RVA 0x167150, which installs the table at RVA 0x167158. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "05ce72c8231e7f93341708680c16f5a30fd6e784d3fb4c01536294874aa72e2d"
+      "inputs_sha256": "674c1d02d0f49826dec8f45a02fb372316ef99c018cd6c7e5d366c094c6ebbd7"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167190",
+    "size": 109,
+    "offset": 1470864,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIMOTDInfoBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIMOTDInfoBox@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIMOTDInfoBox@@6B@": {
+        "va": 281027728,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIMOTDInfoBox::~UGUIMOTDInfoBox at RVA 0x167190. Registered class UGUIMOTDInfoBox installs vtable RVA 0x302490; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "c50c43178945e8cb1abe20a2bf22d91d80cf1d737f8ca5049b3ee13daf6fd906",
+      "inputs_sha256": "90f3a8eead491ffa8d2148d61f491325858a36248cac8fe881e5c642d622d11e"
     }
   },
   {
@@ -737,7 +1111,7 @@
     },
     "match": {
       "bytes_sha256": "26f5d7120c1098186c400956f4b59ab0e2bfa5ed72cc645bc5eb851f36d7430f",
-      "inputs_sha256": "1f53d26f64e86a76c376f13ad57cef5db68204b6ddcf911d762b9adb0416c8b9"
+      "inputs_sha256": "d2dd395dc5f4ba292b0b167ce209eeeea43e8287ba447b4b98be5315fd065bcc"
     }
   },
   {
@@ -763,7 +1137,41 @@
     "identification": "Stock UGUISessionInfoBox vtable at RVA 0x3023e0, slot 3, points to entry RVA 0x167210. Registration at RVA 0x165bf2 passes placement callback RVA 0x167200, which installs the table at RVA 0x167208. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "f4846c56d742e61c128ba6590df707c1de9ada0429000584522b1fdb2b1556fd"
+      "inputs_sha256": "aaad509b7b04ec31af11f93ce825df0d40aa7034ddef6ab91b4c2a73f63a28da"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167240",
+    "size": 109,
+    "offset": 1471040,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUISessionInfoBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUISessionInfoBox@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUISessionInfoBox@@6B@": {
+        "va": 281027552,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUISessionInfoBox::~UGUISessionInfoBox at RVA 0x167240. Registered class UGUISessionInfoBox installs vtable RVA 0x3023e0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "1f9bd39c4896e7b61ffb034d26f9d1db58555314725a3bff04e5180d677ab297",
+      "inputs_sha256": "024cb8e3ce91fea9048a816ad6ccecb3f360027fad0bff097e228f6f05323278"
     }
   },
   {
@@ -785,7 +1193,7 @@
     },
     "match": {
       "bytes_sha256": "a134583104a6431651e8e2db2076eb64f75291963dd4cdcd55521585e2079f1d",
-      "inputs_sha256": "6aca671f49cb29a9a02d17223c690f969a14bfd203af2d7bf1a20b52ab95b0e1"
+      "inputs_sha256": "0c7c9dc450e5ec3137e3e07575e0b37b7a0324ecad9ff5ddf26dda094c987a3f"
     }
   },
   {
@@ -811,7 +1219,41 @@
     "identification": "Stock UGUISearchFilterBox vtable at RVA 0x302330, slot 3, points to entry RVA 0x1672c0. Registration at RVA 0x165b9a passes placement callback RVA 0x1672b0, which installs the table at RVA 0x1672b8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "16128b43a3bfb58e5c62f894cb1b89f94ad3b8e2b9bdfe2621c885ffe9bc9913"
+      "inputs_sha256": "dd0e8691e79303ac3c5fb384053d84f42ac2b750dc333987b6873069f50883dd"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1672f0",
+    "size": 109,
+    "offset": 1471216,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUISearchFilterBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUISearchFilterBox@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUISearchFilterBox@@6B@": {
+        "va": 281027376,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUISearchFilterBox::~UGUISearchFilterBox at RVA 0x1672f0. Registered class UGUISearchFilterBox installs vtable RVA 0x302330; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "acc0039dca42e0cb27bef5a3f9864d37da20d3e92440e3ea8b31904cd551a93d",
+      "inputs_sha256": "9dc53558b1007ecac43e641b4cfc2496a5f35d5299c56c4b46bc948bc6df1830"
     }
   },
   {
@@ -833,7 +1275,7 @@
     },
     "match": {
       "bytes_sha256": "051d73aec727bcc18e795a88e099bda06d90230069ae7e1e824027a299ff1b39",
-      "inputs_sha256": "c8b269b043179b6139fcc12ac94488b68bf80f7a083c4a79dcfea986a20e64cd"
+      "inputs_sha256": "f838c97433ceb8dd6e9db00239d6cec623afd58acf3b97e04295b1cfc00fe4f6"
     }
   },
   {
@@ -859,7 +1301,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7404fe96f3a7fc304573fc0f9f462ad85c328f11498ba83765ab13cb0ca87a2b"
+      "inputs_sha256": "159184f722b27d76c09835d5c6fed2c86420e12f2f1de48d8b5398b88c0ee4f2"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1673a0",
+    "size": 109,
+    "offset": 1471392,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUICadre@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUICadre@@UAE@XZ": {
+        "va": 280818472,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUICadre@@6B@": {
+        "va": 281027200,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIComponent@@UAE@XZ": {
+        "va": 279339200,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUICadre::~UGUICadre at RVA 0x1673a0. Registered class UGUICadre installs vtable RVA 0x302280; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIComponent destructor at RVA 0x1660c0 under C++ frame handler RVA 0x2cf328.",
+    "match": {
+      "bytes_sha256": "b2fd6945776bd2c4f6e982ba98dcebf6288ecc0d3640ed8a0848fede9a25a719",
+      "inputs_sha256": "aa893ffb143167758c018547c7135ec15b594a5c59fd00af622f1799ed63bc20"
     }
   },
   {
@@ -881,7 +1357,7 @@
     },
     "match": {
       "bytes_sha256": "31ce780fd7609112245be1b583e870d064f59f0c5fca30bc6212eca5e6b577e3",
-      "inputs_sha256": "dd62d8c68394059878eab4a596d822ffa19bec7aa15803f3618c239d70c4b336"
+      "inputs_sha256": "ae06b9335225e57be818f89eecfef36dde1757188f8556c5b76f099966731a66"
     }
   },
   {
@@ -907,7 +1383,41 @@
     "identification": "Stock UmoImageListMap vtable at RVA 0x3021d0, slot 3, points to entry RVA 0x167420. Registration at RVA 0x165aea passes placement callback RVA 0x167410, which installs the table at RVA 0x167418. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "86c0525e8e22892433a1df87bc6605b006fc3c2a3b343305c98ea09e4e990662"
+      "inputs_sha256": "59709a2542007cd854715558873a8b62c5326877f301e3fffd0723f9b76f7c96"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167450",
+    "size": 109,
+    "offset": 1471568,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UmoImageListMap@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UmoImageListMap@@UAE@XZ": {
+        "va": 280840664,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UmoImageListMap@@6B@": {
+        "va": 281027024,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMenuOption@@UAE@XZ": {
+        "va": 279339584,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UmoImageListMap::~UmoImageListMap at RVA 0x167450. Registered class UmoImageListMap installs vtable RVA 0x3021d0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMenuOption destructor at RVA 0x166240 under C++ frame handler RVA 0x2d49d8.",
+    "match": {
+      "bytes_sha256": "bb4dcfacbabd47882a951ad56a687bc9b1c3c162d3b0484c1f192c94d60ae376",
+      "inputs_sha256": "1b381ab894b675d116aebfe0ae2aa7baf79d9843fc86a15469095cf01dd2a5b8"
     }
   },
   {
@@ -929,7 +1439,7 @@
     },
     "match": {
       "bytes_sha256": "d1ebcfb087b72047a4614c2ae709182e96406e99b3f53de80a417ff7bdc4cb0c",
-      "inputs_sha256": "971bbde86e96445a085439e27e65af2b5c825101f760cd22e311735c1f1f0ea3"
+      "inputs_sha256": "ae7eabfeb034a9930a203905fe1447e66f516e9f7a926519202d64594cae4ae2"
     }
   },
   {
@@ -955,7 +1465,7 @@
     "identification": "Stock UGUIProgressBar vtable at RVA 0x302120, slot 3, points to entry RVA 0x1674d0. Registration at RVA 0x165a92 passes placement callback RVA 0x1674c0, which installs the table at RVA 0x1674c8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "b9785a88c395d1fc711baff0288ca3858b5ea28fad61ca4d0e79b2384aeae269"
+      "inputs_sha256": "a8f066207fa82d087f64010f4d6b9c015a3f0768a42dd88248d45be21ccc5083"
     }
   },
   {
@@ -977,7 +1487,7 @@
     },
     "match": {
       "bytes_sha256": "23e4c8fac9c9402bcb1aaf85c040b42c1c701f6daaa25f8b7b548d557234f874",
-      "inputs_sha256": "da160a95c50d5bc9a7473e5208a0d99710ac253e86cdb977406b5d0a3b409ef3"
+      "inputs_sha256": "9bcd8db26c823aeb51098948055080946dc29bc740fdc930bee6563a28b155f0"
     }
   },
   {
@@ -1003,7 +1513,41 @@
     "identification": "Stock UGUIListBoxBase vtable at RVA 0x302070, slot 3, points to entry RVA 0x1675b0. Registration at RVA 0x1652aa passes placement callback RVA 0x168590, which installs the table at RVA 0x168598. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7cbd6f72c9f4fb42deeadc448bffa28a3712a5a83a07a51558c943855e93f1e0"
+      "inputs_sha256": "c7ed8b67f79a53e639978604fde341fbdb7e540036161f36b2cb0de4c602b2b8"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1675e0",
+    "size": 109,
+    "offset": 1471968,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIListBoxBase@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIListBoxBase@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIListBoxBase@@6B@": {
+        "va": 281026672,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIListBoxBase::~UGUIListBoxBase at RVA 0x1675e0. Registered class UGUIListBoxBase installs vtable RVA 0x302070; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "88eb76b630fb91f9777df05d70832076e93d10e46d0484d87e26cd3e4377cb48",
+      "inputs_sha256": "4dd69a57deb96d18082d3f4c24fdca097119ca1feda543f27a3863e266c0baf7"
     }
   },
   {
@@ -1029,7 +1573,41 @@
     "identification": "Stock UGUIScrollTextBox vtable at RVA 0x301fc0, slot 3, points to entry RVA 0x167650. Registration at RVA 0x165a3a passes placement callback RVA 0x1675a0, which installs the table at RVA 0x1675a8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "1ece4c826b1b75ecfd3d5d91f1fa63ae4254e6f576c33791bab654ad7f6a9f7c"
+      "inputs_sha256": "e26a59e74633c881447236a30c501e050997a6f35547a69ab11c94d3be03fa14"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167680",
+    "size": 109,
+    "offset": 1472128,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIScrollTextBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIScrollTextBox@@UAE@XZ": {
+        "va": 280840312,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIScrollTextBox@@6B@": {
+        "va": 281026496,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIListBoxBase@@UAE@XZ": {
+        "va": 279344608,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIScrollTextBox::~UGUIScrollTextBox at RVA 0x167680. Registered class UGUIScrollTextBox installs vtable RVA 0x301fc0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIListBoxBase destructor at RVA 0x1675e0 under C++ frame handler RVA 0x2d4878.",
+    "match": {
+      "bytes_sha256": "0dc0a9f82ab9b60cddf60aff4b5fc58c3231beb047380e5febc06bad97fe1aea",
+      "inputs_sha256": "90ef5c53b84729dbbc42288d75ffc48b45cdee59ecc948d1049286f25bede525"
     }
   },
   {
@@ -1051,7 +1629,7 @@
     },
     "match": {
       "bytes_sha256": "0fbf76d195222fb4d073f77efc87e069d8ef46b61f1fc9c1dc317bda4bb6885d",
-      "inputs_sha256": "b62a5ed935a3babca04d07b2c0162d66199f2a5f16e888d93791f3db92a5f3f8"
+      "inputs_sha256": "32ed918c2c801bd194f855f3fb193dbd00e69429bd11842b2f17ce6bdd1c93e6"
     }
   },
   {
@@ -1077,7 +1655,7 @@
     },
     "match": {
       "bytes_sha256": "19d7759889b4b8d344a9fafebf677baf996ba624bbed1a68866b3b32157f39fc",
-      "inputs_sha256": "f8b91c0bc6eed51a845045fe175f85c72807e38bff20214014089aee8c01d02b"
+      "inputs_sha256": "254986ab9e63d2229c6b36eacc83dad5b066b2de46dca7846fa20143748c6798"
     }
   },
   {
@@ -1103,7 +1681,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c999130da11947c2245c2d8ff59678783b03633cd1e0e29426c3c4c0668f2a80"
+      "inputs_sha256": "a4e85e16a21467d6737db232b61c53126b11e2ef9211d48cbe153010eb097019"
     }
   },
   {
@@ -1125,7 +1703,7 @@
     },
     "match": {
       "bytes_sha256": "4d4fcff49242f7d0d817445bec07900ab24c0eccbb82663a5364364871d348f5",
-      "inputs_sha256": "ab99c8cf8d7eedc047cbe0d402801fb36064a8f67ee45a24290e66d28f08f49d"
+      "inputs_sha256": "d1bba6d672e2222232b95790790b28797d72a6675232b6e290104d7e7e0c19b0"
     }
   },
   {
@@ -1151,7 +1729,41 @@
     "identification": "Stock UGUICircularList vtable at RVA 0x301d98, slot 3, points to entry RVA 0x167910. Registration at RVA 0x16598a passes placement callback RVA 0x167900, which installs the table at RVA 0x167908. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e66e59fa148f3e693e46af06937cb15bc3b23e485d7c131b68a0994f97fb3d9b"
+      "inputs_sha256": "c8cc218f691a4ed2d7d99584d96f3ae11e7f5de644a4c7d760bf55d26c97363e"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167940",
+    "size": 109,
+    "offset": 1472832,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUICircularList@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUICircularList@@UAE@XZ": {
+        "va": 280827944,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUICircularList@@6B@": {
+        "va": 281025944,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIListBase@@UAE@XZ": {
+        "va": 279341344,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUICircularList::~UGUICircularList at RVA 0x167940. Registered class UGUICircularList installs vtable RVA 0x301d98; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIListBase destructor at RVA 0x166920 under C++ frame handler RVA 0x2d1828.",
+    "match": {
+      "bytes_sha256": "0d52a405d7a35a3f631cda585e689eb32f4c2d42bc1aeefc179c51d73c081905",
+      "inputs_sha256": "1cb213f2f6486807ca0fc19a9d00a55f8e4b3abc96a53670098743b405442278"
     }
   },
   {
@@ -1173,7 +1785,7 @@
     },
     "match": {
       "bytes_sha256": "32c544f723534c5c98234341ef657a6b34a007c78a697f13ad297ea71ae7bdaa",
-      "inputs_sha256": "2ba25e72659f9cea8fc7fe031b6a691011f726ce4ebea8e720b2a7eacf9c56c6"
+      "inputs_sha256": "e60e777c5f15a299f6238a09ad566c5a50a42332f3c3029118f4da1fe7f4531c"
     }
   },
   {
@@ -1199,7 +1811,41 @@
     "identification": "Stock UGUIHorzList vtable at RVA 0x301ce0, slot 3, points to entry RVA 0x1679c0. Registration at RVA 0x165932 passes placement callback RVA 0x1679b0, which installs the table at RVA 0x1679b8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "3ee599ec90fa2fb44497e9d563b4c2553d69554d6172b68ca4eb65f0c9971656"
+      "inputs_sha256": "a3aaa90a14094e15710923de81f0c6b676d7152eb0f3729b4784f9f4762eee5e"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1679f0",
+    "size": 109,
+    "offset": 1473008,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIHorzList@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIHorzList@@UAE@XZ": {
+        "va": 280827944,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIHorzList@@6B@": {
+        "va": 281025760,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIListBase@@UAE@XZ": {
+        "va": 279341344,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIHorzList::~UGUIHorzList at RVA 0x1679f0. Registered class UGUIHorzList installs vtable RVA 0x301ce0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIListBase destructor at RVA 0x166920 under C++ frame handler RVA 0x2d1828.",
+    "match": {
+      "bytes_sha256": "0735d26ed46cc712c85006f6f2263fe2c8dca0b9d8af3064bf914792a968b981",
+      "inputs_sha256": "6e44b7dc5935630aa8b10210bb992e9c9db1ae9c4ad93535076916316290abbc"
     }
   },
   {
@@ -1221,7 +1867,7 @@
     },
     "match": {
       "bytes_sha256": "9f556dafb18b6d3272374145146e936e6b26a167184dc259e72b8188ab76566c",
-      "inputs_sha256": "d9f4955b8d76c3ccc8c321a2413eb6fa56e82933e0f4e064eedf41ddf7e6da72"
+      "inputs_sha256": "0843b648d02d3eba4cdd878e3b2f6dc9b47b6e9a460e358329b5207457d947c4"
     }
   },
   {
@@ -1243,7 +1889,7 @@
     },
     "match": {
       "bytes_sha256": "ab28d8d9a76870a225efde2147e1f3b98b6ebe519226db575dd678c4744130ac",
-      "inputs_sha256": "9342507cf22e95c1fd65def52f8fae947ed3e5d26f9fec418f90fc6c233c2ddd"
+      "inputs_sha256": "9ea226e0950515d3edef90d75a9c8d6c977bb285a468cf4a2abf97dacc685e8f"
     }
   },
   {
@@ -1269,7 +1915,7 @@
     "identification": "Stock UGUISlider vtable at RVA 0x301c30, slot 3, points to entry RVA 0x167a80. Registration at RVA 0x165882 passes placement callback RVA 0x167a70, which installs the table at RVA 0x167a78. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9fe2946f8397f97642decb5d2ca6e715905dbf441a5b23bab89a7383d9f0abbe"
+      "inputs_sha256": "3f1b381490fc4b65df8369b53afdb2f57f3f7211e0b682e0184ddd5fc3ad5781"
     }
   },
   {
@@ -1291,7 +1937,7 @@
     },
     "match": {
       "bytes_sha256": "b18dd89a2c8c174729626ebd173fdc233b6be145d916bfc3231ed8c569253765",
-      "inputs_sha256": "d8ea6f6cd9001d822a1eb2bb0022add42228a347f0f02fd8bcee8af358fea280"
+      "inputs_sha256": "cb95c17b73cf09817de02eb73f9ff63e8bcc3587daa730dd28bdc1df7991ea15"
     }
   },
   {
@@ -1317,7 +1963,41 @@
     "identification": "Stock UGUIPanel vtable at RVA 0x301b80, slot 3, points to entry RVA 0x167b40. Registration at RVA 0x1653b2 passes placement callback RVA 0x168420, which installs the table at RVA 0x168428. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "bfe4fef14f1ff9437dd267124cfc10d2ae03d6106f0f49e038c0564d9ade9d1a"
+      "inputs_sha256": "504638d496d47f7daef02662c1dbeeba1656de251c5d7d30061e448419a92d0b"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167b70",
+    "size": 109,
+    "offset": 1473392,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIPanel@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIPanel@@UAE@XZ": {
+        "va": 280827768,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIPanel@@6B@": {
+        "va": 281025408,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIMultiComponent@@UAE@XZ": {
+        "va": 279339408,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIPanel::~UGUIPanel at RVA 0x167b70. Registered class UGUIPanel installs vtable RVA 0x301b80; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIMultiComponent destructor at RVA 0x166190 under C++ frame handler RVA 0x2d1778.",
+    "match": {
+      "bytes_sha256": "019663d15fe6b812b304c6266121d9a8001542b76d93ced02b88b200a5065980",
+      "inputs_sha256": "4430cada43ca3fa15244e9ed63ffbfc0f7e98be4d623e2c2a910dddde1b3b1d8"
     }
   },
   {
@@ -1343,7 +2023,41 @@
     "identification": "Stock UGUISplitter vtable at RVA 0x301ad0, slot 3, points to entry RVA 0x167be0. Registration at RVA 0x16582a passes placement callback RVA 0x167b30, which installs the table at RVA 0x167b38. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "0a28d27f203966f482c2efec2f19fe243bc66c66e2281b29713e4ecf165be1e9"
+      "inputs_sha256": "4bbd0c49bebe3e611a8c03383c6068327a765a383b19f7e760874bc253201a86"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167c10",
+    "size": 109,
+    "offset": 1473552,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUISplitter@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUISplitter@@UAE@XZ": {
+        "va": 280840248,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUISplitter@@6B@": {
+        "va": 281025232,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIPanel@@UAE@XZ": {
+        "va": 279346032,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUISplitter::~UGUISplitter at RVA 0x167c10. Registered class UGUISplitter installs vtable RVA 0x301ad0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIPanel destructor at RVA 0x167b70 under C++ frame handler RVA 0x2d4838.",
+    "match": {
+      "bytes_sha256": "b30a8bc85faf15cccae9fdd8dce932a3e06ec8681f8e65a86f75bc80f88ed6d4",
+      "inputs_sha256": "4fe38c691626a5701fae585ace5466a087b4fd188958251b508c4bbeab115204"
     }
   },
   {
@@ -1365,7 +2079,7 @@
     },
     "match": {
       "bytes_sha256": "7cab986b7e1cd565c95690a760eae5b8902bd3d4bd52e66c12254f3f0d390bd6",
-      "inputs_sha256": "c51528306176cf65eaf541503869286f1c4404781db5ed46b8b6426cf9185d8f"
+      "inputs_sha256": "559f649ac746e520e8f2485227704fc9515f4b5885e08a653ae70913d5c98465"
     }
   },
   {
@@ -1391,7 +2105,7 @@
     "identification": "Stock UGUITitleBar vtable at RVA 0x301a20, slot 3, points to entry RVA 0x167c90. Registration at RVA 0x1657d2 passes placement callback RVA 0x167c80, which installs the table at RVA 0x167c88. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "de773187722d59dd59682d7c31c41eda008200deb0093bb861cc4b3347c3f912"
+      "inputs_sha256": "a1639d0ec5c28392f7df271e445127c825740b66647ab964d802138637249ac1"
     }
   },
   {
@@ -1413,7 +2127,7 @@
     },
     "match": {
       "bytes_sha256": "434a2f8cce54eaa85a6327b129f5d4a2e53acd4f742042cde5a3dc6ea3dbc4a4",
-      "inputs_sha256": "2f98c2bdf81f92b574e33d28e44c20e1cebb4a4b46dbed61b583f6609877ca95"
+      "inputs_sha256": "9aa24634d7290bce4ed88392b8cc10c852ef60a4d8655f2c892548eea985081c"
     }
   },
   {
@@ -1435,7 +2149,7 @@
     },
     "match": {
       "bytes_sha256": "944321b61be1956fc72606b7898912bac15d4b14ea4224277517dc39ddc89b29",
-      "inputs_sha256": "fdbfd6a14c591a0c497750b9b546bdc2e621ebdcdd28d60f0b5e327bc1a09518"
+      "inputs_sha256": "06fc6fe4cbdc454f67693ccc20653e939e8ba854a6c6fb361192458085f20c4a"
     }
   },
   {
@@ -1461,7 +2175,7 @@
     "identification": "Stock UGUIComboBox vtable at RVA 0x301970, slot 3, points to entry RVA 0x167d60. Registration at RVA 0x165722 passes placement callback RVA 0x167d50, which installs the table at RVA 0x167d58. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "35630ca88209c2c294555426e55fa9993b9c38fa8e0ed4cc59dde5bb1009a831"
+      "inputs_sha256": "e172846b45019651ce5711f76fae113d2a9d17ada3c05538c6f4d4aa437d55c7"
     }
   },
   {
@@ -1483,7 +2197,7 @@
     },
     "match": {
       "bytes_sha256": "ff57c2de0a9e10c21610cc060e16966cbc5c4ea89963d0f53416691d75b395a6",
-      "inputs_sha256": "5bf859a8b47f7e432e90b74e77d5116e6e7fb2117d4611efc6b4437b6f51c747"
+      "inputs_sha256": "7181b71d6f2e08efede26c9e241111cb646a8c3e38d2980675b3cd6fe4736d44"
     }
   },
   {
@@ -1509,7 +2223,41 @@
     "identification": "Stock UGUITabPanel vtable at RVA 0x3018c0, slot 3, points to entry RVA 0x167e20. Registration at RVA 0x1656ca passes placement callback RVA 0x167e10, which installs the table at RVA 0x167e18. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "dc2ad2a0f122a5b9f9067ddde463601a4083830dee139e97548f2838aab211b7"
+      "inputs_sha256": "aaab94ebcb4f79bfe6847afbc508c55afac59dece45f8cc0e4daed7ba825f6ab"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167e50",
+    "size": 109,
+    "offset": 1474128,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUITabPanel@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUITabPanel@@UAE@XZ": {
+        "va": 280840248,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUITabPanel@@6B@": {
+        "va": 281024704,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIPanel@@UAE@XZ": {
+        "va": 279346032,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUITabPanel::~UGUITabPanel at RVA 0x167e50. Registered class UGUITabPanel installs vtable RVA 0x3018c0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIPanel destructor at RVA 0x167b70 under C++ frame handler RVA 0x2d4838.",
+    "match": {
+      "bytes_sha256": "2d4dea11891c73de4de626cd20d8c316fabdbb86e67156bd38548f74b50d222e",
+      "inputs_sha256": "d669b07727b89d6b1026c4ba6bddfbdd7c9248c1109ca7c485a26758a681c63d"
     }
   },
   {
@@ -1531,7 +2279,7 @@
     },
     "match": {
       "bytes_sha256": "d0785908e756ce956c8c498f656f13e2bb871fc85535074a1631a660c9fde258",
-      "inputs_sha256": "534b8566944fed439e4cc0e41de590f476b9e34988f982f25420bccc49e46bd6"
+      "inputs_sha256": "a3361b54828ab5e2bae97d7794199293d82e534247bf3155bb447931632c66f8"
     }
   },
   {
@@ -1557,7 +2305,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9adf69a26fe55de645f1235df4209b8c798b0f16447d7772ee41a52a957109c2"
+      "inputs_sha256": "e65f567139ab919199905d1f7be30d657df2657f97114c630052d04a793ca6e6"
     }
   },
   {
@@ -1583,7 +2331,41 @@
     "identification": "Stock UGUITabButton vtable at RVA 0x301760, slot 3, points to entry RVA 0x167f80. Registration at RVA 0x165672 passes placement callback RVA 0x167ec0, which installs the table at RVA 0x167ec8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "41bd9cfcd7b0dc283c4c3f89520bdfbd9603a5830903a2f208a5cab869802fc4"
+      "inputs_sha256": "144c1213896ab41e3ec92b48c96a98e5df83850c9a7644e562d5b8e63879ec79"
+    }
+  },
+  {
+    "id": "versus-object-destructors-167fb0",
+    "size": 109,
+    "offset": 1474480,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUITabButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUITabButton@@UAE@XZ": {
+        "va": 280827704,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUITabButton@@6B@": {
+        "va": 281024352,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIButton@@UAE@XZ": {
+        "va": 279346944,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUITabButton::~UGUITabButton at RVA 0x167fb0. Registered class UGUITabButton installs vtable RVA 0x301760; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIButton destructor at RVA 0x167f00 under C++ frame handler RVA 0x2d1738.",
+    "match": {
+      "bytes_sha256": "40b90507793e482725e816e108b1cb11fb0034c3d3f37720d92302f5cf101811",
+      "inputs_sha256": "6f2c040fb8c737d9d75d79d1ae3d3b6b73e20ce290690161b4d70484e8bd495c"
     }
   },
   {
@@ -1605,7 +2387,7 @@
     },
     "match": {
       "bytes_sha256": "99ba64736ac470a1eda796b996493ee6c72bb0d54455583038bb76c654b02b4b",
-      "inputs_sha256": "b9ed6d7939dda10a877afa219e62e96a0f41cf308997546c46ab59380f8d044e"
+      "inputs_sha256": "cd10bf063d9ee7633efd0ca09bd718b8d8ef84724f258711689b118e897df857"
     }
   },
   {
@@ -1631,7 +2413,7 @@
     "identification": "Stock UGUITabControl vtable at RVA 0x3016b0, slot 3, points to entry RVA 0x168030. Registration at RVA 0x16561a passes placement callback RVA 0x168020, which installs the table at RVA 0x168028. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d21c901f9a27c7e45407c138e146e4250fc7ae029affe22cff3d6822511bf168"
+      "inputs_sha256": "226b2ae0dceae34cdd2d34a139e56cba0e6951ac0f9be35378b114e32c76b69b"
     }
   },
   {
@@ -1657,7 +2439,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "a5a2e0a1a8810ffa0761f1b80a1343082787f53a4316fab3c1b1bdc9723cc33d"
+      "inputs_sha256": "ce35a94986900d99faa9f23cfc51fa1e899e414a4576ace77923f84ba76ce440"
     }
   },
   {
@@ -1679,7 +2461,7 @@
     },
     "match": {
       "bytes_sha256": "bdb40cff9287b84602817c04cfd3471fce4dd8d7e4dc840bc6edf00d618737d1",
-      "inputs_sha256": "5251429c3cb6c5d6e3a795241da486b7cac6496a7193f24e9d4910df62fce2c1"
+      "inputs_sha256": "dd243e408f2ca015243af6ac88e04a582859692562524b975572a9e07b4752c9"
     }
   },
   {
@@ -1705,7 +2487,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "95d4034d49194d665bc5c0d69481b215e3954ee797edbffe86a881ffb24c53e9"
+      "inputs_sha256": "497968bf42f2f1fc151cb21f68733ffb017f0757eef5e13b840c7dcfa014770f"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1682a0",
+    "size": 109,
+    "offset": 1475232,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIMultiColumnListHeader@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIMultiColumnListHeader@@UAE@XZ": {
+        "va": 280818472,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIMultiColumnListHeader@@6B@": {
+        "va": 281023912,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIComponent@@UAE@XZ": {
+        "va": 279339200,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIMultiColumnListHeader::~UGUIMultiColumnListHeader at RVA 0x1682a0. Registered class UGUIMultiColumnListHeader installs vtable RVA 0x3015a8; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIComponent destructor at RVA 0x1660c0 under C++ frame handler RVA 0x2cf328.",
+    "match": {
+      "bytes_sha256": "1fc7ea49c5ae4ac5911967fe5c2c2202ee4ae9156e1f520cecd413431dbc94aa",
+      "inputs_sha256": "790fcdea260aa988556c6c628d5754beb18f7afdb524fe9440fc2d90e1d7b64e"
     }
   },
   {
@@ -1727,7 +2543,7 @@
     },
     "match": {
       "bytes_sha256": "e8eaeaf4c5cf13542f01e67d96c783665acd6909f13f3907ef2975ffa573a429",
-      "inputs_sha256": "b9e56bc3f0954658254225f87b93cf50510139481044b4fc8e49f18089d5a8a7"
+      "inputs_sha256": "6a777f1ae45470f29bd2f4bbb108f3229ff39e3bffcea61929745158d3b47f56"
     }
   },
   {
@@ -1753,7 +2569,41 @@
     "identification": "Stock UGUIListFriends vtable at RVA 0x3014f0, slot 3, points to entry RVA 0x168360. Registration at RVA 0x1654ba passes placement callback RVA 0x168350, which installs the table at RVA 0x168358. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9be9ebb57199d3a89d29730b4ecfea78fa6504bf18d1a5d41ecd77fe98c61bc1"
+      "inputs_sha256": "289a58f2c268b5b94a605ad3aba60f1feba87fafde6028f8769f523c1f5895ae"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168390",
+    "size": 109,
+    "offset": 1475472,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIListFriends@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIListFriends@@UAE@XZ": {
+        "va": 280845112,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIListFriends@@6B@": {
+        "va": 281023728,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIList@@UAE@XZ": {
+        "va": 279345072,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIListFriends::~UGUIListFriends at RVA 0x168390. Registered class UGUIListFriends installs vtable RVA 0x3014f0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIList destructor at RVA 0x1677b0 under C++ frame handler RVA 0x2d5b38.",
+    "match": {
+      "bytes_sha256": "196b2893dab7045596f318919aff16340bd3c8c45e7c213fd8989c8eb3712926",
+      "inputs_sha256": "29f9b344ba64b3e6079a2cedfee3dab24c5d5c18f5ef88769fae0d4088b79a74"
     }
   },
   {
@@ -1775,7 +2625,7 @@
     },
     "match": {
       "bytes_sha256": "8fa6fe3d4332a82a6c14ca63fc69c28b60c3ba4de200b062a59599b572637006",
-      "inputs_sha256": "ee4435f4df277a2ae5d0b26b12f28d75246a256d66343ed9fb3223d07a092bde"
+      "inputs_sha256": "16e4a4ebb77d5f6ca342940e62e78417110e758dbacc0c7cb2f0f9c9ea5baeb1"
     }
   },
   {
@@ -1797,7 +2647,7 @@
     },
     "match": {
       "bytes_sha256": "a832b228c15d8e93cb5f70b288e2bdfe8448901cf033acc6a7fcc94e9b548200",
-      "inputs_sha256": "15d70b8a71a2ede88c5031c9f3e13ab2cdc6b572e67b16c7c96ac45fa9fffd60"
+      "inputs_sha256": "964441607a7fe5490cb220c95a6e74ec80322be4b357ade43b116155feac971d"
     }
   },
   {
@@ -1819,7 +2669,7 @@
     },
     "match": {
       "bytes_sha256": "98699a3c16944ad41594fb509d34015daae1f3630e10270f210383b5fa985171",
-      "inputs_sha256": "ce238d1ccfc7542f3785584f88191c874a5ebc8801e6b6a6fc720894a1c1dd47"
+      "inputs_sha256": "8df59b125f23c24d6316ec5c8be8b4b4e0b4724aae6d05efcab3e6ed3da12fbb"
     }
   },
   {
@@ -1841,7 +2691,7 @@
     },
     "match": {
       "bytes_sha256": "38586d46faf0400e25b1630093655fa78b11ca4bf4658ca0941b70fa20dca6e5",
-      "inputs_sha256": "4aa644f969683108d06abfb5235b38433142d9c534ddd8ccd1e51e3b213b8598"
+      "inputs_sha256": "10988b42a57a29b25e93d456c6c11a3a973042e33ae28241d56cb64d28452df3"
     }
   },
   {
@@ -1867,7 +2717,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "43fe8d1b01948b5b76ce4f4f932b0941a17d5f633389f88b988cdfeef8ab6882"
+      "inputs_sha256": "7ec80fcd4c666d9b45ca9acbec9c597a91cf1260dcd2868a51713729003be2bd"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168470",
+    "size": 109,
+    "offset": 1475696,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIMultiColumnListBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIMultiColumnListBox@@UAE@XZ": {
+        "va": 280840312,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIMultiColumnListBox@@6B@": {
+        "va": 281023552,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIListBoxBase@@UAE@XZ": {
+        "va": 279344608,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIMultiColumnListBox::~UGUIMultiColumnListBox at RVA 0x168470. Registered class UGUIMultiColumnListBox installs vtable RVA 0x301440; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIListBoxBase destructor at RVA 0x1675e0 under C++ frame handler RVA 0x2d4878.",
+    "match": {
+      "bytes_sha256": "5f74dd2e646fa0324c9992e3181c0ee3ae61bcadc67c9a9ea7cfff22b7d0cc50",
+      "inputs_sha256": "01daf8da6bff79a28dca39811b936da5542a55c31aa752bebceba4187767b896"
     }
   },
   {
@@ -1889,7 +2773,7 @@
     },
     "match": {
       "bytes_sha256": "f6555ad6a4fce99c84ddbcd845f4c0d01e5e75ec50f28133f168e4a759834091",
-      "inputs_sha256": "965cfbfcc87b5312d47f7bef72f69cbc7e03426c49eb4e87636ff0cc8efce3a1"
+      "inputs_sha256": "b77d3c45cd0c7160f6f0a7a3f201692ca1c230e9fd712a3c4e11a0fe74fa32db"
     }
   },
   {
@@ -1915,7 +2799,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "aac0964f02beba07e8da1af1efac47926d80bdc187d5b1c0c266be0bcd156729"
+      "inputs_sha256": "10942a545d56f183fe85c6fc7d775ee6a508a4287fa10865b14e4236502657d4"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168520",
+    "size": 109,
+    "offset": 1475872,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIListBox@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIListBox@@UAE@XZ": {
+        "va": 280840312,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIListBox@@6B@": {
+        "va": 281023376,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIListBoxBase@@UAE@XZ": {
+        "va": 279344608,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIListBox::~UGUIListBox at RVA 0x168520. Registered class UGUIListBox installs vtable RVA 0x301390; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIListBoxBase destructor at RVA 0x1675e0 under C++ frame handler RVA 0x2d4878.",
+    "match": {
+      "bytes_sha256": "9132e60a35e2d31cbe0bd21f6de27f4cf4c18a0e41e60c9576e43518d7c32d90",
+      "inputs_sha256": "9b44c089bad8a7b12d8ea52fe8e84361e8d2bfa67b0d210e68d10d642dd378f8"
     }
   },
   {
@@ -1937,7 +2855,7 @@
     },
     "match": {
       "bytes_sha256": "399ed84278aedacf774f58e606ec66f5d088845812020f00fee428daf9cd5677",
-      "inputs_sha256": "c76d7c793a480ffa3ed146ad3136234ccf5306544354c6b4870a9973b8dde6ab"
+      "inputs_sha256": "8c7d4e8f0d498006e82302e30d0f3f7fdf994e765c5f7f076ed8e22f21c90b7f"
     }
   },
   {
@@ -1959,7 +2877,7 @@
     },
     "match": {
       "bytes_sha256": "33f2932cef54913cc5177f08301234e5ef97fe508806ef6af6afce3f8ceec1cb",
-      "inputs_sha256": "da49d533e76377ef6053e940d53102dc2accba80ae3c2f783d59e97764e08a4c"
+      "inputs_sha256": "20946ad3bfaa8ae8f7904b9df7b9a4e23a1c8f41b39212ea7806170bebec55fc"
     }
   },
   {
@@ -1985,7 +2903,41 @@
     "identification": "Stock UGUIHorzScrollBar vtable at RVA 0x3012e0, slot 3, points to entry RVA 0x1685b0. Registration at RVA 0x165252 passes placement callback RVA 0x1685a0, which installs the table at RVA 0x1685a8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c222542517cb35cc41a333b4a3691068154de39ab85faab195742a3558a9269f"
+      "inputs_sha256": "5a1cd41528df6ca85aa68bac057fd5e9553e45344b3c2ca6c682e0b6f4f3becf"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1685e0",
+    "size": 109,
+    "offset": 1476064,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIHorzScrollBar@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIHorzScrollBar@@UAE@XZ": {
+        "va": 280840344,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIHorzScrollBar@@6B@": {
+        "va": 281023200,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIScrollBarBase@@UAE@XZ": {
+        "va": 279342992,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIHorzScrollBar::~UGUIHorzScrollBar at RVA 0x1685e0. Registered class UGUIHorzScrollBar installs vtable RVA 0x3012e0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIScrollBarBase destructor at RVA 0x166f90 under C++ frame handler RVA 0x2d4898.",
+    "match": {
+      "bytes_sha256": "f3cb7ad68031cac7d3234a3485bee2f01c15c13964b8005b2e02a7d1855017fd",
+      "inputs_sha256": "5b304a0bd55f1eb343718a14b2419c91760758bad290b6fb2bec0ebe387c5710"
     }
   },
   {
@@ -2007,7 +2959,7 @@
     },
     "match": {
       "bytes_sha256": "c695ba1c73b921b6927c72ccfca1492800cb4eb45c0482c9d94949ff2903338b",
-      "inputs_sha256": "740b93164737f3541c0a0ab5883b5c2db4193f06653b0a8e557cb2c0b183b605"
+      "inputs_sha256": "261daadd770c1ac159419024514ef0038f908abbe7b0a5680a5fd4a7d4f09f25"
     }
   },
   {
@@ -2033,7 +2985,41 @@
     "identification": "Stock UGUIGFXButton vtable at RVA 0x301230, slot 3, points to entry RVA 0x168660. Registration at RVA 0x164d2a passes placement callback RVA 0x168f90, which installs the table at RVA 0x168f98. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "351300c09b80b31ca1a51f004b833cb46d00027026d5b6368ce23141474c1bd2"
+      "inputs_sha256": "7e3586595bdc210b50f0436e74e921b14b32a17a583a69904a31e64e56d22d4d"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168690",
+    "size": 109,
+    "offset": 1476240,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIGFXButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIGFXButton@@UAE@XZ": {
+        "va": 280827704,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIGFXButton@@6B@": {
+        "va": 281023024,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIButton@@UAE@XZ": {
+        "va": 279346944,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIGFXButton::~UGUIGFXButton at RVA 0x168690. Registered class UGUIGFXButton installs vtable RVA 0x301230; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIButton destructor at RVA 0x167f00 under C++ frame handler RVA 0x2d1738.",
+    "match": {
+      "bytes_sha256": "2f4c1786f72e1e91969fec6a38143659a896449393bd864962e7b3148c7d1efe",
+      "inputs_sha256": "1f02a6d371555d06317743d390acb4fe52fda47587ce5e2463e93de088dcdabd"
     }
   },
   {
@@ -2059,7 +3045,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "df99339e18e2698cfdd14d180966603900776e86e9eb74b154633e6b460cb558"
+      "inputs_sha256": "604d03ecc6eec139a75cab4e0852fa7ede1570851d6040dd86c8748a574f2a7b"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168730",
+    "size": 109,
+    "offset": 1476400,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIHorzGripButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIHorzGripButton@@UAE@XZ": {
+        "va": 280840216,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIHorzGripButton@@6B@": {
+        "va": 281022848,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIGFXButton@@UAE@XZ": {
+        "va": 279348880,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIHorzGripButton::~UGUIHorzGripButton at RVA 0x168730. Registered class UGUIHorzGripButton installs vtable RVA 0x301180; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIGFXButton destructor at RVA 0x168690 under C++ frame handler RVA 0x2d4818.",
+    "match": {
+      "bytes_sha256": "461c67e0171cf6df12f9e02681a01fcbceb3523d169b0206a776c29c6c59c17c",
+      "inputs_sha256": "4e69ff0311c14fc221f5154f620fbff9680d734724d5516d657c4d50634fd2a8"
     }
   },
   {
@@ -2081,7 +3101,7 @@
     },
     "match": {
       "bytes_sha256": "8520f30fa129b7df1491657828f223d942b3082fa60a9a1a18c55e59f57079e6",
-      "inputs_sha256": "738754de934cbc2960c142033231ec9d372893c7a72ff7a9cd93b6b7206f6404"
+      "inputs_sha256": "61e762ce0c879358614bece9dfe9887d2ea6f6454995014151096becb478cb62"
     }
   },
   {
@@ -2107,7 +3127,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ebbade92aa96566814f043bd95fef65a5d2a908f005dcad9fb5ecc1215b2cd4a"
+      "inputs_sha256": "caa97a80519d32d8ad3f395ea4e74199456f860123ef1e406cf0496038b065d0"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1687e0",
+    "size": 109,
+    "offset": 1476576,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIHorzScrollButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIHorzScrollButton@@UAE@XZ": {
+        "va": 280840216,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIHorzScrollButton@@6B@": {
+        "va": 281022672,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIGFXButton@@UAE@XZ": {
+        "va": 279348880,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIHorzScrollButton::~UGUIHorzScrollButton at RVA 0x1687e0. Registered class UGUIHorzScrollButton installs vtable RVA 0x3010d0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIGFXButton destructor at RVA 0x168690 under C++ frame handler RVA 0x2d4818.",
+    "match": {
+      "bytes_sha256": "12577666005a019950001d423d4454032409b5002118377d2b528bf2ca4c8b74",
+      "inputs_sha256": "40e64fe2c3521cc8c074592480f24620557cce83e17bf39b3fc7b75380f90e21"
     }
   },
   {
@@ -2129,7 +3183,7 @@
     },
     "match": {
       "bytes_sha256": "5aead2a8104a9767dde7bb9bd4b7ac2de02d8966628326e31685d87bc8741d1e",
-      "inputs_sha256": "58915f792c87b4489df58ce98a1927b195a158ce69ff5d5f8bbbe72d303a07d1"
+      "inputs_sha256": "692a305502dabb272c50d4161e29bc571ced3b91a2ba8bdb2322fe86c3a8f640"
     }
   },
   {
@@ -2155,7 +3209,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "616caf84f5e2d18c2ea211f2c9b88912b255758b1a908b06eef6a9ef1f5427b6"
+      "inputs_sha256": "183d2ca3acad8ca0ab727884264f97a6839c64d36f580c2e050a740f151b8146"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168890",
+    "size": 109,
+    "offset": 1476752,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIHorzScrollZone@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIHorzScrollZone@@UAE@XZ": {
+        "va": 280818472,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIHorzScrollZone@@6B@": {
+        "va": 281022496,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIComponent@@UAE@XZ": {
+        "va": 279339200,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIHorzScrollZone::~UGUIHorzScrollZone at RVA 0x168890. Registered class UGUIHorzScrollZone installs vtable RVA 0x301020; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIComponent destructor at RVA 0x1660c0 under C++ frame handler RVA 0x2cf328.",
+    "match": {
+      "bytes_sha256": "38ecceb1853c2faa4d4f57f42d5741d45c2fcd197eb9bf3cdad819559e54c1ab",
+      "inputs_sha256": "a9769cac87594d75090edd6b07b03f73ea7904fd304a9d92e451b521bc1395b6"
     }
   },
   {
@@ -2177,7 +3265,7 @@
     },
     "match": {
       "bytes_sha256": "25d3b89dfe5e27ebaab85125653f0a1622b9af30cbfa97a462e8ca80bc9177c0",
-      "inputs_sha256": "6c6890102fc5c891b222c563e8c96151cc78dc504e89215013497f42db7adddd"
+      "inputs_sha256": "e83c6b69ebec70fcf0ccabd0506d5e9ef4f9aada520668bd9762fb4d9e889f92"
     }
   },
   {
@@ -2203,7 +3291,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "40581f31bd698056db90d830f8f86f353fb0e7db36fb8a3bba10b53576deba13"
+      "inputs_sha256": "d2c5d2ccd4ef9dfb885e990bdba844a0eac758c80bbb91e34f3eb78fcc2308cc"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168940",
+    "size": 109,
+    "offset": 1476928,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIVertScrollBar@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIVertScrollBar@@UAE@XZ": {
+        "va": 280840344,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIVertScrollBar@@6B@": {
+        "va": 281022320,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIScrollBarBase@@UAE@XZ": {
+        "va": 279342992,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIVertScrollBar::~UGUIVertScrollBar at RVA 0x168940. Registered class UGUIVertScrollBar installs vtable RVA 0x300f70; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIScrollBarBase destructor at RVA 0x166f90 under C++ frame handler RVA 0x2d4898.",
+    "match": {
+      "bytes_sha256": "6d19961fc49fc3b060debf0acd45bb4284fa353f559441213c4d5f0464f348c3",
+      "inputs_sha256": "ec1caf2f1f103547f04df2463ab1aec86f92d2bd941926a8e1496a352d2fb5b9"
     }
   },
   {
@@ -2225,7 +3347,7 @@
     },
     "match": {
       "bytes_sha256": "2a906d91121b13bee0d88b9a4345df96171c6cb1e94635b256c5f96a8dbb1f61",
-      "inputs_sha256": "8e1f88d8bc82d549a8a5a94e2a58e9d9c4b63b26f4910fa87120ea32cbb91883"
+      "inputs_sha256": "fcdbb5c4e79c43b7945a6b7f4e27e7c64485ba094f5d6be5ef9922744634aa0d"
     }
   },
   {
@@ -2251,7 +3373,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "7a9efa4b34fae4473d814b5640d28dbce6f68096ed552a63357ce5d2e3218143"
+      "inputs_sha256": "76a7aa3c3162368e4e0f57452a85a972b5c0f97014c43c5cb221c08872ca3ad8"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1689f0",
+    "size": 109,
+    "offset": 1477104,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIVertGripButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIVertGripButton@@UAE@XZ": {
+        "va": 280840216,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIVertGripButton@@6B@": {
+        "va": 281022144,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIGFXButton@@UAE@XZ": {
+        "va": 279348880,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIVertGripButton::~UGUIVertGripButton at RVA 0x1689f0. Registered class UGUIVertGripButton installs vtable RVA 0x300ec0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIGFXButton destructor at RVA 0x168690 under C++ frame handler RVA 0x2d4818.",
+    "match": {
+      "bytes_sha256": "b55c9676a041bb42cd54fcc86b9b24cefe944d2e367b091c1ad1796138cbbfcc",
+      "inputs_sha256": "37ac4f9e7b731b2c03b59ed910a93eb44f9f55e27509d5da647ac65b1d3506c4"
     }
   },
   {
@@ -2273,7 +3429,7 @@
     },
     "match": {
       "bytes_sha256": "e9e476b240f92d5ddebc8799672369c5ba402064c5f8c409502c60f9572b3e89",
-      "inputs_sha256": "a68829f36af66b76b03a8f88eab662c4571ae9c8e682223f9e11db9bf1c3d46c"
+      "inputs_sha256": "763605622c8d2496efd7dec8bfe73934332794bd296293a2e8c6e29092a75359"
     }
   },
   {
@@ -2299,7 +3455,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "92c0598316d2020b1d0dc974097688bdbe9dce4303bb98c266111414e6318e90"
+      "inputs_sha256": "2a8bedddac1d58d1f83044fb343215cca013f882cba1850a3f4a420da1e20aac"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168aa0",
+    "size": 109,
+    "offset": 1477280,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIVertScrollButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIVertScrollButton@@UAE@XZ": {
+        "va": 280840216,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIVertScrollButton@@6B@": {
+        "va": 281021968,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIGFXButton@@UAE@XZ": {
+        "va": 279348880,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIVertScrollButton::~UGUIVertScrollButton at RVA 0x168aa0. Registered class UGUIVertScrollButton installs vtable RVA 0x300e10; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIGFXButton destructor at RVA 0x168690 under C++ frame handler RVA 0x2d4818.",
+    "match": {
+      "bytes_sha256": "d523e6c3a7050ed8a032c62b2c122914db784d6e67e133febf340f792b2acf92",
+      "inputs_sha256": "fa12300b506d8c99ae9bca9e11976b44cb2b22a362aea5b6cdfbd16e80c649f5"
     }
   },
   {
@@ -2321,7 +3511,7 @@
     },
     "match": {
       "bytes_sha256": "beca30fc941a98f99b770bcb04c7fe1aac73f8e493b48cc6a099f1f95ba203cf",
-      "inputs_sha256": "600130a2da3f63dcdc8cd6b1982fb0a5ca59ab29b32c3d8fda6dcccce984468a"
+      "inputs_sha256": "67e7475475c09ee20ceb2c0b396a412a29b8212837f64b1de79a8969736d713c"
     }
   },
   {
@@ -2347,7 +3537,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "82956af814bf86ac6250e8a2c42f5beb0bf87ac68d046e7bd7c6e69fe67d0b92"
+      "inputs_sha256": "e0f69dc1915b6ad40e1757012b9ef5dc71d3aa151890ea96ce3bf67e797a4737"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168b50",
+    "size": 109,
+    "offset": 1477456,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIVertScrollZone@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIVertScrollZone@@UAE@XZ": {
+        "va": 280818472,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIVertScrollZone@@6B@": {
+        "va": 281021792,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIComponent@@UAE@XZ": {
+        "va": 279339200,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIVertScrollZone::~UGUIVertScrollZone at RVA 0x168b50. Registered class UGUIVertScrollZone installs vtable RVA 0x300d60; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIComponent destructor at RVA 0x1660c0 under C++ frame handler RVA 0x2cf328.",
+    "match": {
+      "bytes_sha256": "106b3b2ae4b681d1ea3f81bb224cf030604f32148bc6cb7f6be2cb7b93fb906d",
+      "inputs_sha256": "7979ad356d74fc8b1b1835342eb4e531e42554a50ef2050a2e404d7b6e4604a7"
     }
   },
   {
@@ -2369,7 +3593,7 @@
     },
     "match": {
       "bytes_sha256": "dc4d0391c7648f6639bbe6b3cc7005d64477105423313f58d7f584e78abb2853",
-      "inputs_sha256": "6e333573a6d41e9549b9cdf4ebb4da497bfcf828c17bfba044a195e7ec7f78dc"
+      "inputs_sha256": "897c1f23de3ac444971fb9a1b89578736f543e62431da1fda0eca5b0f2a8d860"
     }
   },
   {
@@ -2391,7 +3615,7 @@
     },
     "match": {
       "bytes_sha256": "b19131c63e301e8e3d1aa00f862c2e8fba4ddb2a771e431e52106f45aee6d315",
-      "inputs_sha256": "0ab9fd5194e070fc3f87057c3509d2b5769607e60e07488364bacf6ce2f2dcd0"
+      "inputs_sha256": "3b7d83ccabcd031716cc098ffaf6059be16de18ea235e9ba3bb4340ab121628a"
     }
   },
   {
@@ -2413,7 +3637,7 @@
     },
     "match": {
       "bytes_sha256": "0c2dc46824b46d40633221d93f1a9102a7eb3922ea8de16e5b0c71c26e814812",
-      "inputs_sha256": "2f78d9d431ce87fbe8d2d1c851af3266342ee79d60816859a7df2a34ebbeb236"
+      "inputs_sha256": "60f2be4a5262bef8c4f0529a56a8647aeae43ef5f563972638cdc1ead22c16cc"
     }
   },
   {
@@ -2439,7 +3663,7 @@
     "identification": "Stock UGUINumericEdit vtable at RVA 0x300cb0, slot 3, points to entry RVA 0x168bf0. Registration at RVA 0x164ee2 passes placement callback RVA 0x168be0, which installs the table at RVA 0x168be8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "2c8536208850d44504ad002b96e0839b176d867fd3dd40bff7d4634b578ef4c4"
+      "inputs_sha256": "e8a4642afa39d8950e98c0d4d07fbc33befddae95c2c7c935053d86b46bad5cc"
     }
   },
   {
@@ -2461,7 +3685,7 @@
     },
     "match": {
       "bytes_sha256": "4d8d1dbc053b2a3fb6da6a6887d138cd085ddfd706a0a3af0efd83f87799c9ac",
-      "inputs_sha256": "b97bbdb36a5d6e641805b8b091e97ec045cd3fce3ebebc9eb0807f7cc83abbf7"
+      "inputs_sha256": "2f9910d4e16ea4ecf65a9398a9ef732720ff6d649136161a142645478f54c2a7"
     }
   },
   {
@@ -2487,7 +3711,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "aa292b0a65f2abeeed4e1f6159a58d074cae9e2da99763e0f565081845498aa2"
+      "inputs_sha256": "defe2e764dd791f166b3395c2abc470b393ca991e7f042c26dd56b9ef9005363"
     }
   },
   {
@@ -2509,7 +3733,7 @@
     },
     "match": {
       "bytes_sha256": "395b9a8662d90142792bb9dd09bdad378c8fd386f74b21be397f5cb114773365",
-      "inputs_sha256": "d80a522eed027a8c4c1af832f26e05d3835e259ab8cba7c869b0b4ed59153b6f"
+      "inputs_sha256": "4f146c075c4739abd588bc7b1c9102cb7b9697481b171aaf88be4e8609c18505"
     }
   },
   {
@@ -2535,7 +3759,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "c9c579bb62ade4cf16b2e14da585d15f7c70aea4171cd30beb7c5a1395b4eeae"
+      "inputs_sha256": "4ad9d6d46779adb2ab575399241742667a03ddd095c4c68976565041548f2c9c"
     }
   },
   {
@@ -2557,7 +3781,7 @@
     },
     "match": {
       "bytes_sha256": "55476d07692d0be5c802566b0cdd5b8559b65f47fbaef0d1968a24135c10f6ef",
-      "inputs_sha256": "23f2bb9611d7cba5e86919036a3768dcc0d56b307bd6feae94d7306db91b315e"
+      "inputs_sha256": "5e75d212acc93a255ca23d1950558e066180eba5d83af65a79e80d898f703707"
     }
   },
   {
@@ -2583,7 +3807,41 @@
     "identification": "Stock UGUICheckBoxButton vtable at RVA 0x300aa0, slot 3, points to entry RVA 0x168e40. Registration at RVA 0x164dda passes placement callback RVA 0x168e30, which installs the table at RVA 0x168e38. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e06ff2fa7682f39aabe71f88ed06797aed4b4af2273b797aca436f996f96ddbf"
+      "inputs_sha256": "1c5f6557f049858d306a29007b33e4787d10c4dd443c367dddb925d1ee9e01e1"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168e70",
+    "size": 109,
+    "offset": 1478256,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUICheckBoxButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUICheckBoxButton@@UAE@XZ": {
+        "va": 280840216,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUICheckBoxButton@@6B@": {
+        "va": 281021088,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIGFXButton@@UAE@XZ": {
+        "va": 279348880,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUICheckBoxButton::~UGUICheckBoxButton at RVA 0x168e70. Registered class UGUICheckBoxButton installs vtable RVA 0x300aa0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIGFXButton destructor at RVA 0x168690 under C++ frame handler RVA 0x2d4818.",
+    "match": {
+      "bytes_sha256": "ecab283ea97ac45ab067c75d82e9f988076a9da5337f3d3c638be7e8dfb9fa1b",
+      "inputs_sha256": "91b76242d9fdc57a18452b0beb729ff02e0e098a62e20b6eae0884b22966783c"
     }
   },
   {
@@ -2605,7 +3863,7 @@
     },
     "match": {
       "bytes_sha256": "829fbe2f6dcf05107a623e59b82facb683bf25bb9d391d5b7ad2a3f1dd33427d",
-      "inputs_sha256": "4a6be071aeb2a32c95b69b998d8776e0066313b97feca55aeef37298f99adb8e"
+      "inputs_sha256": "50e6b004c6f58b28b301da043303112c97245f623262a00d990921658dc93a3b"
     }
   },
   {
@@ -2631,7 +3889,41 @@
     "identification": "Stock UGUISpinnerButton vtable at RVA 0x3009f0, slot 3, points to entry RVA 0x168ef0. Registration at RVA 0x164d82 passes placement callback RVA 0x168ee0, which installs the table at RVA 0x168ee8. The full wrapper destroys the object and conditionally frees it through the engine allocator.",
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "9029b40e359f49cf36bb2f8671c6ea009122dd00ee51c2de2d0bb863ecf0996c"
+      "inputs_sha256": "362e7c1af1e90e92224bfc5b1954b3e0ea1f9b14a08442aac25f42cc9b71490a"
+    }
+  },
+  {
+    "id": "versus-object-destructors-168f20",
+    "size": 109,
+    "offset": 1478432,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUISpinnerButton@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUISpinnerButton@@UAE@XZ": {
+        "va": 280840216,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUISpinnerButton@@6B@": {
+        "va": 281020912,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIGFXButton@@UAE@XZ": {
+        "va": 279348880,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUISpinnerButton::~UGUISpinnerButton at RVA 0x168f20. Registered class UGUISpinnerButton installs vtable RVA 0x3009f0; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIGFXButton destructor at RVA 0x168690 under C++ frame handler RVA 0x2d4818.",
+    "match": {
+      "bytes_sha256": "6bb7656178619d179ce83daf265b1b8e6de7670e17e4194779cfa145a90cdd19",
+      "inputs_sha256": "a8840ca4a945cd9aeb5543c1480df730470d55a976ceffebe0763def0bee2ec4"
     }
   },
   {
@@ -2653,7 +3945,7 @@
     },
     "match": {
       "bytes_sha256": "ed4ea1a7bc834d84a33cda527da3cbf5058d8dfd14b29dfec715536b77e9e43c",
-      "inputs_sha256": "0ab4b096b465422149073f8ee10193a720c5965b0f32857b71989add9728d6f6"
+      "inputs_sha256": "36422121657ce7178b9326e6bdc237bede4c62a64634d18ee8709afc9454025a"
     }
   },
   {
@@ -2675,7 +3967,7 @@
     },
     "match": {
       "bytes_sha256": "3e2450e7d19cebb5811c2841c9e96842477e417549719c6b8c5136abe3ea75cc",
-      "inputs_sha256": "179b69fb42b0e09a2c0b786871fa89be4c7c683c5927a64f70934199d82fa5a0"
+      "inputs_sha256": "7d63b7ec668259f1015ddb53968b725bdd6718b5236d76eb12172d88821c9d6b"
     }
   },
   {
@@ -2697,7 +3989,7 @@
     },
     "match": {
       "bytes_sha256": "a8c6f00f739f613bfbf234aef7566b4291674a47fea9ad7e16ce4703db409b91",
-      "inputs_sha256": "6ad9e4cc9b6f88bb6ddf66dc3dcd3493f68090295f93845731bf50c9898803c8"
+      "inputs_sha256": "f54424c71a509852c31c4604ce2489b0ce82d59341db5aecc57b1b8e198fb145"
     }
   },
   {
@@ -2723,7 +4015,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "ac13be1b8e15fbf5d5261e06a8e570b013ad3f3302fd83188d7b86e1cd253fdd"
+      "inputs_sha256": "19f58dc37c51c3d65c171e69c872e932fdf35b4e0a8d6ccc4160265cc073af6c"
     }
   },
   {
@@ -2749,7 +4041,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "8e5f205353e5462bcb353e3442fb051a9bcad3f87f5fa09c60f2fb18e175e12b"
+      "inputs_sha256": "587d686bcaefd61e9cf68556060747d390c0f22b6ab517523f6881242c9e3165"
+    }
+  },
+  {
+    "id": "versus-object-destructors-1690b0",
+    "size": 109,
+    "offset": 1478832,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUILabelPad@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUILabelPad@@UAE@XZ": {
+        "va": 280827544,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUILabelPad@@6B@": {
+        "va": 281020560,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUILabel@@UAE@XZ": {
+        "va": 279351280,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUILabelPad::~UGUILabelPad at RVA 0x1690b0. Registered class UGUILabelPad installs vtable RVA 0x300890; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUILabel destructor at RVA 0x168ff0 under C++ frame handler RVA 0x2d1698.",
+    "match": {
+      "bytes_sha256": "589388d04b82b11409c0f455f79e32ca4caf0b0d983aa30c2bda9864e5bad1c9",
+      "inputs_sha256": "08e02c0d702d973a57fb3b57d38a77780b82f91886f94b0a8d9078a042b448bd"
     }
   },
   {
@@ -2771,7 +4097,7 @@
     },
     "match": {
       "bytes_sha256": "c6540fae82a3e181fc37f48758c85d68f2a0a49e4f18f2c40e1bf53223a2ace4",
-      "inputs_sha256": "c29e5e5b68603c1c40d46facdb1b5f3ca44f7d7e814027df5917b4f42c784ee5"
+      "inputs_sha256": "a9af3db3483c23814a0abbab728943d7c67a6ab1cade9ab0360e90021e273f8a"
     }
   },
   {
@@ -2793,7 +4119,7 @@
     },
     "match": {
       "bytes_sha256": "c193f3336d7e3689704ece2fa30de237e14d45d079b320a4d18caea464f9eee0",
-      "inputs_sha256": "deb249755891ec02f0615c21e1cd88e42d5eec551bdbae4399dd5c6575274090"
+      "inputs_sha256": "ae184a76c2df2ce5623820ab2b39b7e0e5273277b457fd7eec05e8eb3cac1356"
     }
   },
   {
@@ -2819,7 +4145,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "d38eebb99d0efb2c66d10fe69805541ebac40dfbfb20b25093711fe78d8d2643"
+      "inputs_sha256": "6670d0138ab5d2e5fda036241966011650d214e0b4eb12547070a7c4e44acc1b"
     }
   },
   {
@@ -2841,7 +4167,7 @@
     },
     "match": {
       "bytes_sha256": "98ad954c1d8ffbb267c92cd6af69bbce9f6023e689411949cb5534eae44715de",
-      "inputs_sha256": "a429e4a37b2e3eb03d68029145bbded212612e9b1e620dafdc6273b6b509f880"
+      "inputs_sha256": "06e3d686b88c5690f9fdcd009a2b5a83c70e58787bac3f9abf402125da0d63e3"
     }
   },
   {
@@ -2863,7 +4189,7 @@
     },
     "match": {
       "bytes_sha256": "3b1f767c8460023ea67a1612a3dba19f02f4e2084c4760cefab8180b490e2002",
-      "inputs_sha256": "b947a245d8b6f78a29c476dfa80e62faded1938ba90fced7d3fbbf267b4c5ba1"
+      "inputs_sha256": "52800835978966060f0f2f4bdff86b042b7cff3d451e36580abfb2d0756352a0"
     }
   },
   {
@@ -2889,7 +4215,41 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "dc743c6b1904701556283ba719d7daa04cde16647a16bd2754ff865f118b70f2"
+      "inputs_sha256": "063e8ba5b571762026b993b30d7136811acfa173253bdc5654b0af2d294d917f"
+    }
+  },
+  {
+    "id": "versus-object-destructors-169260",
+    "size": 109,
+    "offset": 1479264,
+    "inputs": [
+      "src/versus_object_destructors.cpp"
+    ],
+    "rebuilt_symbol": "??1UGUIImage@@UAE@XZ",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /GX /c /Folocal/versus_object_destructors.obj src/versus_object_destructors.cpp",
+    "link_bindings": {
+      "__ehhandler$??1UGUIImage@@UAE@XZ": {
+        "va": 280818472,
+        "basis": "Retail operand of the complete function."
+      },
+      "__except_list": {
+        "va": 0,
+        "basis": "The C runtime defines __except_list as absolute offset 0 of the thread information block, read through FS."
+      },
+      "??_7UGUIImage@@6B@": {
+        "va": 281020296,
+        "basis": "Retail operand of the complete function."
+      },
+      "??1UGUIComponent@@UAE@XZ": {
+        "va": 279339200,
+        "basis": "Retail operand of the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus destructor UGUIImage::~UGUIImage at RVA 0x169260. Registered class UGUIImage installs vtable RVA 0x300788; the destructor installs that table, runs ConditionalDestroy through slot 9 and calls the UGUIComponent destructor at RVA 0x1660c0 under C++ frame handler RVA 0x2cf328.",
+    "match": {
+      "bytes_sha256": "f61db316e98fd6b2ac01187563535a874e41733b5de3fc72795a6bf04af12bc8",
+      "inputs_sha256": "ccef089b774fb301ed2ebad355a5691b7ed57280c27f7420ae87d40fb34f9410"
     }
   },
   {
@@ -2911,7 +4271,7 @@
     },
     "match": {
       "bytes_sha256": "e4b296ff590912b21d8836029d347fbf128a411403dfffe4b45da4330d95e00b",
-      "inputs_sha256": "8945c1734b86569da472db4aa6f50e70717a6dc8779b89d841e1663784c3093e"
+      "inputs_sha256": "5fa9f4bb8774d43f695b336b63694be287aa2a3d7cc8baa5ceb545c222d2b2dc"
     }
   },
   {
@@ -2933,7 +4293,7 @@
     },
     "match": {
       "bytes_sha256": "962d574ce048044bbc946c71b73dbfcf26b9fa0820a66abd9ffb6d3626b2ddf9",
-      "inputs_sha256": "6cb809ccd485e40e3897ee38b41e3f1c43bc583495b821e8825f316819e02600"
+      "inputs_sha256": "d45a0afd6938fd4fc094a988dd549736d13fa23ffbf7a89c04aa0e71b7cd590f"
     }
   },
   {
@@ -2959,7 +4319,7 @@
     },
     "match": {
       "bytes_sha256": "ffbbe19da0217487d0e617c6d6ffb05aaf03f551d02c7f49b930b1ab18f9e6ac",
-      "inputs_sha256": "e274130c6c89caf919c835670359ff63994e2a25894461789885361834c2dac8"
+      "inputs_sha256": "ab8deb5186994ac5d5442538d61918ce3b0f3e81c0567eb309831b742030ebef"
     }
   },
   {
@@ -3370,7 +4730,7 @@
     },
     "match": {
       "bytes_sha256": "f9b8fb3c776504e5c014537ef6ef1168dd3d7103fdc5d12a4f3aa6df36647444",
-      "inputs_sha256": "429a62a16d4c683b466a6a71f2a4fdc7ad5bf50a6b1f0f7c7f65aeb68ab99a6a"
+      "inputs_sha256": "d88b25611bd49d9ec6981ca9c96a146cd876b891196fd2afdc78575ff6f45638"
     }
   },
   {
@@ -3397,7 +4757,7 @@
     "identification": "The read-only pointer at RVA 0x2fff4c resolves to this complete deleting destructor. The receiver is cleaned unconditionally and released only when flag bit zero is set. Its class identity is unknown.",
     "match": {
       "bytes_sha256": "7fb2de406326d3e0a31b495f28649a66ca06fd9b5f2b370bff8f9cd3d454f55d",
-      "inputs_sha256": "9f216603a6605310943c44aef10e3830c179bcf919751d3682db91f361848d8f"
+      "inputs_sha256": "71c252855a35b3048e29ef83c9ebe2516e8d8febb676093547ff53078fc689aa"
     }
   },
   {
@@ -3423,7 +4783,7 @@
     },
     "match": {
       "bytes_sha256": "a6cb52f67f676e7c5d99a5b502ef2d96bcfc520f26e5e3a617495134fd4a4640",
-      "inputs_sha256": "85addc33a77619fc5607460ab5a5c327619d00f57627eac1ab9a9563a667f430"
+      "inputs_sha256": "254f58c99bb6e0a6ec0d56cac47f5cd5c0f0465c9f32ed770311d3ad62a7ad08"
     }
   }
 ]
