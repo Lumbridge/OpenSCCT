@@ -514,7 +514,7 @@ internal sealed class LibraryEntry : Button
             var clip = e.Graphics.Save();
             using var shape = new GraphicsPath();
             shape.AddEllipse(badge);
-            e.Graphics.SetClip(shape);
+            e.Graphics.SetClip(shape, CombineMode.Intersect);
             int side = Math.Min(art.Width, art.Height);
             int cropX = (int)Math.Clamp(art.Width * .62f - side / 2f, 0, art.Width - side);
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -542,10 +542,18 @@ internal sealed class LibraryBanner : TableLayoutPanel
 {
     internal static readonly Font TitleFont = new("Segoe UI", 25f, FontStyle.Bold);
     private Image? _image;
+    private Bitmap? _backdrop;
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     internal Image? Artwork
     {
-        set { if (_image != value) { _image = value; Invalidate(true); } }
+        set
+        {
+            if (_image == value) return;
+            _image = value;
+            _backdrop?.Dispose();
+            _backdrop = null;
+            Invalidate(true);
+        }
     }
 
     public LibraryBanner()
@@ -576,14 +584,35 @@ internal sealed class LibraryBanner : TableLayoutPanel
 
     protected override void OnPaintBackground(PaintEventArgs e)
     {
-        base.OnPaintBackground(e);
-        if (Width < 1 || Height < 1 || _image is null) return;
-        float scale = Math.Max((float)Width / _image.Width, (float)Height / _image.Height);
-        float imageHeight = _image.Height * scale;
-        e.Graphics.DrawImage(_image, (Width - _image.Width * scale) / 2, (Height - imageHeight) * .43f, _image.Width * scale, imageHeight);
-        using var tint = new LinearGradientBrush(ClientRectangle, Color.FromArgb(229, 10, 17, 14), Color.FromArgb(45, 10, 17, 14), 0f);
-        e.Graphics.FillRectangle(tint, ClientRectangle);
-        using var shade = new LinearGradientBrush(ClientRectangle, Color.Transparent, Color.FromArgb(170, 8, 12, 10), 90f);
-        e.Graphics.FillRectangle(shade, ClientRectangle);
+        if (_image is null || Width < 1 || Height < 1)
+        {
+            base.OnPaintBackground(e);
+            return;
+        }
+
+        // Transparent child labels ask their parent to paint into translated, clipped surfaces.
+        // Composite the image and shading once so each request copies the same pixels.
+        if (_backdrop?.Size != ClientSize)
+        {
+            _backdrop?.Dispose();
+            _backdrop = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+            using Graphics g = Graphics.FromImage(_backdrop);
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            float scale = Math.Max((float)Width / _image.Width, (float)Height / _image.Height);
+            float w = _image.Width * scale, h = _image.Height * scale;
+            g.DrawImage(_image, new RectangleF((Width - w) / 2, (Height - h) * .43f, w, h),
+                new RectangleF(0, 0, _image.Width, _image.Height), GraphicsUnit.Pixel);
+            using var tint = new LinearGradientBrush(ClientRectangle, Color.FromArgb(229, 10, 17, 14), Color.FromArgb(45, 10, 17, 14), 0f);
+            g.FillRectangle(tint, ClientRectangle);
+            using var shade = new LinearGradientBrush(ClientRectangle, Color.Transparent, Color.FromArgb(170, 8, 12, 10), 90f);
+            g.FillRectangle(shade, ClientRectangle);
+        }
+        e.Graphics.DrawImageUnscaled(_backdrop, Point.Empty);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) _backdrop?.Dispose();
+        base.Dispose(disposing);
     }
 }

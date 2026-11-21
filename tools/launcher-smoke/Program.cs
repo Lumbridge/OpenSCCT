@@ -818,6 +818,24 @@ internal static class Program
             for (int tick = 0; tick < 3; tick++) Call(form, "OnPendingTick");
             artwork.Invalidated -= recordInvalidation;
             Check(idleInvalidations == 0, "Idle install checks leave the edition artwork untouched");
+            Control banner = Field<Control>(form, "_banner");
+            var paint = banner.GetType().GetMethod("OnPaintBackground", Hidden)!;
+            using Bitmap full = new(banner.Width, banner.Height);
+            using (Graphics g = Graphics.FromImage(full))
+            using (var args = new PaintEventArgs(g, banner.ClientRectangle))
+                paint.Invoke(banner, new object[] { args });
+            Rectangle patch = new(banner.Width / 3, banner.Height / 3, 61, 29);
+            using Bitmap partial = new(patch.Width, patch.Height);
+            using (Graphics g = Graphics.FromImage(partial))
+            {
+                g.TranslateTransform(-patch.X, -patch.Y);
+                g.SetClip(patch);
+                using var args = new PaintEventArgs(g, patch);
+                paint.Invoke(banner, new object[] { args });
+            }
+            Check(Enumerable.Range(0, patch.Height).All(y => Enumerable.Range(0, patch.Width).All(x =>
+                partial.GetPixel(x, y) == full.GetPixel(x + patch.X, y + patch.Y))),
+                "Clipped artwork redraw matches the full banner pixel for pixel");
             Save(form, output, "library-ps2-games");
             Check(Field<Button>(form, "_main").Text == "Choose disc image", "Owned-disc setup action");
             ComboBox editions = Field<ComboBox>(form, "_compactPicker");
