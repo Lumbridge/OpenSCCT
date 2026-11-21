@@ -310,6 +310,36 @@
     }
   },
   {
+    "id": "subobject-delete-251c50",
+    "size": 48,
+    "offset": 2432080,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_40@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280303824,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x251c50 obtains the containing allocation 40 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "1ff0d8e22f044e9548e088e467150aa78d8dd859b26f8cff424c151e15e15687",
+      "inputs_sha256": "1cb1844c37348ba1799ce435bd693661f7330e9438606d8d7fdc3755ad36a54d"
+    }
+  },
+  {
     "id": "virtual-base-event-251e90",
     "size": 8,
     "offset": 2432656,

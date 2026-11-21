@@ -296,6 +296,36 @@
     }
   },
   {
+    "id": "subobject-delete-2441f0",
+    "size": 48,
+    "offset": 2376176,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_124@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280248400,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x2441f0 obtains the containing allocation 124 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "ceefdd8449a9fcd17d8134b24915ede3098cac24519f33c6eb25bb9016010cb7",
+      "inputs_sha256": "744ab5d9e9130cd070568bd73421e64e2db85a0d7ddf7a9adc1b8c895686c026"
+    }
+  },
+  {
     "id": "register-names-244f70",
     "size": 163,
     "offset": 2379632,
@@ -519,6 +549,36 @@
     "match": {
       "bytes_sha256": "86778ba4623f4a40107d6fd67d5e1d34ee65b97ac85a8c464ac0540b079bdff0",
       "inputs_sha256": "553c558662f8c0fe1e9b1a9ab531322fb2dc03e11054f7f4302ec2b7bd289bac"
+    }
+  },
+  {
+    "id": "subobject-delete-246200",
+    "size": 48,
+    "offset": 2384384,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_32@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280255728,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x246200 obtains the containing allocation 32 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "bd9f3feb45b54f82ac4ff45298dec9200dae6853942927a0c6b37386413578b9",
+      "inputs_sha256": "2d7d46217869e8179a7e0d4759fccafddd48c6ab40110ddc4a1edcab21e33e1f"
     }
   },
   {
@@ -1111,6 +1171,36 @@
     }
   },
   {
+    "id": "subobject-delete-248480",
+    "size": 54,
+    "offset": 2393216,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_224@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280265248,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x248480 obtains the containing allocation 224 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "dfc304936ed2658e64def9b20a1500adb75074ed2c434c8f8072e0dcabc0eeb9",
+      "inputs_sha256": "fbffad6f9197d4ab0e996f15299d9c2f7e179ac0d498e3718ed946849f2026b7"
+    }
+  },
+  {
     "id": "adjusted-deleting-destructor-24a9f0",
     "size": 8,
     "offset": 2402800,
@@ -1290,6 +1380,36 @@
     "match": {
       "bytes_sha256": "dc3cf2f20c2ca8e717d0ecb6a0b190bc77a9696484acaf7ad0da2ca5d31edafb",
       "inputs_sha256": "8750cbc23013a210fb570814bfedd1d92ad35fc88d29ddfe321360b689ef1d32"
+    }
+  },
+  {
+    "id": "subobject-delete-24ab90",
+    "size": 48,
+    "offset": 2403216,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_56@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280274960,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x24ab90 obtains the containing allocation 56 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "be67f47a184490a579e8e765e23749cfa7bec5886d9e6ee258cb9847ab740f9f",
+      "inputs_sha256": "96f167a286ebfee13f6b13c75057f1d590ed98c1cbab77e3c1db80a7a7e84e83"
     }
   },
   {
@@ -1634,6 +1754,36 @@
     }
   },
   {
+    "id": "subobject-delete-24c370",
+    "size": 48,
+    "offset": 2409328,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_88@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280280816,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x24c370 obtains the containing allocation 88 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "3a72aba681303f75ead9efac43298f796064d19393de027bf5491576266e1f17",
+      "inputs_sha256": "f2c52f6485b5cbda474acdab41c4c0ce57d0594d53b922e832c936c7d1edf893"
+    }
+  },
+  {
     "id": "virtual-base-event-24ca00",
     "size": 8,
     "offset": 2411008,
@@ -1952,6 +2102,36 @@
     "match": {
       "bytes_sha256": "428cf9a1a1153213918fd12f366dd46500abaa3d3805ca7d8d7f1516237b2fda",
       "inputs_sha256": "a4522b6dd5012be4845b6a600fa5739e36a7e85c3169f2f4148588d068afc430"
+    }
+  },
+  {
+    "id": "subobject-delete-24fbd0",
+    "size": 54,
+    "offset": 2423760,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_2384@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280296000,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x24fbd0 obtains the containing allocation 2384 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "60c04795fdfc9c23b1b0879abd46a8323ae7b61de8aed627cc358081151d5c51",
+      "inputs_sha256": "aabc67ba07657fee1f61c7d773351fcab8e0fcb7467d6f574c35f2409a98f3cd"
     }
   }
 ]

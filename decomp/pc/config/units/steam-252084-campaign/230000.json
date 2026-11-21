@@ -1195,6 +1195,36 @@
     }
   },
   {
+    "id": "subobject-delete-238f70",
+    "size": 48,
+    "offset": 2330480,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_60@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280202160,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x238f70 obtains the containing allocation 60 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "82eab2936a0f780d683a698913f77adf553387969d6ffda91833494109aa4b82",
+      "inputs_sha256": "60e238386a25d2bc14f39f5699d952256219c6007a95e764de1d2d9a8d9d6d60"
+    }
+  },
+  {
     "id": "register-names-239e40",
     "size": 95,
     "offset": 2334272,
@@ -2330,6 +2360,36 @@
     }
   },
   {
+    "id": "subobject-delete-23e990",
+    "size": 48,
+    "offset": 2353552,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_112@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280225968,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x23e990 obtains the containing allocation 112 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "8c37cc48bb68c79a3fa53bd57704b4d29804c8498d6c92692b9f54384636c47f",
+      "inputs_sha256": "b9266a852fdb85468ae56c747872aada86edbd64cd66d21eb8dab03e4b8e7ba7"
+    }
+  },
+  {
     "id": "register-names-23ec10",
     "size": 140,
     "offset": 2354192,
@@ -2631,6 +2691,36 @@
     "match": {
       "bytes_sha256": "3e492d50392a956f215d89869d86a73b78c33380409c5326a865c8e0045ef585",
       "inputs_sha256": "61736770abb0c413c0d86552b9b720ab1f0e3730d7773fd83eb5e7bd77c92505"
+    }
+  },
+  {
+    "id": "subobject-delete-23fe40",
+    "size": 48,
+    "offset": 2358848,
+    "inputs": [
+      "src/campaign_subobject_deletions.c"
+    ],
+    "rebuilt_symbol": "@delete_part_120@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_subobject_deletions.obj src/campaign_subobject_deletions.c",
+    "link_bindings": {
+      "@destruct@4": {
+        "va": 280229696,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "@destruct_base@4": {
+        "va": 280386288,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      },
+      "_allocator": {
+        "va": 287082656,
+        "basis": "Indexed direct cleanup target or retail engine allocator pointer."
+      }
+    },
+    "identification": "Campaign method at RVA 0x23fe40 obtains the containing allocation 120 bytes before its receiver, calls two destructors on the subobject and conditionally releases the allocation.",
+    "match": {
+      "bytes_sha256": "d8546024ca39d4aae39651e1480fdf918b3e6e17f942aee948ace16530e409bf",
+      "inputs_sha256": "b5cefc29cdf8baa1dc0ea99d0e95f49fa5b58c353c337d61a60e0ee8520a32c0"
     }
   }
 ]
