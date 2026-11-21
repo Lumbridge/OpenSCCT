@@ -16,6 +16,36 @@
     }
   },
   {
+    "id": "versus-handle-owner-deletion-171230",
+    "size": 60,
+    "offset": 1511984,
+    "inputs": [
+      "src/versus_handle_owner_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_handle_owner@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_handle_owner_deletion.obj src/versus_handle_owner_deletion.c",
+    "link_bindings": {
+      "__imp__CloseHandle@4": {
+        "va": 280883564,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_handle_owner_methods": {
+        "va": 281016680,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 281492464,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus scalar deleting destructor RVA 0x171230: installs the class table, closes the thread, event and semaphore handles through the KERNEL32 CloseHandle import and conditionally releases through the allocator.",
+    "match": {
+      "bytes_sha256": "d73df133a03ab0f7d785fcc9720c07a548f42156ecbbb9018debc78c0fae5aae",
+      "inputs_sha256": "f03600675e8ce7c6634a6eb1c2788335ebe842c204d22ac2c328239b3b5d69c7"
+    }
+  },
+  {
     "id": "gameservice-allocate",
     "size": 23,
     "offset": 1512656,
@@ -191,6 +221,29 @@
     "match": {
       "bytes_sha256": "b4f9fef2f19874259b1243ff6504679f9950e27c0caf8070772271ec3ed2ec4d",
       "inputs_sha256": "1002410e848cdc87c2ef355e6d337d9ad9309b233e2f7c763de4e931fd856b04"
+    }
+  },
+  {
+    "id": "set-methods-twin-17d890",
+    "size": 7,
+    "offset": 1562768,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 281016112,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0x17d890. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "ff7e5539f3faaa3982840a7ef9bdb1fd8226bf22bcc51436cbd5fb27b53facdf",
+      "inputs_sha256": "51216bd516da44867b4ad13197b1fc6c628269c483e11966f16a6c6637f14999"
     }
   },
   {

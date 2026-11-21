@@ -2313,6 +2313,29 @@
     }
   },
   {
+    "id": "tree-next-380710-prefix-twin-5ead0",
+    "size": 12,
+    "offset": 387792,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 278251584,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x5ead0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "962aa29a37d7ed0dfa7e5849cdddf862ede66ed3a8420e0fe23aae8db9b617c8",
+      "inputs_sha256": "224b36433745ccf1aba6a58f7b7071726b743b21f5a5009a94a4d3f59f950243"
+    }
+  },
+  {
     "id": "placement-unnetz",
     "offset": 387808,
     "size": 24,
@@ -2352,6 +2375,32 @@
     "match": {
       "bytes_sha256": "9c1df256689e1b70788814e3155b3826f81961be4f858c510657934ae630ee12",
       "inputs_sha256": "418d3d1c8ccbd7828c1f82c170b88a545abee5baabe367fe47f8277850d51285"
+    }
+  },
+  {
+    "id": "gameservice-twin-5eb80",
+    "size": 23,
+    "offset": 387968,
+    "inputs": [
+      "src/versus_gameservice_allocation.c"
+    ],
+    "rebuilt_symbol": "_gameservice_allocate@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gameservice_allocation.obj src/versus_gameservice_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin gameservice-allocate."
+      },
+      "_gameservice_allocate_tag": {
+        "va": 285964460,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin gameservice-allocate."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x5eb80. Its masked instruction shape equals matched unit gameservice-allocate, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "7521ee28879de3f5e4ed06f749a9a661c8066082646c4fb38a45fb2e4be4827b",
+      "inputs_sha256": "a2bcea2ed5e956ccec067679b20e590ff1188c94681cba82acfedaab0e146ea6"
     }
   },
   {

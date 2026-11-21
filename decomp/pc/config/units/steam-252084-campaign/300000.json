@@ -1445,6 +1445,40 @@
     }
   },
   {
+    "id": "cast-twin-3026e0",
+    "size": 85,
+    "offset": 3155680,
+    "inputs": [
+      "src/campaign_class_casts.c"
+    ],
+    "rebuilt_symbol": "_cast_UArrayProperty",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_class_casts.obj src/campaign_class_casts.c",
+    "link_bindings": {
+      "_class_UArrayProperty": {
+        "va": 287502440,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cast-uarrayproperty."
+      },
+      "_package_Core": {
+        "va": 285964944,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cast-uarrayproperty."
+      },
+      "_create_UArrayProperty": {
+        "va": 281021520,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cast-uarrayproperty."
+      },
+      "_register_UArrayProperty": {
+        "va": 281021744,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cast-uarrayproperty."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x3026e0. Its masked instruction shape equals matched unit cast-uarrayproperty, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "07d1d0adb124656b49ff609287a9c1ce823314f3af19a356cb400e5362b72fc9",
+      "inputs_sha256": "2f83c46664212e635f986ac7e7559169eb443f677b92b4e95e6afeb3b9e6eef1"
+    }
+  },
+  {
     "id": "script-event-shakenpc",
     "offset": 3156512,
     "size": 32,

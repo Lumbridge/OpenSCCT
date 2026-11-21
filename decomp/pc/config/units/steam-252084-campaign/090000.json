@@ -9947,6 +9947,33 @@
     }
   },
   {
+    "id": "script-parameters-twin-9ce20",
+    "size": 61,
+    "offset": 642592,
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "rebuilt_symbol": "@script_call_SetVolumeZone@12",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_SetVolumeZone": {
+        "va": 287285564,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin script-parameters-setvolumezone."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin script-parameters-setvolumezone."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x9ce20. Its masked instruction shape equals matched unit script-parameters-setvolumezone, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "c0a98333321e7da8114e87857667af15e4230e7559d8a9f75545c5ae11a51ac6",
+      "inputs_sha256": "0da64534ec91b7c64105fa7105b64a1de501b7ed0d8af80e3f030ad476e01437"
+    }
+  },
+  {
     "id": "delete-uglobalinteractionmanager",
     "offset": 642736,
     "size": 46,

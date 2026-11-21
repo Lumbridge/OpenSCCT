@@ -360,6 +360,29 @@
     }
   },
   {
+    "id": "set-methods-twin-256b00",
+    "size": 7,
+    "offset": 2452224,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 280893508,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0x256b00. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "324fb436fc8e7859dd660a2db09643ebda450047a4d44e82c663518b64f8f05f",
+      "inputs_sha256": "cf96197e2aaf2fc5acafcc79f115c02cb7ddcd6743b6e37732da7c69a6c56cfc"
+    }
+  },
+  {
     "id": "delete-record-256d30",
     "offset": 2452784,
     "size": 27,

@@ -268,6 +268,33 @@
     }
   },
   {
+    "id": "script-event-twin-320e80",
+    "size": 32,
+    "offset": 3280512,
+    "inputs": [
+      "src/campaign_script_notifications.c",
+      "src/campaign_script_events.h"
+    ],
+    "rebuilt_symbol": "@event_StopPattern@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_notifications.obj src/campaign_script_notifications.c",
+    "link_bindings": {
+      "_name_StopPattern": {
+        "va": 287503848,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin script-event-stoppattern."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin script-event-stoppattern."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x320e80. Its masked instruction shape equals matched unit script-event-stoppattern, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "d8bf77455ef5cfb88693b28994bd2a9f44e147d1759ed9917135b3622703aa68",
+      "inputs_sha256": "648b100d9cad3d102bd97f05ca74cf784cd03aa584ddacf9328260971c6f683d"
+    }
+  },
+  {
     "id": "class-registration-ueeev",
     "offset": 3280560,
     "size": 264,

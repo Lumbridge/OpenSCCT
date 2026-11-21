@@ -2191,6 +2191,33 @@
     }
   },
   {
+    "id": "array-destroy-twin-1561d0",
+    "size": 56,
+    "offset": 1401296,
+    "inputs": [
+      "src/campaign_array_destroy.c",
+      "src/campaign_array_storage.h"
+    ],
+    "rebuilt_symbol": "@array_destroy_r082690@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_array_destroy.obj src/campaign_array_destroy.c",
+    "link_bindings": {
+      "@destroy_remove_r0802d0@16": {
+        "va": 279267904,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin array-destroy-082690."
+      },
+      "_array_allocator": {
+        "va": 287082656,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin array-destroy-082690."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x1561d0. Its masked instruction shape equals matched unit array-destroy-082690, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "8608c48465c136c18c5c16e1626dde0823c27eb3785af95cdefafc1c4b5e3414",
+      "inputs_sha256": "bca655294f1f11ff70190a2c15c3db106c7369582b58a800a3b7028f7efba532"
+    }
+  },
+  {
     "id": "member-range-cleanup-156670",
     "size": 59,
     "offset": 1402480,

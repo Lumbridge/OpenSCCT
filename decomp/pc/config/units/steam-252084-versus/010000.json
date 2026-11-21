@@ -114,6 +114,29 @@
     }
   },
   {
+    "id": "set-methods-twin-14510",
+    "size": 7,
+    "offset": 83216,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 281072200,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0x14510. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "405cd195477897e31b945d50c19f5e709d20224ad375eddfd69d97743fd7a165",
+      "inputs_sha256": "ae5905478bdbec46ccfad34eb8243780f0d592415c1ac2bebb4e2c85adad286a"
+    }
+  },
+  {
     "id": "delete-upackage",
     "offset": 87584,
     "size": 33,

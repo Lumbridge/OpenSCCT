@@ -26,6 +26,29 @@
     }
   },
   {
+    "id": "set-methods-twin-4300",
+    "size": 7,
+    "offset": 17152,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 281078040,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0x4300. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "3004807a394adf1abe6fcd50639b9fd79851a50476ade207e21d3f29847f0b15",
+      "inputs_sha256": "70dfc54a9afe31df4c95915f74da5416f69919e729a81ac2c05f0dbfd16d5f48"
+    }
+  },
+  {
     "id": "heap-table-destroy-004420",
     "size": 34,
     "offset": 17440,

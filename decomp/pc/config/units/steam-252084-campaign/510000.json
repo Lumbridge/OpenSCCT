@@ -26,6 +26,52 @@
     }
   },
   {
+    "id": "tree-next-380710-prefix-twin-5119d0",
+    "size": 12,
+    "offset": 5315024,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 283184528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x5119d0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "7068affe77b32da4828b10734a2005a31577cab5f1a12756702af89a4adf3c9f",
+      "inputs_sha256": "74b70d0f0b802dbc2ffd2224e22f49cceb0e90c51ce7453aa75bc2fe8be05f3b"
+    }
+  },
+  {
+    "id": "tree-next-380710-prefix-twin-5119f0",
+    "size": 12,
+    "offset": 5315056,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 283184528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x5119f0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "31f75755b9636473c3ccee35e1f28adb099b421c4f91b0e863712c1874b4ad79",
+      "inputs_sha256": "298760fda4aaa6c6debca3897f02f84db44a0d060d99d5f97c67946347571580"
+    }
+  },
+  {
     "id": "physics-object-factory-5125c0",
     "size": 34,
     "offset": 5318080,

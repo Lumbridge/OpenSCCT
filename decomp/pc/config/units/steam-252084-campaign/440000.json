@@ -9233,6 +9233,29 @@
     }
   },
   {
+    "id": "set-methods-twin-44de90",
+    "size": 7,
+    "offset": 4513424,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 286108964,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x44de90. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "e9ce1528115ee9a84af46b552f6730cca318c47ba3a7a1f53c2b3a173778c644",
+      "inputs_sha256": "1f35fecf7c1b21b53d24835b3415699295be1a0783c8c049847b72d7904de90a"
+    }
+  },
+  {
     "id": "visitor-method-44e030",
     "size": 15,
     "offset": 4513840,

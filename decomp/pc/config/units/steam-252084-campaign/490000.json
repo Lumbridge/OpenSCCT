@@ -135,6 +135,110 @@
     }
   },
   {
+    "id": "cleanup-stack-object-twin-492210",
+    "size": 11,
+    "offset": 4792848,
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "rebuilt_symbol": "_cleanup_stack_object_2dc6d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_static_stack_object_3c9e74": {
+        "va": 286512212,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      },
+      "_finalize_static_17bf30@4": {
+        "va": 282662912,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x492210. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "53d8e14679a75998fae001124c7f183552b522fa9c5033932b97f01a71690002",
+      "inputs_sha256": "67ade77f881486c68ffef774dcce9abde0ad149912c93a2eebd2509a693f3f63"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-twin-492230",
+    "size": 11,
+    "offset": 4792880,
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "rebuilt_symbol": "_cleanup_stack_object_2dc6d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_static_stack_object_3c9e74": {
+        "va": 286512240,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      },
+      "_finalize_static_17bf30@4": {
+        "va": 282662912,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x492230. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "c16fd00dc351bdd9e60b5c96951d00424d01451cb4c5d620cbbe0304eb9391f2",
+      "inputs_sha256": "268b830928af713d482635f93fdf6e97cb70abfc647ac3c8def022b5bae83fb2"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-twin-492250",
+    "size": 11,
+    "offset": 4792912,
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "rebuilt_symbol": "_cleanup_stack_object_2dc6d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_static_stack_object_3c9e74": {
+        "va": 286512256,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      },
+      "_finalize_static_17bf30@4": {
+        "va": 282662912,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x492250. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "3c061725c35851e327c043cfb3d9744b1db3ec5c3a63f5840c25db950288f309",
+      "inputs_sha256": "2be0268f4c4ee73c1cd1eccf121c7bed2505d72636f301913ea186379b831a24"
+    }
+  },
+  {
+    "id": "cleanup-stack-object-twin-492270",
+    "size": 11,
+    "offset": 4792944,
+    "inputs": [
+      "src/versus_static_stack_object.c"
+    ],
+    "rebuilt_symbol": "_cleanup_stack_object_2dc6d0",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_static_stack_object.obj src/versus_static_stack_object.c",
+    "link_bindings": {
+      "_static_stack_object_3c9e74": {
+        "va": 286512264,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      },
+      "_finalize_static_17bf30@4": {
+        "va": 282662912,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin cleanup-stack-object-2dc6d0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x492270. Its masked instruction shape equals matched unit cleanup-stack-object-2dc6d0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "1e7652a04881ab41ac0d2bcd7cb5796a27058c819cdac220a725ac6d44172259",
+      "inputs_sha256": "f1eb2778fb5b4029bfbdbddafd3403f45d75b71639a06167cf6da2a286d59263"
+    }
+  },
+  {
     "id": "typed-allocator-release-492bb0",
     "size": 24,
     "offset": 4795312,

@@ -393,6 +393,58 @@
     }
   },
   {
+    "id": "gameservice-twin-739a00",
+    "size": 23,
+    "offset": 7576064,
+    "inputs": [
+      "src/versus_gameservice_allocation.c"
+    ],
+    "rebuilt_symbol": "_gameservice_allocate@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gameservice_allocation.obj src/versus_gameservice_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin gameservice-allocate."
+      },
+      "_gameservice_allocate_tag": {
+        "va": 286724528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin gameservice-allocate."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x739a00. Its masked instruction shape equals matched unit gameservice-allocate, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "3a352ae63f138fc2723778ecae455d825e88dfdd56828810482ee19e2f3e1430",
+      "inputs_sha256": "8a7741da9c3edaeb3efbd96c347599cb8a4e36b8cdf7d8e5d80eb5349b6609a4"
+    }
+  },
+  {
+    "id": "gameservice-twin-739a20",
+    "size": 29,
+    "offset": 7576096,
+    "inputs": [
+      "src/versus_gameservice_allocation.c"
+    ],
+    "rebuilt_symbol": "_gameservice_resize@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_gameservice_allocation.obj src/versus_gameservice_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin gameservice-resize."
+      },
+      "_gameservice_resize_tag": {
+        "va": 286724600,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin gameservice-resize."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x739a20. Its masked instruction shape equals matched unit gameservice-resize, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "985a41bd4ce2b0ecb466e02209b7a849ae6bdc573dfca1de5943af561c473b01",
+      "inputs_sha256": "87a658e6c7ada51f6baeab901a482c789e6de7a43526b552ef11d0934fe5a0c7"
+    }
+  },
+  {
     "id": "heap-release-dispatch-739a40",
     "size": 11,
     "offset": 7576128,

@@ -292,6 +292,29 @@
     }
   },
   {
+    "id": "set-methods-twin-2a17d0",
+    "size": 7,
+    "offset": 2758608,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 280956324,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0x2a17d0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "5d9499ed79284f8db94598c7c7e55a8225b57a6ce6b78abe081bab9f344f17a1",
+      "inputs_sha256": "87b428aa73afce118179accce9626e21bb6c1cf5d97a4c14c44501bea6db1fc5"
+    }
+  },
+  {
     "id": "table-scalar-delete-2a1850",
     "size": 30,
     "offset": 2758736,
@@ -2250,6 +2273,29 @@
     "match": {
       "bytes_sha256": "8b591a34f89cf408487d3c850320d1fd8cc50aa44f70ef7b1b04d7385b688195",
       "inputs_sha256": "c2e5081602e4232eb72c55eb0981bb2772909b527848c8a0a64dc6fa77876a9c"
+    }
+  },
+  {
+    "id": "set-methods-twin-2aac90",
+    "size": 7,
+    "offset": 2796688,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 280958108,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0x2aac90. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "9af9da395a084e52dd088e7e43c1d22aecb2f5d954a0ef2a111bc5b56412b313",
+      "inputs_sha256": "81818c4fe056ea269ef3bfdb1220218b04ff02c55923c8da03ee6ad5233ab2aa"
     }
   },
   {

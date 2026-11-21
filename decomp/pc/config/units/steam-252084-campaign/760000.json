@@ -16,6 +16,28 @@
     }
   },
   {
+    "id": "release-route-twin-760fd0",
+    "size": 11,
+    "offset": 7737296,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-route-469670."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x760fd0. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "6460728926ef73880e5b1fab61eeb78ae70febcb1ae4891468715806516a90c8",
+      "inputs_sha256": "9524bfdc7dbdd98cd6444bf2300fc4074bc3ab5cb086324934d29b6ce4aa7d66"
+    }
+  },
+  {
     "id": "release-route-760fe0",
     "offset": 7737312,
     "size": 11,
@@ -283,6 +305,29 @@
     }
   },
   {
+    "id": "set-methods-twin-762f60",
+    "size": 7,
+    "offset": 7745376,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 286745400,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x762f60. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "b572142ed155bde3640dcc94aca951c0c8a812b5c704ea79f2c57e139aab0d63",
+      "inputs_sha256": "6572e8535f40b8a657f6ccbaf2835de89345d439fcdf0787391b2ebd92f9830e"
+    }
+  },
+  {
     "id": "simple-table-destroy-7634b0",
     "size": 31,
     "offset": 7746736,
@@ -407,6 +452,28 @@
     }
   },
   {
+    "id": "release-route-twin-7653c0",
+    "size": 11,
+    "offset": 7754688,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-route-469670."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x7653c0. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "d09cea2f5e94d051c660a9c8cf4749c95ed8c92d9f174da8d18db0c3ef1eee72",
+      "inputs_sha256": "7733b5cb88a51da186a887ffcb05c03cff3b51f775d8fd4ce33bc4762cbacf9d"
+    }
+  },
+  {
     "id": "release-route-7653d0",
     "offset": 7754704,
     "size": 11,
@@ -426,6 +493,28 @@
     "match": {
       "bytes_sha256": "f344abb7defb118fccbd790447df5ce517d4a07832adf1ee338021eda57377ba",
       "inputs_sha256": "6561c69eb9cd2f8c9e64eb82e6915ee6995d1728e8cd7bfe5b5b51291c18f3c4"
+    }
+  },
+  {
+    "id": "release-route-twin-765e40",
+    "size": 11,
+    "offset": 7757376,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-route-469670."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x765e40. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "3bbefdce240b51259f4aaf6e43909c25639f6c2b7a3bbb48966ba1935a8b2a25",
+      "inputs_sha256": "72c44932897ec93276da6d8b9531937aada50fff6e0baf6ee9e9d90f8bb8c53a"
     }
   },
   {
@@ -754,6 +843,28 @@
     }
   },
   {
+    "id": "release-route-twin-767140",
+    "size": 11,
+    "offset": 7762240,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-route-469670."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x767140. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "5c36c67b282484349b59bd483636981bd570f86d59a03cf8c235f53f4703a4f3",
+      "inputs_sha256": "5ce5e45283832b27861301b0eb1c54bd4f325f951dcb167fda925bffa69a76f8"
+    }
+  },
+  {
     "id": "release-route-767150",
     "offset": 7762256,
     "size": 11,
@@ -1049,6 +1160,28 @@
     }
   },
   {
+    "id": "release-route-twin-767a00",
+    "size": 11,
+    "offset": 7764480,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-route-469670."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x767a00. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "33dec47d4854af9aa55abd60a0a50a9ac0438f99b5eced37e4c122de77c3a845",
+      "inputs_sha256": "ceb068c9f3ca43b3d833f6fc9aed42c45c0daaa9d5a91d1e95631859b4e7dcc9"
+    }
+  },
+  {
     "id": "release-route-767a10",
     "offset": 7764496,
     "size": 11,
@@ -1322,6 +1455,41 @@
     "match": {
       "bytes_sha256": "3133d6d5f114ca6e8f73ddf83c5a5c70da0ca4a1c84b9656d091c7ce8eff361c",
       "inputs_sha256": "c2636a90bd614a182148c2cc4d9214dbb1c6bfe5991d326b04aa0acc22d7758c"
+    }
+  },
+  {
+    "id": "delete-members-twin-76cb60",
+    "size": 43,
+    "offset": 7785312,
+    "inputs": [
+      "src/campaign_managed_member_cleanup.c",
+      "src/record_deletion.h"
+    ],
+    "rebuilt_symbol": "@delete_members_4b8070@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_managed_member_cleanup.obj src/campaign_managed_member_cleanup.c",
+    "link_bindings": {
+      "_methods_840c28": {
+        "va": 286747392,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin delete-members-4b8070."
+      },
+      "@cleanup_4b8c30@4": {
+        "va": 285656832,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin delete-members-4b8070."
+      },
+      "@cleanup_4a2970@4": {
+        "va": 285601504,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin delete-members-4b8070."
+      },
+      "_release_487b90": {
+        "va": 285601312,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin delete-members-4b8070."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x76cb60. Its masked instruction shape equals matched unit delete-members-4b8070, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "9714a19d8c784074551155902796f8992ed286a029c64c9862098106a2bc22d5",
+      "inputs_sha256": "e542c4c36bc2f715d687107971897f8da64d5003a1680519fb03d9b5c47a2faf"
     }
   },
   {
@@ -1703,6 +1871,28 @@
     "match": {
       "bytes_sha256": "9714befa9ced99244bfe9100d4ec732d777252f75a286cbce0fb3089aa585c87",
       "inputs_sha256": "b16d52e7347365570acbc1adbb8e4656624384f37254c02ea0a3b94227939fa6"
+    }
+  },
+  {
+    "id": "release-route-twin-76f7a0",
+    "size": 11,
+    "offset": 7796640,
+    "inputs": [
+      "src/campaign_release_routes.c"
+    ],
+    "rebuilt_symbol": "_release_route_469670",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_release_routes.obj src/campaign_release_routes.c",
+    "link_bindings": {
+      "_release_73c870@4": {
+        "va": 285460528,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-route-469670."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x76f7a0. Its masked instruction shape equals matched unit release-route-469670, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "091539f772ed7ead3337d13907fcab671b9fd03bbed4c43c1916c71997157805",
+      "inputs_sha256": "09f869415d79b5e6d41f5dd88ec699abed5b55089d3660abea06dcc05d38e98f"
     }
   },
   {

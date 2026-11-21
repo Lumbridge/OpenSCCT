@@ -1,5 +1,31 @@
 [
   {
+    "id": "allocate-bytes-twin-1480",
+    "size": 21,
+    "offset": 5248,
+    "inputs": [
+      "src/versus_stock_allocation.c"
+    ],
+    "rebuilt_symbol": "_allocate_bytes",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_stock_allocation.obj src/versus_stock_allocation.c",
+    "link_bindings": {
+      "_engine_heap": {
+        "va": 287082656,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin allocate-bytes-new."
+      },
+      "_new_tag": {
+        "va": 285964460,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin allocate-bytes-new."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x1480. Its masked instruction shape equals matched unit allocate-bytes-new, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "7604d5602be482a9288ae892e9a85bf7530f2cd689d03efe84e4492b8853bdd5",
+      "inputs_sha256": "c778bad62d7c37d3f1c9932bf93a9c12130d35a34c6f23213493662d26a51fd5"
+    }
+  },
+  {
     "id": "release-route-0014a0",
     "offset": 5280,
     "size": 17,

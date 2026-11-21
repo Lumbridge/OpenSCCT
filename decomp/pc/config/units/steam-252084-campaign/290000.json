@@ -1331,6 +1331,33 @@
     }
   },
   {
+    "id": "script-parameters-twin-29d920",
+    "size": 48,
+    "offset": 2742560,
+    "inputs": [
+      "src/campaign_script_parameters.c",
+      "src/campaign_script_events.h"
+    ],
+    "rebuilt_symbol": "@script_call_PlayOneShot@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /Gy /O2 /c /Folocal/campaign_script_parameters.obj src/campaign_script_parameters.c",
+    "link_bindings": {
+      "_name_PlayOneShot": {
+        "va": 287503960,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin script-parameters-playoneshot."
+      },
+      "@find_script_function@12": {
+        "va": 281907920,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin script-parameters-playoneshot."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x29d920. Its masked instruction shape equals matched unit script-parameters-playoneshot, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "c67cc1e57acd1cdec4af3cf8d20923ea1e5fdfbc6667c04d04056b2f4cf9bc8a",
+      "inputs_sha256": "6d0e5446dbc16aa670cd15e7ce7dd7a485a05643aa200176e7e48c3ec852c73a"
+    }
+  },
+  {
     "id": "script-event-fire",
     "offset": 2742608,
     "size": 32,

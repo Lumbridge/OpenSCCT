@@ -972,6 +972,29 @@
     }
   },
   {
+    "id": "tree-next-380710-prefix-twin-568230",
+    "size": 12,
+    "offset": 5669424,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 283522352,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x568230. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "4c7424cf48e12b7fb8abb4a8a83907501a1ed166705961380b1f449a14262af8",
+      "inputs_sha256": "fd047db73e312c374ca68ac3a9b87ebf5223c09785849240b9c5a41699df21cd"
+    }
+  },
+  {
     "id": "registered-storage-568300",
     "offset": 5669632,
     "size": 73,
@@ -1087,6 +1110,29 @@
     "match": {
       "bytes_sha256": "9107d0afff035a7f6d24fc474ee1928e2f3e4c5dfea37a5285b22d5b1b196336",
       "inputs_sha256": "9fee204a18d9a494ad0dbb949f84e893bde7fd7405436d9843c95165528ae16d"
+    }
+  },
+  {
+    "id": "set-methods-twin-5685e0",
+    "size": 7,
+    "offset": 5670368,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 286006624,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x5685e0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "09a96896ae04059b29a7c84ecb042c2cf7354d963d10805b80441f813930b067",
+      "inputs_sha256": "d93e9cfd55fc802cb937b2aace02f8aeb005465519b5a790a0c3f59431d250ca"
     }
   },
   {
@@ -1236,6 +1282,29 @@
     }
   },
   {
+    "id": "tree-next-380710-prefix-twin-56d260",
+    "size": 12,
+    "offset": 5689952,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 283542016,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x56d260. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "37cf008de6a47f384c4cd7af6cc886e0f2975c64f776d8b06d2dcb62aaaa0e40",
+      "inputs_sha256": "2a6264cd8d366ab236257d42ff707093c435b71b01371a98cd0e819fb1be4b40"
+    }
+  },
+  {
     "id": "empty-physics-array-56dce0",
     "size": 23,
     "offset": 5692640,
@@ -1367,6 +1436,52 @@
     "match": {
       "bytes_sha256": "d2935ed3d6fa5acc53a971545a16f1f76daf9976552778dc6d419ed7ece6da0f",
       "inputs_sha256": "ad82b8887cf80a44ceaa18a04e78aaa1c450bc28a71e4e7074f392133f528bc4"
+    }
+  },
+  {
+    "id": "tree-next-380710-prefix-twin-56e4e0",
+    "size": 12,
+    "offset": 5694688,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 283567296,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x56e4e0. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "cd0a3933516bf6c7d261c1e7ff745d6f7bd1c6a6dd53f6b5ef99a883a4d3aff7",
+      "inputs_sha256": "0514c9ddc26d40d07b0a295b14ad668fd5650b86c8771527319af3c054dab026"
+    }
+  },
+  {
+    "id": "tree-next-380710-prefix-twin-56e520",
+    "size": 12,
+    "offset": 5694752,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 283567328,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x56e520. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "e318449fdb3436624e86db0e72d113b6f214ddfe5719ed0e9cb973e38084d3b3",
+      "inputs_sha256": "d32b049cb7a7e2cceb97403a84027af373370cda752a2cb46174c76b305d99c5"
     }
   },
   {

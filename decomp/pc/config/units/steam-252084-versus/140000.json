@@ -1,5 +1,35 @@
 [
   {
+    "id": "versus-node-chain-deletion-146700",
+    "size": 48,
+    "offset": 1337088,
+    "inputs": [
+      "src/versus_node_chain_deletion.c"
+    ],
+    "rebuilt_symbol": "@delete_node@8",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/versus_node_chain_deletion.obj src/versus_node_chain_deletion.c",
+    "link_bindings": {
+      "_node_methods": {
+        "va": 281031996,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "@delete_node@8": {
+        "va": 279209728,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      },
+      "_allocator": {
+        "va": 281492464,
+        "basis": "Retail call target, method table or global referenced by the complete function."
+      }
+    },
+    "identification": "Complete indexed Versus scalar deleting destructor RVA 0x146700: installs the class table, deletes the next node in the chain through this same routine and conditionally releases through the allocator.",
+    "match": {
+      "bytes_sha256": "1d58df6a3367a3537671deb3a8d8c9dc11b2932a5cdca3150ac70248fcf348b0",
+      "inputs_sha256": "26a216beeba6f4491dce69a22aef132b59c5df26e9fe07bdc83aef28bd9948db"
+    }
+  },
+  {
     "id": "versus-static-mesh-uses-collision-cylinder",
     "offset": 1350320,
     "size": 19,

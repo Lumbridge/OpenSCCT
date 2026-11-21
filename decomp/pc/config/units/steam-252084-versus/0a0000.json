@@ -1382,6 +1382,29 @@
     }
   },
   {
+    "id": "release-sound-twin-a52a0",
+    "size": 8,
+    "offset": 676512,
+    "inputs": [
+      "src/sound_cache.c",
+      "src/sound_cache.h"
+    ],
+    "rebuilt_symbol": "@release_sound_cache@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_cache.obj src/sound_cache.c",
+    "link_bindings": {
+      "@clear_cache_list@4": {
+        "va": 277999392,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin release-sound-cache."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0xa52a0. Its masked instruction shape equals matched unit release-sound-cache, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "c6634afe70d36410d1ee817688f3fc69fff78c5248d95ec3c8943b80999ce191",
+      "inputs_sha256": "b0d6b14e42e1ce7d825622346fa0ded4679ce93608c496b512fb3050429d5353"
+    }
+  },
+  {
     "id": "delete-uskeletalmesh",
     "offset": 677552,
     "size": 33,
@@ -4600,6 +4623,29 @@
     "match": {
       "bytes_sha256": "a8874f5ea6bd7462817b40c82c7afe7e3b75879372b177331848aa3f1f3b6904",
       "inputs_sha256": "75adf1543cee497091f0989a2f56bfa8d71c4988f5588d54867231af08b7881d"
+    }
+  },
+  {
+    "id": "set-methods-twin-ab170",
+    "size": 7,
+    "offset": 700784,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 281049232,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Versus function RVA 0xab170. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "248bff3330653028f53bce08b1d457da403d4c2a4d90117ec3c9ee710302d2d7",
+      "inputs_sha256": "3e13a829fa76bb4ddf1e01431fd3b283eead8059b8f36356b6d12bc41a77e181"
     }
   },
   {

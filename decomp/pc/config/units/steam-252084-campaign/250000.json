@@ -92,6 +92,33 @@
     }
   },
   {
+    "id": "sound-construct-twin-251600",
+    "size": 18,
+    "offset": 2430464,
+    "inputs": [
+      "src/sound_name_crc.c",
+      "src/sound_name_tree.h"
+    ],
+    "rebuilt_symbol": "@sound_construct_crc@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/sound_name_crc.obj src/sound_name_crc.c",
+    "link_bindings": {
+      "_sound_crc_methods": {
+        "va": 286142636,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin sound-construct-crc."
+      },
+      "@sound_init_crc_table@4": {
+        "va": 280302224,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin sound-construct-crc."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x251600. Its masked instruction shape equals matched unit sound-construct-crc, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "baa6609578bb7354ba062c078d57ec5d7785631aec181eafe8f16605e0a84c53",
+      "inputs_sha256": "7f7431efd65a5299f3ed7103a1a17e9793d43cf2072c6399930ee2b05b809fb5"
+    }
+  },
+  {
     "id": "register-names-251620",
     "size": 95,
     "offset": 2430496,

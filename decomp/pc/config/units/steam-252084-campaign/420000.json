@@ -955,6 +955,52 @@
     }
   },
   {
+    "id": "tree-next-380710-prefix-twin-423060",
+    "size": 12,
+    "offset": 4337760,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 282204576,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x423060. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "8aecd5b379cbc635d53e147c565ef97ce5369c4de4e25996aebe329de4a38978",
+      "inputs_sha256": "50c3eb861d375ce41db7794ae2818e63c19bc42db0c48a82df08079c276f7660"
+    }
+  },
+  {
+    "id": "tree-next-380710-prefix-twin-423070",
+    "size": 12,
+    "offset": 4337776,
+    "inputs": [
+      "src/campaign_tree_prefix.c",
+      "src/tree_iteration.h"
+    ],
+    "rebuilt_symbol": "@tree_next_380710_prefix_383710@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_tree_prefix.obj src/campaign_tree_prefix.c",
+    "link_bindings": {
+      "@tree_next_380710@4": {
+        "va": 282204576,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin tree-next-380710-prefix-383710."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x423070. Its masked instruction shape equals matched unit tree-next-380710-prefix-383710, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "08607850c00e863a407f60e868b121792290d239fbfdc6c7cc8212fea9ce2b60",
+      "inputs_sha256": "4c1e240f4759e2ac5c9daae8277f0ac53585019474de64ca4b54350fb40ac75b"
+    }
+  },
+  {
     "id": "delete-members-423380",
     "size": 30,
     "offset": 4338560,

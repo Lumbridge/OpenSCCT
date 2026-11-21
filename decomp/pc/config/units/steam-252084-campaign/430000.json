@@ -3894,6 +3894,29 @@
     }
   },
   {
+    "id": "set-methods-twin-4395d0",
+    "size": 7,
+    "offset": 4429264,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 286501256,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x4395d0. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "4b546e6df9b9aad0557ae52740c139211e1c4f3ca05207a4d4126a5e2e1ac494",
+      "inputs_sha256": "713d419def1825a96ae1f0399cfd47356429e365df182b3788e2f948bf3aa64f"
+    }
+  },
+  {
     "id": "simple-table-destroy-439640",
     "size": 31,
     "offset": 4429376,
@@ -3917,6 +3940,29 @@
     "match": {
       "bytes_sha256": "036cccf852b8aa6a313330c603c4262caf69da67a3ed05200d3e7c351bd01d5d",
       "inputs_sha256": "099ca6c33a82ae370b11389dc08b63bce8624cc62480f9336849c22d2ad3dd34"
+    }
+  },
+  {
+    "id": "set-methods-twin-439670",
+    "size": 7,
+    "offset": 4429424,
+    "inputs": [
+      "src/campaign_method_table_setters.c",
+      "src/set_object_methods.h"
+    ],
+    "rebuilt_symbol": "@set_methods_5ef4a0@4",
+    "toolchain": "Microsoft C/C++ 13.10.3052 for x86",
+    "build_command": "cl /nologo /O2 /Gy /c /Folocal/campaign_method_table_setters.obj src/campaign_method_table_setters.c",
+    "link_bindings": {
+      "_methods_854604": {
+        "va": 286501276,
+        "basis": "Retail operand of the complete function at this address; the same committed source rebuilds its twin set-methods-5ef4a0."
+      }
+    },
+    "identification": "Complete indexed Campaign function RVA 0x439670. Its masked instruction shape equals matched unit set-methods-5ef4a0, and the same committed C rebuilds every byte with the retail operands bound here.",
+    "match": {
+      "bytes_sha256": "948ccadb4ab1570a0d957d0f756b3985729748723a92e4d6393afbfabb2817e5",
+      "inputs_sha256": "70bb78eb0aa945069beb6794ee01151de4ef3bc1b773c60e5657aa8c0e98531b"
     }
   },
   {
